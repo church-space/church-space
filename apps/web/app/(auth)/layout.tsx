@@ -1,4 +1,5 @@
-import { getUser } from "@trivo/supabase/cached-queries/platform";
+import { getUserQuery } from "@trivo/supabase/get-user";
+import { createClient } from "@trivo/supabase/server";
 import { redirect } from "next/navigation";
 
 interface ProtectedLayoutProps {
@@ -8,7 +9,8 @@ interface ProtectedLayoutProps {
 export default async function ProtectedLayout({
   children,
 }: ProtectedLayoutProps) {
-  const user = await getUser();
+  const supabase = createClient();
+  const user = await getUserQuery(supabase);
 
   if (user) {
     return redirect("/home");

@@ -17,7 +17,7 @@ import {
 } from "@trivo/ui/form";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@trivo/ui/input-otp";
 import { toast } from "@trivo/ui/use-toast";
-import { verifyOtp } from "@trivo/supabase/auth";
+import { verifyOtp } from "@/app/(auth)/actions";
 
 const FormSchema = z.object({
   pin: z.string().length(6, {

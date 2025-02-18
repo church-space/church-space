@@ -13,10 +13,10 @@ import {
 } from "@trivo/ui/form";
 import { Input } from "@trivo/ui/input";
 import { useToast } from "@trivo/ui/use-toast";
-import { signInWithOtp } from "@trivo/supabase/auth";
+import { motion, AnimatePresence } from "framer-motion";
+import { signInWithOtp } from "@/app/(auth)/actions";
 import { sanitizeInput } from "@/lib/sanitize-inputs";
 import { Mail } from "lucide-react";
-import { animate } from "motion";
 
 const FormSchema = z.object({
   email: z.string().email({
@@ -39,8 +39,6 @@ export function EmailForm({ onSubmit, showLastUsed = false }: EmailFormProps) {
     },
   });
   const { toast } = useToast();
-
-  const emailFormRef = React.useRef<HTMLDivElement>(null);
 
   async function onSubmitForm(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -79,56 +77,44 @@ export function EmailForm({ onSubmit, showLastUsed = false }: EmailFormProps) {
     }
   };
 
-  React.useEffect(() => {
-    if (showEmailForm && emailFormRef.current) {
-      animate(
-        emailFormRef.current,
-        { height: "auto", opacity: 1 },
-        { duration: 0.1 }
-      );
-    }
-
-    return () => {
-      if (emailFormRef.current) {
-        animate(
-          emailFormRef.current,
-          { height: 0, opacity: 0 },
-          { duration: 0.1 }
-        );
-      }
-    };
-  }, [showEmailForm]);
-
   return (
     <div className="relative flex flex-col gap-2">
-      {showEmailForm && (
-        <div ref={emailFormRef} className="mt-3">
-          <form onKeyDown={handleKeyPress}>
-            <Form {...form}>
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your email address..."
-                        {...field}
-                        type="email"
-                        inputMode="email"
-                        autoComplete="email"
-                        autoCapitalize="off"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </Form>
-          </form>
-        </div>
-      )}
-      <button
+      <AnimatePresence>
+        {showEmailForm && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.1 }}
+            className="mt-3"
+          >
+            <form onKeyDown={handleKeyPress}>
+              <Form {...form}>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your email address..."
+                          {...field}
+                          type="email"
+                          inputMode="email"
+                          autoComplete="email"
+                          autoCapitalize="off"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Form>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <motion.button
         type="button"
         className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-md border bg-secondary px-2.5 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80"
         onClick={handleButtonClick}
@@ -144,11 +130,15 @@ export function EmailForm({ onSubmit, showLastUsed = false }: EmailFormProps) {
             Email
           </>
         )}
-      </button>
+      </motion.button>
       {showLastUsed && !showEmailForm && (
-        <div className="absolute right-2 top-2.5 rounded-full bg-foreground p-1 px-2.5 text-xs font-medium text-background">
+        <motion.div
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute right-2 top-2.5 rounded-full bg-foreground p-1 px-2.5 text-xs font-medium text-background"
+        >
           Last used
-        </div>
+        </motion.div>
       )}
     </div>
   );

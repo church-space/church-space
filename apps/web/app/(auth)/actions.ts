@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "../clients/server";
+import { createClient } from "@trivo/supabase/server";
 
 export async function signInWithOtp(email: string, redirectTo?: string | null) {
   const supabase = createClient();

@@ -7,7 +7,6 @@ const config = {
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
-    "../../packages/ui/src/**/*.{ts,tsx}",
   ],
   prefix: "",
   theme: {
@@ -26,11 +25,6 @@ const config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        people: {
-          blue: "hsl(var(--people-blue))",
-          accent: "hsl(var(--people-accent))",
-          "accent-foreground": "hsl(var(--people-accent-foreground))",
-        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

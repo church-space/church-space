@@ -13,8 +13,8 @@
         "@supabase/ssr": "^0.5.2",
         "@trivo/types": "workspace:*",
         "@trivo/typescript-config": "workspace:*",
-        "next": "14.2.18",
-        "react": "18.2.0",
+        "next": "15.1.7",
+        "react": "^19.0.0",
         "server-only": "^0.0.1",
         "supabase": "^2.1.1"
     },
@@ -23,9 +23,12 @@
         "typescript": "^5.6.3"
     },
     "exports": {
-        "./server": "./src/client/server.ts",
-        "./client": "./src/client/client.ts",
-        "./auth": "./src/auth/index.ts",
-        "./cached-queries/platform": "./src/queries/cached/platform.ts"
+        "./server": "./src/clients/server.ts",
+        "./client": "./src/clients/client.ts",
+        "./cached-queries/platform": "./src/queries/cached/platform.ts",
+        "./middleware": "./src/clients/middleware.ts",
+        "./get-user": "./src/queries/all/get-user.ts",
+        "./get-user-with-details": "./src/queries/all/get-user-with-details.ts",
+        "./mutations/platform": "./src/mutations/platform.ts"
     }
 }

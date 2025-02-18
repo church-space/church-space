@@ -7,7 +7,7 @@ import { getUserQuery } from "../all/get-user";
 export const getUser = async () => {
   const supabase = createClient();
 
-  return unstable_cache(
+  const response = await unstable_cache(
     async () => {
       const response = await getUserQuery(supabase);
       if (!response.data.user) return null;
@@ -15,8 +15,19 @@ export const getUser = async () => {
     },
     ["user"],
     {
-      tags: [`user`],
-      revalidate: 1800,
+      revalidate: 3600,
+    }
+  )();
+
+  if (!response?.data.user) return null;
+
+  return unstable_cache(
+    async () => {
+      return response;
+    },
+    [`user_${response.data.user.id}`],
+    {
+      tags: [`user_${response.data.user.id}`],
     }
   )();
 };

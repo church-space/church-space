@@ -1,20 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import React, {
-  useState,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useEffect,
-} from "react";
+import React, { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@trivo/ui/card";
 import { EmailForm } from "@/components/auth/email-form";
 import { Button } from "@trivo/ui/button";
 import { InputOTPForm } from "@/components/auth/otp-form";
-import { signInWithGoogle, signInWithOtp } from "@trivo/supabase/auth";
+import { AnimatePresence, motion } from "framer-motion";
+import { signInWithGoogle, signInWithOtp } from "@/app/(auth)/actions";
 import { useToast } from "@trivo/ui/use-toast";
-
+import { ArrowRight } from "@trivo/ui/icons";
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
   const [showOTPForm, setShowOTPForm] = useState(false);
@@ -22,16 +17,9 @@ export default function Page() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendCount, setResendCount] = useState(0);
   const toast = useToast();
-  const [lastUsedMethod, setLastUsedMethod] = useState<string | null>(null);
-
-  useLayoutEffect(() => {
-    const lastMethod = localStorage.getItem("lastAuthMethod");
-    setLastUsedMethod(lastMethod);
-  }, []);
 
   const updateLastUsedMethod = (method: string) => {
     localStorage.setItem("lastAuthMethod", method);
-    setLastUsedMethod(method);
   };
 
   const handleEmailSubmit = (submittedEmail: string) => {
@@ -59,6 +47,7 @@ export default function Page() {
       }, 1000);
     } catch (error) {
       console.error("Failed to resend code:", error);
+      // You might want to show an error toast here
     }
   }, [email, resendCooldown]);
 
@@ -68,6 +57,7 @@ export default function Page() {
       const result = await signInWithGoogle();
       console.log("Sign-In result:", result);
       if (result?.url) {
+        updateLastUsedMethod("google");
         window.location.href = result.url;
       } else {
         console.error("No URL returned from signInWithGoogle");
@@ -76,7 +66,6 @@ export default function Page() {
           variant: "destructive",
         });
       }
-      updateLastUsedMethod("google");
     } catch (error) {
       console.error("Failed to sign in with Google:", error);
       toast.toast({
@@ -85,14 +74,6 @@ export default function Page() {
       });
     }
   };
-
-  useLayoutEffect(() => {
-    // No animation controls to initialize
-  }, []);
-
-  useEffect(() => {
-    // No animation logic to execute
-  }, [isEmailSubmitted, showOTPForm]);
 
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
@@ -111,7 +92,7 @@ export default function Page() {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="mr-2 h-4 w-4"
+            className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1"
           >
             <polyline points="15 18 9 12 15 6" />
           </svg>{" "}
@@ -132,7 +113,7 @@ export default function Page() {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="mr-2 h-4 w-4"
+            className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1"
           >
             <polyline points="15 18 9 12 15 6" />
           </svg>{" "}
@@ -140,67 +121,102 @@ export default function Page() {
         </Link>
       )}
 
-      {isEmailSubmitted ? (
-        <div key="email-submitted">
-          <Card className="space-y-6 px-0">
-            <CardHeader className="items-center space-y-8">
-              <div className="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-              <CardTitle>Check your email</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-10">
-              <div className="w-full text-center font-light">
-                We've sent you a login email. Please check your email at{" "}
-                <span className="font-medium">{email}</span>{" "}
-              </div>
-              {!showOTPForm && (
-                <div
-                  className="flex w-full cursor-pointer justify-center gap-1 text-center text-sm font-light text-muted-foreground hover:text-foreground"
-                  onClick={() => setShowOTPForm(true)}
-                >
-                  Enter code manually
-                </div>
-              )}
-              {showOTPForm && (
-                <div key="otp-form">
-                  <InputOTPForm
-                    email={email}
-                    redirectUrl={"/select-organization"}
-                  />
-                </div>
-              )}
-              <div className="flex w-full flex-col items-center justify-center gap-1">
-                <div
-                  className={`flex w-full justify-center gap-1 text-center text-sm font-light ${
-                    resendCooldown > 0
-                      ? "text-muted-foreground"
-                      : "cursor-pointer text-muted-foreground hover:underline"
-                  }`}
-                  onClick={handleResendCode}
-                >
-                  {resendCooldown > 0
-                    ? `Resend email in ${resendCooldown}s`
-                    : "Resend email"}
-                </div>
-                {resendCount > 0 && (
-                  <div className="w-2/3 text-center text-sm text-muted-foreground">
-                    If you don't see the email, please check your spam folder.
+      <AnimatePresence mode="wait">
+        {isEmailSubmitted ? (
+          <div>
+            <motion.div
+              key="email-submitted"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="space-y-6 px-0">
+                <CardHeader className="items-center space-y-8">
+                  <div className="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                  <CardTitle>Check your email</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-10">
+                  <div className="w-full text-center font-light">
+                    We've sent you a verification email. Please check your email
+                    at <span className="font-medium">{email}</span>{" "}
                   </div>
-                )}
+                  {!showOTPForm && (
+                    <div
+                      className="flex w-full cursor-pointer justify-center gap-1 text-center text-sm font-light text-muted-foreground transition-colors hover:text-foreground"
+                      onClick={() => setShowOTPForm(true)}
+                    >
+                      Enter code manually
+                    </div>
+                  )}
+                  <AnimatePresence>
+                    {showOTPForm && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <InputOTPForm email={email} redirectUrl={"/home"} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <div className="flex w-full flex-col items-center justify-center gap-1">
+                    <div
+                      className={`flex w-full justify-center gap-1 text-center text-sm font-light ${
+                        resendCooldown > 0
+                          ? "text-muted-foreground"
+                          : "cursor-pointer text-muted-foreground hover:underline"
+                      }`}
+                      onClick={handleResendCode}
+                    >
+                      {resendCooldown > 0
+                        ? `Resend email in ${resendCooldown}s`
+                        : "Resend email"}
+                    </div>
+                    {resendCount > 0 && (
+                      <div className="w-2/3 text-center text-sm text-muted-foreground">
+                        If you don't see the email, please check your spam
+                        folder.
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <div className="mt-5 flex justify-center">
+              <div className="w-3/4 text-center text-sm font-light text-muted-foreground">
+                By signing up, you agree to our{" "}
+                <Link className="text-foreground hover:underline" href="/terms">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                  className="text-foreground hover:underline"
+                  href="/privacy"
+                >
+                  Privacy Policy
+                </Link>
+                .
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      ) : (
-        <>
-          <div key="create-account">
-            <Card className="space-y-4 px-0">
-              <CardHeader className="items-center space-y-8">
-                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-                <CardTitle>Log in to Trivo</CardTitle>
-              </CardHeader>
-              <CardContent className="relative space-y-4">
-                <div className="flex flex-col gap-2">
-                  <div className="relative">
+            </div>
+          </div>
+        ) : (
+          <div>
+            <motion.div
+              key="create-account"
+              initial={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="space-y-6 px-0">
+                <CardHeader className="items-center space-y-8">
+                  <div className="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                  <CardTitle>Create your account</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col gap-2">
                     <Button
                       className="flex h-11 w-full items-center justify-center gap-2 rounded-md border px-2.5 text-sm font-semibold"
                       onClick={handleGoogleSignIn}
@@ -228,35 +244,52 @@ export default function Page() {
                           d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
                         />
                       </svg>
-                      Google
+                      Sign up with Google
                     </Button>
-                    {lastUsedMethod === "google" && (
-                      <div className="absolute right-2 top-2.5 rounded-full bg-muted p-1 px-2.5 text-xs font-medium">
-                        Last used
-                      </div>
-                    )}
                   </div>
-                  <div className="relative">
-                    <EmailForm
-                      onSubmit={handleEmailSubmit}
-                      showLastUsed={lastUsedMethod === "email"}
-                    />
+                  <div className="flex w-full items-center justify-between gap-2 text-sm text-muted-foreground">
+                    <div className="h-px w-full bg-muted-foreground"></div>
+                    Or
+                    <div className="h-px w-full bg-muted-foreground"></div>
                   </div>
-                </div>
-                <div className="flex w-full justify-center gap-1 text-center text-sm font-light text-muted-foreground">
-                  Need an account?{" "}
-                  <Link
-                    className="flex items-center gap-1 text-foreground hover:underline"
-                    href="/signup"
-                  >
-                    Sign up {"->"}
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+                  <EmailForm onSubmit={handleEmailSubmit} />
+                  <div className="flex w-full justify-center gap-1 text-center text-sm font-light text-muted-foreground">
+                    Already have an account?{" "}
+                    <Link
+                      className="flex items-center gap-1 text-foreground hover:underline group"
+                      href="/login"
+                    >
+                      Login{" "}
+                      <span className="group-hover:translate-x-1 transition-transform">
+                        <ArrowRight />
+                      </span>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <div className="mt-5 flex justify-center">
+              <div className="w-3/4 text-center text-sm font-light text-muted-foreground">
+                By signing up, you agree to our{" "}
+                <Link
+                  className="text-foreground hover:underline"
+                  href="/policies/terms"
+                >
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                  className="text-foreground hover:underline"
+                  href="/policies/privacy"
+                >
+                  Privacy Policy
+                </Link>
+                .
+              </div>
+            </div>
           </div>
-        </>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }
