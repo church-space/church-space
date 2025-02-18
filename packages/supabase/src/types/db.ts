@@ -72,20 +72,41 @@ export type Database = {
       organizations: {
         Row: {
           created_at: string
+          created_by: string | null
           id: string
           name: string
+          pco_connection: number | null
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           id?: string
           name: string
+          pco_connection?: number | null
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           id?: string
           name?: string
+          pco_connection?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "created_by_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organizations_pco_connection_fkey"
+            columns: ["pco_connection"]
+            isOneToOne: true
+            referencedRelation: "pco_connections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pco_connections: {
         Row: {

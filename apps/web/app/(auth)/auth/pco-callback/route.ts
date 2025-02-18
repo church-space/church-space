@@ -85,31 +85,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data: pcoConnection, error: upsertError } = await supabase
-      .from("pco_connections")
-      .insert({
-        connected_by: user.id,
-        pco_user_id: pcoUserData.data.id,
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
-        expires_in: Math.floor(Date.now() / 1000) + tokenData.expires_in,
-        scope: tokenData.scope,
-      })
-      .select("id");
-
-    if (upsertError) {
-      console.error("Supabase error:", upsertError);
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_connection_db_error`
-      );
-    }
-
     const { data: organization, error: upsertOrganizationError } =
       await supabase
         .from("organizations")
         .insert({
           name: pcoOrganizationData.data.attributes.name,
-          pco_connection: pcoConnection[0].id,
+          created_by: user.id,
         })
         .select("id");
 
@@ -131,6 +112,39 @@ export async function GET(request: NextRequest) {
       console.error("Supabase error:", updateUserError);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}?error=user_db_error`
+      );
+    }
+
+    const { data: pcoConnection, error: upsertError } = await supabase
+      .from("pco_connections")
+      .insert({
+        connected_by: user.id,
+        pco_user_id: pcoUserData.data.id,
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        expires_in: Math.floor(Date.now() / 1000) + tokenData.expires_in,
+        scope: tokenData.scope,
+      })
+      .select("id");
+
+    if (upsertError) {
+      console.error("Supabase error:", upsertError);
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_connection_db_error`
+      );
+    }
+
+    const { error: updateOrganizationError } = await supabase
+      .from("organizations")
+      .update({
+        pco_connection: pcoConnection[0].id,
+      })
+      .eq("id", organization[0].id);
+
+    if (updateOrganizationError) {
+      console.error("Supabase error:", updateOrganizationError);
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=organization_db_error`
       );
     }
 
