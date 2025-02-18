@@ -87,6 +87,47 @@ export type Database = {
         }
         Relationships: []
       }
+      pco_connections: {
+        Row: {
+          access_token: string
+          connected_by: string
+          created_at: string
+          expires_in: string
+          id: number
+          pco_user_id: string
+          refresh_token: string
+          scope: string
+        }
+        Insert: {
+          access_token: string
+          connected_by: string
+          created_at?: string
+          expires_in: string
+          id?: number
+          pco_user_id: string
+          refresh_token: string
+          scope: string
+        }
+        Update: {
+          access_token?: string
+          connected_by?: string
+          created_at?: string
+          expires_in?: string
+          id?: number
+          pco_user_id?: string
+          refresh_token?: string
+          scope?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pco_connections_connected_by_fkey"
+            columns: ["connected_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       people: {
         Row: {
           created_at: string

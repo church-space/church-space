@@ -10,11 +10,11 @@ export default async function ProtectedLayout({
   children,
 }: ProtectedLayoutProps) {
   const supabase = createClient();
-  const user = await getUserQuery(supabase);
+  // const user = await getUserQuery(supabase);
 
-  if (user) {
-    return redirect("/home");
-  }
+  // if (user?.data) {
+  //   return redirect("/home");
+  // }
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-card/100 to-background/60">

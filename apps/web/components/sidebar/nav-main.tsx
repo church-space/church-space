@@ -26,7 +26,7 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem
-            className={cn(item.isActive && "bg-blue-500")}
+            className={cn(item.isActive && "bg-sidebar-accent")}
             key={item.title}
           >
             <SidebarMenuButton asChild tooltip={item.title}>
