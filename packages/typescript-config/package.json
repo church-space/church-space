@@ -1,9 +1,15 @@
 {
-  "name": "@repo/typescript-config",
-  "version": "0.0.0",
+  "name": "@trivo/typescript-config",
   "private": true,
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
+  "version": "1.0.0",
+  "files": [
+      "base.json",
+      "nextjs.json",
+      "react-library.json"
+  ],
+  "exports": {
+      "./base.json": "./base.json",
+      "./nextjs.json": "./nextjs.json",
+      "./react-library.json": "./react-library.json"
   }
 }
