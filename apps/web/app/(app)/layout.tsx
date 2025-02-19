@@ -3,6 +3,7 @@ import { getUserWithDetailsQuery } from "@trivo/supabase/get-user-with-details";
 import { createClient } from "@trivo/supabase/server";
 import { SidebarInset, SidebarProvider } from "@trivo/ui/sidebar";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import InitUser from "@/stores/init-user";
 
 interface ProtectedLayoutProps {
@@ -28,6 +29,32 @@ export default async function ProtectedLayout({
 
   if (user.pcoConnection === null) {
     return redirect("/settings#pco-connection");
+  }
+
+  if (user.pcoConnection) {
+    const lastRefreshed = new Date(user.pcoConnection.last_refreshed);
+    const now = new Date();
+    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+    const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+
+    console.log("Last refreshed:", lastRefreshed);
+    console.log("Now:", now);
+    console.log("Two hours ago:", twoHoursAgo);
+    console.log("Ninety days ago:", ninetyDaysAgo);
+
+    if (lastRefreshed < twoHoursAgo && lastRefreshed > ninetyDaysAgo) {
+      // Token needs refresh but isn't expired
+      const headersList = await headers();
+      const currentPath = headersList.get("x-pathname") || "/home";
+      return redirect(
+        `/pco-refresh?return_to=${encodeURIComponent(currentPath)}`
+      );
+    }
+
+    if (lastRefreshed < ninetyDaysAgo) {
+      // Token is too old, need to reconnect
+      return redirect("/pco-reconnect");
+    }
   }
 
   return (
