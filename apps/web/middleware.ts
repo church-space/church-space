@@ -2,19 +2,20 @@ import { updateSession } from "@trivo/supabase/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  // Clone the request headers
   const requestHeaders = new Headers(request.headers);
 
   // Add the current pathname to the headers
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
-  // Return response with updated headers
-  return NextResponse.next({
+  // First update the headers
+  const response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
   });
 
-  // update user's auth session
+  // Then update the session
   return await updateSession(request);
 }
 
