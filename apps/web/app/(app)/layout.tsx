@@ -31,21 +31,24 @@ export default async function ProtectedLayout({
     return redirect("/settings#pco-connection");
   }
 
+  const headersList = await headers();
+  const currentPath = headersList.get("x-pathname");
+
+  console.log("Current path:", currentPath);
+
   if (user.pcoConnection) {
     const lastRefreshed = new Date(user.pcoConnection.last_refreshed);
     const now = new Date();
     const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    console.log("Last refreshed:", lastRefreshed);
-    console.log("Now:", now);
-    console.log("Two hours ago:", twoHoursAgo);
-    console.log("Ninety days ago:", ninetyDaysAgo);
-
     if (lastRefreshed < twoHoursAgo && lastRefreshed > ninetyDaysAgo) {
       // Token needs refresh but isn't expired
       const headersList = await headers();
       const currentPath = headersList.get("x-pathname") || "/home";
+
+      console.log("Redirecting to:", currentPath);
+
       return redirect(
         `/pco-refresh?return_to=${encodeURIComponent(currentPath)}`
       );
