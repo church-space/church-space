@@ -115,7 +115,6 @@ export async function GET(request: NextRequest) {
         first_name: pcoUserData.data.attributes.first_name,
         last_name: pcoUserData.data.attributes.last_name,
         avatar_url: pcoUserData.data.attributes.avatar,
-        onboarded: true,
       })
       .eq("id", user.id);
 
@@ -144,6 +143,124 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_connection_db_error`
       );
+    }
+
+    const createPcoListCategory = await fetch(
+      `https://api.planningcenteronline.com/people/v2/list_categories`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${tokenData.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: {
+            type: "ListCategory",
+            attributes: {
+              name: "Trivo (DO NOT DELETE)",
+            },
+          },
+        }),
+      }
+    );
+
+    // Check if the category was created successfully
+    if (!createPcoListCategory.ok) {
+      console.error("Failed to create PCO list category");
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_category_error`
+      );
+    }
+
+    const pcoListCategoryData = await createPcoListCategory.json();
+
+    const { data: pcoList, error: pcoListError } = await supabase
+      .from("pco_list_categories")
+      .insert({
+        category_id: pcoListCategoryData.data.id,
+        organization_id: organization[0].id,
+        pco_organization_id: pcoOrganizationData.data.id,
+      })
+      .select("id");
+
+    if (pcoListError) {
+      console.error("Supabase error:", pcoListError);
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_list_db_error`
+      );
+    }
+
+    // First create webhook entries in Supabase
+    const webhookEvents = [
+      "people.v2.events.list.created",
+      "people.v2.events.list.destroyed",
+      "people.v2.events.list.updated",
+      "people.v2.events.list_result.created",
+      "people.v2.events.list_result.destroyed",
+      "people.v2.events.email.created",
+      "people.v2.events.email.destroyed",
+      "people.v2.events.email.updated",
+    ];
+
+    for (const event of webhookEvents) {
+      // First create the webhook in PCO
+      const createWebhookResponse = await fetch(
+        "https://api.planningcenteronline.com/webhooks/v2/subscriptions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${tokenData.access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: {
+              type: "Subscription",
+              attributes: {
+                name: event,
+                url: `https://trivo.app/api/webhooks/pco/${organization[0].id}`,
+                active: true,
+              },
+            },
+          }),
+        }
+      );
+
+      if (!createWebhookResponse.ok) {
+        console.error(`Failed to create PCO webhook for ${event}`);
+        continue;
+      }
+
+      const webhookData = await createWebhookResponse.json();
+
+      // Then create the webhook record in our database
+      const { data: webhookRow, error: webhookError } = await supabase
+        .from("pco_webhooks")
+        .insert({
+          organization_id: organization[0].id,
+          name: event,
+          webhook_id: webhookData.data.id,
+          authenticity_secret: webhookData.data.attributes.authenticity_secret,
+        })
+        .select("id")
+        .single();
+
+      if (webhookError) {
+        console.error(
+          `Failed to create webhook record for ${event}:`,
+          webhookError
+        );
+        // If Supabase webhook creation fails, delete the PCO record
+        await fetch(
+          `https://api.planningcenteronline.com/webhooks/v2/subscriptions/${webhookData.data.id}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${tokenData.access_token}`,
+            },
+          }
+        );
+        continue;
+      }
     }
 
     return NextResponse.redirect(

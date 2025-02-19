@@ -8,7 +8,6 @@ interface UserState {
   lastName: string | null;
   avatarUrl: string | null;
   email: string | null;
-  onboarded: boolean;
   organizationId: string | null;
 }
 
@@ -19,7 +18,6 @@ export const useUser = create<UserState>()((set) => ({
   lastName: null,
   avatarUrl: null,
   email: null,
-  onboarded: false,
   organizationId: null,
 }));
 

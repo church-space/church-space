@@ -149,6 +149,73 @@ export type Database = {
           },
         ]
       }
+      pco_list_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: number
+          organization_id: string
+          pco_organization_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: number
+          organization_id: string
+          pco_organization_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: number
+          organization_id?: string
+          pco_organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pco_list_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pco_webhooks: {
+        Row: {
+          authenticity_secret: string | null
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          authenticity_secret?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          authenticity_secret?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pco_webhooks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       people_emails: {
         Row: {
           created_at: string
@@ -208,7 +275,6 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
-          onboarded: boolean
           organization_id: string | null
         }
         Insert: {
@@ -218,7 +284,6 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
-          onboarded?: boolean
           organization_id?: string | null
         }
         Update: {
@@ -228,7 +293,6 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
-          onboarded?: boolean
           organization_id?: string | null
         }
         Relationships: [

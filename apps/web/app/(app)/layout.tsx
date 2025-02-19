@@ -1,4 +1,5 @@
 import InitUser from "@/stores/init-user";
+import InitPco from "@/stores/init-pco";
 import { getUserWithDetailsQuery } from "@trivo/supabase/get-user-with-details";
 import { createClient } from "@trivo/supabase/server";
 import { headers } from "next/headers";
@@ -18,10 +19,7 @@ export default async function ProtectedLayout({
     return redirect("/login");
   }
 
-  if (
-    user.userDetails[0].onboarded === false ||
-    user.userDetails[0].organization_id === null
-  ) {
+  if (user.userDetails[0].organization_id === null) {
     return redirect("/onboarding");
   }
 
@@ -62,6 +60,12 @@ export default async function ProtectedLayout({
     <>
       {children}
       <InitUser user={user.user} userData={user.userDetails[0]} />
+      <InitPco
+        pcoData={{
+          id: user.pcoConnection?.id.toString() || null,
+          access_token: user.pcoConnection?.access_token || null,
+        }}
+      />
     </>
   );
 }

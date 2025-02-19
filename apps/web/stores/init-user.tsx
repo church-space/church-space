@@ -9,7 +9,6 @@ interface UserData {
   last_name: string | null;
   avatar_url: string | null;
   email: string | null;
-  onboarded: boolean;
   organization_id: string | null;
 }
 
@@ -31,7 +30,6 @@ export default function InitUser({
         lastName: userData.last_name,
         avatarUrl: userData.avatar_url,
         email: userData.email,
-        onboarded: userData.onboarded,
         organizationId: userData.organization_id,
       });
     }
