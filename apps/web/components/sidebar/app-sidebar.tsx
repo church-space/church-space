@@ -30,23 +30,28 @@ const data = {
   navMain: [
     {
       title: "Home",
-      url: "/",
+      url: "/home",
       icon: SquareTerminal,
       isActive: true,
     },
     {
       title: "Emails",
-      url: "#",
+      url: "/emails",
       icon: Bot,
     },
     {
       title: "Journeys",
-      url: "#",
+      url: "/journeys",
       icon: Settings2,
     },
     {
       title: "Lists",
-      url: "#",
+      url: "/lists",
+      icon: BookOpen,
+    },
+    {
+      title: "Contacts",
+      url: "/contacts",
       icon: BookOpen,
     },
     {

@@ -1,10 +1,8 @@
-import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import InitUser from "@/stores/init-user";
 import { getUserWithDetailsQuery } from "@trivo/supabase/get-user-with-details";
 import { createClient } from "@trivo/supabase/server";
-import { SidebarInset, SidebarProvider } from "@trivo/ui/sidebar";
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import InitUser from "@/stores/init-user";
+import { redirect } from "next/navigation";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -61,12 +59,9 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-card/100 to-background/60">
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>{children}</SidebarInset>
-        <InitUser user={user.user} userData={user.userDetails[0]} />
-      </SidebarProvider>
-    </div>
+    <>
+      {children}
+      <InitUser user={user.user} userData={user.userDetails[0]} />
+    </>
   );
 }
