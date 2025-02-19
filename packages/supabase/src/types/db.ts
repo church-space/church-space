@@ -75,21 +75,18 @@ export type Database = {
           created_by: string | null
           id: string
           name: string
-          pco_connection: number | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           id?: string
           name: string
-          pco_connection?: number | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
           id?: string
           name?: string
-          pco_connection?: number | null
         }
         Relationships: [
           {
@@ -99,13 +96,6 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "organizations_pco_connection_fkey"
-            columns: ["pco_connection"]
-            isOneToOne: true
-            referencedRelation: "pco_connections"
-            referencedColumns: ["id"]
-          },
         ]
       }
       pco_connections: {
@@ -113,8 +103,9 @@ export type Database = {
           access_token: string
           connected_by: string
           created_at: string
-          expires_in: string
           id: number
+          last_refreshed: string
+          organization_id: string
           pco_user_id: string
           refresh_token: string
           scope: string
@@ -123,8 +114,9 @@ export type Database = {
           access_token: string
           connected_by: string
           created_at?: string
-          expires_in: string
           id?: number
+          last_refreshed: string
+          organization_id: string
           pco_user_id: string
           refresh_token: string
           scope: string
@@ -133,8 +125,9 @@ export type Database = {
           access_token?: string
           connected_by?: string
           created_at?: string
-          expires_in?: string
           id?: number
+          last_refreshed?: string
+          organization_id?: string
           pco_user_id?: string
           refresh_token?: string
           scope?: string
@@ -147,37 +140,65 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pco_connections_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
-      people: {
+      people_emails: {
         Row: {
           created_at: string
+          email: string
           id: number
+          organization_id: string
+          pco_email_id: string
+          pco_person_id: string
+          status: Database["public"]["Enums"]["email_status"]
+          unsubscribe_email_id: number | null
+          unsubscribe_time: string | null
         }
         Insert: {
           created_at?: string
+          email: string
           id?: number
+          organization_id: string
+          pco_email_id: string
+          pco_person_id: string
+          status?: Database["public"]["Enums"]["email_status"]
+          unsubscribe_email_id?: number | null
+          unsubscribe_time?: string | null
         }
         Update: {
           created_at?: string
+          email?: string
           id?: number
+          organization_id?: string
+          pco_email_id?: string
+          pco_person_id?: string
+          status?: Database["public"]["Enums"]["email_status"]
+          unsubscribe_email_id?: number | null
+          unsubscribe_time?: string | null
         }
-        Relationships: []
-      }
-      unsubscribes: {
-        Row: {
-          created_at: string
-          id: number
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-        }
-        Update: {
-          created_at?: string
-          id?: number
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "people_emails_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_emails_unsubscribe_email_id_fkey"
+            columns: ["unsubscribe_email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
@@ -228,7 +249,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      email_status: "unsubscribed" | "pco_blocked" | "subscribed"
     }
     CompositeTypes: {
       [_ in never]: never

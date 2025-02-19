@@ -25,10 +25,12 @@
     "exports": {
         "./server": "./src/clients/server.ts",
         "./client": "./src/clients/client.ts",
+        "./job": "./src/clients/job.ts",
         "./cached-queries/platform": "./src/queries/cached/platform.ts",
         "./middleware": "./src/clients/middleware.ts",
         "./get-user": "./src/queries/all/get-user.ts",
         "./get-user-with-details": "./src/queries/all/get-user-with-details.ts",
-        "./mutations/platform": "./src/mutations/platform.ts"
+        "./mutations/platform": "./src/mutations/platform.ts",
+        "./functions/refreshPcoTokens": "./src/functions/refreshPcoTokens.ts"
     }
 }

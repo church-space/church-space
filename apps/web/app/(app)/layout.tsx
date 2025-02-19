@@ -12,22 +12,22 @@ interface ProtectedLayoutProps {
 export default async function ProtectedLayout({
   children,
 }: ProtectedLayoutProps) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = await getUserWithDetailsQuery(supabase);
 
   if (!user) {
     return redirect("/login");
   }
 
-  if (user.userDetails[0].onboarded === false) {
+  if (
+    user.userDetails[0].onboarded === false ||
+    user.userDetails[0].organization_id === null
+  ) {
     return redirect("/onboarding");
   }
 
-  if (
-    user.userDetails[0].onboarded === true &&
-    user.userDetails[0].organization_id === null
-  ) {
-    return redirect("/new-organization");
+  if (user.pcoConnection === null) {
+    return redirect("/settings#pco-connection");
   }
 
   return (

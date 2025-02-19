@@ -9,8 +9,10 @@ interface ProtectedLayoutProps {
 export default async function ProtectedLayout({
   children,
 }: ProtectedLayoutProps) {
-  const supabase = createClient();
+  // const supabase = await createClient();
   // const user = await getUserQuery(supabase);
+
+  // console.log("user", user);
 
   // if (user?.data) {
   //   return redirect("/home");

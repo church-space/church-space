@@ -20,5 +20,20 @@ export async function getUserWithDetailsQuery(supabase: Client) {
     throw userDetailsError;
   }
 
-  return { user: data.user, userDetails };
+  if (!userDetails?.[0]?.organization_id) {
+    return { user: data.user, userDetails };
+  }
+
+  // Fetch the PCO connection for the user's organization.
+  const { data: pcoConnection, error: pcoConnectionError } = await supabase
+    .from("pco_connections")
+    .select("*")
+    .eq("organization_id", userDetails?.[0]?.organization_id)
+    .single();
+
+  if (pcoConnectionError) {
+    throw pcoConnectionError;
+  }
+
+  return { user: data.user, userDetails, pcoConnection };
 }

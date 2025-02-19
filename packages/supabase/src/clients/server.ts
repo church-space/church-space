@@ -3,8 +3,8 @@ import { cookies } from "next/headers";
 import type { Client } from "../types";
 import type { Database } from "../types/db";
 
-export function createClient(): Client {
-  const cookieStore = cookies();
+export async function createClient(): Promise<Client> {
+  const cookieStore = await cookies();
 
   return createServerClient<Database, "public", Database["public"]>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

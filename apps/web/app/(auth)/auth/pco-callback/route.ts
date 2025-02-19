@@ -70,10 +70,17 @@ export async function GET(request: NextRequest) {
 
     const pcoOrganizationData = await pcoOrganizationResponse.json();
 
-    console.log("pcoOrganizationData", pcoOrganizationData);
+    if (
+      pcoUserData.data.attributes.can_email_lists !== true ||
+      pcoUserData.data.attributes.people_permissions !== "Manager"
+    ) {
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/permissions-error`
+      );
+    }
 
     // Store the connection in Supabase
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -105,6 +112,10 @@ export async function GET(request: NextRequest) {
       .from("users")
       .update({
         organization_id: organization[0].id,
+        first_name: pcoUserData.data.attributes.first_name,
+        last_name: pcoUserData.data.attributes.last_name,
+        avatar_url: pcoUserData.data.attributes.avatar,
+        onboarded: true,
       })
       .eq("id", user.id);
 
@@ -122,8 +133,9 @@ export async function GET(request: NextRequest) {
         pco_user_id: pcoUserData.data.id,
         access_token: tokenData.access_token,
         refresh_token: tokenData.refresh_token,
-        expires_in: Math.floor(Date.now() / 1000) + tokenData.expires_in,
         scope: tokenData.scope,
+        organization_id: organization[0].id,
+        last_refreshed: new Date().toISOString(),
       })
       .select("id");
 
@@ -134,27 +146,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { error: updateOrganizationError } = await supabase
-      .from("organizations")
-      .update({
-        pco_connection: pcoConnection[0].id,
-      })
-      .eq("id", organization[0].id);
-
-    if (updateOrganizationError) {
-      console.error("Supabase error:", updateOrganizationError);
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=organization_db_error`
-      );
-    }
-
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/home?success=true`
+      `${process.env.NEXT_PUBLIC_SITE_URL}/home?pco_connection_success=true`
     );
   } catch (error) {
     console.error("PCO callback error:", error);
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_SITE_URL}?error=unknown`
+      `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?pco_connection_error=unknown`
     );
   }
 }
