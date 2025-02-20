@@ -5,7 +5,7 @@ import { createClient } from "../../clients/server";
 import { getUserQuery } from "../all/get-user";
 
 export const getUser = async () => {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const response = await unstable_cache(
     async () => {
