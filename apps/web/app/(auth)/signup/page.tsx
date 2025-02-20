@@ -176,7 +176,7 @@ export default function Page() {
                     </div>
                     {resendCount > 0 && (
                       <div className="w-2/3 text-center text-sm text-muted-foreground">
-                        If you don't see the email, please check your spam
+                        If you don&apos;t see the email, please check your spam
                         folder.
                       </div>
                     )}
