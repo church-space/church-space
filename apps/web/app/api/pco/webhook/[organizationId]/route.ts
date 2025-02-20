@@ -131,18 +131,49 @@ export async function POST(
 
       break;
     }
-    case "people.v2.events.list_result.created":
-      console.log("people.v2.events.list_result.created");
-      console.log("data", data);
-      console.log("attributes", data.data[0].attributes);
-      console.log("relationships", data.data[0].relationships);
+    case "people.v2.events.list_result.created": {
+      const listResults = data.data;
+
+      for (const listResult of listResults) {
+        const pcoPersonId = listResult.relationships.person.data.id;
+        const pcoListId = listResult.relationships.list.data.id;
+
+        const { error: insertError } = await supabase
+          .from("pco_list_members")
+          .insert({
+            organization_id: organizationId,
+            pco_person_id: pcoPersonId,
+            pco_list_id: pcoListId,
+          });
+
+        if (insertError) {
+          console.error("Error inserting list member:", insertError);
+          //  Don't return here. Keep processing.
+        }
+      }
       break;
-    case "people.v2.events.list_result.destroyed":
-      console.log("people.v2.events.list_result.destroyed");
-      console.log("data", data);
-      console.log("attributes", data.data[0].attributes);
-      console.log("relationships", data.data[0].relationships);
+    }
+    case "people.v2.events.list_result.destroyed": {
+      const listResults = data.data;
+
+      for (const listResult of listResults) {
+        const pcoPersonId = listResult.relationships.person.data.id;
+        const pcoListId = listResult.relationships.list.data.id;
+
+        const { error: deleteError } = await supabase
+          .from("pco_list_members")
+          .delete()
+          .eq("pco_person_id", pcoPersonId)
+          .eq("pco_list_id", pcoListId)
+          .eq("organization_id", organizationId);
+
+        if (deleteError) {
+          console.error("Error deleting list member:", deleteError);
+          // Don't return here. Keep processing.
+        }
+      }
       break;
+    }
     case "people.v2.events.email.created":
       {
         console.log("people.v2.events.email.created");
