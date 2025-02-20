@@ -8,7 +8,7 @@ export default async function Layout({
   searchParams,
 }: {
   children: React.ReactNode;
-  searchParams: { connectedByFirstName: string; connectedByLastName: string };
+  searchParams: { connectedByFirstName?: string; connectedByLastName?: string };
 }) {
   if (!searchParams.connectedByFirstName || !searchParams.connectedByLastName) {
     return redirect("/");
