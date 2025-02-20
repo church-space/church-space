@@ -4,9 +4,9 @@ import crypto from "crypto";
 
 export async function POST(
   request: NextRequest,
-  context: any
+  context: unknown
 ): Promise<NextResponse> {
-  // Cast the context so that we know params has organizationId.
+  // Safely cast the context so that we know params has organizationId.
   const { organizationId } = (context as { params: { organizationId: string } })
     .params;
   const data = await request.json();
