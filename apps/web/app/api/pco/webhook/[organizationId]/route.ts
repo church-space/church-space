@@ -83,8 +83,9 @@ export async function POST(
     case "people.v2.events.list.created":
     case "people.v2.events.list.updated":
     case "people.v2.events.list.destroyed": {
-      // Parse the payload to access the list data
-      const payload = JSON.parse(data.data[0].attributes.payload);
+      // Parse the payload string *first*.
+      const payloadString = data.data[0].attributes.payload;
+      const payload = JSON.parse(payloadString);
       const listData = payload.data;
       const listId = listData.id;
       const listDescription =
@@ -137,8 +138,15 @@ export async function POST(
       break;
     }
     case "people.v2.events.list_result.created": {
-      const payload = JSON.parse(data.data[0].attributes.payload);
+      // Parse the payload string *first*.
+      const payloadString = data.data[0].attributes.payload;
+      const payload = JSON.parse(payloadString);
       const listResults = payload.data;
+
+      if (!Array.isArray(listResults)) {
+        console.error("listResults is not an array", listResults);
+        break;
+      }
 
       for (const listResult of listResults) {
         const pcoPersonId = listResult.relationships.person.data.id;
@@ -160,8 +168,15 @@ export async function POST(
       break;
     }
     case "people.v2.events.list_result.destroyed": {
-      const payload = JSON.parse(data.data[0].attributes.payload);
+      // Parse the payload string *first*.
+      const payloadString = data.data[0].attributes.payload;
+      const payload = JSON.parse(payloadString);
       const listResults = payload.data;
+
+      if (!Array.isArray(listResults)) {
+        console.error("listResults is not an array", listResults);
+        break;
+      }
 
       for (const listResult of listResults) {
         const pcoPersonId = listResult.relationships.person.data.id;
@@ -184,7 +199,9 @@ export async function POST(
     case "people.v2.events.email.created":
       {
         console.log("people.v2.events.email.created");
-        const emailData = JSON.parse(data.data[0].attributes.payload).data;
+        const payloadString = data.data[0].attributes.payload;
+        const payload = JSON.parse(payloadString);
+        const emailData = payload.data;
         const email = emailData.attributes.address;
         const pcoEmailId = emailData.id;
         const pcoPersonId = emailData.relationships.person.data.id;
@@ -210,7 +227,9 @@ export async function POST(
     case "people.v2.events.email.destroyed":
       {
         console.log("people.v2.events.email.destroyed");
-        const emailData = JSON.parse(data.data[0].attributes.payload).data;
+        const payloadString = data.data[0].attributes.payload;
+        const payload = JSON.parse(payloadString);
+        const emailData = payload.data;
         const pcoEmailId = emailData.id;
         const { error } = await supabase
           .from("people_emails")
@@ -230,12 +249,21 @@ export async function POST(
     case "people.v2.events.email.updated":
       {
         console.log("people.v2.events.email.updated");
-        const emailData = JSON.parse(data.data[0].attributes.payload).data;
+        const payloadString = data.data[0].attributes.payload;
+        const payload = JSON.parse(payloadString);
+        const emailData = payload.data;
         const email = emailData.attributes.address;
         const pcoEmailId = emailData.id;
+        const pcoPersonId = emailData.relationships.person.data.id;
         const { error } = await supabase
           .from("people_emails")
-          .update({ email: email })
+          .upsert({
+            email: email,
+            organization_id: organizationId,
+            pco_email_id: pcoEmailId,
+            pco_person_id: pcoPersonId,
+            status: emailData.attributes.blocked ? "pco_blocked" : undefined,
+          })
           .eq("pco_email_id", pcoEmailId)
           .eq("organization_id", organizationId);
 
