@@ -26,10 +26,18 @@ export async function POST(
     );
   }
 
+  if (!webhookAuthenticity) {
+    console.error("No authenticity secret found in request headers");
+    return NextResponse.json(
+      { received: false, error: "No authenticity secret found" },
+      { status: 400 }
+    );
+  }
+
   const { data: webhookData, error: fetchError } = await supabase
     .from("pco_webhooks")
     .select("authenticity_secret")
-    .eq("webhook_id", webhookId)
+    .eq("authenticity_secret", webhookAuthenticity)
     .eq("organization_id", organizationId)
     .single();
 
@@ -49,11 +57,9 @@ export async function POST(
     );
   }
 
-  const secret = webhookData.authenticity_secret;
-
   // Verify the signature
   const hmac = crypto
-    .createHmac("sha256", secret)
+    .createHmac("sha256", webhookData.authenticity_secret)
     .update(JSON.stringify(data))
     .digest("hex");
 
@@ -66,7 +72,7 @@ export async function POST(
   }
 
   console.log("Webhook authenticity verified successfully!");
-  console.log(webhookName, secret);
+  console.log(webhookName, webhookData.authenticity_secret);
 
   return NextResponse.json({ received: true });
 }
