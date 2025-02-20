@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  context: { params: { organizationId: string } }
 ): Promise<NextResponse> {
   const data = await request.json();
   const supabase = await createClient();
@@ -26,7 +26,7 @@ export async function POST(
     .from("pco_webhooks")
     .select("authenticity_secret")
     .eq("webhook_id", webhookId)
-    .eq("organization_id", params.organizationId)
+    .eq("organization_id", context.params.organizationId)
     .single();
 
   if (fetchError) {
