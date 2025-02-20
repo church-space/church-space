@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 export default function Page({
   searchParams,
 }: {
-  searchParams: { connectedByFirstName: string; connectedByLastName: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
   if (!searchParams.connectedByFirstName || !searchParams.connectedByLastName) {
     return redirect("/");
