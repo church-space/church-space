@@ -8,6 +8,14 @@ export async function middleware(request: NextRequest) {
   // Add the current pathname to the headers
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
+  if (request.nextUrl.pathname.startsWith("/api/pco")) {
+    console.log("Handling PCO request in middleware");
+    return NextResponse.json(
+      { message: "Handled by middleware" },
+      { status: 200 }
+    );
+  }
+
   // First update the headers
   const response = NextResponse.next({
     request: {
