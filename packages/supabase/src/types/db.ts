@@ -210,42 +210,30 @@ export type Database = {
       pco_sync_status: {
         Row: {
           created_at: string
-          emails_synced: boolean
-          emails_synced_at: string | null
           id: number
-          list_results_synced: boolean
-          list_results_synced_at: string | null
-          lists_synced: boolean
-          lists_synced_at: string | null
           organization_id: string
+          synced_at: string | null
+          type: Database["public"]["Enums"]["pco_sync_types"] | null
         }
         Insert: {
           created_at?: string
-          emails_synced?: boolean
-          emails_synced_at?: string | null
           id?: number
-          list_results_synced?: boolean
-          list_results_synced_at?: string | null
-          lists_synced?: boolean
-          lists_synced_at?: string | null
           organization_id: string
+          synced_at?: string | null
+          type?: Database["public"]["Enums"]["pco_sync_types"] | null
         }
         Update: {
           created_at?: string
-          emails_synced?: boolean
-          emails_synced_at?: string | null
           id?: number
-          list_results_synced?: boolean
-          list_results_synced_at?: string | null
-          lists_synced?: boolean
-          lists_synced_at?: string | null
           organization_id?: string
+          synced_at?: string | null
+          type?: Database["public"]["Enums"]["pco_sync_types"] | null
         }
         Relationships: [
           {
             foreignKeyName: "pco_sync_status_organization_id_fkey"
             columns: ["organization_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -384,6 +372,7 @@ export type Database = {
     }
     Enums: {
       email_status: "unsubscribed" | "pco_blocked" | "subscribed"
+      pco_sync_types: "lists" | "emails"
     }
     CompositeTypes: {
       [_ in never]: never
