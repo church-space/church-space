@@ -83,7 +83,9 @@ export async function POST(
     case "people.v2.events.list.created":
     case "people.v2.events.list.updated":
     case "people.v2.events.list.destroyed": {
-      const listData = data.data[0];
+      // Parse the payload to access the list data
+      const payload = JSON.parse(data.data[0].attributes.payload);
+      const listData = payload.data;
       const listId = listData.id;
       const listDescription =
         listData.attributes.name || listData.attributes.name_or_description;
