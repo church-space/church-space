@@ -111,22 +111,71 @@ export async function POST(
       console.log("relationships", data.data[0].relationships);
       break;
     case "people.v2.events.email.created":
-      console.log("people.v2.events.email.created");
-      console.log("data", data);
-      console.log("attributes", data.data[0].attributes);
-      console.log("relationships", data.data[0].relationships);
+      {
+        console.log("people.v2.events.email.created");
+        const emailData = JSON.parse(data.data[0].attributes.payload).data;
+        const email = emailData.attributes.address;
+        const pcoEmailId = emailData.id;
+        const pcoPersonId = emailData.relationships.person.data.id;
+
+        const { error } = await supabase
+          .from("people_emails")
+          .insert({
+            organization_id: organizationId,
+            pco_person_id: pcoPersonId,
+            pco_email_id: pcoEmailId,
+            email: email,
+          })
+          .select("id");
+        if (error) {
+          console.error("Error inserting email:", error);
+          return NextResponse.json(
+            { received: false, error: "Failed to insert email" },
+            { status: 500 }
+          );
+        }
+      }
       break;
     case "people.v2.events.email.destroyed":
-      console.log("people.v2.events.email.destroyed");
-      console.log("data", data);
-      console.log("attributes", data.data[0].attributes);
-      console.log("relationships", data.data[0].relationships);
+      {
+        console.log("people.v2.events.email.destroyed");
+        const emailData = JSON.parse(data.data[0].attributes.payload).data;
+        const pcoEmailId = emailData.id;
+        const { error } = await supabase
+          .from("people_emails")
+          .delete()
+          .eq("pco_email_id", pcoEmailId)
+          .eq("organization_id", organizationId);
+
+        if (error) {
+          console.error("Error deleting email:", error);
+          return NextResponse.json(
+            { received: false, error: "Failed to delete email" },
+            { status: 500 }
+          );
+        }
+      }
       break;
     case "people.v2.events.email.updated":
-      console.log("people.v2.events.email.updated");
-      console.log("data", data);
-      console.log("attributes", data.data[0].attributes);
-      console.log("relationships", data.data[0].relationships);
+      {
+        console.log("people.v2.events.email.updated");
+        const emailData = JSON.parse(data.data[0].attributes.payload).data;
+        const email = emailData.attributes.address;
+        const pcoEmailId = emailData.id;
+        const { error } = await supabase
+          .from("people_emails")
+          .update({ email: email })
+          .eq("pco_email_id", pcoEmailId)
+          .eq("organization_id", organizationId);
+
+        if (error) {
+          console.error("Error updating email:", error);
+          return NextResponse.json(
+            { received: false, error: "Failed to update email" },
+            { status: 500 }
+          );
+        }
+      }
       break;
     default:
       console.log("Unknown webhook name:", webhookName);
