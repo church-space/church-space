@@ -138,8 +138,8 @@ export default function Page() {
                 </CardHeader>
                 <CardContent className="space-y-10">
                   <div className="w-full text-center font-light">
-                    We&apos;ve sent you a verification email. Please check your
-                    email at <span className="font-medium">{email}</span>{" "}
+                    We've sent you a verification email. Please check your email
+                    at <span className="font-medium">{email}</span>{" "}
                   </div>
                   {!showOTPForm && (
                     <div
