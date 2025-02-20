@@ -1,29 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@trivo/supabase/job";
 import crypto from "crypto";
 
-type Props = {
-  params: {
-    organizationId: string;
-  };
-};
+interface RouteParams {
+  organizationId: string;
+}
 
 export async function POST(
-  request: Request,
-  { params }: Props
-): Promise<NextResponse> {
-  const data = await request.json();
+  req: NextRequest,
+  { params }: { params: RouteParams }
+) {
+  const data = await req.json();
   const supabase = await createClient();
 
-  const webhookId = request.headers.get("X-PCO-Webhooks-Event-ID");
-  const webhookName = request.headers.get("X-PCO-Webhooks-Name");
-  const webhookAuthenticity = request.headers.get(
-    "X-PCO-Webhooks-Authenticity"
-  );
+  const webhookId = req.headers.get("X-PCO-Webhooks-Event-ID");
+  const webhookName = req.headers.get("X-PCO-Webhooks-Name");
+  const webhookAuthenticity = req.headers.get("X-PCO-Webhooks-Authenticity");
 
   if (!webhookId) {
     console.error("No webhook ID found in request headers");
-    return NextResponse.json(
+    return Response.json(
       { received: false, error: "No webhook ID found" },
       { status: 400 }
     );
@@ -38,7 +34,7 @@ export async function POST(
 
   if (fetchError) {
     console.error("Error fetching webhook data:", fetchError);
-    return NextResponse.json(
+    return Response.json(
       { received: false, error: "Failed to fetch secret" },
       { status: 500 }
     );
@@ -46,7 +42,7 @@ export async function POST(
 
   if (!webhookData?.authenticity_secret) {
     console.error("No authenticity secret found for webhook ID:", webhookId);
-    return NextResponse.json(
+    return Response.json(
       { received: false, error: "Authenticity secret not found" },
       { status: 404 }
     );
@@ -62,7 +58,7 @@ export async function POST(
 
   if (hmac !== webhookAuthenticity) {
     console.error("Webhook authenticity verification failed.");
-    return NextResponse.json(
+    return Response.json(
       { received: false, error: "Invalid signature" },
       { status: 401 }
     );
@@ -73,5 +69,5 @@ export async function POST(
     console.log(webhookName, webhookData.authenticity_secret);
   }
 
-  return NextResponse.json({ received: true });
+  return Response.json({ received: true });
 }
