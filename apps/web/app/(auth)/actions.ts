@@ -3,7 +3,7 @@
 import { createClient } from "@trivo/supabase/server";
 
 export async function signInWithOtp(email: string, redirectTo?: string | null) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const redirectUrl =
     `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirectTo=${redirectTo}` ||
@@ -22,7 +22,7 @@ export async function signInWithOtp(email: string, redirectTo?: string | null) {
 }
 
 export async function verifyOtp(email: string, token: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase.auth.verifyOtp({
     email,
@@ -38,7 +38,7 @@ export async function verifyOtp(email: string, token: string) {
 }
 
 export async function signInWithGoogle(redirectTo?: string | null) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const redirectUrl =
     `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirectTo=${redirectTo}` ||

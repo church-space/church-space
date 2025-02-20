@@ -1,5 +1,7 @@
 import { createClient } from "@trivo/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { tasks } from "@trigger.dev/sdk/v3";
+import type { syncPcoEmails } from "@/jobs/sync-pco-emails";
 
 export async function GET(request: NextRequest) {
   try {
@@ -125,7 +127,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data: pcoConnection, error: upsertError } = await supabase
+    const { error: upsertError } = await supabase
       .from("pco_connections")
       .insert({
         connected_by: user.id,
@@ -174,7 +176,7 @@ export async function GET(request: NextRequest) {
 
     const pcoListCategoryData = await createPcoListCategory.json();
 
-    const { data: pcoList, error: pcoListError } = await supabase
+    const { error: pcoListError } = await supabase
       .from("pco_list_categories")
       .insert({
         category_id: pcoListCategoryData.data.id,
@@ -233,7 +235,7 @@ export async function GET(request: NextRequest) {
       const webhookData = await createWebhookResponse.json();
 
       // Then create the webhook record in our database
-      const { data: webhookRow, error: webhookError } = await supabase
+      const { error: webhookError } = await supabase
         .from("pco_webhooks")
         .insert({
           organization_id: organization[0].id,
@@ -262,6 +264,11 @@ export async function GET(request: NextRequest) {
         continue;
       }
     }
+
+    // Trigger the syncPcoEmails task
+    await tasks.trigger<typeof syncPcoEmails>("sync-pco-emails", {
+      organization_id: organization[0].id,
+    });
 
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_SITE_URL}/home?pco_connection_success=true`

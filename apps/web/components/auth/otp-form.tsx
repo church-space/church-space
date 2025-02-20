@@ -47,7 +47,7 @@ export function InputOTPForm({ email, redirectUrl }: InputOTPFormProps) {
       const sanitizedPin = sanitizeInput(data.pin);
       await verifyOtp(email, sanitizedPin);
       router.push(redirectUrl);
-    } catch (error) {
+    } catch {
       toast({
         title: "Authentication failed",
         description: "Please check your OTP and try again.",

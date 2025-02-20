@@ -1,11 +1,6 @@
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function POST(
-  request: Request,
-  { params }: { params: { webhookId: string } }
-) {
-  const headersList = headers();
+export async function POST(request: Request) {
   const data = await request.json();
 
   console.log("Webhook data:", data);

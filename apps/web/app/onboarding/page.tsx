@@ -17,7 +17,7 @@ export default function Page() {
           >
             <div className="text-3xl font-bold">Link to Planning Center</div>
             <div className="text-sm text-muted-foreground">
-              Let's get your account linked to Planning Center
+              Let&apos;s get your account linked to Planning Center
             </div>
           </motion.div>
           <motion.div

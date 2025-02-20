@@ -144,7 +144,7 @@ export default function Page() {
               </CardHeader>
               <CardContent className="space-y-10">
                 <div className="w-full text-center font-light">
-                  We've sent you a login email. Please check your email at{" "}
+                  We&apos;ve sent you a login email. Please check your email at{" "}
                   <span className="font-medium">{email}</span>{" "}
                 </div>
                 {!showOTPForm && (
@@ -182,7 +182,8 @@ export default function Page() {
                   </div>
                   {resendCount > 0 && (
                     <div className="w-2/3 text-center text-sm text-muted-foreground">
-                      If you don't see the email, please check your spam folder.
+                      If you don&apos;t see the email, please check your spam
+                      folder.
                     </div>
                   )}
                 </div>

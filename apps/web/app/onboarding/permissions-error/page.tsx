@@ -1,8 +1,7 @@
 "use client";
 
-import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
 import { Button } from "@trivo/ui/button";
-import { Card, CardContent, CardHeader } from "@trivo/ui/card";
+import { Card, CardContent } from "@trivo/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 
@@ -26,9 +25,9 @@ export default function Page() {
           >
             <Card className=" px-0">
               <CardContent className=" text-center pt-[30px]">
-                You must be a "Manager" in Planning Center People to use this
-                application. Please contact your administrator to request the
-                necessary permissions.
+                You must be a &quot;Manager&quot; in Planning Center
+                &quot;People&quot; to use this application. Please contact your
+                administrator to request the necessary permissions.
               </CardContent>
             </Card>
             <div className="text-center pt-4">

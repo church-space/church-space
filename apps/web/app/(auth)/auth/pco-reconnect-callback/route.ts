@@ -59,17 +59,6 @@ export async function GET(request: NextRequest) {
 
     const pcoUserData = await pcoUserResponse.json();
 
-    const pcoOrganizationResponse = await fetch(
-      `https://api.planningcenteronline.com/people/v2/people/${pcoUserData.data.id}/organization`,
-      {
-        headers: {
-          Authorization: `Bearer ${tokenData.access_token}`,
-        },
-      }
-    );
-
-    const pcoOrganizationData = await pcoOrganizationResponse.json();
-
     if (
       pcoUserData.data.attributes.can_email_lists !== true ||
       pcoUserData.data.attributes.people_permissions !== "Manager"
@@ -112,7 +101,7 @@ export async function GET(request: NextRequest) {
       console.error("Supabase error:", deleteOldConnectionError);
     }
 
-    const { data: pcoConnection, error: upsertError } = await supabase
+    const { error: upsertError } = await supabase
       .from("pco_connections")
       .insert({
         connected_by: user.id,
