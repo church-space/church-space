@@ -155,6 +155,9 @@ export async function GET(request: NextRequest) {
       "people.v2.events.email.created",
       "people.v2.events.email.destroyed",
       "people.v2.events.email.updated",
+      "people.v2.events.person.created",
+      "people.v2.events.person.destroyed",
+      "people.v2.events.person.updated",
     ];
 
     for (const event of webhookEvents) {

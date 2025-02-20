@@ -24,35 +24,314 @@ export type Database = {
         }
         Relationships: []
       }
-      emails: {
+      email_blocks: {
         Row: {
           created_at: string
           id: number
+          parent_id: number | null
+          section_id: number
+          type: Database["public"]["Enums"]["block_types"]
+          value: Json | null
         }
         Insert: {
           created_at?: string
           id?: number
+          parent_id?: number | null
+          section_id: number
+          type: Database["public"]["Enums"]["block_types"]
+          value?: Json | null
         }
         Update: {
           created_at?: string
           id?: number
+          parent_id?: number | null
+          section_id?: number
+          type?: Database["public"]["Enums"]["block_types"]
+          value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_blocks_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "email_blocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_blocks_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "email_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: number
+          name: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          name: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          name?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_footer_details: {
+        Row: {
+          created_at: string
+          id: number
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_footer_details_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_link_clicks: {
+        Row: {
+          created_at: string
+          id: number
+          link_clicked: string
+          resend_email_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          link_clicked: string
+          resend_email_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          link_clicked?: string
+          resend_email_id?: string
         }
         Relationships: []
       }
-      list_members: {
+      email_recipients: {
         Row: {
           created_at: string
+          email_address: string | null
+          email_id: number
           id: number
+          resend_email_id: string | null
+          status: Database["public"]["Enums"]["email_delivery_status"] | null
         }
         Insert: {
           created_at?: string
+          email_address?: string | null
+          email_id: number
           id?: number
+          resend_email_id?: string | null
+          status?: Database["public"]["Enums"]["email_delivery_status"] | null
         }
         Update: {
           created_at?: string
+          email_address?: string | null
+          email_id?: number
           id?: number
+          resend_email_id?: string | null
+          status?: Database["public"]["Enums"]["email_delivery_status"] | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "email_recipients_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_sections: {
+        Row: {
+          bg_color: string | null
+          created_at: string
+          email_id: number
+          id: number
+          parent: number | null
+        }
+        Insert: {
+          bg_color?: string | null
+          created_at?: string
+          email_id: number
+          id?: number
+          parent?: number | null
+        }
+        Update: {
+          bg_color?: string | null
+          created_at?: string
+          email_id?: number
+          id?: number
+          parent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sections_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sections_parent_fkey"
+            columns: ["parent"]
+            isOneToOne: false
+            referencedRelation: "email_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emails: {
+        Row: {
+          bg_color: string | null
+          created_at: string
+          font: string | null
+          from_email: string | null
+          from_name: string | null
+          id: number
+          list_id: number | null
+          organization_id: string
+          reply_to: string | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["email_statuses"] | null
+          subject: string | null
+          text_color: string | null
+          trigger_dev_schduled_id: string | null
+          type: Database["public"]["Enums"]["email_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          bg_color?: string | null
+          created_at?: string
+          font?: string | null
+          from_email?: string | null
+          from_name?: string | null
+          id?: number
+          list_id?: number | null
+          organization_id: string
+          reply_to?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["email_statuses"] | null
+          subject?: string | null
+          text_color?: string | null
+          trigger_dev_schduled_id?: string | null
+          type?: Database["public"]["Enums"]["email_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          bg_color?: string | null
+          created_at?: string
+          font?: string | null
+          from_email?: string | null
+          from_name?: string | null
+          id?: number
+          list_id?: number | null
+          organization_id?: string
+          reply_to?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["email_statuses"] | null
+          subject?: string | null
+          text_color?: string | null
+          trigger_dev_schduled_id?: string | null
+          type?: Database["public"]["Enums"]["email_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emails_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "pco_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emails_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      list_automations: {
+        Row: {
+          condition: Database["public"]["Enums"]["automation_conditions"]
+          created_at: string
+          email_to_send: number | null
+          id: number
+          list_id: number
+        }
+        Insert: {
+          condition?: Database["public"]["Enums"]["automation_conditions"]
+          created_at?: string
+          email_to_send?: number | null
+          id?: number
+          list_id: number
+        }
+        Update: {
+          condition?: Database["public"]["Enums"]["automation_conditions"]
+          created_at?: string
+          email_to_send?: number | null
+          id?: number
+          list_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_automations_email_to_send_fkey"
+            columns: ["email_to_send"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "list_automations_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "pco_lists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organizations: {
         Row: {
@@ -274,6 +553,102 @@ export type Database = {
           },
         ]
       }
+      people: {
+        Row: {
+          created_at: string
+          first_name: string | null
+          given_name: string | null
+          id: number
+          last_name: string | null
+          middle_name: string | null
+          nickname: string | null
+          organization_id: string | null
+          pco_id: string
+        }
+        Insert: {
+          created_at?: string
+          first_name?: string | null
+          given_name?: string | null
+          id?: number
+          last_name?: string | null
+          middle_name?: string | null
+          nickname?: string | null
+          organization_id?: string | null
+          pco_id: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string | null
+          given_name?: string | null
+          id?: number
+          last_name?: string | null
+          middle_name?: string | null
+          nickname?: string | null
+          organization_id?: string | null
+          pco_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      people_email_unsubscribes: {
+        Row: {
+          category_id: number | null
+          created_at: string
+          email_address: string
+          id: number
+          organization_id: string
+          reason: string | null
+          unsub_email_id: number | null
+        }
+        Insert: {
+          category_id?: number | null
+          created_at?: string
+          email_address: string
+          id?: number
+          organization_id: string
+          reason?: string | null
+          unsub_email_id?: number | null
+        }
+        Update: {
+          category_id?: number | null
+          created_at?: string
+          email_address?: string
+          id?: number
+          organization_id?: string
+          reason?: string | null
+          unsub_email_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_email_unsubscribes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "email_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_email_unsubscribes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_email_unsubscribes_unsub_email_id_fkey"
+            columns: ["unsub_email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       people_emails: {
         Row: {
           created_at: string
@@ -282,9 +657,7 @@ export type Database = {
           organization_id: string
           pco_email_id: string
           pco_person_id: string
-          status: Database["public"]["Enums"]["email_status"]
-          unsubscribe_email_id: number | null
-          unsubscribe_time: string | null
+          status: Database["public"]["Enums"]["email_address_status"]
         }
         Insert: {
           created_at?: string
@@ -293,9 +666,7 @@ export type Database = {
           organization_id: string
           pco_email_id: string
           pco_person_id: string
-          status?: Database["public"]["Enums"]["email_status"]
-          unsubscribe_email_id?: number | null
-          unsubscribe_time?: string | null
+          status?: Database["public"]["Enums"]["email_address_status"]
         }
         Update: {
           created_at?: string
@@ -304,9 +675,7 @@ export type Database = {
           organization_id?: string
           pco_email_id?: string
           pco_person_id?: string
-          status?: Database["public"]["Enums"]["email_status"]
-          unsubscribe_email_id?: number | null
-          unsubscribe_time?: string | null
+          status?: Database["public"]["Enums"]["email_address_status"]
         }
         Relationships: [
           {
@@ -316,14 +685,109 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      pinned_emails: {
+        Row: {
+          created_at: string
+          email_id: number | null
+          id: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_id?: number | null
+          id?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_id?: number | null
+          id?: number
+          user_id?: string | null
+        }
+        Relationships: [
           {
-            foreignKeyName: "people_emails_unsubscribe_email_id_fkey"
-            columns: ["unsubscribe_email_id"]
+            foreignKeyName: "pinned_emails_email_id_fkey"
+            columns: ["email_id"]
             isOneToOne: false
             referencedRelation: "emails"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pinned_emails_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      pinned_lists: {
+        Row: {
+          created_at: string
+          id: number
+          list_id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          list_id: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          list_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pinned_lists_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "pco_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pinned_lists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
       }
       users: {
         Row: {
@@ -371,7 +835,26 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      email_status: "unsubscribed" | "pco_blocked" | "subscribed"
+      automation_conditions: "added_to_list" | "removed_from_list"
+      block_types:
+        | "cards"
+        | "button"
+        | "text"
+        | "divider"
+        | "video"
+        | "file-download"
+        | "image"
+        | "spacer"
+      email_address_status: "unsubscribed" | "pco_blocked" | "subscribed"
+      email_delivery_status:
+        | "sent"
+        | "delivered"
+        | "delivery_delayed"
+        | "complained"
+        | "bounced"
+        | "opened"
+      email_statuses: "draft" | "sent" | "sending" | "scheduled"
+      email_type: "standard" | "automation" | "template"
       pco_sync_types: "lists" | "emails"
     }
     CompositeTypes: {

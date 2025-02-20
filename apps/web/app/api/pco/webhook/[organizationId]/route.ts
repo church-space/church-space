@@ -294,6 +294,55 @@ export async function POST(
         }
       }
       break;
+    case "people.v2.events.person.created":
+    case "people.v2.events.person.updated":
+    case "people.v2.events.person.destroyed":
+      {
+        console.log("people.v2.events.person.created");
+        const payloadString = data.data[0].attributes.payload;
+        const payload = JSON.parse(payloadString);
+        const personData = payload.data;
+
+        if (webhookName === "people.v2.events.person.destroyed") {
+          const { error: deleteError } = await supabase
+            .from("people")
+            .delete()
+            .eq("pco_id", personData.id)
+            .eq("organization_id", organizationId);
+          if (deleteError) {
+            console.error("Error deleting person:", deleteError);
+            return NextResponse.json(
+              { received: false, error: "Failed to delete person" },
+              { status: 500 }
+            );
+          }
+        } else {
+          const { error: upsertError } = await supabase.from("people").upsert(
+            {
+              organization_id: organizationId,
+              pco_id: personData.id,
+              first_name: personData.attributes.first_name,
+              middle_name: personData.attributes.middle_name,
+              last_name: personData.attributes.last_name,
+              nickname: personData.attributes.nickname,
+              given_name: personData.attributes.given_name,
+            },
+            {
+              onConflict: "pco_id",
+              ignoreDuplicates: false,
+            }
+          );
+
+          if (upsertError) {
+            console.error("Error inserting/updating person:", upsertError);
+            return NextResponse.json(
+              { received: false, error: "Failed to insert/update person" },
+              { status: 500 }
+            );
+          }
+        }
+      }
+      break;
     default:
       console.log("Unknown webhook name:", webhookName);
   }
