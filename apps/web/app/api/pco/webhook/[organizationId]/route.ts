@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@trivo/supabase/job";
 import crypto from "crypto";
 
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { organizationId: string } }
-) {
+): Promise<NextResponse> {
   const data = await request.json();
   const supabase = await createClient();
 
