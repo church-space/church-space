@@ -137,7 +137,8 @@ export async function POST(
       break;
     }
     case "people.v2.events.list_result.created": {
-      const listResults = data.data;
+      const payload = JSON.parse(data.data[0].attributes.payload);
+      const listResults = payload.data;
 
       for (const listResult of listResults) {
         const pcoPersonId = listResult.relationships.person.data.id;
@@ -159,7 +160,8 @@ export async function POST(
       break;
     }
     case "people.v2.events.list_result.destroyed": {
-      const listResults = data.data;
+      const payload = JSON.parse(data.data[0].attributes.payload);
+      const listResults = payload.data;
 
       for (const listResult of listResults) {
         const pcoPersonId = listResult.relationships.person.data.id;
