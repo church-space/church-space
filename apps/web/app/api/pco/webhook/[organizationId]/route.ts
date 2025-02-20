@@ -92,6 +92,8 @@ export async function POST(
 
       if (webhookName === "people.v2.events.list.destroyed") {
         // Delete the list
+
+        console.log("Deleting list:", listId, organizationId);
         const { error: deleteError } = await supabase
           .from("pco_lists")
           .delete()
