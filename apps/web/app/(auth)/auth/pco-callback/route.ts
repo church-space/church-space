@@ -219,7 +219,7 @@ export async function GET(request: NextRequest) {
               type: "Subscription",
               attributes: {
                 name: event,
-                url: `https://trivo.app/api/webhooks/pco/${organization[0].id}`,
+                url: `https://trivo.app/api/pco/webhook/${organization[0].id}`,
                 active: true,
               },
             },
