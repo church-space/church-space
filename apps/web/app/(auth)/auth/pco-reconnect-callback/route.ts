@@ -95,7 +95,11 @@ export async function GET(request: NextRequest) {
     const { error: deleteOldConnectionError } = await supabase
       .from("pco_connections")
       .delete()
-      .eq("organization_id", userDetails[0].organization_id);
+      .eq("organization_id", userDetails[0].organization_id)
+      .eq(
+        "pco_organization_id",
+        pcoUserData.data.relationships.organization.data.id
+      );
 
     if (deleteOldConnectionError) {
       console.error("Supabase error:", deleteOldConnectionError);
@@ -111,6 +115,8 @@ export async function GET(request: NextRequest) {
         scope: tokenData.scope,
         organization_id: userDetails[0].organization_id,
         last_refreshed: new Date().toISOString(),
+        pco_organization_id:
+          pcoUserData.data.relationships.organization.data.id,
       })
       .select("id");
 

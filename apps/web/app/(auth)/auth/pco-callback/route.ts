@@ -121,6 +121,7 @@ export async function GET(request: NextRequest) {
         .insert({
           name: pcoOrganizationData.data.attributes.name,
           created_by: user.id,
+          pco_org_id: pcoOrganizationData.data.id,
         })
         .select("id");
 

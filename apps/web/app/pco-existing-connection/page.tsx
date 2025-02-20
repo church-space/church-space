@@ -4,12 +4,17 @@ import { Button } from "@trivo/ui/button";
 import { Card, CardContent } from "@trivo/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default function Page({
   searchParams,
 }: {
   searchParams: { connectedByFirstName: string; connectedByLastName: string };
 }) {
+  if (!searchParams.connectedByFirstName || !searchParams.connectedByLastName) {
+    return redirect("/");
+  }
+
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <AnimatePresence mode="wait">
