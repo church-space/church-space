@@ -79,7 +79,42 @@ export async function POST(
     );
   }
 
-  console.log("data", data);
+  switch (webhookName) {
+    case "people.v2.events.list.created":
+      console.log("people.v2.events.list.created");
+      console.log("data", data);
+      break;
+    case "people.v2.events.list.updated":
+      console.log("people.v2.events.list.updated");
+      console.log("data", data);
+      break;
+    case "people.v2.events.list.destroyed":
+      console.log("people.v2.events.list.destroyed");
+      console.log("data", data);
+      break;
+    case "people.v2.events.list_result.created":
+      console.log("people.v2.events.list_result.created");
+      console.log("data", data);
+      break;
+    case "people.v2.events.list_result.destroyed":
+      console.log("people.v2.events.list_result.destroyed");
+      console.log("data", data);
+      break;
+    case "people.v2.events.email.created":
+      console.log("people.v2.events.email.created");
+      console.log("data", data);
+      break;
+    case "people.v2.events.email.destroyed":
+      console.log("people.v2.events.email.destroyed");
+      console.log("data", data);
+      break;
+    case "people.v2.events.email.updated":
+      console.log("people.v2.events.email.updated");
+      console.log("data", data);
+      break;
+    default:
+      console.log("Unknown webhook name:", webhookName);
+  }
 
   return NextResponse.json({ received: true });
 }
