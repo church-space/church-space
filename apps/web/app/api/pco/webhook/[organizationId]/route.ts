@@ -106,22 +106,19 @@ export async function POST(
         }
       } else {
         // Upsert the list (insert or update)
-        const { error: upsertError } = await supabase
-          .from("pco_lists")
-          .upsert(
-            {
-              organization_id: organizationId,
-              pco_list_id: listId,
-              pco_list_description: listDescription,
-              pco_last_refreshed_at: lastRefreshedAt,
-              pco_total_people: totalPeople,
-            },
-            {
-              onConflict: "pco_list_id,organization_id",
-              ignoreDuplicates: false,
-            }
-          )
-          .eq("organization_id", organizationId);
+        const { error: upsertError } = await supabase.from("pco_lists").upsert(
+          {
+            organization_id: organizationId,
+            pco_list_id: listId,
+            pco_list_description: listDescription,
+            pco_last_refreshed_at: lastRefreshedAt,
+            pco_total_people: totalPeople,
+          },
+          {
+            onConflict: "pco_list_id",
+            ignoreDuplicates: false,
+          }
+        );
 
         if (upsertError) {
           console.error("Error inserting/updating list:", upsertError);

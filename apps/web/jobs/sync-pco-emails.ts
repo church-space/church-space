@@ -81,6 +81,15 @@ export const syncPcoEmails = task({
       console.log(`Processed page ${processedCount}, nextUrl: ${nextUrl}`);
     }
 
+    await supabase
+      .from("pco_sync_status")
+      .upsert({
+        organization_id: payload.organization_id,
+        emails_synced: true,
+        emails_synced_at: new Date().toISOString(),
+      })
+      .eq("organization_id", payload.organization_id);
+
     return { message: "PCO emails sync completed" };
   },
 });

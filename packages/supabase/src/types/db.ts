@@ -172,6 +172,50 @@ export type Database = {
           },
         ]
       }
+      pco_sync_status: {
+        Row: {
+          created_at: string
+          emails_synced: boolean
+          emails_synced_at: string | null
+          id: number
+          list_results_synced: boolean
+          list_results_synced_at: string | null
+          lists_synced: boolean
+          lists_synced_at: string | null
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          emails_synced?: boolean
+          emails_synced_at?: string | null
+          id?: number
+          list_results_synced?: boolean
+          list_results_synced_at?: string | null
+          lists_synced?: boolean
+          lists_synced_at?: string | null
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          emails_synced?: boolean
+          emails_synced_at?: string | null
+          id?: number
+          list_results_synced?: boolean
+          list_results_synced_at?: string | null
+          lists_synced?: boolean
+          lists_synced_at?: string | null
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pco_sync_status_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pco_webhooks: {
         Row: {
           authenticity_secret: string | null
