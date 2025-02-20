@@ -85,7 +85,8 @@ export async function POST(
     case "people.v2.events.list.destroyed": {
       const listData = data.data[0];
       const listId = listData.id;
-      const listDescription = listData.attributes.name_or_description;
+      const listDescription =
+        listData.attributes.name || listData.attributes.name_or_description;
       const lastRefreshedAt = listData.attributes.refreshed_at;
       const totalPeople = listData.attributes.total_people;
 
