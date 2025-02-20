@@ -84,10 +84,15 @@ export async function POST(
     case "people.v2.events.list.updated":
     case "people.v2.events.list.destroyed": {
       const listData = data.data[0];
+      console.log("listData", listData);
       const listCategoryId = listData.links.category.split("/").pop(); // Extract category ID
+      console.log("listCategoryId", listCategoryId);
       const listId = listData.id;
+      console.log("listId", listId);
       const listDescription = listData.attributes.description;
+      console.log("listDescription", listDescription);
       const lastRefreshedAt = listData.attributes.refreshed_at;
+      console.log("lastRefreshedAt", lastRefreshedAt);
       const totalPeople = listData.attributes.total_people;
 
       // Fetch the category ID for the organization
@@ -104,6 +109,7 @@ export async function POST(
           { status: 500 }
         );
       }
+      console.log("categoryData", categoryData);
 
       if (categoryData?.category_id === listCategoryId) {
         if (webhookName === "people.v2.events.list.destroyed") {
