@@ -34,10 +34,18 @@ export async function POST(
     );
   }
 
+  if (!webhookName) {
+    console.error("No webhook name found in request headers");
+    return NextResponse.json(
+      { received: false, error: "No webhook name found" },
+      { status: 400 }
+    );
+  }
+
   const { data: webhookData, error: fetchError } = await supabase
     .from("pco_webhooks")
     .select("authenticity_secret")
-    .eq("authenticity_secret", webhookAuthenticity)
+    .eq("name", webhookName)
     .eq("organization_id", organizationId)
     .single();
 
