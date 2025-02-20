@@ -84,77 +84,54 @@ export async function POST(
     case "people.v2.events.list.updated":
     case "people.v2.events.list.destroyed": {
       const listData = data.data[0];
-      console.log("listData", listData);
-      const listCategoryId = listData.links.category.split("/").pop(); // Extract category ID
-      console.log("listCategoryId", listCategoryId);
       const listId = listData.id;
-      console.log("listId", listId);
       const listDescription = listData.attributes.description;
-      console.log("listDescription", listDescription);
       const lastRefreshedAt = listData.attributes.refreshed_at;
-      console.log("lastRefreshedAt", lastRefreshedAt);
       const totalPeople = listData.attributes.total_people;
 
-      // Fetch the category ID for the organization
-      const { data: categoryData, error: categoryError } = await supabase
-        .from("pco_list_categories")
-        .select("category_id")
-        .eq("organization_id", organizationId)
-        .single();
+      if (webhookName === "people.v2.events.list.destroyed") {
+        // Delete the list
+        const { error: deleteError } = await supabase
+          .from("pco_lists")
+          .delete()
+          .eq("pco_list_id", listId)
+          .eq("organization_id", organizationId);
 
-      if (categoryError) {
-        console.error("Error fetching list category:", categoryError);
-        return NextResponse.json(
-          { received: false, error: "Failed to fetch list category" },
-          { status: 500 }
-        );
-      }
-      console.log("categoryData", categoryData);
+        if (deleteError) {
+          console.error("Error deleting list:", deleteError);
+          return NextResponse.json(
+            { received: false, error: "Failed to delete list" },
+            { status: 500 }
+          );
+        }
+      } else {
+        // Upsert the list (insert or update)
+        const { error: upsertError } = await supabase
+          .from("pco_lists")
+          .upsert(
+            {
+              organization_id: organizationId,
+              pco_list_id: listId,
+              pco_list_description: listDescription,
+              pco_last_refreshed_at: lastRefreshedAt,
+              pco_total_people: totalPeople,
+            },
+            {
+              onConflict: "pco_list_id,organization_id",
+              ignoreDuplicates: false,
+            }
+          )
+          .eq("organization_id", organizationId);
 
-      if (categoryData?.category_id === listCategoryId) {
-        if (webhookName === "people.v2.events.list.destroyed") {
-          // Delete the list
-          const { error: deleteError } = await supabase
-            .from("pco_lists")
-            .delete()
-            .eq("pco_list_id", listId)
-            .eq("organization_id", organizationId);
-
-          if (deleteError) {
-            console.error("Error deleting list:", deleteError);
-            return NextResponse.json(
-              { received: false, error: "Failed to delete list" },
-              { status: 500 }
-            );
-          }
-        } else {
-          // Upsert the list (insert or update)
-          const { error: upsertError } = await supabase
-            .from("pco_lists")
-            .upsert(
-              {
-                organization_id: organizationId,
-                pco_list_id: listId,
-                pco_list_description: listDescription,
-                pco_last_refreshed_at: lastRefreshedAt,
-                pco_total_people: totalPeople,
-              },
-              {
-                onConflict: "pco_list_id,organization_id",
-                ignoreDuplicates: false,
-              }
-            )
-            .eq("organization_id", organizationId);
-
-          if (upsertError) {
-            console.error("Error inserting/updating list:", upsertError);
-            return NextResponse.json(
-              { received: false, error: "Failed to insert/update list" },
-              { status: 500 }
-            );
-          }
+        if (upsertError) {
+          console.error("Error inserting/updating list:", upsertError);
+          return NextResponse.json(
+            { received: false, error: "Failed to insert/update list" },
+            { status: 500 }
+          );
         }
       }
+
       break;
     }
     case "people.v2.events.list_result.created":

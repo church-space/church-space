@@ -147,51 +147,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const createPcoListCategory = await fetch(
-      `https://api.planningcenteronline.com/people/v2/list_categories`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${tokenData.access_token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data: {
-            type: "ListCategory",
-            attributes: {
-              name: "Trivo (DO NOT DELETE)",
-            },
-          },
-        }),
-      }
-    );
-
-    // Check if the category was created successfully
-    if (!createPcoListCategory.ok) {
-      console.error("Failed to create PCO list category");
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_category_error`
-      );
-    }
-
-    const pcoListCategoryData = await createPcoListCategory.json();
-
-    const { error: pcoListError } = await supabase
-      .from("pco_list_categories")
-      .insert({
-        category_id: pcoListCategoryData.data.id,
-        organization_id: organization[0].id,
-        pco_organization_id: pcoOrganizationData.data.id,
-      })
-      .select("id");
-
-    if (pcoListError) {
-      console.error("Supabase error:", pcoListError);
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_list_db_error`
-      );
-    }
-
     // First create webhook entries in Supabase
     const webhookEvents = [
       "people.v2.events.list.created",
