@@ -57,8 +57,6 @@ export async function POST(
     );
   }
 
-  console.log("webhookData", webhookData);
-
   if (!webhookData?.authenticity_secret) {
     console.error("No authenticity secret found for webhook ID:", webhookId);
     return NextResponse.json(
@@ -81,8 +79,7 @@ export async function POST(
     );
   }
 
-  console.log("Webhook authenticity verified successfully!");
-  console.log(webhookName, webhookData.authenticity_secret);
+  console.log("data", data);
 
   return NextResponse.json({ received: true });
 }
