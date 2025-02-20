@@ -1,10 +1,16 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@trivo/supabase/job";
 import crypto from "crypto";
 
+type Props = {
+  params: {
+    organizationId: string;
+  };
+};
+
 export async function POST(
-  request: NextRequest,
-  context: { params: { organizationId: string } }
+  request: Request,
+  { params }: Props
 ): Promise<NextResponse> {
   const data = await request.json();
   const supabase = await createClient();
@@ -27,7 +33,7 @@ export async function POST(
     .from("pco_webhooks")
     .select("authenticity_secret")
     .eq("webhook_id", webhookId)
-    .eq("organization_id", context.params.organizationId)
+    .eq("organization_id", params.organizationId)
     .single();
 
   if (fetchError) {
