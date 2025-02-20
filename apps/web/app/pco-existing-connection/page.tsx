@@ -5,7 +5,11 @@ import { Card, CardContent } from "@trivo/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 
-export default function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: { connectedByFirstName: string; connectedByLastName: string };
+}) {
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <AnimatePresence mode="wait">
@@ -16,7 +20,7 @@ export default function Page() {
             transition={{ duration: 0.3 }}
             className="flex flex-col items-center justify-center gap-2 mb-6"
           >
-            <div className="text-3xl font-bold">Invalid Permissions</div>
+            <div className="text-3xl font-bold">PCO Already Connected</div>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -25,14 +29,15 @@ export default function Page() {
           >
             <Card className=" px-0">
               <CardContent className=" text-center pt-[30px]">
-                You must be a &quot;Manager&quot; in Planning Center
-                &quot;People&quot; to set up this application. Please contact
-                your administrator to request the necessary permissions.
+                {searchParams.connectedByFirstName}{" "}
+                {searchParams.connectedByLastName} already connected your
+                organization to Trivo. Please contact them dirrectly to gain
+                access.
               </CardContent>
             </Card>
             <div className="text-center pt-4">
               <Button variant="ghost" asChild>
-                <Link href="/onboarding">Try again</Link>
+                <Link href="/">Return Home</Link>
               </Button>
             </div>
           </motion.div>

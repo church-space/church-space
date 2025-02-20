@@ -9,15 +9,16 @@ interface UserData {
   last_name: string | null;
   avatar_url: string | null;
   email: string | null;
-  organization_id: string | null;
 }
 
 export default function InitUser({
   user,
   userData,
+  organization_id,
 }: {
   user: User | undefined;
   userData: UserData;
+  organization_id: string | null;
 }) {
   const initState = useRef(false);
 
@@ -30,7 +31,7 @@ export default function InitUser({
         lastName: userData.last_name,
         avatarUrl: userData.avatar_url,
         email: userData.email,
-        organizationId: userData.organization_id,
+        organizationId: organization_id,
       });
     }
 

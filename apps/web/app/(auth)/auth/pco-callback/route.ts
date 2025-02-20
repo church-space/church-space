@@ -50,6 +50,29 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const checkExistingConnection = await fetch(
+      "https://api.planningcenteronline.com/api/v2/connected_applications/3520/people",
+      {
+        headers: {
+          Authorization: `Bearer ${tokenData.access_token}`,
+        },
+      }
+    );
+
+    const checkExistingConnectionData = await checkExistingConnection.json();
+
+    if (
+      checkExistingConnectionData.data &&
+      checkExistingConnectionData.data.length > 0
+    ) {
+      const connectedPerson = checkExistingConnectionData.data[0];
+      const firstName = connectedPerson.attributes.first_name;
+      const lastName = connectedPerson.attributes.last_name;
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/pco-existing-connection?connectedByFirstName=${firstName}&connectedByLastName=${lastName}`
+      );
+    }
+
     // Get current user's PCO info
     const pcoUserResponse = await fetch(
       "https://api.planningcenteronline.com/people/v2/me",
@@ -108,10 +131,39 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const { error: insertOrganizationMembershipError } = await supabase
+      .from("organization_memberships")
+      .insert({
+        organization_id: organization[0].id,
+        user_id: user.id,
+      });
+
+    if (insertOrganizationMembershipError) {
+      console.error("Supabase error:", insertOrganizationMembershipError);
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=organization_membership_db_error`
+      );
+    }
+
+    // Create the default "General" email category
+    const { error: emailCategoryError } = await supabase
+      .from("email_categories")
+      .insert({
+        name: "General",
+        description: "For general church-wide emails.",
+        organization_id: organization[0].id,
+      });
+
+    if (emailCategoryError) {
+      console.error("Supabase error:", emailCategoryError);
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=email_category_db_error`
+      );
+    }
+
     const { error: updateUserError } = await supabase
       .from("users")
       .update({
-        organization_id: organization[0].id,
         first_name: pcoUserData.data.attributes.first_name,
         last_name: pcoUserData.data.attributes.last_name,
         avatar_url: pcoUserData.data.attributes.avatar,

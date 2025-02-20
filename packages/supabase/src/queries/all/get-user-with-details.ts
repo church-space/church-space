@@ -20,7 +20,23 @@ export async function getUserWithDetailsQuery(supabase: Client) {
     throw userDetailsError;
   }
 
-  if (!userDetails?.[0]?.organization_id) {
+  console.log("userDetails", userDetails);
+
+  // Fetch the user's organization membership.
+  const { data: organizationMembership, error: organizationMembershipError } =
+    await supabase
+      .from("organization_memberships")
+      .select("organization_id")
+      .eq("user_id", data.user.id)
+      .single();
+
+  if (organizationMembershipError) {
+    console.log("organizationMembershipError", organizationMembershipError);
+  }
+
+  console.log("organizationMembership", organizationMembership);
+
+  if (!organizationMembership?.organization_id) {
     return { user: data.user, userDetails };
   }
 
@@ -28,12 +44,17 @@ export async function getUserWithDetailsQuery(supabase: Client) {
   const { data: pcoConnection, error: pcoConnectionError } = await supabase
     .from("pco_connections")
     .select("*")
-    .eq("organization_id", userDetails?.[0]?.organization_id)
+    .eq("organization_id", organizationMembership.organization_id)
     .single();
 
   if (pcoConnectionError) {
-    throw pcoConnectionError;
+    console.log("pcoConnectionError", pcoConnectionError);
   }
 
-  return { user: data.user, userDetails, pcoConnection };
+  return {
+    user: data.user,
+    userDetails,
+    pcoConnection,
+    organizationMembership,
+  };
 }

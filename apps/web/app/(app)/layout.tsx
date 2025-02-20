@@ -19,12 +19,12 @@ export default async function ProtectedLayout({
     return redirect("/login");
   }
 
-  if (user.userDetails[0].organization_id === null) {
+  if (!user.organizationMembership) {
     return redirect("/onboarding");
   }
 
   if (user.pcoConnection === null) {
-    return redirect("/settings#pco-connection");
+    return redirect("/pco-reconnect");
   }
 
   const headersList = await headers();
@@ -59,7 +59,11 @@ export default async function ProtectedLayout({
   return (
     <>
       {children}
-      <InitUser user={user.user} userData={user.userDetails[0]} />
+      <InitUser
+        user={user.user}
+        userData={user.userDetails[0]}
+        organization_id={user.organizationMembership.organization_id}
+      />
       <InitPco
         pcoData={{
           id: user.pcoConnection?.id.toString() || null,

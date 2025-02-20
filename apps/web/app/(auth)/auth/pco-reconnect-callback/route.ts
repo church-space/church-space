@@ -82,9 +82,9 @@ export async function GET(request: NextRequest) {
     }
 
     const { data: userDetails } = await supabase
-      .from("users")
+      .from("organization_memberships")
       .select("organization_id")
-      .eq("id", user.id);
+      .eq("user_id", user.id);
 
     if (!userDetails || !userDetails[0].organization_id) {
       return NextResponse.redirect(

@@ -13,16 +13,27 @@ export type Database = {
         Row: {
           created_at: string
           id: number
+          organization_id: string
         }
         Insert: {
           created_at?: string
           id?: number
+          organization_id: string
         }
         Update: {
           created_at?: string
           id?: number
+          organization_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "domains_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_blocks: {
         Row: {
@@ -236,7 +247,7 @@ export type Database = {
           subject: string | null
           text_color: string | null
           trigger_dev_schduled_id: string | null
-          type: Database["public"]["Enums"]["email_type"]
+          type: Database["public"]["Enums"]["email_types"]
           updated_at: string | null
         }
         Insert: {
@@ -255,7 +266,7 @@ export type Database = {
           subject?: string | null
           text_color?: string | null
           trigger_dev_schduled_id?: string | null
-          type?: Database["public"]["Enums"]["email_type"]
+          type?: Database["public"]["Enums"]["email_types"]
           updated_at?: string | null
         }
         Update: {
@@ -274,7 +285,7 @@ export type Database = {
           subject?: string | null
           text_color?: string | null
           trigger_dev_schduled_id?: string | null
-          type?: Database["public"]["Enums"]["email_type"]
+          type?: Database["public"]["Enums"]["email_types"]
           updated_at?: string | null
         }
         Relationships: [
@@ -329,6 +340,42 @@ export type Database = {
             columns: ["list_id"]
             isOneToOne: false
             referencedRelation: "pco_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_memberships: {
+        Row: {
+          created_at: string
+          id: number
+          organization_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          organization_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          organization_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_memberships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -562,7 +609,7 @@ export type Database = {
           last_name: string | null
           middle_name: string | null
           nickname: string | null
-          organization_id: string | null
+          organization_id: string
           pco_id: string
         }
         Insert: {
@@ -573,7 +620,7 @@ export type Database = {
           last_name?: string | null
           middle_name?: string | null
           nickname?: string | null
-          organization_id?: string | null
+          organization_id: string
           pco_id: string
         }
         Update: {
@@ -584,7 +631,7 @@ export type Database = {
           last_name?: string | null
           middle_name?: string | null
           nickname?: string | null
-          organization_id?: string | null
+          organization_id?: string
           pco_id?: string
         }
         Relationships: [
@@ -687,7 +734,7 @@ export type Database = {
           },
         ]
       }
-      pinned_emails: {
+      pinned_email_templates: {
         Row: {
           created_at: string
           email_id: number | null
@@ -854,7 +901,7 @@ export type Database = {
         | "bounced"
         | "opened"
       email_statuses: "draft" | "sent" | "sending" | "scheduled"
-      email_type: "standard" | "automation" | "template"
+      email_types: "standard" | "template"
       pco_sync_types: "lists" | "emails"
     }
     CompositeTypes: {

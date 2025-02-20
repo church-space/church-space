@@ -5,7 +5,11 @@ import { Card, CardContent } from "@trivo/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 
-export default function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: { connectedByFirstName: string; connectedByLastName: string };
+}) {
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <AnimatePresence mode="wait">
@@ -16,7 +20,9 @@ export default function Page() {
             transition={{ duration: 0.3 }}
             className="flex flex-col items-center justify-center gap-2 mb-6"
           >
-            <div className="text-3xl font-bold">Invalid Permissions</div>
+            <div className="text-3xl font-bold">
+              Unsatisfactory PCO Permissions
+            </div>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -25,14 +31,16 @@ export default function Page() {
           >
             <Card className=" px-0">
               <CardContent className=" text-center pt-[30px]">
-                You must be a &quot;Manager&quot; in Planning Center
-                &quot;People&quot; to set up this application. Please contact
-                your administrator to request the necessary permissions.
+                You no longer have the necessary permissions within Planning
+                Center People to use Trivo. You must be either a
+                &quot;Manager&quot; or &quot;Editor&quot; in Planning Center
+                People and have the ability to email lists to use Trivo. Please
+                contact your administrator to request the necessary permissions.
               </CardContent>
             </Card>
             <div className="text-center pt-4">
               <Button variant="ghost" asChild>
-                <Link href="/onboarding">Try again</Link>
+                <Link href="/homepage">Return Home</Link>
               </Button>
             </div>
           </motion.div>

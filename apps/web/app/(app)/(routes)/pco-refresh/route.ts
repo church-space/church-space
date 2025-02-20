@@ -10,17 +10,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (!user.userDetails[0].organization_id) {
+  if (!user.pcoConnection) {
     return NextResponse.redirect(
       new URL("/settings#pco-connection", request.url)
     );
+  }
+  if (!user.organizationMembership) {
+    return NextResponse.redirect(new URL("/onboarding", request.url));
   }
 
   // Get the current PCO connection
   const { data: pcoConnection } = await supabase
     .from("pco_connections")
     .select("*")
-    .eq("organization_id", user.userDetails[0].organization_id)
+    .eq("organization_id", user.organizationMembership.organization_id)
     .single();
 
   if (!pcoConnection) {
@@ -71,6 +74,37 @@ export async function GET(request: NextRequest) {
       last_refreshed: new Date().toISOString(),
     })
     .eq("id", pcoConnection.id);
+
+  // Get current user's PCO info
+  const pcoUserResponse = await fetch(
+    "https://api.planningcenteronline.com/people/v2/me",
+    {
+      headers: {
+        Authorization: `Bearer ${data.access_token}`,
+      },
+    }
+  );
+
+  const pcoUserData = await pcoUserResponse.json();
+
+  if (
+    pcoUserData.data.attributes.people_permissions !== "Manager" ||
+    pcoUserData.data.attributes.people_permissions !== "Editor" ||
+    pcoUserData.data.attributes.can_email_lists === false
+  ) {
+    const { error: deleteError } = await supabase
+      .from("organization_memberships")
+      .delete()
+      .eq("user_id", user.user.id);
+
+    if (deleteError) {
+      console.error("Failed to delete organization membership:", deleteError);
+    }
+
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/pco-no-permissions`
+    );
+  }
 
   // Redirect back to the original URL
   const returnUrl = request.nextUrl.searchParams.get("return_to") || "/home";
