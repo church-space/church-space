@@ -47,13 +47,14 @@ export const syncPcoLists = task({
       const data = await response.json();
 
       console.log("data", data);
+      console.log("data.data", data.data[0].attributes);
 
       // Process each list
       for (const list of data.data) {
         try {
           const listId = list.id;
-          const listDescription = list.attributes.name;
-          const lastRefreshedAt = list.attributes.last_refreshed_at;
+          const listDescription = list.attributes.name_or_description;
+          const lastRefreshedAt = list.attributes.refreshed_at;
           const totalPeople = list.attributes.total_people;
 
           // Extract category ID
@@ -80,14 +81,26 @@ export const syncPcoLists = task({
           let listResultsPage = 0;
           const maxListResultsPages = 1000;
 
+          console.log(`Starting to fetch list results for list ID: ${listId}`); // Debugging log
+
           while (listResultsNextUrl && listResultsPage < maxListResultsPages) {
+            console.log(
+              `Fetching list results from URL: ${listResultsNextUrl}`
+            ); // Debugging log
             const listResultsResponse = await fetch(listResultsNextUrl, {
               headers: {
                 Authorization: `Bearer ${pcoConnection.access_token}`,
               },
             });
 
+            console.log(
+              `List results response status: ${listResultsResponse.status}`
+            ); // Debugging log
+
             if (!listResultsResponse.ok) {
+              console.error(
+                `PCO API error fetching list results: ${listResultsResponse.status} ${listResultsResponse.statusText}`
+              ); // More specific error log
               throw new Error(
                 `PCO API error fetching list results: ${listResultsResponse.status} ${listResultsResponse.statusText}`
               );
@@ -95,23 +108,31 @@ export const syncPcoLists = task({
 
             const listResultsData = await listResultsResponse.json();
 
+            console.log(`List results data:`, listResultsData); // Debugging log - view the entire data structure
+
             for (const result of listResultsData.data) {
+              console.log(`Processing list result:`, result); // Debugging log - see each individual result
               const personId = result.relationships.person.data.id;
+              console.log(`Person ID: ${personId}`); // Debugging log
 
               // Insert into pco_list_members table
-              await supabase.from("pco_list_members").upsert(
-                {
-                  organization_id: payload.organization_id,
-                  pco_list_id: listId,
-                  pco_person_id: personId,
-                },
-                { onConflict: "pco_person_id, pco_list_id" }
-              );
+              await supabase.from("pco_list_members").insert({
+                organization_id: payload.organization_id,
+                pco_list_id: listId,
+                pco_person_id: personId,
+              });
+              console.log(`Inserted list member:`, {
+                organization_id: payload.organization_id,
+                pco_list_id: listId,
+                pco_person_id: personId,
+              });
             }
 
-            listResultsNextUrl = listResultsData.links.next;
+            listResultsNextUrl = listResultsData.links?.next; // Use optional chaining
+            console.log(`Next list results URL: ${listResultsNextUrl}`); // Debugging log
             listResultsPage++;
           }
+          console.log(`Finished fetching list results for list ID: ${listId}`); // Debugging log
         } catch (error) {
           // Log error but continue processing other lists
           console.error(`Error processing list ${list.id}:`, error);
@@ -125,14 +146,11 @@ export const syncPcoLists = task({
       console.log(`Processed page ${processedCount}, nextUrl: ${nextUrl}`);
     }
 
-    await supabase
-      .from("pco_sync_status")
-      .upsert({
-        organization_id: payload.organization_id,
-        lists_synced: true,
-        lists_synced_at: new Date().toISOString(),
-      })
-      .eq("organization_id", payload.organization_id);
+    await supabase.from("pco_sync_status").upsert({
+      organization_id: payload.organization_id,
+      type: "lists",
+      synced_at: new Date().toISOString(),
+    });
 
     return { message: "PCO lists sync completed" };
   },
