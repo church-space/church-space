@@ -1,22 +1,69 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@trivo/supabase/job";
+import crypto from "crypto";
 
-export async function POST(request: Request) {
+export async function POST(
+  request: Request,
+  { params }: { params: { organizationId: string } }
+) {
   const data = await request.json();
+  const supabase = await createClient();
 
-  // Use these more explicit logging methods:
-  console.log("=== Webhook Request Start ===");
-  console.log(
-    JSON.stringify(
-      {
-        timestamp: new Date().toISOString(),
-        path: request.url,
-        data: data,
-      },
-      null,
-      2
-    )
+  const webhookId = request.headers.get("X-PCO-Webhooks-Event-ID");
+  const webhookName = request.headers.get("X-PCO-Webhooks-Name");
+  const webhookAuthenticity = request.headers.get(
+    "X-PCO-Webhooks-Authenticity"
   );
-  console.log("=== Webhook Request End ===");
+
+  if (!webhookId) {
+    console.error("No webhook ID found in request headers");
+    return NextResponse.json(
+      { received: false, error: "No webhook ID found" },
+      { status: 400 }
+    );
+  }
+  const { data: webhookData, error: fetchError } = await supabase
+    .from("pco_webhooks")
+    .select("authenticity_secret")
+    .eq("webhook_id", webhookId)
+    .eq("organization_id", params.organizationId)
+    .single();
+
+  if (fetchError) {
+    console.error("Error fetching webhook data:", fetchError);
+    return NextResponse.json(
+      { received: false, error: "Failed to fetch secret" },
+      { status: 500 }
+    );
+  }
+  if (!webhookData?.authenticity_secret) {
+    console.error("No authenticity secret found for webhook ID:", webhookId);
+    return NextResponse.json(
+      { received: false, error: "Authenticity secret not found" },
+      { status: 404 }
+    );
+  }
+
+  const secret = webhookData.authenticity_secret;
+
+  // Verify the signature
+  const hmac = crypto
+    .createHmac("sha256", secret)
+    .update(JSON.stringify(data))
+    .digest("hex");
+
+  if (hmac !== webhookAuthenticity) {
+    console.error("Webhook authenticity verification failed.");
+    return NextResponse.json(
+      { received: false, error: "Invalid signature" },
+      { status: 401 }
+    );
+  }
+  console.log("Webhook authenticity verified successfully!");
+
+  if (webhookData) {
+    console.log(webhookName, webhookData.authenticity_secret);
+  }
 
   return NextResponse.json({ received: true });
 }
