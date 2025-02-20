@@ -1,4 +1,4 @@
-import { task, wait } from "@trigger.dev/sdk/v3";
+import { task } from "@trigger.dev/sdk/v3";
 import { createClient } from "@trivo/supabase/job";
 import { isValidEmail } from "../lib/utils";
 

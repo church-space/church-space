@@ -134,12 +134,45 @@ export type Database = {
           },
         ]
       }
+      pco_list_members: {
+        Row: {
+          created_at: string
+          id: number
+          organization_id: string
+          pco_list_id: string
+          pco_person_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          organization_id: string
+          pco_list_id: string
+          pco_person_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          organization_id?: string
+          pco_list_id?: string
+          pco_person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pco_list_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pco_lists: {
         Row: {
           created_at: string
           id: number
           organization_id: string
           pco_last_refreshed_at: string | null
+          pco_list_category_id: string | null
           pco_list_description: string
           pco_list_id: string
           pco_total_people: string | null
@@ -149,6 +182,7 @@ export type Database = {
           id?: number
           organization_id: string
           pco_last_refreshed_at?: string | null
+          pco_list_category_id?: string | null
           pco_list_description: string
           pco_list_id: string
           pco_total_people?: string | null
@@ -158,6 +192,7 @@ export type Database = {
           id?: number
           organization_id?: string
           pco_last_refreshed_at?: string | null
+          pco_list_category_id?: string | null
           pco_list_description?: string
           pco_list_id?: string
           pco_total_people?: string | null

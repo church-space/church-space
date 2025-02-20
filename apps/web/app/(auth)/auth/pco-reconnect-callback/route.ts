@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
           code,
           client_id: process.env.NEXT_PUBLIC_PCO_CLIENT_ID,
           client_secret: process.env.PCO_SECRET,
-          redirect_uri: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/pco-callback`,
+          redirect_uri: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/pco-reconnect-callback`,
         }),
       }
     );

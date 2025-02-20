@@ -2,6 +2,7 @@ import { createClient } from "@trivo/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { tasks } from "@trigger.dev/sdk/v3";
 import type { syncPcoEmails } from "@/jobs/sync-pco-emails";
+import { syncPcoLists } from "@/jobs/sync-pco-lists";
 
 export async function GET(request: NextRequest) {
   try {
@@ -222,6 +223,11 @@ export async function GET(request: NextRequest) {
 
     // Trigger the syncPcoEmails task
     await tasks.trigger<typeof syncPcoEmails>("sync-pco-emails", {
+      organization_id: organization[0].id,
+    });
+
+    // Trigger the syncPcoLists task
+    await tasks.trigger<typeof syncPcoLists>("sync-pco-lists", {
       organization_id: organization[0].id,
     });
 
