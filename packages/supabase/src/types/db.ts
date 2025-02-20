@@ -305,6 +305,45 @@ export type Database = {
           },
         ]
       }
+      invites: {
+        Row: {
+          created_at: string
+          email: string
+          id: number
+          invited_by: string | null
+          organization_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: number
+          invited_by?: string | null
+          organization_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: number
+          invited_by?: string | null
+          organization_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       list_automations: {
         Row: {
           condition: Database["public"]["Enums"]["automation_conditions"]
@@ -417,6 +456,7 @@ export type Database = {
           id: number
           last_refreshed: string
           organization_id: string
+          pco_organization_id: string
           pco_user_id: string
           refresh_token: string
           scope: string
@@ -428,6 +468,7 @@ export type Database = {
           id?: number
           last_refreshed: string
           organization_id: string
+          pco_organization_id: string
           pco_user_id: string
           refresh_token: string
           scope: string
@@ -439,6 +480,7 @@ export type Database = {
           id?: number
           last_refreshed?: string
           organization_id?: string
+          pco_organization_id?: string
           pco_user_id?: string
           refresh_token?: string
           scope?: string
@@ -844,7 +886,6 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
-          organization_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -853,7 +894,6 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
-          organization_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -862,17 +902,8 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
-          organization_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "users_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {

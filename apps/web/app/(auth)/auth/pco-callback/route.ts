@@ -187,6 +187,7 @@ export async function GET(request: NextRequest) {
         scope: tokenData.scope,
         organization_id: organization[0].id,
         last_refreshed: new Date().toISOString(),
+        pco_organization_id: pcoOrganizationData.data.id,
       })
       .select("id");
 
