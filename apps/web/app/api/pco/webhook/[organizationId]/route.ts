@@ -255,6 +255,31 @@ export async function POST(
         const email = emailData.attributes.address;
         const pcoEmailId = emailData.id;
         const pcoPersonId = emailData.relationships.person.data.id;
+
+        // Fetch the existing email record to check its status.
+        const { data: existingEmail, error: fetchError } = await supabase
+          .from("people_emails")
+          .select("status")
+          .eq("pco_email_id", pcoEmailId)
+          .eq("organization_id", organizationId)
+          .single();
+
+        if (fetchError) {
+          console.error("Error fetching existing email:", fetchError);
+          return NextResponse.json(
+            { received: false, error: "Failed to fetch existing email" },
+            { status: 500 }
+          );
+        }
+
+        // If the existing status is "unsubscribed", skip the update and delete.
+        if (existingEmail?.status === "unsubscribed") {
+          console.log(
+            "Email status is unsubscribed. Skipping update and delete."
+          );
+          break;
+        }
+
         const { error } = await supabase
           .from("people_emails")
           .update({
