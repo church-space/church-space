@@ -36,8 +36,6 @@ export const syncPcoEmails = task({
         },
       });
 
-      console.log("response", response);
-
       if (!response.ok) {
         throw new Error(
           `PCO API error: ${response.status} ${response.statusText}`
@@ -45,8 +43,6 @@ export const syncPcoEmails = task({
       }
 
       const data = await response.json();
-
-      console.log("data", data);
 
       // Process each email
       for (const email of data.data) {
@@ -59,8 +55,6 @@ export const syncPcoEmails = task({
             continue;
           }
 
-          console.log("adding email", email);
-          console.log("adding address", emailAddress);
           // Insert into people_emails table
           await supabase.from("people_emails").insert({
             organization_id: payload.organization_id,
@@ -78,7 +72,6 @@ export const syncPcoEmails = task({
       nextUrl = data.links.next;
       processedCount += data.data.length;
       pageCount++; // Increment page count
-      console.log(`Processed page ${processedCount}, nextUrl: ${nextUrl}`);
     }
 
     await supabase.from("pco_sync_status").upsert({

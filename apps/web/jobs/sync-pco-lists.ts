@@ -84,18 +84,11 @@ export const syncPcoLists = task({
           console.log(`Starting to fetch list results for list ID: ${listId}`); // Debugging log
 
           while (listResultsNextUrl && listResultsPage < maxListResultsPages) {
-            console.log(
-              `Fetching list results from URL: ${listResultsNextUrl}`
-            ); // Debugging log
             const listResultsResponse = await fetch(listResultsNextUrl, {
               headers: {
                 Authorization: `Bearer ${pcoConnection.access_token}`,
               },
             });
-
-            console.log(
-              `List results response status: ${listResultsResponse.status}`
-            ); // Debugging log
 
             if (!listResultsResponse.ok) {
               console.error(
@@ -108,12 +101,8 @@ export const syncPcoLists = task({
 
             const listResultsData = await listResultsResponse.json();
 
-            console.log(`List results data:`, listResultsData); // Debugging log - view the entire data structure
-
             for (const result of listResultsData.data) {
-              console.log(`Processing list result:`, result); // Debugging log - see each individual result
               const personId = result.relationships.person.data.id;
-              console.log(`Person ID: ${personId}`); // Debugging log
 
               // Insert into pco_list_members table
               await supabase.from("pco_list_members").insert({
@@ -121,18 +110,11 @@ export const syncPcoLists = task({
                 pco_list_id: listId,
                 pco_person_id: personId,
               });
-              console.log(`Inserted list member:`, {
-                organization_id: payload.organization_id,
-                pco_list_id: listId,
-                pco_person_id: personId,
-              });
             }
 
             listResultsNextUrl = listResultsData.links?.next; // Use optional chaining
-            console.log(`Next list results URL: ${listResultsNextUrl}`); // Debugging log
             listResultsPage++;
           }
-          console.log(`Finished fetching list results for list ID: ${listId}`); // Debugging log
         } catch (error) {
           // Log error but continue processing other lists
           console.error(`Error processing list ${list.id}:`, error);
@@ -143,7 +125,6 @@ export const syncPcoLists = task({
       nextUrl = data.links.next;
       processedCount += data.data.length;
       pageCount++; // Increment page count
-      console.log(`Processed page ${processedCount}, nextUrl: ${nextUrl}`);
     }
 
     await supabase.from("pco_sync_status").upsert({

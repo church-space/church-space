@@ -73,10 +73,7 @@ export async function GET(request: NextRequest) {
 
     const pcoOrganizationData = await pcoOrganizationResponse.json();
 
-    if (
-      pcoUserData.data.attributes.can_email_lists !== true ||
-      pcoUserData.data.attributes.people_permissions !== "Manager"
-    ) {
+    if (pcoUserData.data.attributes.people_permissions !== "Manager") {
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/permissions-error`
       );
