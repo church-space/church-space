@@ -4,9 +4,11 @@ import crypto from "crypto";
 
 export async function POST(
   request: NextRequest,
-  { params }
+  context: any
 ): Promise<NextResponse> {
-  const { organizationId } = params;
+  // Cast the context so that we know params has organizationId.
+  const { organizationId } = (context as { params: { organizationId: string } })
+    .params;
   const data = await request.json();
   const supabase = await createClient();
 
