@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  context: { params: { organizationId: string } }
 ): Promise<NextResponse> {
   const data = await request.json();
   const supabase = await createClient();
@@ -22,11 +22,12 @@ export async function POST(
       { status: 400 }
     );
   }
+
   const { data: webhookData, error: fetchError } = await supabase
     .from("pco_webhooks")
     .select("authenticity_secret")
     .eq("webhook_id", webhookId)
-    .eq("organization_id", params.organizationId)
+    .eq("organization_id", context.params.organizationId)
     .single();
 
   if (fetchError) {
@@ -36,6 +37,7 @@ export async function POST(
       { status: 500 }
     );
   }
+
   if (!webhookData?.authenticity_secret) {
     console.error("No authenticity secret found for webhook ID:", webhookId);
     return NextResponse.json(
@@ -59,8 +61,8 @@ export async function POST(
       { status: 401 }
     );
   }
-  console.log("Webhook authenticity verified successfully!");
 
+  console.log("Webhook authenticity verified successfully!");
   if (webhookData) {
     console.log(webhookName, webhookData.authenticity_secret);
   }
