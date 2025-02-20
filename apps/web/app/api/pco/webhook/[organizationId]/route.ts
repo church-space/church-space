@@ -89,9 +89,9 @@ export async function POST(
       const listData = payload.data;
       const listId = listData.id;
       const listDescription =
-        listData.attributes.name || listData.attributes.name_or_description;
-      const lastRefreshedAt = listData.attributes.refreshed_at;
-      const totalPeople = listData.attributes.total_people;
+        listData.attributes?.name || listData.attributes?.name_or_description;
+      const lastRefreshedAt = listData.attributes?.refreshed_at;
+      const totalPeople = listData.attributes?.total_people;
 
       if (webhookName === "people.v2.events.list.destroyed") {
         // Delete the list
@@ -141,11 +141,11 @@ export async function POST(
       // Parse the payload string *first*.
       const payloadString = data.data[0].attributes.payload;
       const payload = JSON.parse(payloadString);
-      const listResults = payload.data;
+      let listResults = payload.data;
 
       if (!Array.isArray(listResults)) {
-        console.error("listResults is not an array", listResults);
-        break;
+        // If it's not an array, make it an array.
+        listResults = [listResults];
       }
 
       for (const listResult of listResults) {
@@ -171,11 +171,11 @@ export async function POST(
       // Parse the payload string *first*.
       const payloadString = data.data[0].attributes.payload;
       const payload = JSON.parse(payloadString);
-      const listResults = payload.data;
+      let listResults = payload.data;
 
       if (!Array.isArray(listResults)) {
-        console.error("listResults is not an array", listResults);
-        break;
+        // If it's not an array, make it an array.
+        listResults = [listResults];
       }
 
       for (const listResult of listResults) {
@@ -257,7 +257,7 @@ export async function POST(
         const pcoPersonId = emailData.relationships.person.data.id;
         const { error } = await supabase
           .from("people_emails")
-          .upsert({
+          .update({
             email: email,
             organization_id: organizationId,
             pco_email_id: pcoEmailId,
@@ -273,6 +273,23 @@ export async function POST(
             { received: false, error: "Failed to update email" },
             { status: 500 }
           );
+        }
+
+        // If the email is no longer primary, delete it.
+        if (emailData.attributes.primary === false) {
+          const { error: deleteError } = await supabase
+            .from("people_emails")
+            .delete()
+            .eq("pco_email_id", pcoEmailId)
+            .eq("organization_id", organizationId);
+
+          if (deleteError) {
+            console.error("Error deleting email:", deleteError);
+            return NextResponse.json(
+              { received: false, error: "Failed to delete email" },
+              { status: 500 }
+            );
+          }
         }
       }
       break;
