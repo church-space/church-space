@@ -109,6 +109,13 @@ export async function GET(request: NextRequest) {
   }
 
   // Redirect back to the original URL
-  const returnUrl = request.nextUrl.searchParams.get("return_to") || "/home";
-  return NextResponse.redirect(new URL(returnUrl, request.url));
+  const returnUrl = request.nextUrl.searchParams.get("return_to");
+  const finalReturnUrl =
+    returnUrl && returnUrl !== "/home"
+      ? returnUrl
+      : request.headers
+          .get("referer")
+          ?.replace(request.headers.get("origin") || "", "") || "/home";
+
+  return NextResponse.redirect(new URL(finalReturnUrl, request.url));
 }

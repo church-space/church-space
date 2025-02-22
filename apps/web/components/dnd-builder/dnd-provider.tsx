@@ -86,6 +86,7 @@ export default function DndProvider() {
                 }
               : null
           }
+          setSelectedBlockId={setSelectedBlockId}
         />
         <DndBuilderCanvas
           blocks={blocks}

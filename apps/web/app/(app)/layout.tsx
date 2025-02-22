@@ -41,12 +41,14 @@ export default async function ProtectedLayout({
     if (lastRefreshed < twoHoursAgo && lastRefreshed > ninetyDaysAgo) {
       // Token needs refresh but isn't expired
       const headersList = await headers();
-      const currentPath = headersList.get("x-pathname") || "/home";
+      const currentPath = headersList.get("x-pathname");
+      const returnPath =
+        currentPath || headersList.get("x-invoke-path") || "/home";
 
-      console.log("Redirecting to:", currentPath);
+      console.log("Redirecting to:", returnPath);
 
       return redirect(
-        `/pco-refresh?return_to=${encodeURIComponent(currentPath)}`
+        `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`
       );
     }
 

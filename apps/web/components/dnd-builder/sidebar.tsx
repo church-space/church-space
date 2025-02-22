@@ -20,10 +20,19 @@ import { Separator } from "@trivo/ui/separator";
 import { Select, SelectTrigger, SelectValue } from "@trivo/ui/select";
 import { AnimatePresence, motion } from "framer-motion";
 import { BlockType } from "@/types/blocks";
+import DndBuilderSidebarForms from "./sidebar-forms";
+import React from "react";
 
 interface DndBuilderSidebarProps {
   className?: string;
   type: "email" | "form";
+  onBgColorChange?: (color: string) => void;
+  bgColor?: string;
+  selectedBlock?: {
+    id: string | null;
+    type: BlockType | null;
+  } | null;
+  setSelectedBlockId: (id: string | null) => void;
 }
 
 function DraggableBlock({
@@ -62,14 +71,13 @@ export default function DndBuilderSidebar({
   onBgColorChange,
   bgColor,
   selectedBlock,
-}: DndBuilderSidebarProps & {
-  onBgColorChange?: (color: string) => void;
-  bgColor?: string;
-  selectedBlock?: {
-    id: string | null;
-    type: BlockType | null;
-  } | null;
-}) {
+  setSelectedBlockId,
+}: DndBuilderSidebarProps) {
+  const [hasMounted, setHasMounted] = React.useState(false);
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   const allBlockTypes = [
     { label: "Text", type: "text", icon: Typography },
     { label: "Image", type: "image", icon: Image },
@@ -111,60 +119,92 @@ export default function DndBuilderSidebar({
   return (
     <div
       className={cn(
-        "w-[400px] flex-shrink-0 bg-sidebar rounded-md h-[calc(100vh-5rem)] sticky top-16 p-4",
+        "w-[400px] flex-shrink-0 bg-sidebar rounded-md h-[calc(100vh-5rem)] sticky top-16 p-4 overflow-hidden",
         className
       )}
     >
-      <div className=" gap-2  grid grid-cols-3">
-        {blockTypes.map((block) => (
-          <DraggableBlock key={block.type} block={block} />
-        ))}
-      </div>
-      <Separator className="my-6" />
-      <Label className="font-bold px-2 text-lg">Style</Label>
-      <div className="flex flex-col gap-4 px-2 mt-2">
-        <div className="grid grid-cols-3 items-center gap-2">
-          <Label className="font-medium">BG Color</Label>
-          <Input
-            className="col-span-2"
-            type="color"
-            onChange={(e) => onBgColorChange?.(e.target.value)}
-            value={bgColor}
-          />
-        </div>
-        <div className="grid grid-cols-3 items-center gap-2">
-          <Label className="font-medium">Default Text Color</Label>
-          <Input className="col-span-2" type="color" />
-        </div>
-        <div className="grid grid-cols-3 items-center gap-2">
-          <Label className="font-medium">Default Font</Label>
-          <Select>
-            <SelectTrigger className="col-span-2">
-              <SelectValue placeholder="Select a font" />
-            </SelectTrigger>
-          </Select>
-        </div>
-        <div className="grid grid-cols-3 items-center gap-2">
-          <Label className="font-medium">Footer BG Color</Label>
-          <Input className="col-span-2" type="color" />
-        </div>
-        <div className="grid grid-cols-3 items-center gap-2">
-          <Label className="font-medium">Footer Text Color</Label>
-          <Input className="col-span-2" type="color" />
-        </div>
-        <div className="grid grid-cols-3 items-center gap-2">
-          <Label className="font-medium">Footer Font</Label>
-          <Select>
-            <SelectTrigger className="col-span-2">
-              <SelectValue placeholder="Select a font" />
-            </SelectTrigger>
-          </Select>
-        </div>
-      </div>
-      <Separator className="my-6" />
-      Selected block ID: <span className="font-bold">{selectedBlock?.id}</span>
-      Selected block type:{" "}
-      <span className="font-bold">{selectedBlock?.type}</span>
+      <AnimatePresence mode="sync">
+        {selectedBlock?.id ? (
+          <motion.div
+            key="selected-block"
+            initial={{ x: hasMounted ? 400 : 0 }}
+            animate={{ x: 0 }}
+            exit={{ x: 400 }}
+            transition={{
+              type: "spring",
+              stiffness: 200,
+              damping: 20,
+              mass: 0.8,
+            }}
+            className="absolute inset-0 p-4 bg-sidebar"
+          >
+            <DndBuilderSidebarForms
+              selectedBlock={selectedBlock as { id: string; type: BlockType }}
+              setSelectedBlockId={setSelectedBlockId}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="default-content"
+            initial={{ x: hasMounted ? -400 : 0 }}
+            animate={{ x: 0 }}
+            exit={{ x: -400 }}
+            transition={{
+              type: "spring",
+              stiffness: 200,
+              damping: 20,
+              mass: 0.8,
+            }}
+          >
+            <div className="gap-2 grid grid-cols-3">
+              {blockTypes.map((block) => (
+                <DraggableBlock key={block.type} block={block} />
+              ))}
+            </div>
+            <Separator className="my-6" />
+            <Label className="font-bold px-2 text-lg">Style</Label>
+            <div className="flex flex-col gap-4 px-2 mt-2">
+              <div className="grid grid-cols-3 items-center gap-2">
+                <Label className="font-medium">BG Color</Label>
+                <Input
+                  className="col-span-2"
+                  type="color"
+                  onChange={(e) => onBgColorChange?.(e.target.value)}
+                  value={bgColor}
+                />
+              </div>
+              <div className="grid grid-cols-3 items-center gap-2">
+                <Label className="font-medium">Default Text Color</Label>
+                <Input className="col-span-2" type="color" />
+              </div>
+              <div className="grid grid-cols-3 items-center gap-2">
+                <Label className="font-medium">Default Font</Label>
+                <Select>
+                  <SelectTrigger className="col-span-2">
+                    <SelectValue placeholder="Select a font" />
+                  </SelectTrigger>
+                </Select>
+              </div>
+              <div className="grid grid-cols-3 items-center gap-2">
+                <Label className="font-medium">Footer BG Color</Label>
+                <Input className="col-span-2" type="color" />
+              </div>
+              <div className="grid grid-cols-3 items-center gap-2">
+                <Label className="font-medium">Footer Text Color</Label>
+                <Input className="col-span-2" type="color" />
+              </div>
+              <div className="grid grid-cols-3 items-center gap-2">
+                <Label className="font-medium">Footer Font</Label>
+                <Select>
+                  <SelectTrigger className="col-span-2">
+                    <SelectValue placeholder="Select a font" />
+                  </SelectTrigger>
+                </Select>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
