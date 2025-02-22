@@ -1,21 +1,18 @@
 "use client";
 
+import type { Block as BlockType } from "@/types/blocks";
 import {
   DndContext,
-  DragOverlay,
+  PointerSensor,
   useSensor,
   useSensors,
-  PointerSensor,
 } from "@dnd-kit/core";
 import { useState } from "react";
-import type { Block as BlockType } from "@/types/blocks";
-import Block from "./block";
-import DndBuilderSidebar from "./sidebar";
 import DndBuilderCanvas from "./canvas";
+import DndBuilderSidebar from "./sidebar";
 
 export default function DndProvider() {
   const [blocks, setBlocks] = useState<BlockType[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [bgColor, setBgColor] = useState("#f4f4f5");
   const sensors = useSensors(
@@ -26,13 +23,8 @@ export default function DndProvider() {
     })
   );
 
-  const handleDragStart = (event: any) => {
-    setActiveId(event.active.id);
-  };
-
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
-    setActiveId(null);
 
     if (!over) {
       return;
@@ -72,21 +64,28 @@ export default function DndProvider() {
 
   const handleDeleteBlock = (id: string) => {
     setBlocks(blocks.filter((block) => block.id !== id));
+    if (id === selectedBlockId) {
+      setSelectedBlockId(null);
+    }
   };
 
   return (
-    <DndContext
-      id="dnd-builder"
-      sensors={sensors}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
+    <DndContext id="dnd-builder" sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="flex gap-4 p-4 relative">
         <DndBuilderSidebar
           type="email"
           onBgColorChange={setBgColor}
           bgColor={bgColor}
-          selectedBlockId={selectedBlockId}
+          selectedBlock={
+            selectedBlockId &&
+            blocks.find((block) => block.id === selectedBlockId)
+              ? {
+                  id: selectedBlockId,
+                  type: blocks.find((block) => block.id === selectedBlockId)!
+                    .type,
+                }
+              : null
+          }
         />
         <DndBuilderCanvas
           blocks={blocks}

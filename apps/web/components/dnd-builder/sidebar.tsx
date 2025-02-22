@@ -19,6 +19,7 @@ import { Input } from "@trivo/ui/input";
 import { Separator } from "@trivo/ui/separator";
 import { Select, SelectTrigger, SelectValue } from "@trivo/ui/select";
 import { AnimatePresence, motion } from "framer-motion";
+import { BlockType } from "@/types/blocks";
 
 interface DndBuilderSidebarProps {
   className?: string;
@@ -60,11 +61,14 @@ export default function DndBuilderSidebar({
   type,
   onBgColorChange,
   bgColor,
-  selectedBlockId,
+  selectedBlock,
 }: DndBuilderSidebarProps & {
   onBgColorChange?: (color: string) => void;
   bgColor?: string;
-  selectedBlockId?: string | null;
+  selectedBlock?: {
+    id: string | null;
+    type: BlockType | null;
+  } | null;
 }) {
   const allBlockTypes = [
     { label: "Text", type: "text", icon: Typography },
@@ -158,7 +162,9 @@ export default function DndBuilderSidebar({
         </div>
       </div>
       <Separator className="my-6" />
-      Selected block ID: <span className="font-bold">{selectedBlockId}</span>
+      Selected block ID: <span className="font-bold">{selectedBlock?.id}</span>
+      Selected block type:{" "}
+      <span className="font-bold">{selectedBlock?.type}</span>
     </div>
   );
 }

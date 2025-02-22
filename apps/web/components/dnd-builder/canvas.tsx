@@ -35,7 +35,10 @@ export default function DndBuilderCanvas({
       onClick={() => onBlockSelect(null)}
     >
       {blocks.length === 0 ? (
-        <DroppableSpot index={0} show={!isReordering} isLast={true} />
+        <>
+          <DroppableSpot index={0} show={!isReordering} isLast={true} />
+          <div className="h-28 w-full bg-gray-200">no blocks here</div>
+        </>
       ) : (
         <>
           {blocks.map((block, index) => (
@@ -88,7 +91,7 @@ function DroppableSpot({
     <div
       ref={setNodeRef}
       className={`h-2 mx-auto w-full max-w-2xl transition-all 
-        ${isLast ? "h-44" : "h-2"}
+        ${isLast ? "h-28" : "h-2"}
         ${
           isOver
             ? "h-24 border-blue-500 border border-dashed rounded-md bg-blue-500/10"
