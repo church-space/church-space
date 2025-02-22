@@ -31,18 +31,18 @@ export default function DndBuilderCanvas({
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 rounded-md py-4  ${
-        isOver && blocks.length === 0 ? "ring-2 ring-blue-500" : ""
-      }`}
+      className={`flex-1 rounded-md py-4`}
       style={{ backgroundColor: bgColor }}
       onClick={() => onBlockSelect(null)}
     >
       {blocks.length === 0 ? (
         <>
-          <DroppableSpot index={0} show={!isReordering} isLast={true} />
-          <div className="h-96 w-full bg-gray-200 flex items-center justify-center">
-            no blocks here
-          </div>
+          <DroppableSpot
+            index={0}
+            show={true}
+            nullState={true}
+            isLast={false}
+          />
         </>
       ) : (
         <>
@@ -52,6 +52,7 @@ export default function DndBuilderCanvas({
                 index={index}
                 show={!isReordering}
                 isLast={false}
+                nullState={false}
               />
               <Block
                 id={block.id}
@@ -70,6 +71,7 @@ export default function DndBuilderCanvas({
             index={blocks.length}
             show={!isReordering}
             isLast={true}
+            nullState={false}
           />
         </>
       )}
@@ -81,10 +83,12 @@ function DroppableSpot({
   index,
   show,
   isLast,
+  nullState,
 }: {
   index: number;
   show: boolean;
   isLast: boolean;
+  nullState: boolean;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: `droppable-${index}`,
@@ -98,11 +102,18 @@ function DroppableSpot({
       ref={setNodeRef}
       className={`h-2 mx-auto w-full max-w-2xl transition-all 
         ${isLast ? "h-28" : "h-2"}
+        ${nullState ? "h-96 " : ""}
         ${
           isOver
             ? "h-24 border-blue-500 border border-dashed rounded-md bg-blue-500/10"
             : ""
         }`}
-    />
+    >
+      {nullState && (
+        <div className="h-96 w-full  flex items-center justify-center">
+          no blocks here
+        </div>
+      )}
+    </div>
   );
 }
