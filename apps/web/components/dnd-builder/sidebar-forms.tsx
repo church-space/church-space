@@ -20,7 +20,7 @@ export default function DndBuilderSidebarForms({
   setSelectedBlockId: (id: string | null) => void;
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 overflow-hidden h-full">
       <div className="flex gap-2 items-center">
         <Button
           className="px-1 py-0 h-7 text-muted-foreground gap-1"
@@ -31,15 +31,17 @@ export default function DndBuilderSidebarForms({
           Back
         </Button>
       </div>
-      {selectedBlock.type === "button" && <ButtonForm />}
-      {selectedBlock.type === "text" && <TextForm />}
-      {selectedBlock.type === "image" && <ImageForm />}
-      {selectedBlock.type === "video" && <VideoForm />}
-      {selectedBlock.type === "divider" && <DividerForm />}
-      {selectedBlock.type === "file-download" && <FileDownloadForm />}
-      {selectedBlock.type === "cards" && <CardsForm />}
-      {selectedBlock.type === "list" && <ListForm />}
-      {selectedBlock.type === "author" && <AuthorForm />}
+      <div className="h-full overflow-y-auto">
+        {selectedBlock.type === "button" && <ButtonForm />}
+        {selectedBlock.type === "text" && <TextForm />}
+        {selectedBlock.type === "image" && <ImageForm />}
+        {selectedBlock.type === "video" && <VideoForm />}
+        {selectedBlock.type === "divider" && <DividerForm />}
+        {selectedBlock.type === "file-download" && <FileDownloadForm />}
+        {selectedBlock.type === "cards" && <CardsForm />}
+        {selectedBlock.type === "list" && <ListForm />}
+        {selectedBlock.type === "author" && <AuthorForm />}
+      </div>
     </div>
   );
 }

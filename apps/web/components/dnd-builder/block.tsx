@@ -49,13 +49,13 @@ export default function Block({
       className={`w-full flex justify-center relative group/block ${
         isDragging ? "opacity-50" : ""
       } `}
-      onClick={onSelect}
     >
       <div
         className={cn(
           "max-w-2xl w-full p-2 px-3 relative ",
           isSelected && "ring-2 ring-blue-500 rounded-md"
         )}
+        onClick={onSelect}
       >
         <div
           className={`absolute top-0 right-4 items-center justify-center bg-accent border rounded-md hidden group-hover/block:flex z-10 ${
