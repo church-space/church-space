@@ -5,9 +5,13 @@ import type { Block as BlockType } from "@/types/blocks";
 
 interface CanvasProps {
   blocks: BlockType[];
+  onDeleteBlock: (id: string) => void;
 }
 
-export default function DndBuilderCanvas({ blocks }: CanvasProps) {
+export default function DndBuilderCanvas({
+  blocks,
+  onDeleteBlock,
+}: CanvasProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: "canvas",
   });
@@ -15,18 +19,27 @@ export default function DndBuilderCanvas({ blocks }: CanvasProps) {
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 bg-muted rounded-md min-h-[calc(120vh)]`}
+      className={`flex-1 bg-muted rounded-md min-h-[calc(120vh)] ${
+        isOver && blocks.length === 0 ? "ring-2 ring-blue-500" : ""
+      }`}
     >
-      {blocks.length === 0 && <DroppableSpot index={0} />}
-
-      {blocks.map((block, index) => (
-        <React.Fragment key={block.id}>
-          <DroppableSpot index={index} />
-          <Block id={block.id} type={block.type} />
-        </React.Fragment>
-      ))}
-
-      <DroppableSpot index={blocks.length} />
+      {blocks.length === 0 ? (
+        <DroppableSpot index={0} />
+      ) : (
+        <>
+          {blocks.map((block, index) => (
+            <React.Fragment key={block.id}>
+              <DroppableSpot index={index} />
+              <Block
+                id={block.id}
+                type={block.type}
+                onDelete={() => onDeleteBlock(block.id)}
+              />
+            </React.Fragment>
+          ))}
+          <DroppableSpot index={blocks.length} />
+        </>
+      )}
     </div>
   );
 }
@@ -40,8 +53,10 @@ function DroppableSpot({ index }: { index: number }) {
   return (
     <div
       ref={setNodeRef}
-      className={`h-2 w-full transition-all ${
-        isOver ? "h-12 bg-primary/20" : ""
+      className={`h-2 mx-auto w-full max-w-2xl transition-all ${
+        isOver
+          ? "h-24 border-blue-500 border border-dashed rounded-md bg-blue-500/10"
+          : ""
       }`}
     />
   );

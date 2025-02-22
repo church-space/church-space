@@ -1,4 +1,16 @@
 import React from "react";
+import {
+  MailFilled,
+  Instagram,
+  Facebook,
+  Linkedin,
+  Bluesky,
+  LinkIcon,
+  Threads,
+  TikTok,
+  XTwitter,
+  Youtube,
+} from "@trivo/ui/icons";
 
 export default function AuthorBlock() {
   return (
@@ -10,7 +22,13 @@ export default function AuthorBlock() {
           <p className="text-sm text-muted-foreground">Author</p>
         </div>
       </div>
-      <div className="flex gap-2">IG, FB, LI</div>
+      <div className="flex gap-2">
+        <Instagram />
+        <TikTok />
+        <XTwitter />
+        <MailFilled />
+        <LinkIcon />
+      </div>
     </div>
   );
 }

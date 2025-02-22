@@ -11,14 +11,16 @@ import CardsBlock from "./block-types/cards";
 import AuthorBlock from "./block-types/author";
 import TextBlock from "./block-types/text";
 import ButtonBlock from "./block-types/button";
+import ListBlock from "./block-types/list";
 
 interface BlockProps {
   type: string;
   id?: string;
   isDragging?: boolean;
+  onDelete?: () => void;
 }
 
-export default function Block({ type, id, isDragging }: BlockProps) {
+export default function Block({ type, id, isDragging, onDelete }: BlockProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: id || "",
     data: { type },
@@ -38,7 +40,7 @@ export default function Block({ type, id, isDragging }: BlockProps) {
     >
       <div className="max-w-2xl w-full p-2 px-3 relative">
         <div
-          className={`absolute top-0 right-4 items-center justify-center bg-accent border rounded-md hidden group-hover:flex ${
+          className={`absolute top-0 right-4 items-center justify-center bg-accent border rounded-md hidden group-hover:flex z-10 ${
             isDragging ? "opacity-0" : "opacity-100"
           }`}
         >
@@ -48,6 +50,7 @@ export default function Block({ type, id, isDragging }: BlockProps) {
                 variant="ghost"
                 size="icon"
                 className="rounded-r-none h-8 w-7 pl-1"
+                onClick={onDelete}
               >
                 <Trash />
               </Button>
@@ -75,6 +78,7 @@ export default function Block({ type, id, isDragging }: BlockProps) {
         {type === "author" && <AuthorBlock />}
         {type === "text" && <TextBlock />}
         {type === "button" && <ButtonBlock />}
+        {type === "list" && <ListBlock />}
       </div>
     </div>
   );

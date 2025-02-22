@@ -11,6 +11,7 @@ import {
   Typography,
   Video,
   Section,
+  List,
 } from "@trivo/ui/icons";
 import { useDraggable } from "@dnd-kit/core";
 
@@ -41,7 +42,7 @@ function DraggableBlock({
       {...listeners}
       {...attributes}
       style={style}
-      className="flex flex-col items-center gap-1 bg-accent p-3 rounded-md cursor-grab"
+      className="flex flex-col items-center gap-1 bg-accent p-3 rounded-md cursor-grab border shadow-sm"
     >
       <block.icon />
       <span>{block.label}</span>
@@ -54,7 +55,6 @@ export default function DndBuilderSidebar({
   type,
 }: DndBuilderSidebarProps) {
   const allBlockTypes = [
-    { label: "Section", type: "section", icon: Section },
     { label: "Text", type: "text", icon: Typography },
     { label: "Image", type: "image", icon: Image },
     { label: "Button", type: "button", icon: Button },
@@ -62,6 +62,7 @@ export default function DndBuilderSidebar({
     { label: "Divider", type: "divider", icon: Divider },
     { label: "Video", type: "video", icon: Video },
     { label: "Cards", type: "cards", icon: Grid },
+    { label: "List", type: "list", icon: List },
     { label: "Author", type: "author", icon: CircleUser },
     { label: "Input", type: "input", icon: Home },
     { label: "Select", type: "select", icon: ArrowRight },
@@ -83,6 +84,7 @@ export default function DndBuilderSidebar({
     "video",
     "cards",
     "author",
+    "list",
   ];
 
   const blockTypes =

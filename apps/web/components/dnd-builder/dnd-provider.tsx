@@ -66,29 +66,21 @@ export default function DndProvider() {
     }
   };
 
+  const handleDeleteBlock = (id: string) => {
+    setBlocks(blocks.filter((block) => block.id !== id));
+  };
+
   return (
     <DndContext
+      id="dnd-builder"
       sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
       <div className="flex gap-4 p-4 relative">
         <DndBuilderSidebar type="email" />
-        <DndBuilderCanvas blocks={blocks} />
+        <DndBuilderCanvas blocks={blocks} onDeleteBlock={handleDeleteBlock} />
       </div>
-      <DragOverlay>
-        {activeId && (
-          <div className="opacity-50">
-            <Block
-              type={
-                activeId.startsWith("sidebar-")
-                  ? activeId.replace("sidebar-", "")
-                  : blocks.find((b) => b.id === activeId)?.type || ""
-              }
-            />
-          </div>
-        )}
-      </DragOverlay>
     </DndContext>
   );
 }

@@ -14,7 +14,8 @@ export type BlockType =
   | "checkboxes"
   | "file-upload"
   | "rating"
-  | "address";
+  | "address"
+  | "list";
 
 export interface Block {
   id: string;
