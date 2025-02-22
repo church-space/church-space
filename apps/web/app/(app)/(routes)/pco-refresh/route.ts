@@ -88,9 +88,11 @@ export async function GET(request: NextRequest) {
   const pcoUserData = await pcoUserResponse.json();
 
   if (
-    pcoUserData.data.attributes.people_permissions !== "Manager" ||
-    pcoUserData.data.attributes.people_permissions !== "Editor" ||
-    pcoUserData.data.attributes.can_email_lists === false
+    !(
+      pcoUserData.data.attributes.people_permissions === "Manager" ||
+      pcoUserData.data.attributes.people_permissions === "Editor"
+    ) ||
+    !pcoUserData.data.attributes.can_email_lists
   ) {
     const { error: deleteError } = await supabase
       .from("organization_memberships")

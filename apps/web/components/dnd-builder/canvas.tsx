@@ -15,11 +15,34 @@ export default function DndBuilderCanvas({ blocks }: CanvasProps) {
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 bg-muted rounded-md min-h-[calc(120vh)] ${isOver ? "ring-2 ring-primary" : ""}`}
+      className={`flex-1 bg-muted rounded-md min-h-[calc(120vh)]`}
     >
-      {blocks.map((block) => (
-        <Block key={block.id} type={block.type} />
+      {blocks.length === 0 && <DroppableSpot index={0} />}
+
+      {blocks.map((block, index) => (
+        <React.Fragment key={block.id}>
+          <DroppableSpot index={index} />
+          <Block id={block.id} type={block.type} />
+        </React.Fragment>
       ))}
+
+      <DroppableSpot index={blocks.length} />
     </div>
+  );
+}
+
+function DroppableSpot({ index }: { index: number }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `droppable-${index}`,
+    data: { index },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`h-2 w-full transition-all ${
+        isOver ? "h-12 bg-primary/20" : ""
+      }`}
+    />
   );
 }
