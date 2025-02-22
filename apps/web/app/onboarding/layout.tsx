@@ -16,7 +16,7 @@ export default async function ProtectedLayout({
     return redirect("/login");
   }
 
-  if (user.organizationMembership !== null) {
+  if (user.organizationMembership) {
     return redirect("/home");
   }
 

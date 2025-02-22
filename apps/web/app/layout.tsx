@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@trivo/ui/toaster";
+import { TooltipProvider } from "@trivo/ui/tooltip";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        {children}
+        <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         <Toaster />
       </body>
     </html>

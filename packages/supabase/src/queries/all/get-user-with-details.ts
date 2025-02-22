@@ -20,8 +20,6 @@ export async function getUserWithDetailsQuery(supabase: Client) {
     throw userDetailsError;
   }
 
-  console.log("userDetails", userDetails);
-
   // Fetch the user's organization membership.
   const { data: organizationMembership, error: organizationMembershipError } =
     await supabase
@@ -30,14 +28,12 @@ export async function getUserWithDetailsQuery(supabase: Client) {
       .eq("user_id", data.user.id)
       .single();
 
-  if (organizationMembershipError) {
-    console.log("organizationMembershipError", organizationMembershipError);
-  }
-
-  console.log("organizationMembership", organizationMembership);
-
-  if (!organizationMembership?.organization_id) {
-    return { user: data.user, userDetails };
+  if (organizationMembershipError || !organizationMembership) {
+    // Return early if there's no organization membership or if there was an error
+    return {
+      user: data.user,
+      userDetails: userDetails?.[0] || null,
+    };
   }
 
   // Fetch the PCO connection for the user's organization.

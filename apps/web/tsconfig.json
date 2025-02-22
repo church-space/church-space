@@ -1,5 +1,5 @@
 {
-  "name": "@trivo/church-email",
+  "name": "@trivo/web",
   "version": "0.1.0",
   "private": true,
   "compilerOptions": {

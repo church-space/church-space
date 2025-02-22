@@ -4,12 +4,13 @@
   "private": true,
   "packageManager": "pnpm@9.14.2",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
     "@hookform/resolvers": "^4.1.0",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-separator": "^1.1.2",
@@ -21,7 +22,6 @@
     "@trivo/supabase": "workspace:*",
     "@trivo/ui": "workspace:*",
     "@upstash/ratelimit": "^2.0.5",
-    "autoprefixer": "10.4.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.4",
@@ -43,12 +43,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "10.4.17",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
-    "postcss": "^8",
+    "postcss": "^8.5.2",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
   }

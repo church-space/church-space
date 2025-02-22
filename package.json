@@ -1,5 +1,5 @@
 {
-  "name": "church-comms",
+  "name": "trivo",
   "private": true,
   "workspaces": [
     "apps/*",

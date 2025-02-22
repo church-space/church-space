@@ -132,6 +132,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Helper function to delete organization and redirect
+    const handleError = async (error: any, errorType: string) => {
+      console.error("Supabase error:", error);
+      // Delete the organization if it exists
+      if (organization?.[0]?.id) {
+        await supabase
+          .from("organizations")
+          .delete()
+          .eq("id", organization[0].id);
+      }
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=${errorType}`
+      );
+    };
+
     const { error: insertOrganizationMembershipError } = await supabase
       .from("organization_memberships")
       .insert({
@@ -140,9 +155,9 @@ export async function GET(request: NextRequest) {
       });
 
     if (insertOrganizationMembershipError) {
-      console.error("Supabase error:", insertOrganizationMembershipError);
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=organization_membership_db_error`
+      return handleError(
+        insertOrganizationMembershipError,
+        "organization_membership_db_error"
       );
     }
 
@@ -156,10 +171,7 @@ export async function GET(request: NextRequest) {
       });
 
     if (emailCategoryError) {
-      console.error("Supabase error:", emailCategoryError);
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=email_category_db_error`
-      );
+      return handleError(emailCategoryError, "email_category_db_error");
     }
 
     const { error: updateUserError } = await supabase
@@ -172,10 +184,7 @@ export async function GET(request: NextRequest) {
       .eq("id", user.id);
 
     if (updateUserError) {
-      console.error("Supabase error:", updateUserError);
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=user_db_error`
-      );
+      return handleError(updateUserError, "user_db_error");
     }
 
     const { error: upsertError } = await supabase
@@ -193,10 +202,7 @@ export async function GET(request: NextRequest) {
       .select("id");
 
     if (upsertError) {
-      console.error("Supabase error:", upsertError);
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_connection_db_error`
-      );
+      return handleError(upsertError, "pco_connection_db_error");
     }
 
     // First create webhook entries in Supabase
@@ -239,7 +245,10 @@ export async function GET(request: NextRequest) {
 
       if (!createWebhookResponse.ok) {
         console.error(`Failed to create PCO webhook for ${event}`);
-        continue;
+        return handleError(
+          new Error(`Failed to create PCO webhook for ${event}`),
+          "webhook_creation_error"
+        );
       }
 
       const webhookData = await createWebhookResponse.json();
@@ -261,7 +270,7 @@ export async function GET(request: NextRequest) {
           `Failed to create webhook record for ${event}:`,
           webhookError
         );
-        // If Supabase webhook creation fails, delete the PCO record
+        // Delete the PCO webhook we just created
         await fetch(
           `https://api.planningcenteronline.com/webhooks/v2/subscriptions/${webhookData.data.id}`,
           {
@@ -271,7 +280,7 @@ export async function GET(request: NextRequest) {
             },
           }
         );
-        continue;
+        return handleError(webhookError, "webhook_db_error");
       }
     }
 
