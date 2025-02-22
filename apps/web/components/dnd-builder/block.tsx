@@ -3,6 +3,8 @@ import { Grip, Trash } from "@trivo/ui/icons";
 import { Button } from "@trivo/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@trivo/ui/tooltip";
 import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import DividerBlock from "./block-types/divider";
 import ImageBlock from "./block-types/image";
 import FileDownloadBlock from "./block-types/file-download";
@@ -19,88 +21,59 @@ interface BlockProps {
   type: string;
   id?: string;
   isDragging?: boolean;
-  onDelete?: () => void;
   isSelected?: boolean;
   onSelect?: (e: React.MouseEvent) => void;
   editor: Editor | null;
+  isOverlay?: boolean;
 }
 
 export default function Block({
   type,
   id,
   isDragging,
-  onDelete,
   isSelected,
   onSelect,
   editor,
+  isOverlay,
 }: BlockProps) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: id || "",
-    data: { type },
-  });
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: id || "temp-id",
+      data: {
+        type,
+        id,
+      },
+      disabled: isOverlay,
+    });
 
-  const style = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
-    : undefined;
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`w-full flex justify-center relative group/block ${
-        isDragging ? "opacity-50" : ""
-      } `}
+      {...(!isOverlay ? attributes : {})}
+      {...(!isOverlay ? listeners : {})}
+      className={cn(
+        "relative mx-auto w-full max-w-2xl rounded-md p-4 border border-transparent hover:border-border",
+        isDragging && "opacity-50",
+        isSelected && "ring-2 ring-blue-500",
+        isOverlay && "opacity-80 shadow-lg"
+      )}
+      onClick={(e) => onSelect?.(e)}
     >
-      <div
-        className={cn(
-          "max-w-2xl w-full p-2 px-3 relative ",
-          isSelected && "ring-2 ring-blue-500 rounded-md"
-        )}
-        onClick={onSelect}
-      >
-        <div
-          className={`absolute top-0 right-4 items-center justify-center bg-accent border rounded-md hidden group-hover/block:flex z-10 ${
-            isDragging ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-r-none h-8 w-7 pl-1"
-                onClick={onDelete}
-              >
-                <Trash />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Delete</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                {...attributes}
-                {...listeners}
-                className="rounded-l-none bg-accent rounded-md transition-colors cursor-grab flex items-center justify-center w-7 pr-1"
-              >
-                <Grip />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Move</TooltipContent>
-          </Tooltip>
-        </div>
-        {type === "divider" && <DividerBlock />}
-        {type === "image" && <ImageBlock />}
-        {type === "file-download" && <FileDownloadBlock />}
-        {type === "video" && <VideoBlock />}
-        {type === "cards" && <CardsBlock />}
-        {type === "author" && <AuthorBlock />}
-        {type === "text" && <TextBlock editor={editor} />}
-        {type === "button" && <ButtonBlock />}
-        {type === "list" && <ListBlock />}
-      </div>
+      {type === "divider" && <DividerBlock />}
+      {type === "image" && <ImageBlock />}
+      {type === "file-download" && <FileDownloadBlock />}
+      {type === "video" && <VideoBlock />}
+      {type === "cards" && <CardsBlock />}
+      {type === "author" && <AuthorBlock />}
+      {type === "text" && <TextBlock editor={editor} />}
+      {type === "button" && <ButtonBlock />}
+      {type === "list" && <ListBlock />}
     </div>
   );
 }

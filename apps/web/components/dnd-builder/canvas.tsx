@@ -3,10 +3,10 @@ import Block from "./block";
 import { useDroppable } from "@dnd-kit/core";
 import type { Block as BlockType } from "@/types/blocks";
 import { Editor } from "@tiptap/react";
+import { cn } from "@trivo/ui/cn";
 
 interface CanvasProps {
   blocks: BlockType[];
-  onDeleteBlock: (id: string) => void;
   bgColor: string;
   onBlockSelect: (id: string | null) => void;
   selectedBlockId: string | null;
@@ -15,66 +15,46 @@ interface CanvasProps {
 
 export default function DndBuilderCanvas({
   blocks,
-  onDeleteBlock,
   bgColor,
   onBlockSelect,
   selectedBlockId,
   editors,
 }: CanvasProps) {
-  const { setNodeRef, isOver, active } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: "canvas",
+    data: {
+      type: "canvas",
+    },
   });
-
-  // Check if we're dragging an existing block (reordering) or a new block
-  const isReordering = active?.data?.current?.type === undefined;
 
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 rounded-md py-4`}
+      className={cn(
+        "flex-1 rounded-md py-4 min-h-[200px]",
+        isOver && "ring-2 ring-blue-500/50"
+      )}
       style={{ backgroundColor: bgColor }}
       onClick={() => onBlockSelect(null)}
     >
-      {blocks.length === 0 ? (
-        <>
-          <DroppableSpot
-            index={0}
-            show={true}
-            nullState={true}
-            isLast={false}
-          />
-        </>
-      ) : (
-        <>
-          {blocks.map((block, index) => (
-            <React.Fragment key={block.id}>
-              <DroppableSpot
-                index={index}
-                show={!isReordering}
-                isLast={false}
-                nullState={false}
-              />
-              <Block
-                id={block.id}
-                type={block.type}
-                onDelete={() => onDeleteBlock(block.id)}
-                isSelected={selectedBlockId === block.id}
-                onSelect={(e) => {
-                  e.stopPropagation();
-                  onBlockSelect(block.id);
-                }}
-                editor={editors[block.id]}
-              />
-            </React.Fragment>
-          ))}
-          <DroppableSpot
-            index={blocks.length}
-            show={!isReordering}
-            isLast={true}
-            nullState={false}
-          />
-        </>
+      {blocks.length === 0 && (
+        <div className="h-full w-full flex items-center justify-center text-gray-500">
+          Drag blocks here
+        </div>
       )}
+      {blocks.map((block, index) => (
+        <Block
+          key={block.id}
+          id={block.id}
+          type={block.type}
+          isSelected={selectedBlockId === block.id}
+          onSelect={(e) => {
+            e.stopPropagation();
+            onBlockSelect(block.id);
+          }}
+          editor={editors[block.id]}
+        />
+      ))}
     </div>
   );
 }

@@ -15,9 +15,11 @@ import { ChevronLeft } from "@trivo/ui/icons";
 export default function DndBuilderSidebarForms({
   selectedBlock,
   setSelectedBlockId,
+  onDeleteBlock,
 }: {
   selectedBlock: { id: string; type: BlockType };
   setSelectedBlockId: (id: string | null) => void;
+  onDeleteBlock: (id: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-4 overflow-hidden h-full">
@@ -41,6 +43,14 @@ export default function DndBuilderSidebarForms({
         {selectedBlock.type === "cards" && <CardsForm />}
         {selectedBlock.type === "list" && <ListForm />}
         {selectedBlock.type === "author" && <AuthorForm />}
+      </div>
+      <div className="flex gap-2 items-center justify-end">
+        <Button
+          variant="destructive"
+          onClick={() => onDeleteBlock(selectedBlock.id)}
+        >
+          Delete Block
+        </Button>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { cn } from "@trivo/ui/cn";
 import {
   ArrowRight,
-  Button,
+  Button as ButtonIcon,
   CircleUser,
   Divider,
   Download,
@@ -12,6 +12,7 @@ import {
   Video,
   Section,
   List,
+  Trash,
 } from "@trivo/ui/icons";
 import { useDraggable } from "@dnd-kit/core";
 import { Label } from "@trivo/ui/label";
@@ -22,6 +23,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BlockType } from "@/types/blocks";
 import DndBuilderSidebarForms from "./sidebar-forms";
 import React from "react";
+import { DragOverlay } from "@dnd-kit/core";
+import { Button } from "@trivo/ui/button";
 
 interface DndBuilderSidebarProps {
   className?: string;
@@ -33,6 +36,7 @@ interface DndBuilderSidebarProps {
     type: BlockType | null;
   } | null;
   setSelectedBlockId: (id: string | null) => void;
+  onDeleteBlock: (id: string) => void;
 }
 
 function DraggableBlock({
@@ -40,30 +44,67 @@ function DraggableBlock({
 }: {
   block: { type: string; label: string; icon: any };
 }) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: `sidebar-${block.type}`,
-    data: { type: block.type, fromSidebar: true },
-  });
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id: `sidebar-${block.type}`,
+      data: {
+        type: block.type,
+        fromSidebar: true,
+      },
+    });
 
   const style = transform
     ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        opacity: isDragging ? 0.5 : undefined,
       }
     : undefined;
 
-  return (
+  const BlockContent = ({ className }: { className?: string }) => (
     <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      style={style}
-      className="flex flex-col items-center gap-1 bg-accent p-3 rounded-md cursor-grab border shadow-sm"
+      className={cn(
+        "flex flex-col items-center gap-1 bg-accent p-3 rounded-md cursor-grab border shadow-sm",
+        className
+      )}
     >
       <block.icon />
       <span>{block.label}</span>
     </div>
   );
+
+  return (
+    <>
+      <div ref={setNodeRef} {...listeners} {...attributes} style={style}>
+        <BlockContent />
+      </div>
+      {isDragging && (
+        <DragOverlay>
+          <BlockContent className="z-20" />
+        </DragOverlay>
+      )}
+    </>
+  );
 }
+
+export const allBlockTypes = [
+  { label: "Text", type: "text", icon: Typography },
+  { label: "Image", type: "image", icon: Image },
+  { label: "Button", type: "button", icon: ButtonIcon },
+  { label: "File", type: "file-download", icon: Download },
+  { label: "Divider", type: "divider", icon: Divider },
+  { label: "Video", type: "video", icon: Video },
+  { label: "Cards", type: "cards", icon: Grid },
+  { label: "List", type: "list", icon: List },
+  { label: "Author", type: "author", icon: CircleUser },
+  { label: "Input", type: "input", icon: Home },
+  { label: "Select", type: "select", icon: ArrowRight },
+  { label: "Textarea", type: "textarea", icon: Home },
+  { label: "Radio Buttons", type: "radio-buttons", icon: ArrowRight },
+  { label: "Checkboxes", type: "checkboxes", icon: Home },
+  { label: "File Upload", type: "file-upload", icon: ArrowRight },
+  { label: "Rating", type: "rating", icon: Home },
+  { label: "Address", type: "address", icon: ArrowRight },
+];
 
 export default function DndBuilderSidebar({
   className,
@@ -72,31 +113,12 @@ export default function DndBuilderSidebar({
   bgColor,
   selectedBlock,
   setSelectedBlockId,
+  onDeleteBlock,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
   React.useEffect(() => {
     setHasMounted(true);
   }, []);
-
-  const allBlockTypes = [
-    { label: "Text", type: "text", icon: Typography },
-    { label: "Image", type: "image", icon: Image },
-    { label: "Button", type: "button", icon: Button },
-    { label: "File", type: "file-download", icon: Download },
-    { label: "Divider", type: "divider", icon: Divider },
-    { label: "Video", type: "video", icon: Video },
-    { label: "Cards", type: "cards", icon: Grid },
-    { label: "List", type: "list", icon: List },
-    { label: "Author", type: "author", icon: CircleUser },
-    { label: "Input", type: "input", icon: Home },
-    { label: "Select", type: "select", icon: ArrowRight },
-    { label: "Textarea", type: "textarea", icon: Home },
-    { label: "Radio Buttons", type: "radio-buttons", icon: ArrowRight },
-    { label: "Checkboxes", type: "checkboxes", icon: Home },
-    { label: "File Upload", type: "file-upload", icon: ArrowRight },
-    { label: "Rating", type: "rating", icon: Home },
-    { label: "Address", type: "address", icon: ArrowRight },
-  ];
 
   const emailBlockTypes = [
     "section",
@@ -141,6 +163,7 @@ export default function DndBuilderSidebar({
             <DndBuilderSidebarForms
               selectedBlock={selectedBlock as { id: string; type: BlockType }}
               setSelectedBlockId={setSelectedBlockId}
+              onDeleteBlock={onDeleteBlock}
             />
           </motion.div>
         ) : (
