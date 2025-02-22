@@ -34,52 +34,52 @@ export default function Block({ type, id, isDragging, onDelete }: BlockProps) {
 
   return (
     <div
-      className={`max-w-2xl w-full p-2 px-3 relative group/block ${
-        isDragging ? "opacity-50" : ""
-      }`}
       ref={setNodeRef}
       style={style}
+      className={`w-full flex justify-center relative group/block ${isDragging ? "opacity-50" : ""}`}
     >
-      <div
-        className={`absolute top-0 right-4 items-center justify-center bg-accent border rounded-md hidden group-hover/block:flex z-10 ${
-          isDragging ? "opacity-0" : "opacity-100"
-        }`}
-      >
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-r-none h-8 w-7 pl-1"
-              onClick={onDelete}
-            >
-              <Trash />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Delete</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div
-              {...attributes}
-              {...listeners}
-              className="rounded-l-none bg-accent rounded-md transition-colors cursor-grab flex items-center justify-center w-7 pr-1"
-            >
-              <Grip />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>Move</TooltipContent>
-        </Tooltip>
+      <div className="max-w-2xl w-full p-2 px-3 relative ">
+        <div
+          className={`absolute top-0 right-4 items-center justify-center bg-accent border rounded-md hidden group-hover/block:flex z-10 ${
+            isDragging ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-r-none h-8 w-7 pl-1"
+                onClick={onDelete}
+              >
+                <Trash />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Delete</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                {...attributes}
+                {...listeners}
+                className="rounded-l-none bg-accent rounded-md transition-colors cursor-grab flex items-center justify-center w-7 pr-1"
+              >
+                <Grip />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Move</TooltipContent>
+          </Tooltip>
+        </div>
+        {type === "divider" && <DividerBlock />}
+        {type === "image" && <ImageBlock />}
+        {type === "file-download" && <FileDownloadBlock />}
+        {type === "video" && <VideoBlock />}
+        {type === "cards" && <CardsBlock />}
+        {type === "author" && <AuthorBlock />}
+        {type === "text" && <TextBlock />}
+        {type === "button" && <ButtonBlock />}
+        {type === "list" && <ListBlock />}
       </div>
-      {type === "divider" && <DividerBlock />}
-      {type === "image" && <ImageBlock />}
-      {type === "file-download" && <FileDownloadBlock />}
-      {type === "video" && <VideoBlock />}
-      {type === "cards" && <CardsBlock />}
-      {type === "author" && <AuthorBlock />}
-      {type === "text" && <TextBlock />}
-      {type === "button" && <ButtonBlock />}
-      {type === "list" && <ListBlock />}
     </div>
   );
 }

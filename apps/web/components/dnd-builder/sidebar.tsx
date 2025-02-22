@@ -14,7 +14,10 @@ import {
   List,
 } from "@trivo/ui/icons";
 import { useDraggable } from "@dnd-kit/core";
-
+import { Label } from "@trivo/ui/label";
+import { Input } from "@trivo/ui/input";
+import { Separator } from "@trivo/ui/separator";
+import { Select, SelectTrigger, SelectValue } from "@trivo/ui/select";
 interface DndBuilderSidebarProps {
   className?: string;
   type: "email" | "form";
@@ -95,16 +98,39 @@ export default function DndBuilderSidebar({
   return (
     <div
       className={cn(
-        "w-[400px] flex-shrink-0 bg-sidebar rounded-md h-[calc(100vh-5rem)] sticky top-16",
+        "w-[400px] flex-shrink-0 bg-sidebar rounded-md h-[calc(100vh-5rem)] sticky top-16 p-4",
         className
       )}
     >
-      <div className=" gap-2 p-4 grid grid-cols-3">
+      <div className=" gap-2  grid grid-cols-3">
         {blockTypes.map((block) => (
           <DraggableBlock key={block.type} block={block} />
         ))}
       </div>
-      Section N selected
+      <Separator className="my-6" />
+      <Label className="font-bold px-2 text-lg">Style</Label>
+      <div className="flex flex-col gap-4 px-2 mt-2">
+        <div className="grid grid-cols-3 items-center gap-2">
+          <Label className="font-medium">BG Color</Label>
+          <Input className="col-span-2" type="color" />
+        </div>
+        <div className="grid grid-cols-3 items-center gap-2">
+          <Label className="font-medium">Footer BG Color</Label>
+          <Input className="col-span-2" type="color" />
+        </div>
+        <div className="grid grid-cols-3 items-center gap-2">
+          <Label className="font-medium">Footer Text Color</Label>
+          <Input className="col-span-2" type="color" />
+        </div>
+        <div className="grid grid-cols-3 items-center gap-2">
+          <Label className="font-medium">Footer Font</Label>
+          <Select>
+            <SelectTrigger className="col-span-2">
+              <SelectValue placeholder="Select a font" />
+            </SelectTrigger>
+          </Select>
+        </div>
+      </div>
     </div>
   );
 }
