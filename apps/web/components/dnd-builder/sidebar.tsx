@@ -104,6 +104,7 @@ export default function DndBuilderSidebar({
           <DraggableBlock key={block.type} block={block} />
         ))}
       </div>
+      Section N selected
     </div>
   );
 }
