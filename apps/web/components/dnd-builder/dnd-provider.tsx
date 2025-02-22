@@ -16,6 +16,7 @@ import DndBuilderCanvas from "./canvas";
 export default function DndProvider() {
   const [blocks, setBlocks] = useState<BlockType[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [bgColor, setBgColor] = useState("#f4f4f5");
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -47,8 +48,10 @@ export default function DndProvider() {
         const newBlocks = [...blocks];
         newBlocks.splice(over.data.current.index, 0, newBlock);
         setBlocks(newBlocks);
+        setSelectedBlockId(newBlock.id);
       } else if (over.id === "canvas") {
         setBlocks([...blocks, newBlock]);
+        setSelectedBlockId(newBlock.id);
       }
     } else {
       const oldIndex = blocks.findIndex((block) => block.id === active.id);
@@ -83,11 +86,14 @@ export default function DndProvider() {
           type="email"
           onBgColorChange={setBgColor}
           bgColor={bgColor}
+          selectedBlockId={selectedBlockId}
         />
         <DndBuilderCanvas
           blocks={blocks}
           onDeleteBlock={handleDeleteBlock}
           bgColor={bgColor}
+          onBlockSelect={setSelectedBlockId}
+          selectedBlockId={selectedBlockId}
         />
       </div>
     </DndContext>

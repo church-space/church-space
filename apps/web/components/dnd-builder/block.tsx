@@ -12,15 +12,25 @@ import AuthorBlock from "./block-types/author";
 import TextBlock from "./block-types/text";
 import ButtonBlock from "./block-types/button";
 import ListBlock from "./block-types/list";
+import { cn } from "@trivo/ui/cn";
 
 interface BlockProps {
   type: string;
   id?: string;
   isDragging?: boolean;
   onDelete?: () => void;
+  isSelected?: boolean;
+  onSelect?: (e: React.MouseEvent) => void;
 }
 
-export default function Block({ type, id, isDragging, onDelete }: BlockProps) {
+export default function Block({
+  type,
+  id,
+  isDragging,
+  onDelete,
+  isSelected,
+  onSelect,
+}: BlockProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: id || "",
     data: { type },
@@ -36,9 +46,17 @@ export default function Block({ type, id, isDragging, onDelete }: BlockProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`w-full flex justify-center relative group/block ${isDragging ? "opacity-50" : ""}`}
+      className={`w-full flex justify-center relative group/block ${
+        isDragging ? "opacity-50" : ""
+      } `}
+      onClick={onSelect}
     >
-      <div className="max-w-2xl w-full p-2 px-3 relative ">
+      <div
+        className={cn(
+          "max-w-2xl w-full p-2 px-3 relative ",
+          isSelected && "ring-2 ring-blue-500 rounded-md"
+        )}
+      >
         <div
           className={`absolute top-0 right-4 items-center justify-center bg-accent border rounded-md hidden group-hover/block:flex z-10 ${
             isDragging ? "opacity-0" : "opacity-100"

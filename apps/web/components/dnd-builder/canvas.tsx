@@ -7,12 +7,16 @@ interface CanvasProps {
   blocks: BlockType[];
   onDeleteBlock: (id: string) => void;
   bgColor?: string;
+  onBlockSelect: (id: string | null) => void;
+  selectedBlockId?: string | null;
 }
 
 export default function DndBuilderCanvas({
   blocks,
   onDeleteBlock,
   bgColor,
+  onBlockSelect,
+  selectedBlockId,
 }: CanvasProps) {
   const { setNodeRef, isOver, active } = useDroppable({
     id: "canvas",
@@ -28,6 +32,7 @@ export default function DndBuilderCanvas({
         isOver && blocks.length === 0 ? "ring-2 ring-blue-500" : ""
       }`}
       style={{ backgroundColor: bgColor }}
+      onClick={() => onBlockSelect(null)}
     >
       {blocks.length === 0 ? (
         <DroppableSpot index={0} show={!isReordering} isLast={true} />
@@ -44,6 +49,11 @@ export default function DndBuilderCanvas({
                 id={block.id}
                 type={block.type}
                 onDelete={() => onDeleteBlock(block.id)}
+                isSelected={selectedBlockId === block.id}
+                onSelect={(e) => {
+                  e.stopPropagation();
+                  onBlockSelect(block.id);
+                }}
               />
             </React.Fragment>
           ))}
