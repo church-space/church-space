@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import DndBuilderCanvas from "./canvas";
 import DndBuilderSidebar from "./sidebar";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function DndProvider() {
   const [blocks, setBlocks] = useState<BlockType[]>([]);
@@ -88,13 +89,33 @@ export default function DndProvider() {
           }
           setSelectedBlockId={setSelectedBlockId}
         />
-        <DndBuilderCanvas
-          blocks={blocks}
-          onDeleteBlock={handleDeleteBlock}
-          bgColor={bgColor}
-          onBlockSelect={setSelectedBlockId}
-          selectedBlockId={selectedBlockId}
-        />
+        <div className="flex-1 relative">
+          <AnimatePresence>
+            {selectedBlockId &&
+              blocks.find((block) => block.id === selectedBlockId)?.type ===
+                "text" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 40 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{
+                    duration: 0.2,
+                    damping: 20,
+                  }}
+                  className="sticky top-12 bg-background z-50 overflow-hidden"
+                >
+                  hi
+                </motion.div>
+              )}
+          </AnimatePresence>
+          <DndBuilderCanvas
+            blocks={blocks}
+            onDeleteBlock={handleDeleteBlock}
+            bgColor={bgColor}
+            onBlockSelect={setSelectedBlockId}
+            selectedBlockId={selectedBlockId}
+          />
+        </div>
       </div>
     </DndContext>
   );

@@ -28,7 +28,7 @@ export default function DndBuilderCanvas({
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 rounded-md min-h-[calc(100vh-10rem)] ${
+      className={`flex-1 rounded-md min-h-[calc(100vh-10rem)]   ${
         isOver && blocks.length === 0 ? "ring-2 ring-blue-500" : ""
       }`}
       style={{ backgroundColor: bgColor }}
