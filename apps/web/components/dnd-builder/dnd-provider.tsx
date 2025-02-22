@@ -11,6 +11,8 @@ import { useState } from "react";
 import DndBuilderCanvas from "./canvas";
 import DndBuilderSidebar from "./sidebar";
 import { motion, AnimatePresence } from "framer-motion";
+import Toolbar from "./rich-text-editor/rich-text-format-bar";
+import { useRichTextEditor } from "./rich-text-editor/editor";
 
 export default function DndProvider() {
   const [blocks, setBlocks] = useState<BlockType[]>([]);
@@ -70,6 +72,8 @@ export default function DndProvider() {
     }
   };
 
+  const tiptapEditor = useRichTextEditor();
+
   return (
     <DndContext id="dnd-builder" sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="flex gap-4 p-4 relative">
@@ -104,7 +108,7 @@ export default function DndProvider() {
                   }}
                   className="sticky top-12 bg-background z-50 overflow-hidden"
                 >
-                  hi
+                  <Toolbar editor={tiptapEditor} />
                 </motion.div>
               )}
           </AnimatePresence>
@@ -114,6 +118,7 @@ export default function DndProvider() {
             bgColor={bgColor}
             onBlockSelect={setSelectedBlockId}
             selectedBlockId={selectedBlockId}
+            editor={tiptapEditor}
           />
         </div>
       </div>

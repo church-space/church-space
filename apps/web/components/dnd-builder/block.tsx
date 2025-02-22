@@ -13,6 +13,7 @@ import TextBlock from "./block-types/text";
 import ButtonBlock from "./block-types/button";
 import ListBlock from "./block-types/list";
 import { cn } from "@trivo/ui/cn";
+import { Editor } from "@tiptap/react";
 
 interface BlockProps {
   type: string;
@@ -21,6 +22,7 @@ interface BlockProps {
   onDelete?: () => void;
   isSelected?: boolean;
   onSelect?: (e: React.MouseEvent) => void;
+  editor: Editor | null;
 }
 
 export default function Block({
@@ -30,6 +32,7 @@ export default function Block({
   onDelete,
   isSelected,
   onSelect,
+  editor,
 }: BlockProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: id || "",
@@ -94,7 +97,7 @@ export default function Block({
         {type === "video" && <VideoBlock />}
         {type === "cards" && <CardsBlock />}
         {type === "author" && <AuthorBlock />}
-        {type === "text" && <TextBlock />}
+        {type === "text" && <TextBlock editor={editor} />}
         {type === "button" && <ButtonBlock />}
         {type === "list" && <ListBlock />}
       </div>

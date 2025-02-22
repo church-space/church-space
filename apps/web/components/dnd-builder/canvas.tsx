@@ -2,6 +2,7 @@ import React from "react";
 import Block from "./block";
 import { useDroppable } from "@dnd-kit/core";
 import type { Block as BlockType } from "@/types/blocks";
+import { Editor } from "@tiptap/react";
 
 interface CanvasProps {
   blocks: BlockType[];
@@ -9,6 +10,7 @@ interface CanvasProps {
   bgColor?: string;
   onBlockSelect: (id: string | null) => void;
   selectedBlockId?: string | null;
+  editor: Editor | null;
 }
 
 export default function DndBuilderCanvas({
@@ -17,6 +19,7 @@ export default function DndBuilderCanvas({
   bgColor,
   onBlockSelect,
   selectedBlockId,
+  editor,
 }: CanvasProps) {
   const { setNodeRef, isOver, active } = useDroppable({
     id: "canvas",
@@ -28,7 +31,7 @@ export default function DndBuilderCanvas({
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 rounded-md min-h-[calc(100vh-10rem)]   ${
+      className={`flex-1 rounded-md py-4  ${
         isOver && blocks.length === 0 ? "ring-2 ring-blue-500" : ""
       }`}
       style={{ backgroundColor: bgColor }}
@@ -37,7 +40,9 @@ export default function DndBuilderCanvas({
       {blocks.length === 0 ? (
         <>
           <DroppableSpot index={0} show={!isReordering} isLast={true} />
-          <div className="h-28 w-full bg-gray-200">no blocks here</div>
+          <div className="h-96 w-full bg-gray-200 flex items-center justify-center">
+            no blocks here
+          </div>
         </>
       ) : (
         <>
@@ -57,6 +62,7 @@ export default function DndBuilderCanvas({
                   e.stopPropagation();
                   onBlockSelect(block.id);
                 }}
+                editor={editor}
               />
             </React.Fragment>
           ))}

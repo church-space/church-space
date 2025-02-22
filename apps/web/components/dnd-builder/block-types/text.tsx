@@ -1,5 +1,13 @@
-import React from "react";
+"use client";
 
-export default function TextBlock() {
-  return <div>TextBlock</div>;
+import { Editor, EditorContent } from "@tiptap/react";
+
+interface TextBlockProps {
+  editor: Editor | null;
 }
+
+const TextBlock = ({ editor }: TextBlockProps) => {
+  return <EditorContent editor={editor} />;
+};
+
+export default TextBlock;

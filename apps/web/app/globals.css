@@ -90,3 +90,30 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.ProseMirror p {
+  margin: 0.5em 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ProseMirror li {
+  margin: 0.2em 0;
+}
+
+.ProseMirror a {
+  color: #0000ff;
+  text-decoration: underline;
+}
+
+.mention {
+  background-color: #f0f0f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: #000;
+  font-weight: 600;
+}

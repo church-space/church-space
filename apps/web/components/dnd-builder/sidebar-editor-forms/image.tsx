@@ -1,6 +1,7 @@
 import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
 import { Slider } from "@trivo/ui/slider";
+import { Switch } from "@trivo/ui/switch";
 
 export default function ImageForm() {
   return (
@@ -22,6 +23,8 @@ export default function ImageForm() {
           />
           <Label>Link</Label>
           <Input className="col-span-2" placeholder="Link" />
+          <Label>Center Image</Label>
+          <Switch />
         </div>
       </div>
     </div>
