@@ -21,3 +21,7 @@ export interface Block {
   id: string;
   type: BlockType;
 }
+export interface Section {
+  id: string;
+  blocks: Block[];
+}

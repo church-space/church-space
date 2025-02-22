@@ -8,13 +8,13 @@ import {
   PointerSensor,
 } from "@dnd-kit/core";
 import { useState } from "react";
-import type { Block as BlockType } from "@/types/blocks";
+import type { Block as BlockType, Section } from "@/types/blocks";
 import Block from "./block";
 import DndBuilderSidebar from "./sidebar";
 import DndBuilderCanvas from "./canvas";
 
 export default function DndProvider() {
-  const [blocks, setBlocks] = useState<BlockType[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -32,9 +32,7 @@ export default function DndProvider() {
     const { active, over } = event;
     setActiveId(null);
 
-    if (!over) {
-      return;
-    }
+    if (!over) return;
 
     if (active.data.current?.fromSidebar) {
       const newBlock: BlockType = {
@@ -42,32 +40,62 @@ export default function DndProvider() {
         type: active.data.current.type,
       };
 
-      if (over.data.current?.index !== undefined) {
-        const newBlocks = [...blocks];
-        newBlocks.splice(over.data.current.index, 0, newBlock);
-        setBlocks(newBlocks);
-      } else if (over.id === "canvas") {
-        setBlocks([...blocks, newBlock]);
+      if (
+        over.data.current?.sectionIndex !== undefined &&
+        over.data.current?.blockIndex !== undefined
+      ) {
+        const newSections = [...sections];
+        newSections[over.data.current.sectionIndex].blocks.splice(
+          over.data.current.blockIndex,
+          0,
+          newBlock
+        );
+        setSections(newSections);
+      } else if (over.id === "canvas" && sections.length === 0) {
+        // Create first section when canvas is empty
+        setSections([
+          {
+            id: crypto.randomUUID(),
+            blocks: [newBlock],
+          },
+        ]);
       }
-    } else {
-      const oldIndex = blocks.findIndex((block) => block.id === active.id);
-      let newIndex = over.data.current?.index ?? blocks.length;
+    } else if (active.data.current?.isSection) {
+      // Handle section reordering
+      const oldIndex = sections.findIndex(
+        (section) => section.id === active.id
+      );
+      let newIndex = over.data.current?.sectionIndex ?? sections.length;
 
       if (oldIndex !== newIndex && active.id !== over.id) {
-        if (oldIndex < newIndex) {
-          newIndex--;
-        }
-
-        const newBlocks = [...blocks];
-        const [movedBlock] = newBlocks.splice(oldIndex, 1);
-        newBlocks.splice(newIndex, 0, movedBlock);
-        setBlocks(newBlocks);
+        if (oldIndex < newIndex) newIndex--;
+        const newSections = [...sections];
+        const [movedSection] = newSections.splice(oldIndex, 1);
+        newSections.splice(newIndex, 0, movedSection);
+        setSections(newSections);
       }
     }
   };
 
-  const handleDeleteBlock = (id: string) => {
-    setBlocks(blocks.filter((block) => block.id !== id));
+  const handleDeleteBlock = (sectionIndex: number, blockId: string) => {
+    const newSections = [...sections];
+    newSections[sectionIndex].blocks = newSections[sectionIndex].blocks.filter(
+      (block) => block.id !== blockId
+    );
+    // Remove section if empty
+    if (newSections[sectionIndex].blocks.length === 0) {
+      newSections.splice(sectionIndex, 1);
+    }
+    setSections(newSections);
+  };
+
+  const handleAddSection = (index: number) => {
+    const newSections = [...sections];
+    newSections.splice(index, 0, {
+      id: crypto.randomUUID(),
+      blocks: [],
+    });
+    setSections(newSections);
   };
 
   return (
@@ -79,7 +107,11 @@ export default function DndProvider() {
     >
       <div className="flex gap-4 p-4 relative">
         <DndBuilderSidebar type="email" />
-        <DndBuilderCanvas blocks={blocks} onDeleteBlock={handleDeleteBlock} />
+        <DndBuilderCanvas
+          sections={sections}
+          onDeleteBlock={handleDeleteBlock}
+          onAddSection={handleAddSection}
+        />
       </div>
     </DndContext>
   );
