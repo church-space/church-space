@@ -7,10 +7,10 @@ import { Editor } from "@tiptap/react";
 interface CanvasProps {
   blocks: BlockType[];
   onDeleteBlock: (id: string) => void;
-  bgColor?: string;
+  bgColor: string;
   onBlockSelect: (id: string | null) => void;
-  selectedBlockId?: string | null;
-  editor: Editor | null;
+  selectedBlockId: string | null;
+  editors: Record<string, Editor | null>;
 }
 
 export default function DndBuilderCanvas({
@@ -19,7 +19,7 @@ export default function DndBuilderCanvas({
   bgColor,
   onBlockSelect,
   selectedBlockId,
-  editor,
+  editors,
 }: CanvasProps) {
   const { setNodeRef, isOver, active } = useDroppable({
     id: "canvas",
@@ -62,7 +62,7 @@ export default function DndBuilderCanvas({
                   e.stopPropagation();
                   onBlockSelect(block.id);
                 }}
-                editor={editor}
+                editor={editors[block.id]}
               />
             </React.Fragment>
           ))}

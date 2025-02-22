@@ -7,17 +7,20 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DndBuilderCanvas from "./canvas";
 import DndBuilderSidebar from "./sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import Toolbar from "./rich-text-editor/rich-text-format-bar";
-import { useRichTextEditor } from "./rich-text-editor/editor";
+import { createEditor } from "./rich-text-editor/editor";
+import { Editor } from "@tiptap/react";
 
 export default function DndProvider() {
   const [blocks, setBlocks] = useState<BlockType[]>([]);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [bgColor, setBgColor] = useState("#f4f4f5");
+  const [editors, setEditors] = useState<Record<string, Editor | null>>({});
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -34,10 +37,19 @@ export default function DndProvider() {
     }
 
     if (active.data.current?.fromSidebar) {
+      const newBlockId = crypto.randomUUID();
       const newBlock: BlockType = {
-        id: crypto.randomUUID(),
+        id: newBlockId,
         type: active.data.current.type,
       };
+
+      if (active.data.current.type === "text") {
+        const newEditor = createEditor();
+        setEditors((prev) => ({
+          ...prev,
+          [newBlockId]: newEditor,
+        }));
+      }
 
       if (over.data.current?.index !== undefined) {
         const newBlocks = [...blocks];
@@ -66,13 +78,26 @@ export default function DndProvider() {
   };
 
   const handleDeleteBlock = (id: string) => {
+    if (editors[id]) {
+      editors[id]?.destroy();
+      setEditors((prev) => {
+        const newEditors = { ...prev };
+        delete newEditors[id];
+        return newEditors;
+      });
+    }
     setBlocks(blocks.filter((block) => block.id !== id));
     if (id === selectedBlockId) {
       setSelectedBlockId(null);
     }
   };
 
-  const tiptapEditor = useRichTextEditor();
+  useEffect(() => {
+    return () => {
+      // Cleanup all editors on unmount
+      Object.values(editors).forEach((editor) => editor?.destroy());
+    };
+  }, []);
 
   return (
     <DndContext id="dnd-builder" sensors={sensors} onDragEnd={handleDragEnd}>
@@ -108,7 +133,7 @@ export default function DndProvider() {
                   }}
                   className="sticky top-12 bg-background z-50 overflow-hidden"
                 >
-                  <Toolbar editor={tiptapEditor} />
+                  <Toolbar editor={editors[selectedBlockId]} />
                 </motion.div>
               )}
           </AnimatePresence>
@@ -118,7 +143,7 @@ export default function DndProvider() {
             bgColor={bgColor}
             onBlockSelect={setSelectedBlockId}
             selectedBlockId={selectedBlockId}
-            editor={tiptapEditor}
+            editors={editors}
           />
         </div>
       </div>

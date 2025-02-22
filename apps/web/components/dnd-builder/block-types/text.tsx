@@ -7,6 +7,7 @@ interface TextBlockProps {
 }
 
 const TextBlock = ({ editor }: TextBlockProps) => {
+  if (!editor) return null;
   return <EditorContent editor={editor} />;
 };
 

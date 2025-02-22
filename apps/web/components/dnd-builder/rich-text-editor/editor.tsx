@@ -6,12 +6,12 @@ import Mention from "@tiptap/extension-mention";
 import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
-import { useEditor } from "@tiptap/react";
+import { Editor, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import suggestion from "../rich-text-editor/suggestions";
 
-export function useRichTextEditor() {
-  return useEditor({
+export const createEditor = () => {
+  return new Editor({
     extensions: [
       StarterKit.configure({
         bulletList: {
@@ -55,4 +55,4 @@ export function useRichTextEditor() {
       },
     },
   });
-}
+};
