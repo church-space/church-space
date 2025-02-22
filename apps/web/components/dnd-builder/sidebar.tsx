@@ -18,6 +18,7 @@ import { Label } from "@trivo/ui/label";
 import { Input } from "@trivo/ui/input";
 import { Separator } from "@trivo/ui/separator";
 import { Select, SelectTrigger, SelectValue } from "@trivo/ui/select";
+
 interface DndBuilderSidebarProps {
   className?: string;
   type: "email" | "form";
@@ -56,7 +57,12 @@ function DraggableBlock({
 export default function DndBuilderSidebar({
   className,
   type,
-}: DndBuilderSidebarProps) {
+  onBgColorChange,
+  bgColor,
+}: DndBuilderSidebarProps & {
+  onBgColorChange?: (color: string) => void;
+  bgColor?: string;
+}) {
   const allBlockTypes = [
     { label: "Text", type: "text", icon: Typography },
     { label: "Image", type: "image", icon: Image },
@@ -112,7 +118,24 @@ export default function DndBuilderSidebar({
       <div className="flex flex-col gap-4 px-2 mt-2">
         <div className="grid grid-cols-3 items-center gap-2">
           <Label className="font-medium">BG Color</Label>
+          <Input
+            className="col-span-2"
+            type="color"
+            onChange={(e) => onBgColorChange?.(e.target.value)}
+            value={bgColor}
+          />
+        </div>
+        <div className="grid grid-cols-3 items-center gap-2">
+          <Label className="font-medium">Default Text Color</Label>
           <Input className="col-span-2" type="color" />
+        </div>
+        <div className="grid grid-cols-3 items-center gap-2">
+          <Label className="font-medium">Default Font</Label>
+          <Select>
+            <SelectTrigger className="col-span-2">
+              <SelectValue placeholder="Select a font" />
+            </SelectTrigger>
+          </Select>
         </div>
         <div className="grid grid-cols-3 items-center gap-2">
           <Label className="font-medium">Footer BG Color</Label>
@@ -131,6 +154,8 @@ export default function DndBuilderSidebar({
           </Select>
         </div>
       </div>
+      <Separator className="my-6" />
+      Selected block ID: <span className="font-bold">123</span>
     </div>
   );
 }

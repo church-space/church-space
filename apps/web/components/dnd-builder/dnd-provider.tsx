@@ -16,6 +16,7 @@ import DndBuilderCanvas from "./canvas";
 export default function DndProvider() {
   const [blocks, setBlocks] = useState<BlockType[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [bgColor, setBgColor] = useState("#f4f4f5");
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -78,8 +79,16 @@ export default function DndProvider() {
       onDragEnd={handleDragEnd}
     >
       <div className="flex gap-4 p-4 relative">
-        <DndBuilderSidebar type="email" />
-        <DndBuilderCanvas blocks={blocks} onDeleteBlock={handleDeleteBlock} />
+        <DndBuilderSidebar
+          type="email"
+          onBgColorChange={setBgColor}
+          bgColor={bgColor}
+        />
+        <DndBuilderCanvas
+          blocks={blocks}
+          onDeleteBlock={handleDeleteBlock}
+          bgColor={bgColor}
+        />
       </div>
     </DndContext>
   );

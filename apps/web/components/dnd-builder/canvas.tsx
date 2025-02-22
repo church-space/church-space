@@ -6,11 +6,13 @@ import type { Block as BlockType } from "@/types/blocks";
 interface CanvasProps {
   blocks: BlockType[];
   onDeleteBlock: (id: string) => void;
+  bgColor?: string;
 }
 
 export default function DndBuilderCanvas({
   blocks,
   onDeleteBlock,
+  bgColor,
 }: CanvasProps) {
   const { setNodeRef, isOver, active } = useDroppable({
     id: "canvas",
@@ -22,9 +24,10 @@ export default function DndBuilderCanvas({
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 bg-muted rounded-md min-h-[calc(100vh-10rem)] ${
+      className={`flex-1 rounded-md min-h-[calc(100vh-10rem)] ${
         isOver && blocks.length === 0 ? "ring-2 ring-blue-500" : ""
       }`}
+      style={{ backgroundColor: bgColor }}
     >
       {blocks.length === 0 ? (
         <DroppableSpot index={0} show={!isReordering} isLast={true} />

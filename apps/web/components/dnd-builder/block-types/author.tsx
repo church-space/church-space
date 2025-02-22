@@ -12,6 +12,19 @@ import {
   Youtube,
 } from "@trivo/ui/icons";
 
+const socialIcons = {
+  instagram: Instagram,
+  tiktok: TikTok,
+  x: XTwitter,
+  mail: MailFilled,
+  link: LinkIcon,
+  facebook: Facebook,
+  linkedin: Linkedin,
+  bluesky: Bluesky,
+  youtube: Youtube,
+  threads: Threads,
+};
+
 export default function AuthorBlock() {
   return (
     <div className="flex justify-between gap-2 items-center">
@@ -23,11 +36,12 @@ export default function AuthorBlock() {
         </div>
       </div>
       <div className="flex gap-2">
-        <Instagram />
-        <TikTok />
-        <XTwitter />
-        <MailFilled />
-        <LinkIcon />
+        {Object.entries(socialIcons)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 5)
+          .map(([key, Icon]) => (
+            <Icon key={key} />
+          ))}
       </div>
     </div>
   );
