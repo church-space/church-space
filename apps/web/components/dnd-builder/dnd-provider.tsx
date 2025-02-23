@@ -33,9 +33,11 @@ import {
 import { Button } from "@trivo/ui/button";
 import { Undo, Redo } from "@trivo/ui/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
+import { useBlockStateManager } from "./use-block-state-manager";
 
 export default function DndProvider() {
-  const [blocks, setBlocks] = useState<BlockType[]>([]);
+  const { blocks, updateBlocks, undo, redo, canUndo, canRedo } =
+    useBlockStateManager([]);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [bgColor, setBgColor] = useState("#f4f4f5");
   const [editors, setEditors] = useState<Record<string, Editor>>({});
@@ -95,30 +97,27 @@ export default function DndProvider() {
           currentEditors[movedBlockId].destroy();
         }
 
-        setBlocks((prevBlocks) => {
-          const newBlocks = arrayMove(prevBlocks, oldIndex, newIndex);
+        const newBlocks = arrayMove(blocks, oldIndex, newIndex);
+        updateBlocks(newBlocks);
 
-          // Use RAF to ensure DOM is ready before editor updates
-          requestAnimationFrame(() => {
-            const updatedEditors = { ...currentEditors };
+        // Use RAF to ensure DOM is ready before editor updates
+        requestAnimationFrame(() => {
+          const updatedEditors = { ...currentEditors };
 
-            // Only recreate the moved editor if it exists and is a text block
-            const movedBlockInNewPosition = newBlocks[newIndex];
-            if (
-              movedBlockInNewPosition &&
-              movedBlockInNewPosition.type === "text"
-            ) {
-              const newEditor = createEditor();
-              if (editorContents[movedBlockId]) {
-                newEditor.commands.setContent(editorContents[movedBlockId]);
-              }
-              updatedEditors[movedBlockId] = newEditor;
+          // Only recreate the moved editor if it exists and is a text block
+          const movedBlockInNewPosition = newBlocks[newIndex];
+          if (
+            movedBlockInNewPosition &&
+            movedBlockInNewPosition.type === "text"
+          ) {
+            const newEditor = createEditor();
+            if (editorContents[movedBlockId]) {
+              newEditor.commands.setContent(editorContents[movedBlockId]);
             }
+            updatedEditors[movedBlockId] = newEditor;
+          }
 
-            setEditors(updatedEditors);
-          });
-
-          return newBlocks;
+          setEditors(updatedEditors);
         });
       }
     } else {
@@ -139,26 +138,24 @@ export default function DndProvider() {
         }));
       }
 
-      setBlocks((prevBlocks) => {
-        if (over.id === "canvas") {
-          return [...prevBlocks, newBlock];
-        }
-
-        const overIndex = prevBlocks.findIndex((block) => block.id === over.id);
+      let newBlocks: BlockType[];
+      if (over.id === "canvas") {
+        newBlocks = [...blocks, newBlock];
+      } else {
+        const overIndex = blocks.findIndex((block) => block.id === over.id);
         if (overIndex !== -1) {
-          const newBlocks = [...prevBlocks];
+          newBlocks = [...blocks];
           const rect = over.rect as DOMRect;
           const mouseY = active.rect.current.translated.top;
           const threshold = rect.top + rect.height / 2;
           const insertIndex = mouseY < threshold ? overIndex : overIndex + 1;
           newBlocks.splice(insertIndex, 0, newBlock);
-          return newBlocks;
+        } else {
+          newBlocks = [...blocks];
         }
+      }
 
-        return prevBlocks;
-      });
-
-      // Set the new block as selected
+      updateBlocks(newBlocks);
       setSelectedBlockId(newBlockId);
     }
   };
@@ -173,7 +170,7 @@ export default function DndProvider() {
         return newEditors;
       });
     }
-    setBlocks((prev) => prev.filter((block) => block.id !== id));
+    updateBlocks(blocks.filter((block) => block.id !== id));
     if (selectedBlockId === id) {
       setSelectedBlockId(null);
     }
@@ -274,7 +271,12 @@ export default function DndProvider() {
           <div className="flex">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={undo}
+                  disabled={!canUndo}
+                >
                   <Undo />
                 </Button>
               </TooltipTrigger>
@@ -282,7 +284,12 @@ export default function DndProvider() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={redo}
+                  disabled={!canRedo}
+                >
                   <Redo />
                 </Button>
               </TooltipTrigger>
