@@ -127,6 +127,7 @@ export default function DndBuilderCanvas({
                       onBlockSelect(block.id);
                     }}
                     editor={editors[block.id]}
+                    block={block}
                   />
                 )}
               </motion.div>

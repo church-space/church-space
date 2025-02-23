@@ -17,10 +17,17 @@ export type BlockType =
   | "address"
   | "list";
 
+export interface DividerBlockData {
+  color: string;
+  margin: number;
+}
+
 export interface Block {
   id: string;
   type: BlockType;
+  data?: DividerBlockData;
 }
+
 export interface Section {
   id: string;
   blocks: Block[];

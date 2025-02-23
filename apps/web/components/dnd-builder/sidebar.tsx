@@ -21,6 +21,7 @@ import { Separator } from "@trivo/ui/separator";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
 import DndBuilderSidebarForms from "./sidebar-forms";
+import type { Block } from "@/types/blocks";
 
 interface DndBuilderSidebarProps {
   className?: string;
@@ -33,6 +34,7 @@ interface DndBuilderSidebarProps {
   } | null;
   setSelectedBlockId: (id: string | null) => void;
   onDeleteBlock: (id: string) => void;
+  onBlockUpdate: (block: Block) => void;
 }
 
 function DraggableBlock({
@@ -110,6 +112,7 @@ export default function DndBuilderSidebar({
   selectedBlock,
   setSelectedBlockId,
   onDeleteBlock,
+  onBlockUpdate,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
   React.useEffect(() => {
@@ -160,6 +163,7 @@ export default function DndBuilderSidebar({
               selectedBlock={selectedBlock as { id: string; type: BlockType }}
               setSelectedBlockId={setSelectedBlockId}
               onDeleteBlock={onDeleteBlock}
+              onBlockUpdate={onBlockUpdate}
             />
           </motion.div>
         ) : (

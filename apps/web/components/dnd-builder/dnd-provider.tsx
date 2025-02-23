@@ -128,6 +128,8 @@ export default function DndProvider() {
       const newBlock: BlockType = {
         id: newBlockId,
         type: blockType,
+        data:
+          blockType === "divider" ? { color: "#e2e8f0", margin: 8 } : undefined,
       };
 
       if (blockType === "text") {
@@ -192,6 +194,13 @@ export default function DndProvider() {
     setActiveId(active.id);
   };
 
+  const handleBlockUpdate = (updatedBlock: BlockType) => {
+    const newBlocks = blocks.map((block) =>
+      block.id === updatedBlock.id ? updatedBlock : block
+    );
+    updateBlocks(newBlocks);
+  };
+
   const renderDragOverlay = () => {
     if (!activeId) return null;
 
@@ -226,6 +235,7 @@ export default function DndProvider() {
             isDragging={true}
             editor={overlayEditor}
             isOverlay
+            block={draggedBlock}
           />
         );
       }
@@ -237,6 +247,7 @@ export default function DndProvider() {
           isDragging={true}
           editor={editors[draggedBlock.id]}
           isOverlay
+          block={draggedBlock}
         />
       );
     }
@@ -324,6 +335,7 @@ export default function DndProvider() {
             }
             setSelectedBlockId={setSelectedBlockId}
             onDeleteBlock={handleDeleteBlock}
+            onBlockUpdate={handleBlockUpdate}
           />
           <div className="flex-1 relative">
             <AnimatePresence>

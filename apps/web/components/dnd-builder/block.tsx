@@ -21,6 +21,7 @@ interface BlockProps {
   onSelect?: (e: React.MouseEvent) => void;
   editor: Editor | null;
   isOverlay?: boolean;
+  block: any;
 }
 
 export default function Block({
@@ -31,6 +32,7 @@ export default function Block({
   onSelect,
   editor,
   isOverlay,
+  block,
 }: BlockProps) {
   const { attributes, listeners, setNodeRef, transform, transition, over } =
     useSortable({
@@ -61,7 +63,7 @@ export default function Block({
       )}
       onClick={(e) => onSelect?.(e)}
     >
-      {type === "divider" && <DividerBlock />}
+      {type === "divider" && <DividerBlock data={block.data} />}
       {type === "image" && <ImageBlock />}
       {type === "file-download" && <FileDownloadBlock />}
       {type === "video" && <VideoBlock />}

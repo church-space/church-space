@@ -1,4 +1,4 @@
-import { BlockType } from "@/types/blocks";
+import { Block, BlockType } from "@/types/blocks";
 import React from "react";
 import ButtonForm from "./sidebar-editor-forms/buttons";
 import TextForm from "./sidebar-editor-forms/text";
@@ -16,10 +16,12 @@ export default function DndBuilderSidebarForms({
   selectedBlock,
   setSelectedBlockId,
   onDeleteBlock,
+  onBlockUpdate,
 }: {
   selectedBlock: { id: string; type: BlockType };
   setSelectedBlockId: (id: string | null) => void;
   onDeleteBlock: (id: string) => void;
+  onBlockUpdate: (block: Block) => void;
 }) {
   return (
     <div className="flex flex-col gap-4 overflow-hidden h-full">
@@ -38,7 +40,9 @@ export default function DndBuilderSidebarForms({
         {selectedBlock.type === "text" && <TextForm />}
         {selectedBlock.type === "image" && <ImageForm />}
         {selectedBlock.type === "video" && <VideoForm />}
-        {selectedBlock.type === "divider" && <DividerForm />}
+        {selectedBlock.type === "divider" && (
+          <DividerForm block={selectedBlock} onUpdate={onBlockUpdate} />
+        )}
         {selectedBlock.type === "file-download" && <FileDownloadForm />}
         {selectedBlock.type === "cards" && <CardsForm />}
         {selectedBlock.type === "list" && <ListForm />}
