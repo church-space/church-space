@@ -1,21 +1,17 @@
-import React from "react";
-import { Grip, Trash } from "@trivo/ui/icons";
-import { Button } from "@trivo/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@trivo/ui/tooltip";
-import { useDraggable } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import DividerBlock from "./block-types/divider";
-import ImageBlock from "./block-types/image";
-import FileDownloadBlock from "./block-types/file-download";
-import VideoBlock from "./block-types/video";
-import CardsBlock from "./block-types/cards";
-import AuthorBlock from "./block-types/author";
-import TextBlock from "./block-types/text";
-import ButtonBlock from "./block-types/button";
-import ListBlock from "./block-types/list";
-import { cn } from "@trivo/ui/cn";
 import { Editor } from "@tiptap/react";
+import { cn } from "@trivo/ui/cn";
+import React from "react";
+import AuthorBlock from "./block-types/author";
+import ButtonBlock from "./block-types/button";
+import CardsBlock from "./block-types/cards";
+import DividerBlock from "./block-types/divider";
+import FileDownloadBlock from "./block-types/file-download";
+import ImageBlock from "./block-types/image";
+import ListBlock from "./block-types/list";
+import TextBlock from "./block-types/text";
+import VideoBlock from "./block-types/video";
 
 interface BlockProps {
   type: string;

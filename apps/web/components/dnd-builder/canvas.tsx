@@ -21,7 +21,7 @@ export default function DndBuilderCanvas({
   selectedBlockId,
   editors,
 }: CanvasProps) {
-  const { active, over, activatorEvent } = useDndContext();
+  const { active, over } = useDndContext();
   const isDragging = Boolean(active);
   const isFromSidebar = active?.data?.current?.fromSidebar;
   const activeId = active?.id;
