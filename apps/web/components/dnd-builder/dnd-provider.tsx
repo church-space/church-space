@@ -59,7 +59,6 @@ export default function DndProvider() {
         type: blockType,
       };
 
-      // Create editor for text blocks
       if (blockType === "text") {
         const newEditor = createEditor();
         setEditors((prev) => ({
@@ -68,16 +67,26 @@ export default function DndProvider() {
         }));
       }
 
-      // Get the drop index from the droppable ID
-      const dropIndex =
-        over.id === "canvas"
-          ? blocks.length
-          : parseInt(over.id.replace("droppable-", ""));
-
-      // Insert the new block at the specified position
+      // Insert the new block based on the block we're hovering over
       setBlocks((prevBlocks) => {
         const newBlocks = [...prevBlocks];
-        newBlocks.splice(dropIndex, 0, newBlock);
+
+        // If dropping on the canvas directly, append to the end
+        if (over.id === "canvas") {
+          return [...newBlocks, newBlock];
+        }
+
+        // If hovering over a block, insert based on position
+        const overIndex = prevBlocks.findIndex((block) => block.id === over.id);
+        if (overIndex !== -1) {
+          const rect = over.rect as DOMRect;
+          const mouseY = active.rect.current.translated.top;
+          const threshold = rect.top + rect.height / 2;
+
+          const insertIndex = mouseY < threshold ? overIndex : overIndex + 1;
+          newBlocks.splice(insertIndex, 0, newBlock);
+        }
+
         return newBlocks;
       });
       return;
