@@ -34,7 +34,7 @@ export default function DndBuilderCanvas({
   const blockRefs = useRef<Record<string, HTMLDivElement>>({});
 
   const getInsertionIndex = () => {
-    if (!over || !active) return -1;
+    if (!over || !active || !isFromSidebar) return -1;
 
     if (over.id === "canvas" && blocks.length === 0) {
       return 0;
@@ -50,7 +50,7 @@ export default function DndBuilderCanvas({
       return mouseY < threshold ? blockIndex : blockIndex + 1;
     }
 
-    return blocks.length; // Default to end if no valid target
+    return blocks.length;
   };
 
   const insertionIndex = isDragging ? getInsertionIndex() : -1;
@@ -66,9 +66,9 @@ export default function DndBuilderCanvas({
     >
       {blocks.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
-          {isDragging ? (
+          {isDragging && isFromSidebar ? (
             <motion.div
-              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 absolute"
+              className="h-0.5 w-full bg-primary absolute"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
@@ -81,9 +81,9 @@ export default function DndBuilderCanvas({
         <>
           {blocks.map((block, index) => (
             <React.Fragment key={block.id}>
-              {isDragging && insertionIndex === index && (
+              {isDragging && isFromSidebar && insertionIndex === index && (
                 <motion.div
-                  className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 "
+                  className="h-0.5 w-full bg-primary mx-auto"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2 }}
@@ -92,39 +92,34 @@ export default function DndBuilderCanvas({
               <motion.div
                 layout="position"
                 transition={{
-                  type: "tween",
-                  duration: 0.2,
+                  type: "spring",
+                  damping: 20,
+                  stiffness: 300,
                 }}
+                className={cn(
+                  "w-full max-w-2xl mx-auto",
+                  activeId === block.id && "opacity-50"
+                )}
                 ref={(el) => {
                   if (el) blockRefs.current[block.id] = el;
                 }}
               >
-                {block.id === activeId ? (
-                  <div
-                    className="relative mx-auto w-full max-w-2xl"
-                    style={{
-                      height: blockRefs.current[block.id]?.offsetHeight,
-                      padding: "1rem",
-                    }}
-                  />
-                ) : (
-                  <Block
-                    id={block.id}
-                    type={block.type}
-                    isSelected={selectedBlockId === block.id}
-                    onSelect={(e) => {
-                      e.stopPropagation();
-                      onBlockSelect(block.id);
-                    }}
-                    editor={editors[block.id]}
-                  />
-                )}
+                <Block
+                  id={block.id}
+                  type={block.type}
+                  isSelected={selectedBlockId === block.id}
+                  onSelect={(e) => {
+                    e.stopPropagation();
+                    onBlockSelect(block.id);
+                  }}
+                  editor={editors[block.id]}
+                />
               </motion.div>
             </React.Fragment>
           ))}
-          {isDragging && insertionIndex === blocks.length && (
+          {isDragging && isFromSidebar && insertionIndex === blocks.length && (
             <motion.div
-              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 "
+              className="h-0.5 w-full bg-primary mx-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
