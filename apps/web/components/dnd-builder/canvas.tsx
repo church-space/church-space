@@ -68,7 +68,7 @@ export default function DndBuilderCanvas({
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
           {isDragging && isFromSidebar ? (
             <motion.div
-              className="h-0.5 w-full bg-primary absolute"
+              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 absolute"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
@@ -83,7 +83,7 @@ export default function DndBuilderCanvas({
             <React.Fragment key={block.id}>
               {isDragging && isFromSidebar && insertionIndex === index && (
                 <motion.div
-                  className="h-0.5 w-full bg-primary mx-auto"
+                  className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 "
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2 }}
@@ -119,7 +119,7 @@ export default function DndBuilderCanvas({
           ))}
           {isDragging && isFromSidebar && insertionIndex === blocks.length && (
             <motion.div
-              className="h-0.5 w-full bg-primary mx-auto"
+              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 "
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}

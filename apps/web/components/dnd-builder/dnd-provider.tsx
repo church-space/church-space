@@ -49,8 +49,19 @@ export default function DndProvider() {
 
     if (!over) return;
 
-    // Handle new blocks from sidebar
-    if (active.data.current?.fromSidebar) {
+    // Handle reordering of existing blocks
+    if (!active.data.current?.fromSidebar) {
+      const oldIndex = blocks.findIndex((block) => block.id === active.id);
+      const newIndex = blocks.findIndex((block) => block.id === over.id);
+
+      if (oldIndex !== newIndex) {
+        // Use arrayMove but keep editor references intact
+        const newBlocks = arrayMove(blocks, oldIndex, newIndex);
+        setBlocks(newBlocks);
+        // The editors object doesn't need to change since it's keyed by ID
+      }
+    } else {
+      // Handle new blocks from sidebar
       const newBlockId = crypto.randomUUID();
       const blockType = active.data.current.type;
 
@@ -89,15 +100,6 @@ export default function DndProvider() {
 
         return newBlocks;
       });
-      return;
-    }
-
-    // Handle reordering of existing blocks
-    const oldIndex = blocks.findIndex((block) => block.id === active.id);
-    const newIndex = blocks.findIndex((block) => block.id === over.id);
-
-    if (oldIndex !== newIndex) {
-      setBlocks((blocks) => arrayMove(blocks, oldIndex, newIndex));
     }
   };
 
