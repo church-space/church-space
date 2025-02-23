@@ -21,7 +21,7 @@ export default function DndBuilderCanvas({
   selectedBlockId,
   editors,
 }: CanvasProps) {
-  const { active, over } = useDndContext();
+  const { active, over, activatorEvent } = useDndContext();
   const isDragging = Boolean(active);
   const isFromSidebar = active?.data?.current?.fromSidebar;
   const activeId = active?.id;
@@ -32,6 +32,16 @@ export default function DndBuilderCanvas({
 
   // Store block heights
   const blockRefs = useRef<Record<string, HTMLDivElement>>({});
+  const heightRef = useRef<number>(0);
+
+  // When a block becomes active, store its height
+  if (active && !heightRef.current && blockRefs.current[active.id]) {
+    heightRef.current = blockRefs.current[active.id].offsetHeight;
+  }
+  // Reset the height when no block is being dragged
+  if (!active) {
+    heightRef.current = 0;
+  }
 
   const getInsertionIndex = () => {
     if (!over || !active || !isFromSidebar) return -1;
@@ -98,22 +108,27 @@ export default function DndBuilderCanvas({
                 }}
                 className={cn(
                   "w-full max-w-2xl mx-auto",
-                  activeId === block.id && "opacity-50"
+                  activeId === block.id &&
+                    "border border-dashed border-muted rounded-md"
                 )}
                 ref={(el) => {
                   if (el) blockRefs.current[block.id] = el;
                 }}
               >
-                <Block
-                  id={block.id}
-                  type={block.type}
-                  isSelected={selectedBlockId === block.id}
-                  onSelect={(e) => {
-                    e.stopPropagation();
-                    onBlockSelect(block.id);
-                  }}
-                  editor={editors[block.id]}
-                />
+                {activeId === block.id ? (
+                  <div style={{ height: `${heightRef.current}px` }} />
+                ) : (
+                  <Block
+                    id={block.id}
+                    type={block.type}
+                    isSelected={selectedBlockId === block.id}
+                    onSelect={(e) => {
+                      e.stopPropagation();
+                      onBlockSelect(block.id);
+                    }}
+                    editor={editors[block.id]}
+                  />
+                )}
               </motion.div>
             </React.Fragment>
           ))}
