@@ -66,7 +66,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   };
 
   return (
-    <div className="border-b p-2 flex-shrink-0 flex flex-wrap gap-2">
+    <div className=" flex-shrink-0 flex flex-wrap gap-2">
       <Button
         variant="ghost"
         size="icon"

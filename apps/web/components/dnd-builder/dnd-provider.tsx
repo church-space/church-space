@@ -157,6 +157,9 @@ export default function DndProvider() {
 
         return prevBlocks;
       });
+
+      // Set the new block as selected
+      setSelectedBlockId(newBlockId);
     }
   };
 
@@ -325,7 +328,7 @@ export default function DndProvider() {
                     animate={{ opacity: 1, height: 40 }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.2, damping: 20 }}
-                    className="sticky top-12 bg-background z-50 overflow-hidden"
+                    className="sticky top-12 bg-background z-50 overflow-hidden "
                   >
                     <Toolbar editor={editors[selectedBlockId]} />
                   </motion.div>
