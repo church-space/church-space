@@ -33,15 +33,18 @@ export default function DndBuilderCanvas({
   // Store block heights
   const blockRefs = useRef<Record<string, HTMLDivElement>>({});
 
-  // Calculate the insertion index based on the block being hovered
   const getInsertionIndex = () => {
-    if (!over) return -1;
+    if (!over || !active) return -1;
+
+    if (over.id === "canvas" && blocks.length === 0) {
+      return 0;
+    }
 
     // If hovering over a block
     const blockIndex = blocks.findIndex((block) => block.id === over.id);
     if (blockIndex !== -1) {
       const rect = over.rect as DOMRect;
-      const mouseY = active?.rect.current.translated?.top ?? 0;
+      const mouseY = active.rect.current.translated?.top ?? 0;
       const threshold = rect.top + rect.height / 2;
 
       return mouseY < threshold ? blockIndex : blockIndex + 1;
@@ -50,59 +53,84 @@ export default function DndBuilderCanvas({
     return blocks.length; // Default to end if no valid target
   };
 
-  const insertionIndex = getInsertionIndex();
+  const insertionIndex = isDragging ? getInsertionIndex() : -1;
 
   return (
     <div
       ref={setNodeRef}
-      className={cn("flex-1 rounded-md py-4 min-h-[200px] flex flex-col gap-1")}
+      className={cn(
+        "flex-1 rounded-md py-4 min-h-[200px] flex flex-col gap-1 relative"
+      )}
       style={{ backgroundColor: bgColor }}
       onClick={() => onBlockSelect(null)}
     >
       {blocks.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
-          Drag blocks here
+          {isDragging ? (
+            <motion.div
+              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 absolute"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            />
+          ) : (
+            "Drag blocks here"
+          )}
         </div>
       ) : (
-        blocks.map((block, index) => (
-          <motion.div
-            key={block.id}
-            layout="position"
-            transition={{
-              type: "tween",
-              duration: 0.2,
-            }}
-            className={cn(
-              insertionIndex === index &&
-                isDragging &&
-                "translate-y-12 transition-transform"
-            )}
-            ref={(el) => {
-              if (el) blockRefs.current[block.id] = el;
-            }}
-          >
-            {block.id === activeId ? (
-              <div
-                className="relative mx-auto w-full max-w-2xl"
-                style={{
-                  height: blockRefs.current[block.id]?.offsetHeight,
-                  padding: "1rem",
+        <>
+          {blocks.map((block, index) => (
+            <React.Fragment key={block.id}>
+              {isDragging && insertionIndex === index && (
+                <motion.div
+                  className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 "
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                />
+              )}
+              <motion.div
+                layout="position"
+                transition={{
+                  type: "tween",
+                  duration: 0.2,
                 }}
-              />
-            ) : (
-              <Block
-                id={block.id}
-                type={block.type}
-                isSelected={selectedBlockId === block.id}
-                onSelect={(e) => {
-                  e.stopPropagation();
-                  onBlockSelect(block.id);
+                ref={(el) => {
+                  if (el) blockRefs.current[block.id] = el;
                 }}
-                editor={editors[block.id]}
-              />
-            )}
-          </motion.div>
-        ))
+              >
+                {block.id === activeId ? (
+                  <div
+                    className="relative mx-auto w-full max-w-2xl"
+                    style={{
+                      height: blockRefs.current[block.id]?.offsetHeight,
+                      padding: "1rem",
+                    }}
+                  />
+                ) : (
+                  <Block
+                    id={block.id}
+                    type={block.type}
+                    isSelected={selectedBlockId === block.id}
+                    onSelect={(e) => {
+                      e.stopPropagation();
+                      onBlockSelect(block.id);
+                    }}
+                    editor={editors[block.id]}
+                  />
+                )}
+              </motion.div>
+            </React.Fragment>
+          ))}
+          {isDragging && insertionIndex === blocks.length && (
+            <motion.div
+              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 "
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            />
+          )}
+        </>
       )}
     </div>
   );
