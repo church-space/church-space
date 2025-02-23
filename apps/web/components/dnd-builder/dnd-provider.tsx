@@ -77,46 +77,43 @@ export default function DndProvider() {
       const oldIndex = blocks.findIndex((block) => block.id === active.id);
       const newIndex = blocks.findIndex((block) => block.id === over.id);
 
-      if (oldIndex !== newIndex) {
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
         // Store current editors state and their content
         const currentEditors = { ...editors };
         const editorContents: Record<string, string> = {};
 
-        // Save all editor contents before destroying
-        Object.entries(currentEditors).forEach(([id, editor]) => {
-          if (editor && !editor.isDestroyed) {
-            editorContents[id] = editor.getHTML();
-          }
-        });
+        // Only store content for the moved editor
+        const movedBlock = blocks[oldIndex];
+        if (!movedBlock) return;
+
+        const movedBlockId = movedBlock.id;
+        if (
+          currentEditors[movedBlockId] &&
+          !currentEditors[movedBlockId].isDestroyed
+        ) {
+          editorContents[movedBlockId] = currentEditors[movedBlockId].getHTML();
+          currentEditors[movedBlockId].destroy();
+        }
 
         setBlocks((prevBlocks) => {
           const newBlocks = arrayMove(prevBlocks, oldIndex, newIndex);
 
           // Use RAF to ensure DOM is ready before editor updates
           requestAnimationFrame(() => {
-            const updatedEditors: Record<string, Editor> = {};
+            const updatedEditors = { ...currentEditors };
 
-            // First destroy any editors that need to be recreated
-            newBlocks.forEach((block) => {
-              if (block.type === "text") {
-                const existingEditor = currentEditors[block.id];
-                if (existingEditor && !existingEditor.isDestroyed) {
-                  existingEditor.destroy();
-                }
+            // Only recreate the moved editor if it exists and is a text block
+            const movedBlockInNewPosition = newBlocks[newIndex];
+            if (
+              movedBlockInNewPosition &&
+              movedBlockInNewPosition.type === "text"
+            ) {
+              const newEditor = createEditor();
+              if (editorContents[movedBlockId]) {
+                newEditor.commands.setContent(editorContents[movedBlockId]);
               }
-            });
-
-            // Then create new editors with preserved content
-            newBlocks.forEach((block) => {
-              if (block.type === "text") {
-                const newEditor = createEditor();
-                // Restore content if it exists
-                if (editorContents[block.id]) {
-                  newEditor.commands.setContent(editorContents[block.id]);
-                }
-                updatedEditors[block.id] = newEditor;
-              }
-            });
+              updatedEditors[movedBlockId] = newEditor;
+            }
 
             setEditors(updatedEditors);
           });
@@ -216,6 +213,23 @@ export default function DndProvider() {
     // If it's an existing block
     const draggedBlock = blocks.find((block) => block.id === activeId);
     if (draggedBlock) {
+      // For text blocks, create a temporary editor for the overlay
+      if (draggedBlock.type === "text" && editors[draggedBlock.id]) {
+        const content = editors[draggedBlock.id]?.getHTML() || "";
+        const overlayEditor = createEditor();
+        overlayEditor.commands.setContent(content);
+
+        return (
+          <Block
+            id={draggedBlock.id}
+            type={draggedBlock.type}
+            isDragging={true}
+            editor={overlayEditor}
+            isOverlay
+          />
+        );
+      }
+
       return (
         <Block
           id={draggedBlock.id}
