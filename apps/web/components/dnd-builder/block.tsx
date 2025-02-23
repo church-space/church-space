@@ -70,7 +70,7 @@ export default function Block({
       {type === "cards" && <CardsBlock />}
       {type === "author" && <AuthorBlock />}
       {type === "text" && <TextBlock editor={editor} />}
-      {type === "button" && <ButtonBlock />}
+      {type === "button" && <ButtonBlock data={block.data} />}
       {type === "list" && <ListBlock />}
     </div>
   );

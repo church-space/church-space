@@ -1,17 +1,17 @@
 import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
 import { Slider } from "@trivo/ui/slider";
-import type { Block } from "@/types/blocks";
+import type { Block, DividerBlockData } from "@/types/blocks";
 import { useEffect, useState, useCallback } from "react";
 import debounce from "lodash/debounce";
 
 interface DividerFormProps {
-  block: Block;
+  block: Block & { data?: DividerBlockData };
   onUpdate: (block: Block) => void;
 }
 
 export default function DividerForm({ block, onUpdate }: DividerFormProps) {
-  const [localState, setLocalState] = useState({
+  const [localState, setLocalState] = useState<DividerBlockData>({
     color: block.data?.color || "#e2e8f0",
     margin: block.data?.margin || 8,
   });

@@ -36,7 +36,9 @@ export default function DndBuilderSidebarForms({
         </Button>
       </div>
       <div className="h-full overflow-y-auto">
-        {selectedBlock.type === "button" && <ButtonForm />}
+        {selectedBlock.type === "button" && (
+          <ButtonForm block={selectedBlock} onUpdate={onBlockUpdate} />
+        )}
         {selectedBlock.type === "text" && <TextForm />}
         {selectedBlock.type === "image" && <ImageForm />}
         {selectedBlock.type === "video" && <VideoForm />}

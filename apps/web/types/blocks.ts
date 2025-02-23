@@ -22,10 +22,19 @@ export interface DividerBlockData {
   margin: number;
 }
 
+export interface ButtonBlockData {
+  text: string;
+  link: string;
+  color: string;
+  textColor: string;
+  style: "outline" | "filled";
+  size: "fit" | "full";
+}
+
 export interface Block {
   id: string;
   type: BlockType;
-  data?: DividerBlockData;
+  data?: ButtonBlockData | DividerBlockData;
 }
 
 export interface Section {

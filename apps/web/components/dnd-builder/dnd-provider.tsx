@@ -129,7 +129,18 @@ export default function DndProvider() {
         id: newBlockId,
         type: blockType,
         data:
-          blockType === "divider" ? { color: "#e2e8f0", margin: 8 } : undefined,
+          blockType === "divider"
+            ? { color: "#e2e8f0", margin: 8 }
+            : blockType === "button"
+              ? {
+                  text: "Button",
+                  link: "",
+                  color: "#000000",
+                  textColor: "#FFFFFF",
+                  style: "filled",
+                  size: "fit",
+                }
+              : undefined,
       };
 
       if (blockType === "text") {
