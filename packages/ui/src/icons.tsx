@@ -993,3 +993,75 @@ export function ChevronLeft(props: iconProps) {
     </svg>
   );
 }
+
+export function Undo(props: iconProps) {
+  const fill = props.fill || "currentColor";
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || "1em";
+  const height = props.height || "1em";
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M3 10C3.528 9.53902 5.7 7.74902 9 7.74902C12.3 7.74902 14.472 9.53902 15 10"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M4.625 5.59802L3 10L7.53 11.222"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Redo(props: iconProps) {
+  const fill = props.fill || "currentColor";
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || "1em";
+  const height = props.height || "1em";
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M15,10c-.528-.461-2.7-2.251-6-2.251s-5.472,1.79-6,2.251"
+          fill="none"
+          stroke={secondaryfill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <polyline
+          fill="none"
+          points="13.375 5.598 15 10 10.47 11.222"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}

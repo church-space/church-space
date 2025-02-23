@@ -78,7 +78,7 @@ export default function DndBuilderCanvas({
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
           {isDragging && isFromSidebar ? (
             <motion.div
-              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 absolute"
+              className="h-44 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 absolute"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}

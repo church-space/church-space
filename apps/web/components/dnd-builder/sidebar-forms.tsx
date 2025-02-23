@@ -46,7 +46,8 @@ export default function DndBuilderSidebarForms({
       </div>
       <div className="flex gap-2 items-center justify-end">
         <Button
-          variant="destructive"
+          variant="outline"
+          className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
           onClick={() => onDeleteBlock(selectedBlock.id)}
         >
           Delete Block
