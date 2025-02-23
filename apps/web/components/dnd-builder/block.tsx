@@ -21,14 +21,12 @@ interface BlockProps {
   onSelect?: (e: React.MouseEvent) => void;
   editor: Editor | null;
   isOverlay?: boolean;
-  onDelete?: () => void;
 }
 
 export default function Block({
   type,
   id,
   isDragging,
-  onDelete,
   isSelected,
   onSelect,
   editor,

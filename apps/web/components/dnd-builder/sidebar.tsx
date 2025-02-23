@@ -1,3 +1,5 @@
+import { BlockType } from "@/types/blocks";
+import { DragOverlay, useDraggable } from "@dnd-kit/core";
 import { cn } from "@trivo/ui/cn";
 import {
   ArrowRight,
@@ -8,23 +10,17 @@ import {
   Grid,
   Home,
   Image,
+  List,
   Typography,
   Video,
-  Section,
-  List,
-  Trash,
 } from "@trivo/ui/icons";
-import { useDraggable } from "@dnd-kit/core";
-import { Label } from "@trivo/ui/label";
 import { Input } from "@trivo/ui/input";
-import { Separator } from "@trivo/ui/separator";
+import { Label } from "@trivo/ui/label";
 import { Select, SelectTrigger, SelectValue } from "@trivo/ui/select";
+import { Separator } from "@trivo/ui/separator";
 import { AnimatePresence, motion } from "framer-motion";
-import { BlockType } from "@/types/blocks";
-import DndBuilderSidebarForms from "./sidebar-forms";
 import React from "react";
-import { DragOverlay } from "@dnd-kit/core";
-import { Button } from "@trivo/ui/button";
+import DndBuilderSidebarForms from "./sidebar-forms";
 
 interface DndBuilderSidebarProps {
   className?: string;

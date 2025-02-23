@@ -123,7 +123,7 @@ export default function DndProvider() {
       // Cleanup all editors on unmount
       Object.values(editors).forEach((editor) => editor?.destroy());
     };
-  }, []);
+  }, [editors]);
 
   const renderDragOverlay = () => {
     if (!activeId) return null;

@@ -1,6 +1,4 @@
-import React from "react";
 import { File } from "@trivo/ui/icons";
-import { Button } from "@trivo/ui/button";
 
 export default function FileDownloadBlock() {
   return (
