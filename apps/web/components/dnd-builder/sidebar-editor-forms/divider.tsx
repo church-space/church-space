@@ -2,7 +2,8 @@ import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
 import { Slider } from "@trivo/ui/slider";
 import type { Block } from "@/types/blocks";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import debounce from "lodash/debounce";
 
 interface DividerFormProps {
   block: Block;
@@ -22,6 +23,17 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
     });
   }, [block.data]);
 
+  // Debounced update function for margin changes
+  const debouncedUpdate = useCallback(
+    debounce((newState: typeof localState) => {
+      onUpdate({
+        ...block,
+        data: newState,
+      });
+    }, 100),
+    [block, onUpdate]
+  );
+
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newState = {
       ...localState,
@@ -40,11 +52,15 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
       margin: value[0],
     };
     setLocalState(newState);
-    onUpdate({
-      ...block,
-      data: newState,
-    });
+    debouncedUpdate(newState);
   };
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedUpdate.cancel();
+    };
+  }, [debouncedUpdate]);
 
   return (
     <div className="flex flex-col gap-10 px-2">
