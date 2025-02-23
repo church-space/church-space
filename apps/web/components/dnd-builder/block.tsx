@@ -25,18 +25,20 @@ interface BlockProps {
   onSelect?: (e: React.MouseEvent) => void;
   editor: Editor | null;
   isOverlay?: boolean;
+  onDelete?: () => void;
 }
 
 export default function Block({
   type,
   id,
   isDragging,
+  onDelete,
   isSelected,
   onSelect,
   editor,
   isOverlay,
 }: BlockProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
+  const { attributes, listeners, setNodeRef, transform, transition, over } =
     useSortable({
       id: id || "temp-id",
       data: {
@@ -58,7 +60,7 @@ export default function Block({
       {...(!isOverlay ? attributes : {})}
       {...(!isOverlay ? listeners : {})}
       className={cn(
-        "relative mx-auto w-full max-w-2xl rounded-md p-4 border border-transparent hover:border-border",
+        "relative mx-auto w-full max-w-2xl rounded-md p-4 border border-transparent hover:border-border group/block",
         isDragging && "opacity-50",
         isSelected && "ring-2 ring-blue-500",
         isOverlay && "opacity-80 shadow-lg"

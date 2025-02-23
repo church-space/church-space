@@ -47,7 +47,6 @@ export default function DndProvider() {
     const { active, over } = event;
     setActiveId(null);
 
-    // If we don't have a drop target, do nothing
     if (!over) return;
 
     // Handle new blocks from sidebar
@@ -69,8 +68,18 @@ export default function DndProvider() {
         }));
       }
 
-      // Add the new block to the end if no specific position
-      setBlocks((prevBlocks) => [...prevBlocks, newBlock]);
+      // Get the drop index from the droppable ID
+      const dropIndex =
+        over.id === "canvas"
+          ? blocks.length
+          : parseInt(over.id.replace("droppable-", ""));
+
+      // Insert the new block at the specified position
+      setBlocks((prevBlocks) => {
+        const newBlocks = [...prevBlocks];
+        newBlocks.splice(dropIndex, 0, newBlock);
+        return newBlocks;
+      });
       return;
     }
 
