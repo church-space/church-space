@@ -100,7 +100,7 @@ export default function DndBuilderCanvas({
                 />
               )}
               <motion.div
-                layout="position"
+                animate={{ y: 0 }}
                 transition={{
                   type: "spring",
                   damping: 20,
