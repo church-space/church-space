@@ -8,7 +8,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@trivo/ui/accordion";
-export default function AuthorForm() {
+import { useUser } from "@/stores/use-user";
+import FileUpload from "../file-upload";
+
+export default function CardsForm() {
+  const { organizationId } = useUser();
+
+  if (!organizationId) {
+    return null;
+  }
+
   const [openCard, setOpenCard] = useState<string | undefined>(undefined);
   const [cards, setCards] = useState<
     Array<{
@@ -38,6 +47,12 @@ export default function AuthorForm() {
 
   const removeCard = (index: number) => {
     setCards(cards.filter((_, i) => i !== index));
+  };
+
+  const handleUploadComplete = (path: string) => {
+    // Handle the uploaded file path here
+    console.log("File uploaded to:", path);
+    // You can update your state or perform additional actions here
   };
 
   return (
@@ -82,7 +97,10 @@ export default function AuthorForm() {
                   <Label>Button Link</Label>
                   <Input className="col-span-2" placeholder="Button Link" />
                   <Label>Image</Label>
-                  <Input className="col-span-2" type="file" />
+                  <FileUpload
+                    organizationId={organizationId}
+                    onUploadComplete={handleUploadComplete}
+                  />
                   <Button
                     variant="outline"
                     onClick={() => removeCard(index)}
