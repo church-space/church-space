@@ -26,22 +26,19 @@ export default function ImageBlock({ data }: ImageBlockProps) {
 
   const Content = () => (
     <div
-      className={cn(
-        "bg-background rounded-md overflow-hidden",
-        centered && "mx-auto"
-      )}
+      className={cn(" rounded-md overflow-hidden", centered && "mx-auto")}
       style={{ width: `${size}%` }}
     >
       {imageUrl ? (
-        <Image
+        <img
           src={imageUrl}
           alt="Uploaded content"
-          className="w-full h-full object-contain aspect-video"
+          className="w-full h-full object-contain "
           width={1000}
           height={1000}
         />
       ) : (
-        <div className="aspect-video" />
+        <div className="aspect-video bg-background" />
       )}
     </div>
   );

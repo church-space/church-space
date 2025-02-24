@@ -53,7 +53,7 @@ export default function AuthorBlock({ data }: AuthorBlockProps) {
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-3">
         <Avatar>
-          <AvatarImage src={avatarUrl} />
+          <AvatarImage src={avatarUrl} className="object-cover" />
           <AvatarFallback>{name[0]}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
