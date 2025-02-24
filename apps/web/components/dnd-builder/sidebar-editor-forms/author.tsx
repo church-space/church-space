@@ -21,7 +21,7 @@ import {
   XTwitter,
   Youtube,
 } from "@trivo/ui/icons";
-
+import FileUpload from "../file-upload";
 export default function AuthorForm() {
   const [links, setLinks] = useState<Array<{ icon: string; url: string }>>([]);
 
@@ -53,7 +53,7 @@ export default function AuthorForm() {
           <Label>Title</Label>
           <Input className="col-span-2" placeholder="Title" />
           <Label>Image</Label>
-          <Input className="col-span-2" type="file" />
+          <FileUpload />
         </div>
       </div>
       <div className="flex flex-col gap-4">

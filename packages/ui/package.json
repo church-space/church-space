@@ -29,7 +29,8 @@
     "./popover": "./src/popover.tsx",
     "./switch": "./src/switch.tsx",
     "./accordion": "./src/accordion.tsx",
-    "./textarea": "./src/textarea.tsx"
+    "./textarea": "./src/textarea.tsx",
+    "./alert": "./src/alert.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
