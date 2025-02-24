@@ -34,7 +34,7 @@ export default function Block({
   isOverlay,
   block,
 }: BlockProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, over } =
+  const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: id || "temp-id",
       data: {

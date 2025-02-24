@@ -65,7 +65,7 @@ export default function DndProvider() {
 
       setEditors(newEditors);
     }
-  }, [blocks]);
+  }, [blocks, editors]);
 
   // Handle drag end and block creation
   const handleDragEnd = (event: any) => {
@@ -212,7 +212,7 @@ export default function DndProvider() {
         }
       });
     };
-  }, []);
+  }, [editors]);
 
   const handleDragStart = (event: any) => {
     const { active } = event;

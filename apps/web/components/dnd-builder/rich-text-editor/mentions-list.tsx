@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
-export default forwardRef((props: any, ref) => {
+const MentionsList = forwardRef((props: any, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const selectItem = (index: number) => {
@@ -68,3 +68,7 @@ export default forwardRef((props: any, ref) => {
     </div>
   );
 });
+
+MentionsList.displayName = "MentionsList";
+
+export default MentionsList;
