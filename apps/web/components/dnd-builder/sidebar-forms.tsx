@@ -47,7 +47,9 @@ export default function DndBuilderSidebarForms({
         {selectedBlock.type === "divider" && (
           <DividerForm block={selectedBlock} onUpdate={onBlockUpdate} />
         )}
-        {selectedBlock.type === "file-download" && <FileDownloadForm />}
+        {selectedBlock.type === "file-download" && (
+          <FileDownloadForm block={selectedBlock} onUpdate={onBlockUpdate} />
+        )}
         {selectedBlock.type === "cards" && (
           <CardsForm block={selectedBlock} onUpdate={onBlockUpdate} />
         )}

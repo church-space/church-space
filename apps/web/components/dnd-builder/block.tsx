@@ -65,7 +65,7 @@ export default function Block({
     >
       {type === "divider" && <DividerBlock data={block.data} />}
       {type === "image" && <ImageBlock data={block.data} />}
-      {type === "file-download" && <FileDownloadBlock />}
+      {type === "file-download" && <FileDownloadBlock data={block.data} />}
       {type === "video" && <VideoBlock />}
       {type === "cards" && <CardsBlock data={block.data} />}
       {type === "author" && <AuthorBlock data={block.data} />}

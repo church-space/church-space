@@ -73,16 +73,26 @@ export interface CardsBlockData {
   }>;
 }
 
+export interface FileDownloadBlockData {
+  title: string;
+  file: string;
+  bgColor: string;
+  textColor: string;
+}
+
+export type BlockData =
+  | ButtonBlockData
+  | DividerBlockData
+  | ListBlockData
+  | AuthorBlockData
+  | ImageBlockData
+  | CardsBlockData
+  | FileDownloadBlockData;
+
 export interface Block {
   id: string;
   type: BlockType;
-  data?:
-    | ButtonBlockData
-    | DividerBlockData
-    | ListBlockData
-    | AuthorBlockData
-    | ImageBlockData
-    | CardsBlockData;
+  data?: BlockData;
 }
 
 export interface Section {

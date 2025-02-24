@@ -129,54 +129,61 @@ export default function DndProvider() {
         id: newBlockId,
         type: blockType,
         data:
-          blockType === "divider"
-            ? { color: "#e2e8f0", margin: 8 }
-            : blockType === "button"
-              ? {
-                  text: "Button",
-                  link: "",
-                  color: "#000000",
-                  textColor: "#FFFFFF",
-                  style: "filled",
-                  size: "fit",
-                }
-              : blockType === "list"
+          blockType === "file-download"
+            ? {
+                title: "File Name",
+                file: "",
+                bgColor: "#ffffff",
+                textColor: "#000000",
+              }
+            : blockType === "divider"
+              ? { color: "#e2e8f0", margin: 8 }
+              : blockType === "button"
                 ? {
-                    title: "List Title",
-                    subtitle: "List Subtitle",
-                    textColor: "#000000",
-                    bulletColor: "#000000",
-                    bulletType: "number",
-                    items: [
-                      {
-                        title: "First Item",
-                        description: "Description here",
-                      },
-                    ],
+                    text: "Button",
+                    link: "",
+                    color: "#000000",
+                    textColor: "#FFFFFF",
+                    style: "filled",
+                    size: "fit",
                   }
-                : blockType === "cards"
+                : blockType === "list"
                   ? {
-                      title: "Cards Title",
-                      subtitle: "Cards Subtitle",
-                      cards: [
+                      title: "List Title",
+                      subtitle: "List Subtitle",
+                      textColor: "#000000",
+                      bulletColor: "#000000",
+                      bulletType: "number",
+                      items: [
                         {
-                          title: "First Card",
-                          description: "Card description here",
-                          label: "Label",
-                          buttonText: "Learn More",
-                          buttonLink: "",
-                          image: "",
+                          title: "First Item",
+                          description: "Description here",
                         },
                       ],
                     }
-                  : blockType === "image"
+                  : blockType === "cards"
                     ? {
-                        image: "",
-                        size: 33,
-                        link: "",
-                        centered: false,
+                        title: "Cards Title",
+                        subtitle: "Cards Subtitle",
+                        cards: [
+                          {
+                            title: "First Card",
+                            description: "Card description here",
+                            label: "Label",
+                            buttonText: "Learn More",
+                            buttonLink: "",
+                            image: "",
+                          },
+                        ],
                       }
-                    : undefined,
+                    : blockType === "image"
+                      ? {
+                          image: "",
+                          size: 33,
+                          link: "",
+                          centered: false,
+                        }
+                      : undefined,
       };
 
       if (blockType === "text") {
