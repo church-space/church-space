@@ -19,9 +19,14 @@ import { useFileUpload } from "./use-file-upload";
 interface FileUploadProps {
   organizationId: string;
   onUploadComplete?: (path: string) => void;
+  type?: "image" | "any";
 }
 
-const FileUpload = ({ organizationId, onUploadComplete }: FileUploadProps) => {
+const FileUpload = ({
+  organizationId,
+  onUploadComplete,
+  type = "any",
+}: FileUploadProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -105,7 +110,7 @@ const FileUpload = ({ organizationId, onUploadComplete }: FileUploadProps) => {
                 type="file"
                 className="hidden"
                 onChange={handleFileChange}
-                accept="*/*"
+                accept={type === "image" ? "image/*" : "*/*"}
               />
             </div>
             {isUploading && (

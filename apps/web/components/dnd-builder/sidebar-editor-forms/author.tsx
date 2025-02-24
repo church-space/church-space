@@ -67,9 +67,8 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   };
 
   const handleUploadComplete = (path: string) => {
-    // Handle the uploaded file path here
-    console.log("File uploaded to:", path);
-    // You can update your state or perform additional actions here
+    // Update the avatar with the file path
+    handleChange("avatar", path);
   };
 
   const addLink = () => {

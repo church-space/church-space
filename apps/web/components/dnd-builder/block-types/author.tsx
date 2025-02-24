@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   MailFilled,
   Instagram,
@@ -13,6 +13,7 @@ import {
 } from "@trivo/ui/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@trivo/ui/avatar";
 import type { AuthorBlockData } from "@/types/blocks";
+import { createClient } from "@trivo/supabase/client";
 
 const socialIcons = {
   instagram: Instagram,
@@ -32,16 +33,27 @@ interface AuthorBlockProps {
 }
 
 export default function AuthorBlock({ data }: AuthorBlockProps) {
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
   const name = data?.name || "John Doe";
   const subtitle = data?.subtitle || "Author";
   const avatar = data?.avatar || "";
   const links = data?.links || [];
 
+  useEffect(() => {
+    if (avatar) {
+      const supabase = createClient();
+      const { data: urlData } = supabase.storage
+        .from("email_assets")
+        .getPublicUrl(avatar);
+      setAvatarUrl(urlData.publicUrl);
+    }
+  }, [avatar]);
+
   return (
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-3">
         <Avatar>
-          <AvatarImage src={avatar} />
+          <AvatarImage src={avatarUrl} />
           <AvatarFallback>{name[0]}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
