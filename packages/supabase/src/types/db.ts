@@ -38,7 +38,6 @@ export type Database = {
       email_blocks: {
         Row: {
           created_at: string
-          current_editor: string | null
           email_id: number
           id: number
           linked_file: string | null
@@ -48,7 +47,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          current_editor?: string | null
           email_id: number
           id?: number
           linked_file?: string | null
@@ -58,7 +56,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          current_editor?: string | null
           email_id?: number
           id?: number
           linked_file?: string | null
@@ -67,13 +64,6 @@ export type Database = {
           value?: Json | null
         }
         Relationships: [
-          {
-            foreignKeyName: "email_blocks_current_editor_fkey"
-            columns: ["current_editor"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "email_blocks_email_id_fkey"
             columns: ["email_id"]
