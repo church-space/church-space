@@ -191,7 +191,9 @@ export type Database = {
         Row: {
           bg_color: string | null
           created_at: string
-          font: string | null
+          footer_bg_color: string | null
+          footer_font: string | null
+          footer_text_color: string | null
           from_email: string | null
           from_name: string | null
           id: number
@@ -202,7 +204,6 @@ export type Database = {
           sent_at: string | null
           status: Database["public"]["Enums"]["email_statuses"] | null
           subject: string | null
-          text_color: string | null
           trigger_dev_schduled_id: string | null
           type: Database["public"]["Enums"]["email_types"]
           updated_at: string | null
@@ -210,7 +211,9 @@ export type Database = {
         Insert: {
           bg_color?: string | null
           created_at?: string
-          font?: string | null
+          footer_bg_color?: string | null
+          footer_font?: string | null
+          footer_text_color?: string | null
           from_email?: string | null
           from_name?: string | null
           id?: number
@@ -221,7 +224,6 @@ export type Database = {
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_statuses"] | null
           subject?: string | null
-          text_color?: string | null
           trigger_dev_schduled_id?: string | null
           type?: Database["public"]["Enums"]["email_types"]
           updated_at?: string | null
@@ -229,7 +231,9 @@ export type Database = {
         Update: {
           bg_color?: string | null
           created_at?: string
-          font?: string | null
+          footer_bg_color?: string | null
+          footer_font?: string | null
+          footer_text_color?: string | null
           from_email?: string | null
           from_name?: string | null
           id?: number
@@ -240,7 +244,6 @@ export type Database = {
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_statuses"] | null
           subject?: string | null
-          text_color?: string | null
           trigger_dev_schduled_id?: string | null
           type?: Database["public"]["Enums"]["email_types"]
           updated_at?: string | null

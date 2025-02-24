@@ -11,11 +11,7 @@ type SearchParams = {
   connectedByLastName?: string;
 };
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default function Page({ searchParams }: { searchParams: SearchParams }) {
   if (!searchParams.connectedByFirstName || !searchParams.connectedByLastName) {
     return redirect("/");
   }
