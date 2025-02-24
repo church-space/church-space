@@ -43,10 +43,20 @@ export interface ListBlockData {
   }>;
 }
 
+export interface AuthorBlockData {
+  name: string;
+  subtitle: string;
+  avatar: string;
+  links: Array<{
+    icon: string;
+    url: string;
+  }>;
+}
+
 export interface Block {
   id: string;
   type: BlockType;
-  data?: ButtonBlockData | DividerBlockData | ListBlockData;
+  data?: ButtonBlockData | DividerBlockData | ListBlockData | AuthorBlockData;
 }
 
 export interface Section {

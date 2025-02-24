@@ -24,18 +24,18 @@ export default function DndBuilderSidebarForms({
   onBlockUpdate: (block: Block) => void;
 }) {
   return (
-    <div className="flex flex-col gap-4 overflow-hidden h-full">
-      <div className="flex gap-2 items-center">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
         <Button
-          className="px-1 py-0 h-7 text-muted-foreground gap-1"
           variant="ghost"
+          size="icon"
           onClick={() => setSelectedBlockId(null)}
         >
           <ChevronLeft />
-          Back
         </Button>
+        <span className="font-medium">Edit {selectedBlock.type}</span>
       </div>
-      <div className="h-full overflow-y-auto">
+      <div className="flex-1">
         {selectedBlock.type === "button" && (
           <ButtonForm block={selectedBlock} onUpdate={onBlockUpdate} />
         )}
@@ -50,7 +50,9 @@ export default function DndBuilderSidebarForms({
         {selectedBlock.type === "list" && (
           <ListForm block={selectedBlock} onUpdate={onBlockUpdate} />
         )}
-        {selectedBlock.type === "author" && <AuthorForm />}
+        {selectedBlock.type === "author" && (
+          <AuthorForm block={selectedBlock} onUpdate={onBlockUpdate} />
+        )}
       </div>
       <div className="flex gap-2 items-center justify-end">
         <Button

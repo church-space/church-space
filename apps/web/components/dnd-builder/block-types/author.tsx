@@ -11,6 +11,8 @@ import {
   XTwitter,
   Youtube,
 } from "@trivo/ui/icons";
+import { Avatar, AvatarFallback, AvatarImage } from "@trivo/ui/avatar";
+import type { AuthorBlockData } from "@/types/blocks";
 
 const socialIcons = {
   instagram: Instagram,
@@ -25,23 +27,33 @@ const socialIcons = {
   threads: Threads,
 };
 
-export default function AuthorBlock() {
+interface AuthorBlockProps {
+  data?: AuthorBlockData;
+}
+
+export default function AuthorBlock({ data }: AuthorBlockProps) {
+  const name = data?.name || "John Doe";
+  const subtitle = data?.subtitle || "Author";
+  const avatar = data?.avatar || "";
+  const links = data?.links || [];
+
   return (
-    <div className="flex justify-between gap-2 items-center">
-      <div className="flex gap-2 items-center">
-        <div className="w-12 h-12 rounded-full bg-gray-200"></div>
+    <div className="flex items-center justify-between w-full">
+      <div className="flex items-center gap-3">
+        <Avatar>
+          <AvatarImage src={avatar} />
+          <AvatarFallback>{name[0]}</AvatarFallback>
+        </Avatar>
         <div className="flex flex-col">
-          <p className="text-sm font-medium">John Doe</p>
-          <p className="text-sm text-muted-foreground">Author</p>
+          <p className="text-sm font-medium">{name}</p>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
       </div>
       <div className="flex gap-2">
-        {Object.entries(socialIcons)
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 5)
-          .map(([key, Icon]) => (
-            <Icon key={key} />
-          ))}
+        {links.map((link, index) => {
+          const Icon = socialIcons[link.icon as keyof typeof socialIcons];
+          return Icon ? <Icon key={index} /> : null;
+        })}
       </div>
     </div>
   );
