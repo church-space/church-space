@@ -64,7 +64,7 @@ export default function Block({
       onClick={(e) => onSelect?.(e)}
     >
       {type === "divider" && <DividerBlock data={block.data} />}
-      {type === "image" && <ImageBlock />}
+      {type === "image" && <ImageBlock data={block.data} />}
       {type === "file-download" && <FileDownloadBlock />}
       {type === "video" && <VideoBlock />}
       {type === "cards" && <CardsBlock />}

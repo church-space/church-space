@@ -154,7 +154,14 @@ export default function DndProvider() {
                       },
                     ],
                   }
-                : undefined,
+                : blockType === "image"
+                  ? {
+                      image: "",
+                      size: 33,
+                      link: "",
+                      centered: false,
+                    }
+                  : undefined,
       };
 
       if (blockType === "text") {

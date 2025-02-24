@@ -53,10 +53,22 @@ export interface AuthorBlockData {
   }>;
 }
 
+export interface ImageBlockData {
+  image: string;
+  size: number;
+  link: string;
+  centered: boolean;
+}
+
 export interface Block {
   id: string;
   type: BlockType;
-  data?: ButtonBlockData | DividerBlockData | ListBlockData | AuthorBlockData;
+  data?:
+    | ButtonBlockData
+    | DividerBlockData
+    | ListBlockData
+    | AuthorBlockData
+    | ImageBlockData;
 }
 
 export interface Section {

@@ -65,6 +65,22 @@ export default function DndBuilderCanvas({
 
   const insertionIndex = isDragging ? getInsertionIndex() : -1;
 
+  const renderBlock = (block: BlockType) => {
+    return (
+      <Block
+        id={block.id}
+        type={block.type}
+        isSelected={selectedBlockId === block.id}
+        onSelect={(e) => {
+          e.stopPropagation();
+          onBlockSelect(block.id);
+        }}
+        editor={editors[block.id]}
+        block={block}
+      />
+    );
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -78,7 +94,7 @@ export default function DndBuilderCanvas({
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
           {isDragging && isFromSidebar ? (
             <motion.div
-              className="h-20 rounded-md border border-dashed border-blue-500 w-full mx-4 max-w-2xl  bg-blue-500/10 absolute"
+              className="h-20 rounded-md border border-dashed border-blue-500 w-full mx-4 max-w-2xl bg-blue-500/10 absolute"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
@@ -93,7 +109,7 @@ export default function DndBuilderCanvas({
             <React.Fragment key={block.id}>
               {isDragging && isFromSidebar && insertionIndex === index && (
                 <motion.div
-                  className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 "
+                  className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2 }}
@@ -118,24 +134,14 @@ export default function DndBuilderCanvas({
                 {activeId === block.id ? (
                   <div style={{ height: `${heightRef.current}px` }} />
                 ) : (
-                  <Block
-                    id={block.id}
-                    type={block.type}
-                    isSelected={selectedBlockId === block.id}
-                    onSelect={(e) => {
-                      e.stopPropagation();
-                      onBlockSelect(block.id);
-                    }}
-                    editor={editors[block.id]}
-                    block={block}
-                  />
+                  renderBlock(block)
                 )}
               </motion.div>
             </React.Fragment>
           ))}
           {isDragging && isFromSidebar && insertionIndex === blocks.length && (
             <motion.div
-              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10 "
+              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}

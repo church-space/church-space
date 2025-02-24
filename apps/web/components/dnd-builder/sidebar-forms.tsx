@@ -40,7 +40,9 @@ export default function DndBuilderSidebarForms({
           <ButtonForm block={selectedBlock} onUpdate={onBlockUpdate} />
         )}
         {selectedBlock.type === "text" && <TextForm />}
-        {selectedBlock.type === "image" && <ImageForm />}
+        {selectedBlock.type === "image" && (
+          <ImageForm block={selectedBlock} onUpdate={onBlockUpdate} />
+        )}
         {selectedBlock.type === "video" && <VideoForm />}
         {selectedBlock.type === "divider" && (
           <DividerForm block={selectedBlock} onUpdate={onBlockUpdate} />
