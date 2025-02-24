@@ -38,41 +38,44 @@ export type Database = {
       email_blocks: {
         Row: {
           created_at: string
+          email_id: number
           id: number
+          linked_file: string | null
           parent_id: number | null
-          section_id: number
           type: Database["public"]["Enums"]["block_types"]
           value: Json | null
         }
         Insert: {
           created_at?: string
+          email_id: number
           id?: number
+          linked_file?: string | null
           parent_id?: number | null
-          section_id: number
           type: Database["public"]["Enums"]["block_types"]
           value?: Json | null
         }
         Update: {
           created_at?: string
+          email_id?: number
           id?: number
+          linked_file?: string | null
           parent_id?: number | null
-          section_id?: number
           type?: Database["public"]["Enums"]["block_types"]
           value?: Json | null
         }
         Relationships: [
           {
+            foreignKeyName: "email_blocks_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "email_blocks_parent_id_fkey"
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "email_blocks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_blocks_section_id_fkey"
-            columns: ["section_id"]
-            isOneToOne: false
-            referencedRelation: "email_sections"
             referencedColumns: ["id"]
           },
         ]
@@ -187,45 +190,6 @@ export type Database = {
             columns: ["email_id"]
             isOneToOne: false
             referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      email_sections: {
-        Row: {
-          bg_color: string | null
-          created_at: string
-          email_id: number
-          id: number
-          parent: number | null
-        }
-        Insert: {
-          bg_color?: string | null
-          created_at?: string
-          email_id: number
-          id?: number
-          parent?: number | null
-        }
-        Update: {
-          bg_color?: string | null
-          created_at?: string
-          email_id?: number
-          id?: number
-          parent?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "email_sections_email_id_fkey"
-            columns: ["email_id"]
-            isOneToOne: false
-            referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_sections_parent_fkey"
-            columns: ["parent"]
-            isOneToOne: false
-            referencedRelation: "email_sections"
             referencedColumns: ["id"]
           },
         ]
@@ -425,18 +389,21 @@ export type Database = {
           created_by: string | null
           id: string
           name: string
+          pco_org_id: string | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           id?: string
           name: string
+          pco_org_id?: string | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
           id?: string
           name?: string
+          pco_org_id?: string | null
         }
         Relationships: [
           {
@@ -923,6 +890,7 @@ export type Database = {
         | "file-download"
         | "image"
         | "spacer"
+        | "list"
       email_address_status: "unsubscribed" | "pco_blocked" | "subscribed"
       email_delivery_status:
         | "sent"
