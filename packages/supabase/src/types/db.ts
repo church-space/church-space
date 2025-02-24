@@ -41,7 +41,7 @@ export type Database = {
           email_id: number
           id: number
           linked_file: string | null
-          parent_id: number | null
+          order: number | null
           type: Database["public"]["Enums"]["block_types"]
           value: Json | null
         }
@@ -50,7 +50,7 @@ export type Database = {
           email_id: number
           id?: number
           linked_file?: string | null
-          parent_id?: number | null
+          order?: number | null
           type: Database["public"]["Enums"]["block_types"]
           value?: Json | null
         }
@@ -59,7 +59,7 @@ export type Database = {
           email_id?: number
           id?: number
           linked_file?: string | null
-          parent_id?: number | null
+          order?: number | null
           type?: Database["public"]["Enums"]["block_types"]
           value?: Json | null
         }
@@ -69,13 +69,6 @@ export type Database = {
             columns: ["email_id"]
             isOneToOne: false
             referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_blocks_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "email_blocks"
             referencedColumns: ["id"]
           },
         ]

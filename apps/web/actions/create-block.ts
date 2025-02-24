@@ -22,7 +22,7 @@ export const createEmailBlockAction = authActionClient
           "list",
         ]),
         value: z.any().optional(),
-        parent_id: z.number().nullable().optional(),
+        order: z.number().nullable().optional(),
         linked_file: z.string().nullable().optional(),
         email_id: z.number(),
       }),

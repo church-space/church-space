@@ -15,7 +15,7 @@ export async function updateEmailBlock(
       | "spacer"
       | "list";
     value?: any;
-    parent_id?: number | null;
+    order?: number | null;
     linked_file?: string | null;
   }
 ) {
@@ -42,7 +42,7 @@ export async function insertEmailBlock(
       | "spacer"
       | "list";
     value?: any;
-    parent_id?: number | null;
+    order?: number | null;
     linked_file?: string | null;
     email_id: number; // Required field from the table structure
   }
