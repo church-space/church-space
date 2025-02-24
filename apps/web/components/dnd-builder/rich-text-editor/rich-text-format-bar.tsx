@@ -46,7 +46,7 @@ interface ToolbarProps {
 const Toolbar = ({ editor }: ToolbarProps) => {
   const [color, setColor] = useState("#000000");
   const [linkUrl, setLinkUrl] = useState("");
-  const [_, setForceUpdate] = useState(0);
+  const [, setForceUpdate] = useState(0);
 
   // Set default alignment to left when editor is initialized
   useEffect(() => {

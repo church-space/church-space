@@ -9,7 +9,7 @@ interface TextBlockProps {
 
 const TextBlock = ({ editor }: TextBlockProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [_, setIsReady] = useState(false);
+  const [, setIsReady] = useState(false);
   const observerRef = useRef<MutationObserver | null>(null);
   const isUpdatingRef = useRef(false);
 

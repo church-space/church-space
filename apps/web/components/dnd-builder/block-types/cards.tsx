@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Button } from "@trivo/ui/button";
 import type { CardsBlockData } from "@/types/blocks";
 import { createClient } from "@trivo/supabase/client";
@@ -11,7 +11,9 @@ export default function CardsBlock({ data }: CardsBlockProps) {
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const title = data?.title || "Cards";
   const subtitle = data?.subtitle || "Add a card to your page";
-  const cards = data?.cards || [];
+
+  // Memoize the cards array to prevent it from changing on every render
+  const cards = useMemo(() => data?.cards || [], [data?.cards]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -28,7 +30,7 @@ export default function CardsBlock({ data }: CardsBlockProps) {
         }));
       }
     });
-  }, [cards, imageUrls]);
+  }, [cards]);
 
   return (
     <div className="flex flex-col gap-1 py-4">

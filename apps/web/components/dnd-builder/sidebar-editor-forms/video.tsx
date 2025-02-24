@@ -45,7 +45,7 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
         centered,
       },
     });
-  }, [url, size, centered]);
+  }, [url, size, centered, onUpdate, block]);
 
   return (
     <div className="flex flex-col gap-10 px-2">
