@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@trivo/ui/button";
 import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
@@ -29,15 +29,32 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     cards: block.data?.cards || [],
   });
 
-  const debouncedUpdate = useCallback(
-    debounce((newState: CardsBlockData) => {
+  // Create a memoized callback for updating the block
+  const updateBlock = useCallback(
+    (newState: CardsBlockData) => {
       onUpdate({
         ...block,
         data: newState,
       });
-    }, 500),
+    },
     [block, onUpdate]
   );
+
+  // Create a debounced version of the update function
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedUpdate = useCallback(
+    debounce((newState: CardsBlockData) => {
+      updateBlock(newState);
+    }, 500),
+    [updateBlock]
+  );
+
+  // Cleanup the debounced function when component unmounts
+  useEffect(() => {
+    return () => {
+      debouncedUpdate.cancel();
+    };
+  }, [debouncedUpdate]);
 
   const handleChange = (key: keyof CardsBlockData, value: any) => {
     const newState = { ...localState, [key]: value };
