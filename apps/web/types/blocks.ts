@@ -31,10 +31,22 @@ export interface ButtonBlockData {
   size: "fit" | "full";
 }
 
+export interface ListBlockData {
+  title: string;
+  subtitle: string;
+  textColor: string;
+  bulletColor: string;
+  bulletType: "number" | "bullet";
+  items: Array<{
+    title: string;
+    description: string;
+  }>;
+}
+
 export interface Block {
   id: string;
   type: BlockType;
-  data?: ButtonBlockData | DividerBlockData;
+  data?: ButtonBlockData | DividerBlockData | ListBlockData;
 }
 
 export interface Section {

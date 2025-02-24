@@ -40,10 +40,7 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
       color: e.target.value,
     };
     setLocalState(newState);
-    onUpdate({
-      ...block,
-      data: newState,
-    });
+    debouncedUpdate(newState);
   };
 
   const handleMarginChange = (value: number[]) => {

@@ -47,7 +47,9 @@ export default function DndBuilderSidebarForms({
         )}
         {selectedBlock.type === "file-download" && <FileDownloadForm />}
         {selectedBlock.type === "cards" && <CardsForm />}
-        {selectedBlock.type === "list" && <ListForm />}
+        {selectedBlock.type === "list" && (
+          <ListForm block={selectedBlock} onUpdate={onBlockUpdate} />
+        )}
         {selectedBlock.type === "author" && <AuthorForm />}
       </div>
       <div className="flex gap-2 items-center justify-end">

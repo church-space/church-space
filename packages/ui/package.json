@@ -28,7 +28,8 @@
     "./select": "./src/select.tsx",
     "./popover": "./src/popover.tsx",
     "./switch": "./src/switch.tsx",
-    "./accordion": "./src/accordion.tsx"
+    "./accordion": "./src/accordion.tsx",
+    "./textarea": "./src/textarea.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

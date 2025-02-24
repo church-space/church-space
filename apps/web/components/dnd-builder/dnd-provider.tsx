@@ -140,7 +140,21 @@ export default function DndProvider() {
                   style: "filled",
                   size: "fit",
                 }
-              : undefined,
+              : blockType === "list"
+                ? {
+                    title: "List Title",
+                    subtitle: "List Subtitle",
+                    textColor: "#000000",
+                    bulletColor: "#000000",
+                    bulletType: "number",
+                    items: [
+                      {
+                        title: "First Item",
+                        description: "Description here",
+                      },
+                    ],
+                  }
+                : undefined,
       };
 
       if (blockType === "text") {
