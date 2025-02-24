@@ -6,10 +6,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export default function Page({
+type SearchParams = {
+  connectedByFirstName?: string;
+  connectedByLastName?: string;
+};
+
+export default async function Page({
   searchParams,
 }: {
-  searchParams: { connectedByFirstName: string; connectedByLastName: string };
+  searchParams: SearchParams;
 }) {
   if (!searchParams.connectedByFirstName || !searchParams.connectedByLastName) {
     return redirect("/");
@@ -36,7 +41,7 @@ export default function Page({
               <CardContent className=" text-center pt-[30px]">
                 {searchParams.connectedByFirstName}{" "}
                 {searchParams.connectedByLastName} already connected your
-                organization to Trivo. Please contact them dirrectly to gain
+                organization to Trivo. Please contact them directly to gain
                 access.
               </CardContent>
             </Card>
