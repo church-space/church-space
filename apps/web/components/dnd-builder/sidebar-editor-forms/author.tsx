@@ -22,7 +22,15 @@ import {
   Youtube,
 } from "@trivo/ui/icons";
 import FileUpload from "../file-upload";
+import { useUser } from "@/stores/use-user";
+
 export default function AuthorForm() {
+  const { organizationId } = useUser();
+
+  if (!organizationId) {
+    return null;
+  }
+
   const [links, setLinks] = useState<Array<{ icon: string; url: string }>>([]);
 
   const addLink = () => {
@@ -41,6 +49,12 @@ export default function AuthorForm() {
     setLinks(newLinks);
   };
 
+  const handleUploadComplete = (path: string) => {
+    // Handle the uploaded file path here
+    console.log("File uploaded to:", path);
+    // You can update your state or perform additional actions here
+  };
+
   return (
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
@@ -53,7 +67,10 @@ export default function AuthorForm() {
           <Label>Title</Label>
           <Input className="col-span-2" placeholder="Title" />
           <Label>Image</Label>
-          <FileUpload />
+          <FileUpload
+            organizationId={organizationId}
+            onUploadComplete={handleUploadComplete}
+          />
         </div>
       </div>
       <div className="flex flex-col gap-4">
