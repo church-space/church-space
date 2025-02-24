@@ -5,13 +5,15 @@ import { Card, CardContent } from "@trivo/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { use } from "react";
 
-type SearchParams = {
+type SearchParams = Promise<{
   connectedByFirstName?: string;
   connectedByLastName?: string;
-};
+}>;
 
-export default function Page({ searchParams }: { searchParams: SearchParams }) {
+export default function Page(props: { searchParams: SearchParams }) {
+  const searchParams = use(props.searchParams);
   if (!searchParams.connectedByFirstName || !searchParams.connectedByLastName) {
     return redirect("/");
   }
