@@ -154,14 +154,29 @@ export default function DndProvider() {
                       },
                     ],
                   }
-                : blockType === "image"
+                : blockType === "cards"
                   ? {
-                      image: "",
-                      size: 33,
-                      link: "",
-                      centered: false,
+                      title: "Cards Title",
+                      subtitle: "Cards Subtitle",
+                      cards: [
+                        {
+                          title: "First Card",
+                          description: "Card description here",
+                          label: "Label",
+                          buttonText: "Learn More",
+                          buttonLink: "",
+                          image: "",
+                        },
+                      ],
                     }
-                  : undefined,
+                  : blockType === "image"
+                    ? {
+                        image: "",
+                        size: 33,
+                        link: "",
+                        centered: false,
+                      }
+                    : undefined,
       };
 
       if (blockType === "text") {

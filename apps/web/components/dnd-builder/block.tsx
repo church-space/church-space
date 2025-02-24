@@ -67,7 +67,7 @@ export default function Block({
       {type === "image" && <ImageBlock data={block.data} />}
       {type === "file-download" && <FileDownloadBlock />}
       {type === "video" && <VideoBlock />}
-      {type === "cards" && <CardsBlock />}
+      {type === "cards" && <CardsBlock data={block.data} />}
       {type === "author" && <AuthorBlock data={block.data} />}
       {type === "text" && <TextBlock editor={editor} />}
       {type === "button" && <ButtonBlock data={block.data} />}

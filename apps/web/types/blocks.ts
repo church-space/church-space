@@ -60,6 +60,19 @@ export interface ImageBlockData {
   centered: boolean;
 }
 
+export interface CardsBlockData {
+  title: string;
+  subtitle: string;
+  cards: Array<{
+    title: string;
+    description: string;
+    label: string;
+    buttonText: string;
+    buttonLink: string;
+    image: string; // This will store the Supabase path
+  }>;
+}
+
 export interface Block {
   id: string;
   type: BlockType;
@@ -68,7 +81,8 @@ export interface Block {
     | DividerBlockData
     | ListBlockData
     | AuthorBlockData
-    | ImageBlockData;
+    | ImageBlockData
+    | CardsBlockData;
 }
 
 export interface Section {
