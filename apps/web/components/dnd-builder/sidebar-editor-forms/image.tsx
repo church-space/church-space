@@ -67,7 +67,7 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
           <Slider
             value={[localState.size]}
             max={100}
-            min={0}
+            min={40}
             step={1}
             className="col-span-2"
             onValueChange={(value) => handleChange("size", value[0])}

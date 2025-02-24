@@ -80,6 +80,12 @@ export interface FileDownloadBlockData {
   textColor: string;
 }
 
+export interface VideoBlockData {
+  url: string;
+  size: number;
+  centered: boolean;
+}
+
 export type BlockData =
   | ButtonBlockData
   | DividerBlockData
@@ -87,7 +93,8 @@ export type BlockData =
   | AuthorBlockData
   | ImageBlockData
   | CardsBlockData
-  | FileDownloadBlockData;
+  | FileDownloadBlockData
+  | VideoBlockData;
 
 export interface Block {
   id: string;

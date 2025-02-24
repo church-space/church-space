@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { PlayButton } from "@trivo/ui/icons";
+import { PlayButton, Youtube } from "@trivo/ui/icons";
+import { VideoBlockData } from "@/types/blocks";
 
-export default function VideoBlock() {
-  let videoUrl = "https://www.youtube.com/watch?v=FTwgWRWGhuI&list=WL&index=4";
+interface VideoBlockProps {
+  data?: VideoBlockData;
+}
+
+export default function VideoBlock({ data }: VideoBlockProps) {
   const [result, setResult] = useState({
     success: false,
     message: "",
@@ -10,7 +14,9 @@ export default function VideoBlock() {
   });
 
   useEffect(() => {
-    const id = extractYouTubeId(videoUrl);
+    if (!data?.url) return;
+
+    const id = extractYouTubeId(data.url);
     if (id) {
       setResult({
         success: true,
@@ -24,7 +30,7 @@ export default function VideoBlock() {
         videoId: "",
       });
     }
-  }, [videoUrl]);
+  }, [data?.url]);
 
   const extractYouTubeId = (url: string) => {
     const patterns = [
@@ -43,18 +49,31 @@ export default function VideoBlock() {
   };
 
   const imageUrl = `https://i3.ytimg.com/vi/${result.videoId}/maxresdefault.jpg`;
+  const style = {
+    maxWidth: data?.size ? `${data.size}%` : "33%",
+    margin: data?.centered ? "0 auto" : undefined,
+  };
 
   return (
-    <div className="relative">
+    <div className="relative" style={style}>
       {result.success ? (
         <div className="bg-background aspect-video rounded-md">
-          <img src={imageUrl} alt="Video Thumbnail" height={100} width={100} />
+          <img
+            src={imageUrl}
+            alt="Video Thumbnail"
+            className="w-full h-full object-cover rounded-md"
+          />
         </div>
       ) : (
         <div className="bg-background aspect-video rounded-md"></div>
       )}
-      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center opacity-70">
-        <PlayButton height="65" width="65" />
+      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+        <div className="relative">
+          <div className="absolute top-5 left-5 w-10 h-8 bg-white rounded-full" />
+          <div className="relative z-10">
+            <Youtube height="80" width="80" fill="#FF0000" />
+          </div>
+        </div>
       </div>
     </div>
   );
