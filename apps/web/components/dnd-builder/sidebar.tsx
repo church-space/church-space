@@ -16,7 +16,13 @@ import {
 } from "@trivo/ui/icons";
 import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
-import { Select, SelectTrigger, SelectValue } from "@trivo/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@trivo/ui/select";
 import { Separator } from "@trivo/ui/separator";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
@@ -28,6 +34,12 @@ interface DndBuilderSidebarProps {
   type: "email" | "form";
   onBgColorChange?: (color: string) => void;
   bgColor?: string;
+  onFooterBgColorChange?: (color: string) => void;
+  footerBgColor?: string;
+  onFooterTextColorChange?: (color: string) => void;
+  footerTextColor?: string;
+  onFooterFontChange?: (font: string) => void;
+  footerFont?: string;
   selectedBlock?: {
     id: string | null;
     type: BlockType | null;
@@ -109,6 +121,12 @@ export default function DndBuilderSidebar({
   type,
   onBgColorChange,
   bgColor,
+  onFooterBgColorChange,
+  footerBgColor = "#ffffff",
+  onFooterTextColorChange,
+  footerTextColor = "#000000",
+  onFooterFontChange,
+  footerFont = "Inter",
   selectedBlock,
   setSelectedBlockId,
   onDeleteBlock,
@@ -198,18 +216,40 @@ export default function DndBuilderSidebar({
               </div>
               <div className="grid grid-cols-3 items-center gap-2">
                 <Label className="font-medium">Footer BG Color</Label>
-                <Input className="col-span-2" type="color" />
+                <Input
+                  className="col-span-2"
+                  type="color"
+                  value={footerBgColor}
+                  onChange={(e) => onFooterBgColorChange?.(e.target.value)}
+                />
               </div>
               <div className="grid grid-cols-3 items-center gap-2">
                 <Label className="font-medium">Footer Text Color</Label>
-                <Input className="col-span-2" type="color" />
+                <Input
+                  className="col-span-2"
+                  type="color"
+                  value={footerTextColor}
+                  onChange={(e) => onFooterTextColorChange?.(e.target.value)}
+                />
               </div>
               <div className="grid grid-cols-3 items-center gap-2">
                 <Label className="font-medium">Footer Font</Label>
-                <Select>
+                <Select
+                  value={footerFont}
+                  onValueChange={(value) => onFooterFontChange?.(value)}
+                >
                   <SelectTrigger className="col-span-2">
                     <SelectValue placeholder="Select a font" />
                   </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Inter">Inter</SelectItem>
+                    <SelectItem value="Arial">Arial</SelectItem>
+                    <SelectItem value="Helvetica">Helvetica</SelectItem>
+                    <SelectItem value="Times New Roman">
+                      Times New Roman
+                    </SelectItem>
+                    <SelectItem value="Georgia">Georgia</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>

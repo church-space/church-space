@@ -61,3 +61,22 @@ export async function deleteEmailBlock(supabase: Client, blockId: number) {
 
   return result;
 }
+
+export async function updateEmailStyle(
+  supabase: Client,
+  emailId: number,
+  updates: {
+    bg_color?: string;
+    footer_bg_color?: string;
+    footer_font?: string;
+    footer_text_color?: string;
+  }
+) {
+  const result = await supabase
+    .from("emails")
+    .update(updates)
+    .eq("id", emailId)
+    .select();
+
+  return result;
+}

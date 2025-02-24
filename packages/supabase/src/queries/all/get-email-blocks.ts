@@ -1,27 +1,30 @@
 import { Client } from "../../types";
 
 export async function getEmailBlocksQuery(supabase: Client, emailId: number) {
-  const { data, error } = await supabase
+  // First, get the email data
+  const { data: emailData, error: emailError } = await supabase
     .from("emails")
-    .select(
-      `
-      *,
-      blocks:email_blocks(*)
-    `
-    )
+    .select("*")
     .eq("id", emailId)
-    .order("blocks.order", { ascending: true })
     .single();
 
-  if (error) {
-    throw error;
+  if (emailError) {
+    throw emailError;
+  }
+
+  // Then, get the blocks with proper ordering
+  const { data: blocksData, error: blocksError } = await supabase
+    .from("email_blocks")
+    .select("*")
+    .eq("email_id", emailId)
+    .order("order", { ascending: true });
+
+  if (blocksError) {
+    throw blocksError;
   }
 
   return {
-    email: {
-      ...data,
-      blocks: undefined, // Remove the blocks from the email object since we're returning it separately
-    },
-    blocks: data.blocks || [],
+    email: emailData,
+    blocks: blocksData || [],
   };
 }
