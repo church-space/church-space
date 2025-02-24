@@ -91,38 +91,19 @@
   scrollbar-width: none;
 }
 
+/* Remove list marker styling */
+
+/* Additional styling for the editor */
 .ProseMirror p {
   margin: 0.5em 0;
 }
 
-.ProseMirror ul,
-.ProseMirror ol {
-  padding-left: 1.5em;
-  margin: 0.5em 0;
-  list-style-position: outside;
-}
+/* Remove list styling */
 
-.ProseMirror ul li,
-.ProseMirror ol li {
-  margin: 0.2em 0;
-}
-
-/* Ensure list markers inherit text properties */
-.ProseMirror ul li::marker,
-.ProseMirror ol li::marker {
-  color: inherit;
-  font-size: inherit;
-  font-family: inherit;
-}
-
-/* Style for bullet lists */
-.ProseMirror ul li {
-  list-style-type: disc;
-}
-
-/* Style for numbered lists */
-.ProseMirror ol li {
-  list-style-type: decimal;
+/* Ensure toggle buttons show active state */
+[data-state="on"].bg-accent {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
 }
 
 .ProseMirror a {

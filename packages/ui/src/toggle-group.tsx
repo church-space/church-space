@@ -35,26 +35,41 @@ ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName;
 const ToggleGroupItem = React.forwardRef<
   React.ElementRef<typeof ToggleGroupPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item> &
-    VariantProps<typeof toggleVariants>
->(({ className, children, variant, size, ...props }, ref) => {
-  const context = React.useContext(ToggleGroupContext);
+    VariantProps<typeof toggleVariants> & {
+      "data-state"?: "on" | "off";
+    }
+>(
+  (
+    { className, children, variant, size, "data-state": dataState, ...props },
+    ref
+  ) => {
+    const context = React.useContext(ToggleGroupContext);
 
-  return (
-    <ToggleGroupPrimitive.Item
-      ref={ref}
-      className={cn(
-        toggleVariants({
-          variant: context.variant || variant,
-          size: context.size || size,
-        }),
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </ToggleGroupPrimitive.Item>
-  );
-});
+    // Create a merged props object that includes data-state
+    const mergedProps = {
+      ...props,
+      "data-state":
+        dataState ||
+        (props.value && props.value === props["aria-pressed"] ? "on" : "off"),
+    };
+
+    return (
+      <ToggleGroupPrimitive.Item
+        ref={ref}
+        className={cn(
+          toggleVariants({
+            variant: context.variant || variant,
+            size: context.size || size,
+          }),
+          className
+        )}
+        {...mergedProps}
+      >
+        {children}
+      </ToggleGroupPrimitive.Item>
+    );
+  }
+);
 
 ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName;
 

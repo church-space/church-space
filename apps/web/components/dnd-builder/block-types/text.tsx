@@ -1,7 +1,7 @@
 "use client";
 
 import { Editor, EditorContent } from "@tiptap/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface TextBlockProps {
   editor: Editor | null;
@@ -9,6 +9,9 @@ interface TextBlockProps {
 
 const TextBlock = ({ editor }: TextBlockProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isReady, setIsReady] = useState(false);
+  const observerRef = useRef<MutationObserver | null>(null);
+  const isUpdatingRef = useRef(false);
 
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
@@ -30,6 +33,42 @@ const TextBlock = ({ editor }: TextBlockProps) => {
             if (content) {
               editor.commands.setContent(content);
             }
+
+            // Force a refresh to ensure styles are applied
+            editor.view.updateState(editor.view.state);
+
+            // Clean up any existing observer
+            if (observerRef.current) {
+              observerRef.current.disconnect();
+              observerRef.current = null;
+            }
+
+            // Set up a mutation observer for general DOM changes
+            const observer = new MutationObserver(() => {
+              // Prevent recursive updates
+              if (isUpdatingRef.current) return;
+
+              try {
+                isUpdatingRef.current = true;
+                // Remove call to applyColorToMarkers
+              } finally {
+                isUpdatingRef.current = false;
+              }
+            });
+
+            // Start observing the editor content
+            if (containerRef.current) {
+              observer.observe(containerRef.current, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ["style", "class"],
+              });
+
+              observerRef.current = observer;
+            }
+
+            setIsReady(true);
           }
         }
       }, 0);
@@ -37,6 +76,10 @@ const TextBlock = ({ editor }: TextBlockProps) => {
 
     return () => {
       cancelAnimationFrame(frame);
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
     };
   }, [editor]);
 
@@ -50,8 +93,8 @@ const TextBlock = ({ editor }: TextBlockProps) => {
 
   return (
     <div className="relative prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none">
-      <div ref={containerRef} />
-      <EditorContent editor={editor} />
+      <div ref={containerRef} className="styled-editor-container" />
+      <EditorContent editor={editor} className="styled-editor-content" />
     </div>
   );
 };
