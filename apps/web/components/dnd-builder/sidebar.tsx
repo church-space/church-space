@@ -197,18 +197,6 @@ export default function DndBuilderSidebar({
                 />
               </div>
               <div className="grid grid-cols-3 items-center gap-2">
-                <Label className="font-medium">Default Text Color</Label>
-                <Input className="col-span-2" type="color" />
-              </div>
-              <div className="grid grid-cols-3 items-center gap-2">
-                <Label className="font-medium">Default Font</Label>
-                <Select>
-                  <SelectTrigger className="col-span-2">
-                    <SelectValue placeholder="Select a font" />
-                  </SelectTrigger>
-                </Select>
-              </div>
-              <div className="grid grid-cols-3 items-center gap-2">
                 <Label className="font-medium">Footer BG Color</Label>
                 <Input className="col-span-2" type="color" />
               </div>

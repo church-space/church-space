@@ -99,10 +99,30 @@
 .ProseMirror ol {
   padding-left: 1.5em;
   margin: 0.5em 0;
+  list-style-position: outside;
 }
 
-.ProseMirror li {
+.ProseMirror ul li,
+.ProseMirror ol li {
   margin: 0.2em 0;
+}
+
+/* Ensure list markers inherit text properties */
+.ProseMirror ul li::marker,
+.ProseMirror ol li::marker {
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+/* Style for bullet lists */
+.ProseMirror ul li {
+  list-style-type: disc;
+}
+
+/* Style for numbered lists */
+.ProseMirror ol li {
+  list-style-type: decimal;
 }
 
 .ProseMirror a {

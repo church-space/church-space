@@ -27,6 +27,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@trivo/ui/popover";
 import { useState } from "react";
 import { Input } from "@trivo/ui/input";
+import { ToggleGroup, ToggleGroupItem } from "@trivo/ui/toggle-group";
 
 const fontFamilies = [
   { name: "Default", value: "sans-serif" },
@@ -67,42 +68,44 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
   return (
     <div className=" flex-shrink-0 flex flex-wrap gap-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().toggleBold().run()}
-        disabled={!editor.can().chain().focus().toggleBold().run()}
-        className={editor.isActive("bold") ? "bg-muted" : ""}
-      >
-        <Bold className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        disabled={!editor.can().chain().focus().toggleItalic().run()}
-        className={editor.isActive("italic") ? "bg-muted" : ""}
-      >
-        <Italic className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().toggleUnderline().run()}
-        disabled={!editor.can().chain().focus().toggleUnderline().run()}
-        className={editor.isActive("underline") ? "bg-muted" : ""}
-      >
-        <Underline className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().toggleStrike().run()}
-        disabled={!editor.can().chain().focus().toggleStrike().run()}
-        className={editor.isActive("strike") ? "bg-muted" : ""}
-      >
-        <Strikethrough className="h-4 w-4" />
-      </Button>
+      <ToggleGroup type="multiple">
+        <ToggleGroupItem
+          value="bold"
+          aria-pressed={editor.isActive("bold")}
+          data-state={editor.isActive("bold") ? "on" : "off"}
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          disabled={!editor.can().chain().focus().toggleBold().run()}
+        >
+          <Bold className="h-4 w-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="italic"
+          aria-pressed={editor.isActive("italic")}
+          data-state={editor.isActive("italic") ? "on" : "off"}
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          disabled={!editor.can().chain().focus().toggleItalic().run()}
+        >
+          <Italic className="h-4 w-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="underline"
+          aria-pressed={editor.isActive("underline")}
+          data-state={editor.isActive("underline") ? "on" : "off"}
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          disabled={!editor.can().chain().focus().toggleUnderline().run()}
+        >
+          <Underline className="h-4 w-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="strike"
+          aria-pressed={editor.isActive("strike")}
+          data-state={editor.isActive("strike") ? "on" : "off"}
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          disabled={!editor.can().chain().focus().toggleStrike().run()}
+        >
+          <Strikethrough className="h-4 w-4" />
+        </ToggleGroupItem>
+      </ToggleGroup>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -196,58 +199,66 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         </PopoverContent>
       </Popover>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        disabled={!editor.can().chain().focus().toggleBulletList().run()}
-        className={editor.isActive("bulletList") ? "bg-muted" : ""}
-      >
-        <List className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        disabled={!editor.can().chain().focus().toggleOrderedList().run()}
-        className={editor.isActive("orderedList") ? "bg-muted" : ""}
-      >
-        <ListOrdered className="h-4 w-4" />
-      </Button>
+      <ToggleGroup type="multiple">
+        <ToggleGroupItem
+          value="bulletList"
+          aria-pressed={editor.isActive("bulletList")}
+          data-state={editor.isActive("bulletList") ? "on" : "off"}
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          disabled={!editor.can().chain().focus().toggleBulletList().run()}
+        >
+          <List className="h-4 w-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="orderedList"
+          aria-pressed={editor.isActive("orderedList")}
+          data-state={editor.isActive("orderedList") ? "on" : "off"}
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          disabled={!editor.can().chain().focus().toggleOrderedList().run()}
+        >
+          <ListOrdered className="h-4 w-4" />
+        </ToggleGroupItem>
+      </ToggleGroup>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <AlignLeft className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem
-            onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          >
-            <AlignLeft className="h-4 w-4 mr-2" />
-            Left
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          >
-            <AlignCenter className="h-4 w-4 mr-2" />
-            Center
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          >
-            <AlignRight className="h-4 w-4 mr-2" />
-            Right
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-          >
-            <AlignJustify className="h-4 w-4 mr-2" />
-            Justify
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <ToggleGroup
+        type="single"
+        value={
+          editor.isActive({ textAlign: "left" })
+            ? "left"
+            : editor.isActive({ textAlign: "center" })
+              ? "center"
+              : editor.isActive({ textAlign: "right" })
+                ? "right"
+                : editor.isActive({ textAlign: "justify" })
+                  ? "justify"
+                  : "left"
+        }
+      >
+        <ToggleGroupItem
+          value="left"
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+        >
+          <AlignLeft className="h-4 w-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="center"
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+        >
+          <AlignCenter className="h-4 w-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="right"
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+        >
+          <AlignRight className="h-4 w-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="justify"
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+        >
+          <AlignJustify className="h-4 w-4" />
+        </ToggleGroupItem>
+      </ToggleGroup>
 
       <Popover>
         <PopoverTrigger asChild>

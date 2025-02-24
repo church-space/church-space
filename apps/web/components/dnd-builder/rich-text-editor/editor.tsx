@@ -16,11 +16,17 @@ export const createEditor = () => {
       StarterKit.configure({
         bulletList: {
           keepMarks: true,
-          keepAttributes: false,
+          keepAttributes: true,
+          HTMLAttributes: {
+            class: "prose-list-disc",
+          },
         },
         orderedList: {
           keepMarks: true,
-          keepAttributes: false,
+          keepAttributes: true,
+          HTMLAttributes: {
+            class: "prose-list-decimal",
+          },
         },
       }),
       Color.extend({
