@@ -30,7 +30,7 @@ export default function ImageBlock({ data }: ImageBlockProps) {
       style={{ width: `${size}%` }}
     >
       {imageUrl ? (
-        <img
+        <Image
           src={imageUrl}
           alt="Uploaded content"
           className="w-full h-full object-contain "

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@trivo/ui/button";
 import type { CardsBlockData } from "@/types/blocks";
 import { createClient } from "@trivo/supabase/client";
-
+import Image from "next/image";
 interface CardsBlockProps {
   data?: CardsBlockData;
 }
@@ -28,7 +28,7 @@ export default function CardsBlock({ data }: CardsBlockProps) {
         }));
       }
     });
-  }, [cards]);
+  }, [cards, imageUrls]);
 
   return (
     <div className="flex flex-col gap-1 py-4">
@@ -40,7 +40,7 @@ export default function CardsBlock({ data }: CardsBlockProps) {
         {cards.map((card, index) => (
           <div className="w-full flex flex-col gap-2" key={index}>
             {card.image && (
-              <img
+              <Image
                 src={imageUrls[card.image] || ""}
                 alt={card.title}
                 className="w-full h-48 object-cover rounded-md"

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { PlayButton, Youtube } from "@trivo/ui/icons";
+import { Youtube } from "@trivo/ui/icons";
 import { VideoBlockData } from "@/types/blocks";
+import Image from "next/image";
 
 interface VideoBlockProps {
   data?: VideoBlockData;
@@ -58,7 +59,7 @@ export default function VideoBlock({ data }: VideoBlockProps) {
     <div className="relative" style={style}>
       {result.success ? (
         <div className="bg-background aspect-video rounded-md">
-          <img
+          <Image
             src={imageUrl}
             alt="Video Thumbnail"
             className="w-full h-full object-cover rounded-md"
