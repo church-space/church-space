@@ -5,6 +5,7 @@ import { cn } from "@trivo/ui/cn";
 import { motion } from "framer-motion";
 import React, { useRef } from "react";
 import Block from "./block";
+import Footer from "./footer";
 
 interface CanvasProps {
   blocks: BlockType[];
@@ -93,8 +94,8 @@ export default function DndBuilderCanvas({
   return (
     <div
       className={cn(
-        "flex w-full mx-auto rounded-md items-center justify-center border shadow-sm ",
-        isInset ? "py-6" : ""
+        "flex flex-col  w-full mx-auto rounded-md items-center justify-center border shadow-sm ",
+        isInset ? "pt-6" : ""
       )}
       style={
         isInset
@@ -169,6 +170,7 @@ export default function DndBuilderCanvas({
           </>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
