@@ -47,7 +47,11 @@ interface DndBuilderSidebarProps {
   selectedBlock?: Block | null;
   setSelectedBlockId: (id: string | null) => void;
   onDeleteBlock: (id: string) => void;
-  onBlockUpdate: (block: Block) => void;
+  onBlockUpdate: (
+    block: Block,
+    addToHistory?: boolean,
+    isDuplication?: boolean
+  ) => void;
   isInset?: boolean;
   onIsInsetChange?: (isInset: boolean) => void;
   emailBgColor?: string;

@@ -49,7 +49,11 @@ export default function DndBuilderSidebarForms({
   selectedBlock?: Block;
   setSelectedBlockId?: (id: string | null) => void;
   onDeleteBlock?: (id: string) => void;
-  onBlockUpdate?: (block: Block, addToHistory?: boolean) => void;
+  onBlockUpdate?: (
+    block: Block,
+    addToHistory?: boolean,
+    isDuplication?: boolean
+  ) => void;
   formType?: "block" | "email-style" | "email-footer" | "email-templates";
   onBack?: () => void;
   bgColor?: string;
@@ -236,7 +240,22 @@ export default function DndBuilderSidebarForms({
             <Button
               variant="outline"
               className=" px-2 py-0 h-7 "
-              onClick={() => setIsDeleteConfirmationExpanded(true)}
+              onClick={() => {
+                if (selectedBlock && onBlockUpdate) {
+                  // Create a deep copy of the selected block with a new ID
+                  const duplicatedBlock = {
+                    ...JSON.parse(JSON.stringify(selectedBlock)), // Deep clone to avoid reference issues
+                    id: crypto.randomUUID(), // Generate a new unique ID
+                  };
+
+                  // Find all blocks that need their order updated
+                  // This is handled by the parent component that receives this duplicated block
+
+                  // Call onBlockUpdate with the duplicated block and a special flag
+                  // to indicate this is a duplication operation
+                  onBlockUpdate(duplicatedBlock, true, true);
+                }
+              }}
             >
               Duplicate Block
             </Button>

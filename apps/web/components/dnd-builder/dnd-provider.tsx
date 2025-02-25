@@ -961,19 +961,62 @@ export default function DndProvider() {
 
   const handleBlockUpdate = (
     updatedBlock: BlockType,
-    addToHistory: boolean = true
+    addToHistory: boolean = true,
+    isDuplication: boolean = false
   ) => {
     console.log(
       "Updating block:",
       updatedBlock,
       "Add to history:",
-      addToHistory
+      addToHistory,
+      "Is duplication:",
+      isDuplication
     );
 
-    // First update the UI optimistically
-    const newBlocks = blocks.map((block) =>
-      block.id === updatedBlock.id ? updatedBlock : block
-    );
+    let newBlocks: BlockType[];
+
+    if (isDuplication) {
+      // This is a duplication operation
+      // Find the original block to determine where to insert the duplicate
+      const originalBlock = blocks.find(
+        (block) =>
+          block.type === updatedBlock.type && block.id !== updatedBlock.id
+      );
+
+      if (originalBlock) {
+        // Find the index of the original block
+        const originalIndex = blocks.findIndex(
+          (block) => block.id === originalBlock.id
+        );
+
+        // Insert the duplicated block after the original
+        newBlocks = [...blocks];
+
+        // Set the order of the duplicated block to be right after the original
+        updatedBlock.order = originalBlock.order + 1;
+
+        // Insert the duplicated block after the original
+        newBlocks.splice(originalIndex + 1, 0, updatedBlock);
+
+        // Update the order of all subsequent blocks
+        newBlocks = newBlocks.map((block, index) => ({
+          ...block,
+          order: index,
+        }));
+
+        console.log("Duplicated block inserted at index:", originalIndex + 1);
+      } else {
+        // If we can't find the original block, just append the duplicated block
+        console.log("Original block not found, appending duplicated block");
+        updatedBlock.order = blocks.length;
+        newBlocks = [...blocks, updatedBlock];
+      }
+    } else {
+      // Regular update operation
+      newBlocks = blocks.map((block) =>
+        block.id === updatedBlock.id ? updatedBlock : block
+      );
+    }
 
     // Ensure block order is maintained
     const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
@@ -985,6 +1028,73 @@ export default function DndProvider() {
       updateBlocksWithoutHistory(sortedBlocks);
     }
 
+    // For duplicated blocks, we need to add them to the database
+    if (isDuplication && emailId) {
+      console.log("Adding duplicated block to database");
+
+      addEmailBlock.mutate(
+        {
+          emailId,
+          type: updatedBlock.type,
+          value: updatedBlock.data || ({} as BlockData),
+          order: updatedBlock.order,
+          linkedFile: undefined,
+        },
+        {
+          onSuccess: (result) => {
+            if (result && result.id) {
+              console.log(
+                "Duplicated block added to database with ID:",
+                result.id
+              );
+
+              // Update the block ID in our local state but keep the same block in the UI
+              const updatedBlocks = sortedBlocks.map((block) =>
+                block.id === updatedBlock.id
+                  ? { ...block, id: result.id.toString() }
+                  : block
+              );
+
+              // Check for duplicate IDs
+              const updatedIds = updatedBlocks.map((block) => block.id);
+              const hasDuplicates = updatedIds.some(
+                (id, index) => updatedIds.indexOf(id) !== index
+              );
+
+              if (hasDuplicates) {
+                console.log(
+                  "Found duplicate IDs after adding, removing duplicates"
+                );
+
+                // Keep only the first occurrence of each ID
+                const seenIds = new Set<string>();
+                const deduplicatedBlocks = updatedBlocks.filter((block) => {
+                  if (seenIds.has(block.id)) {
+                    return false;
+                  }
+                  seenIds.add(block.id);
+                  return true;
+                });
+
+                updateBlocks(deduplicatedBlocks);
+              } else {
+                updateBlocks(updatedBlocks);
+              }
+
+              // Update the order of all blocks in the database to match their position in the UI
+              updateBlockOrdersInDatabase(updatedBlocks);
+
+              // Set the newly duplicated block as the selected block
+              setSelectedBlockId(result.id.toString());
+            }
+          },
+        }
+      );
+
+      return; // Skip the regular update logic for duplicated blocks
+    }
+
+    // Regular update logic for non-duplicated blocks
     // Update in database if we have an emailId
     if (emailId) {
       // Check if the block ID is a number (from database) or a UUID (newly created)
