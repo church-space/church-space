@@ -12,14 +12,14 @@ import {
   Youtube,
 } from "@trivo/ui/icons";
 import { Separator } from "@trivo/ui/separator";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { getYear } from "date-fns";
 
 // Define the type for social icon keys
 type SocialIconKey =
   | "instagram"
   | "tiktok"
-  | "x"
+  | "twitter"
   | "mail"
   | "link"
   | "facebook"
@@ -31,10 +31,16 @@ type SocialIconKey =
 // Define the type for social icon style
 type SocialIconStyle = "filled" | "outline" | "icon-only";
 
+interface FooterProps {
+  onClick: (e: React.MouseEvent) => void;
+  isActive: boolean;
+  footerData?: any;
+}
+
 const socialIcons = {
   instagram: Instagram,
   tiktok: TikTok,
-  x: XTwitter,
+  twitter: XTwitter,
   mail: MailFilled,
   link: LinkIcon,
   facebook: Facebook,
@@ -44,30 +50,43 @@ const socialIcons = {
   threads: Threads,
 };
 
-export default function Footer({
-  onClick,
-  isActive,
-}: {
-  onClick: (e: React.MouseEvent) => void;
-  isActive: boolean;
-}) {
+export default function Footer({ onClick, isActive, footerData }: FooterProps) {
   const emailInset = true;
   const emailBgColor = "#fff2d5";
-  const footerBgColor = "#ffffff";
-  const footerTextColor = "#000000";
-  const footerSecondaryTextColor = "#ff0000";
-  const footerFont = "Inter";
-  const [socialIconStyle, setSocialIconStyle] =
-    useState<SocialIconStyle>("icon-only");
-  const socialIconColor = "#000000";
-  const socialIconTextColor = "#000000";
 
-  // Randomly select 4 social icons on component mount
-  const randomSocialIcons = useMemo(() => {
+  // Use footer data from database if available, otherwise use defaults
+  const footerBgColor = footerData?.bg_color || "#ffffff";
+  const footerTextColor = footerData?.text_color || "#000000";
+  const footerSecondaryTextColor =
+    footerData?.secondary_text_color || "#666666";
+  const footerFont = footerData?.font || "Inter";
+  const socialIconStyle = footerData?.socials_icon_color || "icon-only";
+  const socialIconColor = footerData?.socials_color || "#000000";
+  const socialIconTextColor = "#ffffff"; // For filled icons text
+
+  // Get links from footer data or use empty array
+  const footerLinks = Array.isArray(footerData?.links) ? footerData.links : [];
+
+  // If we have links from the database, use those
+  // Otherwise, randomly select 4 social icons on component mount
+  const socialLinks = useMemo(() => {
+    if (footerLinks && footerLinks.length > 0) {
+      return footerLinks;
+    }
+
+    // Fallback to random icons if no links are defined
     const iconKeys = Object.keys(socialIcons) as SocialIconKey[];
-    const shuffled = [...iconKeys].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 4);
-  }, []);
+    // Use a deterministic selection instead of random to avoid hydration mismatches
+    return ["instagram", "facebook", "twitter", "mail"].map((icon) => ({
+      icon,
+      url: "",
+    }));
+  }, [footerLinks]);
+
+  // Get the appropriate icon component
+  const getIconComponent = (iconKey: string) => {
+    return socialIcons[iconKey as SocialIconKey] || socialIcons.link;
+  };
 
   return (
     <div
@@ -84,28 +103,39 @@ export default function Footer({
           isActive && "ring-2 ring-blue-500"
         )}
         onClick={onClick}
+        style={{ fontFamily: footerFont }}
       >
         <div className="flex flex-col items-center gap-2">
-          <div className="h-28 w-28 rounded-md bg-green-900"></div>
+          {footerData?.logo ? (
+            <img
+              src={footerData.logo}
+              alt="Logo"
+              className="h-28 w-28 object-contain"
+            />
+          ) : (
+            <div className="h-28 w-28 rounded-md bg-green-900"></div>
+          )}
           <div
             className="font-semibold text-lg "
             style={{ color: footerTextColor }}
           >
-            Church Name
+            {footerData?.name || "Church Name"}
           </div>
           <div
-            className=" text-sm text-muted-foreground max-w-sm text-center leading-tight text-pretty"
+            className="text-sm text-muted-foreground max-w-sm text-center leading-tight text-pretty"
             style={{ color: footerSecondaryTextColor }}
           >
-            This is a description of the church or mission statementtwo lines.
+            {footerData?.subtitle ||
+              "This is a description of the church or mission statement two lines."}
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {randomSocialIcons.map((iconKey) => {
+          {socialLinks.map((link: any, index: number) => {
+            const IconComponent = getIconComponent(link.icon);
             return (
               <div
-                key={iconKey}
+                key={index}
                 className={cn(
                   "h-7 w-7 rounded-full flex items-center justify-center"
                 )}
@@ -117,7 +147,7 @@ export default function Footer({
                   borderWidth: socialIconStyle === "outline" ? "1px" : "0px",
                 }}
               >
-                <TikTok
+                <IconComponent
                   height="18"
                   width="18"
                   fill={
@@ -138,15 +168,19 @@ export default function Footer({
           className="flex flex-col items-center gap-1.5"
           style={{ color: footerSecondaryTextColor }}
         >
-          <div className="text-xs   text-center leading-none text-pretty">
-            Hillsong Church 1-9 Solent Circuit Norwest, NSW 2153 Australia
+          <div className="text-xs text-center leading-none text-pretty">
+            {footerData?.address ||
+              "Hillsong Church 1-9 Solent Circuit Norwest, NSW 2153 Australia"}
           </div>
           <div className="text-xs leading-none text-center text-pretty">
-            You are receiving this email because you are subscribed to our
-            newsletter.
+            {footerData?.reason ||
+              "You are receiving this email because you are subscribed to our newsletter."}
           </div>
           <div className="text-xs items-center w-full flex justify-center gap-2 leading-10 text-pretty">
-            <span>&copy; {getYear(new Date())} Hillsong Church</span>
+            <span>
+              &copy; {getYear(new Date())}{" "}
+              {footerData?.copyright_name || "Hillsong Church"}
+            </span>
             <span>|</span>
             <span className="underline">Update your preferences</span>
             <span>|</span>

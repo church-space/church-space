@@ -30,6 +30,7 @@ interface CanvasProps {
     | "email-style"
     | "email-footer"
     | "email-templates";
+  footerData?: any;
 }
 
 export default function DndBuilderCanvas({
@@ -43,6 +44,7 @@ export default function DndBuilderCanvas({
   onTextContentChange,
   setActiveForm,
   activeForm,
+  footerData,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -196,6 +198,7 @@ export default function DndBuilderCanvas({
           setActiveForm("email-footer");
         }}
         isActive={activeForm === "email-footer"}
+        footerData={footerData}
       />
     </div>
   );

@@ -176,7 +176,7 @@ export type Database = {
           {
             foreignKeyName: "email_footers_email_id_fkey"
             columns: ["email_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "emails"
             referencedColumns: ["id"]
           },

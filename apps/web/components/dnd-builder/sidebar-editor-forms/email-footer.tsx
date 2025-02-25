@@ -11,7 +11,7 @@ import FileUpload from "../file-upload";
 import { useUser } from "@/stores/use-user";
 import { Input } from "@trivo/ui/input";
 import { Textarea } from "@trivo/ui/textarea";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@trivo/ui/button";
 import { z } from "zod";
 import {
@@ -26,6 +26,8 @@ import {
   Bluesky,
   Linkedin,
 } from "@trivo/ui/icons";
+import { useUpdateEmailFooter } from "../mutations/use-update-email-footer";
+import debounce from "lodash/debounce";
 
 interface Link {
   icon: string;
@@ -36,21 +38,85 @@ interface Link {
 const urlSchema = z.string().url("Please enter a valid URL");
 const emailSchema = z.string().email("Please enter a valid email address");
 
-export default function EmailFooterForm() {
+interface EmailFooterFormProps {
+  emailId?: number;
+  footerData?: any;
+}
+
+export default function EmailFooterForm({
+  emailId,
+  footerData,
+}: EmailFooterFormProps) {
   const { organizationId } = useUser();
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  const updateEmailFooter = useUpdateEmailFooter();
 
-  // Local state
+  // Local state with default values
   const [localState, setLocalState] = useState({
-    footerBgColor: "#000000",
-    footerTextColor: "#000000",
-    footerFont: "Inter",
-    links: [] as Link[],
+    name: footerData?.name || "",
+    subtitle: footerData?.subtitle || "",
+    logo: footerData?.logo || "",
+    address: footerData?.address || "",
+    reason: footerData?.reason || "",
+    copyright_name: footerData?.copyright_name || "",
+    bg_color: footerData?.bg_color || "#ffffff",
+    text_color: footerData?.text_color || "#000000",
+    secondary_text_color: footerData?.secondary_text_color || "#666666",
+    font: footerData?.font || "Inter",
+    links: Array.isArray(footerData?.links) ? footerData.links : [],
+    socials_color: footerData?.socials_color || "#000000",
+    socials_style: footerData?.socials_style || "icon-only",
+    socials_icon_color: footerData?.socials_icon_color || "icon-only",
   });
+
+  // Update local state when footerData changes
+  useEffect(() => {
+    if (footerData) {
+      setLocalState({
+        name: footerData.name || "",
+        subtitle: footerData.subtitle || "",
+        logo: footerData.logo || "",
+        address: footerData.address || "",
+        reason: footerData.reason || "",
+        copyright_name: footerData.copyright_name || "",
+        bg_color: footerData.bg_color || "#ffffff",
+        text_color: footerData.text_color || "#000000",
+        secondary_text_color: footerData.secondary_text_color || "#666666",
+        font: footerData.font || "Inter",
+        links: Array.isArray(footerData.links) ? footerData.links : [],
+        socials_color: footerData.socials_color || "#000000",
+        socials_style: footerData.socials_style || "icon-only",
+        socials_icon_color: footerData.socials_icon_color || "icon-only",
+      });
+    }
+  }, [footerData]);
+
   const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
     {}
   );
   const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
+
+  // Create a ref to store the latest state for the debounced function
+  const stateRef = useRef(localState);
+
+  // Update the ref whenever localState changes
+  useEffect(() => {
+    stateRef.current = localState;
+  }, [localState]);
+
+  // Create a debounced function that updates the database
+  const debouncedUpdate = useCallback(
+    debounce(() => {
+      if (!emailId || !organizationId) return;
+
+      updateEmailFooter.mutate({
+        emailId,
+        organizationId,
+        updates: stateRef.current,
+      });
+    }, 500),
+    [emailId, organizationId, updateEmailFooter]
+  );
 
   // Handle general state changes
   const handleChange = (key: string, value: any) => {
@@ -58,7 +124,8 @@ export default function EmailFooterForm() {
       ...prev,
       [key]: value,
     }));
-    // Here you would also update the parent component or store if needed
+
+    debouncedUpdate();
   };
 
   const addLink = () => {
@@ -157,7 +224,9 @@ export default function EmailFooterForm() {
   };
 
   const removeLink = (index: number) => {
-    const newLinks = localState.links.filter((_, i) => i !== index);
+    const newLinks = localState.links.filter(
+      (_: Link, i: number) => i !== index
+    );
     handleChange("links", newLinks);
 
     // Clean up any errors or timers for this index
@@ -173,6 +242,23 @@ export default function EmailFooterForm() {
     }
   };
 
+  const handleUploadComplete = (path: string) => {
+    handleChange("logo", path);
+  };
+
+  const handleLogoRemove = () => {
+    handleChange("logo", "");
+  };
+
+  // Cleanup debounce timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(linkTimersRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
+    };
+  }, []);
+
   if (!organizationId) return null;
 
   return (
@@ -180,31 +266,63 @@ export default function EmailFooterForm() {
       <h2 className="text-lg font-semibold">Email Footer</h2>
       <div className="grid grid-cols-3 items-center gap-2">
         <Label>Logo</Label>
-        <FileUpload organizationId={organizationId} />
+        <div className="col-span-2">
+          <FileUpload
+            organizationId={organizationId}
+            initialFilePath={localState.logo}
+            onUploadComplete={handleUploadComplete}
+            onRemove={handleLogoRemove}
+          />
+        </div>
         <Label>Title</Label>
-        <Input className="col-span-2" />
+        <Input
+          className="col-span-2"
+          value={localState.name}
+          onChange={(e) => handleChange("name", e.target.value)}
+        />
         <Label>Subtitle</Label>
-        <Textarea className="col-span-2" />
+        <Textarea
+          className="col-span-2"
+          value={localState.subtitle}
+          onChange={(e) => handleChange("subtitle", e.target.value)}
+        />
         <Label>Address</Label>
-        <Textarea className="col-span-2" />
+        <Textarea
+          className="col-span-2"
+          value={localState.address}
+          onChange={(e) => handleChange("address", e.target.value)}
+        />
         <Label>Reason for Contact</Label>
-        <Textarea className="col-span-2" />
+        <Textarea
+          className="col-span-2"
+          value={localState.reason}
+          onChange={(e) => handleChange("reason", e.target.value)}
+        />
         <Label>Copyright Name</Label>
-        <Input className="col-span-2" />
+        <Input
+          className="col-span-2"
+          value={localState.copyright_name}
+          onChange={(e) => handleChange("copyright_name", e.target.value)}
+        />
         <Label className="font-medium">Background Color</Label>
         <ColorPicker
-          value={localState.footerBgColor}
-          onChange={(color) => handleChange("footerBgColor", color)}
+          value={localState.bg_color}
+          onChange={(color) => handleChange("bg_color", color)}
         />
         <Label className="font-medium">Text Color</Label>
         <ColorPicker
-          value={localState.footerTextColor}
-          onChange={(color) => handleChange("footerTextColor", color)}
+          value={localState.text_color}
+          onChange={(color) => handleChange("text_color", color)}
+        />
+        <Label className="font-medium">Secondary Text Color</Label>
+        <ColorPicker
+          value={localState.secondary_text_color}
+          onChange={(color) => handleChange("secondary_text_color", color)}
         />
         <Label className="font-medium">Font</Label>
         <Select
-          value={localState.footerFont}
-          onValueChange={(value) => handleChange("footerFont", value)}
+          value={localState.font}
+          onValueChange={(value) => handleChange("font", value)}
         >
           <SelectTrigger className="col-span-2">
             <SelectValue placeholder="Select a font" />
@@ -217,6 +335,25 @@ export default function EmailFooterForm() {
             <SelectItem value="Georgia">Georgia</SelectItem>
           </SelectContent>
         </Select>
+        <Label className="font-medium">Social Icon Style</Label>
+        <Select
+          value={localState.socials_icon_color}
+          onValueChange={(value) => handleChange("socials_icon_color", value)}
+        >
+          <SelectTrigger className="col-span-2">
+            <SelectValue placeholder="Select icon style" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="filled">Filled</SelectItem>
+            <SelectItem value="outline">Outline</SelectItem>
+            <SelectItem value="icon-only">Icon Only</SelectItem>
+          </SelectContent>
+        </Select>
+        <Label className="font-medium">Social Icon Color</Label>
+        <ColorPicker
+          value={localState.socials_color}
+          onChange={(color) => handleChange("socials_color", color)}
+        />
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
@@ -229,7 +366,7 @@ export default function EmailFooterForm() {
             Add Link
           </Button>
         </div>
-        {localState.links.map((link, index) => (
+        {localState.links.map((link: Link, index: number) => (
           <div
             key={index}
             className="grid grid-cols-3 gap-y-2 gap-x-2 items-center"

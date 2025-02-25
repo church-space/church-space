@@ -61,6 +61,8 @@ interface DndBuilderSidebarProps {
       | "email-footer"
       | "email-templates"
   ) => void;
+  emailId?: number;
+  footerData?: any;
 }
 
 function DraggableBlock({
@@ -149,6 +151,8 @@ export default function DndBuilderSidebar({
   onEmailBgColorChange,
   activeForm,
   setActiveForm,
+  emailId,
+  footerData,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
 
@@ -217,6 +221,8 @@ export default function DndBuilderSidebar({
               onDefaultTextColorChange={onDefaultTextColorChange}
               defaultFont={defaultFont}
               onDefaultFontChange={onDefaultFontChange}
+              emailId={emailId}
+              footerData={footerData}
             />
           </motion.div>
         ) : (
