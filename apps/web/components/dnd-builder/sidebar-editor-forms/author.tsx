@@ -23,12 +23,12 @@ import {
   SelectValue,
 } from "@trivo/ui/select";
 import debounce from "lodash/debounce";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import FileUpload from "../file-upload";
 
 interface AuthorFormProps {
   block: Block & { data?: AuthorBlockData };
-  onUpdate: (block: Block) => void;
+  onUpdate: (block: Block, addToHistory?: boolean) => void;
 }
 
 export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
@@ -41,17 +41,30 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     links: block.data?.links || [],
   });
 
-  const debouncedUpdate = useCallback(
-    debounce((newState: AuthorBlockData) => {
-      console.log("Author form updating block:", {
+  // Create a ref to store the latest state for the debounced function
+  const stateRef = useRef(localState);
+
+  // Update the ref whenever localState changes
+  useEffect(() => {
+    stateRef.current = localState;
+  }, [localState]);
+
+  // Create a debounced function that only updates the history
+  const debouncedHistoryUpdate = useCallback(
+    debounce(() => {
+      console.log("Author form updating block in history:", {
         blockId: block.id,
         blockType: block.type,
-        newState,
+        newState: stateRef.current,
       });
-      onUpdate({
-        ...block,
-        data: newState,
-      });
+      // Add to history
+      onUpdate(
+        {
+          ...block,
+          data: stateRef.current,
+        },
+        true
+      );
     }, 500),
     [block, onUpdate]
   );
@@ -66,9 +79,21 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   }, [block.data]);
 
   const handleChange = (key: keyof AuthorBlockData, value: any) => {
+    // Immediately update the local state for responsive UI
     const newState = { ...localState, [key]: value };
     setLocalState(newState);
-    debouncedUpdate(newState);
+
+    // Update the UI immediately without adding to history
+    onUpdate(
+      {
+        ...block,
+        data: newState,
+      },
+      false
+    );
+
+    // Debounce the history update
+    debouncedHistoryUpdate();
   };
 
   const handleUploadComplete = (path: string) => {

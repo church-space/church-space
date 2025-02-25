@@ -92,8 +92,15 @@ export default function DndProvider() {
       data: block.value as unknown as BlockData,
     })) as BlockType[]) || [];
 
-  const { blocks, updateBlocks, undo, redo, canUndo, canRedo } =
-    useBlockStateManager(initialBlocks);
+  const {
+    blocks,
+    updateBlocks,
+    updateBlocksWithoutHistory,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useBlockStateManager(initialBlocks);
 
   // Create a ref to track the latest blocks
   const blocksRef = useRef(blocks);
@@ -348,13 +355,28 @@ export default function DndProvider() {
     }
   }, [blocks, editors]);
 
-  // Create a debounced version of updateBlocks
-  const debouncedUpdateBlocks = debounce((newBlocks: BlockType[]) => {
-    updateBlocks(newBlocks);
-  }, 500);
+  // Create a ref to track the latest blocks for debounced history updates
+  const latestBlocksRef = useRef(blocks);
+
+  // Update the ref whenever blocks change
+  useEffect(() => {
+    latestBlocksRef.current = blocks;
+  }, [blocks]);
+
+  // Create a debounced version of updateBlocks for history updates only
+  const debouncedHistoryUpdate = useCallback(
+    debounce(() => {
+      console.log("Debounced history update for blocks");
+      // This is a no-op update that just adds the current state to history
+      // without changing the current state
+      updateBlocks([...latestBlocksRef.current]);
+    }, 500),
+    [updateBlocks]
+  );
 
   // Add handler for text content updates
   const handleTextContentChange = (blockId: string, content: string) => {
+    // Immediately update the UI with the new content
     const newBlocks = blocks.map((block) => {
       if (block.id === blockId && block.type === "text") {
         return {
@@ -367,7 +389,11 @@ export default function DndProvider() {
       return block;
     });
 
-    debouncedUpdateBlocks(newBlocks);
+    // Update the UI immediately without adding to history
+    updateBlocksWithoutHistory(newBlocks);
+
+    // Debounce the history update
+    debouncedHistoryUpdate();
 
     // Update in database if we have an emailId and the block exists in the database
     if (emailId && !isNaN(parseInt(blockId, 10))) {
@@ -765,8 +791,16 @@ export default function DndProvider() {
     setActiveId(active.id);
   };
 
-  const handleBlockUpdate = (updatedBlock: BlockType) => {
-    console.log("Updating block:", updatedBlock);
+  const handleBlockUpdate = (
+    updatedBlock: BlockType,
+    addToHistory: boolean = true
+  ) => {
+    console.log(
+      "Updating block:",
+      updatedBlock,
+      "Add to history:",
+      addToHistory
+    );
 
     // First update the UI optimistically
     const newBlocks = blocks.map((block) =>
@@ -776,7 +810,12 @@ export default function DndProvider() {
     // Ensure block order is maintained
     const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
-    updateBlocks(sortedBlocks);
+    // Update the UI with or without adding to history based on the parameter
+    if (addToHistory) {
+      updateBlocks(sortedBlocks);
+    } else {
+      updateBlocksWithoutHistory(sortedBlocks);
+    }
 
     // Update in database if we have an emailId
     if (emailId) {

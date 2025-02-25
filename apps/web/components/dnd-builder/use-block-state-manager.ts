@@ -23,6 +23,15 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
     }));
   }, []);
 
+  // Update blocks without adding to history - for immediate UI updates
+  const updateBlocksWithoutHistory = useCallback((newBlocks: Block[]) => {
+    console.log("Updating blocks without history:", newBlocks);
+    setHistory((currentHistory) => ({
+      ...currentHistory,
+      present: newBlocks,
+    }));
+  }, []);
+
   const undo = useCallback(() => {
     let previousState: Block[] = [];
     let currentState: Block[] = [];
@@ -77,6 +86,7 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
   return {
     blocks: history.present,
     updateBlocks,
+    updateBlocksWithoutHistory,
     undo,
     redo,
     canUndo,
