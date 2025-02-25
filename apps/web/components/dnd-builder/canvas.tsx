@@ -16,6 +16,14 @@ interface CanvasProps {
   selectedBlockId: string | null;
   editors: Record<string, Editor | null>;
   onTextContentChange?: (blockId: string, content: string) => void;
+  setActiveForm: (
+    form:
+      | "default"
+      | "block"
+      | "email-style"
+      | "email-footer"
+      | "email-templates"
+  ) => void;
 }
 
 export default function DndBuilderCanvas({
@@ -27,6 +35,7 @@ export default function DndBuilderCanvas({
   selectedBlockId,
   editors,
   onTextContentChange,
+  setActiveForm,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -107,7 +116,7 @@ export default function DndBuilderCanvas({
         ref={setNodeRef}
         className={cn(
           "flex flex-col gap-4 p-4 min-h-[102px] max-w-2xl w-full mx-auto ",
-          isInset && "rounded-lg shadow-md "
+          isInset && "rounded-lg shadow-md mb-2"
         )}
         style={{ backgroundColor: bgColor }}
         onClick={() => onBlockSelect(null)}
@@ -170,7 +179,7 @@ export default function DndBuilderCanvas({
           </>
         )}
       </div>
-      <Footer />
+      <Footer onClick={() => setActiveForm("email-footer")} />
     </div>
   );
 }

@@ -34,12 +34,6 @@ export default function DndBuilderSidebarForms({
   onBack,
   bgColor,
   onBgColorChange,
-  footerBgColor,
-  footerTextColor,
-  footerFont,
-  onFooterBgColorChange,
-  onFooterTextColorChange,
-  onFooterFontChange,
   onSelectTemplate,
   isInset,
   onIsInsetChange,
@@ -131,16 +125,7 @@ export default function DndBuilderSidebarForms({
             onDefaultFontChange={onDefaultFontChange}
           />
         )}
-        {formType === "email-footer" && (
-          <EmailFooterForm
-            footerBgColor={footerBgColor}
-            footerTextColor={footerTextColor}
-            footerFont={footerFont}
-            onFooterBgColorChange={onFooterBgColorChange}
-            onFooterTextColorChange={onFooterTextColorChange}
-            onFooterFontChange={onFooterFontChange}
-          />
-        )}
+        {formType === "email-footer" && <EmailFooterForm />}
         {formType === "email-templates" && (
           <EmailTemplateForm onSelectTemplate={onSelectTemplate} />
         )}

@@ -15,9 +15,6 @@ export const updateEmailStyleAction = authActionClient
         default_text_color: z.string().optional(),
         default_font: z.string().optional(),
         is_inset: z.boolean().optional(),
-        footer_bg_color: z.string().optional(),
-        footer_font: z.string().optional(),
-        footer_text_color: z.string().optional(),
       }),
     })
   )

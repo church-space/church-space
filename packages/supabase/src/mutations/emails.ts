@@ -73,9 +73,6 @@ export async function updateEmailStyle(
     default_font?: string;
     is_inset?: boolean;
     bg_color?: string;
-    footer_bg_color?: string;
-    footer_font?: string;
-    footer_text_color?: string;
   }
 ) {
   const result = await supabase

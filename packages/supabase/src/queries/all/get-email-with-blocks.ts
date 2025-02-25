@@ -18,10 +18,7 @@ export async function getEmailWithBlocksQuery(
       default_font,
       is_inset,
       organization_id,
-      type,
-      footer_bg_color,
-      footer_text_color,
-      footer_font
+      type
     `
     )
     .eq("id", emailId)

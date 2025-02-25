@@ -47,6 +47,20 @@ interface DndBuilderSidebarProps {
   onIsInsetChange?: (isInset: boolean) => void;
   emailBgColor?: string;
   onEmailBgColorChange?: (color: string) => void;
+  activeForm:
+    | "default"
+    | "block"
+    | "email-style"
+    | "email-footer"
+    | "email-templates";
+  setActiveForm: (
+    form:
+      | "default"
+      | "block"
+      | "email-style"
+      | "email-footer"
+      | "email-templates"
+  ) => void;
 }
 
 function DraggableBlock({
@@ -121,12 +135,6 @@ export default function DndBuilderSidebar({
   type,
   onBgColorChange,
   bgColor,
-  onFooterBgColorChange,
-  footerBgColor = "#ffffff",
-  onFooterTextColorChange,
-  footerTextColor = "#000000",
-  onFooterFontChange,
-  footerFont = "Inter",
   defaultTextColor,
   onDefaultTextColorChange,
   defaultFont,
@@ -139,24 +147,14 @@ export default function DndBuilderSidebar({
   onIsInsetChange,
   emailBgColor = "#ffffff",
   onEmailBgColorChange,
+  activeForm,
+  setActiveForm,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
-  const [activeForm, setActiveForm] = React.useState<
-    "default" | "block" | "email-style" | "email-footer" | "email-templates"
-  >("default");
 
   React.useEffect(() => {
     setHasMounted(true);
   }, []);
-
-  // Update activeForm when selectedBlock changes
-  React.useEffect(() => {
-    if (selectedBlock?.id) {
-      setActiveForm("block");
-    } else {
-      setActiveForm("default");
-    }
-  }, [selectedBlock]);
 
   const handleBackFromForm = () => {
     setActiveForm("default");
@@ -211,12 +209,6 @@ export default function DndBuilderSidebar({
               onBack={handleBackFromForm}
               bgColor={bgColor}
               onBgColorChange={onBgColorChange}
-              footerBgColor={footerBgColor}
-              footerTextColor={footerTextColor}
-              footerFont={footerFont}
-              onFooterBgColorChange={onFooterBgColorChange}
-              onFooterTextColorChange={onFooterTextColorChange}
-              onFooterFontChange={onFooterFontChange}
               isInset={isInset}
               onIsInsetChange={onIsInsetChange}
               emailBgColor={emailBgColor}

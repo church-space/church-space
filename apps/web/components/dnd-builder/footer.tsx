@@ -44,7 +44,7 @@ const socialIcons = {
   threads: Threads,
 };
 
-export default function Footer() {
+export default function Footer({ onClick }: { onClick: () => void }) {
   const emailInset = true;
   const emailBgColor = "#fff2d5";
   const footerBgColor = "#ffffff";
@@ -65,14 +65,15 @@ export default function Footer() {
 
   return (
     <div
-      className={cn("pt-10 pb-4 w-full ")}
+      className={cn("pt-5 pb-4 w-full ")}
       style={
         !emailInset
           ? { backgroundColor: footerBgColor }
           : { backgroundColor: emailBgColor }
       }
+      onClick={onClick}
     >
-      <div className="flex gap-4 w-full max-w-2xl mx-auto px-4 flex-col items-center">
+      <div className="flex gap-4 pt-5 w-full max-w-2xl mx-auto px-4 flex-col items-center cursor-pointer border border-transparent hover:border-blue-500 rounded-md">
         <div className="flex flex-col items-center gap-2">
           <div className="h-28 w-28 rounded-md bg-green-900"></div>
           <div

@@ -174,17 +174,6 @@ export default function DndProvider() {
     emailData?.email?.default_font || "Inter"
   );
 
-  // Initialize footer styles from the fetched data or use defaults
-  const [footerBgColor, setFooterBgColor] = useState(
-    emailData?.email?.footer_bg_color || "#ffffff"
-  );
-  const [footerTextColor, setFooterTextColor] = useState(
-    emailData?.email?.footer_text_color || "#000000"
-  );
-  const [footerFont, setFooterFont] = useState(
-    emailData?.email?.footer_font || "Inter"
-  );
-
   // Update bgColor when email data is loaded
   useEffect(() => {
     if (emailData?.email?.blocks_bg_color) {
@@ -271,21 +260,6 @@ export default function DndProvider() {
     }
   }, [emailData]); // Only depend on emailData to avoid infinite loops
 
-  // Update footer styles when email data is loaded
-  useEffect(() => {
-    if (emailData?.email) {
-      if (emailData.email.footer_bg_color) {
-        setFooterBgColor(emailData.email.footer_bg_color);
-      }
-      if (emailData.email.footer_text_color) {
-        setFooterTextColor(emailData.email.footer_text_color);
-      }
-      if (emailData.email.footer_font) {
-        setFooterFont(emailData.email.footer_font);
-      }
-    }
-  }, [emailData]);
-
   // Create debounced server update functions using useRef to maintain stable references
   const debouncedFunctionsRef = useRef<{
     bgColor?: ReturnType<typeof debounce>;
@@ -340,39 +314,6 @@ export default function DndProvider() {
             emailId,
             updates: {
               default_font: font,
-            },
-          });
-        }
-      }, 500),
-
-      footerBgColor: debounce((color: string) => {
-        if (emailId) {
-          updateEmailStyle.mutate({
-            emailId,
-            updates: {
-              footer_bg_color: color,
-            },
-          });
-        }
-      }, 500),
-
-      footerTextColor: debounce((color: string) => {
-        if (emailId) {
-          updateEmailStyle.mutate({
-            emailId,
-            updates: {
-              footer_text_color: color,
-            },
-          });
-        }
-      }, 500),
-
-      footerFont: debounce((font: string) => {
-        if (emailId) {
-          updateEmailStyle.mutate({
-            emailId,
-            updates: {
-              footer_font: font,
             },
           });
         }
@@ -484,66 +425,12 @@ export default function DndProvider() {
     [emailId, updateEmailStyle]
   );
 
-  // Create a handler for footer background color changes
-  const handleFooterBgColorChange = useCallback(
-    (color: string) => {
-      // Immediately update UI
-      setFooterBgColor(color);
-
-      // Directly update the database
-      if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: {
-            footer_bg_color: color,
-          },
-        });
-      }
-    },
-    [emailId, updateEmailStyle]
-  );
-
-  // Create a handler for footer text color changes
-  const handleFooterTextColorChange = useCallback(
-    (color: string) => {
-      // Immediately update UI
-      setFooterTextColor(color);
-
-      // Directly update the database
-      if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: {
-            footer_text_color: color,
-          },
-        });
-      }
-    },
-    [emailId, updateEmailStyle]
-  );
-
-  // Create a handler for footer font changes
-  const handleFooterFontChange = useCallback(
-    (font: string) => {
-      // Immediately update UI
-      setFooterFont(font);
-
-      // Directly update the database
-      if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: {
-            footer_font: font,
-          },
-        });
-      }
-    },
-    [emailId, updateEmailStyle]
-  );
-
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [editors, setEditors] = useState<Record<string, Editor>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeForm, setActiveForm] = useState<
+    "default" | "block" | "email-style" | "email-footer" | "email-templates"
+  >("default");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -1342,6 +1229,15 @@ export default function DndProvider() {
     }
   };
 
+  // Update activeForm when selectedBlock changes
+  useEffect(() => {
+    if (selectedBlockId) {
+      setActiveForm("block");
+    } else {
+      setActiveForm("default");
+    }
+  }, [selectedBlockId]);
+
   const renderDragOverlay = () => {
     if (!activeId) return null;
 
@@ -1411,9 +1307,6 @@ export default function DndProvider() {
           blocks_bg_color: bgColor,
           default_text_color: defaultTextColor,
           default_font: defaultFont,
-          footer_bg_color: footerBgColor,
-          footer_text_color: footerTextColor,
-          footer_font: footerFont,
           is_inset: isInset,
           bg_color: emailBgColor,
         },
@@ -1511,9 +1404,6 @@ export default function DndProvider() {
     bgColor,
     defaultTextColor,
     defaultFont,
-    footerBgColor,
-    footerTextColor,
-    footerFont,
     isInset,
     emailBgColor,
     blocks,
@@ -1970,12 +1860,6 @@ export default function DndProvider() {
             type="email"
             onBgColorChange={handleBgColorChange}
             bgColor={bgColor}
-            onFooterBgColorChange={handleFooterBgColorChange}
-            footerBgColor={footerBgColor}
-            onFooterTextColorChange={handleFooterTextColorChange}
-            footerTextColor={footerTextColor}
-            onFooterFontChange={handleFooterFontChange}
-            footerFont={footerFont}
             defaultTextColor={defaultTextColor}
             onDefaultTextColorChange={handleDefaultTextColorChange}
             defaultFont={defaultFont}
@@ -1992,6 +1876,8 @@ export default function DndProvider() {
             setSelectedBlockId={setSelectedBlockId}
             onDeleteBlock={handleDeleteBlock}
             onBlockUpdate={handleBlockUpdate}
+            activeForm={activeForm}
+            setActiveForm={setActiveForm}
           />
           <div className="flex-1 relative">
             <AnimatePresence>
@@ -2022,6 +1908,7 @@ export default function DndProvider() {
                 selectedBlockId={selectedBlockId}
                 editors={editors}
                 onTextContentChange={handleTextContentChange}
+                setActiveForm={setActiveForm}
               />
             </SortableContext>
           </div>

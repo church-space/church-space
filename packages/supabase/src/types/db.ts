@@ -107,45 +107,79 @@ export type Database = {
       }
       email_footers: {
         Row: {
+          address: string | null
           bg_color: string | null
+          copyright_name: string | null
           created_at: string
+          email_id: number | null
           font: string | null
           id: number
           links: Json | null
           logo: string | null
+          name: string | null
           organization_id: string
+          reason: string | null
+          secondary_text_color: string | null
+          socials_color: string | null
+          socials_icon_color: Database["public"]["Enums"]["social_icons_style"]
+          socials_style: string | null
           subtitle: string | null
+          template_title: string | null
           text_color: string | null
-          title: string | null
           type: Database["public"]["Enums"]["email_types"]
         }
         Insert: {
+          address?: string | null
           bg_color?: string | null
+          copyright_name?: string | null
           created_at?: string
+          email_id?: number | null
           font?: string | null
           id?: number
           links?: Json | null
           logo?: string | null
+          name?: string | null
           organization_id: string
+          reason?: string | null
+          secondary_text_color?: string | null
+          socials_color?: string | null
+          socials_icon_color?: Database["public"]["Enums"]["social_icons_style"]
+          socials_style?: string | null
           subtitle?: string | null
+          template_title?: string | null
           text_color?: string | null
-          title?: string | null
           type: Database["public"]["Enums"]["email_types"]
         }
         Update: {
+          address?: string | null
           bg_color?: string | null
+          copyright_name?: string | null
           created_at?: string
+          email_id?: number | null
           font?: string | null
           id?: number
           links?: Json | null
           logo?: string | null
+          name?: string | null
           organization_id?: string
+          reason?: string | null
+          secondary_text_color?: string | null
+          socials_color?: string | null
+          socials_icon_color?: Database["public"]["Enums"]["social_icons_style"]
+          socials_style?: string | null
           subtitle?: string | null
+          template_title?: string | null
           text_color?: string | null
-          title?: string | null
           type?: Database["public"]["Enums"]["email_types"]
         }
         Relationships: [
+          {
+            foreignKeyName: "email_footers_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "email_organization_id_fkey"
             columns: ["organization_id"]
@@ -218,9 +252,6 @@ export type Database = {
           created_at: string
           default_font: string | null
           default_text_color: string | null
-          footer_bg_color: string | null
-          footer_font: string | null
-          footer_text_color: string | null
           from_email: string | null
           from_name: string | null
           id: number
@@ -242,9 +273,6 @@ export type Database = {
           created_at?: string
           default_font?: string | null
           default_text_color?: string | null
-          footer_bg_color?: string | null
-          footer_font?: string | null
-          footer_text_color?: string | null
           from_email?: string | null
           from_name?: string | null
           id?: number
@@ -266,9 +294,6 @@ export type Database = {
           created_at?: string
           default_font?: string | null
           default_text_color?: string | null
-          footer_bg_color?: string | null
-          footer_font?: string | null
-          footer_text_color?: string | null
           from_email?: string | null
           from_name?: string | null
           id?: number
@@ -935,6 +960,7 @@ export type Database = {
       email_statuses: "draft" | "sent" | "sending" | "scheduled"
       email_types: "standard" | "template"
       pco_sync_types: "lists" | "emails"
+      social_icons_style: "outline" | "filled" | "icon-only"
     }
     CompositeTypes: {
       [_ in never]: never
