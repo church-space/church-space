@@ -12,7 +12,7 @@ export default async function ProtectedLayout({
   const supabase = await createClient();
   const user = await getUserQuery(supabase);
 
-  if (user?.data) {
+  if (user?.data?.user) {
     return redirect("/home");
   }
 
