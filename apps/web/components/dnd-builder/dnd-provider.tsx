@@ -562,9 +562,9 @@ export default function DndProvider() {
       } else if (blockType === "image") {
         blockData = {
           image: "",
-          size: 33,
+          size: 100,
           link: "",
-          centered: false,
+          centered: true,
         };
       } else {
         // Default to text block data if type is not recognized
