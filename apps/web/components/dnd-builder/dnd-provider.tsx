@@ -8,7 +8,7 @@ import {
   useSensors,
   DragOverlay,
 } from "@dnd-kit/core";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import DndBuilderCanvas from "./canvas";
 import DndBuilderSidebar from "./sidebar";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,6 +39,9 @@ import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { useParams } from "next/navigation";
 import { useAddEmailBlock } from "./mutations/use-add-email-block";
 import { useDeleteEmailBlock } from "./mutations/use-delete-email-block";
+import { useUpdateEmailBlock } from "./mutations/use-update-email-block";
+import { useUpdateEmailStyle } from "./mutations/use-update-email-style";
+import { useBatchUpdateEmailBlocks } from "./mutations/use-batch-update-email-blocks";
 
 export default function DndProvider() {
   const params = useParams();
@@ -48,6 +51,9 @@ export default function DndProvider() {
   const { data: emailData, isLoading } = useEmailWithBlocks(emailId);
   const addEmailBlock = useAddEmailBlock();
   const deleteEmailBlock = useDeleteEmailBlock();
+  const updateEmailBlock = useUpdateEmailBlock();
+  const updateEmailStyle = useUpdateEmailStyle();
+  const batchUpdateEmailBlocks = useBatchUpdateEmailBlocks();
 
   // Initialize blocks from the fetched data or use empty array
   const initialBlocks =
@@ -66,12 +72,110 @@ export default function DndProvider() {
     emailData?.email?.bg_color || "#f4f4f5"
   );
 
+  // Initialize footer styles from the fetched data or use defaults
+  const [footerBgColor, setFooterBgColor] = useState(
+    emailData?.email?.footer_bg_color || "#ffffff"
+  );
+  const [footerTextColor, setFooterTextColor] = useState(
+    emailData?.email?.footer_text_color || "#000000"
+  );
+  const [footerFont, setFooterFont] = useState(
+    emailData?.email?.footer_font || "Inter"
+  );
+
   // Update bgColor when email data is loaded
   useEffect(() => {
     if (emailData?.email?.bg_color) {
       setBgColor(emailData.email.bg_color);
     }
   }, [emailData]);
+
+  // Update footer styles when email data is loaded
+  useEffect(() => {
+    if (emailData?.email) {
+      if (emailData.email.footer_bg_color) {
+        setFooterBgColor(emailData.email.footer_bg_color);
+      }
+      if (emailData.email.footer_text_color) {
+        setFooterTextColor(emailData.email.footer_text_color);
+      }
+      if (emailData.email.footer_font) {
+        setFooterFont(emailData.email.footer_font);
+      }
+    }
+  }, [emailData]);
+
+  // Create a debounced handler for background color changes
+  const handleBgColorChange = useCallback(
+    debounce((color: string) => {
+      setBgColor(color);
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: {
+            bg_color: color,
+          },
+        });
+      }
+    }, 500),
+    [emailId, updateEmailStyle]
+  );
+
+  // Create a debounced handler for footer background color changes
+  const handleFooterBgColorChange = useCallback(
+    debounce((color: string) => {
+      setFooterBgColor(color);
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: {
+            footer_bg_color: color,
+          },
+        });
+      }
+    }, 500),
+    [emailId, updateEmailStyle]
+  );
+
+  // Create a debounced handler for footer text color changes
+  const handleFooterTextColorChange = useCallback(
+    debounce((color: string) => {
+      setFooterTextColor(color);
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: {
+            footer_text_color: color,
+          },
+        });
+      }
+    }, 500),
+    [emailId, updateEmailStyle]
+  );
+
+  // Create a debounced handler for footer font changes
+  const handleFooterFontChange = useCallback(
+    debounce((font: string) => {
+      setFooterFont(font);
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: {
+            footer_font: font,
+          },
+        });
+      }
+    }, 500),
+    [emailId, updateEmailStyle]
+  );
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [editors, setEditors] = useState<Record<string, Editor>>({});
@@ -121,6 +225,15 @@ export default function DndProvider() {
     });
 
     debouncedUpdateBlocks(newBlocks);
+
+    // Update in database if we have an emailId and the block exists in the database
+    if (emailId && !isNaN(parseInt(blockId, 10))) {
+      const dbBlockId = parseInt(blockId, 10);
+      updateEmailBlock.mutate({
+        blockId: dbBlockId,
+        value: { content },
+      });
+    }
   };
 
   // Handle drag end and block creation
@@ -154,6 +267,34 @@ export default function DndProvider() {
         }
 
         const newBlocks = arrayMove(blocks, oldIndex, newIndex);
+
+        // Update order in database for all affected blocks
+        if (emailId) {
+          // Prepare batch updates for all blocks that need order changes
+          const blockUpdates = newBlocks
+            .map((block, index) => {
+              if (!isNaN(parseInt(block.id, 10))) {
+                return {
+                  id: parseInt(block.id, 10),
+                  order: index,
+                };
+              }
+              return null;
+            })
+            .filter(
+              (update): update is { id: number; order: number } =>
+                update !== null
+            );
+
+          // Use batch update if there are blocks to update
+          if (blockUpdates.length > 0) {
+            batchUpdateEmailBlocks.mutate({
+              emailId,
+              updates: blockUpdates,
+            });
+          }
+        }
+
         updateBlocks(newBlocks);
 
         // Use RAF to ensure DOM is ready before editor updates
@@ -354,6 +495,16 @@ export default function DndProvider() {
       block.id === updatedBlock.id ? updatedBlock : block
     );
     updateBlocks(newBlocks);
+
+    // Update in database if we have an emailId and the block exists in the database
+    if (emailId && !isNaN(parseInt(updatedBlock.id, 10))) {
+      const dbBlockId = parseInt(updatedBlock.id, 10);
+      updateEmailBlock.mutate({
+        blockId: dbBlockId,
+        value: updatedBlock.data,
+        type: updatedBlock.type,
+      });
+    }
   };
 
   const renderDragOverlay = () => {
@@ -409,6 +560,78 @@ export default function DndProvider() {
 
     return null;
   };
+
+  // Handle save button click
+  const handleSave = useCallback(async () => {
+    if (!emailId) return;
+
+    try {
+      // 1. Update email styles
+      await updateEmailStyle.mutateAsync({
+        emailId,
+        updates: {
+          bg_color: bgColor,
+          footer_bg_color: footerBgColor,
+          footer_text_color: footerTextColor,
+          footer_font: footerFont,
+        },
+      });
+
+      // 2. Update all blocks with their current data and order
+      const blockUpdates = blocks
+        .map((block, index) => {
+          if (!isNaN(parseInt(block.id, 10))) {
+            return {
+              id: parseInt(block.id, 10),
+              order: index,
+            };
+          }
+          return null;
+        })
+        .filter(
+          (update): update is { id: number; order: number } => update !== null
+        );
+
+      if (blockUpdates.length > 0) {
+        await batchUpdateEmailBlocks.mutateAsync({
+          emailId,
+          updates: blockUpdates,
+        });
+      }
+
+      // 3. Update individual block content
+      const contentUpdatePromises = blocks
+        .filter((block) => !isNaN(parseInt(block.id, 10)))
+        .map((block) => {
+          const blockId = parseInt(block.id, 10);
+          return updateEmailBlock.mutateAsync({
+            blockId,
+            value: block.data,
+            type: block.type,
+          });
+        });
+
+      await Promise.all(contentUpdatePromises);
+
+      // Show success message
+      // You can add a toast notification here if you have a toast system
+      console.log("Email saved successfully");
+    } catch (error) {
+      console.error("Error saving email:", error);
+      // Show error message
+      // You can add a toast notification here if you have a toast system
+    }
+  }, [
+    emailId,
+    updateEmailStyle,
+    batchUpdateEmailBlocks,
+    updateEmailBlock,
+    bgColor,
+    footerBgColor,
+    footerTextColor,
+    footerFont,
+    blocks,
+  ]);
 
   return (
     <div className="flex flex-col h-full relative">
@@ -466,7 +689,9 @@ export default function DndProvider() {
           </div>
           <Button variant="outline">Preview</Button>
           <Button variant="outline">Send Test</Button>
-          <Button variant="default">Save</Button>
+          <Button variant="default" onClick={handleSave}>
+            Save
+          </Button>
         </div>
       </header>
       <DndContext
@@ -478,8 +703,14 @@ export default function DndProvider() {
         <div className="flex gap-4 p-4 relative">
           <DndBuilderSidebar
             type="email"
-            onBgColorChange={setBgColor}
+            onBgColorChange={handleBgColorChange}
             bgColor={bgColor}
+            onFooterBgColorChange={handleFooterBgColorChange}
+            footerBgColor={footerBgColor}
+            onFooterTextColorChange={handleFooterTextColorChange}
+            footerTextColor={footerTextColor}
+            onFooterFontChange={handleFooterFontChange}
+            footerFont={footerFont}
             selectedBlock={
               selectedBlockId &&
               blocks.find((block) => block.id === selectedBlockId)
