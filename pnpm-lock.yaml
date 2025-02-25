@@ -47,6 +47,12 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.46.1
         version: 2.48.1
+      '@tanstack/react-query':
+        specifier: ^5.66.9
+        version: 5.66.9(react@19.0.0)
+      '@tanstack/react-query-devtools':
+        specifier: ^5.66.9
+        version: 5.66.9(@tanstack/react-query@5.66.9(react@19.0.0))(react@19.0.0)
       '@tiptap/core':
         specifier: ^2.11.5
         version: 2.11.5(@tiptap/pm@2.11.5)
@@ -252,7 +258,7 @@ importers:
     dependencies:
       '@supabase-cache-helpers/postgrest-react-query':
         specifier: ^1.11.4
-        version: 1.11.5(@supabase/postgrest-js@1.18.1)(@supabase/supabase-js@2.48.1)(@tanstack/react-query@5.66.5(react@19.0.0))(react@19.0.0)
+        version: 1.11.5(@supabase/postgrest-js@1.18.1)(@supabase/supabase-js@2.48.1)(@tanstack/react-query@5.66.9(react@19.0.0))(react@19.0.0)
       '@supabase/postgrest-js':
         specifier: ^1.17.3
         version: 1.18.1
@@ -1457,8 +1463,17 @@ packages:
   '@tanstack/query-core@5.66.4':
     resolution: {integrity: sha512-skM/gzNX4shPkqmdTCSoHtJAPMTtmIJNS0hE+xwTTUVYwezArCT34NMermABmBVUg5Ls5aiUXEDXfqwR1oVkcA==}
 
-  '@tanstack/react-query@5.66.5':
-    resolution: {integrity: sha512-D9aABj3/aFeNmifsdllh5O3hPyA8gUnZ1jAV8MjODQ7blirfAyGed9NjAnm8rgEdr1wChyjTT738ij3vY0EREQ==}
+  '@tanstack/query-devtools@5.65.0':
+    resolution: {integrity: sha512-g5y7zc07U9D3esMdqUfTEVu9kMHoIaVBsD0+M3LPdAdD710RpTcLiNvJY1JkYXqkq9+NV+CQoemVNpQPBXVsJg==}
+
+  '@tanstack/react-query-devtools@5.66.9':
+    resolution: {integrity: sha512-70G6AR35he53SYUcUK6EdqNR18zejCv1rM6900gjZP408EAex56YLwVSeijzk9lWeU2J42G9Fjh0i1WngUTsgw==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.66.9
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.66.9':
+    resolution: {integrity: sha512-NRI02PHJsP5y2gAuWKP+awamTIBFBSKMnO6UVzi03GTclmHHHInH5UzVgzi5tpu4+FmGfsdT7Umqegobtsp23A==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -5521,11 +5536,11 @@ snapshots:
       merge-anything: 5.1.7
       xregexp: 5.1.1
 
-  '@supabase-cache-helpers/postgrest-react-query@1.11.5(@supabase/postgrest-js@1.18.1)(@supabase/supabase-js@2.48.1)(@tanstack/react-query@5.66.5(react@19.0.0))(react@19.0.0)':
+  '@supabase-cache-helpers/postgrest-react-query@1.11.5(@supabase/postgrest-js@1.18.1)(@supabase/supabase-js@2.48.1)(@tanstack/react-query@5.66.9(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@supabase-cache-helpers/postgrest-core': 0.9.0(@supabase/postgrest-js@1.18.1)(@supabase/supabase-js@2.48.1)
       '@supabase/postgrest-js': 1.18.1
-      '@tanstack/react-query': 5.66.5(react@19.0.0)
+      '@tanstack/react-query': 5.66.9(react@19.0.0)
       flat: 6.0.1
       react: 19.0.0
     transitivePeerDependencies:
@@ -5595,7 +5610,15 @@ snapshots:
 
   '@tanstack/query-core@5.66.4': {}
 
-  '@tanstack/react-query@5.66.5(react@19.0.0)':
+  '@tanstack/query-devtools@5.65.0': {}
+
+  '@tanstack/react-query-devtools@5.66.9(@tanstack/react-query@5.66.9(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@tanstack/query-devtools': 5.65.0
+      '@tanstack/react-query': 5.66.9(react@19.0.0)
+      react: 19.0.0
+
+  '@tanstack/react-query@5.66.9(react@19.0.0)':
     dependencies:
       '@tanstack/query-core': 5.66.4
       react: 19.0.0

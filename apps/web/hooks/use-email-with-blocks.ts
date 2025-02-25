@@ -1,22 +1,15 @@
-import DndProvider from "@/components/dnd-builder/dnd-provider";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
-import { createClient } from "@trivo/supabase/server";
+import { useQuery } from "@tanstack/react-query";
+import { createClient } from "@trivo/supabase/client";
 
-type Params = { emailId: string };
+export function useEmailWithBlocks(emailId: number | undefined) {
+  const supabase = createClient();
 
-export default async function Page({ params }: { params: Params }) {
-  const emailId = parseInt(params.emailId, 10);
-  const queryClient = new QueryClient();
-
-  // Prefetch the email data
-  await queryClient.prefetchQuery({
+  return useQuery({
     queryKey: ["email", emailId],
     queryFn: async () => {
-      const supabase = await createClient();
+      if (!emailId) {
+        throw new Error("Email ID is required");
+      }
 
       // Get the email data with specific fields
       const { data: emailData, error: emailError } = await supabase
@@ -57,11 +50,6 @@ export default async function Page({ params }: { params: Params }) {
         blocks: blocksData || [],
       };
     },
+    enabled: !!emailId,
   });
-
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <DndProvider />
-    </HydrationBoundary>
-  );
 }

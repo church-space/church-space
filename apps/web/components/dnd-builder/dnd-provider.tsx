@@ -1,6 +1,6 @@
 "use client";
 
-import type { Block as BlockType } from "@/types/blocks";
+import type { Block as BlockType, BlockData } from "@/types/blocks";
 import {
   DndContext,
   PointerSensor,
@@ -35,16 +35,45 @@ import { Undo, Redo } from "@trivo/ui/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
 import { useBlockStateManager } from "./use-block-state-manager";
 import { debounce } from "lodash";
+import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
+import { useParams } from "next/navigation";
 
 interface TextBlockData {
   content: string;
 }
 
 export default function DndProvider() {
+  const params = useParams();
+  const emailId = params.emailId
+    ? parseInt(params.emailId as string, 10)
+    : undefined;
+  const { data: emailData, isLoading } = useEmailWithBlocks(emailId);
+
+  // Initialize blocks from the fetched data or use empty array
+  const initialBlocks =
+    (emailData?.blocks?.map((block) => ({
+      id: block.id.toString(),
+      type: block.type as BlockType["type"],
+      order: block.order || 0,
+      data: block.value as unknown as BlockData,
+    })) as BlockType[]) || [];
+
   const { blocks, updateBlocks, undo, redo, canUndo, canRedo } =
-    useBlockStateManager([]);
+    useBlockStateManager(initialBlocks);
+
+  // Initialize bgColor from the fetched data or use default
+  const [bgColor, setBgColor] = useState(
+    emailData?.email?.bg_color || "#f4f4f5"
+  );
+
+  // Update bgColor when email data is loaded
+  useEffect(() => {
+    if (emailData?.email?.bg_color) {
+      setBgColor(emailData.email.bg_color);
+    }
+  }, [emailData]);
+
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const [bgColor, setBgColor] = useState("#f4f4f5");
   const [editors, setEditors] = useState<Record<string, Editor>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -356,7 +385,9 @@ export default function DndProvider() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">Email Subject</BreadcrumbLink>
+                <BreadcrumbLink href="/">
+                  {emailData?.email?.subject || "Email Subject"}
+                </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
