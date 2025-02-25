@@ -83,6 +83,14 @@ export default function DndProvider() {
   const batchUpdateEmailBlocks = useBatchUpdateEmailBlocks();
   const queryClient = useQueryClient();
 
+  // Track blocks that are being deleted to prevent them from being re-added
+  const [blocksBeingDeleted, setBlocksBeingDeleted] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Add a ref to track blocks that have been deleted during the session
+  const permanentlyDeletedBlocksRef = useRef<Set<string>>(new Set());
+
   // Initialize blocks from the fetched data or use empty array
   const initialBlocks =
     (emailData?.blocks?.map((block) => ({
@@ -710,6 +718,27 @@ export default function DndProvider() {
     const blockToDelete = blocks.find((block) => block.id === id);
     console.log("Block to delete:", blockToDelete);
 
+    // Add to the set of blocks being deleted
+    setBlocksBeingDeleted((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      // If it's a numeric ID, also add the string version
+      if (blockToDelete && !isNaN(parseInt(blockToDelete.id, 10))) {
+        newSet.add(parseInt(blockToDelete.id, 10).toString());
+      }
+      return newSet;
+    });
+
+    // Also add to permanently deleted blocks
+    if (blockToDelete) {
+      permanentlyDeletedBlocksRef.current.add(blockToDelete.id);
+      if (!isNaN(parseInt(blockToDelete.id, 10))) {
+        permanentlyDeletedBlocksRef.current.add(
+          parseInt(blockToDelete.id, 10).toString()
+        );
+      }
+    }
+
     // Update local state
     const updatedBlocks = blocks.filter((block) => block.id !== id);
 
@@ -731,10 +760,37 @@ export default function DndProvider() {
         // It's a numeric ID, delete directly
         const blockId = parseInt(blockToDelete.id, 10);
         console.log("Deleting block from database:", blockId);
-        deleteEmailBlock.mutate({ blockId });
+        deleteEmailBlock.mutate(
+          { blockId },
+          {
+            onSuccess: () => {
+              // Remove from the set of blocks being deleted
+              setBlocksBeingDeleted((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(blockToDelete.id);
+                newSet.delete(blockId.toString());
+                return newSet;
+              });
 
-        // Update the order of all remaining blocks in the database
-        updateBlockOrdersInDatabase(reorderedBlocks);
+              // Update the order of all remaining blocks in the database
+              updateBlockOrdersInDatabase(reorderedBlocks);
+
+              // Invalidate the query to refresh the data
+              if (emailId) {
+                queryClient.invalidateQueries({ queryKey: ["email", emailId] });
+              }
+            },
+            onError: () => {
+              // Remove from the set of blocks being deleted even if there's an error
+              setBlocksBeingDeleted((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(blockToDelete.id);
+                newSet.delete(blockId.toString());
+                return newSet;
+              });
+            },
+          }
+        );
       } else if (emailData && emailData.blocks) {
         // It's a UUID, we need to find the corresponding database ID
         console.log("Block has UUID, checking if it exists in database");
@@ -753,14 +809,56 @@ export default function DndProvider() {
             "Found matching database block to delete:",
             matchingDbBlock.id
           );
-          deleteEmailBlock.mutate({ blockId: matchingDbBlock.id });
 
-          // Update the order of all remaining blocks in the database
-          updateBlockOrdersInDatabase(reorderedBlocks);
+          // Add the matching DB block ID to permanently deleted blocks
+          permanentlyDeletedBlocksRef.current.add(
+            matchingDbBlock.id.toString()
+          );
+
+          deleteEmailBlock.mutate(
+            { blockId: matchingDbBlock.id },
+            {
+              onSuccess: () => {
+                // Remove from the set of blocks being deleted
+                setBlocksBeingDeleted((prev) => {
+                  const newSet = new Set(prev);
+                  newSet.delete(blockToDelete.id);
+                  newSet.delete(matchingDbBlock.id.toString());
+                  return newSet;
+                });
+
+                // Update the order of all remaining blocks in the database
+                updateBlockOrdersInDatabase(reorderedBlocks);
+
+                // Invalidate the query to refresh the data
+                if (emailId) {
+                  queryClient.invalidateQueries({
+                    queryKey: ["email", emailId],
+                  });
+                }
+              },
+              onError: () => {
+                // Remove from the set of blocks being deleted even if there's an error
+                setBlocksBeingDeleted((prev) => {
+                  const newSet = new Set(prev);
+                  newSet.delete(blockToDelete.id);
+                  newSet.delete(matchingDbBlock.id.toString());
+                  return newSet;
+                });
+              },
+            }
+          );
         } else {
           console.log(
             "No matching database block found, no need to delete from database"
           );
+
+          // Remove from the set of blocks being deleted since there's no database operation
+          setBlocksBeingDeleted((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(blockToDelete.id);
+            return newSet;
+          });
         }
       }
     } else {
@@ -771,6 +869,16 @@ export default function DndProvider() {
         isNumeric: blockToDelete
           ? !isNaN(parseInt(blockToDelete.id, 10))
           : false,
+      });
+
+      // Remove from the set of blocks being deleted since there's no database operation
+      setBlocksBeingDeleted((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        if (blockToDelete) {
+          newSet.delete(blockToDelete.id);
+        }
+        return newSet;
       });
     }
   };
@@ -783,6 +891,8 @@ export default function DndProvider() {
           editor.destroy();
         }
       });
+      // Clear the permanently deleted blocks ref when component unmounts
+      permanentlyDeletedBlocksRef.current.clear();
     };
   }, [editors]);
 
@@ -1191,6 +1301,12 @@ export default function DndProvider() {
   const handleUndo = useCallback(async () => {
     if (!canUndo || !emailId) return;
 
+    // Clear the blocksBeingDeleted set since we're undoing
+    setBlocksBeingDeleted(new Set());
+
+    // Also clear permanently deleted blocks when undoing
+    permanentlyDeletedBlocksRef.current.clear();
+
     const { previousState, currentState } = undo();
 
     // Sync changes to database
@@ -1284,11 +1400,18 @@ export default function DndProvider() {
     deleteEmailBlock,
     addEmailBlock,
     batchUpdateEmailBlocks,
+    setBlocksBeingDeleted,
   ]);
 
   // Handle redo with database sync
   const handleRedo = useCallback(async () => {
     if (!canRedo || !emailId) return;
+
+    // Clear the blocksBeingDeleted set since we're redoing
+    setBlocksBeingDeleted(new Set());
+
+    // Also clear permanently deleted blocks when redoing
+    permanentlyDeletedBlocksRef.current.clear();
 
     const { nextState, currentState } = redo();
 
@@ -1383,6 +1506,7 @@ export default function DndProvider() {
     deleteEmailBlock,
     addEmailBlock,
     batchUpdateEmailBlocks,
+    setBlocksBeingDeleted,
   ]);
 
   // Function to ensure all database blocks are visible in the UI
@@ -1397,13 +1521,6 @@ export default function DndProvider() {
       // Convert numeric string IDs to numbers for comparison
       return !isNaN(parseInt(block.id, 10)) ? parseInt(block.id, 10) : block.id;
     });
-
-    // Check for missing blocks (in DB but not in UI)
-    const missingBlocks = emailData.blocks.filter(
-      (dbBlock) =>
-        !uiBlockIds.includes(dbBlock.id) &&
-        !uiBlockIds.includes(dbBlock.id.toString())
-    );
 
     // Check for duplicate blocks in UI
     const duplicateIds = uiBlockIds.filter(
@@ -1426,6 +1543,7 @@ export default function DndProvider() {
         seenIds.add(numericId.toString());
         return true;
       });
+
       if (deduplicatedBlocks.length !== blocks.length) {
         console.log(
           `Removed ${blocks.length - deduplicatedBlocks.length} duplicate blocks`
@@ -1435,10 +1553,31 @@ export default function DndProvider() {
         const sortedBlocks = [...deduplicatedBlocks].sort(
           (a, b) => (a.order || 0) - (b.order || 0)
         );
+
         updateBlocks(sortedBlocks);
         return; // Exit early since we've updated the blocks
       }
     }
+
+    // Check for missing blocks (in DB but not in UI)
+    const missingBlocks = emailData.blocks.filter((dbBlock) => {
+      const blockIdStr = dbBlock.id.toString();
+      const isInUI =
+        uiBlockIds.includes(dbBlock.id) ||
+        uiBlockIds.includes(dbBlock.id.toString());
+      const isBeingDeleted =
+        blocksBeingDeleted.has(blockIdStr) ||
+        blocksBeingDeleted.has(String(dbBlock.id));
+      const isPermanentlyDeleted =
+        permanentlyDeletedBlocksRef.current.has(blockIdStr) ||
+        permanentlyDeletedBlocksRef.current.has(String(dbBlock.id));
+
+      // Only consider blocks that are:
+      // 1. Not already in the UI
+      // 2. Not currently being deleted
+      // 3. Not permanently deleted in this session
+      return !isInUI && !isBeingDeleted && !isPermanentlyDeleted;
+    });
 
     if (missingBlocks.length > 0) {
       console.log(
@@ -1462,28 +1601,79 @@ export default function DndProvider() {
         (a, b) => (a.order || 0) - (b.order || 0)
       );
 
-      console.log("Adding missing blocks to UI:", newUIBlocks);
       updateBlocks(sortedBlocks);
     }
-  }, [emailData, blocks, updateBlocks]);
+  }, [emailData, blocks, updateBlocks, blocksBeingDeleted]);
 
   // Call ensureBlocksVisibility when emailData changes
   useEffect(() => {
     if (emailData) {
-      ensureBlocksVisibility();
+      // Only ensure visibility if we're not in the middle of deleting blocks
+      if (blocksBeingDeleted.size === 0) {
+        ensureBlocksVisibility();
+      } else {
+        console.log(
+          "Skipping ensureBlocksVisibility because blocks are being deleted"
+        );
+      }
     }
-  }, [emailData, ensureBlocksVisibility]);
+  }, [emailData, ensureBlocksVisibility, blocksBeingDeleted]);
 
   // Also call ensureBlocksVisibility after blocks are updated
   useEffect(() => {
+    // Use a longer delay to allow server operations to complete
     const timer = setTimeout(() => {
       if (emailData && blocks) {
-        ensureBlocksVisibility();
+        // Only ensure visibility if we're not in the middle of deleting blocks
+        if (blocksBeingDeleted.size === 0) {
+          ensureBlocksVisibility();
+        } else {
+          console.log(
+            "Skipping ensureBlocksVisibility because blocks are being deleted"
+          );
+        }
       }
-    }, 500); // Small delay to allow other state updates to complete
+    }, 1000); // Longer delay to allow server operations to complete
 
     return () => clearTimeout(timer);
-  }, [blocks, ensureBlocksVisibility, emailData]);
+  }, [blocks, ensureBlocksVisibility, emailData, blocksBeingDeleted]);
+
+  // Filter out blocks that are being deleted from the UI
+  useEffect(() => {
+    if (blocksBeingDeleted.size > 0) {
+      // Filter out blocks that are being deleted
+      const filteredBlocks = blocks.filter((block) => {
+        const isBeingDeleted = blocksBeingDeleted.has(block.id);
+
+        // Also check numeric version if it's a numeric ID
+        const isNumericIdBeingDeleted =
+          !isNaN(parseInt(block.id, 10)) &&
+          blocksBeingDeleted.has(parseInt(block.id, 10).toString());
+
+        return !isBeingDeleted && !isNumericIdBeingDeleted;
+      });
+
+      // Only update if blocks were actually removed
+      if (filteredBlocks.length < blocks.length) {
+        console.log(
+          `Filtering out ${blocks.length - filteredBlocks.length} blocks that are being deleted`
+        );
+        updateBlocksWithoutHistory(filteredBlocks);
+      }
+    }
+  }, [blocksBeingDeleted, blocks, updateBlocksWithoutHistory]);
+
+  // Clear blocksBeingDeleted after a timeout to prevent blocks from being permanently excluded
+  useEffect(() => {
+    if (blocksBeingDeleted.size > 0) {
+      const timer = setTimeout(() => {
+        console.log("Clearing blocksBeingDeleted after timeout");
+        setBlocksBeingDeleted(new Set());
+      }, 5000); // Clear after 5 seconds to ensure server operations have completed
+
+      return () => clearTimeout(timer);
+    }
+  }, [blocksBeingDeleted]);
 
   return (
     <div className="flex flex-col h-full relative">

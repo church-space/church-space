@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@trivo/ui/select";
 import debounce from "lodash/debounce";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FileUpload from "../file-upload";
 
 interface AuthorFormProps {
@@ -39,6 +39,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     subtitle: block.data?.subtitle || "",
     avatar: block.data?.avatar || "",
     links: block.data?.links || [],
+    textColor: block.data?.textColor || "#000000",
   });
 
   // Create a ref to store the latest state for the debounced function
@@ -75,6 +76,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
       subtitle: block.data?.subtitle || "",
       avatar: block.data?.avatar || "",
       links: block.data?.links || [],
+      textColor: block.data?.textColor || "#000000",
     });
   }, [block.data]);
 
@@ -125,6 +127,13 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
+          <Label>Avatar</Label>
+          <div className="col-span-2">
+            <FileUpload
+              organizationId={organizationId}
+              onUploadComplete={handleUploadComplete}
+            />
+          </div>
           <Label>Name</Label>
           <Input
             className="col-span-2"
@@ -137,20 +146,24 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
-          <Label>Avatar</Label>
-          <div className="col-span-2">
-            <FileUpload
-              organizationId={organizationId}
-              onUploadComplete={handleUploadComplete}
-            />
-          </div>
+          <Label>Text Color</Label>
+          <Input
+            type="color"
+            value={localState.textColor}
+            onChange={(e) => handleChange("textColor", e.target.value)}
+            className="col-span-2"
+          />
         </div>
       </div>
 
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <Label className="font-bold text-md">Social Links</Label>
-          <Button variant="outline" onClick={addLink}>
+          <Button
+            variant="outline"
+            onClick={addLink}
+            disabled={localState.links.length >= 5}
+          >
             Add Link
           </Button>
         </div>
@@ -170,34 +183,54 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
                 </SelectTrigger>
                 <SelectContent className="min-w-20">
                   <SelectItem value="mail">
-                    <MailFilled height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <MailFilled height={"20"} width={"20"} /> Email
+                    </div>
                   </SelectItem>
                   <SelectItem value="link">
-                    <LinkIcon height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <LinkIcon height={"20"} width={"20"} /> Website
+                    </div>
                   </SelectItem>
                   <SelectItem value="facebook">
-                    <Facebook height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <Facebook height={"20"} width={"20"} /> Facebook
+                    </div>
                   </SelectItem>
                   <SelectItem value="youtube">
-                    <Youtube height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <Youtube height={"20"} width={"20"} /> Youtube
+                    </div>
                   </SelectItem>
                   <SelectItem value="instagram">
-                    <Instagram height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <Instagram height={"20"} width={"20"} /> Instagram
+                    </div>
                   </SelectItem>
                   <SelectItem value="tiktok">
-                    <TikTok height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <TikTok height={"20"} width={"20"} /> TikTok
+                    </div>
                   </SelectItem>
                   <SelectItem value="twitter">
-                    <XTwitter height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <XTwitter height={"20"} width={"20"} /> X
+                    </div>
                   </SelectItem>
                   <SelectItem value="threads">
-                    <Threads height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <Threads height={"20"} width={"20"} /> Threads
+                    </div>
                   </SelectItem>
                   <SelectItem value="bluesky">
-                    <Bluesky height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <Bluesky height={"20"} width={"20"} /> Bluesky
+                    </div>
                   </SelectItem>
                   <SelectItem value="linkedin">
-                    <Linkedin height={"20"} width={"20"} />
+                    <div className="flex flex-row gap-2">
+                      <Linkedin height={"20"} width={"20"} /> LinkedIn
+                    </div>
                   </SelectItem>
                 </SelectContent>
               </Select>

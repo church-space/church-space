@@ -51,6 +51,7 @@ export interface AuthorBlockData {
   name: string;
   subtitle: string;
   avatar: string;
+  textColor: string;
   links: Array<{
     icon: string;
     url: string;

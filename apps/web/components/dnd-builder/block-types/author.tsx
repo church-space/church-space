@@ -57,14 +57,24 @@ export default function AuthorBlock({ data }: AuthorBlockProps) {
           <AvatarFallback>{name[0]}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
-          <p className="text-sm font-medium">{name}</p>
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
+          <p
+            className="text-sm font-semibold leading-tight"
+            style={{ color: data?.textColor }}
+          >
+            {name}
+          </p>
+          <p
+            className="text-sm text-muted-foreground opacity-80"
+            style={{ color: data?.textColor }}
+          >
+            {subtitle}
+          </p>
         </div>
       </div>
       <div className="flex gap-2">
         {links.map((link, index) => {
           const Icon = socialIcons[link.icon as keyof typeof socialIcons];
-          return Icon ? <Icon key={index} /> : null;
+          return Icon ? <Icon key={index} fill={data?.textColor} /> : null;
         })}
       </div>
     </div>
