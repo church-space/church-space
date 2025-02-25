@@ -41,6 +41,10 @@ export default function DndBuilderSidebarForms({
   onFooterTextColorChange,
   onFooterFontChange,
   onSelectTemplate,
+  isInset,
+  onIsInsetChange,
+  emailBgColor,
+  onEmailBgColorChange,
 }: {
   selectedBlock?: Block;
   setSelectedBlockId?: (id: string | null) => void;
@@ -57,6 +61,10 @@ export default function DndBuilderSidebarForms({
   onFooterTextColorChange?: (color: string) => void;
   onFooterFontChange?: (font: string) => void;
   onSelectTemplate?: (templateId: string) => void;
+  isInset?: boolean;
+  onIsInsetChange?: (isInset: boolean) => void;
+  emailBgColor?: string;
+  onEmailBgColorChange?: (color: string) => void;
 }) {
   const [isDeleteConfirmationExpanded, setIsDeleteConfirmationExpanded] =
     useState(false);
@@ -98,7 +106,14 @@ export default function DndBuilderSidebarForms({
       <div className="h-full overflow-y-auto py-1">
         {/* Email specific forms */}
         {formType === "email-style" && (
-          <EmailStyleForm bgColor={bgColor} onBgColorChange={onBgColorChange} />
+          <EmailStyleForm
+            bgColor={bgColor}
+            onBgColorChange={onBgColorChange}
+            isInset={isInset}
+            onIsInsetChange={onIsInsetChange}
+            emailBgColor={emailBgColor}
+            onEmailBgColorChange={onEmailBgColorChange}
+          />
         )}
         {formType === "email-footer" && (
           <EmailFooterForm

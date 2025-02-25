@@ -157,6 +157,14 @@ export default function DndProvider() {
     emailData?.email?.blocks_bg_color || "#f4f4f5"
   );
 
+  // Initialize isInset from the fetched data or use default
+  const [isInset, setIsInset] = useState(emailData?.email?.is_inset || false);
+
+  // Initialize emailBgColor from the fetched data or use default
+  const [emailBgColor, setEmailBgColor] = useState(
+    emailData?.email?.bg_color || "#ffffff"
+  );
+
   // Initialize footer styles from the fetched data or use defaults
   const [footerBgColor, setFooterBgColor] = useState(
     emailData?.email?.footer_bg_color || "#ffffff"
@@ -172,6 +180,12 @@ export default function DndProvider() {
   useEffect(() => {
     if (emailData?.email?.blocks_bg_color) {
       setBgColor(emailData.email.blocks_bg_color);
+    }
+    if (emailData?.email?.is_inset !== undefined) {
+      setIsInset(emailData.email.is_inset);
+    }
+    if (emailData?.email?.bg_color) {
+      setEmailBgColor(emailData.email.bg_color);
     }
   }, [emailData]);
 
@@ -277,6 +291,42 @@ export default function DndProvider() {
           emailId,
           updates: {
             blocks_bg_color: color,
+          },
+        });
+      }
+    }, 500),
+    [emailId, updateEmailStyle]
+  );
+
+  // Create a handler for inset email changes
+  const handleIsInsetChange = useCallback(
+    (inset: boolean) => {
+      setIsInset(inset);
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: {
+            is_inset: inset,
+          },
+        });
+      }
+    },
+    [emailId, updateEmailStyle]
+  );
+
+  // Create a debounced handler for email background color changes
+  const handleEmailBgColorChange = useCallback(
+    debounce((color: string) => {
+      setEmailBgColor(color);
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: {
+            bg_color: color,
           },
         });
       }
@@ -1182,6 +1232,8 @@ export default function DndProvider() {
           footer_bg_color: footerBgColor,
           footer_text_color: footerTextColor,
           footer_font: footerFont,
+          is_inset: isInset,
+          bg_color: emailBgColor,
         },
       });
 
@@ -1293,6 +1345,8 @@ export default function DndProvider() {
     footerBgColor,
     footerTextColor,
     footerFont,
+    isInset,
+    emailBgColor,
     blocks,
     queryClient,
     router,
@@ -1781,6 +1835,10 @@ export default function DndProvider() {
             footerTextColor={footerTextColor}
             onFooterFontChange={handleFooterFontChange}
             footerFont={footerFont}
+            isInset={isInset}
+            onIsInsetChange={handleIsInsetChange}
+            emailBgColor={emailBgColor}
+            onEmailBgColorChange={handleEmailBgColorChange}
             selectedBlock={
               selectedBlockId
                 ? blocks.find((block) => block.id === selectedBlockId) || null
@@ -1813,6 +1871,8 @@ export default function DndProvider() {
               <DndBuilderCanvas
                 blocks={blocks}
                 bgColor={bgColor}
+                isInset={isInset}
+                emailBgColor={emailBgColor}
                 onBlockSelect={setSelectedBlockId}
                 selectedBlockId={selectedBlockId}
                 editors={editors}

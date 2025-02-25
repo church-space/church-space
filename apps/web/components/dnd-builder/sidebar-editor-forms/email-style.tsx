@@ -12,11 +12,19 @@ import { Switch } from "@trivo/ui/switch";
 interface EmailStyleFormProps {
   bgColor?: string;
   onBgColorChange?: (color: string) => void;
+  isInset?: boolean;
+  onIsInsetChange?: (isInset: boolean) => void;
+  emailBgColor?: string;
+  onEmailBgColorChange?: (color: string) => void;
 }
 
 export default function EmailStyleForm({
   bgColor = "#ffffff",
   onBgColorChange,
+  isInset = false,
+  onIsInsetChange,
+  emailBgColor = "#eeeeee",
+  onEmailBgColorChange,
 }: EmailStyleFormProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -33,17 +41,20 @@ export default function EmailStyleForm({
       </div>
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Inset Email</Label>
-        <Switch />
+        <Switch checked={isInset} onCheckedChange={onIsInsetChange} />
       </div>
-      <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Email BG Color</Label>
-        <Input
-          className="col-span-2"
-          type="color"
-          value={bgColor}
-          onChange={(e) => onBgColorChange?.(e.target.value)}
-        />
-      </div>
+      {isInset && (
+        <div className="grid grid-cols-3 items-center gap-2">
+          <Label className="font-medium">Email BG Color</Label>
+          <Input
+            className="col-span-2"
+            type="color"
+            value={emailBgColor}
+            onChange={(e) => onEmailBgColorChange?.(e.target.value)}
+            disabled={!isInset}
+          />
+        </div>
+      )}
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Default Text Color</Label>
         <Input

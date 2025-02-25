@@ -8,6 +8,8 @@ interface UpdateEmailStyleParams {
     footer_bg_color?: string;
     footer_font?: string;
     footer_text_color?: string;
+    is_inset?: boolean;
+    bg_color?: string;
   };
 }
 

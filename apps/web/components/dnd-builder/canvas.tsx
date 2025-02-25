@@ -9,6 +9,8 @@ import Block from "./block";
 interface CanvasProps {
   blocks: BlockType[];
   bgColor: string;
+  isInset?: boolean;
+  emailBgColor?: string;
   onBlockSelect: (id: string | null) => void;
   selectedBlockId: string | null;
   editors: Record<string, Editor | null>;
@@ -18,6 +20,8 @@ interface CanvasProps {
 export default function DndBuilderCanvas({
   blocks,
   bgColor,
+  isInset = false,
+  emailBgColor = "#ffffff",
   onBlockSelect,
   selectedBlockId,
   editors,
@@ -87,11 +91,22 @@ export default function DndBuilderCanvas({
   };
 
   return (
-    <div className="flex w-full mx-auto rounded-md items-center justify-center bg-white border shadow-sm py-6">
+    <div
+      className={cn(
+        "flex w-full mx-auto rounded-md items-center justify-center border shadow-sm ",
+        isInset ? "py-6" : ""
+      )}
+      style={
+        isInset
+          ? { backgroundColor: emailBgColor }
+          : { backgroundColor: bgColor }
+      }
+    >
       <div
         ref={setNodeRef}
         className={cn(
-          "flex flex-col gap-4 p-4 min-h-[102px] max-w-2xl w-full mx-auto rounded-lg shadow-md"
+          "flex flex-col gap-4 p-4 min-h-[102px] max-w-2xl w-full mx-auto ",
+          isInset && "rounded-lg shadow-md "
         )}
         style={{ backgroundColor: bgColor }}
         onClick={() => onBlockSelect(null)}

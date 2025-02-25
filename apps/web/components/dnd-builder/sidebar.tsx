@@ -48,6 +48,10 @@ interface DndBuilderSidebarProps {
   setSelectedBlockId: (id: string | null) => void;
   onDeleteBlock: (id: string) => void;
   onBlockUpdate: (block: Block) => void;
+  isInset?: boolean;
+  onIsInsetChange?: (isInset: boolean) => void;
+  emailBgColor?: string;
+  onEmailBgColorChange?: (color: string) => void;
 }
 
 function DraggableBlock({
@@ -132,6 +136,10 @@ export default function DndBuilderSidebar({
   setSelectedBlockId,
   onDeleteBlock,
   onBlockUpdate,
+  isInset = false,
+  onIsInsetChange,
+  emailBgColor = "#ffffff",
+  onEmailBgColorChange,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
   const [activeForm, setActiveForm] = React.useState<
@@ -210,6 +218,10 @@ export default function DndBuilderSidebar({
               onFooterBgColorChange={onFooterBgColorChange}
               onFooterTextColorChange={onFooterTextColorChange}
               onFooterFontChange={onFooterFontChange}
+              isInset={isInset}
+              onIsInsetChange={onIsInsetChange}
+              emailBgColor={emailBgColor}
+              onEmailBgColorChange={onEmailBgColorChange}
             />
           </motion.div>
         ) : (
