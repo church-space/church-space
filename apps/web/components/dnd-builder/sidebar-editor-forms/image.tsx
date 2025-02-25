@@ -11,7 +11,7 @@ import { z } from "zod";
 
 interface ImageFormProps {
   block: Block & { data?: ImageBlockData };
-  onUpdate: (block: Block) => void;
+  onUpdate: (block: Block, addToHistory?: boolean) => void;
 }
 
 export default function ImageForm({ block, onUpdate }: ImageFormProps) {
@@ -27,13 +27,31 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
   const [isTyping, setIsTyping] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const debouncedUpdate = useCallback(
-    debounce((newState: ImageBlockData) => {
-      onUpdate({
-        ...block,
-        data: newState,
+  // Create a ref to store the latest state for the debounced function
+  const stateRef = useRef(localState);
+
+  // Update the ref whenever localState changes
+  useEffect(() => {
+    stateRef.current = localState;
+  }, [localState]);
+
+  // Create a debounced function that only updates the history
+  const debouncedHistoryUpdate = useCallback(
+    debounce(() => {
+      console.log("Image form updating block in history:", {
+        blockId: block.id,
+        blockType: block.type,
+        newState: stateRef.current,
       });
-    }, 200),
+      // Add to history
+      onUpdate(
+        {
+          ...block,
+          data: stateRef.current,
+        },
+        true
+      );
+    }, 500),
     [block, onUpdate]
   );
 
@@ -43,8 +61,9 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
+      debouncedHistoryUpdate.cancel();
     };
-  }, []);
+  }, [debouncedHistoryUpdate]);
 
   // URL validation schema using Zod
   const urlSchema = z.string().superRefine((url, ctx) => {
@@ -110,23 +129,33 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
 
         // Only update parent if valid
         if (isValid) {
-          onUpdate({
-            ...block,
-            data: newState,
-          });
+          // Update UI immediately without adding to history
+          onUpdate(
+            {
+              ...block,
+              data: newState,
+            },
+            false
+          );
+
+          // Debounce the history update
+          debouncedHistoryUpdate();
         }
       }, 800); // 800ms debounce
     }
-    // Immediately update for centering
-    else if (field === "centered") {
-      onUpdate({
-        ...block,
-        data: newState,
-      });
-    }
-    // Debounce for other changes
+    // Immediately update for all other fields
     else {
-      debouncedUpdate(newState);
+      // Update UI immediately without adding to history
+      onUpdate(
+        {
+          ...block,
+          data: newState,
+        },
+        false
+      );
+
+      // Debounce the history update
+      debouncedHistoryUpdate();
     }
   };
 
@@ -141,10 +170,17 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
 
       const isValid = validateUrl(localState.link);
       if (isValid) {
-        onUpdate({
-          ...block,
-          data: localState,
-        });
+        // Update UI immediately without adding to history
+        onUpdate(
+          {
+            ...block,
+            data: localState,
+          },
+          false
+        );
+
+        // Debounce the history update
+        debouncedHistoryUpdate();
       }
     }
   };

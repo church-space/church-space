@@ -3,22 +3,66 @@ import { Label } from "@trivo/ui/label";
 import { Slider } from "@trivo/ui/slider";
 import { Switch } from "@trivo/ui/switch";
 import { Block, VideoBlockData } from "@/types/blocks";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import debounce from "lodash/debounce";
 
 interface VideoFormProps {
   block: Block & { data?: VideoBlockData };
-  onUpdate: (block: Block) => void;
+  onUpdate: (block: Block, addToHistory?: boolean) => void;
 }
 
 export default function VideoForm({ block, onUpdate }: VideoFormProps) {
-  // Use refs to track the initial values
-  const initialRender = useRef(true);
-
-  // Initialize state from props, but only once
-  const [url, setUrl] = useState(block.data?.url || "");
-  const [size, setSize] = useState(block.data?.size || 33);
-  const [centered, setCentered] = useState(block.data?.centered || false);
+  // Initialize state from props
+  const [localState, setLocalState] = useState<VideoBlockData>({
+    url: block.data?.url || "",
+    size: block.data?.size || 33,
+    centered: block.data?.centered || false,
+  });
   const [error, setError] = useState("");
+
+  // Create a ref to store the latest state for the debounced function
+  const stateRef = useRef(localState);
+
+  // Update the ref whenever localState changes
+  useEffect(() => {
+    stateRef.current = localState;
+  }, [localState]);
+
+  // Create a debounced function that only updates the history
+  const debouncedHistoryUpdate = useCallback(
+    debounce(() => {
+      console.log("Video form updating block in history:", {
+        blockId: block.id,
+        blockType: block.type,
+        newState: stateRef.current,
+      });
+      // Add to history
+      onUpdate(
+        {
+          ...block,
+          data: stateRef.current,
+        },
+        true
+      );
+    }, 500),
+    [block, onUpdate]
+  );
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedHistoryUpdate.cancel();
+    };
+  }, [debouncedHistoryUpdate]);
+
+  // Update local state if block props change from parent
+  useEffect(() => {
+    setLocalState({
+      url: block.data?.url || "",
+      size: block.data?.size || 33,
+      centered: block.data?.centered || false,
+    });
+  }, [block.data]);
 
   const validateYouTubeUrl = (url: string) => {
     const patterns = [
@@ -31,64 +75,32 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
     return patterns.some((pattern) => pattern.test(url));
   };
 
-  const handleUrlChange = (newUrl: string) => {
-    setUrl(newUrl);
-    if (newUrl && !validateYouTubeUrl(newUrl)) {
-      setError("Please enter a valid YouTube URL");
-    } else {
-      setError("");
-    }
-  };
-
-  // Handle updates when form values change
-  useEffect(() => {
-    // Skip the first render to avoid unnecessary updates
-    if (initialRender.current) {
-      initialRender.current = false;
-      return;
+  const handleChange = (field: keyof VideoBlockData, value: any) => {
+    // For URL field, validate
+    if (field === "url") {
+      if (value && !validateYouTubeUrl(value)) {
+        setError("Please enter a valid YouTube URL");
+      } else {
+        setError("");
+      }
     }
 
-    // Create a new object with only the necessary properties
-    const updatedBlock = {
-      id: block.id,
-      type: block.type,
-      data: {
-        url,
-        size,
-        centered,
+    // Immediately update the local state for responsive UI
+    const newState = { ...localState, [field]: value };
+    setLocalState(newState);
+
+    // Update the UI immediately without adding to history
+    onUpdate(
+      {
+        ...block,
+        data: newState,
       },
-      order: block.order,
-    };
+      false
+    );
 
-    // Only call onUpdate if something actually changed
-    const hasChanged =
-      url !== block.data?.url ||
-      size !== block.data?.size ||
-      centered !== block.data?.centered;
-
-    if (hasChanged) {
-      onUpdate(updatedBlock);
-    }
-  }, [url, size, centered]);
-
-  // Update local state if block props change from parent
-  useEffect(() => {
-    if (!initialRender.current) {
-      // Only update if the values are different to avoid loops
-      if (block.data?.url !== undefined && block.data.url !== url) {
-        setUrl(block.data.url);
-      }
-      if (block.data?.size !== undefined && block.data.size !== size) {
-        setSize(block.data.size);
-      }
-      if (
-        block.data?.centered !== undefined &&
-        block.data.centered !== centered
-      ) {
-        setCentered(block.data.centered);
-      }
-    }
-  }, [block.data]);
+    // Debounce the history update
+    debouncedHistoryUpdate();
+  };
 
   return (
     <div className="flex flex-col gap-10 px-2">
@@ -100,8 +112,8 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
           <Label>YouTube URL</Label>
           <div className="col-span-2">
             <Input
-              value={url}
-              onChange={(e) => handleUrlChange(e.target.value)}
+              value={localState.url}
+              onChange={(e) => handleChange("url", e.target.value)}
               placeholder="YouTube URL"
               className={error ? "border-red-500" : ""}
             />
@@ -109,15 +121,18 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
           </div>
           <Label>Size</Label>
           <Slider
-            value={[size]}
-            onValueChange={(value) => setSize(value[0])}
+            value={[localState.size]}
+            onValueChange={(value) => handleChange("size", value[0])}
             max={100}
             min={40}
             step={1}
             className="col-span-2"
           />
           <Label>Center Video</Label>
-          <Switch checked={centered} onCheckedChange={setCentered} />
+          <Switch
+            checked={localState.centered}
+            onCheckedChange={(checked) => handleChange("centered", checked)}
+          />
         </div>
       </div>
     </div>

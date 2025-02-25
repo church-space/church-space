@@ -11,11 +11,11 @@ import {
   SelectValue,
 } from "@trivo/ui/select";
 import debounce from "lodash/debounce";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 
 interface ListFormProps {
   block: Block & { data?: ListBlockData };
-  onUpdate: (block: Block) => void;
+  onUpdate: (block: Block, addToHistory?: boolean) => void;
 }
 
 export default function ListForm({ block, onUpdate }: ListFormProps) {
@@ -28,23 +28,53 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
     items: block.data?.items || [],
   });
 
-  const debouncedUpdate = useCallback(
-    debounce((newState: ListBlockData) => {
-      onUpdate({
-        ...block,
-        data: newState,
+  // Create a ref to store the latest state for the debounced function
+  const stateRef = useRef(localState);
+
+  // Update the ref whenever localState changes
+  useEffect(() => {
+    stateRef.current = localState;
+  }, [localState]);
+
+  // Create a debounced function that only updates the history
+  const debouncedHistoryUpdate = useCallback(
+    debounce(() => {
+      console.log("List form updating block in history:", {
+        blockId: block.id,
+        blockType: block.type,
+        newState: stateRef.current,
       });
-    }, 300),
+      // Add to history
+      onUpdate(
+        {
+          ...block,
+          data: stateRef.current,
+        },
+        true
+      );
+    }, 500),
     [block, onUpdate]
   );
 
   const handleChange = (field: string, value: any) => {
+    // Immediately update the local state for responsive UI
     const newState = {
       ...localState,
       [field]: value,
     };
     setLocalState(newState);
-    debouncedUpdate(newState);
+
+    // Update the UI immediately without adding to history
+    onUpdate(
+      {
+        ...block,
+        data: newState,
+      },
+      false
+    );
+
+    // Debounce the history update
+    debouncedHistoryUpdate();
   };
 
   useEffect(() => {

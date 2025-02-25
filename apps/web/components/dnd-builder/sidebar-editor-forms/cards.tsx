@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Button } from "@trivo/ui/button";
 import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
@@ -16,7 +16,7 @@ import debounce from "lodash/debounce";
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };
-  onUpdate: (block: Block) => void;
+  onUpdate: (block: Block, addToHistory?: boolean) => void;
 }
 
 export default function CardsForm({ block, onUpdate }: CardsFormProps) {
@@ -29,37 +29,57 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     cards: block.data?.cards || [],
   });
 
-  // Create a memoized callback for updating the block
-  const updateBlock = useCallback(
-    (newState: CardsBlockData) => {
-      onUpdate({
-        ...block,
-        data: newState,
-      });
-    },
-    [block, onUpdate]
-  );
+  // Create a ref to store the latest state for the debounced function
+  const stateRef = useRef(localState);
 
-  // Create a debounced version of the update function
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedUpdate = useCallback(
-    debounce((newState: CardsBlockData) => {
-      updateBlock(newState);
+  // Update the ref whenever localState changes
+  useEffect(() => {
+    stateRef.current = localState;
+  }, [localState]);
+
+  // Create a debounced function that only updates the history
+  const debouncedHistoryUpdate = useCallback(
+    debounce(() => {
+      console.log("Cards form updating block in history:", {
+        blockId: block.id,
+        blockType: block.type,
+        newState: stateRef.current,
+      });
+      // Add to history
+      onUpdate(
+        {
+          ...block,
+          data: stateRef.current,
+        },
+        true
+      );
     }, 500),
-    [updateBlock]
+    [block, onUpdate]
   );
 
   // Cleanup the debounced function when component unmounts
   useEffect(() => {
     return () => {
-      debouncedUpdate.cancel();
+      debouncedHistoryUpdate.cancel();
     };
-  }, [debouncedUpdate]);
+  }, [debouncedHistoryUpdate]);
 
   const handleChange = (key: keyof CardsBlockData, value: any) => {
+    // Immediately update the local state for responsive UI
     const newState = { ...localState, [key]: value };
     setLocalState(newState);
-    debouncedUpdate(newState);
+
+    // Update the UI immediately without adding to history
+    onUpdate(
+      {
+        ...block,
+        data: newState,
+      },
+      false
+    );
+
+    // Debounce the history update
+    debouncedHistoryUpdate();
   };
 
   const addCard = () => {

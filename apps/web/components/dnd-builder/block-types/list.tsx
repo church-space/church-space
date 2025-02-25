@@ -32,15 +32,13 @@ export default function ListBlock({ data }: ListBlockProps) {
             key={index}
             className={cn(
               "flex gap-4 items-start",
-              bulletType === "bullet" ? "gap-1" : ""
+              bulletType === "bullet" ? "gap-0" : ""
             )}
           >
             <div
               className={cn(
                 "h-8 w-8 flex-shrink-0 rounded-full flex items-center justify-center font-medium text-lg",
-                bulletType === "bullet"
-                  ? "text-4xl !items-start !justify-start h-4"
-                  : ""
+                bulletType === "bullet" ? "text-4xl h-6" : ""
               )}
               style={{
                 backgroundColor:

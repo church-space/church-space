@@ -3,12 +3,12 @@ import { Label } from "@trivo/ui/label";
 import { useUser } from "@/stores/use-user";
 import FileUpload from "../file-upload";
 import type { Block, FileDownloadBlockData } from "@/types/blocks";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import debounce from "lodash/debounce";
 
 interface FileDownloadFormProps {
   block: Block & { data?: FileDownloadBlockData };
-  onUpdate: (block: Block) => void;
+  onUpdate: (block: Block, addToHistory?: boolean) => void;
 }
 
 export default function FileDownloadForm({
@@ -24,21 +24,58 @@ export default function FileDownloadForm({
     textColor: block.data?.textColor || "#000000",
   });
 
-  const debouncedUpdate = useCallback(
-    debounce((newState: FileDownloadBlockData) => {
-      onUpdate({
-        ...block,
-        data: newState,
+  // Create a ref to store the latest state for the debounced function
+  const stateRef = useRef(localState);
+
+  // Update the ref whenever localState changes
+  useEffect(() => {
+    stateRef.current = localState;
+  }, [localState]);
+
+  // Create a debounced function that only updates the history
+  const debouncedHistoryUpdate = useCallback(
+    debounce(() => {
+      console.log("File Download form updating block in history:", {
+        blockId: block.id,
+        blockType: block.type,
+        newState: stateRef.current,
       });
+      // Add to history
+      onUpdate(
+        {
+          ...block,
+          data: stateRef.current,
+        },
+        true
+      );
     }, 500),
     [block, onUpdate]
   );
 
   const handleChange = (key: keyof FileDownloadBlockData, value: string) => {
+    // Immediately update the local state for responsive UI
     const newState = { ...localState, [key]: value };
     setLocalState(newState);
-    debouncedUpdate(newState);
+
+    // Update the UI immediately without adding to history
+    onUpdate(
+      {
+        ...block,
+        data: newState,
+      },
+      false
+    );
+
+    // Debounce the history update
+    debouncedHistoryUpdate();
   };
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedHistoryUpdate.cancel();
+    };
+  }, [debouncedHistoryUpdate]);
 
   if (!organizationId) {
     return null;
@@ -48,9 +85,6 @@ export default function FileDownloadForm({
     console.log("Removing file");
     // Update the file with an empty string
     handleChange("file", "");
-
-    // Force an update to history to ensure the change is saved
-    debouncedUpdate(localState);
   };
 
   return (

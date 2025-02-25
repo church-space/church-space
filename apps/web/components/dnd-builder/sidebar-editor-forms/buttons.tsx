@@ -8,12 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@trivo/ui/select";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { z } from "zod";
+import debounce from "lodash/debounce";
 
 interface ButtonFormProps {
   block: Block & { data?: ButtonBlockData };
-  onUpdate: (block: Block) => void;
+  onUpdate: (block: Block, addToHistory?: boolean) => void;
 }
 
 export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
@@ -29,6 +30,14 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
   const [isTyping, setIsTyping] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Create a ref to store the latest state for the debounced function
+  const stateRef = useRef(localState);
+
+  // Update the ref whenever localState changes
+  useEffect(() => {
+    stateRef.current = localState;
+  }, [localState]);
+
   useEffect(() => {
     setLocalState({
       text: block.data?.text ?? "Button",
@@ -40,14 +49,35 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
     });
   }, [block.data]);
 
+  // Create a debounced function that only updates the history
+  const debouncedHistoryUpdate = useCallback(
+    debounce(() => {
+      console.log("Button form updating block in history:", {
+        blockId: block.id,
+        blockType: block.type,
+        newState: stateRef.current,
+      });
+      // Add to history
+      onUpdate(
+        {
+          ...block,
+          data: stateRef.current,
+        },
+        true
+      );
+    }, 500),
+    [block, onUpdate]
+  );
+
   // Cleanup debounce timer on unmount
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
+      debouncedHistoryUpdate.cancel();
     };
-  }, []);
+  }, [debouncedHistoryUpdate]);
 
   // URL validation schema using Zod
   const urlSchema = z.string().superRefine((url, ctx) => {
@@ -113,19 +143,34 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
 
         // Only update parent if valid
         if (isValid) {
-          onUpdate({
-            ...block,
-            data: newState,
-          });
+          // Update UI immediately without adding to history
+          onUpdate(
+            {
+              ...block,
+              data: newState,
+            },
+            false
+          );
+
+          // Debounce the history update
+          debouncedHistoryUpdate();
         }
       }, 800); // 800ms debounce
     } else {
       // For other fields, update immediately
       setLocalState(newState);
-      onUpdate({
-        ...block,
-        data: newState,
-      });
+
+      // Update UI immediately without adding to history
+      onUpdate(
+        {
+          ...block,
+          data: newState,
+        },
+        false
+      );
+
+      // Debounce the history update
+      debouncedHistoryUpdate();
     }
   };
 
@@ -140,10 +185,17 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
 
       const isValid = validateUrl(localState.link);
       if (isValid) {
-        onUpdate({
-          ...block,
-          data: localState,
-        });
+        // Update UI immediately without adding to history
+        onUpdate(
+          {
+            ...block,
+            data: localState,
+          },
+          false
+        );
+
+        // Debounce the history update
+        debouncedHistoryUpdate();
       }
     }
   };
