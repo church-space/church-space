@@ -13,6 +13,8 @@ import {
 } from "@trivo/ui/icons";
 import { Separator } from "@trivo/ui/separator";
 import { getYear } from "date-fns";
+import { useState, useEffect } from "react";
+import { createClient } from "@trivo/supabase/client";
 
 // Define the type for social icon keys
 type SocialIconKey =
@@ -54,6 +56,8 @@ export default function Footer({
   emailInset,
 }: FooterProps) {
   const emailBgColor = "#fff2d5";
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const logo = footerData?.logo || "";
 
   // Use footer data from database if available, otherwise use defaults
   const footerBgColor = footerData?.bg_color || "#ffffff";
@@ -73,6 +77,22 @@ export default function Footer({
     return socialIcons[iconKey as SocialIconKey] || socialIcons.link;
   };
 
+  // Use Supabase to get the logo URL
+  useEffect(() => {
+    // Reset the logo URL when logo is empty
+    if (!logo) {
+      setLogoUrl(null);
+      return;
+    }
+
+    // Set the logo URL when logo is present
+    const supabase = createClient();
+    const { data: urlData } = supabase.storage
+      .from("email_assets")
+      .getPublicUrl(logo);
+    setLogoUrl(urlData.publicUrl);
+  }, [logo]);
+
   return (
     <div
       className={cn("pt-5 pb-4 w-full ")}
@@ -91,11 +111,11 @@ export default function Footer({
         style={{ fontFamily: footerFont }}
       >
         <div className="flex flex-col items-center gap-2">
-          {footerData?.logo && (
+          {logoUrl && (
             <img
-              src={footerData.logo}
+              src={logoUrl}
               alt="Logo"
-              className="h-28 w-28 object-contain"
+              className="h-28 w-28 object-contain rounded-md"
             />
           )}
 

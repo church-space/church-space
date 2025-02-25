@@ -1,3 +1,18 @@
+import { useUser } from "@/stores/use-user";
+import { Button } from "@trivo/ui/button";
+import {
+  Bluesky,
+  Facebook,
+  Instagram,
+  Linkedin,
+  LinkIcon,
+  MailFilled,
+  Threads,
+  TikTok,
+  XTwitter,
+  Youtube,
+} from "@trivo/ui/icons";
+import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
 import {
   Select,
@@ -6,26 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@trivo/ui/select";
+import { Textarea } from "@trivo/ui/textarea";
+import { useEffect, useRef, useState } from "react";
+import { z } from "zod";
 import ColorPicker from "../color-picker";
 import FileUpload from "../file-upload";
-import { useUser } from "@/stores/use-user";
-import { Input } from "@trivo/ui/input";
-import { Textarea } from "@trivo/ui/textarea";
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Button } from "@trivo/ui/button";
-import { z } from "zod";
-import {
-  MailFilled,
-  LinkIcon,
-  Facebook,
-  Youtube,
-  Instagram,
-  TikTok,
-  XTwitter,
-  Threads,
-  Bluesky,
-  Linkedin,
-} from "@trivo/ui/icons";
 import { useUpdateEmailFooter } from "../mutations/use-update-email-footer";
 
 interface Link {
