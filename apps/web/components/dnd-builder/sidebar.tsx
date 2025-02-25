@@ -11,6 +11,7 @@ import {
   Home,
   Image,
   List,
+  Redo,
   Typography,
   Video,
 } from "@trivo/ui/icons";
@@ -27,6 +28,7 @@ import { Separator } from "@trivo/ui/separator";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
 import DndBuilderSidebarForms from "./sidebar-forms";
+import { ChevronRight, Paintbrush } from "lucide-react";
 
 interface DndBuilderSidebarProps {
   className?: string;
@@ -129,9 +131,26 @@ export default function DndBuilderSidebar({
   onBlockUpdate,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
+  const [activeForm, setActiveForm] = React.useState<
+    "default" | "block" | "email-style" | "email-footer" | "email-templates"
+  >("default");
+
   React.useEffect(() => {
     setHasMounted(true);
   }, []);
+
+  // Update activeForm when selectedBlock changes
+  React.useEffect(() => {
+    if (selectedBlock?.id) {
+      setActiveForm("block");
+    } else {
+      setActiveForm("default");
+    }
+  }, [selectedBlock]);
+
+  const handleBackFromForm = () => {
+    setActiveForm("default");
+  };
 
   const emailBlockTypes = [
     "section",
@@ -159,9 +178,9 @@ export default function DndBuilderSidebar({
       )}
     >
       <AnimatePresence mode="sync">
-        {selectedBlock?.id ? (
+        {activeForm !== "default" ? (
           <motion.div
-            key="selected-block"
+            key={activeForm}
             initial={{ x: hasMounted ? 400 : 0 }}
             animate={{ x: 0 }}
             exit={{ x: 400 }}
@@ -178,6 +197,16 @@ export default function DndBuilderSidebar({
               setSelectedBlockId={setSelectedBlockId}
               onDeleteBlock={onDeleteBlock}
               onBlockUpdate={onBlockUpdate}
+              formType={activeForm === "block" ? "block" : activeForm}
+              onBack={handleBackFromForm}
+              bgColor={bgColor}
+              onBgColorChange={onBgColorChange}
+              footerBgColor={footerBgColor}
+              footerTextColor={footerTextColor}
+              footerFont={footerFont}
+              onFooterBgColorChange={onFooterBgColorChange}
+              onFooterTextColorChange={onFooterTextColorChange}
+              onFooterFontChange={onFooterFontChange}
             />
           </motion.div>
         ) : (
@@ -199,6 +228,38 @@ export default function DndBuilderSidebar({
               ))}
             </div>
             <Separator className="my-6" />
+            <div className="flex flex-col gap-4">
+              <div
+                className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                onClick={() => setActiveForm("email-style")}
+              >
+                <div className="flex items-center gap-2">
+                  <Paintbrush className="h-5 w-5" />
+                  Styles
+                </div>
+                <ChevronRight className="h-5 w-5" />
+              </div>
+              <div
+                className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                onClick={() => setActiveForm("email-footer")}
+              >
+                <div className="flex items-center gap-2">
+                  <Paintbrush className="h-5 w-5" />
+                  Footer
+                </div>
+                <ChevronRight className="h-5 w-5" />
+              </div>
+              <div
+                className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                onClick={() => setActiveForm("email-templates")}
+              >
+                <div className="flex items-center gap-2">
+                  <Paintbrush className="h-5 w-5" />
+                  Templates
+                </div>
+                <ChevronRight className="h-5 w-5" />
+              </div>
+            </div>
             <Label className="font-bold px-2 text-lg">Style</Label>
             <div className="flex flex-col gap-4 px-2 mt-2">
               <div className="grid grid-cols-3 items-center gap-2">
