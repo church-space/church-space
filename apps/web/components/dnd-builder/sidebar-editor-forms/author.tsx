@@ -151,7 +151,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             value={localState.name}
             onChange={(e) => handleChange("name", e.target.value)}
           />
-          <Label>Subtitle</Label>
+          <Label>Title</Label>
           <Input
             className="col-span-2"
             value={localState.subtitle}

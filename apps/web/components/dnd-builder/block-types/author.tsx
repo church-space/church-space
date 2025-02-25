@@ -34,8 +34,8 @@ interface AuthorBlockProps {
 
 export default function AuthorBlock({ data }: AuthorBlockProps) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const name = data?.name || "John Doe";
-  const subtitle = data?.subtitle || "Author";
+  const name = data?.name || "Name";
+  const subtitle = data?.subtitle || "Title";
   const avatar = data?.avatar || "";
   const links = data?.links || [];
 
