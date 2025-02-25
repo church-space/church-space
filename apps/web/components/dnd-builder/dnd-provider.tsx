@@ -596,7 +596,6 @@ export default function DndProvider() {
         newBlockOrder
       );
       updateBlocks(newBlocks);
-      setSelectedBlockId(newBlockId);
 
       // Add the block to the database if we have an emailId
       if (emailId) {
@@ -1346,123 +1345,6 @@ export default function DndProvider() {
     addEmailBlock,
     batchUpdateEmailBlocks,
   ]);
-
-  // Function to synchronize block IDs with database
-  const syncBlockIds = useCallback(() => {
-    if (!emailData || !emailData.blocks || !blocks) {
-      console.log("Cannot sync block IDs - missing data", {
-        hasEmailData: !!emailData,
-        hasBlocks: !!blocks,
-      });
-      return;
-    }
-
-    console.log("Syncing block IDs with database");
-
-    // Create a map of block types and orders to database IDs
-    const dbBlockMap = new Map();
-    emailData.blocks.forEach((dbBlock) => {
-      const key = `${dbBlock.type}-${dbBlock.order}`;
-      dbBlockMap.set(key, dbBlock.id);
-    });
-
-    // Check if any blocks have UUID IDs that need to be synced with database
-    const hasUuidBlocks = blocks.some((block) => isNaN(parseInt(block.id, 10)));
-
-    if (hasUuidBlocks) {
-      console.log("Found blocks with UUID IDs that need to be synced");
-
-      // Update block IDs based on the latest email data
-      const updatedBlocks = blocks.map((block) => {
-        // If the block already has a numeric ID, keep it
-        if (!isNaN(parseInt(block.id, 10))) {
-          return block;
-        }
-
-        // Try to find a matching block in the database by type and order
-        const key = `${block.type}-${block.order}`;
-        const dbBlockId = dbBlockMap.get(key);
-
-        if (dbBlockId) {
-          console.log(`Updating block ID from ${block.id} to ${dbBlockId}`);
-          return { ...block, id: dbBlockId.toString() };
-        }
-
-        // If no match found by type and order, try to find by content similarity
-        const matchingDbBlock = emailData.blocks.find((dbBlock) => {
-          if (dbBlock.type !== block.type) return false;
-
-          // For text blocks, compare content
-          if (block.type === "text" && dbBlock.value && block.data) {
-            const dbValue = dbBlock.value as any;
-            const blockData = block.data as any;
-            return dbValue.content === blockData.content;
-          }
-
-          // For author blocks, compare name and subtitle
-          if (block.type === "author" && dbBlock.value && block.data) {
-            const dbValue = dbBlock.value as any;
-            const blockData = block.data as any;
-            return (
-              dbValue.name === blockData.name &&
-              dbValue.subtitle === blockData.subtitle
-            );
-          }
-
-          return false;
-        });
-
-        if (matchingDbBlock) {
-          console.log(
-            `Found matching block by content: ${block.id} -> ${matchingDbBlock.id}`
-          );
-          return { ...block, id: matchingDbBlock.id.toString() };
-        }
-
-        // If still no match, keep the UUID - it will be added to the database on next save
-        return block;
-      });
-
-      // Check for duplicate IDs after the update
-      const updatedIds = updatedBlocks.map((block) => block.id);
-      const hasDuplicates = updatedIds.some(
-        (id, index) => updatedIds.indexOf(id) !== index
-      );
-
-      if (hasDuplicates) {
-        console.log("Found duplicate IDs after sync, removing duplicates");
-
-        // Keep only the first occurrence of each ID
-        const seenIds = new Set<string>();
-        const deduplicatedBlocks = updatedBlocks.filter((block) => {
-          if (seenIds.has(block.id)) {
-            return false;
-          }
-          seenIds.add(block.id);
-          return true;
-        });
-
-        // Sort blocks by order
-        const sortedBlocks = [...deduplicatedBlocks].sort(
-          (a, b) => (a.order || 0) - (b.order || 0)
-        );
-
-        // Only update if there were changes to the IDs
-        if (JSON.stringify(sortedBlocks) !== JSON.stringify(blocks)) {
-          console.log("Updating blocks with synced IDs");
-          updateBlocks(sortedBlocks);
-        }
-      } else {
-        // Only update if there were changes to the IDs
-        if (JSON.stringify(updatedBlocks) !== JSON.stringify(blocks)) {
-          console.log("Updating blocks with synced IDs");
-          updateBlocks(updatedBlocks);
-        }
-      }
-    } else {
-      console.log("No blocks with UUID IDs found, no sync needed");
-    }
-  }, [emailData, blocks, updateBlocks]);
 
   // Function to ensure all database blocks are visible in the UI
   const ensureBlocksVisibility = useCallback(() => {
