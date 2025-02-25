@@ -37,10 +37,7 @@ import { useBlockStateManager } from "./use-block-state-manager";
 import { debounce } from "lodash";
 import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { useParams } from "next/navigation";
-
-interface TextBlockData {
-  content: string;
-}
+import { useAddEmailBlock } from "./mutations/use-add-email-block";
 
 export default function DndProvider() {
   const params = useParams();
@@ -48,6 +45,7 @@ export default function DndProvider() {
     ? parseInt(params.emailId as string, 10)
     : undefined;
   const { data: emailData, isLoading } = useEmailWithBlocks(emailId);
+  const addEmailBlock = useAddEmailBlock();
 
   // Initialize blocks from the fetched data or use empty array
   const initialBlocks =
@@ -181,74 +179,81 @@ export default function DndProvider() {
       const newBlockId = crypto.randomUUID();
       const blockType = active.data.current.type;
 
+      // Create the block data based on the block type
+      let blockData: BlockData;
+
+      if (blockType === "text") {
+        blockData = { content: "" };
+      } else if (blockType === "video") {
+        blockData = {
+          url: "",
+          size: 33,
+          centered: false,
+        };
+      } else if (blockType === "file-download") {
+        blockData = {
+          title: "File Name",
+          file: "",
+          bgColor: "#ffffff",
+          textColor: "#000000",
+        };
+      } else if (blockType === "divider") {
+        blockData = { color: "#e2e8f0", margin: 8 };
+      } else if (blockType === "button") {
+        blockData = {
+          text: "Button",
+          link: "",
+          color: "#000000",
+          textColor: "#FFFFFF",
+          style: "filled" as "filled" | "outline",
+          size: "fit" as "fit" | "full",
+        };
+      } else if (blockType === "list") {
+        blockData = {
+          title: "List Title",
+          subtitle: "List Subtitle",
+          textColor: "#000000",
+          bulletColor: "#000000",
+          bulletType: "number" as "number" | "bullet",
+          items: [
+            {
+              title: "First Item",
+              description: "Description here",
+            },
+          ],
+        };
+      } else if (blockType === "cards") {
+        blockData = {
+          title: "Cards Title",
+          subtitle: "Cards Subtitle",
+          cards: [
+            {
+              title: "First Card",
+              description: "Card description here",
+              label: "Label",
+              buttonText: "Learn More",
+              buttonLink: "",
+              image: "",
+            },
+          ],
+        };
+      } else if (blockType === "image") {
+        blockData = {
+          image: "",
+          size: 33,
+          link: "",
+          centered: false,
+        };
+      } else {
+        // Default to text block data if type is not recognized
+        blockData = { content: "" };
+      }
+
       const newBlock: BlockType = {
         id: newBlockId,
         type: blockType,
         order: blocks.length,
-        data:
-          blockType === "text"
-            ? ({ content: "" } as BlockType["data"])
-            : blockType === "video"
-              ? ({
-                  url: "",
-                  size: 33,
-                  centered: false,
-                } as BlockType["data"])
-              : blockType === "file-download"
-                ? ({
-                    title: "File Name",
-                    file: "",
-                    bgColor: "#ffffff",
-                    textColor: "#000000",
-                  } as BlockType["data"])
-                : blockType === "divider"
-                  ? ({ color: "#e2e8f0", margin: 8 } as BlockType["data"])
-                  : blockType === "button"
-                    ? ({
-                        text: "Button",
-                        link: "",
-                        color: "#000000",
-                        textColor: "#FFFFFF",
-                        style: "filled",
-                        size: "fit",
-                      } as BlockType["data"])
-                    : blockType === "list"
-                      ? ({
-                          title: "List Title",
-                          subtitle: "List Subtitle",
-                          textColor: "#000000",
-                          bulletColor: "#000000",
-                          bulletType: "number",
-                          items: [
-                            {
-                              title: "First Item",
-                              description: "Description here",
-                            },
-                          ],
-                        } as BlockType["data"])
-                      : blockType === "cards"
-                        ? ({
-                            title: "Cards Title",
-                            subtitle: "Cards Subtitle",
-                            cards: [
-                              {
-                                title: "First Card",
-                                description: "Card description here",
-                                label: "Label",
-                                buttonText: "Learn More",
-                                buttonLink: "",
-                                image: "",
-                              },
-                            ],
-                          } as BlockType["data"])
-                        : blockType === "image"
-                          ? ({
-                              image: "",
-                              size: 33,
-                              link: "",
-                              centered: false,
-                            } as BlockType["data"])
-                          : undefined,
+        data: blockData,
       };
 
       if (blockType === "text") {
@@ -260,8 +265,11 @@ export default function DndProvider() {
       }
 
       let newBlocks: BlockType[];
+      let newBlockOrder: number;
+
       if (over.id === "canvas") {
         newBlocks = [...blocks, newBlock];
+        newBlockOrder = blocks.length;
       } else {
         const overIndex = blocks.findIndex((block) => block.id === over.id);
         if (overIndex !== -1) {
@@ -271,13 +279,27 @@ export default function DndProvider() {
           const threshold = rect.top + rect.height / 2;
           const insertIndex = mouseY < threshold ? overIndex : overIndex + 1;
           newBlocks.splice(insertIndex, 0, newBlock);
+          newBlockOrder = insertIndex;
         } else {
-          newBlocks = [...blocks];
+          newBlocks = [...blocks, newBlock];
+          newBlockOrder = blocks.length;
         }
       }
 
+      // Update the local state
       updateBlocks(newBlocks);
       setSelectedBlockId(newBlockId);
+
+      // Add the block to the database if we have an emailId
+      if (emailId) {
+        addEmailBlock.mutate({
+          emailId,
+          type: blockType,
+          value: blockData,
+          order: newBlockOrder,
+          linkedFile: undefined,
+        });
+      }
     }
   };
 
