@@ -103,6 +103,37 @@ export default function DndProvider() {
     blocksRef.current = blocks;
   }, [blocks]);
 
+  // Helper function to update block orders in the database
+  const updateBlockOrdersInDatabase = useCallback(
+    (blocksToUpdate: BlockType[]) => {
+      if (!emailId) return;
+
+      const orderUpdates = blocksToUpdate
+        .map((block, index) => {
+          if (!isNaN(parseInt(block.id, 10))) {
+            return {
+              id: parseInt(block.id, 10),
+              order: index,
+            };
+          }
+          return null;
+        })
+        .filter(
+          (update): update is { id: number; order: number } => update !== null
+        );
+
+      // Only update blocks that already exist in the database (have numeric IDs)
+      if (orderUpdates.length > 0) {
+        console.log("Updating order for blocks:", orderUpdates);
+        batchUpdateEmailBlocks.mutate({
+          emailId,
+          orderUpdates,
+        });
+      }
+    },
+    [emailId, batchUpdateEmailBlocks]
+  );
+
   // Initialize bgColor from the fetched data or use default
   const [bgColor, setBgColor] = useState(
     emailData?.email?.bg_color || "#f4f4f5"
@@ -382,29 +413,8 @@ export default function DndProvider() {
 
         // Update order in database for all affected blocks
         if (emailId) {
-          // Prepare batch updates for all blocks that need order changes
-          const orderUpdates = newBlocks
-            .map((block, index) => {
-              if (!isNaN(parseInt(block.id, 10))) {
-                return {
-                  id: parseInt(block.id, 10),
-                  order: index,
-                };
-              }
-              return null;
-            })
-            .filter(
-              (update): update is { id: number; order: number } =>
-                update !== null
-            );
-
-          // Use batch update if there are blocks to update
-          if (orderUpdates.length > 0) {
-            batchUpdateEmailBlocks.mutate({
-              emailId,
-              orderUpdates,
-            });
-          }
+          // Use the helper function to update block orders in the database
+          updateBlockOrdersInDatabase(newBlocks);
         }
 
         // Check for duplicate IDs
@@ -639,6 +649,10 @@ export default function DndProvider() {
                 } else {
                   updateBlocks(updatedBlocks);
                 }
+
+                // Update the order of all blocks in the database to match their position in the UI
+                // This ensures blocks after the insertion point have their order properly updated
+                updateBlockOrdersInDatabase(updatedBlocks);
               } else {
                 console.error(
                   "Failed to add block to database - no ID returned"
@@ -672,7 +686,15 @@ export default function DndProvider() {
     console.log("Block to delete:", blockToDelete);
 
     // Update local state
-    updateBlocks(blocks.filter((block) => block.id !== id));
+    const updatedBlocks = blocks.filter((block) => block.id !== id);
+
+    // Recalculate order for all blocks
+    const reorderedBlocks = updatedBlocks.map((block, index) => ({
+      ...block,
+      order: index,
+    }));
+
+    updateBlocks(reorderedBlocks);
 
     if (selectedBlockId === id) {
       setSelectedBlockId(null);
@@ -685,6 +707,9 @@ export default function DndProvider() {
         const blockId = parseInt(blockToDelete.id, 10);
         console.log("Deleting block from database:", blockId);
         deleteEmailBlock.mutate({ blockId });
+
+        // Update the order of all remaining blocks in the database
+        updateBlockOrdersInDatabase(reorderedBlocks);
       } else if (emailData && emailData.blocks) {
         // It's a UUID, we need to find the corresponding database ID
         console.log("Block has UUID, checking if it exists in database");
@@ -704,6 +729,9 @@ export default function DndProvider() {
             matchingDbBlock.id
           );
           deleteEmailBlock.mutate({ blockId: matchingDbBlock.id });
+
+          // Update the order of all remaining blocks in the database
+          updateBlockOrdersInDatabase(reorderedBlocks);
         } else {
           console.log(
             "No matching database block found, no need to delete from database"
@@ -1477,7 +1505,6 @@ export default function DndProvider() {
         seenIds.add(numericId.toString());
         return true;
       });
-
       if (deduplicatedBlocks.length !== blocks.length) {
         console.log(
           `Removed ${blocks.length - deduplicatedBlocks.length} duplicate blocks`
