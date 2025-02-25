@@ -684,6 +684,9 @@ export default function DndProvider() {
                   updateBlocks(updatedBlocks);
                 }
 
+                // Set the newly created block as the selected block
+                setSelectedBlockId(result.id.toString());
+
                 // Update the order of all blocks in the database to match their position in the UI
                 // This ensures blocks after the insertion point have their order properly updated
                 updateBlockOrdersInDatabase(updatedBlocks);
@@ -1085,6 +1088,10 @@ export default function DndProvider() {
                     } else {
                       updateBlocks(updatedBlocks);
                     }
+
+                    // Update the order of all blocks in the database to match their position in the UI
+                    // This ensures blocks after the insertion point have their order properly updated
+                    updateBlockOrdersInDatabase(updatedBlocks);
                   }
                 },
               }
