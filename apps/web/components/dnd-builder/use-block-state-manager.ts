@@ -23,12 +23,16 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
   }, []);
 
   const undo = useCallback(() => {
+    let previousState: Block[] = [];
+    let currentState: Block[] = [];
+
     setHistory((currentHistory) => {
       const { past, present, future } = currentHistory;
 
       if (past.length === 0) return currentHistory;
 
-      const previousState = past[past.length - 1];
+      previousState = past[past.length - 1];
+      currentState = present;
       const newPast = past.slice(0, past.length - 1);
 
       return {
@@ -37,15 +41,22 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
         future: [present, ...future],
       };
     });
+
+    // Return the previous state and current state for database updates
+    return { previousState, currentState };
   }, []);
 
   const redo = useCallback(() => {
+    let nextState: Block[] = [];
+    let currentState: Block[] = [];
+
     setHistory((currentHistory) => {
       const { past, present, future } = currentHistory;
 
       if (future.length === 0) return currentHistory;
 
-      const nextState = future[0];
+      nextState = future[0];
+      currentState = present;
       const newFuture = future.slice(1);
 
       return {
@@ -54,6 +65,9 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
         future: newFuture,
       };
     });
+
+    // Return the next state and current state for database updates
+    return { nextState, currentState };
   }, []);
 
   const canUndo = history.past.length > 0;

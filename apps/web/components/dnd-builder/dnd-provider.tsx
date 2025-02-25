@@ -43,6 +43,32 @@ import { useUpdateEmailBlock } from "./mutations/use-update-email-block";
 import { useUpdateEmailStyle } from "./mutations/use-update-email-style";
 import { useBatchUpdateEmailBlocks } from "./mutations/use-batch-update-email-blocks";
 
+// Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
+type DatabaseBlockType =
+  | "cards"
+  | "button"
+  | "text"
+  | "divider"
+  | "video"
+  | "file-download"
+  | "image"
+  | "spacer"
+  | "list"
+  | "author";
+
+// Interface for order updates
+interface OrderUpdate {
+  id: number;
+  order: number;
+}
+
+// Interface for content updates
+interface ContentUpdate {
+  id: number;
+  type: DatabaseBlockType;
+  value: any;
+}
+
 export default function DndProvider() {
   const params = useParams();
   const emailId = params.emailId
@@ -271,7 +297,7 @@ export default function DndProvider() {
         // Update order in database for all affected blocks
         if (emailId) {
           // Prepare batch updates for all blocks that need order changes
-          const blockUpdates = newBlocks
+          const orderUpdates = newBlocks
             .map((block, index) => {
               if (!isNaN(parseInt(block.id, 10))) {
                 return {
@@ -287,10 +313,10 @@ export default function DndProvider() {
             );
 
           // Use batch update if there are blocks to update
-          if (blockUpdates.length > 0) {
+          if (orderUpdates.length > 0) {
             batchUpdateEmailBlocks.mutate({
               emailId,
-              updates: blockUpdates,
+              orderUpdates,
             });
           }
         }
@@ -577,8 +603,8 @@ export default function DndProvider() {
         },
       });
 
-      // 2. Update all blocks with their current data and order
-      const blockUpdates = blocks
+      // 2. Prepare batch updates for all blocks
+      const orderUpdates: OrderUpdate[] = blocks
         .map((block, index) => {
           if (!isNaN(parseInt(block.id, 10))) {
             return {
@@ -588,49 +614,260 @@ export default function DndProvider() {
           }
           return null;
         })
-        .filter(
-          (update): update is { id: number; order: number } => update !== null
-        );
+        .filter((update): update is OrderUpdate => update !== null);
 
-      if (blockUpdates.length > 0) {
+      const contentUpdates: ContentUpdate[] = blocks
+        .filter(
+          (block) =>
+            !isNaN(parseInt(block.id, 10)) &&
+            isValidDatabaseBlockType(block.type)
+        )
+        .map((block) => ({
+          id: parseInt(block.id, 10),
+          type: block.type as DatabaseBlockType,
+          value: block.data,
+        }));
+
+      // 3. Send batch updates if there are any
+      if (orderUpdates.length > 0 || contentUpdates.length > 0) {
         await batchUpdateEmailBlocks.mutateAsync({
           emailId,
-          updates: blockUpdates,
+          orderUpdates,
+          contentUpdates,
         });
       }
 
-      // 3. Update individual block content
-      const contentUpdatePromises = blocks
-        .filter((block) => !isNaN(parseInt(block.id, 10)))
-        .map((block) => {
-          const blockId = parseInt(block.id, 10);
-          return updateEmailBlock.mutateAsync({
-            blockId,
-            value: block.data,
-            type: block.type,
-          });
-        });
-
-      await Promise.all(contentUpdatePromises);
-
       // Show success message
-      // You can add a toast notification here if you have a toast system
       console.log("Email saved successfully");
     } catch (error) {
       console.error("Error saving email:", error);
-      // Show error message
-      // You can add a toast notification here if you have a toast system
     }
   }, [
     emailId,
     updateEmailStyle,
     batchUpdateEmailBlocks,
-    updateEmailBlock,
     bgColor,
     footerBgColor,
     footerTextColor,
     footerFont,
     blocks,
+  ]);
+
+  // Helper function to check if a block type is valid for the database
+  const isValidDatabaseBlockType = (
+    type: string
+  ): type is DatabaseBlockType => {
+    const validTypes: DatabaseBlockType[] = [
+      "cards",
+      "button",
+      "text",
+      "divider",
+      "video",
+      "file-download",
+      "image",
+      "spacer",
+      "list",
+      "author",
+    ];
+    return validTypes.includes(type as DatabaseBlockType);
+  };
+
+  // Handle undo with database sync
+  const handleUndo = useCallback(async () => {
+    if (!canUndo || !emailId) return;
+
+    const { previousState, currentState } = undo();
+
+    // Sync changes to database
+    try {
+      // 1. Identify blocks that were deleted (exist in currentState but not in previousState)
+      const deletedBlocks = currentState.filter(
+        (currentBlock) =>
+          !previousState.some((prevBlock) => prevBlock.id === currentBlock.id)
+      );
+
+      // Delete blocks from database
+      for (const block of deletedBlocks) {
+        if (!isNaN(parseInt(block.id, 10))) {
+          const blockId = parseInt(block.id, 10);
+          await deleteEmailBlock.mutateAsync({ blockId });
+        }
+      }
+
+      // 2. Identify blocks that were added (exist in previousState but not in currentState)
+      const addedBlocks = previousState.filter(
+        (prevBlock) =>
+          !currentState.some((currentBlock) => currentBlock.id === prevBlock.id)
+      );
+
+      // Add blocks to database
+      for (const block of addedBlocks) {
+        // Only add blocks that don't have a numeric ID (they're not in the database yet)
+        if (isNaN(parseInt(block.id, 10))) {
+          await addEmailBlock.mutateAsync({
+            emailId,
+            type: block.type,
+            value: block.data || ({} as BlockData),
+            order: block.order,
+            linkedFile: undefined,
+          });
+        }
+      }
+
+      // 3. Prepare batch updates for blocks that exist in both states but have changed
+      const orderUpdates: OrderUpdate[] = [];
+      const contentUpdates: ContentUpdate[] = [];
+
+      // Calculate order for all blocks in previousState
+      previousState.forEach((block, index) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          const blockId = parseInt(block.id, 10);
+          // Always update order to match the current index in the array
+          orderUpdates.push({
+            id: blockId,
+            order: index,
+          });
+
+          // Find the corresponding block in currentState
+          const currentBlock = currentState.find(
+            (current) => current.id === block.id
+          );
+
+          // If content or type changed, add to contentUpdates
+          if (
+            currentBlock &&
+            (JSON.stringify(block.data) !== JSON.stringify(currentBlock.data) ||
+              block.type !== currentBlock.type)
+          ) {
+            // Only add if the block type is compatible with DatabaseBlockType
+            if (isValidDatabaseBlockType(block.type)) {
+              contentUpdates.push({
+                id: blockId,
+                type: block.type as DatabaseBlockType,
+                value: block.data,
+              });
+            }
+          }
+        }
+      });
+
+      // Send batch updates if there are any
+      if (orderUpdates.length > 0 || contentUpdates.length > 0) {
+        await batchUpdateEmailBlocks.mutateAsync({
+          emailId,
+          orderUpdates,
+          contentUpdates,
+        });
+      }
+    } catch (error) {
+      console.error("Error syncing undo changes to database:", error);
+    }
+  }, [
+    undo,
+    canUndo,
+    emailId,
+    deleteEmailBlock,
+    addEmailBlock,
+    batchUpdateEmailBlocks,
+  ]);
+
+  // Handle redo with database sync
+  const handleRedo = useCallback(async () => {
+    if (!canRedo || !emailId) return;
+
+    const { nextState, currentState } = redo();
+
+    // Sync changes to database
+    try {
+      // 1. Identify blocks that were deleted (exist in currentState but not in nextState)
+      const deletedBlocks = currentState.filter(
+        (currentBlock) =>
+          !nextState.some((nextBlock) => nextBlock.id === currentBlock.id)
+      );
+
+      // Delete blocks from database
+      for (const block of deletedBlocks) {
+        if (!isNaN(parseInt(block.id, 10))) {
+          const blockId = parseInt(block.id, 10);
+          await deleteEmailBlock.mutateAsync({ blockId });
+        }
+      }
+
+      // 2. Identify blocks that were added (exist in nextState but not in currentState)
+      const addedBlocks = nextState.filter(
+        (nextBlock) =>
+          !currentState.some((currentBlock) => currentBlock.id === nextBlock.id)
+      );
+
+      // Add blocks to database
+      for (const block of addedBlocks) {
+        // Only add blocks that don't have a numeric ID (they're not in the database yet)
+        if (isNaN(parseInt(block.id, 10))) {
+          await addEmailBlock.mutateAsync({
+            emailId,
+            type: block.type,
+            value: block.data || ({} as BlockData),
+            order: block.order,
+            linkedFile: undefined,
+          });
+        }
+      }
+
+      // 3. Prepare batch updates for blocks that exist in both states but have changed
+      const orderUpdates: OrderUpdate[] = [];
+      const contentUpdates: ContentUpdate[] = [];
+
+      // Calculate order for all blocks in nextState
+      nextState.forEach((block, index) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          const blockId = parseInt(block.id, 10);
+          // Always update order to match the current index in the array
+          orderUpdates.push({
+            id: blockId,
+            order: index,
+          });
+
+          // Find the corresponding block in currentState
+          const currentBlock = currentState.find(
+            (current) => current.id === block.id
+          );
+
+          // If content or type changed, add to contentUpdates
+          if (
+            currentBlock &&
+            (JSON.stringify(block.data) !== JSON.stringify(currentBlock.data) ||
+              block.type !== currentBlock.type)
+          ) {
+            // Only add if the block type is compatible with DatabaseBlockType
+            if (isValidDatabaseBlockType(block.type)) {
+              contentUpdates.push({
+                id: blockId,
+                type: block.type as DatabaseBlockType,
+                value: block.data,
+              });
+            }
+          }
+        }
+      });
+
+      // Send batch updates if there are any
+      if (orderUpdates.length > 0 || contentUpdates.length > 0) {
+        await batchUpdateEmailBlocks.mutateAsync({
+          emailId,
+          orderUpdates,
+          contentUpdates,
+        });
+      }
+    } catch (error) {
+      console.error("Error syncing redo changes to database:", error);
+    }
+  }, [
+    redo,
+    canRedo,
+    emailId,
+    deleteEmailBlock,
+    addEmailBlock,
+    batchUpdateEmailBlocks,
   ]);
 
   return (
@@ -656,16 +893,13 @@ export default function DndProvider() {
           </Breadcrumb>
         </div>
         <div className="flex items-center gap-2 px-4">
-          <div className="flex gap-1 mr-2 items-center">
-            <p className="text-sm text-muted-foreground">Saved 12 hours ago</p>
-          </div>
           <div className="flex">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={undo}
+                  onClick={handleUndo}
                   disabled={!canUndo}
                 >
                   <Undo />
@@ -678,7 +912,7 @@ export default function DndProvider() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={redo}
+                  onClick={handleRedo}
                   disabled={!canRedo}
                 >
                   <Redo />
