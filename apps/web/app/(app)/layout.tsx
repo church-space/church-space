@@ -27,11 +27,6 @@ export default async function ProtectedLayout({
     return redirect("/pco-reconnect");
   }
 
-  const headersList = await headers();
-  const currentPath = headersList.get("x-pathname");
-
-  console.log("Current path:", currentPath);
-
   if (user.pcoConnection) {
     const lastRefreshed = new Date(user.pcoConnection.last_refreshed);
     const now = new Date();
@@ -44,8 +39,6 @@ export default async function ProtectedLayout({
       const currentPath = headersList.get("x-pathname");
       const returnPath =
         currentPath || headersList.get("x-invoke-path") || "/home";
-
-      console.log("Redirecting to:", returnPath);
 
       return redirect(
         `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`

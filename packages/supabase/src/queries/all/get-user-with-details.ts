@@ -44,7 +44,7 @@ export async function getUserWithDetailsQuery(supabase: Client) {
     .single();
 
   if (pcoConnectionError) {
-    console.log("pcoConnectionError", pcoConnectionError);
+    console.error("pcoConnectionError", pcoConnectionError);
   }
 
   return {

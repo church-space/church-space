@@ -15,7 +15,6 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
   });
 
   const updateBlocks = useCallback((newBlocks: Block[]) => {
-    console.log("Updating blocks in state manager:", newBlocks);
     setHistory((currentHistory) => ({
       past: [...currentHistory.past, currentHistory.present],
       present: newBlocks,
@@ -25,7 +24,6 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
 
   // Update blocks without adding to history - for immediate UI updates
   const updateBlocksWithoutHistory = useCallback((newBlocks: Block[]) => {
-    console.log("Updating blocks without history:", newBlocks);
     setHistory((currentHistory) => ({
       ...currentHistory,
       present: newBlocks,

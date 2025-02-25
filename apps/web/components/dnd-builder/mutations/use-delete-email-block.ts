@@ -11,8 +11,6 @@ export function useDeleteEmailBlock() {
 
   return useMutation({
     mutationFn: async ({ blockId }: DeleteEmailBlockParams) => {
-      console.log("Deleting email block:", blockId);
-
       try {
         const { data, error } = await supabase
           .from("email_blocks")
@@ -27,7 +25,6 @@ export function useDeleteEmailBlock() {
           throw error;
         }
 
-        console.log("Email block deleted successfully:", data);
         return data;
       } catch (error) {
         console.error("Exception deleting email block:", error);

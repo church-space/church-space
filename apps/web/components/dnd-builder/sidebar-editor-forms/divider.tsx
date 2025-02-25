@@ -35,11 +35,6 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
   // Create a debounced function that only updates the history
   const debouncedHistoryUpdate = useCallback(
     debounce(() => {
-      console.log("Divider form updating block in history:", {
-        blockId: block.id,
-        blockType: block.type,
-        newState: stateRef.current,
-      });
       // Add to history
       onUpdate(
         {

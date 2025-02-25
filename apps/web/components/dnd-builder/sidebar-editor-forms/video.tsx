@@ -31,11 +31,6 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
   // Create a debounced function that only updates the history
   const debouncedHistoryUpdate = useCallback(
     debounce(() => {
-      console.log("Video form updating block in history:", {
-        blockId: block.id,
-        blockType: block.type,
-        newState: stateRef.current,
-      });
       // Add to history
       onUpdate(
         {

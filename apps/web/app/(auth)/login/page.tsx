@@ -60,9 +60,8 @@ export default function Page() {
 
   const handleGoogleSignIn = async () => {
     try {
-      console.log("Initiating Google Sign-In");
       const result = await signInWithGoogle();
-      console.log("Sign-In result:", result);
+
       if (result?.url) {
         window.location.href = result.url;
       } else {

@@ -36,11 +36,6 @@ export default function FileDownloadForm({
   // Create a debounced function that only updates the history
   const debouncedHistoryUpdate = useCallback(
     debounce(() => {
-      console.log("File Download form updating block in history:", {
-        blockId: block.id,
-        blockType: block.type,
-        newState: stateRef.current,
-      });
       // Add to history
       onUpdate(
         {
@@ -83,7 +78,6 @@ export default function FileDownloadForm({
   }
 
   const onFileRemove = () => {
-    console.log("Removing file");
     // Update the file with an empty string
     handleChange("file", "");
   };

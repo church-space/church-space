@@ -96,7 +96,6 @@ export async function POST(
       if (webhookName === "people.v2.events.list.destroyed") {
         // Delete the list
 
-        console.log("Deleting list:", listId, organizationId);
         const { error: deleteError } = await supabase
           .from("pco_lists")
           .delete()
@@ -198,7 +197,6 @@ export async function POST(
     }
     case "people.v2.events.email.created":
       {
-        console.log("people.v2.events.email.created");
         const payloadString = data.data[0].attributes.payload;
         const payload = JSON.parse(payloadString);
         const emailData = payload.data;
@@ -226,7 +224,6 @@ export async function POST(
       break;
     case "people.v2.events.email.destroyed":
       {
-        console.log("people.v2.events.email.destroyed");
         const payloadString = data.data[0].attributes.payload;
         const payload = JSON.parse(payloadString);
         const emailData = payload.data;
@@ -248,7 +245,6 @@ export async function POST(
       break;
     case "people.v2.events.email.updated":
       {
-        console.log("people.v2.events.email.updated");
         const payloadString = data.data[0].attributes.payload;
         const payload = JSON.parse(payloadString);
         const emailData = payload.data;
@@ -298,7 +294,6 @@ export async function POST(
     case "people.v2.events.person.updated":
     case "people.v2.events.person.destroyed":
       {
-        console.log("people.v2.events.person.created");
         const payloadString = data.data[0].attributes.payload;
         const payload = JSON.parse(payloadString);
         const personData = payload.data;
@@ -344,7 +339,7 @@ export async function POST(
       }
       break;
     default:
-      console.log("Unknown webhook name:", webhookName);
+      console.error("Unknown webhook name:", webhookName);
   }
 
   return NextResponse.json({ received: true });

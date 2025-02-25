@@ -154,11 +154,6 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   // Create a debounced function that only updates the history
   const debouncedHistoryUpdate = useCallback(
     debounce(() => {
-      console.log("Author form updating block in history:", {
-        blockId: block.id,
-        blockType: block.type,
-        newState: stateRef.current,
-      });
       // Add to history
       onUpdate(
         {
@@ -289,7 +284,6 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   };
 
   const onImageRemove = () => {
-    console.log("Removing avatar image");
     // Update the avatar with an empty string
     handleChange("avatar", "");
 

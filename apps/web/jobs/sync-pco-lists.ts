@@ -36,8 +36,6 @@ export const syncPcoLists = task({
         },
       });
 
-      console.log("response", response);
-
       if (!response.ok) {
         throw new Error(
           `PCO API error: ${response.status} ${response.statusText}`
@@ -45,9 +43,6 @@ export const syncPcoLists = task({
       }
 
       const data = await response.json();
-
-      console.log("data", data);
-      console.log("data.data", data.data[0].attributes);
 
       // Process each list
       for (const list of data.data) {
@@ -80,8 +75,6 @@ export const syncPcoLists = task({
           let listResultsNextUrl = `https://api.planningcenteronline.com/people/v2/lists/${listId}/list_results`;
           let listResultsPage = 0;
           const maxListResultsPages = 1000;
-
-          console.log(`Starting to fetch list results for list ID: ${listId}`); // Debugging log
 
           while (listResultsNextUrl && listResultsPage < maxListResultsPages) {
             const listResultsResponse = await fetch(listResultsNextUrl, {

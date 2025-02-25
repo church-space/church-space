@@ -142,7 +142,6 @@ export default function DndProvider() {
 
       // Only update blocks that already exist in the database (have numeric IDs)
       if (orderUpdates.length > 0) {
-        console.log("Updating order for blocks:", orderUpdates);
         batchUpdateEmailBlocks.mutate({
           emailId,
           orderUpdates,
@@ -214,11 +213,6 @@ export default function DndProvider() {
       );
 
       if (blocksWithUUID.length > 0) {
-        console.log(
-          "Checking for blocks with UUID that need updating:",
-          blocksWithUUID
-        );
-
         // Create a new blocks array with updated IDs
         const updatedBlocks = blocksRef.current.map((block) => {
           // Skip blocks that already have numeric IDs
@@ -260,9 +254,6 @@ export default function DndProvider() {
           }
 
           if (matchingDbBlock) {
-            console.log(
-              `Updating block ID from ${block.id} to ${matchingDbBlock.id}`
-            );
             return { ...block, id: matchingDbBlock.id.toString() };
           }
 
@@ -274,7 +265,6 @@ export default function DndProvider() {
           (block, index) => block.id !== blocksRef.current[index].id
         );
         if (hasChanges) {
-          console.log("Updating blocks with database IDs");
           updateBlocks(updatedBlocks);
         }
       }
@@ -313,7 +303,6 @@ export default function DndProvider() {
     debouncedFunctionsRef.current = {
       bgColor: debounce((color: string) => {
         if (emailId) {
-          console.log("Saving blocks_bg_color to database:", color);
           updateEmailStyle.mutate({
             emailId,
             updates: {
@@ -325,7 +314,6 @@ export default function DndProvider() {
 
       emailBgColor: debounce((color: string) => {
         if (emailId) {
-          console.log("Saving bg_color to database:", color);
           updateEmailStyle.mutate({
             emailId,
             updates: {
@@ -337,7 +325,6 @@ export default function DndProvider() {
 
       defaultTextColor: debounce((color: string) => {
         if (emailId) {
-          console.log("Saving default_text_color to database:", color);
           updateEmailStyle.mutate({
             emailId,
             updates: {
@@ -349,7 +336,6 @@ export default function DndProvider() {
 
       defaultFont: debounce((font: string) => {
         if (emailId) {
-          console.log("Saving default_font to database:", font);
           updateEmailStyle.mutate({
             emailId,
             updates: {
@@ -361,7 +347,6 @@ export default function DndProvider() {
 
       footerBgColor: debounce((color: string) => {
         if (emailId) {
-          console.log("Saving footer_bg_color to database:", color);
           updateEmailStyle.mutate({
             emailId,
             updates: {
@@ -373,7 +358,6 @@ export default function DndProvider() {
 
       footerTextColor: debounce((color: string) => {
         if (emailId) {
-          console.log("Saving footer_text_color to database:", color);
           updateEmailStyle.mutate({
             emailId,
             updates: {
@@ -385,7 +369,6 @@ export default function DndProvider() {
 
       footerFont: debounce((font: string) => {
         if (emailId) {
-          console.log("Saving footer_font to database:", font);
           updateEmailStyle.mutate({
             emailId,
             updates: {
@@ -414,7 +397,6 @@ export default function DndProvider() {
 
       // Directly update the database
       if (emailId) {
-        console.log("Updating blocks_bg_color in database:", color);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -434,7 +416,6 @@ export default function DndProvider() {
 
       // Update in database if we have an emailId
       if (emailId) {
-        console.log("Updating is_inset in database:", inset);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -454,7 +435,6 @@ export default function DndProvider() {
 
       // Directly update the database
       if (emailId) {
-        console.log("Updating bg_color in database:", color);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -474,7 +454,6 @@ export default function DndProvider() {
 
       // Directly update the database
       if (emailId) {
-        console.log("Updating default_text_color in database:", color);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -494,7 +473,6 @@ export default function DndProvider() {
 
       // Directly update the database
       if (emailId) {
-        console.log("Updating default_font in database:", font);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -514,7 +492,6 @@ export default function DndProvider() {
 
       // Directly update the database
       if (emailId) {
-        console.log("Updating footer_bg_color in database:", color);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -534,7 +511,6 @@ export default function DndProvider() {
 
       // Directly update the database
       if (emailId) {
-        console.log("Updating footer_text_color in database:", color);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -554,7 +530,6 @@ export default function DndProvider() {
 
       // Directly update the database
       if (emailId) {
-        console.log("Updating footer_font in database:", font);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -605,7 +580,6 @@ export default function DndProvider() {
   // Create a debounced version of updateBlocks for history updates only
   const debouncedHistoryUpdate = useCallback(
     debounce(() => {
-      console.log("Debounced history update for blocks");
       // This is a no-op update that just adds the current state to history
       // without changing the current state
       updateBlocks([...latestBlocksRef.current]);
@@ -689,10 +663,6 @@ export default function DndProvider() {
         );
 
         if (hasDuplicates) {
-          console.log(
-            "Found duplicate IDs after reordering, removing duplicates"
-          );
-
           // Keep only the first occurrence of each ID
           const seenIds = new Set<string>();
           const deduplicatedBlocks = newBlocks.filter((block) => {
@@ -856,18 +826,12 @@ export default function DndProvider() {
       }));
 
       // Update the local state
-      console.log(
-        "Adding new block to UI:",
-        newBlock,
-        "at position:",
-        newBlockOrder
-      );
+
       updateBlocks(newBlocks);
 
       // Add the block to the database if we have an emailId
       if (emailId) {
         // First update the UI optimistically
-        console.log("Optimistically adding block to UI:", newBlock);
 
         // Then add to database
         addEmailBlock.mutate(
@@ -881,7 +845,6 @@ export default function DndProvider() {
           {
             onSuccess: (result) => {
               if (result && result.id) {
-                console.log("Block added to database with ID:", result.id);
                 // Update the block ID in our local state to use the database ID
                 // but keep the same block in the UI
                 const updatedBlocks = newBlocks.map((block) =>
@@ -897,10 +860,6 @@ export default function DndProvider() {
                 );
 
                 if (hasDuplicates) {
-                  console.log(
-                    "Found duplicate IDs after adding, removing duplicates"
-                  );
-
                   // Keep only the first occurrence of each ID
                   const seenIds = new Set<string>();
                   const deduplicatedBlocks = updatedBlocks.filter((block) => {
@@ -940,7 +899,6 @@ export default function DndProvider() {
 
   // Cleanup editors when blocks are removed
   const handleDeleteBlock = (id: string) => {
-    console.log("Deleting block:", id);
     if (editors[id]) {
       editors[id].destroy();
       setEditors((prev) => {
@@ -952,7 +910,6 @@ export default function DndProvider() {
 
     // Find the block to be deleted
     const blockToDelete = blocks.find((block) => block.id === id);
-    console.log("Block to delete:", blockToDelete);
 
     // Add to the set of blocks being deleted
     setBlocksBeingDeleted((prev) => {
@@ -995,7 +952,6 @@ export default function DndProvider() {
       if (!isNaN(parseInt(blockToDelete.id, 10))) {
         // It's a numeric ID, delete directly
         const blockId = parseInt(blockToDelete.id, 10);
-        console.log("Deleting block from database:", blockId);
         deleteEmailBlock.mutate(
           { blockId },
           {
@@ -1029,7 +985,6 @@ export default function DndProvider() {
         );
       } else if (emailData && emailData.blocks) {
         // It's a UUID, we need to find the corresponding database ID
-        console.log("Block has UUID, checking if it exists in database");
 
         // Try to find a matching block in the database by comparing properties
         const matchingDbBlock = emailData.blocks.find((dbBlock) => {
@@ -1041,11 +996,6 @@ export default function DndProvider() {
         });
 
         if (matchingDbBlock) {
-          console.log(
-            "Found matching database block to delete:",
-            matchingDbBlock.id
-          );
-
           // Add the matching DB block ID to permanently deleted blocks
           permanentlyDeletedBlocksRef.current.add(
             matchingDbBlock.id.toString()
@@ -1085,10 +1035,6 @@ export default function DndProvider() {
             }
           );
         } else {
-          console.log(
-            "No matching database block found, no need to delete from database"
-          );
-
           // Remove from the set of blocks being deleted since there's no database operation
           setBlocksBeingDeleted((prev) => {
             const newSet = new Set(prev);
@@ -1098,15 +1044,6 @@ export default function DndProvider() {
         }
       }
     } else {
-      console.log("Not deleting block from database:", {
-        emailId,
-        blockId: id,
-        blockExists: !!blockToDelete,
-        isNumeric: blockToDelete
-          ? !isNaN(parseInt(blockToDelete.id, 10))
-          : false,
-      });
-
       // Remove from the set of blocks being deleted since there's no database operation
       setBlocksBeingDeleted((prev) => {
         const newSet = new Set(prev);
@@ -1142,15 +1079,6 @@ export default function DndProvider() {
     addToHistory: boolean = true,
     isDuplication: boolean = false
   ) => {
-    console.log(
-      "Updating block:",
-      updatedBlock,
-      "Add to history:",
-      addToHistory,
-      "Is duplication:",
-      isDuplication
-    );
-
     let newBlocks: BlockType[];
 
     if (isDuplication) {
@@ -1181,11 +1109,9 @@ export default function DndProvider() {
           ...block,
           order: index,
         }));
-
-        console.log("Duplicated block inserted at index:", originalIndex + 1);
       } else {
         // If we can't find the original block, just append the duplicated block
-        console.log("Original block not found, appending duplicated block");
+
         updatedBlock.order = blocks.length;
         newBlocks = [...blocks, updatedBlock];
       }
@@ -1208,8 +1134,6 @@ export default function DndProvider() {
 
     // For duplicated blocks, we need to add them to the database
     if (isDuplication && emailId) {
-      console.log("Adding duplicated block to database");
-
       addEmailBlock.mutate(
         {
           emailId,
@@ -1221,11 +1145,6 @@ export default function DndProvider() {
         {
           onSuccess: (result) => {
             if (result && result.id) {
-              console.log(
-                "Duplicated block added to database with ID:",
-                result.id
-              );
-
               // Update the block ID in our local state but keep the same block in the UI
               const updatedBlocks = sortedBlocks.map((block) =>
                 block.id === updatedBlock.id
@@ -1240,10 +1159,6 @@ export default function DndProvider() {
               );
 
               if (hasDuplicates) {
-                console.log(
-                  "Found duplicate IDs after adding, removing duplicates"
-                );
-
                 // Keep only the first occurrence of each ID
                 const seenIds = new Set<string>();
                 const deduplicatedBlocks = updatedBlocks.filter((block) => {
@@ -1280,11 +1195,7 @@ export default function DndProvider() {
       if (!isNaN(parseInt(updatedBlock.id, 10))) {
         // It's a numeric ID, update directly
         const dbBlockId = parseInt(updatedBlock.id, 10);
-        console.log("Updating block in database:", {
-          blockId: dbBlockId,
-          type: updatedBlock.type,
-          value: updatedBlock.data,
-        });
+
         updateEmailBlock.mutate({
           blockId: dbBlockId,
           value: updatedBlock.data,
@@ -1292,7 +1203,6 @@ export default function DndProvider() {
         });
       } else {
         // It's a UUID, we need to find the corresponding database ID
-        console.log("Block has UUID, checking if it exists in database");
 
         // If this is a newly created block that hasn't been saved to the database yet,
         // we need to save it first
@@ -1340,7 +1250,6 @@ export default function DndProvider() {
           }
 
           if (matchingDbBlock) {
-            console.log("Found matching database block:", matchingDbBlock.id);
             updateEmailBlock.mutate({
               blockId: matchingDbBlock.id,
               value: updatedBlock.data,
@@ -1362,10 +1271,6 @@ export default function DndProvider() {
             );
 
             if (hasDuplicates) {
-              console.log(
-                "Found duplicate IDs after update, removing duplicates"
-              );
-
               // Keep only the first occurrence of each ID
               const seenIds = new Set<string>();
               const deduplicatedBlocks = updatedBlocks.filter((block) => {
@@ -1381,9 +1286,6 @@ export default function DndProvider() {
               updateBlocks(updatedBlocks);
             }
           } else {
-            // No matching block found, add it to the database
-            console.log("No matching database block found, adding to database");
-
             // Keep the block in the UI with its current UUID
             addEmailBlock.mutate(
               {
@@ -1396,7 +1298,6 @@ export default function DndProvider() {
               {
                 onSuccess: (result) => {
                   if (result && result.id) {
-                    console.log("Block added to database with ID:", result.id);
                     // Update the block ID in our local state but keep the same block in the UI
                     const updatedBlocks = sortedBlocks.map((block) =>
                       block.id === updatedBlock.id
@@ -1411,10 +1312,6 @@ export default function DndProvider() {
                     );
 
                     if (hasDuplicates) {
-                      console.log(
-                        "Found duplicate IDs after adding, removing duplicates"
-                      );
-
                       // Keep only the first occurrence of each ID
                       const seenIds = new Set<string>();
                       const deduplicatedBlocks = updatedBlocks.filter(
@@ -1442,12 +1339,6 @@ export default function DndProvider() {
           }
         }
       }
-    } else {
-      console.log("Not updating block in database:", {
-        emailId,
-        blockId: updatedBlock.id,
-        isNumeric: !isNaN(parseInt(updatedBlock.id, 10)),
-      });
     }
   };
 
@@ -1534,8 +1425,6 @@ export default function DndProvider() {
           isNaN(parseInt(block.id, 10)) && isValidDatabaseBlockType(block.type)
       );
 
-      console.log("Blocks with UUID to add:", blocksWithUUID);
-
       // Keep track of the updated blocks
       let currentBlocks = [...blocks];
 
@@ -1550,8 +1439,6 @@ export default function DndProvider() {
             order: block.order,
             linkedFile: undefined,
           });
-
-          console.log("Added block to database:", result);
 
           // Update the block ID in our local state but keep the same block in the UI
           if (result && result.id) {
@@ -1582,8 +1469,6 @@ export default function DndProvider() {
         })
         .filter((update): update is OrderUpdate => update !== null);
 
-      console.log("Order updates:", orderUpdates);
-
       const contentUpdates: ContentUpdate[] = currentBlocks
         .filter(
           (block) =>
@@ -1596,12 +1481,6 @@ export default function DndProvider() {
           value: block.data,
         }));
 
-      console.log("Content updates:", contentUpdates);
-      console.log(
-        "Author blocks:",
-        currentBlocks.filter((block) => block.type === "author")
-      );
-
       // 4. Send batch updates if there are any
       if (orderUpdates.length > 0 || contentUpdates.length > 0) {
         await batchUpdateEmailBlocks.mutateAsync({
@@ -1610,9 +1489,6 @@ export default function DndProvider() {
           contentUpdates,
         });
       }
-
-      // Show success message
-      console.log("Email saved successfully");
 
       // Refresh the email data to get the latest block IDs
       queryClient.invalidateQueries({ queryKey: ["email", emailId] });
@@ -1662,9 +1538,6 @@ export default function DndProvider() {
       "author",
     ];
     const isValid = validTypes.includes(type as DatabaseBlockType);
-    if (type === "author") {
-      console.log("Author block validation:", { type, isValid });
-    }
     return isValid;
   };
 
@@ -1884,8 +1757,6 @@ export default function DndProvider() {
   const ensureBlocksVisibility = useCallback(() => {
     if (!emailData || !emailData.blocks || !blocks) return;
 
-    console.log("Ensuring blocks visibility");
-
     const uiBlockIds = blocks.map((block) => {
       // Convert numeric string IDs to numbers for comparison
       return !isNaN(parseInt(block.id, 10)) ? parseInt(block.id, 10) : block.id;
@@ -1897,8 +1768,6 @@ export default function DndProvider() {
     );
 
     if (duplicateIds.length > 0) {
-      console.log("Found duplicate blocks in UI:", duplicateIds);
-
       // Remove duplicates by keeping only the first occurrence of each ID
       const seenIds = new Set();
       const deduplicatedBlocks = blocks.filter((block) => {
@@ -1914,10 +1783,6 @@ export default function DndProvider() {
       });
 
       if (deduplicatedBlocks.length !== blocks.length) {
-        console.log(
-          `Removed ${blocks.length - deduplicatedBlocks.length} duplicate blocks`
-        );
-
         // Sort blocks by order
         const sortedBlocks = [...deduplicatedBlocks].sort(
           (a, b) => (a.order || 0) - (b.order || 0)
@@ -1949,11 +1814,6 @@ export default function DndProvider() {
     });
 
     if (missingBlocks.length > 0) {
-      console.log(
-        "Found blocks in database that are missing from UI:",
-        missingBlocks
-      );
-
       // Convert database blocks to UI blocks format
       const newUIBlocks = missingBlocks.map((dbBlock) => ({
         id: dbBlock.id.toString(),
@@ -1980,10 +1840,6 @@ export default function DndProvider() {
       // Only ensure visibility if we're not in the middle of deleting blocks
       if (blocksBeingDeleted.size === 0) {
         ensureBlocksVisibility();
-      } else {
-        console.log(
-          "Skipping ensureBlocksVisibility because blocks are being deleted"
-        );
       }
     }
   }, [emailData, ensureBlocksVisibility, blocksBeingDeleted]);
@@ -1996,10 +1852,6 @@ export default function DndProvider() {
         // Only ensure visibility if we're not in the middle of deleting blocks
         if (blocksBeingDeleted.size === 0) {
           ensureBlocksVisibility();
-        } else {
-          console.log(
-            "Skipping ensureBlocksVisibility because blocks are being deleted"
-          );
         }
       }
     }, 1000); // Longer delay to allow server operations to complete
@@ -2024,9 +1876,6 @@ export default function DndProvider() {
 
       // Only update if blocks were actually removed
       if (filteredBlocks.length < blocks.length) {
-        console.log(
-          `Filtering out ${blocks.length - filteredBlocks.length} blocks that are being deleted`
-        );
         updateBlocksWithoutHistory(filteredBlocks);
       }
     }
@@ -2036,7 +1885,6 @@ export default function DndProvider() {
   useEffect(() => {
     if (blocksBeingDeleted.size > 0) {
       const timer = setTimeout(() => {
-        console.log("Clearing blocksBeingDeleted after timeout");
         setBlocksBeingDeleted(new Set());
       }, 5000); // Clear after 5 seconds to ensure server operations have completed
 

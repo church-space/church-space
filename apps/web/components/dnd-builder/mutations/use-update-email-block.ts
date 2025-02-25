@@ -41,12 +41,6 @@ export function useUpdateEmailBlock() {
         updateData.linked_file = linkedFile;
       }
 
-      console.log("Updating email block:", {
-        blockId,
-        updateData,
-        isAuthor: type === "author",
-      });
-
       try {
         const { data, error } = await supabase
           .from("email_blocks")
@@ -61,7 +55,6 @@ export function useUpdateEmailBlock() {
           throw error;
         }
 
-        console.log("Email block updated successfully:", data);
         return data;
       } catch (error) {
         console.error("Exception updating email block:", error);

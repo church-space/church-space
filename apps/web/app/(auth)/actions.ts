@@ -56,6 +56,5 @@ export async function signInWithGoogle(redirectTo?: string | null) {
     throw error;
   }
 
-  console.log("Supabase response:", data);
   return data;
 }

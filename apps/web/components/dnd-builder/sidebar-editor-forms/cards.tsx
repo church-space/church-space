@@ -49,11 +49,6 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   // Create a debounced function that only updates the history
   const debouncedHistoryUpdate = useCallback(
     debounce(() => {
-      console.log("Cards form updating block in history:", {
-        blockId: block.id,
-        blockType: block.type,
-        newState: stateRef.current,
-      });
       // Add to history
       onUpdate(
         {
@@ -242,7 +237,6 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   };
 
   const onImageRemove = (index: number) => {
-    console.log(`Removing image from card ${index}`);
     // Update the card's image with an empty string
     const newCards = [...localState.cards];
     newCards[index] = { ...newCards[index], image: "" };

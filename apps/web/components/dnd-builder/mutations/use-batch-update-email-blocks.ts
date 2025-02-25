@@ -46,21 +46,11 @@ export function useBatchUpdateEmailBlocks() {
       orderUpdates = [],
       contentUpdates = [],
     }: BatchUpdateEmailBlocksParams) => {
-      console.log("Batch updating email blocks:", {
-        emailId,
-        orderUpdates,
-        contentUpdates,
-        authorUpdates: contentUpdates.filter(
-          (update) => update.type === "author"
-        ),
-      });
-
       const updatePromises = [];
 
       // Process order updates (simple and fast)
       if (orderUpdates.length > 0) {
         const orderPromises = orderUpdates.map(({ id, order }) => {
-          console.log(`Updating order for block ${id} to ${order}`);
           return supabase.from("email_blocks").update({ order }).eq("id", id);
         });
 
@@ -70,7 +60,6 @@ export function useBatchUpdateEmailBlocks() {
       // Process content updates (more complex)
       if (contentUpdates.length > 0) {
         const contentPromises = contentUpdates.map(({ id, ...updates }) => {
-          console.log(`Updating content for block ${id}:`, updates);
           return supabase.from("email_blocks").update(updates).eq("id", id);
         });
 
@@ -87,7 +76,6 @@ export function useBatchUpdateEmailBlocks() {
         throw new Error(`Failed to update ${errors.length} blocks`);
       }
 
-      console.log("Batch update completed successfully");
       return { success: true, emailId };
     },
     onSuccess: (data) => {

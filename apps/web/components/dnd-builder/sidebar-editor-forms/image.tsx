@@ -38,11 +38,6 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
   // Create a debounced function that only updates the history
   const debouncedHistoryUpdate = useCallback(
     debounce(() => {
-      console.log("Image form updating block in history:", {
-        blockId: block.id,
-        blockType: block.type,
-        newState: stateRef.current,
-      });
       // Add to history
       onUpdate(
         {
@@ -186,7 +181,6 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
   };
 
   const onImageRemove = () => {
-    console.log("Removing image");
     // Update the image with an empty string
     handleChange("image", "");
   };
