@@ -12,6 +12,7 @@ import {
 } from "@trivo/ui/select";
 import debounce from "lodash/debounce";
 import { useCallback, useEffect, useState, useRef } from "react";
+import ColorPicker from "../color-picker";
 
 interface ListFormProps {
   block: Block & { data?: ListBlockData };
@@ -127,18 +128,14 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
           <Label>Text Color</Label>
-          <Input
-            className="col-span-2"
-            type="color"
+          <ColorPicker
             value={localState.textColor}
-            onChange={(e) => handleChange("textColor", e.target.value)}
+            onChange={(color) => handleChange("textColor", color)}
           />
           <Label>Bullet Color</Label>
-          <Input
-            className="col-span-2"
-            type="color"
-            value={localState.bulletColor}
-            onChange={(e) => handleChange("bulletColor", e.target.value)}
+          <ColorPicker
+            value={localState.textColor}
+            onChange={(color) => handleChange("bulletColor", color)}
           />
           <Label>Bullet Type</Label>
           <Select

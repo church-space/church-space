@@ -14,6 +14,7 @@ import FileUpload from "../file-upload";
 import type { Block, CardsBlockData } from "@/types/blocks";
 import debounce from "lodash/debounce";
 import { z } from "zod";
+import ColorPicker from "../color-picker";
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };
@@ -270,18 +271,15 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
           <Label>Text Color</Label>
-          <Input
-            type="color"
+
+          <ColorPicker
             value={localState.textColor}
-            onChange={(e) => handleChange("textColor", e.target.value)}
-            className="col-span-2"
+            onChange={(color) => handleChange("textColor", color)}
           />
           <Label>Label Color</Label>
-          <Input
-            type="color"
+          <ColorPicker
             value={localState.labelColor}
-            onChange={(e) => handleChange("labelColor", e.target.value)}
-            className="col-span-2"
+            onChange={(color) => handleChange("labelColor", color)}
           />
         </div>
       </div>

@@ -329,13 +329,6 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             value={localState.textColor}
             onChange={(color) => handleChange("textColor", color)}
           />
-          <Label>Text Color</Label>
-          <Input
-            type="color"
-            value={localState.textColor}
-            onChange={(e) => handleChange("textColor", e.target.value)}
-            className="col-span-2"
-          />
         </div>
       </div>
 

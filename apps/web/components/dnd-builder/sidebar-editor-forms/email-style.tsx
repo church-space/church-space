@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@trivo/ui/select";
 import { Switch } from "@trivo/ui/switch";
+import ColorPicker from "../color-picker";
 
 interface EmailStyleFormProps {
   bgColor?: string;
@@ -40,11 +41,10 @@ export default function EmailStyleForm({
 
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Blocks BG Color</Label>
-        <Input
-          className="col-span-2"
-          type="color"
+
+        <ColorPicker
           value={bgColor}
-          onChange={(e) => onBgColorChange?.(e.target.value)}
+          onChange={(color) => onBgColorChange?.(color)}
         />
       </div>
       <div className="grid grid-cols-3 items-center gap-2">
@@ -54,22 +54,19 @@ export default function EmailStyleForm({
       {isInset && (
         <div className="grid grid-cols-3 items-center gap-2">
           <Label className="font-medium">Email BG Color</Label>
-          <Input
-            className="col-span-2"
-            type="color"
+
+          <ColorPicker
             value={emailBgColor}
-            onChange={(e) => onEmailBgColorChange?.(e.target.value)}
-            disabled={!isInset}
+            onChange={(color) => onEmailBgColorChange?.(color)}
           />
         </div>
       )}
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Default Text Color</Label>
-        <Input
-          className="col-span-2"
-          type="color"
+
+        <ColorPicker
           value={defaultTextColor}
-          onChange={(e) => onDefaultTextColorChange?.(e.target.value)}
+          onChange={(color) => onDefaultTextColorChange?.(color)}
         />
       </div>
 

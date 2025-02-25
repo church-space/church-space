@@ -4,6 +4,7 @@ import { Slider } from "@trivo/ui/slider";
 import type { Block, DividerBlockData } from "@/types/blocks";
 import { useEffect, useState, useCallback, useRef } from "react";
 import debounce from "lodash/debounce";
+import ColorPicker from "../color-picker";
 
 interface DividerFormProps {
   block: Block & { data?: DividerBlockData };
@@ -95,11 +96,9 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
         </div>
         <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center ">
           <Label>Color</Label>
-          <Input
-            className="col-span-2"
-            type="color"
+          <ColorPicker
             value={localState.color}
-            onChange={handleColorChange}
+            onChange={(color) => handleChange("color", color)}
           />
           <Label>Margin</Label>
           <Slider

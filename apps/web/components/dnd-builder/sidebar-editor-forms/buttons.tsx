@@ -11,6 +11,7 @@ import {
 import { useEffect, useState, useRef, useCallback } from "react";
 import { z } from "zod";
 import debounce from "lodash/debounce";
+import ColorPicker from "../color-picker";
 
 interface ButtonFormProps {
   block: Block & { data?: ButtonBlockData };
@@ -228,21 +229,18 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             )}
           </div>
           <Label>Background</Label>
-          <Input
-            className="col-span-2"
-            type="color"
+          <ColorPicker
             value={localState.color}
-            onChange={(e) => handleChange("color", e.target.value)}
+            onChange={(color) => handleChange("color", color)}
           />
 
           {localState.style !== "outline" && (
             <>
               <Label>Text Color</Label>
-              <Input
-                type="color"
+
+              <ColorPicker
                 value={localState.textColor}
-                onChange={(e) => handleChange("textColor", e.target.value)}
-                className="col-span-2"
+                onChange={(color) => handleChange("textColor", color)}
               />
             </>
           )}

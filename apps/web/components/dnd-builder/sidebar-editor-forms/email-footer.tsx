@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@trivo/ui/select";
+import ColorPicker from "../color-picker";
 
 interface EmailFooterFormProps {
   footerBgColor?: string;
@@ -31,20 +32,18 @@ export default function EmailFooterForm({
       templates, logo, name, social links, copyright
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Background Color</Label>
-        <Input
-          className="col-span-2"
-          type="color"
+
+        <ColorPicker
           value={footerBgColor}
-          onChange={(e) => onFooterBgColorChange?.(e.target.value)}
+          onChange={(color) => onFooterBgColorChange?.(color)}
         />
       </div>
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Text Color</Label>
-        <Input
-          className="col-span-2"
-          type="color"
+
+        <ColorPicker
           value={footerTextColor}
-          onChange={(e) => onFooterTextColorChange?.(e.target.value)}
+          onChange={(color) => onFooterTextColorChange?.(color)}
         />
       </div>
       <div className="grid grid-cols-3 items-center gap-2">

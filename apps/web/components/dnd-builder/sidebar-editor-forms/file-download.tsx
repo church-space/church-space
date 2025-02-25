@@ -5,6 +5,7 @@ import FileUpload from "../file-upload";
 import type { Block, FileDownloadBlockData } from "@/types/blocks";
 import { useCallback, useState, useEffect, useRef } from "react";
 import debounce from "lodash/debounce";
+import ColorPicker from "../color-picker";
 
 interface FileDownloadFormProps {
   block: Block & { data?: FileDownloadBlockData };
@@ -108,18 +109,16 @@ export default function FileDownloadForm({
             onRemove={onFileRemove}
           />
           <Label>BG Color</Label>
-          <Input
-            className="col-span-2"
-            type="color"
+
+          <ColorPicker
             value={localState.bgColor}
-            onChange={(e) => handleChange("bgColor", e.target.value)}
+            onChange={(color) => handleChange("bgColor", color)}
           />
           <Label>Text Color</Label>
-          <Input
-            className="col-span-2"
-            type="color"
+
+          <ColorPicker
             value={localState.textColor}
-            onChange={(e) => handleChange("textColor", e.target.value)}
+            onChange={(color) => handleChange("textColor", color)}
           />
         </div>
       </div>
