@@ -89,7 +89,7 @@ export default function DndBuilderCanvas({
   return (
     <div
       ref={setNodeRef}
-      className={cn("flex flex-col gap-4 p-4 min-h-[300px] rounded-md")}
+      className={cn("flex flex-col gap-4 p-4 min-h-[102px] rounded-md")}
       style={{ backgroundColor: bgColor }}
       onClick={() => onBlockSelect(null)}
     >

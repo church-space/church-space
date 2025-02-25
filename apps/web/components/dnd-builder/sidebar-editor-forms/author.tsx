@@ -25,6 +25,7 @@ import {
 import debounce from "lodash/debounce";
 import { useCallback, useEffect, useRef, useState } from "react";
 import FileUpload from "../file-upload";
+import { z } from "zod";
 
 interface AuthorFormProps {
   block: Block & { data?: AuthorBlockData };
@@ -45,10 +46,109 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   // Create a ref to store the latest state for the debounced function
   const stateRef = useRef(localState);
 
+  // Track validation errors for links
+  const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
+    {}
+  );
+  // Track which links are currently being typed
+  const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
+  // Debounce timers for link validation
+  const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+
+  // URL validation schema using Zod
+  const urlSchema = z.string().superRefine((url, ctx) => {
+    // Empty string is valid
+    if (url === "") return;
+
+    // Check for spaces
+    if (url.trim() !== url) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "URL cannot contain spaces",
+      });
+      return;
+    }
+
+    // Domain and TLD pattern without requiring https://
+    const urlPattern =
+      /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
+    if (!urlPattern.test(url)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
+      });
+      return;
+    }
+  });
+
+  // Email validation schema
+  const emailSchema = z.string().superRefine((email, ctx) => {
+    // Empty string is valid
+    if (email === "") return;
+
+    // Check for spaces
+    if (email.trim() !== email) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Email cannot contain spaces",
+      });
+      return;
+    }
+
+    // Email pattern
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please enter a valid email address",
+      });
+      return;
+    }
+  });
+
+  // Validate URL or email based on icon type
+  const validateLink = (
+    value: string,
+    type: string,
+    index: number
+  ): boolean => {
+    try {
+      if (type === "mail") {
+        emailSchema.parse(value);
+      } else {
+        urlSchema.parse(value);
+      }
+
+      // Clear error if validation passes
+      setLinkErrors((prev) => ({ ...prev, [index]: null }));
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Set error message
+        setLinkErrors((prev) => ({
+          ...prev,
+          [index]: error.errors[0].message,
+        }));
+        return false;
+      }
+      return true;
+    }
+  };
+
   // Update the ref whenever localState changes
   useEffect(() => {
     stateRef.current = localState;
   }, [localState]);
+
+  // Cleanup debounce timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(linkTimersRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
+    };
+  }, []);
 
   // Create a debounced function that only updates the history
   const debouncedHistoryUpdate = useCallback(
@@ -113,12 +213,78 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   const updateLink = (index: number, key: "icon" | "url", value: string) => {
     const newLinks = [...localState.links];
     newLinks[index] = { ...newLinks[index], [key]: value };
-    handleChange("links", newLinks);
+
+    // If updating the URL field
+    if (key === "url") {
+      // Mark as typing
+      setTypingLinks((prev) => ({ ...prev, [index]: true }));
+
+      // Clear any existing timer
+      if (linkTimersRef.current[index]) {
+        clearTimeout(linkTimersRef.current[index]);
+      }
+
+      // Set a new timer to validate after typing stops
+      linkTimersRef.current[index] = setTimeout(() => {
+        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+
+        // Validate based on the icon type
+        const isValid = validateLink(value, newLinks[index].icon, index);
+
+        // Only update if valid
+        if (isValid) {
+          handleChange("links", newLinks);
+        }
+      }, 800); // 800ms debounce
+
+      // Update local state immediately for responsive UI
+      setLocalState((prev) => ({
+        ...prev,
+        links: newLinks,
+      }));
+    } else {
+      // For icon changes, update immediately and clear any existing errors
+      if (key === "icon") {
+        setLinkErrors((prev) => ({ ...prev, [index]: null }));
+      }
+      handleChange("links", newLinks);
+    }
+  };
+
+  const handleLinkBlur = (index: number) => {
+    // When input loses focus, clear typing state and validate
+    if (typingLinks[index]) {
+      setTypingLinks((prev) => ({ ...prev, [index]: false }));
+
+      if (linkTimersRef.current[index]) {
+        clearTimeout(linkTimersRef.current[index]);
+        linkTimersRef.current[index] = null;
+      }
+
+      const link = localState.links[index];
+      const isValid = validateLink(link.url, link.icon, index);
+
+      if (isValid) {
+        handleChange("links", localState.links);
+      }
+    }
   };
 
   const removeLink = (index: number) => {
     const newLinks = localState.links.filter((_, i) => i !== index);
     handleChange("links", newLinks);
+
+    // Clean up any errors or timers for this index
+    setLinkErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[index];
+      return newErrors;
+    });
+
+    if (linkTimersRef.current[index]) {
+      clearTimeout(linkTimersRef.current[index]);
+      delete linkTimersRef.current[index];
+    }
   };
 
   const onImageRemove = () => {
@@ -253,13 +419,25 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
                 ×
               </Button>
             </div>
-            <Label>URL</Label>
-            <Input
-              className="col-span-2"
-              value={link.url}
-              onChange={(e) => updateLink(index, "url", e.target.value)}
-              placeholder="https://"
-            />
+            <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
+            <div className="col-span-2 flex flex-col gap-1">
+              <Input
+                className={
+                  linkErrors[index] && !typingLinks[index]
+                    ? "border-red-500"
+                    : ""
+                }
+                value={link.url}
+                onChange={(e) => updateLink(index, "url", e.target.value)}
+                onBlur={() => handleLinkBlur(index)}
+                placeholder={
+                  link.icon === "mail" ? "email@example.com" : "https://"
+                }
+              />
+              {linkErrors[index] && !typingLinks[index] && (
+                <p className="text-xs text-red-500">{linkErrors[index]}</p>
+              )}
+            </div>
           </div>
         ))}
       </div>

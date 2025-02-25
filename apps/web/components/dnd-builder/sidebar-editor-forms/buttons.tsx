@@ -8,8 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@trivo/ui/select";
-import debounce from "lodash/debounce";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { z } from "zod";
 
 interface ButtonFormProps {
   block: Block & { data?: ButtonBlockData };
@@ -18,17 +18,20 @@ interface ButtonFormProps {
 
 export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
   const [localState, setLocalState] = useState<ButtonBlockData>({
-    text: block.data?.text || "Button",
+    text: block.data?.text ?? "Button",
     link: block.data?.link || "",
     color: block.data?.color || "#000000",
     textColor: block.data?.textColor || "#FFFFFF",
     style: block.data?.style || "filled",
     size: block.data?.size || "fit",
   });
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setLocalState({
-      text: block.data?.text || "Button",
+      text: block.data?.text ?? "Button",
       link: block.data?.link || "",
       color: block.data?.color || "#000000",
       textColor: block.data?.textColor || "#FFFFFF",
@@ -37,29 +40,88 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
     });
   }, [block.data]);
 
-  // Debounced update function for text fields
-  const debouncedUpdate = useCallback(
-    debounce((newState: ButtonBlockData) => {
-      onUpdate({
-        ...block,
-        data: newState,
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  // URL validation schema using Zod
+  const urlSchema = z.string().superRefine((url, ctx) => {
+    // Empty string is valid
+    if (url === "") return;
+
+    // Check for spaces
+    if (url.trim() !== url) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "URL cannot contain spaces",
       });
-    }, 150),
-    [block, onUpdate]
-  );
+      return;
+    }
+
+    // Domain and TLD pattern without requiring https://
+    const urlPattern =
+      /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
+    if (!urlPattern.test(url)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
+      });
+      return;
+    }
+  });
+
+  const validateUrl = (url: string) => {
+    try {
+      urlSchema.parse(url);
+      setLinkError(null);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setLinkError(error.errors[0].message);
+        return false;
+      }
+      return true;
+    }
+  };
 
   const handleChange = (field: string, value: string) => {
     const newState = {
       ...localState,
       [field]: value,
     };
-    setLocalState(newState);
 
-    // Use debounced update for text and link fields
-    if (field === "text" || field === "link") {
-      debouncedUpdate(newState);
+    // For link field, handle typing state
+    if (field === "link") {
+      setIsTyping(true);
+      setLocalState(newState);
+
+      // Clear any existing timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      // Set a new timer to validate after typing stops
+      debounceTimerRef.current = setTimeout(() => {
+        setIsTyping(false);
+        const isValid = validateUrl(value);
+
+        // Only update parent if valid
+        if (isValid) {
+          onUpdate({
+            ...block,
+            data: newState,
+          });
+        }
+      }, 800); // 800ms debounce
     } else {
-      // Immediate update for other fields
+      // For other fields, update immediately
+      setLocalState(newState);
       onUpdate({
         ...block,
         data: newState,
@@ -67,12 +129,24 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
     }
   };
 
-  // Cleanup debounce on unmount
-  useEffect(() => {
-    return () => {
-      debouncedUpdate.cancel();
-    };
-  }, [debouncedUpdate]);
+  const handleBlur = () => {
+    // When input loses focus, clear typing state and validate
+    if (isTyping) {
+      setIsTyping(false);
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+
+      const isValid = validateUrl(localState.link);
+      if (isValid) {
+        onUpdate({
+          ...block,
+          data: localState,
+        });
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col gap-10 px-2">
@@ -89,12 +163,18 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             onChange={(e) => handleChange("text", e.target.value)}
           />
           <Label>Link</Label>
-          <Input
-            className="col-span-2"
-            placeholder="https://..."
-            value={localState.link}
-            onChange={(e) => handleChange("link", e.target.value)}
-          />
+          <div className="col-span-2 flex flex-col gap-1">
+            <Input
+              className={linkError && !isTyping ? "border-red-500" : ""}
+              placeholder="https://..."
+              value={localState.link}
+              onChange={(e) => handleChange("link", e.target.value)}
+              onBlur={handleBlur}
+            />
+            {linkError && !isTyping && (
+              <p className="text-xs text-red-500">{linkError}</p>
+            )}
+          </div>
           <Label>Background</Label>
           <Input
             className="col-span-2"
