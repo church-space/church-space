@@ -1,18 +1,17 @@
 import { cn } from "@trivo/ui/cn";
 import {
-  MailFilled,
-  Instagram,
-  Facebook,
-  Linkedin,
   Bluesky,
+  Facebook,
+  Instagram,
+  Linkedin,
   LinkIcon,
+  MailFilled,
   Threads,
   TikTok,
   XTwitter,
   Youtube,
 } from "@trivo/ui/icons";
 import { Separator } from "@trivo/ui/separator";
-import { useMemo } from "react";
 import { getYear } from "date-fns";
 
 // Define the type for social icon keys
@@ -27,9 +26,6 @@ type SocialIconKey =
   | "bluesky"
   | "youtube"
   | "threads";
-
-// Define the type for social icon style
-type SocialIconStyle = "filled" | "outline" | "icon-only";
 
 interface FooterProps {
   onClick: (e: React.MouseEvent) => void;
@@ -71,22 +67,6 @@ export default function Footer({
 
   // Get links from footer data or use empty array
   const footerLinks = Array.isArray(footerData?.links) ? footerData.links : [];
-
-  // If we have links from the database, use those
-  // Otherwise, randomly select 4 social icons on component mount
-  const socialLinks = useMemo(() => {
-    if (footerLinks && footerLinks.length > 0) {
-      return footerLinks;
-    }
-
-    // Fallback to random icons if no links are defined
-    const iconKeys = Object.keys(socialIcons) as SocialIconKey[];
-    // Use a deterministic selection instead of random to avoid hydration mismatches
-    return ["instagram", "facebook", "twitter", "mail"].map((icon) => ({
-      icon,
-      url: "",
-    }));
-  }, [footerLinks]);
 
   // Get the appropriate icon component
   const getIconComponent = (iconKey: string) => {
@@ -139,36 +119,38 @@ export default function Footer({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          {socialLinks.map((link: any, index: number) => {
-            const IconComponent = getIconComponent(link.icon);
-            return (
-              <div
-                key={index}
-                className={cn(
-                  "h-7 w-7 rounded-full flex items-center justify-center"
-                )}
-                style={{
-                  backgroundColor:
-                    socialIconStyle === "filled" ? socialIconColor : "",
-                  borderColor:
-                    socialIconStyle === "outline" ? socialIconColor : "",
-                  borderWidth: socialIconStyle === "outline" ? "1px" : "0px",
-                }}
-              >
-                <IconComponent
-                  height="18"
-                  width="18"
-                  fill={
-                    socialIconStyle === "filled"
-                      ? socialIconTextColor
-                      : socialIconColor
-                  }
-                />
-              </div>
-            );
-          })}
-        </div>
+        {footerLinks.length > 0 && (
+          <div className="flex items-center gap-2">
+            {footerLinks.map((link: any, index: number) => {
+              const IconComponent = getIconComponent(link.icon);
+              return (
+                <div
+                  key={index}
+                  className={cn(
+                    "h-7 w-7 rounded-full flex items-center justify-center"
+                  )}
+                  style={{
+                    backgroundColor:
+                      socialIconStyle === "filled" ? socialIconColor : "",
+                    borderColor:
+                      socialIconStyle === "outline" ? socialIconColor : "",
+                    borderWidth: socialIconStyle === "outline" ? "1px" : "0px",
+                  }}
+                >
+                  <IconComponent
+                    height="18"
+                    width="18"
+                    fill={
+                      socialIconStyle === "filled"
+                        ? socialIconTextColor
+                        : socialIconColor
+                    }
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
         <Separator
           className="w-full mb-2 mt-4 "
           style={{ backgroundColor: footerSecondaryTextColor }}
