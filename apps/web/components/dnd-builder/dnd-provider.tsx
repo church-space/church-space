@@ -30,7 +30,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Block from "./block";
 import DndBuilderCanvas from "./canvas";
 import { useAddEmailBlock } from "./mutations/use-add-email-block";
