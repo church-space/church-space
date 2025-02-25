@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@trivo/ui/select";
+import { Switch } from "@trivo/ui/switch";
 
 interface EmailStyleFormProps {
   bgColor?: string;
@@ -22,7 +23,29 @@ export default function EmailStyleForm({
       <h2 className="text-lg font-semibold">Email Style</h2>
 
       <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Background Color</Label>
+        <Label className="font-medium">Blocks BG Color</Label>
+        <Input
+          className="col-span-2"
+          type="color"
+          value={bgColor}
+          onChange={(e) => onBgColorChange?.(e.target.value)}
+        />
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Inset Email</Label>
+        <Switch />
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Email BG Color</Label>
+        <Input
+          className="col-span-2"
+          type="color"
+          value={bgColor}
+          onChange={(e) => onBgColorChange?.(e.target.value)}
+        />
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Default Text Color</Label>
         <Input
           className="col-span-2"
           type="color"
@@ -32,7 +55,7 @@ export default function EmailStyleForm({
       </div>
 
       <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Font</Label>
+        <Label className="font-medium">Default Font</Label>
         <Select defaultValue="Inter">
           <SelectTrigger className="col-span-2">
             <SelectValue placeholder="Select a font" />

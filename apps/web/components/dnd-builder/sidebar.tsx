@@ -7,11 +7,14 @@ import {
   CircleUser,
   Divider,
   Download,
+  FooterIcon,
   Grid,
   Home,
   Image,
   List,
+  Palette,
   Redo,
+  TemplatesIcon,
   Typography,
   Video,
 } from "@trivo/ui/icons";
@@ -222,92 +225,51 @@ export default function DndBuilderSidebar({
               mass: 0.8,
             }}
           >
-            <div className="gap-2 grid grid-cols-3">
-              {blockTypes.map((block) => (
-                <DraggableBlock key={block.type} block={block} />
-              ))}
-            </div>
-            <Separator className="my-6" />
-            <div className="flex flex-col gap-4">
-              <div
-                className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
-                onClick={() => setActiveForm("email-style")}
-              >
-                <div className="flex items-center gap-2">
-                  <Paintbrush className="h-5 w-5" />
-                  Styles
+            <div className="flex flex-col justify-between h-[calc(100vh-7rem)]">
+              <div className="flex flex-col">
+                <div className="gap-2 grid grid-cols-3">
+                  {blockTypes.map((block) => (
+                    <DraggableBlock key={block.type} block={block} />
+                  ))}
                 </div>
-                <ChevronRight className="h-5 w-5" />
-              </div>
-              <div
-                className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
-                onClick={() => setActiveForm("email-footer")}
-              >
-                <div className="flex items-center gap-2">
-                  <Paintbrush className="h-5 w-5" />
-                  Footer
+                <Separator className="my-6" />
+                <div className="flex flex-col gap-4">
+                  <div
+                    className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                    onClick={() => setActiveForm("email-style")}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Palette />
+                      Styles
+                    </div>
+                    <ChevronRight className="h-5 w-5" />
+                  </div>
+                  <div
+                    className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                    onClick={() => setActiveForm("email-footer")}
+                  >
+                    <div className="flex items-center gap-2">
+                      <FooterIcon />
+                      Footer
+                    </div>
+                    <ChevronRight className="h-5 w-5" />
+                  </div>
+                  <div
+                    className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                    onClick={() => setActiveForm("email-templates")}
+                  >
+                    <div className="flex items-center gap-2">
+                      <TemplatesIcon />
+                      Templates
+                    </div>
+                    <ChevronRight className="h-5 w-5" />
+                  </div>
                 </div>
-                <ChevronRight className="h-5 w-5" />
               </div>
-              <div
-                className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
-                onClick={() => setActiveForm("email-templates")}
-              >
-                <div className="flex items-center gap-2">
-                  <Paintbrush className="h-5 w-5" />
-                  Templates
-                </div>
-                <ChevronRight className="h-5 w-5" />
-              </div>
-            </div>
-            <Label className="font-bold px-2 text-lg">Style</Label>
-            <div className="flex flex-col gap-4 px-2 mt-2">
-              <div className="grid grid-cols-3 items-center gap-2">
-                <Label className="font-medium">BG Color</Label>
-                <Input
-                  className="col-span-2"
-                  type="color"
-                  onChange={(e) => onBgColorChange?.(e.target.value)}
-                  value={bgColor}
-                />
-              </div>
-              <div className="grid grid-cols-3 items-center gap-2">
-                <Label className="font-medium">Footer BG Color</Label>
-                <Input
-                  className="col-span-2"
-                  type="color"
-                  value={footerBgColor}
-                  onChange={(e) => onFooterBgColorChange?.(e.target.value)}
-                />
-              </div>
-              <div className="grid grid-cols-3 items-center gap-2">
-                <Label className="font-medium">Footer Text Color</Label>
-                <Input
-                  className="col-span-2"
-                  type="color"
-                  value={footerTextColor}
-                  onChange={(e) => onFooterTextColorChange?.(e.target.value)}
-                />
-              </div>
-              <div className="grid grid-cols-3 items-center gap-2">
-                <Label className="font-medium">Footer Font</Label>
-                <Select
-                  value={footerFont}
-                  onValueChange={(value) => onFooterFontChange?.(value)}
-                >
-                  <SelectTrigger className="col-span-2">
-                    <SelectValue placeholder="Select a font" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Inter">Inter</SelectItem>
-                    <SelectItem value="Arial">Arial</SelectItem>
-                    <SelectItem value="Helvetica">Helvetica</SelectItem>
-                    <SelectItem value="Times New Roman">
-                      Times New Roman
-                    </SelectItem>
-                    <SelectItem value="Georgia">Georgia</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-col gap-4">
+                <Separator />
+                <Label className="font-bold px-2 text-sm">Editors Online</Label>
+                <div className="flex items-center gap-2"></div>
               </div>
             </div>
           </motion.div>
