@@ -30,7 +30,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Block from "./block";
 import DndBuilderCanvas from "./canvas";
 import { useAddEmailBlock } from "./mutations/use-add-email-block";
@@ -165,6 +165,16 @@ export default function DndProvider() {
     emailData?.email?.bg_color || "#ffffff"
   );
 
+  // Initialize defaultTextColor from the fetched data or use default
+  const [defaultTextColor, setDefaultTextColor] = useState(
+    emailData?.email?.default_text_color || "#000000"
+  );
+
+  // Initialize defaultFont from the fetched data or use default
+  const [defaultFont, setDefaultFont] = useState(
+    emailData?.email?.default_font || "Inter"
+  );
+
   // Initialize footer styles from the fetched data or use defaults
   const [footerBgColor, setFooterBgColor] = useState(
     emailData?.email?.footer_bg_color || "#ffffff"
@@ -186,6 +196,12 @@ export default function DndProvider() {
     }
     if (emailData?.email?.bg_color) {
       setEmailBgColor(emailData.email.bg_color);
+    }
+    if (emailData?.email?.default_text_color) {
+      setDefaultTextColor(emailData.email.default_text_color);
+    }
+    if (emailData?.email?.default_font) {
+      setDefaultFont(emailData.email.default_font);
     }
   }, [emailData]);
 
@@ -280,13 +296,125 @@ export default function DndProvider() {
     }
   }, [emailData]);
 
-  // Create a debounced handler for background color changes
+  // Create debounced server update functions using useRef to maintain stable references
+  const debouncedFunctionsRef = useRef<{
+    bgColor?: ReturnType<typeof debounce>;
+    emailBgColor?: ReturnType<typeof debounce>;
+    defaultTextColor?: ReturnType<typeof debounce>;
+    defaultFont?: ReturnType<typeof debounce>;
+    footerBgColor?: ReturnType<typeof debounce>;
+    footerTextColor?: ReturnType<typeof debounce>;
+    footerFont?: ReturnType<typeof debounce>;
+  }>({});
+
+  // Initialize debounced functions once
+  useEffect(() => {
+    // Create new debounced functions
+    debouncedFunctionsRef.current = {
+      bgColor: debounce((color: string) => {
+        if (emailId) {
+          console.log("Saving blocks_bg_color to database:", color);
+          updateEmailStyle.mutate({
+            emailId,
+            updates: {
+              blocks_bg_color: color,
+            },
+          });
+        }
+      }, 500),
+
+      emailBgColor: debounce((color: string) => {
+        if (emailId) {
+          console.log("Saving bg_color to database:", color);
+          updateEmailStyle.mutate({
+            emailId,
+            updates: {
+              bg_color: color,
+            },
+          });
+        }
+      }, 500),
+
+      defaultTextColor: debounce((color: string) => {
+        if (emailId) {
+          console.log("Saving default_text_color to database:", color);
+          updateEmailStyle.mutate({
+            emailId,
+            updates: {
+              default_text_color: color,
+            },
+          });
+        }
+      }, 500),
+
+      defaultFont: debounce((font: string) => {
+        if (emailId) {
+          console.log("Saving default_font to database:", font);
+          updateEmailStyle.mutate({
+            emailId,
+            updates: {
+              default_font: font,
+            },
+          });
+        }
+      }, 500),
+
+      footerBgColor: debounce((color: string) => {
+        if (emailId) {
+          console.log("Saving footer_bg_color to database:", color);
+          updateEmailStyle.mutate({
+            emailId,
+            updates: {
+              footer_bg_color: color,
+            },
+          });
+        }
+      }, 500),
+
+      footerTextColor: debounce((color: string) => {
+        if (emailId) {
+          console.log("Saving footer_text_color to database:", color);
+          updateEmailStyle.mutate({
+            emailId,
+            updates: {
+              footer_text_color: color,
+            },
+          });
+        }
+      }, 500),
+
+      footerFont: debounce((font: string) => {
+        if (emailId) {
+          console.log("Saving footer_font to database:", font);
+          updateEmailStyle.mutate({
+            emailId,
+            updates: {
+              footer_font: font,
+            },
+          });
+        }
+      }, 500),
+    };
+
+    // Cleanup function to cancel any pending debounced calls
+    return () => {
+      Object.values(debouncedFunctionsRef.current).forEach((fn) => {
+        if (fn && typeof fn.cancel === "function") {
+          fn.cancel();
+        }
+      });
+    };
+  }, [emailId, updateEmailStyle]);
+
+  // Create handlers that update UI immediately and debounce server updates
   const handleBgColorChange = useCallback(
-    debounce((color: string) => {
+    (color: string) => {
+      // Immediately update UI
       setBgColor(color);
 
-      // Update in database if we have an emailId
+      // Directly update the database
       if (emailId) {
+        console.log("Updating blocks_bg_color in database:", color);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -294,17 +422,19 @@ export default function DndProvider() {
           },
         });
       }
-    }, 500),
+    },
     [emailId, updateEmailStyle]
   );
 
   // Create a handler for inset email changes
   const handleIsInsetChange = useCallback(
     (inset: boolean) => {
+      // Immediately update UI
       setIsInset(inset);
 
       // Update in database if we have an emailId
       if (emailId) {
+        console.log("Updating is_inset in database:", inset);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -316,13 +446,15 @@ export default function DndProvider() {
     [emailId, updateEmailStyle]
   );
 
-  // Create a debounced handler for email background color changes
+  // Create a handler for email background color changes
   const handleEmailBgColorChange = useCallback(
-    debounce((color: string) => {
+    (color: string) => {
+      // Immediately update UI
       setEmailBgColor(color);
 
-      // Update in database if we have an emailId
+      // Directly update the database
       if (emailId) {
+        console.log("Updating bg_color in database:", color);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -330,17 +462,59 @@ export default function DndProvider() {
           },
         });
       }
-    }, 500),
+    },
     [emailId, updateEmailStyle]
   );
 
-  // Create a debounced handler for footer background color changes
+  // Create a handler for default text color changes
+  const handleDefaultTextColorChange = useCallback(
+    (color: string) => {
+      // Immediately update UI
+      setDefaultTextColor(color);
+
+      // Directly update the database
+      if (emailId) {
+        console.log("Updating default_text_color in database:", color);
+        updateEmailStyle.mutate({
+          emailId,
+          updates: {
+            default_text_color: color,
+          },
+        });
+      }
+    },
+    [emailId, updateEmailStyle]
+  );
+
+  // Create a handler for default font changes
+  const handleDefaultFontChange = useCallback(
+    (font: string) => {
+      // Immediately update UI
+      setDefaultFont(font);
+
+      // Directly update the database
+      if (emailId) {
+        console.log("Updating default_font in database:", font);
+        updateEmailStyle.mutate({
+          emailId,
+          updates: {
+            default_font: font,
+          },
+        });
+      }
+    },
+    [emailId, updateEmailStyle]
+  );
+
+  // Create a handler for footer background color changes
   const handleFooterBgColorChange = useCallback(
-    debounce((color: string) => {
+    (color: string) => {
+      // Immediately update UI
       setFooterBgColor(color);
 
-      // Update in database if we have an emailId
+      // Directly update the database
       if (emailId) {
+        console.log("Updating footer_bg_color in database:", color);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -348,17 +522,19 @@ export default function DndProvider() {
           },
         });
       }
-    }, 500),
+    },
     [emailId, updateEmailStyle]
   );
 
-  // Create a debounced handler for footer text color changes
+  // Create a handler for footer text color changes
   const handleFooterTextColorChange = useCallback(
-    debounce((color: string) => {
+    (color: string) => {
+      // Immediately update UI
       setFooterTextColor(color);
 
-      // Update in database if we have an emailId
+      // Directly update the database
       if (emailId) {
+        console.log("Updating footer_text_color in database:", color);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -366,17 +542,19 @@ export default function DndProvider() {
           },
         });
       }
-    }, 500),
+    },
     [emailId, updateEmailStyle]
   );
 
-  // Create a debounced handler for footer font changes
+  // Create a handler for footer font changes
   const handleFooterFontChange = useCallback(
-    debounce((font: string) => {
+    (font: string) => {
+      // Immediately update UI
       setFooterFont(font);
 
-      // Update in database if we have an emailId
+      // Directly update the database
       if (emailId) {
+        console.log("Updating footer_font in database:", font);
         updateEmailStyle.mutate({
           emailId,
           updates: {
@@ -384,7 +562,7 @@ export default function DndProvider() {
           },
         });
       }
-    }, 500),
+    },
     [emailId, updateEmailStyle]
   );
 
@@ -1082,6 +1260,7 @@ export default function DndProvider() {
               }
 
               // Update the order of all blocks in the database to match their position in the UI
+              // This ensures blocks after the insertion point have their order properly updated
               updateBlockOrdersInDatabase(updatedBlocks);
 
               // Set the newly duplicated block as the selected block
@@ -1339,6 +1518,8 @@ export default function DndProvider() {
         emailId,
         updates: {
           blocks_bg_color: bgColor,
+          default_text_color: defaultTextColor,
+          default_font: defaultFont,
           footer_bg_color: footerBgColor,
           footer_text_color: footerTextColor,
           footer_font: footerFont,
@@ -1452,6 +1633,8 @@ export default function DndProvider() {
     batchUpdateEmailBlocks,
     addEmailBlock,
     bgColor,
+    defaultTextColor,
+    defaultFont,
     footerBgColor,
     footerTextColor,
     footerFont,
@@ -1945,6 +2128,10 @@ export default function DndProvider() {
             footerTextColor={footerTextColor}
             onFooterFontChange={handleFooterFontChange}
             footerFont={footerFont}
+            defaultTextColor={defaultTextColor}
+            onDefaultTextColorChange={handleDefaultTextColorChange}
+            defaultFont={defaultFont}
+            onDefaultFontChange={handleDefaultFontChange}
             isInset={isInset}
             onIsInsetChange={handleIsInsetChange}
             emailBgColor={emailBgColor}

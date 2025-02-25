@@ -12,6 +12,8 @@ export const updateEmailStyleAction = authActionClient
       updates: z.object({
         blocks_bg_color: z.string().optional(),
         bg_color: z.string().optional(),
+        default_text_color: z.string().optional(),
+        default_font: z.string().optional(),
         is_inset: z.boolean().optional(),
         footer_bg_color: z.string().optional(),
         footer_font: z.string().optional(),

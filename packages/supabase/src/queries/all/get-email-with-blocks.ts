@@ -14,6 +14,8 @@ export async function getEmailWithBlocksQuery(
       status,
       bg_color,
       blocks_bg_color,
+      default_text_color,
+      default_font,
       is_inset,
       organization_id,
       type,

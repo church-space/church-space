@@ -20,6 +20,8 @@ export function useEmailWithBlocks(emailId: number | undefined) {
           subject,
           status,
           blocks_bg_color,
+          default_text_color,
+          default_font,
           is_inset,
           bg_color,
           organization_id,

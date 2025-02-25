@@ -69,6 +69,10 @@ export async function updateEmailStyle(
   emailId: number,
   updates: {
     blocks_bg_color?: string;
+    default_text_color?: string;
+    default_font?: string;
+    is_inset?: boolean;
+    bg_color?: string;
     footer_bg_color?: string;
     footer_font?: string;
     footer_text_color?: string;

@@ -5,6 +5,8 @@ interface UpdateEmailStyleParams {
   emailId: number;
   updates: {
     blocks_bg_color?: string;
+    default_text_color?: string;
+    default_font?: string;
     footer_bg_color?: string;
     footer_font?: string;
     footer_text_color?: string;

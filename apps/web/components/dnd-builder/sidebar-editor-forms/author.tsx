@@ -26,6 +26,7 @@ import debounce from "lodash/debounce";
 import { useCallback, useEffect, useRef, useState } from "react";
 import FileUpload from "../file-upload";
 import { z } from "zod";
+import ColorPicker from "../color-picker";
 
 interface AuthorFormProps {
   block: Block & { data?: AuthorBlockData };
@@ -322,6 +323,11 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             className="col-span-2"
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
+          />
+          <Label>Text Color</Label>
+          <ColorPicker
+            value={localState.textColor}
+            onChange={(color) => handleChange("textColor", color)}
           />
           <Label>Text Color</Label>
           <Input

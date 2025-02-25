@@ -35,6 +35,10 @@ interface DndBuilderSidebarProps {
   footerTextColor?: string;
   onFooterFontChange?: (font: string) => void;
   footerFont?: string;
+  defaultTextColor?: string;
+  onDefaultTextColorChange?: (color: string) => void;
+  defaultFont?: string;
+  onDefaultFontChange?: (font: string) => void;
   selectedBlock?: Block | null;
   setSelectedBlockId: (id: string | null) => void;
   onDeleteBlock: (id: string) => void;
@@ -123,6 +127,10 @@ export default function DndBuilderSidebar({
   footerTextColor = "#000000",
   onFooterFontChange,
   footerFont = "Inter",
+  defaultTextColor,
+  onDefaultTextColorChange,
+  defaultFont,
+  onDefaultFontChange,
   selectedBlock,
   setSelectedBlockId,
   onDeleteBlock,
@@ -213,6 +221,10 @@ export default function DndBuilderSidebar({
               onIsInsetChange={onIsInsetChange}
               emailBgColor={emailBgColor}
               onEmailBgColorChange={onEmailBgColorChange}
+              defaultTextColor={defaultTextColor}
+              onDefaultTextColorChange={onDefaultTextColorChange}
+              defaultFont={defaultFont}
+              onDefaultFontChange={onDefaultFontChange}
             />
           </motion.div>
         ) : (

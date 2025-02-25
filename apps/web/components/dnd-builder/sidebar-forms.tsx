@@ -45,6 +45,10 @@ export default function DndBuilderSidebarForms({
   onIsInsetChange,
   emailBgColor,
   onEmailBgColorChange,
+  defaultTextColor,
+  onDefaultTextColorChange,
+  defaultFont,
+  onDefaultFontChange,
 }: {
   selectedBlock?: Block;
   setSelectedBlockId?: (id: string | null) => void;
@@ -69,6 +73,10 @@ export default function DndBuilderSidebarForms({
   onIsInsetChange?: (isInset: boolean) => void;
   emailBgColor?: string;
   onEmailBgColorChange?: (color: string) => void;
+  defaultTextColor?: string;
+  onDefaultTextColorChange?: (color: string) => void;
+  defaultFont?: string;
+  onDefaultFontChange?: (font: string) => void;
 }) {
   const [isDeleteConfirmationExpanded, setIsDeleteConfirmationExpanded] =
     useState(false);
@@ -117,6 +125,10 @@ export default function DndBuilderSidebarForms({
             onIsInsetChange={onIsInsetChange}
             emailBgColor={emailBgColor}
             onEmailBgColorChange={onEmailBgColorChange}
+            defaultTextColor={defaultTextColor}
+            onDefaultTextColorChange={onDefaultTextColorChange}
+            defaultFont={defaultFont}
+            onDefaultFontChange={onDefaultFontChange}
           />
         )}
         {formType === "email-footer" && (

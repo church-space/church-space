@@ -16,6 +16,10 @@ interface EmailStyleFormProps {
   onIsInsetChange?: (isInset: boolean) => void;
   emailBgColor?: string;
   onEmailBgColorChange?: (color: string) => void;
+  defaultTextColor?: string;
+  onDefaultTextColorChange?: (color: string) => void;
+  defaultFont?: string;
+  onDefaultFontChange?: (font: string) => void;
 }
 
 export default function EmailStyleForm({
@@ -25,9 +29,13 @@ export default function EmailStyleForm({
   onIsInsetChange,
   emailBgColor = "#eeeeee",
   onEmailBgColorChange,
+  defaultTextColor = "#000000",
+  onDefaultTextColorChange,
+  defaultFont = "Inter",
+  onDefaultFontChange,
 }: EmailStyleFormProps) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pr-1">
       <h2 className="text-lg font-semibold">Email Style</h2>
 
       <div className="grid grid-cols-3 items-center gap-2">
@@ -60,14 +68,14 @@ export default function EmailStyleForm({
         <Input
           className="col-span-2"
           type="color"
-          value={bgColor}
-          onChange={(e) => onBgColorChange?.(e.target.value)}
+          value={defaultTextColor}
+          onChange={(e) => onDefaultTextColorChange?.(e.target.value)}
         />
       </div>
 
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Default Font</Label>
-        <Select defaultValue="Inter">
+        <Select value={defaultFont} onValueChange={onDefaultFontChange}>
           <SelectTrigger className="col-span-2">
             <SelectValue placeholder="Select a font" />
           </SelectTrigger>
