@@ -121,6 +121,15 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     handleChange("links", newLinks);
   };
 
+  const onImageRemove = () => {
+    console.log("Removing avatar image");
+    // Update the avatar with an empty string
+    handleChange("avatar", "");
+
+    // Force an update to history to ensure the change is saved
+    debouncedHistoryUpdate();
+  };
+
   if (!organizationId) return null;
 
   return (
@@ -132,6 +141,8 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             <FileUpload
               organizationId={organizationId}
               onUploadComplete={handleUploadComplete}
+              initialFilePath={localState.avatar}
+              onRemove={onImageRemove}
             />
           </div>
           <Label>Name</Label>

@@ -29,5 +29,23 @@ export const useFileUpload = (organizationId: string) => {
     [organizationId, supabase]
   );
 
-  return { uploadFile };
+  const deleteFile = useCallback(
+    async (filePath: string) => {
+      if (!filePath) return false;
+
+      const { error } = await supabase.storage
+        .from("email_assets")
+        .remove([filePath]);
+
+      if (error) {
+        console.error("Error deleting file:", error);
+        throw error;
+      }
+
+      return true;
+    },
+    [supabase]
+  );
+
+  return { uploadFile, deleteFile };
 };

@@ -9,34 +9,49 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
+  DialogClose,
 } from "@trivo/ui/dialog";
 import { Label } from "@trivo/ui/label";
 import { XIcon, LoaderIcon } from "@trivo/ui/icons";
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFileUpload } from "./use-file-upload";
 
 interface FileUploadProps {
   organizationId: string;
   onUploadComplete?: (path: string) => void;
   type?: "image" | "any";
+  initialFilePath?: string;
+  onRemove?: () => void;
 }
 
 const FileUpload = ({
   organizationId,
   onUploadComplete,
   type = "any",
+  initialFilePath = "",
+  onRemove,
 }: FileUploadProps) => {
   const [file, setFile] = useState<File | null>(null);
+  const [filePath, setFilePath] = useState<string>(initialFilePath);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const { uploadFile } = useFileUpload(organizationId);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { uploadFile, deleteFile } = useFileUpload(organizationId);
+
+  // Update filePath when initialFilePath changes
+  useEffect(() => {
+    setFilePath(initialFilePath);
+  }, [initialFilePath]);
 
   const handleUpload = async (selectedFile: File) => {
     try {
       setIsUploading(true);
       const path = await uploadFile(selectedFile);
       setFile(selectedFile);
+      setFilePath(path || "");
       setIsModalOpen(false);
       onUploadComplete?.(path || "");
     } catch (error) {
@@ -68,8 +83,39 @@ const FileUpload = ({
     }
   };
 
-  const handleDelete = () => {
-    setFile(null);
+  const handleDelete = async () => {
+    if (!filePath) {
+      setFile(null);
+      onUploadComplete?.("");
+      onRemove?.();
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      await deleteFile(filePath);
+      setFile(null);
+      setFilePath("");
+      onUploadComplete?.("");
+      onRemove?.();
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete file. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  // Extract filename from path for display
+  const getDisplayName = () => {
+    if (file) return file.name;
+    if (filePath) {
+      // Extract filename from path
+      const pathParts = filePath.split("/");
+      return pathParts[pathParts.length - 1];
+    }
+    return "Upload File";
   };
 
   return (
@@ -78,13 +124,13 @@ const FileUpload = ({
         <DialogTrigger asChild>
           <Button
             className={cn(
-              "w-full bg-transparent justify-start px-3 font-normal",
-              file ? "rounded-r-none" : "text-muted-foreground"
+              "w-full bg-transparent justify-start px-3 font-normal truncate",
+              file || filePath ? "rounded-r-none" : "text-muted-foreground"
             )}
             variant="outline"
-            disabled={isUploading}
+            disabled={isUploading || isDeleting}
           >
-            {file ? file.name : "Upload File"}
+            {getDisplayName()}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
@@ -127,16 +173,56 @@ const FileUpload = ({
           <p className="text-sm text-gray-500 mt-2">Max file size: 50MB</p>
         </DialogContent>
       </Dialog>
-      {file && (
-        <Button
-          variant="outline"
-          className="rounded-l-none border-l-0 bg-transparent hover:text-destructive"
-          size="icon"
-          onClick={handleDelete}
-        >
-          <XIcon />
-          <span className="sr-only">Delete file</span>
-        </Button>
+
+      {(file || filePath) && (
+        <>
+          <Button
+            variant="outline"
+            className="rounded-l-none border-l-0 bg-transparent hover:text-destructive"
+            size="icon"
+            onClick={() => setIsDeleteDialogOpen(true)}
+            disabled={isDeleting}
+          >
+            <XIcon />
+            <span className="sr-only">Delete file</span>
+          </Button>
+
+          <Dialog
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+          >
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete this file? This action cannot
+                  be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="flex justify-end gap-2 mt-4">
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin">
+                        <LoaderIcon height="16" width="16" />
+                      </div>
+                      <span>Deleting...</span>
+                    </div>
+                  ) : (
+                    "Delete"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
       )}
     </div>
   );

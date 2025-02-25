@@ -33,28 +33,43 @@ interface AuthorBlockProps {
 }
 
 export default function AuthorBlock({ data }: AuthorBlockProps) {
-  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const name = data?.name || "John Doe";
   const subtitle = data?.subtitle || "Author";
   const avatar = data?.avatar || "";
   const links = data?.links || [];
 
+  // Force re-render of the Avatar component when avatar changes
+  const [key, setKey] = useState(0);
+
   useEffect(() => {
-    if (avatar) {
-      const supabase = createClient();
-      const { data: urlData } = supabase.storage
-        .from("email_assets")
-        .getPublicUrl(avatar);
-      setAvatarUrl(urlData.publicUrl);
+    // Reset the avatar URL when avatar is empty
+    if (!avatar) {
+      setAvatarUrl(null);
+      // Force re-render of the Avatar component
+      setKey((prev) => prev + 1);
+      return;
     }
+
+    // Set the avatar URL when avatar is present
+    const supabase = createClient();
+    const { data: urlData } = supabase.storage
+      .from("email_assets")
+      .getPublicUrl(avatar);
+    setAvatarUrl(urlData.publicUrl);
+    // Force re-render of the Avatar component
+    setKey((prev) => prev + 1);
   }, [avatar]);
 
   return (
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-3">
-        <Avatar>
-          <AvatarImage src={avatarUrl} className="object-cover" />
-          <AvatarFallback>{name[0]}</AvatarFallback>
+        {/* Use key to force re-render when avatar changes */}
+        <Avatar key={key}>
+          {avatarUrl ? (
+            <AvatarImage src={avatarUrl} className="object-cover" />
+          ) : null}
+          <AvatarFallback delayMs={0}>{name[0]}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
           <p
