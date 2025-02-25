@@ -144,7 +144,9 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
         >
           {localState.cards.map((card, index) => (
             <AccordionItem key={index} value={index.toString()}>
-              <AccordionTrigger>Card {index + 1}</AccordionTrigger>
+              <AccordionTrigger>
+                {card.title ? card.title : `Card ${index + 1}`}
+              </AccordionTrigger>
               <AccordionContent>
                 <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
                   <Label>Label</Label>

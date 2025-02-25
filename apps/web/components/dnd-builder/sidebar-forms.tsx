@@ -20,6 +20,7 @@ import ImageForm from "./sidebar-editor-forms/image";
 import ListForm from "./sidebar-editor-forms/list";
 import TextForm from "./sidebar-editor-forms/text";
 import VideoForm from "./sidebar-editor-forms/video";
+import { useState } from "react";
 
 export default function DndBuilderSidebarForms({
   selectedBlock,
@@ -32,6 +33,9 @@ export default function DndBuilderSidebarForms({
   onDeleteBlock: (id: string) => void;
   onBlockUpdate: (block: Block) => void;
 }) {
+  const [isDeleteConfirmationExpanded, setIsDeleteConfirmationExpanded] =
+    useState(false);
+
   return (
     <div className="flex flex-col gap-4 overflow-hidden h-full">
       <div className="flex gap-2 items-center">
@@ -96,13 +100,38 @@ export default function DndBuilderSidebarForms({
         )}
       </div>
       <div className="flex gap-2 items-center justify-end">
-        <Button
-          variant="outline"
-          className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
-          onClick={() => onDeleteBlock(selectedBlock.id)}
-        >
-          Delete Block
-        </Button>
+        <div className="flex items-center justify-center ">
+          <div
+            className={`overflow-hidden transition-all duration-200 ease-in-out ${isDeleteConfirmationExpanded ? "w-[145px]" : "w-[102px]"}`}
+          >
+            {!isDeleteConfirmationExpanded ? (
+              <Button
+                variant="outline"
+                className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => setIsDeleteConfirmationExpanded(true)}
+              >
+                Delete Block
+              </Button>
+            ) : (
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => onDeleteBlock(selectedBlock.id)}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  variant="outline"
+                  className="  px-2 py-0 h-7 "
+                  onClick={() => setIsDeleteConfirmationExpanded(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

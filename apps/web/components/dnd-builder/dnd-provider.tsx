@@ -540,7 +540,7 @@ export default function DndProvider() {
           items: [
             {
               title: "First Item",
-              description: "Description here",
+              description: "Description",
             },
           ],
         };
@@ -552,7 +552,7 @@ export default function DndProvider() {
             {
               title: "First Card",
               description: "Card description here",
-              label: "Label",
+              label: "",
               buttonText: "Learn More",
               buttonLink: "",
               image: "",
