@@ -1514,8 +1514,6 @@ export default function DndProvider() {
 
     console.log("Ensuring blocks visibility");
 
-    // Get IDs of blocks in the database and UI
-    const dbBlockIds = emailData.blocks.map((block) => block.id);
     const uiBlockIds = blocks.map((block) => {
       // Convert numeric string IDs to numbers for comparison
       return !isNaN(parseInt(block.id, 10)) ? parseInt(block.id, 10) : block.id;
