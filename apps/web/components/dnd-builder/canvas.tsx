@@ -12,6 +12,7 @@ interface CanvasProps {
   onBlockSelect: (id: string | null) => void;
   selectedBlockId: string | null;
   editors: Record<string, Editor | null>;
+  onTextContentChange?: (blockId: string, content: string) => void;
 }
 
 export default function DndBuilderCanvas({
@@ -20,6 +21,7 @@ export default function DndBuilderCanvas({
   onBlockSelect,
   selectedBlockId,
   editors,
+  onTextContentChange,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -66,27 +68,32 @@ export default function DndBuilderCanvas({
   const insertionIndex = isDragging ? getInsertionIndex() : -1;
 
   const renderBlock = (block: BlockType) => {
+    const isSelected = selectedBlockId === block.id;
     return (
       <Block
+        key={block.id}
         id={block.id}
         type={block.type}
-        isSelected={selectedBlockId === block.id}
+        isSelected={isSelected}
         onSelect={(e) => {
           e.stopPropagation();
           onBlockSelect(block.id);
         }}
         editor={editors[block.id]}
         block={block}
+        onTextContentChange={onTextContentChange}
       />
     );
+  };
+
+  const renderBlocks = () => {
+    return blocks.map((block) => renderBlock(block));
   };
 
   return (
     <div
       ref={setNodeRef}
-      className={cn(
-        "flex-1 rounded-md p-4 min-h-[100px] flex flex-col gap-1 relative"
-      )}
+      className={cn("flex flex-col gap-4 p-4 min-h-[300px] rounded-md")}
       style={{ backgroundColor: bgColor }}
       onClick={() => onBlockSelect(null)}
     >

@@ -5,9 +5,10 @@ import { useEffect, useRef, useState } from "react";
 
 interface TextBlockProps {
   editor: Editor | null;
+  onContentChange?: (content: string) => void;
 }
 
-const TextBlock = ({ editor }: TextBlockProps) => {
+const TextBlock = ({ editor, onContentChange }: TextBlockProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [, setIsReady] = useState(false);
   const observerRef = useRef<MutationObserver | null>(null);
@@ -82,6 +83,23 @@ const TextBlock = ({ editor }: TextBlockProps) => {
       }
     };
   }, [editor]);
+
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+
+    // Add an update listener to the editor
+    const updateListener = () => {
+      if (onContentChange && !editor.isDestroyed) {
+        onContentChange(editor.getHTML());
+      }
+    };
+
+    editor.on("update", updateListener);
+
+    return () => {
+      editor.off("update", updateListener);
+    };
+  }, [editor, onContentChange]);
 
   if (!editor) {
     return <div>Loading editor...</div>;

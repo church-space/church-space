@@ -19,6 +19,7 @@ export const updateEmailBlockAction = authActionClient
           "file-download",
           "image",
           "spacer",
+          "author",
           "list",
         ]),
         value: z.any().optional(),

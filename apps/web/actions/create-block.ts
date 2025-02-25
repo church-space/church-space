@@ -20,6 +20,7 @@ export const createEmailBlockAction = authActionClient
           "image",
           "spacer",
           "list",
+          "author",
         ]),
         value: z.any().optional(),
         order: z.number().nullable().optional(),

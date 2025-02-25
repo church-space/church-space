@@ -22,6 +22,7 @@ interface BlockProps {
   editor: Editor | null;
   isOverlay?: boolean;
   block: any;
+  onTextContentChange?: (blockId: string, content: string) => void;
 }
 
 export default function Block({
@@ -33,6 +34,7 @@ export default function Block({
   editor,
   isOverlay,
   block,
+  onTextContentChange,
 }: BlockProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -49,6 +51,40 @@ export default function Block({
     transition,
   };
 
+  const renderBlock = () => {
+    switch (type) {
+      case "text":
+        return (
+          <TextBlock
+            editor={editor}
+            onContentChange={(content) => {
+              if (id && onTextContentChange) {
+                onTextContentChange(id, content);
+              }
+            }}
+          />
+        );
+      case "divider":
+        return <DividerBlock data={block.data} />;
+      case "image":
+        return <ImageBlock data={block.data} />;
+      case "file-download":
+        return <FileDownloadBlock data={block.data} />;
+      case "video":
+        return <VideoBlock data={block.data} />;
+      case "cards":
+        return <CardsBlock data={block.data} />;
+      case "author":
+        return <AuthorBlock data={block.data} />;
+      case "button":
+        return <ButtonBlock data={block.data} />;
+      case "list":
+        return <ListBlock data={block.data} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -63,15 +99,7 @@ export default function Block({
       )}
       onClick={(e) => onSelect?.(e)}
     >
-      {type === "divider" && <DividerBlock data={block.data} />}
-      {type === "image" && <ImageBlock data={block.data} />}
-      {type === "file-download" && <FileDownloadBlock data={block.data} />}
-      {type === "video" && <VideoBlock data={block.data} />}
-      {type === "cards" && <CardsBlock data={block.data} />}
-      {type === "author" && <AuthorBlock data={block.data} />}
-      {type === "text" && <TextBlock editor={editor} />}
-      {type === "button" && <ButtonBlock data={block.data} />}
-      {type === "list" && <ListBlock data={block.data} />}
+      {renderBlock()}
     </div>
   );
 }

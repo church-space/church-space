@@ -17,6 +17,10 @@ export type BlockType =
   | "address"
   | "list";
 
+export interface TextBlockData {
+  content: string;
+}
+
 export interface DividerBlockData {
   color: string;
   margin: number;
@@ -87,6 +91,7 @@ export interface VideoBlockData {
 }
 
 export type BlockData =
+  | TextBlockData
   | ButtonBlockData
   | DividerBlockData
   | ListBlockData
@@ -100,6 +105,7 @@ export interface Block {
   id: string;
   type: BlockType;
   data?: BlockData;
+  order: number;
 }
 
 export interface Section {

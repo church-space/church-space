@@ -13,7 +13,8 @@ export async function updateEmailBlock(
       | "file-download"
       | "image"
       | "spacer"
-      | "list";
+      | "list"
+      | "author";
     value?: any;
     order?: number | null;
     linked_file?: string | null;
@@ -40,7 +41,8 @@ export async function insertEmailBlock(
       | "file-download"
       | "image"
       | "spacer"
-      | "list";
+      | "list"
+      | "author";
     value?: any;
     order?: number | null;
     linked_file?: string | null;

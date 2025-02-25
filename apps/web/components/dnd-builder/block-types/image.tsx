@@ -26,7 +26,7 @@ export default function ImageBlock({ data }: ImageBlockProps) {
 
   const Content = () => (
     <div
-      className={cn(" rounded-md overflow-hidden", centered && "mx-auto")}
+      className={cn(" rounded-md overflow-hidden ", centered && "mx-auto")}
       style={{ width: `${size}%` }}
     >
       {imageUrl ? (

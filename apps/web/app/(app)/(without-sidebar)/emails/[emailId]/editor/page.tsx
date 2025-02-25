@@ -6,5 +6,7 @@ export default async function Page(props: { params: Params }) {
   const params = await props.params;
   const emailId = parseInt(params.emailId, 10);
 
-  return <DndProvider emailId={emailId} />;
+  console.log(emailId);
+
+  return <DndProvider />;
 }

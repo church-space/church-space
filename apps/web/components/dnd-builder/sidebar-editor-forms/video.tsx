@@ -3,7 +3,7 @@ import { Label } from "@trivo/ui/label";
 import { Slider } from "@trivo/ui/slider";
 import { Switch } from "@trivo/ui/switch";
 import { Block, VideoBlockData } from "@/types/blocks";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface VideoFormProps {
   block: Block & { data?: VideoBlockData };
@@ -11,6 +11,10 @@ interface VideoFormProps {
 }
 
 export default function VideoForm({ block, onUpdate }: VideoFormProps) {
+  // Use refs to track the initial values
+  const initialRender = useRef(true);
+
+  // Initialize state from props, but only once
   const [url, setUrl] = useState(block.data?.url || "");
   const [size, setSize] = useState(block.data?.size || 33);
   const [centered, setCentered] = useState(block.data?.centered || false);
@@ -36,16 +40,55 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
     }
   };
 
+  // Handle updates when form values change
   useEffect(() => {
-    onUpdate({
-      ...block,
+    // Skip the first render to avoid unnecessary updates
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
+
+    // Create a new object with only the necessary properties
+    const updatedBlock = {
+      id: block.id,
+      type: block.type,
       data: {
         url,
         size,
         centered,
       },
-    });
-  }, [url, size, centered, onUpdate, block]);
+      order: block.order,
+    };
+
+    // Only call onUpdate if something actually changed
+    const hasChanged =
+      url !== block.data?.url ||
+      size !== block.data?.size ||
+      centered !== block.data?.centered;
+
+    if (hasChanged) {
+      onUpdate(updatedBlock);
+    }
+  }, [url, size, centered]);
+
+  // Update local state if block props change from parent
+  useEffect(() => {
+    if (!initialRender.current) {
+      // Only update if the values are different to avoid loops
+      if (block.data?.url !== undefined && block.data.url !== url) {
+        setUrl(block.data.url);
+      }
+      if (block.data?.size !== undefined && block.data.size !== size) {
+        setSize(block.data.size);
+      }
+      if (
+        block.data?.centered !== undefined &&
+        block.data.centered !== centered
+      ) {
+        setCentered(block.data.centered);
+      }
+    }
+  }, [block.data]);
 
   return (
     <div className="flex flex-col gap-10 px-2">

@@ -887,6 +887,7 @@ export type Database = {
         | "image"
         | "spacer"
         | "list"
+        | "author"
       email_address_status: "unsubscribed" | "pco_blocked" | "subscribed"
       email_delivery_status:
         | "sent"

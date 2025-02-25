@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Youtube } from "@trivo/ui/icons";
 import { VideoBlockData } from "@/types/blocks";
 import Image from "next/image";
@@ -14,8 +14,32 @@ export default function VideoBlock({ data }: VideoBlockProps) {
     videoId: "",
   });
 
+  const prevUrlRef = useRef<string | undefined>(undefined);
+
+  // Memoize the extractYouTubeId function to prevent unnecessary recreations
+  const extractYouTubeId = useCallback((url: string): string | undefined => {
+    const patterns = [
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/,
+      /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/,
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/,
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([^?]+)/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    return undefined;
+  }, []);
+
   useEffect(() => {
-    if (!data?.url) return;
+    // Skip if URL hasn't changed or is undefined
+    if (!data?.url || data.url === prevUrlRef.current) return;
+
+    // Update the ref with current URL
+    prevUrlRef.current = data.url;
 
     const id = extractYouTubeId(data.url);
     if (id) {
@@ -31,23 +55,7 @@ export default function VideoBlock({ data }: VideoBlockProps) {
         videoId: "",
       });
     }
-  }, [data?.url]);
-
-  const extractYouTubeId = (url: string) => {
-    const patterns = [
-      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/,
-      /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/,
-      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/,
-      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([^?]+)/,
-    ];
-
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match && match[1]) {
-        return match[1];
-      }
-    }
-  };
+  }, [data?.url, extractYouTubeId]);
 
   const imageUrl = `https://i3.ytimg.com/vi/${result.videoId}/maxresdefault.jpg`;
   const style = {
