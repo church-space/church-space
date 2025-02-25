@@ -1909,6 +1909,7 @@ export default function DndProvider() {
                 editors={editors}
                 onTextContentChange={handleTextContentChange}
                 setActiveForm={setActiveForm}
+                activeForm={activeForm}
               />
             </SortableContext>
           </div>

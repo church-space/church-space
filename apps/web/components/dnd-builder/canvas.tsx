@@ -24,6 +24,12 @@ interface CanvasProps {
       | "email-footer"
       | "email-templates"
   ) => void;
+  activeForm:
+    | "default"
+    | "block"
+    | "email-style"
+    | "email-footer"
+    | "email-templates";
 }
 
 export default function DndBuilderCanvas({
@@ -36,6 +42,7 @@ export default function DndBuilderCanvas({
   editors,
   onTextContentChange,
   setActiveForm,
+  activeForm,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -111,6 +118,10 @@ export default function DndBuilderCanvas({
           ? { backgroundColor: emailBgColor }
           : { backgroundColor: bgColor }
       }
+      onClick={() => {
+        onBlockSelect(null);
+        setActiveForm("default");
+      }}
     >
       <div
         ref={setNodeRef}
@@ -119,7 +130,6 @@ export default function DndBuilderCanvas({
           isInset && "rounded-lg shadow-md mb-2"
         )}
         style={{ backgroundColor: bgColor }}
-        onClick={() => onBlockSelect(null)}
       >
         {blocks.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
@@ -179,7 +189,14 @@ export default function DndBuilderCanvas({
           </>
         )}
       </div>
-      <Footer onClick={() => setActiveForm("email-footer")} />
+      <Footer
+        onClick={(e) => {
+          e.stopPropagation();
+          onBlockSelect(null);
+          setActiveForm("email-footer");
+        }}
+        isActive={activeForm === "email-footer"}
+      />
     </div>
   );
 }

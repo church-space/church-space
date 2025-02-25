@@ -78,9 +78,7 @@ export default function CardsBlock({ data }: CardsBlockProps) {
               </p>
             </div>
             {card.buttonText && (
-              <Button variant="outline" asChild>
-                <a href={card.buttonLink}>{card.buttonText}</a>
-              </Button>
+              <Button variant="outline">{card.buttonText}</Button>
             )}
           </div>
         ))}

@@ -44,7 +44,13 @@ const socialIcons = {
   threads: Threads,
 };
 
-export default function Footer({ onClick }: { onClick: () => void }) {
+export default function Footer({
+  onClick,
+  isActive,
+}: {
+  onClick: (e: React.MouseEvent) => void;
+  isActive: boolean;
+}) {
   const emailInset = true;
   const emailBgColor = "#fff2d5";
   const footerBgColor = "#ffffff";
@@ -71,9 +77,14 @@ export default function Footer({ onClick }: { onClick: () => void }) {
           ? { backgroundColor: footerBgColor }
           : { backgroundColor: emailBgColor }
       }
-      onClick={onClick}
     >
-      <div className="flex gap-4 pt-5 w-full max-w-2xl mx-auto px-4 flex-col items-center cursor-pointer border border-transparent hover:border-blue-500 rounded-md">
+      <div
+        className={cn(
+          "flex gap-4 pt-5 w-full max-w-2xl mx-auto px-4 flex-col items-center cursor-pointer border border-transparent hover:border-border rounded-md",
+          isActive && "ring-2 ring-blue-500"
+        )}
+        onClick={onClick}
+      >
         <div className="flex flex-col items-center gap-2">
           <div className="h-28 w-28 rounded-md bg-green-900"></div>
           <div
