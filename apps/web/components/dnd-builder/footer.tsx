@@ -61,9 +61,9 @@ export default function Footer({
   const footerSecondaryTextColor =
     footerData?.secondary_text_color || "#666666";
   const footerFont = footerData?.font || "Inter";
-  const socialIconStyle = footerData?.socials_icon_color || "icon-only";
+  const socialIconStyle = footerData?.socials_style || "icon-only";
   const socialIconColor = footerData?.socials_color || "#000000";
-  const socialIconTextColor = "#ffffff"; // For filled icons text
+  const socialIconTextColor = footerData?.socials_icon_color || "#ffffff"; // For filled icons text
 
   // Get links from footer data or use empty array
   const footerLinks = Array.isArray(footerData?.links) ? footerData.links : [];
@@ -91,15 +91,14 @@ export default function Footer({
         style={{ fontFamily: footerFont }}
       >
         <div className="flex flex-col items-center gap-2">
-          {footerData?.logo ? (
+          {footerData?.logo && (
             <img
               src={footerData.logo}
               alt="Logo"
               className="h-28 w-28 object-contain"
             />
-          ) : (
-            <div className="h-28 w-28 rounded-md bg-green-900"></div>
           )}
+
           {footerData?.name && (
             <div
               className="font-semibold text-lg "
@@ -151,6 +150,7 @@ export default function Footer({
             })}
           </div>
         )}
+
         <Separator
           className="w-full mb-2 mt-4 "
           style={{ backgroundColor: footerSecondaryTextColor }}
@@ -159,18 +159,20 @@ export default function Footer({
           className="flex flex-col items-center gap-1.5"
           style={{ color: footerSecondaryTextColor }}
         >
-          <div className="text-xs text-center leading-none text-pretty">
-            {footerData?.address ||
-              "Hillsong Church 1-9 Solent Circuit Norwest, NSW 2153 Australia"}
-          </div>
-          <div className="text-xs leading-none text-center text-pretty">
-            {footerData?.reason ||
-              "You are receiving this email because you are subscribed to our newsletter."}
-          </div>
+          {footerData?.address && (
+            <div className="text-xs text-center leading-none text-pretty">
+              {footerData?.address}
+            </div>
+          )}
+          {footerData?.reason && (
+            <div className="text-xs leading-none text-center text-pretty">
+              {footerData?.reason}
+            </div>
+          )}
           <div className="text-xs items-center w-full flex justify-center gap-2 leading-10 text-pretty">
             <span>
               &copy; {getYear(new Date())}{" "}
-              {footerData?.copyright_name || "Hillsong Church"}
+              {footerData?.copyright_name && footerData?.copyright_name}
             </span>
             <span>|</span>
             <span className="underline">Update your preferences</span>

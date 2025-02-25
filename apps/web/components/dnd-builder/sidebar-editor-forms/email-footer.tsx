@@ -27,7 +27,6 @@ import {
   Linkedin,
 } from "@trivo/ui/icons";
 import { useUpdateEmailFooter } from "../mutations/use-update-email-footer";
-import debounce from "lodash/debounce";
 
 interface Link {
   icon: string;
@@ -66,7 +65,7 @@ export default function EmailFooterForm({
     links: Array.isArray(footerData?.links) ? footerData.links : [],
     socials_color: footerData?.socials_color || "#000000",
     socials_style: footerData?.socials_style || "icon-only",
-    socials_icon_color: footerData?.socials_icon_color || "icon-only",
+    socials_icon_color: footerData?.socials_icon_color || "#ffffff",
   });
 
   // Update local state when footerData changes
@@ -86,7 +85,7 @@ export default function EmailFooterForm({
         links: Array.isArray(footerData.links) ? footerData.links : [],
         socials_color: footerData.socials_color || "#000000",
         socials_style: footerData.socials_style || "icon-only",
-        socials_icon_color: footerData.socials_icon_color || "icon-only",
+        socials_icon_color: footerData.socials_icon_color || "#ffffff",
       });
     }
   }, [footerData]);
@@ -104,20 +103,6 @@ export default function EmailFooterForm({
     stateRef.current = localState;
   }, [localState]);
 
-  // Create a debounced function that updates the database
-  const debouncedUpdate = useCallback(
-    debounce(() => {
-      if (!emailId || !organizationId) return;
-
-      updateEmailFooter.mutate({
-        emailId,
-        organizationId,
-        updates: stateRef.current,
-      });
-    }, 500),
-    [emailId, organizationId, updateEmailFooter]
-  );
-
   // Handle general state changes
   const handleChange = (key: string, value: any) => {
     setLocalState((prev) => ({
@@ -125,13 +110,40 @@ export default function EmailFooterForm({
       [key]: value,
     }));
 
-    debouncedUpdate();
+    // Update immediately instead of debouncing for better responsiveness
+    if (emailId && organizationId) {
+      updateEmailFooter.mutate({
+        emailId,
+        organizationId,
+        updates: {
+          ...stateRef.current,
+          [key]: value,
+        },
+      });
+    }
   };
 
   const addLink = () => {
     if (localState.links.length < 5) {
       const newLinks = [...localState.links, { icon: "", url: "" }];
-      handleChange("links", newLinks);
+
+      // Update local state
+      setLocalState((prev) => ({
+        ...prev,
+        links: newLinks,
+      }));
+
+      // Update server directly
+      if (emailId && organizationId) {
+        updateEmailFooter.mutate({
+          emailId,
+          organizationId,
+          updates: {
+            ...stateRef.current,
+            links: newLinks,
+          },
+        });
+      }
     }
   };
 
@@ -186,9 +198,25 @@ export default function EmailFooterForm({
 
         // Only update if valid
         if (isValid) {
-          handleChange("links", newLinks);
+          // Update local state
+          setLocalState((prev) => ({
+            ...prev,
+            links: newLinks,
+          }));
+
+          // Update server directly instead of calling handleChange which would trigger another debounce
+          if (emailId && organizationId) {
+            updateEmailFooter.mutate({
+              emailId,
+              organizationId,
+              updates: {
+                ...stateRef.current,
+                links: newLinks,
+              },
+            });
+          }
         }
-      }, 800); // 800ms debounce
+      }, 500); // Reduced from 800ms to 500ms for better responsiveness
 
       // Update local state immediately for responsive UI
       setLocalState((prev) => ({
@@ -200,7 +228,24 @@ export default function EmailFooterForm({
       if (key === "icon") {
         setLinkErrors((prev) => ({ ...prev, [index]: null }));
       }
-      handleChange("links", newLinks);
+
+      // Update local state
+      setLocalState((prev) => ({
+        ...prev,
+        links: newLinks,
+      }));
+
+      // Update server directly
+      if (emailId && organizationId) {
+        updateEmailFooter.mutate({
+          emailId,
+          organizationId,
+          updates: {
+            ...stateRef.current,
+            links: newLinks,
+          },
+        });
+      }
     }
   };
 
@@ -218,7 +263,23 @@ export default function EmailFooterForm({
       const isValid = validateLink(link.url, link.icon, index);
 
       if (isValid) {
-        handleChange("links", localState.links);
+        // Update local state
+        setLocalState((prev) => ({
+          ...prev,
+          links: localState.links,
+        }));
+
+        // Update server directly
+        if (emailId && organizationId) {
+          updateEmailFooter.mutate({
+            emailId,
+            organizationId,
+            updates: {
+              ...stateRef.current,
+              links: localState.links,
+            },
+          });
+        }
       }
     }
   };
@@ -227,7 +288,24 @@ export default function EmailFooterForm({
     const newLinks = localState.links.filter(
       (_: Link, i: number) => i !== index
     );
-    handleChange("links", newLinks);
+
+    // Update local state
+    setLocalState((prev) => ({
+      ...prev,
+      links: newLinks,
+    }));
+
+    // Update server directly
+    if (emailId && organizationId) {
+      updateEmailFooter.mutate({
+        emailId,
+        organizationId,
+        updates: {
+          ...stateRef.current,
+          links: newLinks,
+        },
+      });
+    }
 
     // Clean up any errors or timers for this index
     setLinkErrors((prev) => {
@@ -243,11 +321,43 @@ export default function EmailFooterForm({
   };
 
   const handleUploadComplete = (path: string) => {
-    handleChange("logo", path);
+    // Update local state
+    setLocalState((prev) => ({
+      ...prev,
+      logo: path,
+    }));
+
+    // Update server directly
+    if (emailId && organizationId) {
+      updateEmailFooter.mutate({
+        emailId,
+        organizationId,
+        updates: {
+          ...stateRef.current,
+          logo: path,
+        },
+      });
+    }
   };
 
   const handleLogoRemove = () => {
-    handleChange("logo", "");
+    // Update local state
+    setLocalState((prev) => ({
+      ...prev,
+      logo: "",
+    }));
+
+    // Update server directly
+    if (emailId && organizationId) {
+      updateEmailFooter.mutate({
+        emailId,
+        organizationId,
+        updates: {
+          ...stateRef.current,
+          logo: "",
+        },
+      });
+    }
   };
 
   // Cleanup debounce timers on unmount
@@ -337,8 +447,8 @@ export default function EmailFooterForm({
         </Select>
         <Label className="font-medium">Social Icon Style</Label>
         <Select
-          value={localState.socials_icon_color}
-          onValueChange={(value) => handleChange("socials_icon_color", value)}
+          value={localState.socials_style}
+          onValueChange={(value) => handleChange("socials_style", value)}
         >
           <SelectTrigger className="col-span-2">
             <SelectValue placeholder="Select icon style" />
@@ -349,11 +459,24 @@ export default function EmailFooterForm({
             <SelectItem value="icon-only">Icon Only</SelectItem>
           </SelectContent>
         </Select>
-        <Label className="font-medium">Social Icon Color</Label>
+        <Label className="font-medium">
+          {localState.socials_style === "filled"
+            ? "Social Icon BG"
+            : "Social Icon Color"}
+        </Label>
         <ColorPicker
           value={localState.socials_color}
           onChange={(color) => handleChange("socials_color", color)}
         />
+        {localState.socials_style === "filled" && (
+          <>
+            <Label className="font-medium">Icon Color</Label>
+            <ColorPicker
+              value={localState.socials_icon_color}
+              onChange={(color) => handleChange("socials_icon_color", color)}
+            />
+          </>
+        )}
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">

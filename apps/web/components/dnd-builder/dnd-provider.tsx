@@ -1782,10 +1782,6 @@ export default function DndProvider() {
     }
   }, [blocksBeingDeleted]);
 
-  console.log("emailData", emailData);
-
-  console.log("emailData.footer", emailData?.footer);
-
   return (
     <div className="flex flex-col h-full relative">
       <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b sticky top-0 left-0 right-0 bg-background z-10">
