@@ -25,11 +25,11 @@ import {
   BreadcrumbSeparator,
 } from "@trivo/ui/breadcrumb";
 import { Button } from "@trivo/ui/button";
-import { Redo, Undo } from "@trivo/ui/icons";
+import { Redo, Undo, LoaderIcon } from "@trivo/ui/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Block from "./block";
 import DndBuilderCanvas from "./canvas";
@@ -81,6 +81,10 @@ export default function DndProvider() {
   const updateEmailStyle = useUpdateEmailStyle();
   const batchUpdateEmailBlocks = useBatchUpdateEmailBlocks();
   const queryClient = useQueryClient();
+  const router = useRouter();
+
+  // Add a state for tracking save operation
+  const [isSaving, setIsSaving] = useState(false);
 
   // Track blocks that are being deleted to prevent them from being re-added
   const [blocksBeingDeleted, setBlocksBeingDeleted] = useState<Set<string>>(
@@ -1166,6 +1170,9 @@ export default function DndProvider() {
   const handleSave = useCallback(async () => {
     if (!emailId) return;
 
+    // Set saving state to true
+    setIsSaving(true);
+
     try {
       // 1. Update email styles
       await updateEmailStyle.mutateAsync({
@@ -1266,8 +1273,16 @@ export default function DndProvider() {
 
       // Refresh the email data to get the latest block IDs
       queryClient.invalidateQueries({ queryKey: ["email", emailId] });
+
+      // Navigate to the emails page with the emailId
+      router.push(`/emails/${emailId}`);
+
+      // Note: We don't set isSaving to false here because we want the button
+      // to remain in loading state during navigation
     } catch (error) {
       console.error("Error saving email:", error);
+      // Set saving state to false if there's an error
+      setIsSaving(false);
     }
   }, [
     emailId,
@@ -1280,6 +1295,7 @@ export default function DndProvider() {
     footerFont,
     blocks,
     queryClient,
+    router,
   ]);
 
   // Helper function to check if a block type is valid for the database
@@ -1734,8 +1750,17 @@ export default function DndProvider() {
           </div>
           <Button variant="outline">Preview</Button>
           <Button variant="outline">Send Test</Button>
-          <Button variant="default" onClick={handleSave}>
-            Save
+          <Button variant="default" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <div className="h-4 w-4 animate-spin items-center justify-center flex">
+                  <LoaderIcon />
+                </div>
+                <span>Saving...</span>
+              </>
+            ) : (
+              "Save and Exit"
+            )}
           </Button>
         </div>
       </header>
