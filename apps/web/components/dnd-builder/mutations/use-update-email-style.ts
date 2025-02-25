@@ -4,7 +4,7 @@ import { createClient } from "@trivo/supabase/client";
 interface UpdateEmailStyleParams {
   emailId: number;
   updates: {
-    bg_color?: string;
+    blocks_bg_color?: string;
     footer_bg_color?: string;
     footer_font?: string;
     footer_text_color?: string;

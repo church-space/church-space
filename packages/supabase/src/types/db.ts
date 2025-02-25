@@ -105,25 +105,49 @@ export type Database = {
           },
         ]
       }
-      email_footer_details: {
+      email_footers: {
         Row: {
+          bg_color: string | null
           created_at: string
+          font: string | null
           id: number
+          links: Json | null
+          logo: string | null
           organization_id: string
+          subtitle: string | null
+          text_color: string | null
+          title: string | null
+          type: Database["public"]["Enums"]["email_types"]
         }
         Insert: {
+          bg_color?: string | null
           created_at?: string
+          font?: string | null
           id?: number
+          links?: Json | null
+          logo?: string | null
           organization_id: string
+          subtitle?: string | null
+          text_color?: string | null
+          title?: string | null
+          type: Database["public"]["Enums"]["email_types"]
         }
         Update: {
+          bg_color?: string | null
           created_at?: string
+          font?: string | null
           id?: number
+          links?: Json | null
+          logo?: string | null
           organization_id?: string
+          subtitle?: string | null
+          text_color?: string | null
+          title?: string | null
+          type?: Database["public"]["Enums"]["email_types"]
         }
         Relationships: [
           {
-            foreignKeyName: "email_footer_details_organization_id_fkey"
+            foreignKeyName: "email_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -190,6 +214,7 @@ export type Database = {
       emails: {
         Row: {
           bg_color: string | null
+          blocks_bg_color: string | null
           created_at: string
           footer_bg_color: string | null
           footer_font: string | null
@@ -197,6 +222,7 @@ export type Database = {
           from_email: string | null
           from_name: string | null
           id: number
+          is_inset: boolean
           list_id: number | null
           organization_id: string
           reply_to: string | null
@@ -210,6 +236,7 @@ export type Database = {
         }
         Insert: {
           bg_color?: string | null
+          blocks_bg_color?: string | null
           created_at?: string
           footer_bg_color?: string | null
           footer_font?: string | null
@@ -217,6 +244,7 @@ export type Database = {
           from_email?: string | null
           from_name?: string | null
           id?: number
+          is_inset?: boolean
           list_id?: number | null
           organization_id: string
           reply_to?: string | null
@@ -230,6 +258,7 @@ export type Database = {
         }
         Update: {
           bg_color?: string | null
+          blocks_bg_color?: string | null
           created_at?: string
           footer_bg_color?: string | null
           footer_font?: string | null
@@ -237,6 +266,7 @@ export type Database = {
           from_email?: string | null
           from_name?: string | null
           id?: number
+          is_inset?: boolean
           list_id?: number | null
           organization_id?: string
           reply_to?: string | null

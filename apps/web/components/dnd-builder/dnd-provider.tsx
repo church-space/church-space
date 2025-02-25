@@ -154,7 +154,7 @@ export default function DndProvider() {
 
   // Initialize bgColor from the fetched data or use default
   const [bgColor, setBgColor] = useState(
-    emailData?.email?.bg_color || "#f4f4f5"
+    emailData?.email?.blocks_bg_color || "#f4f4f5"
   );
 
   // Initialize footer styles from the fetched data or use defaults
@@ -170,8 +170,8 @@ export default function DndProvider() {
 
   // Update bgColor when email data is loaded
   useEffect(() => {
-    if (emailData?.email?.bg_color) {
-      setBgColor(emailData.email.bg_color);
+    if (emailData?.email?.blocks_bg_color) {
+      setBgColor(emailData.email.blocks_bg_color);
     }
   }, [emailData]);
 
@@ -276,7 +276,7 @@ export default function DndProvider() {
         updateEmailStyle.mutate({
           emailId,
           updates: {
-            bg_color: color,
+            blocks_bg_color: color,
           },
         });
       }
@@ -1178,7 +1178,7 @@ export default function DndProvider() {
       await updateEmailStyle.mutateAsync({
         emailId,
         updates: {
-          bg_color: bgColor,
+          blocks_bg_color: bgColor,
           footer_bg_color: footerBgColor,
           footer_text_color: footerTextColor,
           footer_font: footerFont,

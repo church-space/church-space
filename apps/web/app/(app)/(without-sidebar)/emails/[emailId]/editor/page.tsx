@@ -29,6 +29,8 @@ export default async function Page(props: { params: Params }) {
           subject,
           status,
           bg_color,
+          blocks_bg_color,
+          is_inset,
           organization_id,
           type,
           footer_bg_color,

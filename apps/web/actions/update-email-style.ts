@@ -10,7 +10,9 @@ export const updateEmailStyleAction = authActionClient
     z.object({
       emailId: z.number(),
       updates: z.object({
+        blocks_bg_color: z.string().optional(),
         bg_color: z.string().optional(),
+        is_inset: z.boolean().optional(),
         footer_bg_color: z.string().optional(),
         footer_font: z.string().optional(),
         footer_text_color: z.string().optional(),

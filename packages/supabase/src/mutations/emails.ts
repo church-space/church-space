@@ -68,7 +68,7 @@ export async function updateEmailStyle(
   supabase: Client,
   emailId: number,
   updates: {
-    bg_color?: string;
+    blocks_bg_color?: string;
     footer_bg_color?: string;
     footer_font?: string;
     footer_text_color?: string;

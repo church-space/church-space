@@ -19,6 +19,8 @@ export function useEmailWithBlocks(emailId: number | undefined) {
           id,
           subject,
           status,
+          blocks_bg_color,
+          is_inset,
           bg_color,
           organization_id,
           type,
