@@ -13,25 +13,16 @@ import {
   Image,
   List,
   Palette,
-  Redo,
   TemplatesIcon,
   Typography,
   Video,
 } from "@trivo/ui/icons";
-import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@trivo/ui/select";
 import { Separator } from "@trivo/ui/separator";
 import { AnimatePresence, motion } from "framer-motion";
+import { ChevronRight } from "lucide-react";
 import React from "react";
 import DndBuilderSidebarForms from "./sidebar-forms";
-import { ChevronRight, Paintbrush } from "lucide-react";
 
 interface DndBuilderSidebarProps {
   className?: string;
@@ -47,11 +38,7 @@ interface DndBuilderSidebarProps {
   selectedBlock?: Block | null;
   setSelectedBlockId: (id: string | null) => void;
   onDeleteBlock: (id: string) => void;
-  onBlockUpdate: (
-    block: Block,
-    addToHistory?: boolean,
-    isDuplication?: boolean
-  ) => void;
+  onBlockUpdate: (block: Block) => void;
   isInset?: boolean;
   onIsInsetChange?: (isInset: boolean) => void;
   emailBgColor?: string;
