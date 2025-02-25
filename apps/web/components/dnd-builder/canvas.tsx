@@ -199,6 +199,7 @@ export default function DndBuilderCanvas({
         }}
         isActive={activeForm === "email-footer"}
         footerData={footerData}
+        emailInset={isInset}
       />
     </div>
   );

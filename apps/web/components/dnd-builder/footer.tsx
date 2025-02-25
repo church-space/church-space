@@ -35,6 +35,7 @@ interface FooterProps {
   onClick: (e: React.MouseEvent) => void;
   isActive: boolean;
   footerData?: any;
+  emailInset: boolean;
 }
 
 const socialIcons = {
@@ -50,8 +51,12 @@ const socialIcons = {
   threads: Threads,
 };
 
-export default function Footer({ onClick, isActive, footerData }: FooterProps) {
-  const emailInset = true;
+export default function Footer({
+  onClick,
+  isActive,
+  footerData,
+  emailInset,
+}: FooterProps) {
   const emailBgColor = "#fff2d5";
 
   // Use footer data from database if available, otherwise use defaults
@@ -115,19 +120,23 @@ export default function Footer({ onClick, isActive, footerData }: FooterProps) {
           ) : (
             <div className="h-28 w-28 rounded-md bg-green-900"></div>
           )}
-          <div
-            className="font-semibold text-lg "
-            style={{ color: footerTextColor }}
-          >
-            {footerData?.name || "Church Name"}
-          </div>
-          <div
-            className="text-sm text-muted-foreground max-w-sm text-center leading-tight text-pretty"
-            style={{ color: footerSecondaryTextColor }}
-          >
-            {footerData?.subtitle ||
-              "This is a description of the church or mission statement two lines."}
-          </div>
+          {footerData?.name && (
+            <div
+              className="font-semibold text-lg "
+              style={{ color: footerTextColor }}
+            >
+              {footerData.name}
+            </div>
+          )}
+          {footerData?.subtitle && (
+            <div
+              className="text-sm text-muted-foreground max-w-sm text-center leading-tight text-pretty"
+              style={{ color: footerSecondaryTextColor }}
+            >
+              {footerData?.subtitle ||
+                "This is a description of the church or mission statement two lines."}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
