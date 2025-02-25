@@ -98,6 +98,7 @@ export default function Block({
         isOverlay && "opacity-80 shadow-lg"
       )}
       onClick={(e) => onSelect?.(e)}
+      data-block-id={id}
     >
       {renderBlock()}
     </div>

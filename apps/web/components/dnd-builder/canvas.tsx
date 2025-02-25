@@ -87,6 +87,7 @@ export default function DndBuilderCanvas({
   };
 
   const renderBlocks = () => {
+    console.log("Rendering blocks in canvas:", blocks);
     return blocks.map((block) => renderBlock(block));
   };
 

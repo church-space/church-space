@@ -6,10 +6,12 @@ import {
 } from "@tanstack/react-query";
 import { createClient } from "@trivo/supabase/server";
 
-type Params = { emailId: string };
+type Params = Promise<{ emailId: string }>;
 
-export default async function Page({ params }: { params: Params }) {
+export default async function Page(props: { params: Params }) {
+  const params = await props.params;
   const emailId = parseInt(params.emailId, 10);
+
   const queryClient = new QueryClient();
 
   // Prefetch the email data

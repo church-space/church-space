@@ -43,6 +43,11 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
 
   const debouncedUpdate = useCallback(
     debounce((newState: AuthorBlockData) => {
+      console.log("Author form updating block:", {
+        blockId: block.id,
+        blockType: block.type,
+        newState,
+      });
       onUpdate({
         ...block,
         data: newState,
