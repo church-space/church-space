@@ -44,6 +44,15 @@ export default function FileDownloadForm({
     return null;
   }
 
+  const onFileRemove = () => {
+    console.log("Removing file");
+    // Update the file with an empty string
+    handleChange("file", "");
+
+    // Force an update to history to ensure the change is saved
+    debouncedUpdate(localState);
+  };
+
   return (
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
@@ -61,6 +70,8 @@ export default function FileDownloadForm({
           <FileUpload
             organizationId={organizationId}
             onUploadComplete={(path) => handleChange("file", path)}
+            initialFilePath={localState.file}
+            onRemove={onFileRemove}
           />
           <Label>BG Color</Label>
           <Input
