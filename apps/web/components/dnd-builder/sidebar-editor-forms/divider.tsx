@@ -1,4 +1,3 @@
-import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
 import { Slider } from "@trivo/ui/slider";
 import type { Block, DividerBlockData } from "@/types/blocks";
@@ -66,10 +65,6 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
 
     // Debounce the history update
     debouncedHistoryUpdate();
-  };
-
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleChange("color", e.target.value);
   };
 
   const handleMarginChange = (value: number[]) => {

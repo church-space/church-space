@@ -1,4 +1,3 @@
-import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
 import {
   Select,
