@@ -40,10 +40,7 @@ interface DndBuilderSidebarProps {
   footerTextColor?: string;
   onFooterFontChange?: (font: string) => void;
   footerFont?: string;
-  selectedBlock?: {
-    id: string | null;
-    type: BlockType | null;
-  } | null;
+  selectedBlock?: Block | null;
   setSelectedBlockId: (id: string | null) => void;
   onDeleteBlock: (id: string) => void;
   onBlockUpdate: (block: Block) => void;
@@ -178,7 +175,7 @@ export default function DndBuilderSidebar({
             className="absolute inset-0 p-4 bg-sidebar"
           >
             <DndBuilderSidebarForms
-              selectedBlock={selectedBlock as { id: string; type: BlockType }}
+              selectedBlock={selectedBlock as Block}
               setSelectedBlockId={setSelectedBlockId}
               onDeleteBlock={onDeleteBlock}
               onBlockUpdate={onBlockUpdate}

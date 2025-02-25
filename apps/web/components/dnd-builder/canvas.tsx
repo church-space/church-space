@@ -129,11 +129,7 @@ export default function DndBuilderCanvas({
                   damping: 20,
                   stiffness: 300,
                 }}
-                className={cn(
-                  "w-full max-w-2xl mx-auto",
-                  activeId === block.id &&
-                    "border border-dashed border-muted rounded-md"
-                )}
+                className={cn("w-full max-w-2xl mx-auto")}
                 ref={(el) => {
                   if (el) blockRefs.current[block.id] = el;
                 }}

@@ -946,13 +946,8 @@ export default function DndProvider() {
             onFooterFontChange={handleFooterFontChange}
             footerFont={footerFont}
             selectedBlock={
-              selectedBlockId &&
-              blocks.find((block) => block.id === selectedBlockId)
-                ? {
-                    id: selectedBlockId,
-                    type: blocks.find((block) => block.id === selectedBlockId)!
-                      .type,
-                  }
+              selectedBlockId
+                ? blocks.find((block) => block.id === selectedBlockId) || null
                 : null
             }
             setSelectedBlockId={setSelectedBlockId}

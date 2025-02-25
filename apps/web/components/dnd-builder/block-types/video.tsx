@@ -71,6 +71,8 @@ export default function VideoBlock({ data }: VideoBlockProps) {
             src={imageUrl}
             alt="Video Thumbnail"
             className="w-full h-full object-cover rounded-md"
+            width={1920}
+            height={1080}
           />
         </div>
       ) : (

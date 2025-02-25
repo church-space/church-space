@@ -1,4 +1,15 @@
-import { Block, BlockType } from "@/types/blocks";
+import {
+  Block,
+  BlockType,
+  ButtonBlockData,
+  ImageBlockData,
+  VideoBlockData,
+  DividerBlockData,
+  FileDownloadBlockData,
+  CardsBlockData,
+  ListBlockData,
+  AuthorBlockData,
+} from "@/types/blocks";
 import React from "react";
 import ButtonForm from "./sidebar-editor-forms/buttons";
 import TextForm from "./sidebar-editor-forms/text";
@@ -18,7 +29,7 @@ export default function DndBuilderSidebarForms({
   onDeleteBlock,
   onBlockUpdate,
 }: {
-  selectedBlock: { id: string; type: BlockType };
+  selectedBlock: Block;
   setSelectedBlockId: (id: string | null) => void;
   onDeleteBlock: (id: string) => void;
   onBlockUpdate: (block: Block) => void;
@@ -37,29 +48,53 @@ export default function DndBuilderSidebarForms({
       </div>
       <div className="h-full overflow-y-auto py-1">
         {selectedBlock.type === "button" && (
-          <ButtonForm block={selectedBlock} onUpdate={onBlockUpdate} />
+          <ButtonForm
+            block={selectedBlock as Block & { data?: ButtonBlockData }}
+            onUpdate={onBlockUpdate}
+          />
         )}
         {selectedBlock.type === "text" && <TextForm />}
         {selectedBlock.type === "image" && (
-          <ImageForm block={selectedBlock} onUpdate={onBlockUpdate} />
+          <ImageForm
+            block={selectedBlock as Block & { data?: ImageBlockData }}
+            onUpdate={onBlockUpdate}
+          />
         )}
         {selectedBlock.type === "video" && (
-          <VideoForm block={selectedBlock} onUpdate={onBlockUpdate} />
+          <VideoForm
+            block={selectedBlock as Block & { data?: VideoBlockData }}
+            onUpdate={onBlockUpdate}
+          />
         )}
         {selectedBlock.type === "divider" && (
-          <DividerForm block={selectedBlock} onUpdate={onBlockUpdate} />
+          <DividerForm
+            block={selectedBlock as Block & { data?: DividerBlockData }}
+            onUpdate={onBlockUpdate}
+          />
         )}
         {selectedBlock.type === "file-download" && (
-          <FileDownloadForm block={selectedBlock} onUpdate={onBlockUpdate} />
+          <FileDownloadForm
+            block={selectedBlock as Block & { data?: FileDownloadBlockData }}
+            onUpdate={onBlockUpdate}
+          />
         )}
         {selectedBlock.type === "cards" && (
-          <CardsForm block={selectedBlock} onUpdate={onBlockUpdate} />
+          <CardsForm
+            block={selectedBlock as Block & { data?: CardsBlockData }}
+            onUpdate={onBlockUpdate}
+          />
         )}
         {selectedBlock.type === "list" && (
-          <ListForm block={selectedBlock} onUpdate={onBlockUpdate} />
+          <ListForm
+            block={selectedBlock as Block & { data?: ListBlockData }}
+            onUpdate={onBlockUpdate}
+          />
         )}
         {selectedBlock.type === "author" && (
-          <AuthorForm block={selectedBlock} onUpdate={onBlockUpdate} />
+          <AuthorForm
+            block={selectedBlock as Block & { data?: AuthorBlockData }}
+            onUpdate={onBlockUpdate}
+          />
         )}
       </div>
       <div className="flex gap-2 items-center justify-end">
