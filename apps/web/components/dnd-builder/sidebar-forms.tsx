@@ -1,27 +1,25 @@
 import {
+  AuthorBlockData,
   Block,
-  BlockType,
   ButtonBlockData,
-  ImageBlockData,
-  VideoBlockData,
+  CardsBlockData,
   DividerBlockData,
   FileDownloadBlockData,
-  CardsBlockData,
+  ImageBlockData,
   ListBlockData,
-  AuthorBlockData,
+  VideoBlockData,
 } from "@/types/blocks";
-import React from "react";
-import ButtonForm from "./sidebar-editor-forms/buttons";
-import TextForm from "./sidebar-editor-forms/text";
-import ImageForm from "./sidebar-editor-forms/image";
-import VideoForm from "./sidebar-editor-forms/video";
-import DividerForm from "./sidebar-editor-forms/divider";
-import FileDownloadForm from "./sidebar-editor-forms/file-download";
-import CardsForm from "./sidebar-editor-forms/cards";
-import ListForm from "./sidebar-editor-forms/list";
-import AuthorForm from "./sidebar-editor-forms/author";
 import { Button } from "@trivo/ui/button";
 import { ChevronLeft } from "@trivo/ui/icons";
+import AuthorForm from "./sidebar-editor-forms/author";
+import ButtonForm from "./sidebar-editor-forms/buttons";
+import CardsForm from "./sidebar-editor-forms/cards";
+import DividerForm from "./sidebar-editor-forms/divider";
+import FileDownloadForm from "./sidebar-editor-forms/file-download";
+import ImageForm from "./sidebar-editor-forms/image";
+import ListForm from "./sidebar-editor-forms/list";
+import TextForm from "./sidebar-editor-forms/text";
+import VideoForm from "./sidebar-editor-forms/video";
 
 export default function DndBuilderSidebarForms({
   selectedBlock,

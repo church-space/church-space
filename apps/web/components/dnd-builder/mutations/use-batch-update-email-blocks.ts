@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@trivo/supabase/client";
-import type { BlockData } from "@/types/blocks";
 
 // Define the database-compatible block types
 type DatabaseBlockType =

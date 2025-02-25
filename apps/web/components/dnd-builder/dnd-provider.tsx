@@ -1,27 +1,21 @@
 "use client";
 
-import type { Block as BlockType, BlockData } from "@/types/blocks";
+import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
+import type { BlockData, Block as BlockType } from "@/types/blocks";
 import {
   DndContext,
+  DragOverlay,
   PointerSensor,
   useSensor,
   useSensors,
-  DragOverlay,
 } from "@dnd-kit/core";
-import { useState, useEffect, useCallback, useRef } from "react";
-import DndBuilderCanvas from "./canvas";
-import DndBuilderSidebar from "./sidebar";
-import { motion, AnimatePresence } from "framer-motion";
-import Toolbar from "./rich-text-editor/rich-text-format-bar";
-import { createEditor } from "./rich-text-editor/editor";
-import { Editor } from "@tiptap/react";
 import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { allBlockTypes } from "./sidebar"; // We'll need to export this from sidebar
-import Block from "./block";
+import { useQueryClient } from "@tanstack/react-query";
+import { Editor } from "@tiptap/react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -31,18 +25,23 @@ import {
   BreadcrumbSeparator,
 } from "@trivo/ui/breadcrumb";
 import { Button } from "@trivo/ui/button";
-import { Undo, Redo } from "@trivo/ui/icons";
+import { Redo, Undo } from "@trivo/ui/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
-import { useBlockStateManager } from "./use-block-state-manager";
+import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
-import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { useParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Block from "./block";
+import DndBuilderCanvas from "./canvas";
 import { useAddEmailBlock } from "./mutations/use-add-email-block";
+import { useBatchUpdateEmailBlocks } from "./mutations/use-batch-update-email-blocks";
 import { useDeleteEmailBlock } from "./mutations/use-delete-email-block";
 import { useUpdateEmailBlock } from "./mutations/use-update-email-block";
 import { useUpdateEmailStyle } from "./mutations/use-update-email-style";
-import { useBatchUpdateEmailBlocks } from "./mutations/use-batch-update-email-blocks";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createEditor } from "./rich-text-editor/editor";
+import Toolbar from "./rich-text-editor/rich-text-format-bar";
+import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
+import { useBlockStateManager } from "./use-block-state-manager";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -75,7 +74,7 @@ export default function DndProvider() {
   const emailId = params.emailId
     ? parseInt(params.emailId as string, 10)
     : undefined;
-  const { data: emailData, isLoading } = useEmailWithBlocks(emailId);
+  const { data: emailData } = useEmailWithBlocks(emailId);
   const addEmailBlock = useAddEmailBlock();
   const deleteEmailBlock = useDeleteEmailBlock();
   const updateEmailBlock = useUpdateEmailBlock();
@@ -510,8 +509,8 @@ export default function DndProvider() {
       } else if (blockType === "video") {
         blockData = {
           url: "",
-          size: 33,
-          centered: false,
+          size: 100,
+          centered: true,
         };
       } else if (blockType === "file-download") {
         blockData = {

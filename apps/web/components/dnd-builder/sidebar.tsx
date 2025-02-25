@@ -1,4 +1,4 @@
-import { BlockType } from "@/types/blocks";
+import type { Block } from "@/types/blocks";
 import { DragOverlay, useDraggable } from "@dnd-kit/core";
 import { cn } from "@trivo/ui/cn";
 import {
@@ -18,16 +18,15 @@ import { Input } from "@trivo/ui/input";
 import { Label } from "@trivo/ui/label";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@trivo/ui/select";
 import { Separator } from "@trivo/ui/separator";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
 import DndBuilderSidebarForms from "./sidebar-forms";
-import type { Block } from "@/types/blocks";
 
 interface DndBuilderSidebarProps {
   className?: string;
