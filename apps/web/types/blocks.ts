@@ -68,6 +68,8 @@ export interface ImageBlockData {
 export interface CardsBlockData {
   title: string;
   subtitle: string;
+  textColor: string;
+  labelColor: string;
   cards: Array<{
     title: string;
     description: string;

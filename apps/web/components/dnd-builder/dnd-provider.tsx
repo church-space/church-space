@@ -548,6 +548,8 @@ export default function DndProvider() {
         blockData = {
           title: "Cards Title",
           subtitle: "Cards Subtitle",
+          textColor: "#000000",
+          labelColor: "#4274D2",
           cards: [
             {
               title: "First Card",

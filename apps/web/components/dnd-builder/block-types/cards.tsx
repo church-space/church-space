@@ -33,10 +33,17 @@ export default function CardsBlock({ data }: CardsBlockProps) {
   }, [cards]);
 
   return (
-    <div className="flex flex-col gap-1 py-4">
+    <div className="flex flex-col gap-5 py-4">
       <div className="flex flex-col">
-        <span className="text-xl font-bold">{title}</span>
-        <span className="text-sm text-muted-foreground">{subtitle}</span>
+        <span className="text-3xl font-bold" style={{ color: data?.textColor }}>
+          {title}
+        </span>
+        <span
+          className=" text-muted-foreground"
+          style={{ color: data?.textColor }}
+        >
+          {subtitle}
+        </span>
       </div>
       <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 gap-y-10">
         {cards.map((card, index) => (
@@ -49,11 +56,22 @@ export default function CardsBlock({ data }: CardsBlockProps) {
               />
             )}
             <div className="flex flex-col px-1 gap-0.5">
-              <h3 className="text-sm font-medium text-blue-500">
+              <h3
+                className="text-sm font-medium"
+                style={{ color: data?.labelColor }}
+              >
                 {card.label}
               </h3>
-              <h3 className="text-lg font-bold">{card.title}</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3
+                className="text-lg font-bold"
+                style={{ color: data?.textColor }}
+              >
+                {card.title}
+              </h3>
+              <p
+                className="text-sm text-muted-foreground"
+                style={{ color: data?.textColor }}
+              >
                 {card.description}
               </p>
             </div>

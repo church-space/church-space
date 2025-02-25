@@ -27,6 +27,8 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     title: block.data?.title || "Cards",
     subtitle: block.data?.subtitle || "Add a card to your page",
     cards: block.data?.cards || [],
+    textColor: block.data?.textColor || "#000000",
+    labelColor: block.data?.labelColor || "#4274D2",
   });
 
   // Create a ref to store the latest state for the debounced function
@@ -126,6 +128,20 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
+          <Label>Text Color</Label>
+          <Input
+            type="color"
+            value={localState.textColor}
+            onChange={(e) => handleChange("textColor", e.target.value)}
+            className="col-span-2"
+          />
+          <Label>Label Color</Label>
+          <Input
+            type="color"
+            value={localState.labelColor}
+            onChange={(e) => handleChange("labelColor", e.target.value)}
+            className="col-span-2"
+          />
         </div>
       </div>
 
@@ -148,7 +164,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                 {card.title ? card.title : `Card ${index + 1}`}
               </AccordionTrigger>
               <AccordionContent>
-                <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
+                <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center py-1 pr-1">
                   <Label>Label</Label>
                   <Input
                     className="col-span-2"
