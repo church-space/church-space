@@ -216,6 +216,7 @@ export type Database = {
           bg_color: string | null
           blocks_bg_color: string | null
           created_at: string
+          default_text_color: string | null
           footer_bg_color: string | null
           footer_font: string | null
           footer_text_color: string | null
@@ -238,6 +239,7 @@ export type Database = {
           bg_color?: string | null
           blocks_bg_color?: string | null
           created_at?: string
+          default_text_color?: string | null
           footer_bg_color?: string | null
           footer_font?: string | null
           footer_text_color?: string | null
@@ -260,6 +262,7 @@ export type Database = {
           bg_color?: string | null
           blocks_bg_color?: string | null
           created_at?: string
+          default_text_color?: string | null
           footer_bg_color?: string | null
           footer_font?: string | null
           footer_text_color?: string | null
