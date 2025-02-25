@@ -87,30 +87,63 @@ export default function DndBuilderCanvas({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      className={cn("flex flex-col gap-4 p-4 min-h-[102px] rounded-md")}
-      style={{ backgroundColor: bgColor }}
-      onClick={() => onBlockSelect(null)}
-    >
-      {blocks.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center text-muted-foreground">
-          {isDragging && isFromSidebar ? (
-            <motion.div
-              className="h-20 rounded-md border border-dashed border-blue-500 w-full mx-4 max-w-2xl bg-blue-500/10 absolute"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            />
-          ) : (
-            "Drag blocks here"
-          )}
-        </div>
-      ) : (
-        <>
-          {blocks.map((block, index) => (
-            <React.Fragment key={block.id}>
-              {isDragging && isFromSidebar && insertionIndex === index && (
+    <div className="flex w-full mx-auto rounded-md items-center justify-center bg-white border shadow-sm py-6">
+      <div
+        ref={setNodeRef}
+        className={cn(
+          "flex flex-col gap-4 p-4 min-h-[102px] max-w-2xl w-full mx-auto rounded-lg shadow-md"
+        )}
+        style={{ backgroundColor: bgColor }}
+        onClick={() => onBlockSelect(null)}
+      >
+        {blocks.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center text-muted-foreground">
+            {isDragging && isFromSidebar ? (
+              <motion.div
+                className="h-20 rounded-md border border-dashed border-blue-500 w-full mx-4 max-w-2xl bg-blue-500/10 absolute"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              />
+            ) : (
+              "Drag blocks here"
+            )}
+          </div>
+        ) : (
+          <>
+            {blocks.map((block, index) => (
+              <React.Fragment key={block.id}>
+                {isDragging && isFromSidebar && insertionIndex === index && (
+                  <motion.div
+                    className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                )}
+                <motion.div
+                  animate={{ y: 0 }}
+                  transition={{
+                    type: "spring",
+                    damping: 20,
+                    stiffness: 300,
+                  }}
+                  className={cn("w-full max-w-2xl mx-auto")}
+                  ref={(el) => {
+                    if (el) blockRefs.current[block.id] = el;
+                  }}
+                >
+                  {activeId === block.id ? (
+                    <div style={{ height: `${heightRef.current}px` }} />
+                  ) : (
+                    renderBlock(block)
+                  )}
+                </motion.div>
+              </React.Fragment>
+            ))}
+            {isDragging &&
+              isFromSidebar &&
+              insertionIndex === blocks.length && (
                 <motion.div
                   className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10"
                   initial={{ opacity: 0 }}
@@ -118,36 +151,9 @@ export default function DndBuilderCanvas({
                   transition={{ duration: 0.2 }}
                 />
               )}
-              <motion.div
-                animate={{ y: 0 }}
-                transition={{
-                  type: "spring",
-                  damping: 20,
-                  stiffness: 300,
-                }}
-                className={cn("w-full max-w-2xl mx-auto")}
-                ref={(el) => {
-                  if (el) blockRefs.current[block.id] = el;
-                }}
-              >
-                {activeId === block.id ? (
-                  <div style={{ height: `${heightRef.current}px` }} />
-                ) : (
-                  renderBlock(block)
-                )}
-              </motion.div>
-            </React.Fragment>
-          ))}
-          {isDragging && isFromSidebar && insertionIndex === blocks.length && (
-            <motion.div
-              className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            />
-          )}
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
