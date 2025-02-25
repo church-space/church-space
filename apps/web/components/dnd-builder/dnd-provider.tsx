@@ -38,6 +38,7 @@ import { debounce } from "lodash";
 import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { useParams } from "next/navigation";
 import { useAddEmailBlock } from "./mutations/use-add-email-block";
+import { useDeleteEmailBlock } from "./mutations/use-delete-email-block";
 
 export default function DndProvider() {
   const params = useParams();
@@ -46,6 +47,7 @@ export default function DndProvider() {
     : undefined;
   const { data: emailData, isLoading } = useEmailWithBlocks(emailId);
   const addEmailBlock = useAddEmailBlock();
+  const deleteEmailBlock = useDeleteEmailBlock();
 
   // Initialize blocks from the fetched data or use empty array
   const initialBlocks =
@@ -313,9 +315,21 @@ export default function DndProvider() {
         return newEditors;
       });
     }
+
+    // Find the block to be deleted
+    const blockToDelete = blocks.find((block) => block.id === id);
+
+    // Update local state
     updateBlocks(blocks.filter((block) => block.id !== id));
+
     if (selectedBlockId === id) {
       setSelectedBlockId(null);
+    }
+
+    // Delete from database if we have an emailId and the block exists in the database
+    if (emailId && blockToDelete && !isNaN(parseInt(blockToDelete.id, 10))) {
+      const blockId = parseInt(blockToDelete.id, 10);
+      deleteEmailBlock.mutate({ blockId });
     }
   };
 
