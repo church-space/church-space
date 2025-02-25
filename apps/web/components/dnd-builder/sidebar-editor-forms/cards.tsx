@@ -13,6 +13,7 @@ import { useUser } from "@/stores/use-user";
 import FileUpload from "../file-upload";
 import type { Block, CardsBlockData } from "@/types/blocks";
 import debounce from "lodash/debounce";
+import { z } from "zod";
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };
@@ -22,6 +23,11 @@ interface CardsFormProps {
 export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   const { organizationId } = useUser();
   const [openCard, setOpenCard] = useState<string | undefined>(undefined);
+  const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
+    {}
+  );
+  const [isTyping, setIsTyping] = useState<Record<number, boolean>>({});
+  const debounceTimerRef = useRef<Record<number, NodeJS.Timeout | null>>({});
 
   const [localState, setLocalState] = useState<CardsBlockData>({
     title: block.data?.title || "Cards",
@@ -63,8 +69,56 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   useEffect(() => {
     return () => {
       debouncedHistoryUpdate.cancel();
+      // Clear all debounce timers
+      Object.values(debounceTimerRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
     };
   }, [debouncedHistoryUpdate]);
+
+  // URL validation schema using Zod
+  const urlSchema = z.string().superRefine((url, ctx) => {
+    // Empty string is valid
+    if (url === "") return;
+
+    // Check for spaces
+    if (url.trim() !== url) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "URL cannot contain spaces",
+      });
+      return;
+    }
+
+    // Domain and TLD pattern without requiring https://
+    const urlPattern =
+      /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
+    if (!urlPattern.test(url)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
+      });
+      return;
+    }
+  });
+
+  const validateUrl = (url: string, index: number) => {
+    try {
+      urlSchema.parse(url);
+      setLinkErrors((prev) => ({ ...prev, [index]: null }));
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setLinkErrors((prev) => ({
+          ...prev,
+          [index]: error.errors[0].message,
+        }));
+        return false;
+      }
+      return true;
+    }
+  };
 
   const handleChange = (key: keyof CardsBlockData, value: any) => {
     // Immediately update the local state for responsive UI
@@ -102,12 +156,99 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   const updateCard = (index: number, key: string, value: string) => {
     const newCards = [...localState.cards];
     newCards[index] = { ...newCards[index], [key]: value };
-    handleChange("cards", newCards);
+
+    // For buttonLink field, handle typing state and validation
+    if (key === "buttonLink") {
+      setIsTyping((prev) => ({ ...prev, [index]: true }));
+
+      // Clear any existing timer for this card
+      if (debounceTimerRef.current[index]) {
+        clearTimeout(debounceTimerRef.current[index]);
+      }
+
+      // Set a new timer to validate after typing stops
+      debounceTimerRef.current[index] = setTimeout(() => {
+        setIsTyping((prev) => ({ ...prev, [index]: false }));
+        const isValid = validateUrl(value, index);
+
+        // Only update parent if valid
+        if (isValid) {
+          handleChange("cards", newCards);
+        }
+      }, 800); // 800ms debounce
+
+      // Still update local state for responsive UI
+      setLocalState((prev) => ({
+        ...prev,
+        cards: newCards,
+      }));
+    } else {
+      // For other fields, update immediately
+      handleChange("cards", newCards);
+    }
+  };
+
+  const handleBlur = (index: number) => {
+    // When input loses focus, clear typing state and validate
+    if (isTyping[index]) {
+      setIsTyping((prev) => ({ ...prev, [index]: false }));
+
+      if (debounceTimerRef.current[index]) {
+        clearTimeout(debounceTimerRef.current[index]);
+        debounceTimerRef.current[index] = null;
+      }
+
+      const buttonLink = localState.cards[index].buttonLink;
+      const isValid = validateUrl(buttonLink, index);
+
+      if (isValid) {
+        // Update UI immediately without adding to history
+        onUpdate(
+          {
+            ...block,
+            data: localState,
+          },
+          false
+        );
+
+        // Debounce the history update
+        debouncedHistoryUpdate();
+      }
+    }
   };
 
   const removeCard = (index: number) => {
     const newCards = localState.cards.filter((_, i) => i !== index);
     handleChange("cards", newCards);
+
+    // Clean up any validation state for this card
+    setLinkErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[index];
+      return newErrors;
+    });
+
+    setIsTyping((prev) => {
+      const newTyping = { ...prev };
+      delete newTyping[index];
+      return newTyping;
+    });
+
+    if (debounceTimerRef.current[index]) {
+      clearTimeout(debounceTimerRef.current[index]);
+      delete debounceTimerRef.current[index];
+    }
+  };
+
+  const onImageRemove = (index: number) => {
+    console.log(`Removing image from card ${index}`);
+    // Update the card's image with an empty string
+    const newCards = [...localState.cards];
+    newCards[index] = { ...newCards[index], image: "" };
+    handleChange("cards", newCards);
+
+    // Force an update to history to ensure the change is saved
+    debouncedHistoryUpdate();
   };
 
   if (!organizationId) return null;
@@ -193,6 +334,8 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                         updateCard(index, "image", path)
                       }
                       type="image"
+                      initialFilePath={card.image}
+                      onRemove={() => onImageRemove(index)}
                     />
                   </div>
                   <Label>Button Text</Label>
@@ -204,13 +347,26 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                     }
                   />
                   <Label>Button Link</Label>
-                  <Input
-                    className="col-span-2"
-                    value={card.buttonLink}
-                    onChange={(e) =>
-                      updateCard(index, "buttonLink", e.target.value)
-                    }
-                  />
+                  <div className="col-span-2 flex flex-col gap-1">
+                    <Input
+                      className={
+                        linkErrors[index] && !isTyping[index]
+                          ? "border-red-500"
+                          : ""
+                      }
+                      value={card.buttonLink}
+                      placeholder="https://..."
+                      onChange={(e) =>
+                        updateCard(index, "buttonLink", e.target.value)
+                      }
+                      onBlur={() => handleBlur(index)}
+                    />
+                    {linkErrors[index] && !isTyping[index] && (
+                      <p className="text-xs text-red-500">
+                        {linkErrors[index]}
+                      </p>
+                    )}
+                  </div>
                   <Button
                     variant="outline"
                     onClick={() => removeCard(index)}

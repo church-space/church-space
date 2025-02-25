@@ -48,11 +48,13 @@ export default function CardsBlock({ data }: CardsBlockProps) {
       <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 gap-y-10">
         {cards.map((card, index) => (
           <div className="w-full flex flex-col gap-2" key={index}>
-            {card.image && (
+            {card.image && imageUrls[card.image] && (
               <Image
-                src={imageUrls[card.image] || ""}
+                src={imageUrls[card.image]}
                 alt={card.title}
                 className="w-full h-48 object-cover rounded-md"
+                width={1280}
+                height={720}
               />
             )}
             <div className="flex flex-col px-1 gap-0.5">
