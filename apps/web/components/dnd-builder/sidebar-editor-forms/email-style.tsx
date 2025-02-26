@@ -76,11 +76,12 @@ export default function EmailStyleForm({
             <SelectValue placeholder="Select a font" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Inter">Inter</SelectItem>
-            <SelectItem value="Arial">Arial</SelectItem>
-            <SelectItem value="Helvetica">Helvetica</SelectItem>
-            <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-            <SelectItem value="Georgia">Georgia</SelectItem>
+            <SelectItem value="sans-serif">Sans Serif</SelectItem>
+            <SelectItem value="serif">Serif</SelectItem>
+            <SelectItem value="monospace">Monospace</SelectItem>
+            <SelectItem value="Arial, sans-serif">Arial</SelectItem>
+            <SelectItem value="Georgia, serif">Georgia</SelectItem>
+            <SelectItem value="Verdana, sans-serif">Verdana</SelectItem>
           </SelectContent>
         </Select>
       </div>
