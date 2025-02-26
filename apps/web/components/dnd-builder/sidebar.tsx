@@ -21,7 +21,7 @@ import { Label } from "@trivo/ui/label";
 import { Separator } from "@trivo/ui/separator";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
-import React from "react";
+import React, { memo } from "react";
 import DndBuilderSidebarForms from "./sidebar-forms";
 
 interface DndBuilderSidebarProps {
@@ -132,7 +132,7 @@ export const allBlockTypes = [
   { label: "Address", type: "address", icon: ArrowRight },
 ];
 
-export default function DndBuilderSidebar({
+export default memo(function DndBuilderSidebar({
   className,
   type,
   onBgColorChange,
@@ -290,4 +290,4 @@ export default function DndBuilderSidebar({
       </AnimatePresence>
     </div>
   );
-}
+});

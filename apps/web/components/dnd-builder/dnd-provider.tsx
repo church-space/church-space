@@ -30,7 +30,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import Block from "./block";
 import DndBuilderCanvas from "./canvas";
 import { useAddEmailBlock } from "./mutations/use-add-email-block";
@@ -1782,27 +1782,85 @@ export default function DndProvider() {
     }
   }, [blocksBeingDeleted]);
 
+  // Memoize the sidebar component to prevent re-renders during drag operations
+  const MemoizedSidebar = useMemo(() => {
+    return (
+      <DndBuilderSidebar
+        type="email"
+        onBgColorChange={handleBgColorChange}
+        bgColor={bgColor}
+        defaultTextColor={defaultTextColor}
+        onDefaultTextColorChange={handleDefaultTextColorChange}
+        defaultFont={defaultFont}
+        onDefaultFontChange={handleDefaultFontChange}
+        isInset={isInset}
+        onIsInsetChange={handleIsInsetChange}
+        emailBgColor={emailBgColor}
+        onEmailBgColorChange={handleEmailBgColorChange}
+        selectedBlock={
+          selectedBlockId
+            ? blocks.find((block) => block.id === selectedBlockId) || null
+            : null
+        }
+        setSelectedBlockId={setSelectedBlockId}
+        onDeleteBlock={handleDeleteBlock}
+        onBlockUpdate={handleBlockUpdate}
+        activeForm={activeForm}
+        setActiveForm={setActiveForm}
+        emailId={emailId}
+        footerData={emailData?.footer || null}
+      />
+    );
+  }, [
+    bgColor,
+    defaultTextColor,
+    defaultFont,
+    isInset,
+    emailBgColor,
+    selectedBlockId,
+    activeForm,
+    emailId,
+    emailData?.footer,
+    blocks.length, // Only depend on blocks.length, not the entire blocks array
+    handleBgColorChange,
+    handleDefaultTextColorChange,
+    handleDefaultFontChange,
+    handleIsInsetChange,
+    handleEmailBgColorChange,
+    setSelectedBlockId,
+    handleDeleteBlock,
+    handleBlockUpdate,
+    setActiveForm,
+  ]);
+
+  // Memoize the breadcrumbs to prevent re-renders during drag operations
+  const MemoizedBreadcrumbs = useMemo(() => {
+    return (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem className="hidden md:block">
+            <BreadcrumbLink href="/">Emails</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator className="hidden md:block" />
+          <BreadcrumbItem className="hidden md:block">
+            <BreadcrumbLink href="/">
+              {emailData?.email?.subject || "Email Subject"}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator className="hidden md:block" />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Settings</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    );
+  }, [emailData?.email?.subject]);
+
   return (
     <div className="flex flex-col h-full relative">
       <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b sticky top-0 left-0 right-0 bg-background z-10">
         <div className="flex items-center gap-2 px-4">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">Emails</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">
-                  {emailData?.email?.subject || "Email Subject"}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Settings</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          {MemoizedBreadcrumbs}
         </div>
         <div className="flex items-center gap-2 px-4">
           <div className="flex">
@@ -1856,31 +1914,7 @@ export default function DndProvider() {
         onDragEnd={handleDragEnd}
       >
         <div className="flex gap-4 p-4 relative">
-          <DndBuilderSidebar
-            type="email"
-            onBgColorChange={handleBgColorChange}
-            bgColor={bgColor}
-            defaultTextColor={defaultTextColor}
-            onDefaultTextColorChange={handleDefaultTextColorChange}
-            defaultFont={defaultFont}
-            onDefaultFontChange={handleDefaultFontChange}
-            isInset={isInset}
-            onIsInsetChange={handleIsInsetChange}
-            emailBgColor={emailBgColor}
-            onEmailBgColorChange={handleEmailBgColorChange}
-            selectedBlock={
-              selectedBlockId
-                ? blocks.find((block) => block.id === selectedBlockId) || null
-                : null
-            }
-            setSelectedBlockId={setSelectedBlockId}
-            onDeleteBlock={handleDeleteBlock}
-            onBlockUpdate={handleBlockUpdate}
-            activeForm={activeForm}
-            setActiveForm={setActiveForm}
-            emailId={emailId}
-            footerData={emailData?.footer || null}
-          />
+          {MemoizedSidebar}
           <div className="flex-1 relative">
             <AnimatePresence>
               {selectedBlockId &&

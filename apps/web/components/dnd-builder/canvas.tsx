@@ -3,7 +3,7 @@ import { useDndContext, useDroppable } from "@dnd-kit/core";
 import { Editor } from "@tiptap/react";
 import { cn } from "@trivo/ui/cn";
 import { motion } from "framer-motion";
-import React, { useRef } from "react";
+import React, { useRef, memo } from "react";
 import Block from "./block";
 import Footer from "./footer";
 
@@ -33,7 +33,7 @@ interface CanvasProps {
   footerData?: any;
 }
 
-export default function DndBuilderCanvas({
+function DndBuilderCanvas({
   blocks,
   bgColor,
   isInset = false,
@@ -204,3 +204,5 @@ export default function DndBuilderCanvas({
     </div>
   );
 }
+
+export default memo(DndBuilderCanvas);
