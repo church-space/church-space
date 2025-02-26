@@ -1,3 +1,4 @@
+import { ReactScan } from "@/components/react-scan";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -19,6 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
+      </head>
+      <ReactScan />
       <body className={`${inter.className} antialiased`}>
         <ReactQueryProvider>
           <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
