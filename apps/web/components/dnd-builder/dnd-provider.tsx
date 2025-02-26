@@ -512,7 +512,7 @@ export default function DndProvider() {
       updateBlocksWithoutHistory(updatedBlocks);
 
       // Update all text editors to use the new font and color
-      Object.entries(editors).forEach(([blockId, editor]) => {
+      Object.entries(editors).forEach(([_, editor]) => {
         if (!editor.isDestroyed) {
           // Set the font and color for the editor
           editor.commands.setFontFamily(defaultFont);
