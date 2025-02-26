@@ -34,6 +34,7 @@ interface FooterProps {
   isActive: boolean;
   footerData?: any;
   emailInset: boolean;
+  emailBgColor: string;
 }
 
 const socialIcons = {
@@ -54,8 +55,8 @@ export default function Footer({
   isActive,
   footerData,
   emailInset,
+  emailBgColor,
 }: FooterProps) {
-  const emailBgColor = "#fff2d5";
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const logo = footerData?.logo || "";
 

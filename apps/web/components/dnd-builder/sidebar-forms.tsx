@@ -130,7 +130,11 @@ export default function DndBuilderSidebarForms({
           />
         )}
         {formType === "email-footer" && (
-          <EmailFooterForm emailId={emailId} footerData={footerData} />
+          <EmailFooterForm
+            emailId={emailId}
+            footerData={footerData}
+            emailInset={isInset || false}
+          />
         )}
         {formType === "email-templates" && (
           <EmailTemplateForm onSelectTemplate={onSelectTemplate} />
@@ -224,9 +228,10 @@ export default function DndBuilderSidebarForms({
                   <Button
                     variant="outline"
                     className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() =>
-                      selectedBlock && handleDeleteBlock(selectedBlock.id)
-                    }
+                    onClick={() => {
+                      selectedBlock && handleDeleteBlock(selectedBlock.id);
+                      setIsDeleteConfirmationExpanded(false);
+                    }}
                   >
                     Confirm
                   </Button>

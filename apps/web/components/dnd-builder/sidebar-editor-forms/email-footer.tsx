@@ -40,11 +40,13 @@ const emailSchema = z.string().email("Please enter a valid email address");
 interface EmailFooterFormProps {
   emailId?: number;
   footerData?: any;
+  emailInset: boolean;
 }
 
 export default function EmailFooterForm({
   emailId,
   footerData,
+  emailInset,
 }: EmailFooterFormProps) {
   const { organizationId } = useUser();
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
@@ -95,55 +97,44 @@ export default function EmailFooterForm({
   );
   const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
 
-  // Create a ref to store the latest state for the debounced function
-  const stateRef = useRef(localState);
-
-  // Update the ref whenever localState changes
-  useEffect(() => {
-    stateRef.current = localState;
-  }, [localState]);
-
   // Handle general state changes
   const handleChange = (key: string, value: any) => {
-    setLocalState((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    // Update local state immediately for responsive UI
+    setLocalState((prev) => {
+      const newState = { ...prev, [key]: value };
 
-    // Update immediately instead of debouncing for better responsiveness
-    if (emailId && organizationId) {
-      updateEmailFooter.mutate({
-        emailId,
-        organizationId,
-        updates: {
-          ...stateRef.current,
-          [key]: value,
-        },
-      });
-    }
+      // Update server immediately
+      if (emailId && organizationId) {
+        updateEmailFooter.mutate({
+          emailId,
+          organizationId,
+          updates: newState,
+        });
+      }
+
+      return newState;
+    });
   };
 
   const addLink = () => {
     if (localState.links.length < 5) {
       const newLinks = [...localState.links, { icon: "", url: "" }];
 
-      // Update local state
-      setLocalState((prev) => ({
-        ...prev,
-        links: newLinks,
-      }));
+      // Update local state and server
+      setLocalState((prev) => {
+        const newState = { ...prev, links: newLinks };
 
-      // Update server directly
-      if (emailId && organizationId) {
-        updateEmailFooter.mutate({
-          emailId,
-          organizationId,
-          updates: {
-            ...stateRef.current,
-            links: newLinks,
-          },
-        });
-      }
+        // Update server
+        if (emailId && organizationId) {
+          updateEmailFooter.mutate({
+            emailId,
+            organizationId,
+            updates: newState,
+          });
+        }
+
+        return newState;
+      });
     }
   };
 
@@ -198,25 +189,23 @@ export default function EmailFooterForm({
 
         // Only update if valid
         if (isValid) {
-          // Update local state
-          setLocalState((prev) => ({
-            ...prev,
-            links: newLinks,
-          }));
+          // Update local state and server
+          setLocalState((prev) => {
+            const newState = { ...prev, links: newLinks };
 
-          // Update server directly instead of calling handleChange which would trigger another debounce
-          if (emailId && organizationId) {
-            updateEmailFooter.mutate({
-              emailId,
-              organizationId,
-              updates: {
-                ...stateRef.current,
-                links: newLinks,
-              },
-            });
-          }
+            // Update server
+            if (emailId && organizationId) {
+              updateEmailFooter.mutate({
+                emailId,
+                organizationId,
+                updates: newState,
+              });
+            }
+
+            return newState;
+          });
         }
-      }, 500); // Reduced from 800ms to 500ms for better responsiveness
+      }, 500);
 
       // Update local state immediately for responsive UI
       setLocalState((prev) => ({
@@ -229,23 +218,21 @@ export default function EmailFooterForm({
         setLinkErrors((prev) => ({ ...prev, [index]: null }));
       }
 
-      // Update local state
-      setLocalState((prev) => ({
-        ...prev,
-        links: newLinks,
-      }));
+      // Update local state and server
+      setLocalState((prev) => {
+        const newState = { ...prev, links: newLinks };
 
-      // Update server directly
-      if (emailId && organizationId) {
-        updateEmailFooter.mutate({
-          emailId,
-          organizationId,
-          updates: {
-            ...stateRef.current,
-            links: newLinks,
-          },
-        });
-      }
+        // Update server
+        if (emailId && organizationId) {
+          updateEmailFooter.mutate({
+            emailId,
+            organizationId,
+            updates: newState,
+          });
+        }
+
+        return newState;
+      });
     }
   };
 
@@ -263,23 +250,21 @@ export default function EmailFooterForm({
       const isValid = validateLink(link.url, link.icon, index);
 
       if (isValid) {
-        // Update local state
-        setLocalState((prev) => ({
-          ...prev,
-          links: localState.links,
-        }));
+        // Update local state and server
+        setLocalState((prev) => {
+          const newState = { ...prev };
 
-        // Update server directly
-        if (emailId && organizationId) {
-          updateEmailFooter.mutate({
-            emailId,
-            organizationId,
-            updates: {
-              ...stateRef.current,
-              links: localState.links,
-            },
-          });
-        }
+          // Update server
+          if (emailId && organizationId) {
+            updateEmailFooter.mutate({
+              emailId,
+              organizationId,
+              updates: newState,
+            });
+          }
+
+          return newState;
+        });
       }
     }
   };
@@ -289,23 +274,21 @@ export default function EmailFooterForm({
       (_: Link, i: number) => i !== index
     );
 
-    // Update local state
-    setLocalState((prev) => ({
-      ...prev,
-      links: newLinks,
-    }));
+    // Update local state and server
+    setLocalState((prev) => {
+      const newState = { ...prev, links: newLinks };
 
-    // Update server directly
-    if (emailId && organizationId) {
-      updateEmailFooter.mutate({
-        emailId,
-        organizationId,
-        updates: {
-          ...stateRef.current,
-          links: newLinks,
-        },
-      });
-    }
+      // Update server
+      if (emailId && organizationId) {
+        updateEmailFooter.mutate({
+          emailId,
+          organizationId,
+          updates: newState,
+        });
+      }
+
+      return newState;
+    });
 
     // Clean up any errors or timers for this index
     setLinkErrors((prev) => {
@@ -321,46 +304,42 @@ export default function EmailFooterForm({
   };
 
   const handleUploadComplete = (path: string) => {
-    // Update local state
-    setLocalState((prev) => ({
-      ...prev,
-      logo: path,
-    }));
+    // Update local state and server
+    setLocalState((prev) => {
+      const newState = { ...prev, logo: path };
 
-    // Update server directly
-    if (emailId && organizationId) {
-      updateEmailFooter.mutate({
-        emailId,
-        organizationId,
-        updates: {
-          ...stateRef.current,
-          logo: path,
-        },
-      });
-    }
+      // Update server
+      if (emailId && organizationId) {
+        updateEmailFooter.mutate({
+          emailId,
+          organizationId,
+          updates: newState,
+        });
+      }
+
+      return newState;
+    });
   };
 
   const handleLogoRemove = () => {
-    // Update local state
-    setLocalState((prev) => ({
-      ...prev,
-      logo: "",
-    }));
+    // Update local state and server
+    setLocalState((prev) => {
+      const newState = { ...prev, logo: "" };
 
-    // Update server directly
-    if (emailId && organizationId) {
-      updateEmailFooter.mutate({
-        emailId,
-        organizationId,
-        updates: {
-          ...stateRef.current,
-          logo: "",
-        },
-      });
-    }
+      // Update server
+      if (emailId && organizationId) {
+        updateEmailFooter.mutate({
+          emailId,
+          organizationId,
+          updates: newState,
+        });
+      }
+
+      return newState;
+    });
   };
 
-  // Cleanup debounce timers on unmount
+  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       Object.values(linkTimersRef.current).forEach((timer) => {
@@ -390,6 +369,11 @@ export default function EmailFooterForm({
           value={localState.name}
           onChange={(e) => handleChange("name", e.target.value)}
         />
+        <Label className="font-medium">Title Color</Label>
+        <ColorPicker
+          value={localState.text_color}
+          onChange={(color) => handleChange("text_color", color)}
+        />
         <Label>Subtitle</Label>
         <Textarea
           className="col-span-2"
@@ -414,16 +398,16 @@ export default function EmailFooterForm({
           value={localState.copyright_name}
           onChange={(e) => handleChange("copyright_name", e.target.value)}
         />
-        <Label className="font-medium">Background Color</Label>
-        <ColorPicker
-          value={localState.bg_color}
-          onChange={(color) => handleChange("bg_color", color)}
-        />
-        <Label className="font-medium">Text Color</Label>
-        <ColorPicker
-          value={localState.text_color}
-          onChange={(color) => handleChange("text_color", color)}
-        />
+        {!emailInset && (
+          <>
+            <Label className="font-medium">Background Color</Label>
+            <ColorPicker
+              value={localState.bg_color}
+              onChange={(color) => handleChange("bg_color", color)}
+            />
+          </>
+        )}
+
         <Label className="font-medium">Secondary Text Color</Label>
         <ColorPicker
           value={localState.secondary_text_color}

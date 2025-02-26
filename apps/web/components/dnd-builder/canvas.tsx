@@ -200,6 +200,7 @@ function DndBuilderCanvas({
         isActive={activeForm === "email-footer"}
         footerData={footerData}
         emailInset={isInset}
+        emailBgColor={emailBgColor}
       />
     </div>
   );
