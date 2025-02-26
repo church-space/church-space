@@ -23,7 +23,6 @@ import ImageForm from "./sidebar-editor-forms/image";
 import ListForm from "./sidebar-editor-forms/list";
 import TextForm from "./sidebar-editor-forms/text";
 import VideoForm from "./sidebar-editor-forms/video";
-import { useState } from "react";
 
 export default function DndBuilderSidebarForms({
   selectedBlock,
@@ -220,7 +219,9 @@ export default function DndBuilderSidebarForms({
               variant="outline"
               className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
               onClick={() => {
-                selectedBlock && handleDeleteBlock(selectedBlock.id);
+                if (selectedBlock) {
+                  handleDeleteBlock(selectedBlock.id);
+                }
               }}
             >
               Delete Block
