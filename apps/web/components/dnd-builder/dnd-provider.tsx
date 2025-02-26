@@ -455,13 +455,26 @@ export default function DndProvider() {
             ? (block.data as any).content
             : "<p>Hello, start typing here...</p>";
 
-        const newEditor = createEditor(initialContent);
+        // Check if this block has its own font/color settings
+        const blockData = (block.data as any) || {};
+        const hasCustomStyles = blockData.font || blockData.textColor;
+
+        // If the block has custom styles, preserve them; otherwise use email defaults
+        const blockFont = blockData.font || defaultFont;
+        const blockTextColor = blockData.textColor || defaultTextColor;
+
+        const newEditor = createEditor(
+          initialContent,
+          blockFont,
+          blockTextColor,
+          hasCustomStyles // preserve existing styles if the block has custom settings
+        );
         newEditors[block.id] = newEditor;
       });
 
       setEditors(newEditors);
     }
-  }, [blocks]);
+  }, [blocks, defaultFont, defaultTextColor]);
 
   // Create a ref to track the latest blocks for debounced history updates
   const latestBlocksRef = useRef(blocks);
@@ -486,9 +499,12 @@ export default function DndProvider() {
     // Immediately update the UI with the new content
     const newBlocks = blocks.map((block) => {
       if (block.id === blockId && block.type === "text") {
+        // Preserve existing font and textColor properties
+        const existingData = (block.data as any) || {};
         return {
           ...block,
           data: {
+            ...existingData,
             content,
           } as BlockType["data"],
         } as BlockType;
@@ -505,9 +521,16 @@ export default function DndProvider() {
     // Update in database if we have an emailId and the block exists in the database
     if (emailId && !isNaN(parseInt(blockId, 10))) {
       const dbBlockId = parseInt(blockId, 10);
+      // Find the block to get its current data
+      const blockToUpdate = blocks.find((block) => block.id === blockId);
+      const existingData = (blockToUpdate?.data as any) || {};
+
       updateEmailBlock.mutate({
         blockId: dbBlockId,
-        value: { content },
+        value: {
+          ...existingData,
+          content,
+        },
       });
     }
   };
@@ -565,7 +588,11 @@ export default function DndProvider() {
       let blockData: BlockData;
 
       if (blockType === "text") {
-        blockData = { content: "" };
+        blockData = {
+          content: "",
+          font: defaultFont,
+          textColor: defaultTextColor,
+        };
       } else if (blockType === "video") {
         blockData = {
           url: "",
@@ -671,7 +698,12 @@ export default function DndProvider() {
             ? (blockData as any).content
             : "<p>Hello, start typing here...</p>";
 
-        const newEditor = createEditor(initialContent);
+        const newEditor = createEditor(
+          initialContent,
+          defaultFont,
+          defaultTextColor,
+          false // new blocks should use email defaults
+        );
         setEditors((prev) => ({
           ...prev,
           [newBlockId]: newEditor,
@@ -1306,8 +1338,21 @@ export default function DndProvider() {
       // For text blocks, create a temporary editor for the overlay
       if (draggedBlock.type === "text" && editors[draggedBlock.id]) {
         const content = editors[draggedBlock.id]?.getHTML() || "";
-        const overlayEditor = createEditor();
-        overlayEditor.commands.setContent(content);
+
+        // Check if this block has its own font/color settings
+        const blockData = (draggedBlock.data as any) || {};
+        const hasCustomStyles = blockData.font || blockData.textColor;
+
+        // If the block has custom styles, preserve them; otherwise use email defaults
+        const blockFont = blockData.font || defaultFont;
+        const blockTextColor = blockData.textColor || defaultTextColor;
+
+        const overlayEditor = createEditor(
+          content,
+          blockFont,
+          blockTextColor,
+          hasCustomStyles // preserve existing styles if the block has custom settings
+        );
 
         return (
           <Block

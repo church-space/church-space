@@ -31,7 +31,7 @@ export default function EmailStyleForm({
   onEmailBgColorChange,
   defaultTextColor = "#000000",
   onDefaultTextColorChange,
-  defaultFont = "Inter",
+  defaultFont = "sans-serif",
   onDefaultFontChange,
 }: EmailStyleFormProps) {
   return (

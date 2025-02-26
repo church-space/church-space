@@ -3,6 +3,7 @@ import { FontFamily } from "@tiptap/extension-font-family";
 import FontSize from "@tiptap/extension-font-size";
 import Link from "@tiptap/extension-link";
 import Mention from "@tiptap/extension-mention";
+import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
@@ -10,8 +11,17 @@ import { Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import suggestion from "../rich-text-editor/suggestions";
 
-export const createEditor = (initialContent?: string) => {
-  return new Editor({
+export const createEditor = (
+  initialContent?: string,
+  defaultFont?: string,
+  defaultTextColor?: string,
+  preserveExistingStyles: boolean = false
+) => {
+  // Use the provided content or default placeholder
+  let content = initialContent || "<p></p>";
+
+  // Create the editor with appropriate extensions
+  const editor = new Editor({
     extensions: [
       StarterKit.configure({
         bulletList: false,
@@ -34,8 +44,12 @@ export const createEditor = (initialContent?: string) => {
         },
         suggestion,
       }),
+      Placeholder.configure({
+        placeholder: "Start typing here...",
+        showOnlyWhenEditable: true,
+      }),
     ],
-    content: initialContent || "<p>Hello, start typing here...</p>",
+    content,
     editorProps: {
       attributes: {
         class:
@@ -43,4 +57,17 @@ export const createEditor = (initialContent?: string) => {
       },
     },
   });
+
+  // Apply default styles if needed and not preserving existing styles
+  if (!preserveExistingStyles) {
+    if (defaultTextColor) {
+      editor.commands.setColor(defaultTextColor);
+    }
+
+    if (defaultFont) {
+      editor.commands.setFontFamily(defaultFont);
+    }
+  }
+
+  return editor;
 };

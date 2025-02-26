@@ -6,9 +6,16 @@ import { useEffect, useRef, useState } from "react";
 interface TextBlockProps {
   editor: Editor | null;
   onContentChange?: (content: string) => void;
+  font?: string;
+  textColor?: string;
 }
 
-const TextBlock = ({ editor, onContentChange }: TextBlockProps) => {
+const TextBlock = ({
+  editor,
+  onContentChange,
+  font,
+  textColor,
+}: TextBlockProps) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
 
   useEffect(() => {
@@ -44,7 +51,13 @@ const TextBlock = ({ editor, onContentChange }: TextBlockProps) => {
   }
 
   return (
-    <div className="relative prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none">
+    <div
+      className="relative prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none"
+      style={{
+        fontFamily: font,
+        color: textColor,
+      }}
+    >
       <EditorContent editor={editor} />
     </div>
   );

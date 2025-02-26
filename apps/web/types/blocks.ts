@@ -19,6 +19,8 @@ export type BlockType =
 
 export interface TextBlockData {
   content: string;
+  font?: string;
+  textColor?: string;
 }
 
 export interface DividerBlockData {

@@ -62,6 +62,8 @@ export default function Block({
                 onTextContentChange(id, content);
               }
             }}
+            font={block.data?.font}
+            textColor={block.data?.textColor}
           />
         );
       case "divider":
