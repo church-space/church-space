@@ -449,12 +449,19 @@ export default function DndProvider() {
     if (missingEditors.length > 0) {
       const newEditors = { ...editors };
       missingEditors.forEach((block) => {
-        newEditors[block.id] = createEditor();
+        // Create a new editor with the block's content
+        const initialContent =
+          block.data && (block.data as any).content
+            ? (block.data as any).content
+            : "<p>Hello, start typing here...</p>";
+
+        const newEditor = createEditor(initialContent);
+        newEditors[block.id] = newEditor;
       });
 
       setEditors(newEditors);
     }
-  }, [blocks, editors]);
+  }, [blocks]);
 
   // Create a ref to track the latest blocks for debounced history updates
   const latestBlocksRef = useRef(blocks);
@@ -518,23 +525,7 @@ export default function DndProvider() {
       const newIndex = blocks.findIndex((block) => block.id === over.id);
 
       if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-        // Store current editors state and their content
-        const currentEditors = { ...editors };
-        const editorContents: Record<string, string> = {};
-
-        // Only store content for the moved editor
-        const movedBlock = blocks[oldIndex];
-        if (!movedBlock) return;
-
-        const movedBlockId = movedBlock.id;
-        if (
-          currentEditors[movedBlockId] &&
-          !currentEditors[movedBlockId].isDestroyed
-        ) {
-          editorContents[movedBlockId] = currentEditors[movedBlockId].getHTML();
-          currentEditors[movedBlockId].destroy();
-        }
-
+        // Create a new blocks array with the reordered blocks
         const newBlocks = arrayMove(blocks, oldIndex, newIndex);
 
         // Update order in database for all affected blocks
@@ -564,26 +555,6 @@ export default function DndProvider() {
         } else {
           updateBlocks(newBlocks);
         }
-
-        // Use RAF to ensure DOM is ready before editor updates
-        requestAnimationFrame(() => {
-          const updatedEditors = { ...currentEditors };
-
-          // Only recreate the moved editor if it exists and is a text block
-          const movedBlockInNewPosition = newBlocks[newIndex];
-          if (
-            movedBlockInNewPosition &&
-            movedBlockInNewPosition.type === "text"
-          ) {
-            const newEditor = createEditor();
-            if (editorContents[movedBlockId]) {
-              newEditor.commands.setContent(editorContents[movedBlockId]);
-            }
-            updatedEditors[movedBlockId] = newEditor;
-          }
-
-          setEditors(updatedEditors);
-        });
       }
     } else {
       // Handle new blocks from sidebar
@@ -695,7 +666,12 @@ export default function DndProvider() {
 
       // Initialize editor for text blocks
       if (blockType === "text") {
-        const newEditor = createEditor();
+        const initialContent =
+          blockData && (blockData as any).content
+            ? (blockData as any).content
+            : "<p>Hello, start typing here...</p>";
+
+        const newEditor = createEditor(initialContent);
         setEditors((prev) => ({
           ...prev,
           [newBlockId]: newEditor,
@@ -713,13 +689,11 @@ export default function DndProvider() {
       }));
 
       // Update the local state
-
       updateBlocks(newBlocks);
 
       // Add the block to the database if we have an emailId
       if (emailId) {
         // First update the UI optimistically
-
         // Then add to database
         addEmailBlock.mutate(
           {
@@ -740,13 +714,26 @@ export default function DndProvider() {
                     : block
                 );
 
+                // Update the editor reference if this is a text block
+                if (blockType === "text") {
+                  setEditors((prev) => {
+                    const newEditors = { ...prev };
+                    if (newEditors[newBlockId]) {
+                      // Move the editor reference to the new ID
+                      newEditors[result.id.toString()] = newEditors[newBlockId];
+                      delete newEditors[newBlockId];
+                    }
+                    return newEditors;
+                  });
+                }
+
                 // Check for duplicate IDs
-                const updatedIds = updatedBlocks.map((block) => block.id);
-                const hasDuplicates = updatedIds.some(
-                  (id, index) => updatedIds.indexOf(id) !== index
+                const updatedBlockIds = updatedBlocks.map((block) => block.id);
+                const hasBlockDuplicates = updatedBlockIds.some(
+                  (id, index) => updatedBlockIds.indexOf(id) !== index
                 );
 
-                if (hasDuplicates) {
+                if (hasBlockDuplicates) {
                   // Keep only the first occurrence of each ID
                   const seenIds = new Set<string>();
                   const deduplicatedBlocks = updatedBlocks.filter((block) => {
@@ -786,8 +773,16 @@ export default function DndProvider() {
 
   // Cleanup editors when blocks are removed
   const handleDeleteBlock = (id: string) => {
+    // Safely destroy the editor if it exists
     if (editors[id]) {
-      editors[id].destroy();
+      try {
+        if (!editors[id].isDestroyed) {
+          editors[id].destroy();
+        }
+      } catch (error) {
+        console.error("Error destroying editor:", error);
+      }
+
       setEditors((prev) => {
         const newEditors = { ...prev };
         delete newEditors[id];
@@ -946,15 +941,20 @@ export default function DndProvider() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      // Safely destroy all editors
       Object.values(editors).forEach((editor) => {
-        if (editor && !editor.isDestroyed) {
-          editor.destroy();
+        try {
+          if (editor && !editor.isDestroyed) {
+            editor.destroy();
+          }
+        } catch (error) {
+          console.error("Error destroying editor during cleanup:", error);
         }
       });
       // Clear the permanently deleted blocks ref when component unmounts
       permanentlyDeletedBlocksRef.current.clear();
     };
-  }, [editors]);
+  }, []);
 
   const handleDragStart = (event: any) => {
     const { active } = event;
@@ -1039,13 +1039,27 @@ export default function DndProvider() {
                   : block
               );
 
+              // Update the editor reference if this is a text block
+              if (updatedBlock.type === "text") {
+                setEditors((prev) => {
+                  const newEditors = { ...prev };
+                  if (newEditors[updatedBlock.id]) {
+                    // Move the editor reference to the new ID
+                    newEditors[result.id.toString()] =
+                      newEditors[updatedBlock.id];
+                    delete newEditors[updatedBlock.id];
+                  }
+                  return newEditors;
+                });
+              }
+
               // Check for duplicate IDs
-              const updatedIds = updatedBlocks.map((block) => block.id);
-              const hasDuplicates = updatedIds.some(
-                (id, index) => updatedIds.indexOf(id) !== index
+              const updatedBlockIds = updatedBlocks.map((block) => block.id);
+              const hasBlockDuplicates = updatedBlockIds.some(
+                (id, index) => updatedBlockIds.indexOf(id) !== index
               );
 
-              if (hasDuplicates) {
+              if (hasBlockDuplicates) {
                 // Keep only the first occurrence of each ID
                 const seenIds = new Set<string>();
                 const deduplicatedBlocks = updatedBlocks.filter((block) => {
@@ -1151,13 +1165,27 @@ export default function DndProvider() {
                 : block
             );
 
+            // Update the editor reference if this is a text block
+            if (updatedBlock.type === "text") {
+              setEditors((prev) => {
+                const newEditors = { ...prev };
+                if (newEditors[updatedBlock.id]) {
+                  // Move the editor reference to the new ID
+                  newEditors[matchingDbBlock.id.toString()] =
+                    newEditors[updatedBlock.id];
+                  delete newEditors[updatedBlock.id];
+                }
+                return newEditors;
+              });
+            }
+
             // Check for duplicate IDs
-            const updatedIds = updatedBlocks.map((block) => block.id);
-            const hasDuplicates = updatedIds.some(
-              (id, index) => updatedIds.indexOf(id) !== index
+            const updatedBlockIds = updatedBlocks.map((block) => block.id);
+            const hasBlockDuplicates = updatedBlockIds.some(
+              (id, index) => updatedBlockIds.indexOf(id) !== index
             );
 
-            if (hasDuplicates) {
+            if (hasBlockDuplicates) {
               // Keep only the first occurrence of each ID
               const seenIds = new Set<string>();
               const deduplicatedBlocks = updatedBlocks.filter((block) => {
@@ -1192,13 +1220,29 @@ export default function DndProvider() {
                         : block
                     );
 
+                    // Update the editor reference if this is a text block
+                    if (updatedBlock.type === "text") {
+                      setEditors((prev) => {
+                        const newEditors = { ...prev };
+                        if (newEditors[updatedBlock.id]) {
+                          // Move the editor reference to the new ID
+                          newEditors[result.id.toString()] =
+                            newEditors[updatedBlock.id];
+                          delete newEditors[updatedBlock.id];
+                        }
+                        return newEditors;
+                      });
+                    }
+
                     // Check for duplicate IDs
-                    const updatedIds = updatedBlocks.map((block) => block.id);
-                    const hasDuplicates = updatedIds.some(
-                      (id, index) => updatedIds.indexOf(id) !== index
+                    const updatedBlockIds = updatedBlocks.map(
+                      (block) => block.id
+                    );
+                    const hasBlockDuplicates = updatedBlockIds.some(
+                      (id, index) => updatedBlockIds.indexOf(id) !== index
                     );
 
-                    if (hasDuplicates) {
+                    if (hasBlockDuplicates) {
                       // Keep only the first occurrence of each ID
                       const seenIds = new Set<string>();
                       const deduplicatedBlocks = updatedBlocks.filter(

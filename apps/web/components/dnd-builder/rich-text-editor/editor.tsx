@@ -10,7 +10,7 @@ import { Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import suggestion from "../rich-text-editor/suggestions";
 
-export const createEditor = () => {
+export const createEditor = (initialContent?: string) => {
   return new Editor({
     extensions: [
       StarterKit.configure({
@@ -35,7 +35,7 @@ export const createEditor = () => {
         suggestion,
       }),
     ],
-    content: "<p>Hello, start typing here...</p>",
+    content: initialContent || "<p>Hello, start typing here...</p>",
     editorProps: {
       attributes: {
         class:
