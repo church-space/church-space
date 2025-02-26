@@ -18,7 +18,7 @@ export const createEditor = (
   preserveExistingStyles: boolean = false
 ) => {
   // Use the provided content or empty string for placeholder to work
-  let content =
+  const content =
     initialContent === null || initialContent === undefined
       ? ""
       : initialContent;

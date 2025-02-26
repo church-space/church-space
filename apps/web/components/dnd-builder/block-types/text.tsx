@@ -1,7 +1,7 @@
 "use client";
 
 import { Editor, EditorContent } from "@tiptap/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface TextBlockProps {
   editor: Editor | null;

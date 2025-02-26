@@ -1,20 +1,6 @@
 "use client";
 
 import type { Editor } from "@tiptap/react";
-import {
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  FileTypeIcon as FontFamily,
-  TextIcon as TextSize,
-  Palette,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
-  Link,
-} from "lucide-react";
 import { Button } from "@trivo/ui/button";
 import {
   DropdownMenu,
@@ -22,11 +8,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@trivo/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@trivo/ui/popover";
-import { useState, useEffect } from "react";
 import { Input } from "@trivo/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@trivo/ui/popover";
 import { ToggleGroup, ToggleGroupItem } from "@trivo/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
+import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
+  Bold,
+  Italic,
+  Link,
+  Strikethrough,
+  TextIcon as TextSize,
+  Underline,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 const fontSizes = [12, 14, 16, 18, 20, 24, 28, 32, 36, 48];
 
