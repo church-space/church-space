@@ -207,6 +207,7 @@ export default function DndBuilderCanvas({
         footerData={footerData}
         emailInset={isInset}
         emailBgColor={emailBgColor}
+        defaultFont={defaultFont}
       />
     </div>
   );

@@ -35,6 +35,7 @@ interface FooterProps {
   footerData?: any;
   emailInset: boolean;
   emailBgColor: string;
+  defaultFont?: string;
 }
 
 const socialIcons = {
@@ -56,6 +57,7 @@ export default function Footer({
   footerData,
   emailInset,
   emailBgColor,
+  defaultFont,
 }: FooterProps) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const logo = footerData?.logo || "";
@@ -65,7 +67,7 @@ export default function Footer({
   const footerTextColor = footerData?.text_color || "#000000";
   const footerSecondaryTextColor =
     footerData?.secondary_text_color || "#666666";
-  const footerFont = footerData?.font || "Inter";
+  const footerFont = defaultFont || footerData?.font || "Inter";
   const socialIconStyle = footerData?.socials_style || "icon-only";
   const socialIconColor = footerData?.socials_color || "#000000";
   const socialIconTextColor = footerData?.socials_icon_color || "#ffffff"; // For filled icons text
