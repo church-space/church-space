@@ -76,9 +76,6 @@ export default function DndBuilderSidebarForms({
   emailId?: number;
   footerData?: any;
 }) {
-  const [isDeleteConfirmationExpanded, setIsDeleteConfirmationExpanded] =
-    useState(false);
-
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -219,39 +216,16 @@ export default function DndBuilderSidebarForms({
       {selectedBlock && formType === "block" && (
         <div className="flex gap-2 items-center justify-end">
           <div className="flex items-center justify-center gap-2">
-            <div
-              className={`overflow-hidden transition-all duration-200 ease-in-out ${isDeleteConfirmationExpanded ? "w-[145px]" : "w-[102px]"}`}
+            <Button
+              variant="outline"
+              className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => {
+                selectedBlock && handleDeleteBlock(selectedBlock.id);
+              }}
             >
-              {!isDeleteConfirmationExpanded ? (
-                <Button
-                  variant="outline"
-                  className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
-                  onClick={() => setIsDeleteConfirmationExpanded(true)}
-                >
-                  Delete Block
-                </Button>
-              ) : (
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => {
-                      selectedBlock && handleDeleteBlock(selectedBlock.id);
-                      setIsDeleteConfirmationExpanded(false);
-                    }}
-                  >
-                    Confirm
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="  px-2 py-0 h-7 "
-                    onClick={() => setIsDeleteConfirmationExpanded(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              )}
-            </div>
+              Delete Block
+            </Button>
+
             <Button
               variant="outline"
               className=" px-2 py-0 h-7 "
