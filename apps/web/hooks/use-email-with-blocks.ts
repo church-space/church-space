@@ -53,6 +53,8 @@ export function useEmailWithBlocks(emailId: number | undefined) {
         .eq("email_id", emailId)
         .maybeSingle();
 
+      console.log("footerData", footerData);
+
       // Only throw if it's not a "not found" error
       if (footerError && footerError.code !== "PGRST116") {
         throw footerError;

@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Editor } from "@tiptap/react";
 import { cn } from "@trivo/ui/cn";
-import React, { memo } from "react";
+import React from "react";
 import AuthorBlock from "./block-types/author";
 import ButtonBlock from "./block-types/button";
 import CardsBlock from "./block-types/cards";
@@ -25,7 +25,7 @@ interface BlockProps {
   onTextContentChange?: (blockId: string, content: string) => void;
 }
 
-function Block({
+export default function Block({
   type,
   id,
   isDragging,
@@ -104,20 +104,3 @@ function Block({
     </div>
   );
 }
-
-// Use React.memo with a custom comparison function to optimize re-renders
-export default memo(Block, (prevProps, nextProps) => {
-  // Only re-render if these props change
-  return (
-    prevProps.id === nextProps.id &&
-    prevProps.type === nextProps.type &&
-    prevProps.isDragging === nextProps.isDragging &&
-    prevProps.isSelected === nextProps.isSelected &&
-    prevProps.isOverlay === nextProps.isOverlay &&
-    prevProps.editor === nextProps.editor &&
-    // Deep compare block data only if it's the same block type
-    (prevProps.type !== nextProps.type ||
-      JSON.stringify(prevProps.block?.data) ===
-        JSON.stringify(nextProps.block?.data))
-  );
-});
