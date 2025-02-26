@@ -151,7 +151,14 @@ export default function DndBuilderSidebarForms({
           )}
         {selectedBlock &&
           formType === "block" &&
-          selectedBlock.type === "text" && <TextForm />}
+          selectedBlock.type === "text" && (
+            <TextForm
+              defaultTextColor={defaultTextColor || "#000000"}
+              onDefaultTextColorChange={onDefaultTextColorChange}
+              defaultFont={defaultFont || "sans-serif"}
+              onDefaultFontChange={onDefaultFontChange}
+            />
+          )}
         {selectedBlock &&
           formType === "block" &&
           selectedBlock.type === "image" && (

@@ -39,7 +39,9 @@ export default function EmailStyleForm({
       <h2 className="text-lg font-semibold">Email Style</h2>
 
       <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Blocks BG Color</Label>
+        <Label className="font-medium">
+          {isInset ? "Content BG Color" : "Background Color"}
+        </Label>
 
         <ColorPicker
           value={bgColor}
@@ -61,7 +63,7 @@ export default function EmailStyleForm({
         </div>
       )}
       <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Default Text Color</Label>
+        <Label className="font-medium">Text Color</Label>
 
         <ColorPicker
           value={defaultTextColor}
@@ -70,7 +72,7 @@ export default function EmailStyleForm({
       </div>
 
       <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Default Font</Label>
+        <Label className="font-medium">Font</Label>
         <Select value={defaultFont} onValueChange={onDefaultFontChange}>
           <SelectTrigger className="col-span-2">
             <SelectValue placeholder="Select a font" />

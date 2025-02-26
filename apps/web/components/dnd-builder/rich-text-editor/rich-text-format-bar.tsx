@@ -28,15 +28,6 @@ import { Input } from "@trivo/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@trivo/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
 
-const fontFamilies = [
-  { name: "Default", value: "sans-serif" },
-  { name: "Serif", value: "serif" },
-  { name: "Monospace", value: "monospace" },
-  { name: "Arial", value: "Arial, sans-serif" },
-  { name: "Georgia", value: "Georgia, serif" },
-  { name: "Verdana", value: "Verdana, sans-serif" },
-];
-
 const fontSizes = [12, 14, 16, 18, 20, 24, 28, 32, 36, 48];
 
 interface ToolbarProps {
@@ -216,32 +207,6 @@ const Toolbar = ({ editor }: ToolbarProps) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <FontFamily className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {fontFamilies.map((font) => (
-                <DropdownMenuItem
-                  key={font.value}
-                  onClick={() =>
-                    editor.chain().focus().setFontFamily(font.value).run()
-                  }
-                  className="flex justify-between items-center"
-                >
-                  <span style={{ fontFamily: font.value }}>{font.name}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </TooltipTrigger>
-        <TooltipContent>Font Family</TooltipContent>
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
                 <TextSize className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -260,62 +225,6 @@ const Toolbar = ({ editor }: ToolbarProps) => {
           </DropdownMenu>
         </TooltipTrigger>
         <TooltipContent>Font Size</TooltipContent>
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Palette className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64">
-              <div className="flex flex-col gap-4">
-                <input
-                  type="color"
-                  value={color}
-                  onChange={(e) => {
-                    setColor(e.target.value);
-                    editor.chain().focus().setColor(e.target.value).run();
-                  }}
-                  className="w-full h-8"
-                />
-                <div className="grid grid-cols-8 gap-2">
-                  {[
-                    "#000000",
-                    "#ffffff",
-                    "#ff0000",
-                    "#00ff00",
-                    "#0000ff",
-                    "#ffff00",
-                    "#00ffff",
-                    "#ff00ff",
-                    "#888888",
-                    "#cccccc",
-                    "#ff8800",
-                    "#88ff00",
-                    "#0088ff",
-                    "#ff0088",
-                    "#00ff88",
-                    "#8800ff",
-                  ].map((presetColor) => (
-                    <button
-                      key={presetColor}
-                      className="w-6 h-6 rounded-full"
-                      style={{ backgroundColor: presetColor }}
-                      onClick={() => {
-                        setColor(presetColor);
-                        editor.chain().focus().setColor(presetColor).run();
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </TooltipTrigger>
-        <TooltipContent>Text Color</TooltipContent>
       </Tooltip>
 
       <ToggleGroup type="single" value={textAlign} className="flex-wrap">
