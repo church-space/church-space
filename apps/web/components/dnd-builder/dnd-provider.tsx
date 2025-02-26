@@ -1434,6 +1434,8 @@ export default function DndProvider() {
             editor={overlayEditor}
             isOverlay
             block={draggedBlock}
+            defaultFont={defaultFont}
+            defaultTextColor={defaultTextColor}
           />
         );
       }
@@ -1446,6 +1448,8 @@ export default function DndProvider() {
           editor={editors[draggedBlock.id]}
           isOverlay
           block={draggedBlock}
+          defaultFont={defaultFont}
+          defaultTextColor={defaultTextColor}
         />
       );
     }
@@ -2074,6 +2078,8 @@ export default function DndProvider() {
                 setActiveForm={setActiveForm}
                 activeForm={activeForm}
                 footerData={emailData?.footer || null}
+                defaultFont={defaultFont}
+                defaultTextColor={defaultTextColor}
               />
             </SortableContext>
           </div>

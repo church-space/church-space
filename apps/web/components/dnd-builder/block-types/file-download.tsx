@@ -3,9 +3,13 @@ import type { FileDownloadBlockData } from "@/types/blocks";
 
 interface FileDownloadBlockProps {
   data?: FileDownloadBlockData;
+  defaultFont?: string;
 }
 
-export default function FileDownloadBlock({ data }: FileDownloadBlockProps) {
+export default function FileDownloadBlock({
+  data,
+  defaultFont,
+}: FileDownloadBlockProps) {
   const title = data?.title || "File Name";
   const bgColor = data?.bgColor || "#ffffff";
   const textColor = data?.textColor || "#000000";
@@ -13,7 +17,7 @@ export default function FileDownloadBlock({ data }: FileDownloadBlockProps) {
   return (
     <div
       className="p-2 pl-4 rounded-md flex justify-between items-center border"
-      style={{ backgroundColor: bgColor }}
+      style={{ backgroundColor: bgColor, fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex items-center gap-2">
         <File height="20" width="20" fill={textColor} />

@@ -30,9 +30,15 @@ const socialIcons = {
 
 interface AuthorBlockProps {
   data?: AuthorBlockData;
+  defaultFont?: string;
+  defaultTextColor?: string;
 }
 
-export default function AuthorBlock({ data }: AuthorBlockProps) {
+export default function AuthorBlock({
+  data,
+  defaultFont,
+  defaultTextColor,
+}: AuthorBlockProps) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const name = data?.name || "Name";
   const subtitle = data?.subtitle || "Title";
@@ -62,7 +68,10 @@ export default function AuthorBlock({ data }: AuthorBlockProps) {
   }, [avatar]);
 
   return (
-    <div className="flex items-center justify-between w-full">
+    <div
+      className="flex items-center justify-between w-full"
+      style={{ fontFamily: defaultFont || "inherit" }}
+    >
       <div className="flex items-center gap-3">
         {/* Use key to force re-render when avatar changes */}
         <Avatar key={key}>
@@ -74,13 +83,13 @@ export default function AuthorBlock({ data }: AuthorBlockProps) {
         <div className="flex flex-col">
           <p
             className="text-sm font-semibold leading-tight"
-            style={{ color: data?.textColor }}
+            style={{ color: defaultTextColor }}
           >
             {name}
           </p>
           <p
             className="text-sm text-muted-foreground opacity-80"
-            style={{ color: data?.textColor }}
+            style={{ color: defaultTextColor }}
           >
             {subtitle}
           </p>
@@ -89,7 +98,7 @@ export default function AuthorBlock({ data }: AuthorBlockProps) {
       <div className="flex gap-2">
         {links.map((link, index) => {
           const Icon = socialIcons[link.icon as keyof typeof socialIcons];
-          return Icon ? <Icon key={index} fill={data?.textColor} /> : null;
+          return Icon ? <Icon key={index} fill={defaultTextColor} /> : null;
         })}
       </div>
     </div>

@@ -4,9 +4,10 @@ import type { ButtonBlockData } from "@/types/blocks";
 
 interface ButtonBlockProps {
   data?: ButtonBlockData;
+  defaultFont?: string;
 }
 
-export default function ButtonBlock({ data }: ButtonBlockProps) {
+export default function ButtonBlock({ data, defaultFont }: ButtonBlockProps) {
   const text = data?.text || "Button";
   const color = data?.color || "#000000";
   const textColor = data?.textColor || "#FFFFFF";
@@ -32,6 +33,7 @@ export default function ButtonBlock({ data }: ButtonBlockProps) {
           backgroundColor: style === "filled" ? color : "transparent",
           borderColor: style === "outline" ? color : "transparent",
           color: style === "outline" ? color : textColor,
+          fontFamily: defaultFont || "inherit",
         }}
       >
         {text}

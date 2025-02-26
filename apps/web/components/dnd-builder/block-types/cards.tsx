@@ -5,9 +5,15 @@ import { createClient } from "@trivo/supabase/client";
 import Image from "next/image";
 interface CardsBlockProps {
   data?: CardsBlockData;
+  defaultFont?: string;
+  defaultTextColor?: string;
 }
 
-export default function CardsBlock({ data }: CardsBlockProps) {
+export default function CardsBlock({
+  data,
+  defaultFont,
+  defaultTextColor,
+}: CardsBlockProps) {
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const title = data?.title || "Cards";
   const subtitle = data?.subtitle || "Add a card to your page";
@@ -33,14 +39,20 @@ export default function CardsBlock({ data }: CardsBlockProps) {
   }, [cards]);
 
   return (
-    <div className="flex flex-col gap-5 py-4">
+    <div
+      className="flex flex-col gap-5 py-4"
+      style={{ fontFamily: defaultFont || "inherit" }}
+    >
       <div className="flex flex-col">
-        <span className="text-3xl font-bold" style={{ color: data?.textColor }}>
+        <span
+          className="text-3xl font-bold"
+          style={{ color: defaultTextColor }}
+        >
           {title}
         </span>
         <span
           className=" text-muted-foreground"
-          style={{ color: data?.textColor }}
+          style={{ color: defaultTextColor }}
         >
           {subtitle}
         </span>
@@ -66,13 +78,13 @@ export default function CardsBlock({ data }: CardsBlockProps) {
               </h3>
               <h3
                 className="text-lg font-bold"
-                style={{ color: data?.textColor }}
+                style={{ color: defaultTextColor }}
               >
                 {card.title}
               </h3>
               <p
                 className="text-sm text-muted-foreground"
-                style={{ color: data?.textColor }}
+                style={{ color: defaultTextColor }}
               >
                 {card.description}
               </p>

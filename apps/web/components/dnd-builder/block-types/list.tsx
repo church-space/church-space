@@ -3,25 +3,33 @@ import { cn } from "@trivo/ui/cn";
 
 interface ListBlockProps {
   data?: ListBlockData;
+  defaultFont?: string;
+  defaultTextColor?: string;
 }
 
-export default function ListBlock({ data }: ListBlockProps) {
+export default function ListBlock({
+  data,
+  defaultFont,
+  defaultTextColor,
+}: ListBlockProps) {
   const title = data?.title || "List Title";
   const subtitle = data?.subtitle || "List Subtitle";
-  const textColor = data?.textColor || "#000000";
   const bulletColor = data?.bulletColor || "#000000";
   const bulletType = data?.bulletType || "number";
   const items = data?.items || [];
 
   return (
-    <div className="flex flex-col gap-1 py-4">
+    <div
+      className="flex flex-col gap-1 py-4"
+      style={{ fontFamily: defaultFont || "inherit" }}
+    >
       <div className="flex flex-col">
-        <span className="text-xl font-bold" style={{ color: textColor }}>
+        <span className="text-xl font-bold" style={{ color: defaultTextColor }}>
           {title}
         </span>
         <span
           className="text-sm text-muted-foreground"
-          style={{ color: textColor }}
+          style={{ color: defaultTextColor }}
         >
           {subtitle}
         </span>
@@ -49,12 +57,15 @@ export default function ListBlock({ data }: ListBlockProps) {
               {bulletType === "number" ? index + 1 : "•"}
             </div>
             <div className="flex flex-col">
-              <p className="font-medium text-lg" style={{ color: textColor }}>
+              <p
+                className="font-medium text-lg"
+                style={{ color: defaultTextColor }}
+              >
                 {item.title}
               </p>
               <p
                 className="text-sm text-muted-foreground text-pretty !break-words overflow-hidden whitespace-pre-wrap"
-                style={{ color: textColor }}
+                style={{ color: defaultTextColor }}
               >
                 {item.description}
               </p>

@@ -23,6 +23,8 @@ interface BlockProps {
   isOverlay?: boolean;
   block: any;
   onTextContentChange?: (blockId: string, content: string) => void;
+  defaultFont?: string;
+  defaultTextColor?: string;
 }
 
 export default function Block({
@@ -35,6 +37,8 @@ export default function Block({
   isOverlay,
   block,
   onTextContentChange,
+  defaultFont,
+  defaultTextColor,
 }: BlockProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -71,17 +75,37 @@ export default function Block({
       case "image":
         return <ImageBlock data={block.data} />;
       case "file-download":
-        return <FileDownloadBlock data={block.data} />;
+        return (
+          <FileDownloadBlock data={block.data} defaultFont={defaultFont} />
+        );
       case "video":
         return <VideoBlock data={block.data} />;
       case "cards":
-        return <CardsBlock data={block.data} />;
+        return (
+          <CardsBlock
+            data={block.data}
+            defaultFont={defaultFont}
+            defaultTextColor={defaultTextColor}
+          />
+        );
       case "author":
-        return <AuthorBlock data={block.data} />;
+        return (
+          <AuthorBlock
+            data={block.data}
+            defaultFont={defaultFont}
+            defaultTextColor={defaultTextColor}
+          />
+        );
       case "button":
-        return <ButtonBlock data={block.data} />;
+        return <ButtonBlock data={block.data} defaultFont={defaultFont} />;
       case "list":
-        return <ListBlock data={block.data} />;
+        return (
+          <ListBlock
+            data={block.data}
+            defaultFont={defaultFont}
+            defaultTextColor={defaultTextColor}
+          />
+        );
       default:
         return null;
     }

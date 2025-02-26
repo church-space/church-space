@@ -31,6 +31,8 @@ interface CanvasProps {
     | "email-footer"
     | "email-templates";
   footerData?: any;
+  defaultFont?: string;
+  defaultTextColor?: string;
 }
 
 export default function DndBuilderCanvas({
@@ -45,6 +47,8 @@ export default function DndBuilderCanvas({
   setActiveForm,
   activeForm,
   footerData,
+  defaultFont,
+  defaultTextColor,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -105,6 +109,8 @@ export default function DndBuilderCanvas({
         editor={editors[block.id]}
         block={block}
         onTextContentChange={onTextContentChange}
+        defaultFont={defaultFont}
+        defaultTextColor={defaultTextColor}
       />
     );
   };
