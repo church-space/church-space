@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@trivo/ui/select";
+import { InfoIcon } from "lucide-react";
 
 interface TextFormProps {
   defaultTextColor?: string;
@@ -52,9 +53,15 @@ export default function TextForm({
             </SelectContent>
           </Select>
         </div>
-        <div className="text-sm text-muted-foreground">
-          Add your content to the text block, and make chagnes to the formating
-          using the toolbar above.
+
+        <div className="flex mt-4 items-start gap-2 p-3 bg-accent text-muted-foreground rounded-md border ">
+          <InfoIcon className="h-5 w-5 flex-shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p>
+              Add your content to the text block, and make changes to the
+              formatting using the toolbar above.
+            </p>
+          </div>
         </div>
       </div>
     </div>

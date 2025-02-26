@@ -16,7 +16,8 @@ const TextBlock = ({
   font,
   textColor,
 }: TextBlockProps) => {
-  const [isEditorReady, setIsEditorReady] = useState(false);
+  const prevFontRef = useRef(font);
+  const prevTextColorRef = useRef(textColor);
 
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
@@ -29,7 +30,6 @@ const TextBlock = ({
     };
 
     editor.on("update", updateListener);
-    setIsEditorReady(true);
 
     return () => {
       if (!editor.isDestroyed) {
@@ -37,6 +37,23 @@ const TextBlock = ({
       }
     };
   }, [editor, onContentChange]);
+
+  // Update editor font and color when props change
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+
+    // Only update font if it has changed
+    if (font && font !== prevFontRef.current) {
+      editor.commands.setFontFamily(font);
+      prevFontRef.current = font;
+    }
+
+    // Only update color if it has changed
+    if (textColor && textColor !== prevTextColorRef.current) {
+      editor.commands.setColor(textColor);
+      prevTextColorRef.current = textColor;
+    }
+  }, [editor, font, textColor]);
 
   if (!editor) {
     return <div className=" text-muted-foreground">Loading editor...</div>;

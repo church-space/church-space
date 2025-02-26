@@ -268,7 +268,6 @@ export default function DndProvider() {
     defaultFont?: ReturnType<typeof debounce>;
     footerBgColor?: ReturnType<typeof debounce>;
     footerTextColor?: ReturnType<typeof debounce>;
-    footerFont?: ReturnType<typeof debounce>;
   }>({});
 
   // Initialize debounced functions once
@@ -453,21 +452,14 @@ export default function DndProvider() {
         const initialContent =
           block.data && (block.data as any).content
             ? (block.data as any).content
-            : "<p>Hello, start typing here...</p>";
+            : "";
 
-        // Check if this block has its own font/color settings
-        const blockData = (block.data as any) || {};
-        const hasCustomStyles = blockData.font || blockData.textColor;
-
-        // If the block has custom styles, preserve them; otherwise use email defaults
-        const blockFont = blockData.font || defaultFont;
-        const blockTextColor = blockData.textColor || defaultTextColor;
-
+        // Always use the default font and color from email settings
         const newEditor = createEditor(
           initialContent,
-          blockFont,
-          blockTextColor,
-          hasCustomStyles // preserve existing styles if the block has custom settings
+          defaultFont,
+          defaultTextColor,
+          false // always use email defaults
         );
         newEditors[block.id] = newEditor;
       });
@@ -475,6 +467,91 @@ export default function DndProvider() {
       setEditors(newEditors);
     }
   }, [blocks, defaultFont, defaultTextColor]);
+
+  // Update all text blocks when default font or color changes
+  useEffect(() => {
+    // Skip if there are no blocks or editors
+    if (blocks.length === 0 || Object.keys(editors).length === 0) return;
+
+    // Create a flag to check if any blocks actually need updating
+    let needsUpdate = false;
+
+    // Update all text blocks to use the new default font and color
+    const updatedBlocks = blocks.map((block) => {
+      if (block.type === "text") {
+        // Get the current content from the editor if available
+        const content =
+          editors[block.id]?.getHTML() || (block.data as any)?.content || null;
+
+        // Check if this block actually needs updating
+        const blockData = (block.data as any) || {};
+        if (
+          blockData.font !== defaultFont ||
+          blockData.textColor !== defaultTextColor
+        ) {
+          needsUpdate = true;
+
+          // Update the block data to use the default font and color
+          return {
+            ...block,
+            data: {
+              ...block.data,
+              content,
+              font: defaultFont,
+              textColor: defaultTextColor,
+            } as BlockType["data"],
+          };
+        }
+      }
+      return block;
+    });
+
+    // Only update if there are actual changes to make
+    if (needsUpdate) {
+      // Update the blocks without adding to history
+      updateBlocksWithoutHistory(updatedBlocks);
+
+      // Update all text editors to use the new font and color
+      Object.entries(editors).forEach(([blockId, editor]) => {
+        if (!editor.isDestroyed) {
+          // Set the font and color for the editor
+          editor.commands.setFontFamily(defaultFont);
+          editor.commands.setColor(defaultTextColor);
+        }
+      });
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        // Prepare content updates for all text blocks
+        const contentUpdates: ContentUpdate[] = updatedBlocks
+          .filter(
+            (block) => block.type === "text" && !isNaN(parseInt(block.id, 10))
+          )
+          .map((block) => ({
+            id: parseInt(block.id, 10),
+            type: "text" as DatabaseBlockType,
+            value: block.data,
+          }));
+
+        // Send batch updates if there are any
+        if (contentUpdates.length > 0) {
+          batchUpdateEmailBlocks.mutate({
+            emailId,
+            orderUpdates: [],
+            contentUpdates,
+          });
+        }
+      }
+    }
+  }, [
+    defaultFont,
+    defaultTextColor,
+    emailId,
+    blocks,
+    editors,
+    updateBlocksWithoutHistory,
+    batchUpdateEmailBlocks,
+  ]);
 
   // Create a ref to track the latest blocks for debounced history updates
   const latestBlocksRef = useRef(blocks);
@@ -499,13 +576,14 @@ export default function DndProvider() {
     // Immediately update the UI with the new content
     const newBlocks = blocks.map((block) => {
       if (block.id === blockId && block.type === "text") {
-        // Preserve existing font and textColor properties
-        const existingData = (block.data as any) || {};
+        // Always use the default font and color
         return {
           ...block,
           data: {
-            ...existingData,
+            ...block.data,
             content,
+            font: defaultFont,
+            textColor: defaultTextColor,
           } as BlockType["data"],
         } as BlockType;
       }
@@ -530,6 +608,8 @@ export default function DndProvider() {
         value: {
           ...existingData,
           content,
+          font: defaultFont,
+          textColor: defaultTextColor,
         },
       });
     }
@@ -696,7 +776,7 @@ export default function DndProvider() {
         const initialContent =
           blockData && (blockData as any).content
             ? (blockData as any).content
-            : "<p>Hello, start typing here...</p>";
+            : "";
 
         const newEditor = createEditor(
           initialContent,
@@ -1339,19 +1419,11 @@ export default function DndProvider() {
       if (draggedBlock.type === "text" && editors[draggedBlock.id]) {
         const content = editors[draggedBlock.id]?.getHTML() || "";
 
-        // Check if this block has its own font/color settings
-        const blockData = (draggedBlock.data as any) || {};
-        const hasCustomStyles = blockData.font || blockData.textColor;
-
-        // If the block has custom styles, preserve them; otherwise use email defaults
-        const blockFont = blockData.font || defaultFont;
-        const blockTextColor = blockData.textColor || defaultTextColor;
-
         const overlayEditor = createEditor(
           content,
-          blockFont,
-          blockTextColor,
-          hasCustomStyles // preserve existing styles if the block has custom settings
+          defaultFont,
+          defaultTextColor,
+          false // always use email defaults
         );
 
         return (
@@ -1977,7 +2049,7 @@ export default function DndProvider() {
                   "text" && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 40 }}
+                    animate={{ opacity: 1, height: 44 }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.2, damping: 20 }}
                     className="sticky top-12 bg-background z-50 overflow-hidden "

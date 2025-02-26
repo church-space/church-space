@@ -14,7 +14,6 @@ interface UpdateEmailFooterParams {
     bg_color?: string;
     text_color?: string;
     secondary_text_color?: string;
-    font?: string;
     links?: any;
     socials_color?: string;
     socials_style?: string;

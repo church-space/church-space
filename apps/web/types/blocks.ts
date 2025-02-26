@@ -18,7 +18,7 @@ export type BlockType =
   | "list";
 
 export interface TextBlockData {
-  content: string;
+  content: string | null;
   font?: string;
   textColor?: string;
 }

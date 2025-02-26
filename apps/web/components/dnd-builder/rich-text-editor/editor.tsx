@@ -17,8 +17,11 @@ export const createEditor = (
   defaultTextColor?: string,
   preserveExistingStyles: boolean = false
 ) => {
-  // Use the provided content or default placeholder
-  let content = initialContent || "<p></p>";
+  // Use the provided content or empty string for placeholder to work
+  let content =
+    initialContent === null || initialContent === undefined
+      ? ""
+      : initialContent;
 
   // Create the editor with appropriate extensions
   const editor = new Editor({

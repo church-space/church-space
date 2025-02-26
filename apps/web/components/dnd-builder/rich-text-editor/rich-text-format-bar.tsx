@@ -35,7 +35,6 @@ interface ToolbarProps {
 }
 
 const Toolbar = ({ editor }: ToolbarProps) => {
-  const [color, setColor] = useState("#000000");
   const [linkUrl, setLinkUrl] = useState("");
   const [, setForceUpdate] = useState(0);
 
@@ -111,7 +110,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
           : "left";
 
   return (
-    <div className="flex-shrink-0 flex flex-wrap gap-2 p-2 border-b">
+    <div className="flex-shrink-0 flex flex-wrap gap-2 px-2 ">
       <ToggleGroup type="multiple" className="flex-wrap">
         <Tooltip>
           <TooltipTrigger asChild>

@@ -413,22 +413,7 @@ export default function EmailFooterForm({
           value={localState.secondary_text_color}
           onChange={(color) => handleChange("secondary_text_color", color)}
         />
-        <Label className="font-medium">Font</Label>
-        <Select
-          value={localState.font}
-          onValueChange={(value) => handleChange("font", value)}
-        >
-          <SelectTrigger className="col-span-2">
-            <SelectValue placeholder="Select a font" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Inter">Inter</SelectItem>
-            <SelectItem value="Arial">Arial</SelectItem>
-            <SelectItem value="Helvetica">Helvetica</SelectItem>
-            <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-            <SelectItem value="Georgia">Georgia</SelectItem>
-          </SelectContent>
-        </Select>
+
         <Label className="font-medium">Social Icon Style</Label>
         <Select
           value={localState.socials_style}
