@@ -33,8 +33,6 @@ interface DndBuilderSidebarProps {
   footerBgColor?: string;
   onFooterTextColorChange?: (color: string) => void;
   footerTextColor?: string;
-  onFooterFontChange?: (font: string) => void;
-  footerFont?: string;
   defaultTextColor?: string;
   onDefaultTextColorChange?: (color: string) => void;
   defaultFont?: string;

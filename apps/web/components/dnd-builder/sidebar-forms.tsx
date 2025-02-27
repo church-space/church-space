@@ -59,10 +59,8 @@ export default function DndBuilderSidebarForms({
   onBgColorChange?: (color: string) => void;
   footerBgColor?: string;
   footerTextColor?: string;
-  footerFont?: string;
   onFooterBgColorChange?: (color: string) => void;
   onFooterTextColorChange?: (color: string) => void;
-  onFooterFontChange?: (font: string) => void;
   onSelectTemplate?: (templateId: string) => void;
   isInset?: boolean;
   onIsInsetChange?: (isInset: boolean) => void;

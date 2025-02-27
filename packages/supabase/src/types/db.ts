@@ -112,7 +112,6 @@ export type Database = {
           copyright_name: string | null
           created_at: string
           email_id: number | null
-          font: string | null
           id: number
           links: Json | null
           logo: string | null
@@ -121,8 +120,8 @@ export type Database = {
           reason: string | null
           secondary_text_color: string | null
           socials_color: string | null
-          socials_icon_color: Database["public"]["Enums"]["social_icons_style"]
-          socials_style: string | null
+          socials_icon_color: string | null
+          socials_style: Database["public"]["Enums"]["social_icons_style"]
           subtitle: string | null
           template_title: string | null
           text_color: string | null
@@ -134,7 +133,6 @@ export type Database = {
           copyright_name?: string | null
           created_at?: string
           email_id?: number | null
-          font?: string | null
           id?: number
           links?: Json | null
           logo?: string | null
@@ -143,8 +141,8 @@ export type Database = {
           reason?: string | null
           secondary_text_color?: string | null
           socials_color?: string | null
-          socials_icon_color?: Database["public"]["Enums"]["social_icons_style"]
-          socials_style?: string | null
+          socials_icon_color?: string | null
+          socials_style?: Database["public"]["Enums"]["social_icons_style"]
           subtitle?: string | null
           template_title?: string | null
           text_color?: string | null
@@ -156,7 +154,6 @@ export type Database = {
           copyright_name?: string | null
           created_at?: string
           email_id?: number | null
-          font?: string | null
           id?: number
           links?: Json | null
           logo?: string | null
@@ -165,8 +162,8 @@ export type Database = {
           reason?: string | null
           secondary_text_color?: string | null
           socials_color?: string | null
-          socials_icon_color?: Database["public"]["Enums"]["social_icons_style"]
-          socials_style?: string | null
+          socials_icon_color?: string | null
+          socials_style?: Database["public"]["Enums"]["social_icons_style"]
           subtitle?: string | null
           template_title?: string | null
           text_color?: string | null
