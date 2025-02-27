@@ -15,7 +15,7 @@ import {
 import { Label } from "@trivo/ui/label";
 import { XIcon, LoaderIcon } from "@trivo/ui/icons";
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useFileUpload } from "./use-file-upload";
 
 interface FileUploadProps {
@@ -39,6 +39,7 @@ const FileUpload = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadFile, deleteFile } = useFileUpload(organizationId);
 
   // Update filePath when initialFilePath changes
@@ -67,9 +68,21 @@ const FileUpload = ({
   ) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile && selectedFile.size <= 50 * 1024 * 1024) {
-      await handleUpload(selectedFile);
-    } else {
+      try {
+        await handleUpload(selectedFile);
+      } catch (error) {
+        console.error("File selection error:", error);
+        // Reset the input value to ensure it can be selected again
+        if (event.target) {
+          event.target.value = "";
+        }
+      }
+    } else if (selectedFile) {
       alert("File size exceeds 50MB limit.");
+      // Reset the input value to ensure it can be selected again
+      if (event.target) {
+        event.target.value = "";
+      }
     }
   };
 
@@ -118,6 +131,14 @@ const FileUpload = ({
     return "Upload File";
   };
 
+  const handleClickUpload = () => {
+    // Ensure the input is reset before clicking
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div className="flex items-center col-span-2">
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -146,17 +167,19 @@ const FileUpload = ({
               className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer"
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
-              onClick={() => document.getElementById("fileInput")?.click()}
+              onClick={handleClickUpload}
             >
               <Label htmlFor="fileInput" className="cursor-pointer">
                 Drop your file here or click to select
               </Label>
               <input
                 id="fileInput"
+                ref={fileInputRef}
                 type="file"
                 className="hidden"
                 onChange={handleFileChange}
                 accept={type === "image" ? "image/*" : "*/*"}
+                key={`file-input-${isUploading ? "uploading" : "ready"}`}
               />
             </div>
             {isUploading && (

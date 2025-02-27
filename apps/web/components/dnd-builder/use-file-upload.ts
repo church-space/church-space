@@ -16,15 +16,48 @@ export const useFileUpload = (organizationId: string) => {
       // Create the full path including organization folder
       const filePath = `unsent/${organizationId}/${fileName}`;
 
-      const { data, error } = await supabase.storage
-        .from("email_assets")
-        .upload(filePath, file);
+      // Implement retry logic
+      let attempts = 0;
+      const maxAttempts = 3;
 
-      if (error) {
-        throw error;
+      while (attempts < maxAttempts) {
+        try {
+          const { data, error } = await supabase.storage
+            .from("email_assets")
+            .upload(filePath, file);
+
+          if (error) {
+            console.error(`Upload attempt ${attempts + 1} failed:`, error);
+            attempts++;
+
+            if (attempts >= maxAttempts) {
+              throw error;
+            }
+
+            // Wait before retrying (exponential backoff)
+            await new Promise((resolve) =>
+              setTimeout(resolve, 1000 * Math.pow(2, attempts))
+            );
+            continue;
+          }
+
+          return data.path;
+        } catch (error) {
+          console.error(`Upload attempt ${attempts + 1} exception:`, error);
+          attempts++;
+
+          if (attempts >= maxAttempts) {
+            throw error;
+          }
+
+          // Wait before retrying
+          await new Promise((resolve) =>
+            setTimeout(resolve, 1000 * Math.pow(2, attempts))
+          );
+        }
       }
 
-      return data.path;
+      throw new Error("Upload failed after multiple attempts");
     },
     [organizationId, supabase]
   );
