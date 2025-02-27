@@ -74,16 +74,37 @@ export default function EmailStyleForm({
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Font</Label>
         <Select value={defaultFont} onValueChange={onDefaultFontChange}>
-          <SelectTrigger className="col-span-2">
+          <SelectTrigger className="col-span-2" style={{ fontFamily: defaultFont }}>
             <SelectValue placeholder="Select a font" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="sans-serif">Sans Serif</SelectItem>
-            <SelectItem value="serif">Serif</SelectItem>
-            <SelectItem value="monospace">Monospace</SelectItem>
-            <SelectItem value="Arial, sans-serif">Arial</SelectItem>
-            <SelectItem value="Georgia, serif">Georgia</SelectItem>
-            <SelectItem value="Verdana, sans-serif">Verdana</SelectItem>
+            <SelectItem value="sans-serif" style={{ fontFamily: "sans-serif" }}>
+              Sans Serif
+            </SelectItem>
+            <SelectItem value="serif" style={{ fontFamily: "serif" }}>
+              Serif
+            </SelectItem>
+            <SelectItem value="monospace" style={{ fontFamily: "monospace" }}>
+              Monospace
+            </SelectItem>
+            <SelectItem
+              value="Arial, sans-serif"
+              style={{ fontFamily: "Arial, sans-serif" }}
+            >
+              Arial
+            </SelectItem>
+            <SelectItem
+              value="Georgia, serif"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
+              Georgia
+            </SelectItem>
+            <SelectItem
+              value="Verdana, sans-serif"
+              style={{ fontFamily: "Verdana, sans-serif" }}
+            >
+              Verdana
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
