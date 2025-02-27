@@ -1,5 +1,4 @@
 import type { Block } from "@/types/blocks";
-import { DragOverlay, useDraggable } from "@dnd-kit/core";
 import { cn } from "@church-space/ui/cn";
 import {
   ArrowRight,
@@ -16,13 +15,27 @@ import {
   TemplatesIcon,
   Typography,
   Video,
+  CirclePlus,
+  ChevronRight,
 } from "@church-space/ui/icons";
 import { Label } from "@church-space/ui/label";
 import { Separator } from "@church-space/ui/separator";
+import { DragOverlay, useDraggable } from "@dnd-kit/core";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
 import React from "react";
 import DndBuilderSidebarForms from "./sidebar-forms";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@church-space/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@church-space/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DndBuilderSidebarProps {
   className?: string;
@@ -154,6 +167,8 @@ export default function DndBuilderSidebar({
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
 
+  const isMobile = useIsMobile();
+
   React.useEffect(() => {
     setHasMounted(true);
   }, []);
@@ -182,111 +197,191 @@ export default function DndBuilderSidebar({
       : allBlockTypes;
 
   return (
-    <div
-      className={cn(
-        "w-[400px] flex-shrink-0 bg-sidebar rounded-md h-[calc(100vh-5rem)] sticky top-16 p-4 overflow-hidden border shadow-sm",
-        className
-      )}
-    >
-      <AnimatePresence mode="sync">
-        {activeForm !== "default" ? (
-          <motion.div
-            key={activeForm}
-            initial={{ x: hasMounted ? 400 : 0 }}
-            animate={{ x: 0 }}
-            exit={{ x: 400 }}
-            transition={{
-              type: "spring",
-              stiffness: 200,
-              damping: 20,
-              mass: 0.8,
-            }}
-            className="absolute inset-0 p-4 bg-sidebar"
-          >
-            <DndBuilderSidebarForms
-              selectedBlock={selectedBlock as Block}
-              setSelectedBlockId={setSelectedBlockId}
-              onDeleteBlock={onDeleteBlock}
-              onBlockUpdate={onBlockUpdate}
-              formType={activeForm === "block" ? "block" : activeForm}
-              onBack={handleBackFromForm}
-              bgColor={bgColor}
-              onBgColorChange={onBgColorChange}
-              isInset={isInset}
-              onIsInsetChange={onIsInsetChange}
-              emailBgColor={emailBgColor}
-              onEmailBgColorChange={onEmailBgColorChange}
-              defaultTextColor={defaultTextColor}
-              onDefaultTextColorChange={onDefaultTextColorChange}
-              defaultFont={defaultFont}
-              onDefaultFontChange={onDefaultFontChange}
-              emailId={emailId}
-              footerData={footerData}
-            />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="default-content"
-            initial={{ x: hasMounted ? -400 : 0 }}
-            animate={{ x: 0 }}
-            exit={{ x: -400 }}
-            transition={{
-              type: "spring",
-              stiffness: 200,
-              damping: 20,
-              mass: 0.8,
-            }}
-          >
-            <div className="flex flex-col justify-between h-[calc(100vh-7rem)]">
-              <div className="flex flex-col">
-                <div className="gap-2 grid grid-cols-3">
-                  {blockTypes.map((block) => (
-                    <DraggableBlock key={block.type} block={block} />
-                  ))}
+    <>
+      <div className="hidden md:block">
+        <div
+          className={cn(
+            "md:w-[320px] lg:w-[400px] flex-shrink-0 bg-sidebar rounded-md h-[calc(100vh-5rem)] sticky top-16 p-4 overflow-hidden border shadow-sm",
+            className
+          )}
+        >
+          <AnimatePresence mode="sync">
+            {activeForm !== "default" ? (
+              <motion.div
+                key={activeForm}
+                initial={{ x: hasMounted ? 400 : 0 }}
+                animate={{ x: 0 }}
+                exit={{ x: 400 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  mass: 0.8,
+                }}
+                className="absolute inset-0 p-4 bg-sidebar"
+              >
+                <DndBuilderSidebarForms
+                  selectedBlock={selectedBlock as Block}
+                  setSelectedBlockId={setSelectedBlockId}
+                  onDeleteBlock={onDeleteBlock}
+                  onBlockUpdate={onBlockUpdate}
+                  formType={activeForm === "block" ? "block" : activeForm}
+                  onBack={handleBackFromForm}
+                  bgColor={bgColor}
+                  onBgColorChange={onBgColorChange}
+                  isInset={isInset}
+                  onIsInsetChange={onIsInsetChange}
+                  emailBgColor={emailBgColor}
+                  onEmailBgColorChange={onEmailBgColorChange}
+                  defaultTextColor={defaultTextColor}
+                  onDefaultTextColorChange={onDefaultTextColorChange}
+                  defaultFont={defaultFont}
+                  onDefaultFontChange={onDefaultFontChange}
+                  emailId={emailId}
+                  footerData={footerData}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="default-content"
+                initial={{ x: hasMounted ? -400 : 0 }}
+                animate={{ x: 0 }}
+                exit={{ x: -400 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  mass: 0.8,
+                }}
+              >
+                <div className="flex flex-col justify-between h-[calc(100vh-7rem)]">
+                  <div className="flex flex-col">
+                    <div className="gap-2 grid grid-cols-3">
+                      {blockTypes.map((block) => (
+                        <DraggableBlock key={block.type} block={block} />
+                      ))}
+                    </div>
+                    <Separator className="my-6" />
+                    <div className="flex flex-col gap-4">
+                      <div
+                        className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                        onClick={() => setActiveForm("email-style")}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Palette />
+                          Styles
+                        </div>
+                        <ChevronRight />
+                      </div>
+                      <div
+                        className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                        onClick={() => setActiveForm("email-footer")}
+                      >
+                        <div className="flex items-center gap-2">
+                          <FooterIcon />
+                          Footer
+                        </div>
+                        <ChevronRight />
+                      </div>
+                      <div
+                        className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                        onClick={() => setActiveForm("email-templates")}
+                      >
+                        <div className="flex items-center gap-2">
+                          <TemplatesIcon />
+                          Templates
+                        </div>
+                        <ChevronRight />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <Separator />
+                    <Label className="font-bold px-2 text-sm">
+                      Editors Online
+                    </Label>
+                    <div className="flex items-center gap-2"></div>
+                  </div>
                 </div>
-                <Separator className="my-6" />
-                <div className="flex flex-col gap-4">
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+      <div className="fixed bottom-4 left-20 right-20 py-2 px-6 bg-background flex  items-center justify-between rounded-full shadow-lg z-50 text-center md:hidden">
+        <div className="">
+          <Palette height="22px" width="22px" />
+        </div>
+        <div className="">
+          <Popover>
+            <PopoverTrigger asChild>
+              <CirclePlus height="40px" width="40px" />
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-[calc(100vw-3rem)] p-0"
+              sideOffset={16}
+            >
+              <div className="gap-2 grid grid-cols-3 p-4">
+                {blockTypes.map((block) => (
                   <div
-                    className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
-                    onClick={() => setActiveForm("email-style")}
+                    key={block.type}
+                    className={cn(
+                      "flex flex-col items-center gap-1 bg-accent p-5 rounded-md border shadow-sm",
+                      className
+                    )}
                   >
-                    <div className="flex items-center gap-2">
-                      <Palette />
-                      Styles
-                    </div>
-                    <ChevronRight className="h-5 w-5" />
+                    <block.icon />
+                    <span>{block.label}</span>
                   </div>
-                  <div
-                    className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
-                    onClick={() => setActiveForm("email-footer")}
-                  >
-                    <div className="flex items-center gap-2">
-                      <FooterIcon />
-                      Footer
-                    </div>
-                    <ChevronRight className="h-5 w-5" />
-                  </div>
-                  <div
-                    className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
-                    onClick={() => setActiveForm("email-templates")}
-                  >
-                    <div className="flex items-center gap-2">
-                      <TemplatesIcon />
-                      Templates
-                    </div>
-                    <ChevronRight className="h-5 w-5" />
-                  </div>
-                </div>
+                ))}
               </div>
-              <div className="flex flex-col gap-4">
-                <Separator />
-                <Label className="font-bold px-2 text-sm">Editors Online</Label>
-                <div className="flex items-center gap-2"></div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="">
+          <FooterIcon height="40px" width="40px" />
+        </div>
+      </div>
+      <div className="md:hidden">
+        <Sheet
+          open={selectedBlock !== null && activeForm !== "default" && isMobile}
+          onOpenChange={(open) => {
+            if (!open) setSelectedBlockId(null);
+          }}
+          modal={false}
+        >
+          <SheetContent
+            className="md:hidden h-[calc(100vh-4rem)]"
+            side="bottom"
+          >
+            <SheetHeader>
+              <SheetTitle>Edit</SheetTitle>
+            </SheetHeader>
+            {activeForm !== "default" && (
+              <DndBuilderSidebarForms
+                selectedBlock={selectedBlock as Block}
+                setSelectedBlockId={setSelectedBlockId}
+                onDeleteBlock={onDeleteBlock}
+                onBlockUpdate={onBlockUpdate}
+                formType={activeForm === "block" ? "block" : activeForm}
+                onBack={handleBackFromForm}
+                bgColor={bgColor}
+                onBgColorChange={onBgColorChange}
+                isInset={isInset}
+                onIsInsetChange={onIsInsetChange}
+                emailBgColor={emailBgColor}
+                onEmailBgColorChange={onEmailBgColorChange}
+                defaultTextColor={defaultTextColor}
+                onDefaultTextColorChange={onDefaultTextColorChange}
+                defaultFont={defaultFont}
+                onDefaultFontChange={onDefaultFontChange}
+                emailId={emailId}
+                footerData={footerData}
+              />
+            )}
+          </SheetContent>
+        </Sheet>
+      </div>
+    </>
   );
 }

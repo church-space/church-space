@@ -1,4 +1,4 @@
-type iconProps = {
+type IconProps = {
   fill?: string;
   secondaryfill?: string;
   strokewidth?: number;
@@ -7,7 +7,7 @@ type iconProps = {
   title?: string;
 };
 
-export function ChurchSpaceBlack(props: iconProps) {
+export function ChurchSpaceBlack(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -35,7 +35,7 @@ export function ChurchSpaceBlack(props: iconProps) {
   );
 }
 
-export function ChurchSpaceWhite(props: iconProps) {
+export function ChurchSpaceWhite(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -77,7 +77,7 @@ export function ChurchSpaceWhite(props: iconProps) {
   );
 }
 
-export function ArrowRight(props: iconProps) {
+export function ArrowRight(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -113,7 +113,7 @@ export function ArrowRight(props: iconProps) {
   );
 }
 
-export function Home(props: iconProps) {
+export function Home(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -141,7 +141,7 @@ export function Home(props: iconProps) {
   );
 }
 
-export function Image(props: iconProps) {
+export function Image(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -174,7 +174,7 @@ export function Image(props: iconProps) {
   );
 }
 
-export function Video(props: iconProps) {
+export function Video(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -238,7 +238,7 @@ export function Video(props: iconProps) {
   );
 }
 
-export function Typography(props: iconProps) {
+export function Typography(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -282,7 +282,7 @@ export function Typography(props: iconProps) {
   );
 }
 
-export function Grid(props: iconProps) {
+export function Grid(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -320,7 +320,7 @@ export function Grid(props: iconProps) {
   );
 }
 
-export function Download(props: iconProps) {
+export function Download(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -351,7 +351,7 @@ export function Download(props: iconProps) {
   );
 }
 
-export function Divider(props: iconProps) {
+export function Divider(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -407,7 +407,7 @@ export function Divider(props: iconProps) {
   );
 }
 
-export function CircleUser(props: iconProps) {
+export function CircleUser(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -458,7 +458,7 @@ export function CircleUser(props: iconProps) {
   );
 }
 
-export function Button(props: iconProps) {
+export function Button(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -487,7 +487,7 @@ export function Button(props: iconProps) {
   );
 }
 
-export function Section(props: iconProps) {
+export function Section(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -521,7 +521,7 @@ export function Section(props: iconProps) {
   );
 }
 
-export function Grip(props: iconProps) {
+export function Grip(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -589,7 +589,7 @@ export function Grip(props: iconProps) {
   );
 }
 
-export function Trash(props: iconProps) {
+export function Trash(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -618,7 +618,7 @@ export function Trash(props: iconProps) {
   );
 }
 
-export function Youtube(props: iconProps) {
+export function Youtube(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -639,7 +639,7 @@ export function Youtube(props: iconProps) {
   );
 }
 
-export function XTwitter(props: iconProps) {
+export function XTwitter(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -660,7 +660,7 @@ export function XTwitter(props: iconProps) {
   );
 }
 
-export function TikTok(props: iconProps) {
+export function TikTok(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -681,7 +681,7 @@ export function TikTok(props: iconProps) {
   );
 }
 
-export function Threads(props: iconProps) {
+export function Threads(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -702,7 +702,7 @@ export function Threads(props: iconProps) {
   );
 }
 
-export function Linkedin(props: iconProps) {
+export function Linkedin(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -726,7 +726,7 @@ export function Linkedin(props: iconProps) {
   );
 }
 
-export function LinkIcon(props: iconProps) {
+export function LinkIcon(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -762,7 +762,7 @@ export function LinkIcon(props: iconProps) {
   );
 }
 
-export function Instagram(props: iconProps) {
+export function Instagram(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -783,7 +783,7 @@ export function Instagram(props: iconProps) {
   );
 }
 
-export function Facebook(props: iconProps) {
+export function Facebook(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -804,7 +804,7 @@ export function Facebook(props: iconProps) {
   );
 }
 
-export function MailFilled(props: iconProps) {
+export function MailFilled(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -834,7 +834,7 @@ export function MailFilled(props: iconProps) {
   );
 }
 
-export function Bluesky(props: iconProps) {
+export function Bluesky(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -855,7 +855,7 @@ export function Bluesky(props: iconProps) {
   );
 }
 
-export function List(props: iconProps) {
+export function List(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -903,7 +903,7 @@ export function List(props: iconProps) {
   );
 }
 
-export function File(props: iconProps) {
+export function File(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -970,7 +970,7 @@ export function File(props: iconProps) {
   );
 }
 
-export function PlayButton(props: iconProps) {
+export function PlayButton(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -994,7 +994,7 @@ export function PlayButton(props: iconProps) {
   );
 }
 
-export function Plus(props: iconProps) {
+export function Plus(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -1036,7 +1036,7 @@ export function Plus(props: iconProps) {
   );
 }
 
-export function ChevronLeft(props: iconProps) {
+export function ChevronLeft(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -1064,7 +1064,35 @@ export function ChevronLeft(props: iconProps) {
   );
 }
 
-export function Undo(props: iconProps) {
+export function ChevronRight({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M13.28 8.46999L7.03 2.21999C6.737 1.92699 6.262 1.92699 5.969 2.21999C5.676 2.51299 5.676 2.98803 5.969 3.28103L11.689 9.001L5.969 14.721C5.676 15.014 5.676 15.489 5.969 15.782C6.115 15.928 6.307 16.002 6.499 16.002C6.691 16.002 6.883 15.929 7.029 15.782L13.279 9.53201C13.572 9.23901 13.572 8.76403 13.279 8.47103L13.28 8.46999Z"
+          fill={fill}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Undo(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -1100,7 +1128,7 @@ export function Undo(props: iconProps) {
   );
 }
 
-export function Redo(props: iconProps) {
+export function Redo(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -1136,7 +1164,7 @@ export function Redo(props: iconProps) {
   );
 }
 
-export function XIcon(props: iconProps) {
+export function XIcon(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -1172,7 +1200,7 @@ export function XIcon(props: iconProps) {
   );
 }
 
-export function LoaderIcon(props: iconProps) {
+export function LoaderIcon(props: IconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -1263,42 +1291,82 @@ export function LoaderIcon(props: iconProps) {
   );
 }
 
-export function Palette(props: iconProps) {
-  const title = props.title || "palette 2";
+export function CirclePlus({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
 
   return (
     <svg
-      height="18"
-      width="18"
+      height={height}
+      width={width}
+      {...props}
       viewBox="0 0 18 18"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <title>{title}</title>
-      <g fill="#212121">
+      <g fill={fill}>
+        <path
+          d="M9.00012 17C13.4184 17 17.0001 13.4183 17.0001 9C17.0001 4.58172 13.4184 1 9.00012 1C4.58184 1 1.00012 4.58172 1.00012 9C1.00012 13.4183 4.58184 17 9.00012 17Z"
+          fill={secondaryfill}
+          opacity="0.4"
+        />
+        <path
+          d="M12.2501 8.25H9.75012V5.75C9.75012 5.3359 9.41422 5 9.00012 5C8.58602 5 8.25012 5.3359 8.25012 5.75V8.25H5.75012C5.33602 8.25 5.00012 8.5859 5.00012 9C5.00012 9.4141 5.33602 9.75 5.75012 9.75H8.25012V12.25C8.25012 12.6641 8.58602 13 9.00012 13C9.41422 13 9.75012 12.6641 9.75012 12.25V9.75H12.2501C12.6642 9.75 13.0001 9.4141 13.0001 9C13.0001 8.5859 12.6642 8.25 12.2501 8.25Z"
+          fill={fill}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Palette({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
         <path
           d="m8.3034,16.217c-3.7776-.3601-6.7098-3.619-6.5469-7.5271.157-3.7659,3.3501-6.8755,7.1188-6.9388,4.0612-.0683,7.3747,3.2034,7.3747,7.2489h0c0,1.5188-1.2312,2.75-2.75,2.75h-2.963c-1.0336,0-1.6928,1.1036-1.2027,2.0137l.2374.4409c.2597.4823.2062,1.0732-.1361,1.501h0c-.2736.342-.6962.553-1.1322.5115Z"
-          fill="#212121"
+          fill={secondaryfill}
           opacity=".3"
           strokeWidth="0"
         />
         <path
           d="m8.3034,16.217c-3.7776-.3601-6.7098-3.619-6.5469-7.5271.157-3.7659,3.3501-6.8755,7.1188-6.9388,4.0612-.0683,7.3747,3.2034,7.3747,7.2489h0c0,1.5188-1.2312,2.75-2.75,2.75h-2.963c-1.0336,0-1.6928,1.1036-1.2027,2.0137l.2374.4409c.2597.4823.2062,1.0732-.1361,1.501h0c-.2736.342-.6962.553-1.1322.5115Z"
           fill="none"
-          stroke="#212121"
+          stroke={fill}
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"
+          strokeWidth={strokewidth}
         />
-        <circle cx="9" cy="5" fill="#212121" r="1" strokeWidth="0" />
-        <circle cx="6.1716" cy="6.1716" fill="#212121" r="1" strokeWidth="0" />
-        <circle cx="11.8284" cy="6.1716" fill="#212121" r="1" strokeWidth="0" />
-        <circle cx="5" cy="9" fill="#212121" r="1" strokeWidth="0" />
+        <circle cx="9" cy="5" fill={fill} r="1" strokeWidth="0" />
+        <circle cx="6.1716" cy="6.1716" fill={fill} r="1" strokeWidth="0" />
+        <circle cx="11.8284" cy="6.1716" fill={fill} r="1" strokeWidth="0" />
+        <circle cx="5" cy="9" fill={fill} r="1" strokeWidth="0" />
       </g>
     </svg>
   );
 }
 
-export function FooterIcon(props: iconProps) {
+export function FooterIcon(props: IconProps) {
   const title = props.title || "layout footer";
 
   return (
@@ -1324,7 +1392,7 @@ export function FooterIcon(props: iconProps) {
   );
 }
 
-export function TemplatesIcon(props: iconProps) {
+export function TemplatesIcon(props: IconProps) {
   const title = props.title || "square dashed content";
 
   return (

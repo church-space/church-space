@@ -26,7 +26,11 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { Button } from "@church-space/ui/button";
 import { Redo, Undo, LoaderIcon } from "@church-space/ui/icons";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@church-space/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
 import { useParams, useRouter } from "next/navigation";
@@ -42,7 +46,7 @@ import { createEditor } from "./rich-text-editor/editor";
 import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { useBlockStateManager, EmailStyles } from "./use-block-state-manager";
-
+import { Eye, SaveIcon } from "lucide-react";
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
   | "cards"
@@ -1458,17 +1462,24 @@ export default function DndProvider() {
         hasStyleChanges = true;
       }
 
-      if (previousState.styles.emailBgColor !== currentState.styles.emailBgColor) {
+      if (
+        previousState.styles.emailBgColor !== currentState.styles.emailBgColor
+      ) {
         styleChanges.bg_color = previousState.styles.emailBgColor;
         hasStyleChanges = true;
       }
 
-      if (previousState.styles.defaultTextColor !== currentState.styles.defaultTextColor) {
+      if (
+        previousState.styles.defaultTextColor !==
+        currentState.styles.defaultTextColor
+      ) {
         styleChanges.default_text_color = previousState.styles.defaultTextColor;
         hasStyleChanges = true;
       }
 
-      if (previousState.styles.defaultFont !== currentState.styles.defaultFont) {
+      if (
+        previousState.styles.defaultFont !== currentState.styles.defaultFont
+      ) {
         styleChanges.default_font = previousState.styles.defaultFont;
         hasStyleChanges = true;
       }
@@ -1484,16 +1495,19 @@ export default function DndProvider() {
       // Update blocks in the database
       // Find blocks that were deleted (in current but not in previous)
       const deletedBlocks = currentState.blocks.filter(
-        (currentBlock) => 
-          !previousState.blocks.some((prevBlock) => prevBlock.id === currentBlock.id)
+        (currentBlock) =>
+          !previousState.blocks.some(
+            (prevBlock) => prevBlock.id === currentBlock.id
+          )
       );
 
       // Find blocks that were added or modified
       const addedOrModifiedBlocks = previousState.blocks.filter(
-        (prevBlock) => 
-          !currentState.blocks.some((currentBlock) => 
-            currentBlock.id === prevBlock.id && 
-            JSON.stringify(currentBlock) === JSON.stringify(prevBlock)
+        (prevBlock) =>
+          !currentState.blocks.some(
+            (currentBlock) =>
+              currentBlock.id === prevBlock.id &&
+              JSON.stringify(currentBlock) === JSON.stringify(prevBlock)
           )
       );
 
@@ -1521,13 +1535,13 @@ export default function DndProvider() {
         } else {
           // This is an existing block, update it
           const blockId = parseInt(block.id, 10);
-          
+
           // Always update the order
           orderUpdates.push({
             id: blockId,
             order: block.order,
           });
-          
+
           // Update content if the block type is valid
           if (isValidDatabaseBlockType(block.type)) {
             contentUpdates.push({
@@ -1545,7 +1559,7 @@ export default function DndProvider() {
           addEmailBlock.mutate({
             emailId,
             type: block.type,
-            value: block.data || {} as BlockData,
+            value: block.data || ({} as BlockData),
             order: block.order,
             linkedFile: undefined,
           });
@@ -1561,7 +1575,15 @@ export default function DndProvider() {
         });
       }
     }
-  }, [canUndo, undo, emailId, updateEmailStyle, deleteEmailBlock, addEmailBlock, batchUpdateEmailBlocks]);
+  }, [
+    canUndo,
+    undo,
+    emailId,
+    updateEmailStyle,
+    deleteEmailBlock,
+    addEmailBlock,
+    batchUpdateEmailBlocks,
+  ]);
 
   // Handle redo button click
   const handleRedo = useCallback(() => {
@@ -1591,7 +1613,10 @@ export default function DndProvider() {
         hasStyleChanges = true;
       }
 
-      if (nextState.styles.defaultTextColor !== currentState.styles.defaultTextColor) {
+      if (
+        nextState.styles.defaultTextColor !==
+        currentState.styles.defaultTextColor
+      ) {
         styleChanges.default_text_color = nextState.styles.defaultTextColor;
         hasStyleChanges = true;
       }
@@ -1612,16 +1637,19 @@ export default function DndProvider() {
       // Update blocks in the database
       // Find blocks that were deleted (in current but not in next)
       const deletedBlocks = currentState.blocks.filter(
-        (currentBlock) => 
-          !nextState.blocks.some((nextBlock) => nextBlock.id === currentBlock.id)
+        (currentBlock) =>
+          !nextState.blocks.some(
+            (nextBlock) => nextBlock.id === currentBlock.id
+          )
       );
 
       // Find blocks that were added or modified
       const addedOrModifiedBlocks = nextState.blocks.filter(
-        (nextBlock) => 
-          !currentState.blocks.some((currentBlock) => 
-            currentBlock.id === nextBlock.id && 
-            JSON.stringify(currentBlock) === JSON.stringify(nextBlock)
+        (nextBlock) =>
+          !currentState.blocks.some(
+            (currentBlock) =>
+              currentBlock.id === nextBlock.id &&
+              JSON.stringify(currentBlock) === JSON.stringify(nextBlock)
           )
       );
 
@@ -1649,13 +1677,13 @@ export default function DndProvider() {
         } else {
           // This is an existing block, update it
           const blockId = parseInt(block.id, 10);
-          
+
           // Always update the order
           orderUpdates.push({
             id: blockId,
             order: block.order,
           });
-          
+
           // Update content if the block type is valid
           if (isValidDatabaseBlockType(block.type)) {
             contentUpdates.push({
@@ -1673,7 +1701,7 @@ export default function DndProvider() {
           addEmailBlock.mutate({
             emailId,
             type: block.type,
-            value: block.data || {} as BlockData,
+            value: block.data || ({} as BlockData),
             order: block.order,
             linkedFile: undefined,
           });
@@ -1689,7 +1717,15 @@ export default function DndProvider() {
         });
       }
     }
-  }, [canRedo, redo, emailId, updateEmailStyle, deleteEmailBlock, addEmailBlock, batchUpdateEmailBlocks]);
+  }, [
+    canRedo,
+    redo,
+    emailId,
+    updateEmailStyle,
+    deleteEmailBlock,
+    addEmailBlock,
+    batchUpdateEmailBlocks,
+  ]);
 
   // Function to ensure all database blocks are visible in the UI
   const ensureBlocksVisibility = useCallback(() => {
@@ -1847,7 +1883,7 @@ export default function DndProvider() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Settings</BreadcrumbPage>
+                <BreadcrumbPage>Designer</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -1881,19 +1917,39 @@ export default function DndProvider() {
               <TooltipContent>Redo</TooltipContent>
             </Tooltip>
           </div>
-          <Button variant="ghost">Preview</Button>
-          <Button variant="outline">Send Test</Button>
+          <Button variant="ghost">
+            <span className="hidden md:block">Preview</span>
+            <span className="block md:hidden">
+              <Eye />
+            </span>
+          </Button>
+          <Button variant="outline" className="hidden md:block">
+            Send Test
+          </Button>
           <Button variant="default" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? (
-              <>
-                <div className="h-4 w-4 animate-spin items-center justify-center flex">
-                  <LoaderIcon />
-                </div>
-                <span>Saving...</span>
-              </>
-            ) : (
-              "Save and Exit"
-            )}
+            <span className="hidden md:block">
+              {isSaving ? (
+                <>
+                  <div className="h-4 w-4 animate-spin items-center justify-center flex">
+                    <LoaderIcon />
+                  </div>
+                  <span>Saving...</span>
+                </>
+              ) : (
+                "Save and Exit"
+              )}
+            </span>
+            <span className="block md:hidden">
+              {isSaving ? (
+                <>
+                  <div className="h-4 w-4 animate-spin items-center justify-center flex">
+                    <LoaderIcon />
+                  </div>
+                </>
+              ) : (
+                <SaveIcon />
+              )}
+            </span>
           </Button>
         </div>
       </header>
@@ -1903,7 +1959,7 @@ export default function DndProvider() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 p-4 relative">
+        <div className="flex md:gap-4 md:p-4 p-2 relative">
           <DndBuilderSidebar
             type="email"
             onBgColorChange={handleBgColorChange}
