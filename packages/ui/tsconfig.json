@@ -1,5 +1,5 @@
 {
-  "extends": "@trivo/typescript-config/react-library.json",
+  "extends": "@church-space/typescript-config/react-library.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

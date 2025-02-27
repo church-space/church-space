@@ -2,8 +2,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@trivo/ui/toaster";
-import { TooltipProvider } from "@trivo/ui/tooltip";
+import { Toaster } from "@church-space/ui/toaster";
+import { TooltipProvider } from "@church-space/ui/tooltip";
 import { ReactQueryProvider } from "../components/providers/react-query";
 
 const inter = Inter({ subsets: ["latin"] });

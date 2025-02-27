@@ -1,4 +1,4 @@
-import { TrivoBlack } from "@trivo/ui/icons";
+import { ChurchSpaceBlack } from "@church-space/ui/icons";
 import Link from "next/link";
 
 const links = [
@@ -123,7 +123,7 @@ export default function Footer() {
         <div className="grid gap-12 md:grid-cols-5">
           <div className="md:col-span-2">
             <Link href="/" aria-label="go home" className="block size-fit">
-              <TrivoBlack />
+              <ChurchSpaceBlack />
             </Link>
           </div>
 

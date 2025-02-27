@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@trivo/ui/button";
-import { Card, CardContent } from "@trivo/ui/card";
+import { Button } from "@church-space/ui/button";
+import { Card, CardContent } from "@church-space/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 
@@ -28,9 +28,9 @@ export default function Page() {
             <Card className=" px-0">
               <CardContent className=" text-center pt-[30px]">
                 You no longer have the necessary permissions within Planning
-                Center People to use Trivo. You must be either a
+                Center People to use Church Space. You must be either a
                 &quot;Manager&quot; or &quot;Editor&quot; in Planning Center
-                People and have the ability to email lists to use Trivo. Please
+                People and have the ability to email lists to use Church Space. Please
                 contact your administrator to request the necessary permissions.
               </CardContent>
             </Card>

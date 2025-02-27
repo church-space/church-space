@@ -1,7 +1,7 @@
 "use client";
 
 import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
-import { Card, CardContent } from "@trivo/ui/card";
+import { Card, CardContent } from "@church-space/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Page() {

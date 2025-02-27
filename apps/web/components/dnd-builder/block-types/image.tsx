@@ -1,6 +1,6 @@
 import type { ImageBlockData } from "@/types/blocks";
-import { createClient } from "@trivo/supabase/client";
-import { cn } from "@trivo/ui/cn";
+import { createClient } from "@church-space/supabase/client";
+import { cn } from "@church-space/ui/cn";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 

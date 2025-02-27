@@ -1,5 +1,5 @@
 import { useUser } from "@/stores/use-user";
-import { Button } from "@trivo/ui/button";
+import { Button } from "@church-space/ui/button";
 import {
   Bluesky,
   Facebook,
@@ -11,17 +11,17 @@ import {
   TikTok,
   XTwitter,
   Youtube,
-} from "@trivo/ui/icons";
-import { Input } from "@trivo/ui/input";
-import { Label } from "@trivo/ui/label";
+} from "@church-space/ui/icons";
+import { Input } from "@church-space/ui/input";
+import { Label } from "@church-space/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@trivo/ui/select";
-import { Textarea } from "@trivo/ui/textarea";
+} from "@church-space/ui/select";
+import { Textarea } from "@church-space/ui/textarea";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import ColorPicker from "../color-picker";

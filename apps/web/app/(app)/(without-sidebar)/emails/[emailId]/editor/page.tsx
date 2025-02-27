@@ -4,7 +4,7 @@ import {
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
-import { createClient } from "@trivo/supabase/server";
+import { createClient } from "@church-space/supabase/server";
 
 type Params = Promise<{ emailId: string }>;
 

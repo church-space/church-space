@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import React, { useState, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@trivo/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@church-space/ui/card";
 import { EmailForm } from "@/components/auth/email-form";
-import { Button } from "@trivo/ui/button";
+import { Button } from "@church-space/ui/button";
 import { InputOTPForm } from "@/components/auth/otp-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { signInWithGoogle, signInWithOtp } from "@/app/(auth)/actions";
-import { useToast } from "@trivo/ui/use-toast";
-import { ArrowRight } from "@trivo/ui/icons";
+import { useToast } from "@church-space/ui/use-toast";
+import { ArrowRight } from "@church-space/ui/icons";
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
   const [showOTPForm, setShowOTPForm] = useState(false);

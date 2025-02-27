@@ -7,7 +7,7 @@ type iconProps = {
   title?: string;
 };
 
-export function TrivoBlack(props: iconProps) {
+export function ChurchSpaceBlack(props: iconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -35,7 +35,7 @@ export function TrivoBlack(props: iconProps) {
   );
 }
 
-export function TrivoWhite(props: iconProps) {
+export function ChurchSpaceWhite(props: iconProps) {
   const fill = props.fill || "currentColor";
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;

@@ -1,5 +1,5 @@
-import { getUserWithDetailsQuery } from "@trivo/supabase/get-user-with-details";
-import { createClient } from "@trivo/supabase/server";
+import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
+import { createClient } from "@church-space/supabase/server";
 import { redirect } from "next/navigation";
 
 interface ProtectedLayoutProps {

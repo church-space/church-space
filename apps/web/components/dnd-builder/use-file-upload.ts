@@ -1,4 +1,4 @@
-import { createClient } from "@trivo/supabase/client";
+import { createClient } from "@church-space/supabase/client";
 import { useCallback } from "react";
 
 export const useFileUpload = (organizationId: string) => {

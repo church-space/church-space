@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Editor } from "@tiptap/react";
-import { cn } from "@trivo/ui/cn";
+import { cn } from "@church-space/ui/cn";
 import React, { useState, useEffect } from "react";
 import AuthorBlock from "./block-types/author";
 import ButtonBlock from "./block-types/button";

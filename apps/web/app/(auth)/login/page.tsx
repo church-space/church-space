@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import React, { useState, useCallback, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@trivo/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@church-space/ui/card";
 import { EmailForm } from "@/components/auth/email-form";
-import { Button } from "@trivo/ui/button";
+import { Button } from "@church-space/ui/button";
 import { InputOTPForm } from "@/components/auth/otp-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { signInWithGoogle, signInWithOtp } from "@/app/(auth)/actions";
-import { useToast } from "@trivo/ui/use-toast";
-import { ArrowRight } from "@trivo/ui/icons";
+import { useToast } from "@church-space/ui/use-toast";
+import { ArrowRight } from "@church-space/ui/icons";
 
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
@@ -200,7 +200,7 @@ export default function Page() {
             <Card className="space-y-4 px-0">
               <CardHeader className="items-center space-y-8">
                 <div className="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-                <CardTitle>Log in to Trivo</CardTitle>
+                <CardTitle>Log in to Church Space</CardTitle>
               </CardHeader>
               <CardContent className="relative space-y-4">
                 <div className="flex flex-col gap-2">

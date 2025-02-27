@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@trivo/ui/button";
+import { Button } from "@church-space/ui/button";
 import Image from "next/image";
 
 export default function ConnectToPcoButton() {

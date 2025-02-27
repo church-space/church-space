@@ -1,4 +1,4 @@
-import { updateSession } from "@trivo/supabase/middleware";
+import { updateSession } from "@church-space/supabase/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {

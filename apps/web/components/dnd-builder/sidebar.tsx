@@ -1,6 +1,6 @@
 import type { Block } from "@/types/blocks";
 import { DragOverlay, useDraggable } from "@dnd-kit/core";
-import { cn } from "@trivo/ui/cn";
+import { cn } from "@church-space/ui/cn";
 import {
   ArrowRight,
   Button as ButtonIcon,
@@ -16,9 +16,9 @@ import {
   TemplatesIcon,
   Typography,
   Video,
-} from "@trivo/ui/icons";
-import { Label } from "@trivo/ui/label";
-import { Separator } from "@trivo/ui/separator";
+} from "@church-space/ui/icons";
+import { Label } from "@church-space/ui/label";
+import { Separator } from "@church-space/ui/separator";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import React from "react";

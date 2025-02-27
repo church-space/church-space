@@ -1,4 +1,4 @@
-import { Label } from "@trivo/ui/label";
+import { Label } from "@church-space/ui/label";
 import ColorPicker from "../color-picker";
 import {
   Select,
@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@trivo/ui/select";
+} from "@church-space/ui/select";
 import { InfoIcon } from "lucide-react";
 
 interface TextFormProps {

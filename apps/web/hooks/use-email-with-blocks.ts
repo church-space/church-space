@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createClient } from "@trivo/supabase/client";
+import { createClient } from "@church-space/supabase/client";
 
 export function useEmailWithBlocks(emailId: number | undefined) {
   const supabase = createClient();

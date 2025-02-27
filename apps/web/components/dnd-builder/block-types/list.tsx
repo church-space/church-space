@@ -1,5 +1,5 @@
 import type { ListBlockData } from "@/types/blocks";
-import { cn } from "@trivo/ui/cn";
+import { cn } from "@church-space/ui/cn";
 
 interface ListBlockProps {
   data?: ListBlockData;

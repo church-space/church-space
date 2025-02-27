@@ -1,5 +1,5 @@
 import React from "react";
-import { Separator } from "@trivo/ui/separator";
+import { Separator } from "@church-space/ui/separator";
 import type { DividerBlockData } from "@/types/blocks";
 
 interface DividerBlockProps {

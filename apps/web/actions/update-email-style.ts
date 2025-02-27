@@ -1,8 +1,8 @@
 "use server";
 
 import { authActionClient } from "@/actions/safe-action";
-import { updateEmailStyle } from "@trivo/supabase/mutations/emails";
-import { createClient } from "@trivo/supabase/server";
+import { updateEmailStyle } from "@church-space/supabase/mutations/emails";
+import { createClient } from "@church-space/supabase/server";
 import { z } from "zod";
 
 export const updateEmailStyleAction = authActionClient

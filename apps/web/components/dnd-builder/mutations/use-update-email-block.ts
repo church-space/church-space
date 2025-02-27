@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createClient } from "@trivo/supabase/client";
+import { createClient } from "@church-space/supabase/client";
 import type { BlockData, BlockType } from "@/types/blocks";
 
 interface UpdateEmailBlockParams {

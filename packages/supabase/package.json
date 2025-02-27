@@ -1,5 +1,5 @@
 {
-    "name": "@trivo/supabase",
+    "name": "@church-space/supabase",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -11,8 +11,8 @@
         "@supabase-cache-helpers/postgrest-react-query": "^1.11.4",
         "@supabase/postgrest-js": "^1.17.3",
         "@supabase/ssr": "^0.5.2",
-        "@trivo/types": "workspace:*",
-        "@trivo/typescript-config": "workspace:*",
+        "@church-space/types": "workspace:*",
+        "@church-space/typescript-config": "workspace:*",
         "next": "15.1.7",
         "react": "^19.0.0",
         "server-only": "^0.0.1",

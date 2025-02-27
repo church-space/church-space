@@ -1,4 +1,4 @@
-import { Input } from "@trivo/ui/input";
+import { Input } from "@church-space/ui/input";
 import React, { useState, useRef, useEffect } from "react";
 import { z } from "zod";
 

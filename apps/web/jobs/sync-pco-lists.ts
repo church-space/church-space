@@ -1,5 +1,5 @@
 import { task } from "@trigger.dev/sdk/v3";
-import { createClient } from "@trivo/supabase/job";
+import { createClient } from "@church-space/supabase/job";
 import { isValidEmail } from "../lib/utils";
 
 export const syncPcoLists = task({

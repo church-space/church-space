@@ -1,4 +1,4 @@
-import { createClient } from "@trivo/supabase/server";
+import { createClient } from "@church-space/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {

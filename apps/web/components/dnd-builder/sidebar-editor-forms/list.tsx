@@ -1,15 +1,15 @@
 import type { Block, ListBlockData } from "@/types/blocks";
-import { Button } from "@trivo/ui/button";
-import { Input } from "@trivo/ui/input";
-import { Textarea } from "@trivo/ui/textarea";
-import { Label } from "@trivo/ui/label";
+import { Button } from "@church-space/ui/button";
+import { Input } from "@church-space/ui/input";
+import { Textarea } from "@church-space/ui/textarea";
+import { Label } from "@church-space/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@trivo/ui/select";
+} from "@church-space/ui/select";
 import debounce from "lodash/debounce";
 import { useCallback, useEffect, useState, useRef } from "react";
 import ColorPicker from "../color-picker";

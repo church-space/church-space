@@ -1,6 +1,6 @@
 import React from "react";
-import { SidebarTrigger } from "@trivo/ui/sidebar";
-import { Separator } from "@trivo/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { Separator } from "@church-space/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,8 +8,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@trivo/ui/breadcrumb";
-import { Button } from "@trivo/ui/button";
+} from "@church-space/ui/breadcrumb";
+import { Button } from "@church-space/ui/button";
 
 export default function Page() {
   return (

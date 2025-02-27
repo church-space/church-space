@@ -1,4 +1,4 @@
-import { Button } from "@trivo/ui/button";
+import { Button } from "@church-space/ui/button";
 import Link from "next/link";
 
 export default function CallToAction() {

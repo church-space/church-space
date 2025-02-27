@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { createClient } from "@trivo/supabase/job";
+import { createClient } from "@church-space/supabase/job";
 import crypto from "crypto";
 
 export async function POST(

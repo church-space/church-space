@@ -10,10 +10,10 @@ import {
   TikTok,
   XTwitter,
   Youtube,
-} from "@trivo/ui/icons";
-import { Avatar, AvatarFallback, AvatarImage } from "@trivo/ui/avatar";
+} from "@church-space/ui/icons";
+import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
 import type { AuthorBlockData } from "@/types/blocks";
-import { createClient } from "@trivo/supabase/client";
+import { createClient } from "@church-space/supabase/client";
 
 const socialIcons = {
   instagram: Instagram,

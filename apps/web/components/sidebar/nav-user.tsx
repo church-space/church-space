@@ -9,7 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@trivo/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,13 +18,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@trivo/ui/dropdown-menu";
+} from "@church-space/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@trivo/ui/sidebar";
+} from "@church-space/ui/sidebar";
 
 export function NavUser({
   user,

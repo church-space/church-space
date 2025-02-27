@@ -1,8 +1,8 @@
 "use server";
 
 import { authActionClient } from "@/actions/safe-action";
-import { insertEmailBlock } from "@trivo/supabase/mutations/emails";
-import { createClient } from "@trivo/supabase/server";
+import { insertEmailBlock } from "@church-space/supabase/mutations/emails";
+import { createClient } from "@church-space/supabase/server";
 import { z } from "zod";
 
 export const createEmailBlockAction = authActionClient

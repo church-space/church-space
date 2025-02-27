@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Button } from "@trivo/ui/button";
+import { Button } from "@church-space/ui/button";
 import type { CardsBlockData } from "@/types/blocks";
-import { createClient } from "@trivo/supabase/client";
+import { createClient } from "@church-space/supabase/client";
 import Image from "next/image";
 interface CardsBlockProps {
   data?: CardsBlockData;

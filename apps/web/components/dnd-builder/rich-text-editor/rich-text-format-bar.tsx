@@ -1,17 +1,17 @@
 "use client";
 
 import type { Editor } from "@tiptap/react";
-import { Button } from "@trivo/ui/button";
+import { Button } from "@church-space/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@trivo/ui/dropdown-menu";
-import { Input } from "@trivo/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@trivo/ui/popover";
-import { ToggleGroup, ToggleGroupItem } from "@trivo/ui/toggle-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
+} from "@church-space/ui/dropdown-menu";
+import { Input } from "@church-space/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@church-space/ui/popover";
+import { ToggleGroup, ToggleGroupItem } from "@church-space/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@church-space/ui/tooltip";
 import {
   ALargeSmall,
   AlignCenter,

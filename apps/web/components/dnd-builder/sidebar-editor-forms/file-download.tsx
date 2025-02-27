@@ -1,5 +1,5 @@
-import { Input } from "@trivo/ui/input";
-import { Label } from "@trivo/ui/label";
+import { Input } from "@church-space/ui/input";
+import { Label } from "@church-space/ui/label";
 import { useUser } from "@/stores/use-user";
 import FileUpload from "../file-upload";
 import type { Block, FileDownloadBlockData } from "@/types/blocks";

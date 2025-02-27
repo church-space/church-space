@@ -3,9 +3,9 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
-} from "@trivo/ui/breadcrumb";
-import { Separator } from "@trivo/ui/separator";
-import { SidebarTrigger } from "@trivo/ui/sidebar";
+} from "@church-space/ui/breadcrumb";
+import { Separator } from "@church-space/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
 
 export default function Page() {
   return (

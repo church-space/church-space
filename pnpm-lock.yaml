@@ -92,13 +92,13 @@ importers:
       '@trigger.dev/sdk':
         specifier: ^3.3.16
         version: 3.3.16(zod@3.24.2)
-      '@trivo/kv':
+      '@church-space/kv':
         specifier: workspace:*
         version: link:../../packages/kv
-      '@trivo/supabase':
+      '@church-space/supabase':
         specifier: workspace:*
         version: link:../../packages/supabase
-      '@trivo/ui':
+      '@church-space/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@upstash/ratelimit':
@@ -253,7 +253,7 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
     devDependencies:
-      '@trivo/typescript-config':
+      '@church-space/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@types/node':
@@ -271,10 +271,10 @@ importers:
       '@supabase/ssr':
         specifier: ^0.5.2
         version: 0.5.2(@supabase/supabase-js@2.48.1)
-      '@trivo/types':
+      '@church-space/types':
         specifier: workspace:*
         version: link:../types
-      '@trivo/typescript-config':
+      '@church-space/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       next:
@@ -379,7 +379,7 @@ importers:
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@trivo/typescript-config':
+      '@church-space/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@turbo/gen':

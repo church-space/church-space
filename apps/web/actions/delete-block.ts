@@ -1,8 +1,8 @@
 "use server";
 
 import { authActionClient } from "@/actions/safe-action";
-import { deleteEmailBlock } from "@trivo/supabase/mutations/emails";
-import { createClient } from "@trivo/supabase/server";
+import { deleteEmailBlock } from "@church-space/supabase/mutations/emails";
+import { createClient } from "@church-space/supabase/server";
 import { z } from "zod";
 
 export const deleteEmailBlockAction = authActionClient

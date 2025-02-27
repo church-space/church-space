@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@trivo/ui/button";
-import { Card, CardContent } from "@trivo/ui/card";
+import { Button } from "@church-space/ui/button";
+import { Card, CardContent } from "@church-space/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -39,7 +39,7 @@ export default function Page(props: { searchParams: SearchParams }) {
               <CardContent className=" text-center pt-[30px]">
                 {searchParams.connectedByFirstName}{" "}
                 {searchParams.connectedByLastName} already connected your
-                organization to Trivo. Please contact them directly to gain
+                organization to Church Space. Please contact them directly to gain
                 access.
               </CardContent>
             </Card>

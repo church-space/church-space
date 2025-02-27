@@ -1,4 +1,4 @@
-import { cn } from "@trivo/ui/cn";
+import { cn } from "@church-space/ui/cn";
 import {
   Bluesky,
   Facebook,
@@ -10,11 +10,11 @@ import {
   TikTok,
   XTwitter,
   Youtube,
-} from "@trivo/ui/icons";
-import { Separator } from "@trivo/ui/separator";
+} from "@church-space/ui/icons";
+import { Separator } from "@church-space/ui/separator";
 import { getYear } from "date-fns";
 import { useState, useEffect } from "react";
-import { createClient } from "@trivo/supabase/client";
+import { createClient } from "@church-space/supabase/client";
 
 // Define the type for social icon keys
 type SocialIconKey =

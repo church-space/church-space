@@ -1,5 +1,5 @@
 {
-    "extends": "@trivo/typescript-config/base.json",
+    "extends": "@church-space/typescript-config/base.json",
     "include": ["src"],
     "exclude": ["node_modules"]
   }

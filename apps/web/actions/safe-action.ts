@@ -1,5 +1,5 @@
-import { client as RedisClient } from "@trivo/kv";
-import { getUser } from "@trivo/supabase/cached-queries/platform";
+import { client as RedisClient } from "@church-space/kv";
+import { getUser } from "@church-space/supabase/cached-queries/platform";
 import { Ratelimit } from "@upstash/ratelimit";
 import {
   DEFAULT_SERVER_ERROR_MESSAGE,

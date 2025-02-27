@@ -7,16 +7,16 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@trivo/ui/button";
+import { Button } from "@church-space/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "@trivo/ui/form";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@trivo/ui/input-otp";
-import { toast } from "@trivo/ui/use-toast";
+} from "@church-space/ui/form";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@church-space/ui/input-otp";
+import { toast } from "@church-space/ui/use-toast";
 import { verifyOtp } from "@/app/(auth)/actions";
 
 const FormSchema = z.object({

@@ -1,5 +1,5 @@
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@trivo/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@church-space/ui/sidebar";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;

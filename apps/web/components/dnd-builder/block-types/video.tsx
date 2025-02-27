@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Youtube } from "@trivo/ui/icons";
+import { Youtube } from "@church-space/ui/icons";
 import { VideoBlockData } from "@/types/blocks";
 import Image from "next/image";
 

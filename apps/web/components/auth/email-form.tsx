@@ -10,9 +10,9 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "@trivo/ui/form";
-import { Input } from "@trivo/ui/input";
-import { useToast } from "@trivo/ui/use-toast";
+} from "@church-space/ui/form";
+import { Input } from "@church-space/ui/input";
+import { useToast } from "@church-space/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { signInWithOtp } from "@/app/(auth)/actions";
 import { sanitizeInput } from "@/lib/sanitize-inputs";

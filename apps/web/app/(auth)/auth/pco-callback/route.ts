@@ -1,4 +1,4 @@
-import { createClient } from "@trivo/supabase/server";
+import { createClient } from "@church-space/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { tasks } from "@trigger.dev/sdk/v3";
 import type { syncPcoEmails } from "@/jobs/sync-pco-emails";
@@ -235,7 +235,7 @@ export async function GET(request: NextRequest) {
               type: "Subscription",
               attributes: {
                 name: event,
-                url: `https://trivo.app/api/pco/webhook/${organization[0].id}`,
+                url: `https://church-space.app/api/pco/webhook/${organization[0].id}`,
                 active: true,
               },
             },

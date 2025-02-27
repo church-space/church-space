@@ -2,13 +2,13 @@
 
 import { type LucideIcon } from "lucide-react";
 
-import { cn } from "@trivo/ui/cn";
+import { cn } from "@church-space/ui/cn";
 import {
   SidebarGroup,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@trivo/ui/sidebar";
+} from "@church-space/ui/sidebar";
 export function NavMain({
   items,
 }: {

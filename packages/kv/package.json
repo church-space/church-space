@@ -1,5 +1,5 @@
 {
-    "name": "@trivo/kv",
+    "name": "@church-space/kv",
     "version": "1.0.0",
     "private": true,
     "main": "src/index.ts",
@@ -15,6 +15,6 @@
     },
     "devDependencies": {
         "@types/node": "20.11.5",
-        "@trivo/typescript-config": "workspace:*"
+        "@church-space/typescript-config": "workspace:*"
     }
 }

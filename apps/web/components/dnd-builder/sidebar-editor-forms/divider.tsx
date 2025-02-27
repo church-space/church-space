@@ -1,5 +1,5 @@
-import { Label } from "@trivo/ui/label";
-import { Slider } from "@trivo/ui/slider";
+import { Label } from "@church-space/ui/label";
+import { Slider } from "@church-space/ui/slider";
 import type { Block, DividerBlockData } from "@/types/blocks";
 import { useEffect, useState, useCallback, useRef } from "react";
 import debounce from "lodash/debounce";

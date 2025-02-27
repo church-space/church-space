@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@trivo/ui/cn";
+import { cn } from "@church-space/ui/cn";
 import type { ButtonBlockData } from "@/types/blocks";
 
 interface ButtonBlockProps {

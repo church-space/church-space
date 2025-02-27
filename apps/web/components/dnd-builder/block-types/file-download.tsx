@@ -1,4 +1,4 @@
-import { File } from "@trivo/ui/icons";
+import { File } from "@church-space/ui/icons";
 import type { FileDownloadBlockData } from "@/types/blocks";
 
 interface FileDownloadBlockProps {

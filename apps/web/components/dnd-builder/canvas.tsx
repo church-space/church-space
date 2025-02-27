@@ -1,7 +1,7 @@
 import type { Block as BlockType } from "@/types/blocks";
 import { useDndContext, useDroppable } from "@dnd-kit/core";
 import { Editor } from "@tiptap/react";
-import { cn } from "@trivo/ui/cn";
+import { cn } from "@church-space/ui/cn";
 import { motion } from "framer-motion";
 import React, { useRef } from "react";
 import Block from "./block";

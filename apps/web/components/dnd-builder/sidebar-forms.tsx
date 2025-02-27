@@ -9,9 +9,9 @@ import {
   ListBlockData,
   VideoBlockData,
 } from "@/types/blocks";
-import { Button } from "@trivo/ui/button";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@trivo/ui/dialog";
-import { ChevronLeft } from "@trivo/ui/icons";
+import { Button } from "@church-space/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@church-space/ui/dialog";
+import { ChevronLeft } from "@church-space/ui/icons";
 import AuthorForm from "./sidebar-editor-forms/author";
 import ButtonForm from "./sidebar-editor-forms/buttons";
 import CardsForm from "./sidebar-editor-forms/cards";
@@ -24,6 +24,8 @@ import ImageForm from "./sidebar-editor-forms/image";
 import ListForm from "./sidebar-editor-forms/list";
 import TextForm from "./sidebar-editor-forms/text";
 import VideoForm from "./sidebar-editor-forms/video";
+import { createClient } from "@church-space/supabase/client";
+
 
 export default function DndBuilderSidebarForms({
   selectedBlock,
@@ -95,6 +97,52 @@ export default function DndBuilderSidebarForms({
       onDeleteBlock(id);
     }
   };
+
+  async function deleteBlockAssets(block: Block) {
+    const supabase = createClient();
+    
+    try {
+      switch (block.type) {
+        case "image":
+          if ((block.data as ImageBlockData)?.image) {
+            await supabase.storage
+              .from("email_assets")
+              .remove([(block.data as ImageBlockData).image]);
+          }
+          break;
+        
+        case "file-download":
+          if ((block.data as FileDownloadBlockData)?.file) {
+            await supabase.storage
+              .from("email_assets")
+              .remove([(block.data as FileDownloadBlockData).file]);
+          }
+          break;
+        
+        case "author":
+          if ((block.data as AuthorBlockData)?.avatar) {
+            await supabase.storage
+              .from("email_assets")
+              .remove([(block.data as AuthorBlockData).avatar]);
+          }
+          break;
+        
+        case "cards":
+          const cardImages = (block.data as CardsBlockData)?.cards
+            ?.map(card => card.image)
+            .filter(Boolean);
+          if (cardImages?.length) {
+            await supabase.storage
+              .from("email_assets")
+              .remove(cardImages);
+          }
+          break;
+      }
+    } catch (error) {
+      console.error("Error deleting assets:", error);
+      // Continue with block deletion even if asset deletion fails
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden h-full">
@@ -262,9 +310,11 @@ export default function DndBuilderSidebarForms({
               </DialogClose>
             <Button
               variant="destructive"
-              className="px-2 py-0 h-7 "
-              onClick={() => {
+              className="px-2 py-0 h-7"
+              onClick={async () => {
                 if (selectedBlock) {
+                  // Delete assets first, then the block
+                  await deleteBlockAssets(selectedBlock);
                   handleDeleteBlock(selectedBlock.id);
                 }
               }}

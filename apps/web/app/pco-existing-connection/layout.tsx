@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import React from "react";
-import { createClient } from "@trivo/supabase/server";
-import { getUserWithDetailsQuery } from "@trivo/supabase/get-user-with-details";
+import { createClient } from "@church-space/supabase/server";
+import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
 
 export default async function Layout({
   children,

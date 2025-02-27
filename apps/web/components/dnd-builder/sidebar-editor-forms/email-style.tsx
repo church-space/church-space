@@ -1,12 +1,12 @@
-import { Label } from "@trivo/ui/label";
+import { Label } from "@church-space/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@trivo/ui/select";
-import { Switch } from "@trivo/ui/switch";
+} from "@church-space/ui/select";
+import { Switch } from "@church-space/ui/switch";
 import ColorPicker from "../color-picker";
 
 interface EmailStyleFormProps {

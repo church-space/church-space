@@ -1,13 +1,13 @@
 import type { Block, ButtonBlockData } from "@/types/blocks";
-import { Input } from "@trivo/ui/input";
-import { Label } from "@trivo/ui/label";
+import { Input } from "@church-space/ui/input";
+import { Label } from "@church-space/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@trivo/ui/select";
+} from "@church-space/ui/select";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { z } from "zod";
 import debounce from "lodash/debounce";

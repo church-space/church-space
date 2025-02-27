@@ -1,6 +1,6 @@
 import { useUser } from "@/stores/use-user";
 import type { AuthorBlockData, Block } from "@/types/blocks";
-import { Button } from "@trivo/ui/button";
+import { Button } from "@church-space/ui/button";
 import {
   Bluesky,
   Facebook,
@@ -12,16 +12,16 @@ import {
   TikTok,
   XTwitter,
   Youtube,
-} from "@trivo/ui/icons";
-import { Input } from "@trivo/ui/input";
-import { Label } from "@trivo/ui/label";
+} from "@church-space/ui/icons";
+import { Input } from "@church-space/ui/input";
+import { Label } from "@church-space/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@trivo/ui/select";
+} from "@church-space/ui/select";
 import debounce from "lodash/debounce";
 import { useCallback, useEffect, useRef, useState } from "react";
 import FileUpload from "../file-upload";

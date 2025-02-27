@@ -23,10 +23,10 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@trivo/ui/breadcrumb";
-import { Button } from "@trivo/ui/button";
-import { Redo, Undo, LoaderIcon } from "@trivo/ui/icons";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
+} from "@church-space/ui/breadcrumb";
+import { Button } from "@church-space/ui/button";
+import { Redo, Undo, LoaderIcon } from "@church-space/ui/icons";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@church-space/ui/tooltip";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
 import { useParams, useRouter } from "next/navigation";

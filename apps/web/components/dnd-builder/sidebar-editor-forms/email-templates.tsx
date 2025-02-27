@@ -1,5 +1,5 @@
-import { Button } from "@trivo/ui/button";
-import { Card, CardContent } from "@trivo/ui/card";
+import { Button } from "@church-space/ui/button";
+import { Card, CardContent } from "@church-space/ui/card";
 import { LayoutGrid } from "lucide-react";
 
 interface EmailTemplateFormProps {

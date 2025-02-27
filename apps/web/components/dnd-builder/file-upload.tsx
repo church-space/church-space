@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@trivo/ui/button";
-import { cn } from "@trivo/ui/cn";
+import { Button } from "@church-space/ui/button";
+import { cn } from "@church-space/ui/cn";
 import {
   Dialog,
   DialogContent,
@@ -11,9 +11,9 @@ import {
   DialogTrigger,
   DialogFooter,
   DialogClose,
-} from "@trivo/ui/dialog";
-import { Label } from "@trivo/ui/label";
-import { XIcon, LoaderIcon } from "@trivo/ui/icons";
+} from "@church-space/ui/dialog";
+import { Label } from "@church-space/ui/label";
+import { XIcon, LoaderIcon } from "@church-space/ui/icons";
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useFileUpload } from "./use-file-upload";
