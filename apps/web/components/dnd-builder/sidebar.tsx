@@ -160,6 +160,7 @@ export default function DndBuilderSidebar({
 
   const handleBackFromForm = () => {
     setActiveForm("default");
+    setSelectedBlockId(null);
   };
 
   const emailBlockTypes = [

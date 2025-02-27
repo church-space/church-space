@@ -79,7 +79,10 @@ export default function DndBuilderSidebarForms({
   const handleBack = () => {
     if (onBack) {
       onBack();
-    } else if (setSelectedBlockId) {
+    }
+    
+    // Always set selectedBlockId to null when going back
+    if (setSelectedBlockId) {
       setSelectedBlockId(null);
     }
   };
