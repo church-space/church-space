@@ -55,9 +55,22 @@ export default async function Page(props: { params: Params }) {
         throw blocksError;
       }
 
+      // Add footer data fetch
+      const { data: footerData, error: footerError } = await supabase
+        .from("email_footers")
+        .select("*")
+        .eq("email_id", emailId)
+        .maybeSingle();
+
+      // Only throw if it's not a "not found" error
+      if (footerError && footerError.code !== "PGRST116") {
+        throw footerError;
+      }
+
       return {
         email: emailData,
         blocks: blocksData || [],
+        footer: footerData,
       };
     },
   });
