@@ -10,6 +10,7 @@ import {
   VideoBlockData,
 } from "@/types/blocks";
 import { Button } from "@trivo/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@trivo/ui/dialog";
 import { ChevronLeft } from "@trivo/ui/icons";
 import AuthorForm from "./sidebar-editor-forms/author";
 import ButtonForm from "./sidebar-editor-forms/buttons";
@@ -213,6 +214,11 @@ export default function DndBuilderSidebarForms({
       {selectedBlock && formType === "block" && (
         <div className="flex gap-2 items-center justify-end">
           <div className="flex items-center justify-center gap-2">
+          {(selectedBlock.type === "button" || 
+            selectedBlock.type === "text" || 
+            selectedBlock.type === "video" || 
+            selectedBlock.type === "divider" || 
+            selectedBlock.type === "list") && (
             <Button
               variant="outline"
               className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
@@ -224,6 +230,51 @@ export default function DndBuilderSidebarForms({
             >
               Delete Block
             </Button>
+          )}
+          {(selectedBlock.type === "cards" || 
+            selectedBlock.type === "image" || 
+            selectedBlock.type === "author" || 
+            selectedBlock.type === "file-download") && (
+         <Dialog>
+          <DialogTrigger asChild>
+          <Button
+              variant="outline"
+              className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
+            >
+              Delete Block
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you sure you want to delete this block?</DialogTitle>
+              <DialogDescription>
+                Deleting this block will delete any attached files and images from the database. This cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  variant="outline"
+                  className=" px-2 py-0 h-7 "
+                >
+                  Cancel
+                </Button>
+              </DialogClose>
+            <Button
+              variant="destructive"
+              className="px-2 py-0 h-7 "
+              onClick={() => {
+                if (selectedBlock) {
+                  handleDeleteBlock(selectedBlock.id);
+                }
+              }}
+              >
+              Delete Block
+            </Button>
+            </DialogFooter>
+              </DialogContent>
+         </Dialog>
+          )}
 
             <Button
               variant="outline"
