@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@trivo/ui/popover";
 import { ToggleGroup, ToggleGroupItem } from "@trivo/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@trivo/ui/tooltip";
 import {
+  ALargeSmall,
   AlignCenter,
   AlignJustify,
   AlignLeft,
@@ -35,6 +36,7 @@ interface ToolbarProps {
 const Toolbar = ({ editor }: ToolbarProps) => {
   const [linkUrl, setLinkUrl] = useState("");
   const [, setForceUpdate] = useState(0);
+  const [currentFontSize, setCurrentFontSize] = useState<string>("16px");
 
   // Set default alignment to left when editor is initialized
   useEffect(() => {
@@ -57,6 +59,12 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
     const updateHandler = () => {
       setForceUpdate((prev) => prev + 1);
+
+      // Update current font size when selection changes
+      const attrs = editor.getAttributes("textStyle");
+      if (attrs.fontSize) {
+        setCurrentFontSize(attrs.fontSize);
+      }
     };
 
     // Immediate update for toggle state
@@ -107,8 +115,13 @@ const Toolbar = ({ editor }: ToolbarProps) => {
           ? "justify"
           : "left";
 
+  // Get current font size without the "px" suffix for display
+  const displayFontSize = currentFontSize
+    ? parseInt(currentFontSize.replace("px", ""), 10)
+    : 16;
+
   return (
-    <div className="flex-shrink-0 flex flex-wrap gap-2 px-2 ">
+    <div className="flex-shrink-0 flex flex-wrap gap-2 px-2 pt-1.5">
       <ToggleGroup type="multiple" className="flex-wrap">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -199,30 +212,40 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         </Tooltip>
       </ToggleGroup>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenu>
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <TextSize className="h-4 w-4" />
+              <Button
+                variant="ghost"
+                className="flex items-center gap-1.5 px-2"
+              >
+                <ALargeSmall className="h-5 w-5" />
+                <span className="text-xs">{displayFontSize}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {fontSizes.map((size) => (
-                <DropdownMenuItem
-                  key={size}
-                  onClick={() =>
-                    editor.chain().focus().setFontSize(`${size}px`).run()
-                  }
-                >
-                  {size}px
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </TooltipTrigger>
-        <TooltipContent>Font Size</TooltipContent>
-      </Tooltip>
+          </TooltipTrigger>
+          <TooltipContent>Font Size</TooltipContent>
+        </Tooltip>
+        <DropdownMenuContent>
+          {fontSizes.map((size) => (
+            <DropdownMenuItem
+              key={size}
+              onClick={() => {
+                editor.chain().focus().setFontSize(`${size}px`).run();
+                setCurrentFontSize(`${size}px`);
+              }}
+              className={
+                displayFontSize === size
+                  ? "bg-accent text-accent-foreground"
+                  : ""
+              }
+            >
+              {size}px
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <ToggleGroup type="single" value={textAlign} className="flex-wrap">
         <Tooltip>
@@ -316,31 +339,31 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         </Tooltip>
       </ToggleGroup>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Popover>
+      <Popover>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Link className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80">
-              <div className="flex flex-col gap-4">
-                <Input
-                  type="url"
-                  placeholder="Enter URL"
-                  value={linkUrl}
-                  onChange={(e) => setLinkUrl(e.target.value)}
-                />
-                <Button onClick={setLink}>
-                  {editor.isActive("link") ? "Update Link" : "Add Link"}
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </TooltipTrigger>
-        <TooltipContent>Link</TooltipContent>
-      </Tooltip>
+          </TooltipTrigger>
+          <TooltipContent>Link</TooltipContent>
+        </Tooltip>
+        <PopoverContent className="w-80">
+          <div className="flex flex-col gap-4">
+            <Input
+              type="url"
+              placeholder="Enter URL"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+            />
+            <Button onClick={setLink}>
+              {editor.isActive("link") ? "Update Link" : "Add Link"}
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };

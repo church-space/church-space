@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Editor } from "@tiptap/react";
 import { cn } from "@trivo/ui/cn";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AuthorBlock from "./block-types/author";
 import ButtonBlock from "./block-types/button";
 import CardsBlock from "./block-types/cards";
@@ -40,6 +40,32 @@ export default function Block({
   defaultFont,
   defaultTextColor,
 }: BlockProps) {
+  // Add state to track if the editor is focused
+  const [isEditorFocused, setIsEditorFocused] = useState(false);
+
+  // Set up effect to track editor focus state for text blocks
+  useEffect(() => {
+    if (type !== "text" || !editor || editor.isDestroyed) return;
+
+    const handleFocus = () => {
+      setIsEditorFocused(true);
+    };
+
+    const handleBlur = () => {
+      setIsEditorFocused(false);
+    };
+
+    editor.on("focus", handleFocus);
+    editor.on("blur", handleBlur);
+
+    return () => {
+      if (!editor.isDestroyed) {
+        editor.off("focus", handleFocus);
+        editor.off("blur", handleBlur);
+      }
+    };
+  }, [editor, type]);
+
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: id || "temp-id",
@@ -47,7 +73,8 @@ export default function Block({
         type,
         id,
       },
-      disabled: isOverlay,
+      // Disable drag for text blocks when editor is focused
+      disabled: isOverlay || (type === "text" && isEditorFocused),
     });
 
   const style = {
@@ -116,7 +143,9 @@ export default function Block({
       ref={setNodeRef}
       style={style}
       {...(!isOverlay ? attributes : {})}
-      {...(!isOverlay ? listeners : {})}
+      {...(!isOverlay && !(type === "text" && isEditorFocused)
+        ? listeners
+        : {})}
       className={cn(
         "relative mx-auto w-full max-w-2xl rounded-md p-4 border border-transparent hover:border-border group/block",
         isDragging && "opacity-50",
