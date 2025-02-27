@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  BookOpen,
-  Clipboard,
   Command,
   Home,
   Link,

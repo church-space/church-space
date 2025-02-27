@@ -22,7 +22,6 @@ import {
   Italic,
   Link,
   Strikethrough,
-  TextIcon as TextSize,
   Underline,
 } from "lucide-react";
 import { useEffect, useState } from "react";

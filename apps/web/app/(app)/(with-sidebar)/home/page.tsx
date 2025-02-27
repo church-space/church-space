@@ -1,14 +1,11 @@
-import React from "react";
-import { SidebarTrigger } from "@trivo/ui/sidebar";
-import { Separator } from "@trivo/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@trivo/ui/breadcrumb";
+import { Separator } from "@trivo/ui/separator";
+import { SidebarTrigger } from "@trivo/ui/sidebar";
 
 export default function Page() {
   return (
