@@ -1998,7 +1998,7 @@ export default function DndProvider() {
               <TooltipContent>Redo</TooltipContent>
             </Tooltip>
           </div>
-          <Button variant="outline">Preview</Button>
+          <Button variant="ghost">Preview</Button>
           <Button variant="outline">Send Test</Button>
           <Button variant="default" onClick={handleSave} disabled={isSaving}>
             {isSaving ? (

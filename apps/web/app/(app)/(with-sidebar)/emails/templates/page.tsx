@@ -9,12 +9,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@trivo/ui/breadcrumb";
-import { Button } from "@trivo/ui/button";
 
 export default function Page() {
   return (
     <>
-      <header className="flex h-12 shrink-0 items-center gap-2 justify-between">
+      <header className="flex h-12 shrink-0 items-center gap-2">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
@@ -28,17 +27,11 @@ export default function Page() {
                 <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
-
               <BreadcrumbItem>
-                <BreadcrumbPage>Email Subject</BreadcrumbPage>
+                <BreadcrumbPage>Templates</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-        </div>
-        <div className="flex items-center gap-2 px-4">
-          <Button variant="ghost">Preview</Button>
-          <Button variant="outline">Send Test</Button>
-          <Button variant="default">Send/Schedule/Save Draft</Button>
         </div>
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">Page</div>

@@ -2,10 +2,14 @@
 
 import {
   BookOpen,
-  Bot,
+  Clipboard,
   Command,
+  Home,
+  Link,
+  Mail,
   Settings2,
-  SquareTerminal,
+  User,
+  Waypoints,
 } from "lucide-react";
 import * as React from "react";
 
@@ -31,28 +35,39 @@ const data = {
     {
       title: "Home",
       url: "/home",
-      icon: SquareTerminal,
+      icon: Home,
       isActive: true,
     },
     {
       title: "Emails",
       url: "/emails",
-      icon: Bot,
+      icon: Mail,
     },
     {
-      title: "Journeys",
-      url: "/journeys",
-      icon: Settings2,
+      title: "Automations",
+      url: "/automations",
+      icon: Waypoints,
     },
     {
-      title: "Lists",
-      url: "/lists",
-      icon: BookOpen,
+      title: "Links",
+      url: "/links",
+      icon: Link,
     },
+    // {
+    //   title: "Content",
+    //   url: "/content",
+    //   icon: BookOpen,
+    // },
+    // {
+    //   title: "Forms",
+    //   url: "/forms",
+    //   icon: Clipboard,
+    // },
+
     {
-      title: "Contacts",
-      url: "/contacts",
-      icon: BookOpen,
+      title: "People",
+      url: "/people",
+      icon: User,
     },
     {
       title: "Settings",
