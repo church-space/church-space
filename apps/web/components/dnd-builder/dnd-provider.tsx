@@ -41,7 +41,7 @@ import { useUpdateEmailStyle } from "./mutations/use-update-email-style";
 import { createEditor } from "./rich-text-editor/editor";
 import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
-import { useBlockStateManager } from "./use-block-state-manager";
+import { useBlockStateManager, EmailStyles } from "./use-block-state-manager";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -103,23 +103,40 @@ export default function DndProvider() {
       data: block.value as unknown as BlockData,
     })) as BlockType[]) || [];
 
+  // Initialize styles from the fetched data or use defaults
+  const initialStyles: EmailStyles = {
+    bgColor: emailData?.email?.blocks_bg_color || "#f4f4f5",
+    isInset: emailData?.email?.is_inset || false,
+    emailBgColor: emailData?.email?.bg_color || "#ffffff",
+    defaultTextColor: emailData?.email?.default_text_color || "#000000",
+    defaultFont: emailData?.email?.default_font || "Inter",
+  };
+
   const {
     blocks,
+    styles,
     updateBlocks,
     updateBlocksWithoutHistory,
+    updateStyles,
+    updateStylesWithoutHistory,
     undo,
     redo,
     canUndo,
     canRedo,
-  } = useBlockStateManager(initialBlocks);
+  } = useBlockStateManager(initialBlocks, initialStyles);
 
-  // Create a ref to track the latest blocks
+  // Create refs to track the latest blocks and styles
   const blocksRef = useRef(blocks);
+  const stylesRef = useRef(styles);
 
-  // Update the ref whenever blocks change
+  // Update the refs whenever blocks or styles change
   useEffect(() => {
     blocksRef.current = blocks;
   }, [blocks]);
+
+  useEffect(() => {
+    stylesRef.current = styles;
+  }, [styles]);
 
   // Helper function to update block orders in the database
   const updateBlockOrdersInDatabase = useCallback(
@@ -151,191 +168,13 @@ export default function DndProvider() {
     [emailId, batchUpdateEmailBlocks]
   );
 
-  // Initialize bgColor from the fetched data or use default
-  const [bgColor, setBgColor] = useState(
-    emailData?.email?.blocks_bg_color || "#f4f4f5"
-  );
-
-  // Initialize isInset from the fetched data or use default
-  const [isInset, setIsInset] = useState(emailData?.email?.is_inset || false);
-
-  // Initialize emailBgColor from the fetched data or use default
-  const [emailBgColor, setEmailBgColor] = useState(
-    emailData?.email?.bg_color || "#ffffff"
-  );
-
-  // Initialize defaultTextColor from the fetched data or use default
-  const [defaultTextColor, setDefaultTextColor] = useState(
-    emailData?.email?.default_text_color || "#000000"
-  );
-
-  // Initialize defaultFont from the fetched data or use default
-  const [defaultFont, setDefaultFont] = useState(
-    emailData?.email?.default_font || "Inter"
-  );
-
-  // Update bgColor when email data is loaded
-  useEffect(() => {
-    if (emailData?.email?.blocks_bg_color) {
-      setBgColor(emailData.email.blocks_bg_color);
-    }
-    if (emailData?.email?.is_inset !== undefined) {
-      setIsInset(emailData.email.is_inset);
-    }
-    if (emailData?.email?.bg_color) {
-      setEmailBgColor(emailData.email.bg_color);
-    }
-    if (emailData?.email?.default_text_color) {
-      setDefaultTextColor(emailData.email.default_text_color);
-    }
-    if (emailData?.email?.default_font) {
-      setDefaultFont(emailData.email.default_font);
-    }
-  }, [emailData]);
-
-  // Update block IDs when email data is loaded
-  useEffect(() => {
-    if (emailData?.blocks && blocksRef.current.length > 0) {
-      // Check for blocks with UUID IDs that might have corresponding database blocks
-      const blocksWithUUID = blocksRef.current.filter((block) =>
-        isNaN(parseInt(block.id, 10))
-      );
-
-      if (blocksWithUUID.length > 0) {
-        // Create a new blocks array with updated IDs
-        const updatedBlocks = blocksRef.current.map((block) => {
-          // Skip blocks that already have numeric IDs
-          if (!isNaN(parseInt(block.id, 10))) {
-            return block;
-          }
-
-          // Try to find a matching block in the database
-          // First try to match by type and order
-          let matchingDbBlock = emailData.blocks.find(
-            (dbBlock) =>
-              dbBlock.type === block.type && dbBlock.order === block.order
-          );
-
-          // If no match found, try to match by content similarity
-          if (!matchingDbBlock && block.data) {
-            matchingDbBlock = emailData.blocks.find((dbBlock) => {
-              if (dbBlock.type !== block.type) return false;
-
-              // For text blocks, compare content
-              if (block.type === "text" && dbBlock.value && block.data) {
-                const dbValue = dbBlock.value as any;
-                const blockData = block.data as any;
-                return dbValue.content === blockData.content;
-              }
-
-              // For author blocks, compare name and subtitle
-              if (block.type === "author" && dbBlock.value && block.data) {
-                const dbValue = dbBlock.value as any;
-                const blockData = block.data as any;
-                return (
-                  dbValue.name === blockData.name &&
-                  dbValue.subtitle === blockData.subtitle
-                );
-              }
-
-              return false;
-            });
-          }
-
-          if (matchingDbBlock) {
-            return { ...block, id: matchingDbBlock.id.toString() };
-          }
-
-          return block;
-        });
-
-        // Only update if there were changes
-        const hasChanges = updatedBlocks.some(
-          (block, index) => block.id !== blocksRef.current[index].id
-        );
-        if (hasChanges) {
-          updateBlocks(updatedBlocks);
-        }
-      }
-    }
-  }, [emailData]); // Only depend on emailData to avoid infinite loops
-
-  // Create debounced server update functions using useRef to maintain stable references
-  const debouncedFunctionsRef = useRef<{
-    bgColor?: ReturnType<typeof debounce>;
-    emailBgColor?: ReturnType<typeof debounce>;
-    defaultTextColor?: ReturnType<typeof debounce>;
-    defaultFont?: ReturnType<typeof debounce>;
-    footerBgColor?: ReturnType<typeof debounce>;
-    footerTextColor?: ReturnType<typeof debounce>;
-  }>({});
-
-  // Initialize debounced functions once
-  useEffect(() => {
-    // Create new debounced functions
-    debouncedFunctionsRef.current = {
-      bgColor: debounce((color: string) => {
-        if (emailId) {
-          updateEmailStyle.mutate({
-            emailId,
-            updates: {
-              blocks_bg_color: color,
-            },
-          });
-        }
-      }, 500),
-
-      emailBgColor: debounce((color: string) => {
-        if (emailId) {
-          updateEmailStyle.mutate({
-            emailId,
-            updates: {
-              bg_color: color,
-            },
-          });
-        }
-      }, 500),
-
-      defaultTextColor: debounce((color: string) => {
-        if (emailId) {
-          updateEmailStyle.mutate({
-            emailId,
-            updates: {
-              default_text_color: color,
-            },
-          });
-        }
-      }, 500),
-
-      defaultFont: debounce((font: string) => {
-        if (emailId) {
-          updateEmailStyle.mutate({
-            emailId,
-            updates: {
-              default_font: font,
-            },
-          });
-        }
-      }, 500),
-    };
-
-    // Cleanup function to cancel any pending debounced calls
-    return () => {
-      Object.values(debouncedFunctionsRef.current).forEach((fn) => {
-        if (fn && typeof fn.cancel === "function") {
-          fn.cancel();
-        }
-      });
-    };
-  }, [emailId, updateEmailStyle]);
-
-  // Create handlers that update UI immediately and debounce server updates
+  // Create handlers that update UI immediately and update history
   const handleBgColorChange = useCallback(
     (color: string) => {
-      // Immediately update UI
-      setBgColor(color);
+      // Update styles in history
+      updateStyles({ bgColor: color });
 
-      // Directly update the database
+      // Update in database if we have an emailId
       if (emailId) {
         updateEmailStyle.mutate({
           emailId,
@@ -345,14 +184,14 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle]
+    [emailId, updateEmailStyle, updateStyles]
   );
 
   // Create a handler for inset email changes
   const handleIsInsetChange = useCallback(
     (inset: boolean) => {
-      // Immediately update UI
-      setIsInset(inset);
+      // Update styles in history
+      updateStyles({ isInset: inset });
 
       // Update in database if we have an emailId
       if (emailId) {
@@ -364,16 +203,16 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle]
+    [emailId, updateEmailStyle, updateStyles]
   );
 
   // Create a handler for email background color changes
   const handleEmailBgColorChange = useCallback(
     (color: string) => {
-      // Immediately update UI
-      setEmailBgColor(color);
+      // Update styles in history
+      updateStyles({ emailBgColor: color });
 
-      // Directly update the database
+      // Update in database if we have an emailId
       if (emailId) {
         updateEmailStyle.mutate({
           emailId,
@@ -383,16 +222,16 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle]
+    [emailId, updateEmailStyle, updateStyles]
   );
 
   // Create a handler for default text color changes
   const handleDefaultTextColorChange = useCallback(
     (color: string) => {
-      // Immediately update UI
-      setDefaultTextColor(color);
+      // Update styles in history
+      updateStyles({ defaultTextColor: color });
 
-      // Directly update the database
+      // Update in database if we have an emailId
       if (emailId) {
         updateEmailStyle.mutate({
           emailId,
@@ -402,16 +241,16 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle]
+    [emailId, updateEmailStyle, updateStyles]
   );
 
   // Create a handler for default font changes
   const handleDefaultFontChange = useCallback(
     (font: string) => {
-      // Immediately update UI
-      setDefaultFont(font);
+      // Update styles in history
+      updateStyles({ defaultFont: font });
 
-      // Directly update the database
+      // Update in database if we have an emailId
       if (emailId) {
         updateEmailStyle.mutate({
           emailId,
@@ -421,7 +260,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle]
+    [emailId, updateEmailStyle, updateStyles]
   );
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
@@ -457,8 +296,8 @@ export default function DndProvider() {
         // Always use the default font and color from email settings
         const newEditor = createEditor(
           initialContent,
-          defaultFont,
-          defaultTextColor,
+          styles.defaultFont,
+          styles.defaultTextColor,
           false // always use email defaults
         );
         newEditors[block.id] = newEditor;
@@ -466,7 +305,7 @@ export default function DndProvider() {
 
       setEditors(newEditors);
     }
-  }, [blocks, defaultFont, defaultTextColor]);
+  }, [blocks, styles.defaultFont, styles.defaultTextColor]);
 
   // Update all text blocks when default font or color changes
   useEffect(() => {
@@ -486,8 +325,8 @@ export default function DndProvider() {
         // Check if this block actually needs updating
         const blockData = (block.data as any) || {};
         if (
-          blockData.font !== defaultFont ||
-          blockData.textColor !== defaultTextColor
+          blockData.font !== styles.defaultFont ||
+          blockData.textColor !== styles.defaultTextColor
         ) {
           needsUpdate = true;
 
@@ -497,8 +336,8 @@ export default function DndProvider() {
             data: {
               ...block.data,
               content,
-              font: defaultFont,
-              textColor: defaultTextColor,
+              font: styles.defaultFont,
+              textColor: styles.defaultTextColor,
             } as BlockType["data"],
           };
         }
@@ -515,8 +354,8 @@ export default function DndProvider() {
       Object.values(editors).forEach((editor) => {
         if (!editor.isDestroyed) {
           // Set the font and color for the editor
-          editor.commands.setFontFamily(defaultFont);
-          editor.commands.setColor(defaultTextColor);
+          editor.commands.setFontFamily(styles.defaultFont);
+          editor.commands.setColor(styles.defaultTextColor);
         }
       });
 
@@ -544,8 +383,8 @@ export default function DndProvider() {
       }
     }
   }, [
-    defaultFont,
-    defaultTextColor,
+    styles.defaultFont,
+    styles.defaultTextColor,
     emailId,
     blocks,
     editors,
@@ -582,8 +421,8 @@ export default function DndProvider() {
           data: {
             ...block.data,
             content,
-            font: defaultFont,
-            textColor: defaultTextColor,
+            font: styles.defaultFont,
+            textColor: styles.defaultTextColor,
           } as BlockType["data"],
         } as BlockType;
       }
@@ -608,8 +447,8 @@ export default function DndProvider() {
         value: {
           ...existingData,
           content,
-          font: defaultFont,
-          textColor: defaultTextColor,
+          font: styles.defaultFont,
+          textColor: styles.defaultTextColor,
         },
       });
     }
@@ -670,8 +509,8 @@ export default function DndProvider() {
       if (blockType === "text") {
         blockData = {
           content: "",
-          font: defaultFont,
-          textColor: defaultTextColor,
+          font: styles.defaultFont,
+          textColor: styles.defaultTextColor,
         };
       } else if (blockType === "video") {
         blockData = {
@@ -780,8 +619,8 @@ export default function DndProvider() {
 
         const newEditor = createEditor(
           initialContent,
-          defaultFont,
-          defaultTextColor,
+          styles.defaultFont,
+          styles.defaultTextColor,
           false // new blocks should use email defaults
         );
         setEditors((prev) => ({
@@ -1421,8 +1260,8 @@ export default function DndProvider() {
 
         const overlayEditor = createEditor(
           content,
-          defaultFont,
-          defaultTextColor,
+          styles.defaultFont,
+          styles.defaultTextColor,
           false // always use email defaults
         );
 
@@ -1434,8 +1273,8 @@ export default function DndProvider() {
             editor={overlayEditor}
             isOverlay
             block={draggedBlock}
-            defaultFont={defaultFont}
-            defaultTextColor={defaultTextColor}
+            defaultFont={styles.defaultFont}
+            defaultTextColor={styles.defaultTextColor}
           />
         );
       }
@@ -1448,8 +1287,8 @@ export default function DndProvider() {
           editor={editors[draggedBlock.id]}
           isOverlay
           block={draggedBlock}
-          defaultFont={defaultFont}
-          defaultTextColor={defaultTextColor}
+          defaultFont={styles.defaultFont}
+          defaultTextColor={styles.defaultTextColor}
         />
       );
     }
@@ -1469,11 +1308,11 @@ export default function DndProvider() {
       await updateEmailStyle.mutateAsync({
         emailId,
         updates: {
-          blocks_bg_color: bgColor,
-          default_text_color: defaultTextColor,
-          default_font: defaultFont,
-          is_inset: isInset,
-          bg_color: emailBgColor,
+          blocks_bg_color: styles.bgColor,
+          default_text_color: styles.defaultTextColor,
+          default_font: styles.defaultFont,
+          is_inset: styles.isInset,
+          bg_color: styles.emailBgColor,
         },
       });
 
@@ -1566,11 +1405,11 @@ export default function DndProvider() {
     updateEmailStyle,
     batchUpdateEmailBlocks,
     addEmailBlock,
-    bgColor,
-    defaultTextColor,
-    defaultFont,
-    isInset,
-    emailBgColor,
+    styles.bgColor,
+    styles.defaultTextColor,
+    styles.defaultFont,
+    styles.isInset,
+    styles.emailBgColor,
     blocks,
     queryClient,
     router,
@@ -1596,217 +1435,261 @@ export default function DndProvider() {
     return isValid;
   };
 
-  // Handle undo with database sync
-  const handleUndo = useCallback(async () => {
-    if (!canUndo || !emailId) return;
+  // Handle undo button click
+  const handleUndo = useCallback(() => {
+    if (!canUndo) return;
 
-    // Clear the blocksBeingDeleted set since we're undoing
-    setBlocksBeingDeleted(new Set());
-
-    // Also clear permanently deleted blocks when undoing
-    permanentlyDeletedBlocksRef.current.clear();
-
+    // Perform the undo operation
     const { previousState, currentState } = undo();
 
-    // Sync changes to database
-    try {
-      // 1. Identify blocks that were deleted (exist in currentState but not in previousState)
-      const deletedBlocks = currentState.filter(
-        (currentBlock) =>
-          !previousState.some((prevBlock) => prevBlock.id === currentBlock.id)
-      );
+    // Update the database with the changes
+    if (emailId) {
+      // Update email styles if they changed
+      const styleChanges: Record<string, any> = {};
+      let hasStyleChanges = false;
 
-      // Delete blocks from database
-      for (const block of deletedBlocks) {
-        if (!isNaN(parseInt(block.id, 10))) {
-          const blockId = parseInt(block.id, 10);
-          await deleteEmailBlock.mutateAsync({ blockId });
-        }
+      if (previousState.styles.bgColor !== currentState.styles.bgColor) {
+        styleChanges.blocks_bg_color = previousState.styles.bgColor;
+        hasStyleChanges = true;
       }
 
-      // 2. Identify blocks that were added (exist in previousState but not in currentState)
-      const addedBlocks = previousState.filter(
-        (prevBlock) =>
-          !currentState.some((currentBlock) => currentBlock.id === prevBlock.id)
+      if (previousState.styles.isInset !== currentState.styles.isInset) {
+        styleChanges.is_inset = previousState.styles.isInset;
+        hasStyleChanges = true;
+      }
+
+      if (previousState.styles.emailBgColor !== currentState.styles.emailBgColor) {
+        styleChanges.bg_color = previousState.styles.emailBgColor;
+        hasStyleChanges = true;
+      }
+
+      if (previousState.styles.defaultTextColor !== currentState.styles.defaultTextColor) {
+        styleChanges.default_text_color = previousState.styles.defaultTextColor;
+        hasStyleChanges = true;
+      }
+
+      if (previousState.styles.defaultFont !== currentState.styles.defaultFont) {
+        styleChanges.default_font = previousState.styles.defaultFont;
+        hasStyleChanges = true;
+      }
+
+      // Update styles in the database if they changed
+      if (hasStyleChanges) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: styleChanges,
+        });
+      }
+
+      // Update blocks in the database
+      // Find blocks that were deleted (in current but not in previous)
+      const deletedBlocks = currentState.blocks.filter(
+        (currentBlock) => 
+          !previousState.blocks.some((prevBlock) => prevBlock.id === currentBlock.id)
       );
 
-      // Add blocks to database
-      for (const block of addedBlocks) {
-        // Only add blocks that don't have a numeric ID (they're not in the database yet)
+      // Find blocks that were added or modified
+      const addedOrModifiedBlocks = previousState.blocks.filter(
+        (prevBlock) => 
+          !currentState.blocks.some((currentBlock) => 
+            currentBlock.id === prevBlock.id && 
+            JSON.stringify(currentBlock) === JSON.stringify(prevBlock)
+          )
+      );
+
+      // Delete blocks that were removed
+      deletedBlocks.forEach((block) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          deleteEmailBlock.mutate({
+            blockId: parseInt(block.id, 10),
+          });
+        }
+      });
+
+      // Process blocks that need to be added or updated
+      const orderUpdates: OrderUpdate[] = [];
+      const contentUpdates: ContentUpdate[] = [];
+      const blocksToAdd: BlockType[] = [];
+
+      // Process each added or modified block
+      addedOrModifiedBlocks.forEach((block, index) => {
         if (isNaN(parseInt(block.id, 10))) {
-          await addEmailBlock.mutateAsync({
+          // This is a new block with a UUID, add it to the database
+          if (isValidDatabaseBlockType(block.type)) {
+            blocksToAdd.push(block);
+          }
+        } else {
+          // This is an existing block, update it
+          const blockId = parseInt(block.id, 10);
+          
+          // Always update the order
+          orderUpdates.push({
+            id: blockId,
+            order: block.order,
+          });
+          
+          // Update content if the block type is valid
+          if (isValidDatabaseBlockType(block.type)) {
+            contentUpdates.push({
+              id: blockId,
+              type: block.type as DatabaseBlockType,
+              value: block.data,
+            });
+          }
+        }
+      });
+
+      // Add new blocks to the database
+      blocksToAdd.forEach((block) => {
+        if (isValidDatabaseBlockType(block.type)) {
+          addEmailBlock.mutate({
             emailId,
             type: block.type,
-            value: block.data || ({} as BlockData),
+            value: block.data || {} as BlockData,
             order: block.order,
             linkedFile: undefined,
           });
-        }
-      }
-
-      // 3. Prepare batch updates for blocks that exist in both states but have changed
-      const orderUpdates: OrderUpdate[] = [];
-      const contentUpdates: ContentUpdate[] = [];
-
-      // Calculate order for all blocks in previousState
-      previousState.forEach((block, index) => {
-        if (!isNaN(parseInt(block.id, 10))) {
-          const blockId = parseInt(block.id, 10);
-          // Always update order to match the current index in the array
-          orderUpdates.push({
-            id: blockId,
-            order: index,
-          });
-
-          // Find the corresponding block in currentState
-          const currentBlock = currentState.find(
-            (current) => current.id === block.id
-          );
-
-          // If content or type changed, add to contentUpdates
-          if (
-            currentBlock &&
-            (JSON.stringify(block.data) !== JSON.stringify(currentBlock.data) ||
-              block.type !== currentBlock.type)
-          ) {
-            // Only add if the block type is compatible with DatabaseBlockType
-            if (isValidDatabaseBlockType(block.type)) {
-              contentUpdates.push({
-                id: blockId,
-                type: block.type as DatabaseBlockType,
-                value: block.data,
-              });
-            }
-          }
         }
       });
 
       // Send batch updates if there are any
       if (orderUpdates.length > 0 || contentUpdates.length > 0) {
-        await batchUpdateEmailBlocks.mutateAsync({
+        batchUpdateEmailBlocks.mutate({
           emailId,
           orderUpdates,
           contentUpdates,
         });
       }
-    } catch (error) {
-      console.error("Error syncing undo changes to database:", error);
     }
-  }, [
-    undo,
-    canUndo,
-    emailId,
-    deleteEmailBlock,
-    addEmailBlock,
-    batchUpdateEmailBlocks,
-    setBlocksBeingDeleted,
-  ]);
+  }, [canUndo, undo, emailId, updateEmailStyle, deleteEmailBlock, addEmailBlock, batchUpdateEmailBlocks]);
 
-  // Handle redo with database sync
-  const handleRedo = useCallback(async () => {
-    if (!canRedo || !emailId) return;
+  // Handle redo button click
+  const handleRedo = useCallback(() => {
+    if (!canRedo) return;
 
-    // Clear the blocksBeingDeleted set since we're redoing
-    setBlocksBeingDeleted(new Set());
-
-    // Also clear permanently deleted blocks when redoing
-    permanentlyDeletedBlocksRef.current.clear();
-
+    // Perform the redo operation
     const { nextState, currentState } = redo();
 
-    // Sync changes to database
-    try {
-      // 1. Identify blocks that were deleted (exist in currentState but not in nextState)
-      const deletedBlocks = currentState.filter(
-        (currentBlock) =>
-          !nextState.some((nextBlock) => nextBlock.id === currentBlock.id)
-      );
+    // Update the database with the changes
+    if (emailId) {
+      // Update email styles if they changed
+      const styleChanges: Record<string, any> = {};
+      let hasStyleChanges = false;
 
-      // Delete blocks from database
-      for (const block of deletedBlocks) {
-        if (!isNaN(parseInt(block.id, 10))) {
-          const blockId = parseInt(block.id, 10);
-          await deleteEmailBlock.mutateAsync({ blockId });
-        }
+      if (nextState.styles.bgColor !== currentState.styles.bgColor) {
+        styleChanges.blocks_bg_color = nextState.styles.bgColor;
+        hasStyleChanges = true;
       }
 
-      // 2. Identify blocks that were added (exist in nextState but not in currentState)
-      const addedBlocks = nextState.filter(
-        (nextBlock) =>
-          !currentState.some((currentBlock) => currentBlock.id === nextBlock.id)
+      if (nextState.styles.isInset !== currentState.styles.isInset) {
+        styleChanges.is_inset = nextState.styles.isInset;
+        hasStyleChanges = true;
+      }
+
+      if (nextState.styles.emailBgColor !== currentState.styles.emailBgColor) {
+        styleChanges.bg_color = nextState.styles.emailBgColor;
+        hasStyleChanges = true;
+      }
+
+      if (nextState.styles.defaultTextColor !== currentState.styles.defaultTextColor) {
+        styleChanges.default_text_color = nextState.styles.defaultTextColor;
+        hasStyleChanges = true;
+      }
+
+      if (nextState.styles.defaultFont !== currentState.styles.defaultFont) {
+        styleChanges.default_font = nextState.styles.defaultFont;
+        hasStyleChanges = true;
+      }
+
+      // Update styles in the database if they changed
+      if (hasStyleChanges) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: styleChanges,
+        });
+      }
+
+      // Update blocks in the database
+      // Find blocks that were deleted (in current but not in next)
+      const deletedBlocks = currentState.blocks.filter(
+        (currentBlock) => 
+          !nextState.blocks.some((nextBlock) => nextBlock.id === currentBlock.id)
       );
 
-      // Add blocks to database
-      for (const block of addedBlocks) {
-        // Only add blocks that don't have a numeric ID (they're not in the database yet)
+      // Find blocks that were added or modified
+      const addedOrModifiedBlocks = nextState.blocks.filter(
+        (nextBlock) => 
+          !currentState.blocks.some((currentBlock) => 
+            currentBlock.id === nextBlock.id && 
+            JSON.stringify(currentBlock) === JSON.stringify(nextBlock)
+          )
+      );
+
+      // Delete blocks that were removed
+      deletedBlocks.forEach((block) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          deleteEmailBlock.mutate({
+            blockId: parseInt(block.id, 10),
+          });
+        }
+      });
+
+      // Process blocks that need to be added or updated
+      const orderUpdates: OrderUpdate[] = [];
+      const contentUpdates: ContentUpdate[] = [];
+      const blocksToAdd: BlockType[] = [];
+
+      // Process each added or modified block
+      addedOrModifiedBlocks.forEach((block, index) => {
         if (isNaN(parseInt(block.id, 10))) {
-          await addEmailBlock.mutateAsync({
+          // This is a new block with a UUID, add it to the database
+          if (isValidDatabaseBlockType(block.type)) {
+            blocksToAdd.push(block);
+          }
+        } else {
+          // This is an existing block, update it
+          const blockId = parseInt(block.id, 10);
+          
+          // Always update the order
+          orderUpdates.push({
+            id: blockId,
+            order: block.order,
+          });
+          
+          // Update content if the block type is valid
+          if (isValidDatabaseBlockType(block.type)) {
+            contentUpdates.push({
+              id: blockId,
+              type: block.type as DatabaseBlockType,
+              value: block.data,
+            });
+          }
+        }
+      });
+
+      // Add new blocks to the database
+      blocksToAdd.forEach((block) => {
+        if (isValidDatabaseBlockType(block.type)) {
+          addEmailBlock.mutate({
             emailId,
             type: block.type,
-            value: block.data || ({} as BlockData),
+            value: block.data || {} as BlockData,
             order: block.order,
             linkedFile: undefined,
           });
-        }
-      }
-
-      // 3. Prepare batch updates for blocks that exist in both states but have changed
-      const orderUpdates: OrderUpdate[] = [];
-      const contentUpdates: ContentUpdate[] = [];
-
-      // Calculate order for all blocks in nextState
-      nextState.forEach((block, index) => {
-        if (!isNaN(parseInt(block.id, 10))) {
-          const blockId = parseInt(block.id, 10);
-          // Always update order to match the current index in the array
-          orderUpdates.push({
-            id: blockId,
-            order: index,
-          });
-
-          // Find the corresponding block in currentState
-          const currentBlock = currentState.find(
-            (current) => current.id === block.id
-          );
-
-          // If content or type changed, add to contentUpdates
-          if (
-            currentBlock &&
-            (JSON.stringify(block.data) !== JSON.stringify(currentBlock.data) ||
-              block.type !== currentBlock.type)
-          ) {
-            // Only add if the block type is compatible with DatabaseBlockType
-            if (isValidDatabaseBlockType(block.type)) {
-              contentUpdates.push({
-                id: blockId,
-                type: block.type as DatabaseBlockType,
-                value: block.data,
-              });
-            }
-          }
         }
       });
 
       // Send batch updates if there are any
       if (orderUpdates.length > 0 || contentUpdates.length > 0) {
-        await batchUpdateEmailBlocks.mutateAsync({
+        batchUpdateEmailBlocks.mutate({
           emailId,
           orderUpdates,
           contentUpdates,
         });
       }
-    } catch (error) {
-      console.error("Error syncing redo changes to database:", error);
     }
-  }, [
-    redo,
-    canRedo,
-    emailId,
-    deleteEmailBlock,
-    addEmailBlock,
-    batchUpdateEmailBlocks,
-    setBlocksBeingDeleted,
-  ]);
+  }, [canRedo, redo, emailId, updateEmailStyle, deleteEmailBlock, addEmailBlock, batchUpdateEmailBlocks]);
 
   // Function to ensure all database blocks are visible in the UI
   const ensureBlocksVisibility = useCallback(() => {
@@ -2024,14 +1907,14 @@ export default function DndProvider() {
           <DndBuilderSidebar
             type="email"
             onBgColorChange={handleBgColorChange}
-            bgColor={bgColor}
-            defaultTextColor={defaultTextColor}
+            bgColor={styles.bgColor}
+            defaultTextColor={styles.defaultTextColor}
             onDefaultTextColorChange={handleDefaultTextColorChange}
-            defaultFont={defaultFont}
+            defaultFont={styles.defaultFont}
             onDefaultFontChange={handleDefaultFontChange}
-            isInset={isInset}
+            isInset={styles.isInset}
             onIsInsetChange={handleIsInsetChange}
-            emailBgColor={emailBgColor}
+            emailBgColor={styles.emailBgColor}
             onEmailBgColorChange={handleEmailBgColorChange}
             selectedBlock={
               selectedBlockId
@@ -2068,9 +1951,9 @@ export default function DndProvider() {
             >
               <DndBuilderCanvas
                 blocks={blocks}
-                bgColor={bgColor}
-                isInset={isInset}
-                emailBgColor={emailBgColor}
+                bgColor={styles.bgColor}
+                isInset={styles.isInset}
+                emailBgColor={styles.emailBgColor}
                 onBlockSelect={setSelectedBlockId}
                 selectedBlockId={selectedBlockId}
                 editors={editors}
@@ -2078,8 +1961,8 @@ export default function DndProvider() {
                 setActiveForm={setActiveForm}
                 activeForm={activeForm}
                 footerData={emailData?.footer || null}
-                defaultFont={defaultFont}
-                defaultTextColor={defaultTextColor}
+                defaultFont={styles.defaultFont}
+                defaultTextColor={styles.defaultTextColor}
               />
             </SortableContext>
           </div>

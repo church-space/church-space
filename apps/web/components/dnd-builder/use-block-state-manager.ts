@@ -1,23 +1,57 @@
 import type { Block } from "@/types/blocks";
 import { useCallback, useState } from "react";
 
-interface BlockStateHistory {
-  past: Block[][];
-  present: Block[];
-  future: Block[][];
+// Define the email styles interface
+export interface EmailStyles {
+  bgColor: string;
+  isInset: boolean;
+  emailBgColor: string;
+  defaultTextColor: string;
+  defaultFont: string;
 }
 
-export function useBlockStateManager(initialBlocks: Block[] = []) {
+interface BlockStateHistory {
+  past: {
+    blocks: Block[];
+    styles: EmailStyles;
+  }[];
+  present: {
+    blocks: Block[];
+    styles: EmailStyles;
+  };
+  future: {
+    blocks: Block[];
+    styles: EmailStyles;
+  }[];
+}
+
+export function useBlockStateManager(
+  initialBlocks: Block[] = [],
+  initialStyles: EmailStyles = {
+    bgColor: "#ffffff",
+    isInset: false,
+    emailBgColor: "#eeeeee",
+    defaultTextColor: "#000000",
+    defaultFont: "sans-serif",
+  }
+) {
   const [history, setHistory] = useState<BlockStateHistory>({
     past: [],
-    present: initialBlocks,
+    present: {
+      blocks: initialBlocks,
+      styles: initialStyles,
+    },
     future: [],
   });
 
+  // Update blocks and add to history
   const updateBlocks = useCallback((newBlocks: Block[]) => {
     setHistory((currentHistory) => ({
       past: [...currentHistory.past, currentHistory.present],
-      present: newBlocks,
+      present: {
+        ...currentHistory.present,
+        blocks: newBlocks,
+      },
       future: [],
     }));
   }, []);
@@ -26,13 +60,45 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
   const updateBlocksWithoutHistory = useCallback((newBlocks: Block[]) => {
     setHistory((currentHistory) => ({
       ...currentHistory,
-      present: newBlocks,
+      present: {
+        ...currentHistory.present,
+        blocks: newBlocks,
+      },
+    }));
+  }, []);
+
+  // Update styles and add to history
+  const updateStyles = useCallback((newStyles: Partial<EmailStyles>) => {
+    setHistory((currentHistory) => ({
+      past: [...currentHistory.past, currentHistory.present],
+      present: {
+        ...currentHistory.present,
+        styles: {
+          ...currentHistory.present.styles,
+          ...newStyles,
+        },
+      },
+      future: [],
+    }));
+  }, []);
+
+  // Update styles without adding to history
+  const updateStylesWithoutHistory = useCallback((newStyles: Partial<EmailStyles>) => {
+    setHistory((currentHistory) => ({
+      ...currentHistory,
+      present: {
+        ...currentHistory.present,
+        styles: {
+          ...currentHistory.present.styles,
+          ...newStyles,
+        },
+      },
     }));
   }, []);
 
   const undo = useCallback(() => {
-    let previousState: Block[] = [];
-    let currentState: Block[] = [];
+    let previousState = { blocks: [] as Block[], styles: {} as EmailStyles };
+    let currentState = { blocks: [] as Block[], styles: {} as EmailStyles };
 
     setHistory((currentHistory) => {
       const { past, present, future } = currentHistory;
@@ -55,8 +121,8 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
   }, []);
 
   const redo = useCallback(() => {
-    let nextState: Block[] = [];
-    let currentState: Block[] = [];
+    let nextState = { blocks: [] as Block[], styles: {} as EmailStyles };
+    let currentState = { blocks: [] as Block[], styles: {} as EmailStyles };
 
     setHistory((currentHistory) => {
       const { past, present, future } = currentHistory;
@@ -82,9 +148,12 @@ export function useBlockStateManager(initialBlocks: Block[] = []) {
   const canRedo = history.future.length > 0;
 
   return {
-    blocks: history.present,
+    blocks: history.present.blocks,
+    styles: history.present.styles,
     updateBlocks,
     updateBlocksWithoutHistory,
+    updateStyles,
+    updateStylesWithoutHistory,
     undo,
     redo,
     canUndo,
