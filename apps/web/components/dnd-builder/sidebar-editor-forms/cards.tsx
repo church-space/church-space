@@ -264,12 +264,6 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
-          <Label>Text Color</Label>
-
-          <ColorPicker
-            value={localState.textColor}
-            onChange={(color) => handleChange("textColor", color)}
-          />
           <Label>Label Color</Label>
           <ColorPicker
             value={localState.labelColor}

@@ -104,8 +104,8 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
   };
 
   return (
-    <div className="flex flex-col gap-10 px-2">
-      <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-10 ">
+      <div className="flex flex-col gap-4 px-2">
         <div className="flex justify-between items-center">
           <Label className="font-bold text-md">Details</Label>
         </div>
@@ -121,11 +121,6 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             className="col-span-2"
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
-          />
-          <Label>Text Color</Label>
-          <ColorPicker
-            value={localState.textColor}
-            onChange={(color) => handleChange("textColor", color)}
           />
           <Label>Bullet Color</Label>
           <ColorPicker
@@ -148,7 +143,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
         </div>
       </div>
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center px-2">
           <Label className="font-bold text-md">Items</Label>
           <Button variant="outline" onClick={addItem}>
             Add Item
@@ -157,7 +152,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
         {localState.items.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-3 gap-y-2 gap-x-2 items-center border rounded-md p-4"
+            className="grid grid-cols-3 gap-y-2 gap-x-2 items-center border rounded-md p-3"
           >
             <Label>Title</Label>
             <Input
