@@ -122,7 +122,6 @@ export default function DndProvider() {
     updateBlocks,
     updateBlocksWithoutHistory,
     updateStyles,
-    updateStylesWithoutHistory,
     undo,
     redo,
     canUndo,
@@ -1526,7 +1525,7 @@ export default function DndProvider() {
       const blocksToAdd: BlockType[] = [];
 
       // Process each added or modified block
-      addedOrModifiedBlocks.forEach((block, index) => {
+      addedOrModifiedBlocks.forEach((block) => {
         if (isNaN(parseInt(block.id, 10))) {
           // This is a new block with a UUID, add it to the database
           if (isValidDatabaseBlockType(block.type)) {
@@ -1668,7 +1667,7 @@ export default function DndProvider() {
       const blocksToAdd: BlockType[] = [];
 
       // Process each added or modified block
-      addedOrModifiedBlocks.forEach((block, index) => {
+      addedOrModifiedBlocks.forEach((block) => {
         if (isNaN(parseInt(block.id, 10))) {
           // This is a new block with a UUID, add it to the database
           if (isValidDatabaseBlockType(block.type)) {

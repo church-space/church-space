@@ -18,6 +18,7 @@ import {
   CirclePlus,
   ChevronRight,
 } from "@church-space/ui/icons";
+import { X } from "lucide-react";
 import { Label } from "@church-space/ui/label";
 import { Separator } from "@church-space/ui/separator";
 import { DragOverlay, useDraggable } from "@dnd-kit/core";
@@ -34,8 +35,10 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetClose,
 } from "@church-space/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@church-space/ui/button";
 
 interface DndBuilderSidebarProps {
   className?: string;
@@ -308,10 +311,14 @@ export default function DndBuilderSidebar({
           </AnimatePresence>
         </div>
       </div>
-      <div className="fixed bottom-4 left-20 right-20 py-2 px-6 bg-background flex  items-center justify-between rounded-full shadow-lg z-50 text-center md:hidden">
-        <div className="">
+      <div className="fixed bottom-4 left-20 right-20 p-2 px-3 bg-background flex  items-center justify-between rounded-full shadow-lg z-50 text-center md:hidden">
+        <Button
+          variant="ghost"
+          className="p-0 flex-shrink-0 aspect-square rounded-full"
+          onClick={() => setActiveForm("email-style")}
+        >
           <Palette height="22px" width="22px" />
-        </div>
+        </Button>
         <div className="">
           <Popover>
             <PopoverTrigger asChild>
@@ -338,24 +345,69 @@ export default function DndBuilderSidebar({
             </PopoverContent>
           </Popover>
         </div>
-        <div className="">
+        <Button
+          variant="ghost"
+          className="p-0 flex-shrink-0 aspect-square rounded-full"
+          onClick={() => setActiveForm("email-footer")}
+        >
           <FooterIcon height="40px" width="40px" />
-        </div>
+        </Button>
       </div>
       <div className="md:hidden">
         <Sheet
-          open={selectedBlock !== null && activeForm !== "default" && isMobile}
+          open={
+            (selectedBlock !== null && isMobile) ||
+            (activeForm !== "default" && isMobile)
+          }
           onOpenChange={(open) => {
-            if (!open) setSelectedBlockId(null);
+            if (!open) {
+              setSelectedBlockId(null);
+              if (
+                activeForm === "email-style" ||
+                activeForm === "email-footer" ||
+                activeForm === "email-templates"
+              ) {
+                setActiveForm("default");
+              }
+            }
+            if (
+              open &&
+              activeForm !== "email-style" &&
+              activeForm !== "email-footer" &&
+              activeForm !== "email-templates"
+            ) {
+              setActiveForm("default");
+            }
           }}
           modal={false}
         >
           <SheetContent
-            className="md:hidden h-[calc(100vh-4rem)]"
+            className="md:hidden h-[calc(100vh-4rem)] pt-3"
             side="bottom"
           >
             <SheetHeader>
               <SheetTitle>Edit</SheetTitle>
+              <SheetClose asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 top-0 rounded-sm opacity-70 hover:opacity-100"
+                  onClick={() => {
+                    // Explicitly reset form state when closing
+                    setSelectedBlockId(null);
+                    if (
+                      activeForm === "email-style" ||
+                      activeForm === "email-footer" ||
+                      activeForm === "email-templates"
+                    ) {
+                      setActiveForm("default");
+                    }
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </Button>
+              </SheetClose>
             </SheetHeader>
             {activeForm !== "default" && (
               <DndBuilderSidebarForms
