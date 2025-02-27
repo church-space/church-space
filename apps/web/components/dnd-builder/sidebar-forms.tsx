@@ -154,8 +154,8 @@ export default function DndBuilderSidebarForms({
   }
 
   return (
-    <div className="flex flex-col gap-4 overflow-hidden h-full">
-      <div className="flex gap-2 items-center">
+    <div className="flex flex-col  overflow-hidden h-full">
+      <div className="flex gap-2 mb-4 items-center">
         <Button
           className="px-1 py-0 h-7 text-muted-foreground gap-1 md:flex hidden"
           variant="ghost"
@@ -269,7 +269,7 @@ export default function DndBuilderSidebarForms({
           )}
       </div>
       {selectedBlock && formType === "block" && (
-        <div className="flex gap-2 items-center justify-end mb-14">
+        <div className="flex gap-2 items-center justify-end mb-8 md:mb-0 border-t md:border-none pt-2">
           <div className="flex items-center justify-center gap-2">
             {(selectedBlock.type === "button" ||
               selectedBlock.type === "text" ||
