@@ -356,7 +356,9 @@ export default function DndBuilderSidebar({
       <div className="md:hidden">
         <Sheet
           open={
-            (selectedBlock !== null && isMobile) ||
+            (selectedBlock !== null &&
+              isMobile &&
+              selectedBlock?.type !== "text") ||
             (activeForm !== "default" && isMobile)
           }
           onOpenChange={(open) => {
@@ -382,7 +384,7 @@ export default function DndBuilderSidebar({
           modal={false}
         >
           <SheetContent
-            className="md:hidden h-[calc(100vh-4rem)] pt-3"
+            className="md:hidden pt-3 h-[calc(100vh-10rem)] overflow-y-auto"
             side="bottom"
           >
             <SheetHeader>

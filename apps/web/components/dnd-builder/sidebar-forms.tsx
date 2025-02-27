@@ -269,7 +269,7 @@ export default function DndBuilderSidebarForms({
           )}
       </div>
       {selectedBlock && formType === "block" && (
-        <div className="flex gap-2 items-center justify-end">
+        <div className="flex gap-2 items-center justify-end mb-14">
           <div className="flex items-center justify-center gap-2">
             {(selectedBlock.type === "button" ||
               selectedBlock.type === "text" ||
