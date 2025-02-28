@@ -356,10 +356,13 @@ export default function DndBuilderSidebar({
       <div className="md:hidden">
         <Sheet
           open={
-            (selectedBlock !== null &&
-              isMobile &&
-              selectedBlock?.type !== "text") ||
-            (activeForm !== "default" && isMobile)
+            isMobile &&
+            // Don't open for text blocks
+            ((selectedBlock ? selectedBlock.type !== "text" : false) ||
+              // Open for special forms
+              activeForm === "email-style" ||
+              activeForm === "email-footer" ||
+              activeForm === "email-templates")
           }
           onOpenChange={(open) => {
             if (!open) {
@@ -388,7 +391,7 @@ export default function DndBuilderSidebar({
             side="bottom"
           >
             <SheetHeader>
-              <SheetTitle>Edit</SheetTitle>
+              <SheetTitle>Edit </SheetTitle>
               <SheetClose asChild>
                 <Button
                   variant="ghost"
