@@ -46,8 +46,14 @@ const CustomText: React.FC<{
     .replace(/<h1/g, '<h1 style="margin: 1.5em 0 0.5em 0; font-weight: 700"')
     .replace(/<h2/g, '<h2 style="margin: 1.2em 0 0.5em 0; font-weight: 700"')
     .replace(/<h3/g, '<h3 style="margin: 1em 0 0.5em 0; font-weight: 600"')
-    // Add light weight and line height to paragraphs
-    .replace(/<p/g, '<p style="font-weight: 300; line-height: 1.6"')
+    // Add light weight and line height to paragraphs, preserving any existing style attributes
+    .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      const baseStyle = "font-weight: 300; line-height: 1.6";
+      if (existingStyle) {
+        return `<p style="${existingStyle}; ${baseStyle}"`;
+      }
+      return `<p style="${baseStyle}"`;
+    })
     // Handle empty paragraphs for line breaks
     .replace(/<p style="[^"]*"><\/p>/g, '<div style="height: 1.6em"></div>');
 
