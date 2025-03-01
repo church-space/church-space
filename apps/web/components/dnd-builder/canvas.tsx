@@ -145,10 +145,10 @@ export default function DndBuilderCanvas({
         style={{ backgroundColor: bgColor }}
       >
         {blocks.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground">
+          <div className="flex-1 flex items-center justify-center text-muted-foreground ">
             {isDragging && isFromSidebar ? (
               <motion.div
-                className="h-20 rounded-md border border-dashed border-blue-500 w-full mx-4 max-w-2xl bg-blue-500/10 absolute"
+                className="h-20  rounded-md border border-dashed border-blue-500 w-full mx-1 max-w-2xl bg-blue-500/10 "
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2 }}

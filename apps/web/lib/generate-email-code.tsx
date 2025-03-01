@@ -62,7 +62,7 @@ const CustomButton: React.FC<{
   isRounded,
   defaultFont,
 }) => {
-  const buttonWidth = size === "full" ? "600px" : "auto";
+  const buttonWidth = size === "full" ? "100%" : "auto";
   const borderRadius = isRounded ? "6px" : "0";
 
   return (
@@ -73,7 +73,7 @@ const CustomButton: React.FC<{
       border={0}
     >
       <tr>
-        <td align="center">
+        <td align="center" style={{ width: "100%" }}>
           <a
             href={link || "#"}
             target="_blank"
@@ -90,7 +90,9 @@ const CustomButton: React.FC<{
               padding: "10px 18px",
               textDecoration: "none",
               textAlign: "center",
-              maxWidth: buttonWidth,
+              width: buttonWidth,
+              maxWidth: "100%",
+              boxSizing: "border-box",
             }}
           >
             {text}
