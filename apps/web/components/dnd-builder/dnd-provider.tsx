@@ -47,6 +47,9 @@ import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { useBlockStateManager, EmailStyles } from "./use-block-state-manager";
 import { Eye, SaveIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@church-space/ui/dialog";
+import EmailPreview from "./email-preview";
+import { useQueryState } from "nuqs";
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
   | "cards"
@@ -86,6 +89,7 @@ export default function DndProvider() {
   const batchUpdateEmailBlocks = useBatchUpdateEmailBlocks();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
 
   // Add a state for tracking save operation
   const [isSaving, setIsSaving] = useState(false);
@@ -286,6 +290,7 @@ export default function DndProvider() {
   );
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+
   const [editors, setEditors] = useState<Record<string, Editor>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeForm, setActiveForm] = useState<
@@ -1949,12 +1954,22 @@ export default function DndProvider() {
               <TooltipContent>Redo</TooltipContent>
             </Tooltip>
           </div>
-          <Button variant="ghost">
-            <span className="hidden md:block">Preview</span>
-            <span className="block md:hidden">
-              <Eye />
-            </span>
-          </Button>
+          <Dialog
+            open={previewOpen === "true"}
+            onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
+          >
+            <DialogTrigger asChild>
+              <Button variant="ghost">
+                <span className="hidden md:block">Preview</span>
+                <span className="block md:hidden">
+                  <Eye />
+                </span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="min-w-[95%] h-[95%] p-4">
+              <EmailPreview />
+            </DialogContent>
+          </Dialog>
           <Button variant="outline" className="hidden md:block">
             Send Test
           </Button>

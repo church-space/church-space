@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "@church-space/ui/toaster";
 import { TooltipProvider } from "@church-space/ui/tooltip";
 import { ReactQueryProvider } from "../components/providers/react-query";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +27,9 @@ export default function RootLayout({
       <ReactScan /> */}
       <body className={`${inter.className} antialiased`}>
         <ReactQueryProvider>
-          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+          <TooltipProvider delayDuration={300}>
+            <NuqsAdapter>{children}</NuqsAdapter>
+          </TooltipProvider>
         </ReactQueryProvider>
         <Toaster />
       </body>
