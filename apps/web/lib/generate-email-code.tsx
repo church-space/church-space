@@ -568,16 +568,18 @@ const CustomAuthor: React.FC<{
   name: string;
   subtitle: string;
   avatar: string;
-  textColor: string;
   links: Array<{
     icon: string;
     url: string;
   }>;
   defaultFont?: string;
-}> = ({ name, subtitle, avatar, textColor, links, defaultFont }) => {
+  defaultTextColor?: string;
+}> = ({ name, subtitle, avatar, links, defaultFont, defaultTextColor }) => {
   const avatarUrl = avatar
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${avatar}`
     : "";
+
+  const finalTextColor = defaultTextColor || "#000000";
 
   return (
     <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
@@ -597,6 +599,7 @@ const CustomAuthor: React.FC<{
                           height="40"
                           style={{
                             borderRadius: "50%",
+                            objectFit: "cover",
                           }}
                         />
                       ) : (
@@ -609,7 +612,7 @@ const CustomAuthor: React.FC<{
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: textColor,
+                            color: finalTextColor,
                             fontFamily: defaultFont || "sans-serif",
                             fontSize: "18px",
                             fontWeight: "500",
@@ -625,7 +628,7 @@ const CustomAuthor: React.FC<{
                           fontFamily: defaultFont || "sans-serif",
                           fontSize: "14px",
                           fontWeight: "600",
-                          color: textColor,
+                          color: finalTextColor,
                           marginBottom: "2px",
                         }}
                       >
@@ -635,7 +638,7 @@ const CustomAuthor: React.FC<{
                         style={{
                           fontFamily: defaultFont || "sans-serif",
                           fontSize: "14px",
-                          color: textColor,
+                          color: finalTextColor,
                           opacity: 0.8,
                         }}
                       >
@@ -653,7 +656,7 @@ const CustomAuthor: React.FC<{
                     target="_blank"
                     style={{
                       marginLeft: "8px",
-                      color: textColor,
+                      color: finalTextColor,
                       textDecoration: "none",
                     }}
                   >
@@ -668,7 +671,11 @@ const CustomAuthor: React.FC<{
                         const Icon =
                           socialIcons[link.icon as keyof typeof socialIcons];
                         return Icon ? (
-                          <Icon fill={textColor} width="18px" height="18px" />
+                          <Icon
+                            fill={finalTextColor}
+                            width="18px"
+                            height="18px"
+                          />
                         ) : null;
                       })()}
                     </span>
@@ -718,13 +725,14 @@ export function generateEmailCode(
 
   const containerStyle = {
     backgroundColor: isInset ? emailBgColor : bgColor,
-    padding: isInset ? "32px 16px" : "16px",
+    padding: isInset ? "18px 5px" : "18px",
   };
 
   const contentStyle = {
     backgroundColor: isInset ? bgColor : undefined,
     padding: isInset ? "0px 20px" : undefined,
     borderRadius: isInset && isRounded ? "12px" : undefined,
+    maxWidth: "672px",
   };
 
   return (
@@ -822,6 +830,7 @@ export function generateEmailCode(
                           <CustomAuthor
                             {...(block.data as any)}
                             defaultFont={defaultFont}
+                            defaultTextColor={defaultTextColor}
                           />
                         </div>
                       );
