@@ -33,7 +33,11 @@ export default function FileDownloadBlock({
       </div>
       <div
         className="h-8 px-4 items-center flex justify-center text-sm font-medium border rounded-md"
-        style={{ color: textColor, borderColor: textColor }}
+        style={{
+          color: bgColor,
+          borderColor: bgColor,
+          backgroundColor: textColor,
+        }}
       >
         Download
       </div>

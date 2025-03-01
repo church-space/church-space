@@ -8,7 +8,7 @@ import {
   Img,
 } from "@react-email/components";
 import * as React from "react";
-import { File } from "@church-space/ui/icons";
+import { File, Youtube } from "@church-space/ui/icons";
 
 interface EmailStyle {
   bgColor?: string;
@@ -179,9 +179,8 @@ const CustomFileDownload: React.FC<{
           <div
             style={{
               backgroundColor: bgColor,
-              border: "1px solid #e2e8f0",
               borderRadius: isRounded ? "6px" : "0",
-              padding: "10px 10px 10px 13px",
+              padding: "8px 8px 8px 13px",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -203,13 +202,14 @@ const CustomFileDownload: React.FC<{
             <div>
               <span
                 style={{
-                  border: `1px solid ${textColor}`,
+                  border: `1px solid ${bgColor}`,
                   borderRadius: isRounded ? "6px" : "0",
-                  color: textColor,
+                  color: bgColor,
+                  backgroundColor: textColor,
                   display: "inline-block",
                   fontFamily: defaultFont || "sans-serif",
                   fontSize: "14px",
-                  padding: "6px 14px",
+                  padding: "6px 16px",
                 }}
               >
                 Download
@@ -268,25 +268,13 @@ const CustomVideo: React.FC<{
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  backgroundColor: "#FF0000",
-                  borderRadius: "50%",
-                  width: "68px",
-                  height: "48px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
               >
-                {/* Play button triangle */}
-                <div
-                  style={{
-                    width: "0",
-                    height: "0",
-                    borderTop: "10px solid transparent",
-                    borderBottom: "10px solid transparent",
-                    borderLeft: "20px solid white",
-                    marginLeft: "5px",
-                  }}
+                <Youtube
+                  width={`${size ? Math.max(48, Math.min(96, (96 * size) / 100)) : 68}px`}
+                  height={`${size ? Math.max(34, Math.min(68, (68 * size) / 100)) : 48}px`}
+                  fill="#FF0000"
+                  secondaryfill="#FFFFFF"
                 />
               </div>
             </a>

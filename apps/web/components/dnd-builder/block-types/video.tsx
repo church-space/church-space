@@ -94,12 +94,16 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
         ></div>
       )}
       <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-        <div className="relative">
-          <div className="absolute top-5 left-5 w-10 h-8 bg-white rounded-full" />
-          <div className="relative z-10">
-            <Youtube height="80" width="80" fill="#FF0000" />
-          </div>
-        </div>
+        <Youtube
+          height={String(
+            data?.size ? Math.max(40, Math.min(80, (80 * data.size) / 100)) : 80
+          )}
+          width={String(
+            data?.size ? Math.max(40, Math.min(80, (80 * data.size) / 100)) : 80
+          )}
+          fill="#FF0000"
+          secondaryfill="#FFFFFF"
+        />
       </div>
     </div>
   );
