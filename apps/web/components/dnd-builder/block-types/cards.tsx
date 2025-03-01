@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Button } from "@church-space/ui/button";
 import type { CardsBlockData } from "@/types/blocks";
 import { createClient } from "@church-space/supabase/client";
-import Image from "next/image";
 import { cn } from "@church-space/ui/cn";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 
 interface CardsBlockProps {
   data?: CardsBlockData;
