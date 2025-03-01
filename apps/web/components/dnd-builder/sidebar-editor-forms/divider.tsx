@@ -13,7 +13,7 @@ interface DividerFormProps {
 export default function DividerForm({ block, onUpdate }: DividerFormProps) {
   const [localState, setLocalState] = useState<DividerBlockData>({
     color: block.data?.color || "#e2e8f0",
-    margin: block.data?.margin || 8,
+    margin: block.data?.margin || 0,
   });
 
   // Create a ref to store the latest state for the debounced function

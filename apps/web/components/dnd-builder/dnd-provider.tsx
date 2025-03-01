@@ -559,7 +559,7 @@ export default function DndProvider() {
           textColor: "#000000",
         };
       } else if (blockType === "divider") {
-        blockData = { color: styles.defaultTextColor, margin: 8 };
+        blockData = { color: styles.defaultTextColor, margin: 0 };
       } else if (blockType === "button") {
         blockData = {
           text: "Button",

@@ -110,7 +110,7 @@ const CustomDivider: React.FC<{
   <Hr
     style={{
       borderTop: `1px solid ${color}`,
-      margin: `${margin}px 0`,
+      margin: `${margin * 1.2}px 0`,
       width: "100%",
     }}
   />

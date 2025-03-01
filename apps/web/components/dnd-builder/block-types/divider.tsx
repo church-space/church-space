@@ -8,7 +8,7 @@ interface DividerBlockProps {
 
 export default function DividerBlock({ data }: DividerBlockProps) {
   const color = data?.color || "#e2e8f0"; // default color
-  const margin = data?.margin || 8; // default margin
+  const margin = data?.margin || 0; // default margin
 
   return (
     <Separator
