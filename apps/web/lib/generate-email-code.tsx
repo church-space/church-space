@@ -40,7 +40,16 @@ const CustomText: React.FC<{
   defaultTextColor?: string;
 }> = ({ content, font, textColor, defaultFont, defaultTextColor }) => {
   // Parse HTML content and convert to React Email components
-  const sanitizedContent = content.replace(/class="[^"]*"/g, "");
+  const sanitizedContent = content
+    .replace(/class="[^"]*"/g, "")
+    // Add more space above h1 and h2, reduce space below all headings, and set font weights
+    .replace(/<h1/g, '<h1 style="margin: 1.5em 0 0.5em 0; font-weight: 700"')
+    .replace(/<h2/g, '<h2 style="margin: 1.2em 0 0.5em 0; font-weight: 700"')
+    .replace(/<h3/g, '<h3 style="margin: 1em 0 0.5em 0; font-weight: 600"')
+    // Add light weight and line height to paragraphs
+    .replace(/<p/g, '<p style="font-weight: 300; line-height: 1.6"')
+    // Handle empty paragraphs for line breaks
+    .replace(/<p style="[^"]*"><\/p>/g, '<div style="height: 1.6em"></div>');
 
   return (
     <div
@@ -97,7 +106,7 @@ const CustomButton: React.FC<{
               display: "inline-block",
               fontFamily: defaultFont || "sans-serif",
               fontSize: "14px",
-              fontWeight: "400",
+              fontWeight: "300",
               lineHeight: "1",
               padding: "10px 18px",
               textDecoration: "none",
