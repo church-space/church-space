@@ -1,6 +1,5 @@
 import { Color } from "@tiptap/extension-color";
 import { FontFamily } from "@tiptap/extension-font-family";
-import FontSize from "@tiptap/extension-font-size";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
@@ -27,12 +26,22 @@ export const createEditor = (
       StarterKit.configure({
         bulletList: false,
         orderedList: false,
+        heading: {
+          levels: [1, 2, 3],
+          HTMLAttributes: {
+            class: "heading",
+          },
+        },
+        codeBlock: {
+          HTMLAttributes: {
+            class: "code-block",
+          },
+        },
       }),
       Color,
       TextStyle,
       FontFamily,
       Underline,
-      FontSize,
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),

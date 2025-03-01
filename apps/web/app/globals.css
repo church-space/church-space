@@ -98,6 +98,49 @@
   margin: 0.5em 0;
 }
 
+/* 
+ * Heading styles for the rich text editor
+ * Supports markdown syntax:
+ * # Heading 1
+ * ## Heading 2
+ * ### Heading 3
+ */
+.ProseMirror h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+}
+
+.ProseMirror h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+/* First heading should have less top margin */
+.ProseMirror h1:first-child,
+.ProseMirror h2:first-child,
+.ProseMirror h3:first-child {
+  margin-top: 0.5em;
+}
+
+/* Style for the heading class added in the editor configuration */
+.ProseMirror .heading {
+  position: relative;
+}
+
 /* Remove list styling */
 
 /* Ensure toggle buttons show active state */

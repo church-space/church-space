@@ -9,11 +9,18 @@ import {
   DropdownMenuTrigger,
 } from "@church-space/ui/dropdown-menu";
 import { Input } from "@church-space/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@church-space/ui/popover";
-import { ToggleGroup, ToggleGroupItem } from "@church-space/ui/toggle-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@church-space/ui/tooltip";
 import {
-  ALargeSmall,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@church-space/ui/popover";
+import { ToggleGroup, ToggleGroupItem } from "@church-space/ui/toggle-group";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
+import {
   AlignCenter,
   AlignJustify,
   AlignLeft,
@@ -23,10 +30,12 @@ import {
   Link,
   Strikethrough,
   Underline,
+  Heading1,
+  Heading2,
+  Heading3,
+  Text,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const fontSizes = [12, 14, 16, 18, 20, 24, 28, 32, 36, 48];
 
 interface ToolbarProps {
   editor: Editor | null;
@@ -35,7 +44,9 @@ interface ToolbarProps {
 const Toolbar = ({ editor }: ToolbarProps) => {
   const [linkUrl, setLinkUrl] = useState("");
   const [, setForceUpdate] = useState(0);
-  const [currentFontSize, setCurrentFontSize] = useState<string>("16px");
+  const [currentHeadingLevel, setCurrentHeadingLevel] = useState<number | null>(
+    null
+  );
 
   // Set default alignment to left when editor is initialized
   useEffect(() => {
@@ -59,10 +70,15 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     const updateHandler = () => {
       setForceUpdate((prev) => prev + 1);
 
-      // Update current font size when selection changes
-      const attrs = editor.getAttributes("textStyle");
-      if (attrs.fontSize) {
-        setCurrentFontSize(attrs.fontSize);
+      // Update current heading level when selection changes
+      if (editor.isActive("heading", { level: 1 })) {
+        setCurrentHeadingLevel(1);
+      } else if (editor.isActive("heading", { level: 2 })) {
+        setCurrentHeadingLevel(2);
+      } else if (editor.isActive("heading", { level: 3 })) {
+        setCurrentHeadingLevel(3);
+      } else {
+        setCurrentHeadingLevel(null);
       }
     };
 
@@ -114,10 +130,21 @@ const Toolbar = ({ editor }: ToolbarProps) => {
           ? "justify"
           : "left";
 
-  // Get current font size without the "px" suffix for display
-  const displayFontSize = currentFontSize
-    ? parseInt(currentFontSize.replace("px", ""), 10)
-    : 16;
+  // Get heading level display text
+  const getHeadingDisplayText = () => {
+    if (currentHeadingLevel === 1) return "Heading 1";
+    if (currentHeadingLevel === 2) return "Heading 2";
+    if (currentHeadingLevel === 3) return "Heading 3";
+    return "Normal Text";
+  };
+
+  // Get heading icon based on current level
+  const getHeadingIcon = () => {
+    if (currentHeadingLevel === 1) return <Heading1 className="h-5 w-5" />;
+    if (currentHeadingLevel === 2) return <Heading2 className="h-5 w-5" />;
+    if (currentHeadingLevel === 3) return <Heading3 className="h-5 w-5" />;
+    return <Text className="h-5 w-5" />;
+  };
 
   return (
     <div className="flex-shrink-0 flex flex-wrap gap-2 px-2 pt-1.5">
@@ -219,30 +246,76 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 variant="ghost"
                 className="flex items-center gap-1.5 px-2"
               >
-                <ALargeSmall className="h-5 w-5" />
-                <span className="text-xs">{displayFontSize}</span>
+                {getHeadingIcon()}
+                <span className="text-xs">{getHeadingDisplayText()}</span>
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent>Font Size</TooltipContent>
+          <TooltipContent>Text Style</TooltipContent>
         </Tooltip>
         <DropdownMenuContent>
-          {fontSizes.map((size) => (
-            <DropdownMenuItem
-              key={size}
-              onClick={() => {
-                editor.chain().focus().setFontSize(`${size}px`).run();
-                setCurrentFontSize(`${size}px`);
-              }}
-              className={
-                displayFontSize === size
-                  ? "bg-accent text-accent-foreground"
-                  : ""
-              }
-            >
-              {size}px
-            </DropdownMenuItem>
-          ))}
+          <DropdownMenuItem
+            onClick={() => {
+              editor.chain().focus().setParagraph().run();
+              setCurrentHeadingLevel(null);
+            }}
+            className={
+              currentHeadingLevel === null
+                ? "bg-accent text-accent-foreground"
+                : ""
+            }
+          >
+            <Text className="h-4 w-4 mr-2" />
+            Normal Text
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              editor.chain().focus().toggleHeading({ level: 1 }).run();
+              setCurrentHeadingLevel(
+                editor.isActive("heading", { level: 1 }) ? 1 : null
+              );
+            }}
+            className={
+              currentHeadingLevel === 1
+                ? "bg-accent text-accent-foreground"
+                : ""
+            }
+          >
+            <Heading1 className="h-4 w-4 mr-2" />
+            Heading 1
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              editor.chain().focus().toggleHeading({ level: 2 }).run();
+              setCurrentHeadingLevel(
+                editor.isActive("heading", { level: 2 }) ? 2 : null
+              );
+            }}
+            className={
+              currentHeadingLevel === 2
+                ? "bg-accent text-accent-foreground"
+                : ""
+            }
+          >
+            <Heading2 className="h-4 w-4 mr-2" />
+            Heading 2
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              editor.chain().focus().toggleHeading({ level: 3 }).run();
+              setCurrentHeadingLevel(
+                editor.isActive("heading", { level: 3 }) ? 3 : null
+              );
+            }}
+            className={
+              currentHeadingLevel === 3
+                ? "bg-accent text-accent-foreground"
+                : ""
+            }
+          >
+            <Heading3 className="h-4 w-4 mr-2" />
+            Heading 3
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
