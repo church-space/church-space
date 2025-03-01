@@ -5,6 +5,7 @@ import {
   TabsTrigger,
 } from "@church-space/ui/tabs";
 import { useQueryState } from "nuqs";
+import { render } from "@react-email/render";
 
 export default function EmailPreview() {
   const [previewType, setPreviewType] = useQueryState("previewType");
