@@ -3,20 +3,23 @@ import { Button } from "@church-space/ui/button";
 import type { CardsBlockData } from "@/types/blocks";
 import { createClient } from "@church-space/supabase/client";
 import Image from "next/image";
+import { cn } from "@church-space/ui/cn";
 interface CardsBlockProps {
   data?: CardsBlockData;
   defaultFont?: string;
   defaultTextColor?: string;
+  isRounded?: boolean;
 }
 
 export default function CardsBlock({
   data,
   defaultFont,
   defaultTextColor,
+  isRounded,
 }: CardsBlockProps) {
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
-  const title = data?.title || "Cards";
-  const subtitle = data?.subtitle || "Add a card to your page";
+  const title = data?.title;
+  const subtitle = data?.subtitle;
 
   // Memoize the cards array to prevent it from changing on every render
   const cards = useMemo(() => data?.cards || [], [data?.cards]);
@@ -44,18 +47,22 @@ export default function CardsBlock({
       style={{ fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex flex-col">
-        <span
-          className="text-3xl font-bold"
-          style={{ color: defaultTextColor }}
-        >
-          {title}
-        </span>
-        <span
-          className=" text-muted-foreground"
-          style={{ color: defaultTextColor }}
-        >
-          {subtitle}
-        </span>
+        {title && (
+          <span
+            className="text-3xl font-bold"
+            style={{ color: defaultTextColor }}
+          >
+            {title}
+          </span>
+        )}
+        {subtitle && (
+          <span
+            className=" text-muted-foreground"
+            style={{ color: defaultTextColor }}
+          >
+            {subtitle}
+          </span>
+        )}
       </div>
       <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 gap-y-10">
         {cards.map((card, index) => (
@@ -64,7 +71,10 @@ export default function CardsBlock({
               <Image
                 src={imageUrls[card.image]}
                 alt={card.title}
-                className="w-full h-48 object-cover rounded-md"
+                className={cn(
+                  "w-full h-48 object-cover ",
+                  isRounded && "rounded-md"
+                )}
                 width={1280}
                 height={720}
               />
@@ -90,7 +100,14 @@ export default function CardsBlock({
               </p>
             </div>
             {card.buttonText && (
-              <Button variant="outline">{card.buttonText}</Button>
+              <div
+                className={cn(
+                  "h-8 px-4 items-center flex justify-center text-sm font-medium border ",
+                  isRounded && "rounded-md"
+                )}
+              >
+                {card.buttonText}
+              </div>
             )}
           </div>
         ))}

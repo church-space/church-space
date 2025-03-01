@@ -9,6 +9,7 @@ interface UpdateEmailStyleParams {
     default_font?: string;
     is_inset?: boolean;
     bg_color?: string;
+    is_rounded?: boolean;
   };
 }
 

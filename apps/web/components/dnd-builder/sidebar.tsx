@@ -59,6 +59,8 @@ interface DndBuilderSidebarProps {
   onBlockUpdate: (block: Block) => void;
   isInset?: boolean;
   onIsInsetChange?: (isInset: boolean) => void;
+  isRounded?: boolean;
+  onIsRoundedChange?: (isRounded: boolean) => void;
   emailBgColor?: string;
   onEmailBgColorChange?: (color: string) => void;
   activeForm:
@@ -161,6 +163,8 @@ export default function DndBuilderSidebar({
   onBlockUpdate,
   isInset = false,
   onIsInsetChange,
+  isRounded = false,
+  onIsRoundedChange,
   emailBgColor = "#ffffff",
   onEmailBgColorChange,
   activeForm,
@@ -242,6 +246,8 @@ export default function DndBuilderSidebar({
                   onDefaultFontChange={onDefaultFontChange}
                   emailId={emailId}
                   footerData={footerData}
+                  isRounded={isRounded}
+                  onIsRoundedChange={onIsRoundedChange}
                 />
               </motion.div>
             ) : (

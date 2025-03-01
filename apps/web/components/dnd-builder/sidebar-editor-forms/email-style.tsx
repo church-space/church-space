@@ -14,6 +14,8 @@ interface EmailStyleFormProps {
   onBgColorChange?: (color: string) => void;
   isInset?: boolean;
   onIsInsetChange?: (isInset: boolean) => void;
+  isRounded?: boolean;
+  onIsRoundedChange?: (isRounded: boolean) => void;
   emailBgColor?: string;
   onEmailBgColorChange?: (color: string) => void;
   defaultTextColor?: string;
@@ -27,6 +29,8 @@ export default function EmailStyleForm({
   onBgColorChange,
   isInset = false,
   onIsInsetChange,
+  isRounded = false,
+  onIsRoundedChange,
   emailBgColor = "#eeeeee",
   onEmailBgColorChange,
   defaultTextColor = "#000000",
@@ -47,6 +51,10 @@ export default function EmailStyleForm({
           value={bgColor}
           onChange={(color) => onBgColorChange?.(color)}
         />
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Rounded Corners</Label>
+        <Switch checked={isRounded} onCheckedChange={onIsRoundedChange} />
       </div>
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Inset Email</Label>
@@ -74,7 +82,10 @@ export default function EmailStyleForm({
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Font</Label>
         <Select value={defaultFont} onValueChange={onDefaultFontChange}>
-          <SelectTrigger className="col-span-2" style={{ fontFamily: defaultFont }}>
+          <SelectTrigger
+            className="col-span-2"
+            style={{ fontFamily: defaultFont }}
+          >
             <SelectValue placeholder="Select a font" />
           </SelectTrigger>
           <SelectContent>

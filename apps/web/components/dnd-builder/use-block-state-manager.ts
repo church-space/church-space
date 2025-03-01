@@ -8,6 +8,7 @@ export interface EmailStyles {
   emailBgColor: string;
   defaultTextColor: string;
   defaultFont: string;
+  isRounded: boolean;
 }
 
 interface BlockStateHistory {
@@ -33,6 +34,7 @@ export function useBlockStateManager(
     emailBgColor: "#eeeeee",
     defaultTextColor: "#000000",
     defaultFont: "sans-serif",
+    isRounded: true,
   }
 ) {
   const [history, setHistory] = useState<BlockStateHistory>({
@@ -83,18 +85,21 @@ export function useBlockStateManager(
   }, []);
 
   // Update styles without adding to history
-  const updateStylesWithoutHistory = useCallback((newStyles: Partial<EmailStyles>) => {
-    setHistory((currentHistory) => ({
-      ...currentHistory,
-      present: {
-        ...currentHistory.present,
-        styles: {
-          ...currentHistory.present.styles,
-          ...newStyles,
+  const updateStylesWithoutHistory = useCallback(
+    (newStyles: Partial<EmailStyles>) => {
+      setHistory((currentHistory) => ({
+        ...currentHistory,
+        present: {
+          ...currentHistory.present,
+          styles: {
+            ...currentHistory.present.styles,
+            ...newStyles,
+          },
         },
-      },
-    }));
-  }, []);
+      }));
+    },
+    []
+  );
 
   const undo = useCallback(() => {
     let previousState = { blocks: [] as Block[], styles: {} as EmailStyles };

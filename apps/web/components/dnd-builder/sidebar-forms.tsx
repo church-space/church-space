@@ -55,6 +55,8 @@ export default function DndBuilderSidebarForms({
   onDefaultFontChange,
   emailId,
   footerData,
+  isRounded,
+  onIsRoundedChange,
 }: {
   selectedBlock?: Block;
   setSelectedBlockId?: (id: string | null) => void;
@@ -83,6 +85,8 @@ export default function DndBuilderSidebarForms({
   onDefaultFontChange?: (font: string) => void;
   emailId?: number;
   footerData?: any;
+  isRounded?: boolean;
+  onIsRoundedChange?: (isRounded: boolean) => void;
 }) {
   const handleBack = () => {
     if (onBack) {
@@ -179,6 +183,8 @@ export default function DndBuilderSidebarForms({
             onDefaultTextColorChange={onDefaultTextColorChange}
             defaultFont={defaultFont}
             onDefaultFontChange={onDefaultFontChange}
+            isRounded={isRounded}
+            onIsRoundedChange={onIsRoundedChange}
           />
         )}
         {formType === "email-footer" && (
@@ -346,11 +352,6 @@ export default function DndBuilderSidebarForms({
                     id: crypto.randomUUID(), // Generate a new unique ID
                   };
 
-                  // Find all blocks that need their order updated
-                  // This is handled by the parent component that receives this duplicated block
-
-                  // Call onBlockUpdate with the duplicated block and a special flag
-                  // to indicate this is a duplication operation
                   onBlockUpdate(duplicatedBlock, true, true);
                 }
               }}

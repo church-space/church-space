@@ -25,7 +25,8 @@ export function useEmailWithBlocks(emailId: number | undefined) {
           is_inset,
           bg_color,
           organization_id,
-          type
+          type,
+          is_rounded
         `
         )
         .eq("id", emailId)

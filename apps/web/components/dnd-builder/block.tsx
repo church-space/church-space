@@ -25,6 +25,7 @@ interface BlockProps {
   onTextContentChange?: (blockId: string, content: string) => void;
   defaultFont?: string;
   defaultTextColor?: string;
+  isRounded?: boolean;
 }
 
 export default function Block({
@@ -39,6 +40,7 @@ export default function Block({
   onTextContentChange,
   defaultFont,
   defaultTextColor,
+  isRounded,
 }: BlockProps) {
   // Add state to track if the editor is focused
   const [isEditorFocused, setIsEditorFocused] = useState(false);
@@ -100,19 +102,24 @@ export default function Block({
       case "divider":
         return <DividerBlock data={block.data} />;
       case "image":
-        return <ImageBlock data={block.data} />;
+        return <ImageBlock data={block.data} isRounded={isRounded} />;
       case "file-download":
         return (
-          <FileDownloadBlock data={block.data} defaultFont={defaultFont} />
+          <FileDownloadBlock
+            data={block.data}
+            defaultFont={defaultFont}
+            isRounded={isRounded}
+          />
         );
       case "video":
-        return <VideoBlock data={block.data} />;
+        return <VideoBlock data={block.data} isRounded={isRounded} />;
       case "cards":
         return (
           <CardsBlock
             data={block.data}
             defaultFont={defaultFont}
             defaultTextColor={defaultTextColor}
+            isRounded={isRounded}
           />
         );
       case "author":
@@ -124,7 +131,13 @@ export default function Block({
           />
         );
       case "button":
-        return <ButtonBlock data={block.data} defaultFont={defaultFont} />;
+        return (
+          <ButtonBlock
+            data={block.data}
+            defaultFont={defaultFont}
+            isRounded={isRounded}
+          />
+        );
       case "list":
         return (
           <ListBlock

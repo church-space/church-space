@@ -6,9 +6,10 @@ import { useEffect, useState } from "react";
 
 interface ImageBlockProps {
   data?: ImageBlockData;
+  isRounded?: boolean;
 }
 
-export default function ImageBlock({ data }: ImageBlockProps) {
+export default function ImageBlock({ data, isRounded }: ImageBlockProps) {
   const [imageUrl, setImageUrl] = useState<string>("");
   const image = data?.image || "";
   const size = data?.size || 33;
@@ -26,7 +27,11 @@ export default function ImageBlock({ data }: ImageBlockProps) {
 
   const Content = () => (
     <div
-      className={cn(" rounded-md overflow-hidden ", centered && "mx-auto")}
+      className={cn(
+        "  overflow-hidden ",
+        isRounded && "rounded-md",
+        centered && "mx-auto"
+      )}
       style={{ width: `${size}%` }}
     >
       {imageUrl ? (

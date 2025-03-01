@@ -32,7 +32,8 @@
     "./textarea": "./src/textarea.tsx",
     "./alert": "./src/alert.tsx",
     "./toggle": "./src/toggle.tsx",
-    "./toggle-group": "./src/toggle-group.tsx"
+    "./toggle-group": "./src/toggle-group.tsx",
+    "./text-annimate": "./src/text-annimate.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -40,8 +41,8 @@
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
     "@church-space/typescript-config": "workspace:*",
+    "@repo/eslint-config": "workspace:*",
     "@turbo/gen": "^2.4.0",
     "@types/node": "^22.13.0",
     "@types/react": "19.0.8",
@@ -74,6 +75,7 @@
     "class-variance-authority": "^0.7.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.475.0",
+    "motion": "^12.4.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",

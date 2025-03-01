@@ -1,37 +1,37 @@
 {
-    "name": "@church-space/supabase",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "clean": "rm -rf .turbo node_modules",
-        "typecheck": "tsc --noEmit",
-        "db:generate": "supabase gen types --lang=typescript --project-id dcwieoyzmyesvfugjrxn --schema public > src/types/db.ts"
-    },
-    "dependencies": {
-        "@supabase-cache-helpers/postgrest-react-query": "^1.11.4",
-        "@supabase/postgrest-js": "^1.17.3",
-        "@supabase/ssr": "^0.5.2",
-        "@church-space/types": "workspace:*",
-        "@church-space/typescript-config": "workspace:*",
-        "next": "15.1.7",
-        "react": "^19.0.0",
-        "server-only": "^0.0.1",
-        "supabase": "^2.1.1"
-    },
-    "devDependencies": {
-        "@supabase/supabase-js": "^2.46.1",
-        "typescript": "^5.6.3"
-    },
-    "exports": {
-        "./server": "./src/clients/server.ts",
-        "./client": "./src/clients/client.ts",
-        "./job": "./src/clients/job.ts",
-        "./cached-queries/platform": "./src/queries/cached/platform.ts",
-        "./middleware": "./src/clients/middleware.ts",
-        "./get-user": "./src/queries/all/get-user.ts",
-        "./get-user-with-details": "./src/queries/all/get-user-with-details.ts",
-        "./mutations/platform": "./src/mutations/platform.ts",
-        "./functions/refreshPcoTokens": "./src/functions/refreshPcoTokens.ts",
-        "./mutations/emails": "./src/mutations/emails.ts"
-    }
+  "name": "@church-space/supabase",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "supabase gen types --lang=typescript --project-id dcwieoyzmyesvfugjrxn --schema public > src/types/db.ts"
+  },
+  "dependencies": {
+    "@supabase-cache-helpers/postgrest-react-query": "^1.11.4",
+    "@supabase/postgrest-js": "^1.17.3",
+    "@supabase/ssr": "^0.5.2",
+    "@church-space/types": "workspace:*",
+    "@church-space/typescript-config": "workspace:*",
+    "next": "15.1.7",
+    "react": "^19.0.0",
+    "server-only": "^0.0.1",
+    "supabase": "^2.1.1"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.46.1",
+    "typescript": "^5.6.3"
+  },
+  "exports": {
+    "./server": "./src/clients/server.ts",
+    "./client": "./src/clients/client.ts",
+    "./job": "./src/clients/job.ts",
+    "./cached-queries/platform": "./src/queries/cached/platform.ts",
+    "./middleware": "./src/clients/middleware.ts",
+    "./get-user": "./src/queries/all/get-user.ts",
+    "./get-user-with-details": "./src/queries/all/get-user-with-details.ts",
+    "./mutations/platform": "./src/mutations/platform.ts",
+    "./functions/refreshPcoTokens": "./src/functions/refreshPcoTokens.ts",
+    "./mutations/emails": "./src/mutations/emails.ts"
+  }
 }

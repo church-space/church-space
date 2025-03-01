@@ -11,6 +11,7 @@ interface CanvasProps {
   blocks: BlockType[];
   bgColor: string;
   isInset?: boolean;
+  isRounded?: boolean;
   emailBgColor?: string;
   onBlockSelect: (id: string | null) => void;
   selectedBlockId: string | null;
@@ -39,6 +40,7 @@ export default function DndBuilderCanvas({
   blocks,
   bgColor,
   isInset = false,
+  isRounded = true,
   emailBgColor = "#ffffff",
   onBlockSelect,
   selectedBlockId,
@@ -94,7 +96,7 @@ export default function DndBuilderCanvas({
 
   const insertionIndex = isDragging ? getInsertionIndex() : -1;
 
-  const renderBlock = (block: BlockType) => {
+  const renderBlock = (block: BlockType, isRounded: boolean) => {
     const isSelected = selectedBlockId === block.id;
     return (
       <Block
@@ -111,6 +113,7 @@ export default function DndBuilderCanvas({
         onTextContentChange={onTextContentChange}
         defaultFont={defaultFont}
         defaultTextColor={defaultTextColor}
+        isRounded={isRounded}
       />
     );
   };
@@ -118,8 +121,9 @@ export default function DndBuilderCanvas({
   return (
     <div
       className={cn(
-        "flex flex-col  w-full mx-auto rounded-md items-center justify-center border shadow-sm ",
-        isInset ? "pt-6" : ""
+        "flex flex-col  w-full mx-auto items-center justify-center border shadow-sm ",
+        isInset ? "pt-6" : "",
+        isRounded ? "rounded-md" : "rounded-none"
       )}
       style={
         isInset
@@ -135,7 +139,8 @@ export default function DndBuilderCanvas({
         ref={setNodeRef}
         className={cn(
           "flex flex-col gap-4 p-4 min-h-[102px] max-w-2xl w-full mx-auto ",
-          isInset && "rounded-lg shadow-md mb-2"
+          isInset && " shadow-md mb-2",
+          isRounded && "rounded-lg"
         )}
         style={{ backgroundColor: bgColor }}
       >
@@ -179,7 +184,7 @@ export default function DndBuilderCanvas({
                   {activeId === block.id ? (
                     <div style={{ height: `${heightRef.current}px` }} />
                   ) : (
-                    renderBlock(block)
+                    renderBlock(block, isRounded)
                   )}
                 </motion.div>
               </React.Fragment>

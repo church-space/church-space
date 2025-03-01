@@ -114,6 +114,7 @@ export default function DndProvider() {
     emailBgColor: emailData?.email?.bg_color || "#ffffff",
     defaultTextColor: emailData?.email?.default_text_color || "#000000",
     defaultFont: emailData?.email?.default_font || "Inter",
+    isRounded: emailData?.email?.is_rounded ?? true,
   };
 
   const {
@@ -202,6 +203,24 @@ export default function DndProvider() {
           emailId,
           updates: {
             is_inset: inset,
+          },
+        });
+      }
+    },
+    [emailId, updateEmailStyle, updateStyles]
+  );
+
+  const handleIsRoundedChange = useCallback(
+    (rounded: boolean) => {
+      // Update styles in history
+      updateStyles({ isRounded: rounded });
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: {
+            is_rounded: rounded,
           },
         });
       }
@@ -1315,6 +1334,7 @@ export default function DndProvider() {
           default_text_color: styles.defaultTextColor,
           default_font: styles.defaultFont,
           is_inset: styles.isInset,
+          is_rounded: styles.isRounded,
           bg_color: styles.emailBgColor,
         },
       });
@@ -1412,6 +1432,7 @@ export default function DndProvider() {
     styles.defaultTextColor,
     styles.defaultFont,
     styles.isInset,
+    styles.isRounded,
     styles.emailBgColor,
     blocks,
     queryClient,
@@ -1458,6 +1479,11 @@ export default function DndProvider() {
 
       if (previousState.styles.isInset !== currentState.styles.isInset) {
         styleChanges.is_inset = previousState.styles.isInset;
+        hasStyleChanges = true;
+      }
+
+      if (previousState.styles.isRounded !== currentState.styles.isRounded) {
+        styleChanges.is_rounded = previousState.styles.isRounded;
         hasStyleChanges = true;
       }
 
@@ -1604,6 +1630,11 @@ export default function DndProvider() {
 
       if (nextState.styles.isInset !== currentState.styles.isInset) {
         styleChanges.is_inset = nextState.styles.isInset;
+        hasStyleChanges = true;
+      }
+
+      if (nextState.styles.isRounded !== currentState.styles.isRounded) {
+        styleChanges.is_rounded = nextState.styles.isRounded;
         hasStyleChanges = true;
       }
 
@@ -1969,6 +2000,8 @@ export default function DndProvider() {
             onDefaultFontChange={handleDefaultFontChange}
             isInset={styles.isInset}
             onIsInsetChange={handleIsInsetChange}
+            isRounded={styles.isRounded}
+            onIsRoundedChange={handleIsRoundedChange}
             emailBgColor={styles.emailBgColor}
             onEmailBgColorChange={handleEmailBgColorChange}
             selectedBlock={
@@ -2008,6 +2041,7 @@ export default function DndProvider() {
                 blocks={blocks}
                 bgColor={styles.bgColor}
                 isInset={styles.isInset}
+                isRounded={styles.isRounded}
                 emailBgColor={styles.emailBgColor}
                 onBlockSelect={setSelectedBlockId}
                 selectedBlockId={selectedBlockId}
