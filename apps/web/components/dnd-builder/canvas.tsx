@@ -121,8 +121,8 @@ export default function DndBuilderCanvas({
   return (
     <div
       className={cn(
-        "flex flex-col  w-full mx-auto items-center justify-center border shadow-sm ",
-        isInset ? "pt-6" : "",
+        "flex flex-col  w-full mx-auto items-center justify-center border shadow-sm mb-20 md:mb-0",
+        isInset ? "pt-3 px-3" : "",
         isRounded ? "rounded-md" : "rounded-none"
       )}
       style={

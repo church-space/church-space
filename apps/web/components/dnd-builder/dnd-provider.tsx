@@ -548,12 +548,12 @@ export default function DndProvider() {
           textColor: "#000000",
         };
       } else if (blockType === "divider") {
-        blockData = { color: "#e2e8f0", margin: 8 };
+        blockData = { color: styles.defaultTextColor, margin: 8 };
       } else if (blockType === "button") {
         blockData = {
           text: "Button",
           link: "",
-          color: "#000000",
+          color: styles.defaultTextColor,
           textColor: "#FFFFFF",
           style: "filled" as "filled" | "outline",
           size: "fit" as "fit" | "full",
@@ -578,6 +578,8 @@ export default function DndProvider() {
           subtitle: "Cards Subtitle",
           textColor: "#000000",
           labelColor: "#4274D2",
+          buttonColor: "#4274D2",
+          buttonTextColor: "#FFFFFF",
           cards: [
             {
               title: "First Card",

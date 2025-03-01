@@ -5,8 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const emailQueue = queue({
-  name: "email-queue",
-  concurrencyLimit: 20,
+  name: "test-email-queue",
+  concurrencyLimit: 5,
 });
 
 interface BatchEmailPayload {
@@ -23,7 +23,7 @@ interface BatchEmailPayload {
 }
 
 export const sendEmails = task({
-  id: "send-emails",
+  id: "send-test-emails",
   queue: emailQueue,
   run: async (payload: { emails: BatchEmailPayload[] }) => {
     const { emails } = payload;

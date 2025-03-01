@@ -4,6 +4,7 @@ import type { CardsBlockData } from "@/types/blocks";
 import { createClient } from "@church-space/supabase/client";
 import Image from "next/image";
 import { cn } from "@church-space/ui/cn";
+
 interface CardsBlockProps {
   data?: CardsBlockData;
   defaultFont?: string;
@@ -105,6 +106,10 @@ export default function CardsBlock({
                   "h-8 px-4 items-center flex justify-center text-sm font-medium border ",
                   isRounded && "rounded-md"
                 )}
+                style={{
+                  backgroundColor: data?.buttonColor,
+                  color: data?.buttonTextColor,
+                }}
               >
                 {card.buttonText}
               </div>

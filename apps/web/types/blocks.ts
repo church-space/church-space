@@ -72,6 +72,8 @@ export interface CardsBlockData {
   subtitle: string;
   textColor: string;
   labelColor: string;
+  buttonColor: string;
+  buttonTextColor: string;
   cards: Array<{
     title: string;
     description: string;

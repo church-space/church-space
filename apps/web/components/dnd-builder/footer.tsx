@@ -192,15 +192,17 @@ export default function Footer({
               {footerData?.reason}
             </div>
           )}
-          <div className="text-xs items-center w-full flex justify-center gap-2 leading-10 text-pretty">
+          <div className="text-xs items-center w-full flex flex-col md:flex-row justify-center md:gap-2 md:leading-10 text-pretty pb-1">
             <span>
               &copy; {getYear(new Date())}{" "}
               {footerData?.copyright_name && footerData?.copyright_name}
             </span>
-            <span>|</span>
-            <span className="underline">Update your preferences</span>
-            <span>|</span>
-            <span className="underline">Unsubscribe</span>
+            <span className="hidden md:block">|</span>
+            <div className="flex gap-2 items-center leading-7">
+              <span className="underline">Update your preferences</span>
+              <span>|</span>
+              <span className="underline">Unsubscribe</span>
+            </div>
           </div>
         </div>
       </div>

@@ -36,6 +36,8 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     cards: block.data?.cards || [],
     textColor: block.data?.textColor || "#000000",
     labelColor: block.data?.labelColor || "#4274D2",
+    buttonColor: block.data?.buttonColor || "#4274D2",
+    buttonTextColor: block.data?.buttonTextColor || "#FFFFFF",
   });
 
   // Create a ref to store the latest state for the debounced function
@@ -268,6 +270,16 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
           <ColorPicker
             value={localState.labelColor}
             onChange={(color) => handleChange("labelColor", color)}
+          />
+          <Label>Button Color</Label>
+          <ColorPicker
+            value={localState.buttonColor}
+            onChange={(color) => handleChange("buttonColor", color)}
+          />
+          <Label>Button Text Color</Label>
+          <ColorPicker
+            value={localState.buttonTextColor}
+            onChange={(color) => handleChange("buttonTextColor", color)}
           />
         </div>
       </div>

@@ -10,6 +10,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@church-space/kv": "workspace:*",
+    "@church-space/supabase": "workspace:*",
+    "@church-space/ui": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -34,9 +37,6 @@
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
     "@trigger.dev/sdk": "^3.3.16",
-    "@church-space/kv": "workspace:*",
-    "@church-space/supabase": "workspace:*",
-    "@church-space/ui": "workspace:*",
     "@upstash/ratelimit": "^2.0.5",
     "babel-plugin-react-compiler": "19.0.0-beta-e1e972c-20250221",
     "class-variance-authority": "^0.7.1",
@@ -53,7 +53,9 @@
     "react-easy-crop": "^5.2.0",
     "react-hook-form": "^7.54.2",
     "react-scan": "^0.2.4",
+    "resend": "^4.1.2",
     "tippy.js": "^6.3.7",
+    "uuid": "^11.1.0",
     "zod": "^3.24.2",
     "zustand": "^5.0.3"
   },
