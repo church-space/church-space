@@ -203,6 +203,7 @@ export default function DndBuilderSidebarForms({
           formType === "block" &&
           selectedBlock.type === "button" && (
             <ButtonForm
+              key={selectedBlock.id}
               block={selectedBlock as Block & { data?: ButtonBlockData }}
               onUpdate={handleBlockUpdate}
             />
@@ -211,6 +212,7 @@ export default function DndBuilderSidebarForms({
           formType === "block" &&
           selectedBlock.type === "text" && (
             <TextForm
+              key={selectedBlock.id}
               defaultTextColor={defaultTextColor || "#000000"}
               onDefaultTextColorChange={onDefaultTextColorChange}
               defaultFont={defaultFont || "sans-serif"}
@@ -221,6 +223,7 @@ export default function DndBuilderSidebarForms({
           formType === "block" &&
           selectedBlock.type === "image" && (
             <ImageForm
+              key={selectedBlock.id}
               block={selectedBlock as Block & { data?: ImageBlockData }}
               onUpdate={handleBlockUpdate}
             />
@@ -229,6 +232,7 @@ export default function DndBuilderSidebarForms({
           formType === "block" &&
           selectedBlock.type === "video" && (
             <VideoForm
+              key={selectedBlock.id}
               block={selectedBlock as Block & { data?: VideoBlockData }}
               onUpdate={handleBlockUpdate}
             />
@@ -237,6 +241,7 @@ export default function DndBuilderSidebarForms({
           formType === "block" &&
           selectedBlock.type === "divider" && (
             <DividerForm
+              key={selectedBlock.id}
               block={selectedBlock as Block & { data?: DividerBlockData }}
               onUpdate={handleBlockUpdate}
             />
@@ -245,6 +250,7 @@ export default function DndBuilderSidebarForms({
           formType === "block" &&
           selectedBlock.type === "file-download" && (
             <FileDownloadForm
+              key={selectedBlock.id}
               block={selectedBlock as Block & { data?: FileDownloadBlockData }}
               onUpdate={handleBlockUpdate}
             />
@@ -253,6 +259,7 @@ export default function DndBuilderSidebarForms({
           formType === "block" &&
           selectedBlock.type === "cards" && (
             <CardsForm
+              key={selectedBlock.id}
               block={selectedBlock as Block & { data?: CardsBlockData }}
               onUpdate={handleBlockUpdate}
             />
@@ -261,6 +268,7 @@ export default function DndBuilderSidebarForms({
           formType === "block" &&
           selectedBlock.type === "list" && (
             <ListForm
+              key={selectedBlock.id}
               block={selectedBlock as Block & { data?: ListBlockData }}
               onUpdate={handleBlockUpdate}
             />
@@ -269,6 +277,7 @@ export default function DndBuilderSidebarForms({
           formType === "block" &&
           selectedBlock.type === "author" && (
             <AuthorForm
+              key={selectedBlock.id}
               block={selectedBlock as Block & { data?: AuthorBlockData }}
               onUpdate={handleBlockUpdate}
             />
