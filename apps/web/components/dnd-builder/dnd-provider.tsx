@@ -1310,6 +1310,7 @@ export default function DndProvider() {
             block={draggedBlock}
             defaultFont={styles.defaultFont}
             defaultTextColor={styles.defaultTextColor}
+            isRounded={styles.isRounded}
           />
         );
       }
@@ -1324,6 +1325,7 @@ export default function DndProvider() {
           block={draggedBlock}
           defaultFont={styles.defaultFont}
           defaultTextColor={styles.defaultTextColor}
+          isRounded={styles.isRounded}
         />
       );
     }

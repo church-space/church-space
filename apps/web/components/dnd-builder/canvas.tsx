@@ -138,7 +138,7 @@ export default function DndBuilderCanvas({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex flex-col gap-4 p-4 min-h-[102px] max-w-2xl w-full mx-auto ",
+          "flex flex-col gap-3 p-4 min-h-[102px] max-w-2xl w-full mx-auto ",
           isInset && " shadow-md mb-2",
           isRounded && "rounded-lg"
         )}

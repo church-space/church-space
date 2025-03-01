@@ -160,7 +160,7 @@ export default function Block({
         ? listeners
         : {})}
       className={cn(
-        "relative mx-auto w-full max-w-2xl rounded-md p-4 border border-transparent hover:border-border group/block",
+        "relative mx-auto w-full max-w-2xl rounded-md p-1 border border-transparent hover:border-border group/block",
         isDragging && "opacity-50",
         isSelected && "ring-2 ring-blue-500",
         isOverlay && "opacity-80 shadow-lg"
