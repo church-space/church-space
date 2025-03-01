@@ -1,6 +1,4 @@
 import { TextAnimate } from "@church-space/ui/text-annimate";
-import { Cpu, Lock, Sparkles, Zap } from "lucide-react";
-import Image from "next/image";
 
 export default function Hero() {
   return (
