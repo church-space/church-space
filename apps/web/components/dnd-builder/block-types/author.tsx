@@ -98,7 +98,14 @@ export default function AuthorBlock({
       <div className="flex gap-2">
         {links.map((link, index) => {
           const Icon = socialIcons[link.icon as keyof typeof socialIcons];
-          return Icon ? <Icon key={index} fill={defaultTextColor} /> : null;
+          return Icon ? (
+            <Icon
+              key={index}
+              fill={defaultTextColor}
+              height="18px"
+              width="18px"
+            />
+          ) : null;
         })}
       </div>
     </div>

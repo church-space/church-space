@@ -317,7 +317,6 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
-
         </div>
       </div>
 
@@ -377,7 +376,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
                       <TikTok height={"20"} width={"20"} /> TikTok
                     </div>
                   </SelectItem>
-                  <SelectItem value="twitter">
+                  <SelectItem value="x">
                     <div className="flex flex-row gap-2">
                       <XTwitter height={"20"} width={"20"} /> X
                     </div>

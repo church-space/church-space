@@ -8,7 +8,19 @@ import {
   Img,
 } from "@react-email/components";
 import * as React from "react";
-import { File, Youtube } from "@church-space/ui/icons";
+import {
+  File,
+  Youtube,
+  MailFilled,
+  Instagram,
+  Facebook,
+  Linkedin,
+  Bluesky,
+  LinkIcon,
+  Threads,
+  TikTok,
+  XTwitter,
+} from "@church-space/ui/icons";
 
 interface EmailStyle {
   bgColor?: string;
@@ -539,6 +551,19 @@ const CustomList: React.FC<{
   </div>
 );
 
+const socialIcons = {
+  instagram: Instagram,
+  tiktok: TikTok,
+  x: XTwitter,
+  mail: MailFilled,
+  link: LinkIcon,
+  facebook: Facebook,
+  linkedin: Linkedin,
+  bluesky: Bluesky,
+  youtube: Youtube,
+  threads: Threads,
+};
+
 const CustomAuthor: React.FC<{
   name: string;
   subtitle: string;
@@ -557,7 +582,7 @@ const CustomAuthor: React.FC<{
   return (
     <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
       <tr>
-        <td style={{ padding: "16px 0" }}>
+        <td>
           <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
             <tr>
               <td style={{ verticalAlign: "middle" }}>
@@ -639,8 +664,13 @@ const CustomAuthor: React.FC<{
                         display: "inline-block",
                       }}
                     >
-                      {/* Icon would be rendered here - simplified for email */}
-                      {link.icon}
+                      {(() => {
+                        const Icon =
+                          socialIcons[link.icon as keyof typeof socialIcons];
+                        return Icon ? (
+                          <Icon fill={textColor} width="18px" height="18px" />
+                        ) : null;
+                      })()}
                     </span>
                   </a>
                 ))}
@@ -705,7 +735,7 @@ export function generateEmailCode(
       <div style={containerStyle}>
         <Container style={contentStyle}>
           {sections.map((section, sectionIndex) => (
-            <EmailSection key={sectionIndex} style={{ marginBottom: "16px" }}>
+            <EmailSection key={sectionIndex}>
               {section.blocks.map((block, blockIndex) => {
                 const blockStyle = { margin: "20px 0" };
                 const Component = (() => {
