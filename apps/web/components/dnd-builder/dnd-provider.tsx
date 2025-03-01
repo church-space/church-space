@@ -47,7 +47,13 @@ import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { useBlockStateManager, EmailStyles } from "./use-block-state-manager";
 import { Eye, SaveIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "@church-space/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@church-space/ui/dialog";
 import EmailPreview from "./email-preview";
 import { useQueryState } from "nuqs";
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
@@ -1967,6 +1973,10 @@ export default function DndProvider() {
               </Button>
             </DialogTrigger>
             <DialogContent className="min-w-[95%] h-[95%] p-4">
+              <DialogHeader className="sr-only">
+                <DialogTitle>Preview</DialogTitle>
+              </DialogHeader>
+
               <EmailPreview />
             </DialogContent>
           </Dialog>
