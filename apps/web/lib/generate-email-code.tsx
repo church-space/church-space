@@ -8,6 +8,7 @@ import {
   Img,
 } from "@react-email/components";
 import * as React from "react";
+import { File } from "@church-space/ui/icons";
 
 interface EmailStyle {
   bgColor?: string;
@@ -61,12 +62,12 @@ const CustomButton: React.FC<{
   isRounded,
   defaultFont,
 }) => {
-  const buttonWidth = size === "full" ? "100%" : "auto";
+  const buttonWidth = size === "full" ? "600px" : "auto";
   const borderRadius = isRounded ? "6px" : "0";
 
   return (
     <table
-      style={{ width: "100%", textAlign: "center" }}
+      style={{ width: "100%", textAlign: "center", margin: "12px 0" }}
       cellPadding="0"
       cellSpacing="0"
       border={0}
@@ -89,7 +90,7 @@ const CustomButton: React.FC<{
               padding: "10px 18px",
               textDecoration: "none",
               textAlign: "center",
-              width: buttonWidth,
+              maxWidth: buttonWidth,
             }}
           >
             {text}
@@ -159,22 +160,33 @@ const CustomFileDownload: React.FC<{
   isRounded?: boolean;
 }> = ({ title, file, bgColor, textColor, defaultFont, isRounded }) => (
   <table
-    style={{ width: "100%", borderCollapse: "collapse" }}
+    style={{ width: "100%", borderCollapse: "collapse", margin: "12px 0" }}
     cellPadding="0"
     cellSpacing="0"
   >
     <tr>
-      <td
-        style={{
-          backgroundColor: bgColor,
-          border: "1px solid #e2e8f0",
-          borderRadius: isRounded ? "6px" : "0",
-          padding: "16px",
-        }}
-      >
-        <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-          <tr>
-            <td style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <td>
+        <a
+          href={file}
+          target="_blank"
+          style={{
+            textDecoration: "none",
+            display: "block",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: bgColor,
+              border: "1px solid #e2e8f0",
+              borderRadius: isRounded ? "6px" : "0",
+              padding: "10px 10px 10px 13px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <File width="20px" height="20px" fill={textColor} />
               <span
                 style={{
                   fontFamily: defaultFont || "sans-serif",
@@ -185,11 +197,9 @@ const CustomFileDownload: React.FC<{
               >
                 {title}
               </span>
-            </td>
-            <td align="right">
-              <a
-                href={file}
-                target="_blank"
+            </div>
+            <div>
+              <span
                 style={{
                   border: `1px solid ${textColor}`,
                   borderRadius: isRounded ? "6px" : "0",
@@ -197,15 +207,14 @@ const CustomFileDownload: React.FC<{
                   display: "inline-block",
                   fontFamily: defaultFont || "sans-serif",
                   fontSize: "14px",
-                  padding: "8px 16px",
-                  textDecoration: "none",
+                  padding: "6px 14px",
                 }}
               >
                 Download
-              </a>
-            </td>
-          </tr>
-        </table>
+              </span>
+            </div>
+          </div>
+        </a>
       </td>
     </tr>
   </table>
@@ -314,7 +323,7 @@ const CustomCards: React.FC<{
   defaultFont,
   isRounded,
 }) => (
-  <div style={{ padding: "32px 0" }}>
+  <div style={{ padding: "12px 0" }}>
     {(title || subtitle) && (
       <div style={{ marginBottom: "24px" }}>
         {title && (
@@ -345,14 +354,22 @@ const CustomCards: React.FC<{
       </div>
     )}
     <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-      <tr>
-        <td>
-          <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-            {cards.map((card, index) => {
+      {cards
+        .reduce((rows, card, index) => {
+          if (index % 2 === 0) {
+            rows.push([card]);
+          } else {
+            rows[rows.length - 1].push(card);
+          }
+          return rows;
+        }, [] as any[])
+        .map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((card: any, colIndex: number) => {
               const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${card.image}`;
               return (
-                <tr key={index}>
-                  <td style={{ padding: "16px 0" }}>
+                <td key={colIndex} style={{ width: "50%", padding: "8px" }}>
+                  <div style={{ maxWidth: "100%" }}>
                     {card.image && (
                       <Img
                         src={imageUrl}
@@ -420,13 +437,13 @@ const CustomCards: React.FC<{
                         </a>
                       )}
                     </div>
-                  </td>
-                </tr>
+                  </div>
+                </td>
               );
             })}
-          </table>
-        </td>
-      </tr>
+            {row.length === 1 && <td style={{ width: "50%" }}></td>}
+          </tr>
+        ))}
     </table>
   </div>
 );
@@ -686,7 +703,7 @@ export function generateEmailCode(
 
   const contentStyle = {
     backgroundColor: isInset ? bgColor : undefined,
-    padding: isInset ? "32px 24px" : undefined,
+    padding: isInset ? "0px 20px" : undefined,
     borderRadius: isInset && isRounded ? "12px" : undefined,
   };
 
@@ -698,90 +715,101 @@ export function generateEmailCode(
       <div style={containerStyle}>
         <Container style={contentStyle}>
           {sections.map((section, sectionIndex) => (
-            <EmailSection key={sectionIndex}>
+            <EmailSection key={sectionIndex} style={{ marginBottom: "16px" }}>
               {section.blocks.map((block, blockIndex) => {
-                switch (block.type) {
-                  case "text":
-                    const textData = block.data as TextBlockData;
-                    return (
-                      <CustomText
-                        key={blockIndex}
-                        content={textData?.content || ""}
-                        font={textData?.font}
-                        textColor={textData?.textColor}
-                        defaultFont={defaultFont}
-                        defaultTextColor={defaultTextColor}
-                      />
-                    );
-                  case "button":
-                    return (
-                      <CustomButton
-                        key={blockIndex}
-                        {...(block.data as any)}
-                        isRounded={isRounded}
-                        defaultFont={defaultFont}
-                      />
-                    );
-                  case "divider":
-                    return (
-                      <CustomDivider
-                        key={blockIndex}
-                        {...(block.data as any)}
-                      />
-                    );
-                  case "image":
-                    return (
-                      <CustomImage
-                        key={blockIndex}
-                        {...(block.data as any)}
-                        isRounded={isRounded}
-                      />
-                    );
-                  case "file-download":
-                    return (
-                      <CustomFileDownload
-                        key={blockIndex}
-                        {...(block.data as any)}
-                        defaultFont={defaultFont}
-                        isRounded={isRounded}
-                      />
-                    );
-                  case "video":
-                    return (
-                      <CustomVideo
-                        key={blockIndex}
-                        {...(block.data as any)}
-                        isRounded={isRounded}
-                      />
-                    );
-                  case "cards":
-                    return (
-                      <CustomCards
-                        key={blockIndex}
-                        {...(block.data as any)}
-                        defaultFont={defaultFont}
-                        isRounded={isRounded}
-                      />
-                    );
-                  case "list":
-                    return (
-                      <CustomList
-                        key={blockIndex}
-                        {...(block.data as any)}
-                        defaultFont={defaultFont}
-                      />
-                    );
-                  case "author":
-                    return (
-                      <CustomAuthor
-                        key={blockIndex}
-                        {...(block.data as any)}
-                        defaultFont={defaultFont}
-                      />
-                    );
-                  default:
-                    return null;
-                }
+                const blockStyle = { margin: "20px 0" };
+                const Component = (() => {
+                  switch (block.type) {
+                    case "text":
+                      const textData = block.data as TextBlockData;
+                      return (
+                        <div style={blockStyle}>
+                          <CustomText
+                            content={textData?.content || ""}
+                            font={textData?.font}
+                            textColor={textData?.textColor}
+                            defaultFont={defaultFont}
+                            defaultTextColor={defaultTextColor}
+                          />
+                        </div>
+                      );
+                    case "button":
+                      return (
+                        <div style={blockStyle}>
+                          <CustomButton
+                            {...(block.data as any)}
+                            isRounded={isRounded}
+                            defaultFont={defaultFont}
+                          />
+                        </div>
+                      );
+                    case "divider":
+                      return (
+                        <div style={blockStyle}>
+                          <CustomDivider {...(block.data as any)} />
+                        </div>
+                      );
+                    case "image":
+                      return (
+                        <div style={blockStyle}>
+                          <CustomImage
+                            {...(block.data as any)}
+                            isRounded={isRounded}
+                          />
+                        </div>
+                      );
+                    case "file-download":
+                      return (
+                        <div style={blockStyle}>
+                          <CustomFileDownload
+                            {...(block.data as any)}
+                            defaultFont={defaultFont}
+                            isRounded={isRounded}
+                          />
+                        </div>
+                      );
+                    case "video":
+                      return (
+                        <div style={blockStyle}>
+                          <CustomVideo
+                            {...(block.data as any)}
+                            isRounded={isRounded}
+                          />
+                        </div>
+                      );
+                    case "cards":
+                      return (
+                        <div style={blockStyle}>
+                          <CustomCards
+                            {...(block.data as any)}
+                            defaultFont={defaultFont}
+                            isRounded={isRounded}
+                          />
+                        </div>
+                      );
+                    case "list":
+                      return (
+                        <div style={blockStyle}>
+                          <CustomList
+                            {...(block.data as any)}
+                            defaultFont={defaultFont}
+                          />
+                        </div>
+                      );
+                    case "author":
+                      return (
+                        <div style={blockStyle}>
+                          <CustomAuthor
+                            {...(block.data as any)}
+                            defaultFont={defaultFont}
+                          />
+                        </div>
+                      );
+                    default:
+                      return null;
+                  }
+                })();
+                return <div key={blockIndex}>{Component}</div>;
               })}
             </EmailSection>
           ))}
