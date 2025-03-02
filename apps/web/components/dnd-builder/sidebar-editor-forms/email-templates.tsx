@@ -7,7 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
-import { LayoutGrid, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { useState } from "react";
 import AssetBrowserModal from "../asset-browser";
 
@@ -19,6 +19,7 @@ export default function EmailTemplateForm({
   onSelectTemplate,
 }: EmailTemplateFormProps) {
   const [search, setSearch] = useState("");
+  console.log(search);
 
   const templates = [
     {

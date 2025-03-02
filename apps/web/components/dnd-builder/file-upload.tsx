@@ -18,6 +18,7 @@ import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useFileUpload } from "./use-file-upload";
 import AssetBrowserModal from "./asset-browser";
+import { CloudUpload } from "@church-space/ui/icons";
 
 interface FileUploadProps {
   organizationId: string;
@@ -129,7 +130,7 @@ const FileUpload = ({
       const pathParts = filePath.split("/");
       return pathParts[pathParts.length - 1];
     }
-    return "Upload File";
+    return null; // Return null when there's no file
   };
 
   const handleClickUpload = () => {
@@ -150,19 +151,35 @@ const FileUpload = ({
   };
 
   return (
-    <div className="flex items-center col-span-2">
-      <div className="flex-1 flex">
+    <div className="flex items-center col-span-2 w-full">
+      <div className="flex-1 flex w-full">
+        {!file && !filePath && (
+          <AssetBrowserModal
+            triggerText="Browse"
+            buttonClassName="flex-1 rounded-r-none border-r-0"
+            onSelectAsset={handleAssetSelect}
+            modalName="file-browser"
+          />
+        )}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
             <Button
               className={cn(
-                "flex-1 bg-transparent justify-start px-3 font-normal truncate",
-                file || filePath ? "rounded-r-none" : "text-muted-foreground"
+                " bg-transparent justify-start px-3 font-normal ",
+                file || filePath ? "rounded-r-none" : "rounded-l-none"
               )}
               variant="outline"
               disabled={isUploading || isDeleting}
             >
-              {getDisplayName()}
+              {getDisplayName() ? (
+                <span className="block truncate overflow-hidden text-ellipsis max-w-[170px] w-full">
+                  {getDisplayName()}
+                </span>
+              ) : (
+                <div className="flex items-center ">
+                  <CloudUpload />
+                </div>
+              )}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -207,15 +224,6 @@ const FileUpload = ({
             <p className="text-sm text-gray-500 mt-2">Max file size: 50MB</p>
           </DialogContent>
         </Dialog>
-
-        {!file && !filePath && (
-          <AssetBrowserModal
-            triggerText="Browse"
-            buttonClassName="ml-2"
-            onSelectAsset={handleAssetSelect}
-            modalName="file-browser"
-          />
-        )}
       </div>
 
       {(file || filePath) && (
