@@ -304,12 +304,6 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center py-1 pr-1">
-                  <Label>Label</Label>
-                  <Input
-                    className="col-span-2"
-                    value={card.label}
-                    onChange={(e) => updateCard(index, "label", e.target.value)}
-                  />
                   <Label>Title</Label>
                   <Input
                     className="col-span-2"
@@ -323,6 +317,12 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                     onChange={(e) =>
                       updateCard(index, "description", e.target.value)
                     }
+                  />
+                  <Label>Label</Label>
+                  <Input
+                    className="col-span-2"
+                    value={card.label}
+                    onChange={(e) => updateCard(index, "label", e.target.value)}
                   />
                   <Label>Image</Label>
                   <div className="col-span-2">

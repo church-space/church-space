@@ -89,27 +89,18 @@ export default function FileDownloadForm({
           <Label className="font-bold text-md">Details</Label>
         </div>
         <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
-          <Label>Title</Label>
+          c<Label>Title</Label>
           <Input
             className="col-span-2"
             value={localState.title}
             onChange={(e) => handleChange("title", e.target.value)}
           />
-          <Label>File</Label>
-          <FileUpload
-            organizationId={organizationId}
-            onUploadComplete={(path) => handleChange("file", path)}
-            initialFilePath={localState.file}
-            onRemove={onFileRemove}
-          />
           <Label>BG Color</Label>
-
           <ColorPicker
             value={localState.bgColor}
             onChange={(color) => handleChange("bgColor", color)}
           />
           <Label>Text Color</Label>
-
           <ColorPicker
             value={localState.textColor}
             onChange={(color) => handleChange("textColor", color)}
