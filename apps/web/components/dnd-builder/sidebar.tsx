@@ -81,6 +81,7 @@ interface DndBuilderSidebarProps {
   ) => void;
   emailId?: number;
   footerData?: any;
+  onFooterChange?: (data: any) => void;
 }
 
 function DraggableBlock({
@@ -175,6 +176,7 @@ export default function DndBuilderSidebar({
   footerData,
   linkColor,
   onLinkColorChange,
+  onFooterChange,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
 
@@ -254,6 +256,7 @@ export default function DndBuilderSidebar({
                   onIsRoundedChange={onIsRoundedChange}
                   linkColor={linkColor}
                   onLinkColorChange={onLinkColorChange}
+                  onFooterChange={onFooterChange}
                 />
               </motion.div>
             ) : (
@@ -446,6 +449,7 @@ export default function DndBuilderSidebar({
                 onDefaultFontChange={onDefaultFontChange}
                 emailId={emailId}
                 footerData={footerData}
+                onFooterChange={onFooterChange}
               />
             )}
           </SheetContent>

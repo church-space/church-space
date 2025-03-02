@@ -59,6 +59,7 @@ export default function DndBuilderSidebarForms({
   onIsRoundedChange,
   linkColor,
   onLinkColorChange,
+  onFooterChange,
 }: {
   selectedBlock?: Block;
   setSelectedBlockId?: (id: string | null) => void;
@@ -91,6 +92,7 @@ export default function DndBuilderSidebarForms({
   onIsRoundedChange?: (isRounded: boolean) => void;
   linkColor?: string;
   onLinkColorChange?: (color: string) => void;
+  onFooterChange?: (data: any) => void;
 }) {
   const handleBack = () => {
     if (onBack) {
@@ -198,6 +200,7 @@ export default function DndBuilderSidebarForms({
             emailId={emailId}
             footerData={footerData}
             emailInset={isInset || false}
+            onFooterChange={onFooterChange}
           />
         )}
         {formType === "email-templates" && (

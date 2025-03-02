@@ -1878,6 +1878,23 @@ export default function DndProvider() {
     }
   }, [blocksBeingDeleted]);
 
+  const [footerState, setFooterState] = useState<any>(null);
+
+  // Update footerState when emailData changes
+  useEffect(() => {
+    if (emailData?.footer) {
+      setFooterState(emailData.footer);
+    }
+  }, [emailData?.footer]);
+
+  // Handle footer changes locally before sending to server
+  const handleFooterChange = (updatedFooter: any) => {
+    // Update local state immediately for responsive UI
+    setFooterState(updatedFooter);
+
+    // The actual server update is handled in the EmailFooterForm component
+  };
+
   return (
     <div className="flex flex-col h-full relative">
       <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b sticky top-0 left-0 right-0 bg-background z-10">
@@ -2009,7 +2026,8 @@ export default function DndProvider() {
             activeForm={activeForm}
             setActiveForm={setActiveForm}
             emailId={emailId}
-            footerData={emailData?.footer || null}
+            footerData={footerState || emailData?.footer || null}
+            onFooterChange={handleFooterChange}
             linkColor={styles.linkColor}
             onLinkColorChange={handleLinkColorChange}
           />
@@ -2045,7 +2063,8 @@ export default function DndProvider() {
                 onTextContentChange={handleTextContentChange}
                 setActiveForm={setActiveForm}
                 activeForm={activeForm}
-                footerData={emailData?.footer || null}
+                footerData={footerState || emailData?.footer || null}
+                onFooterChange={handleFooterChange}
                 defaultFont={styles.defaultFont}
                 defaultTextColor={styles.defaultTextColor}
                 linkColor={styles.linkColor}
