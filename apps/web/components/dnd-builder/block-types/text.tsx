@@ -21,14 +21,25 @@ const TextBlock = ({
   const prevFontRef = useRef(font);
   const prevTextColorRef = useRef(textColor);
   const prevLinkColorRef = useRef(linkColor);
+  const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
 
     // Add an update listener to the editor
     const updateListener = () => {
-      if (onContentChange && !editor.isDestroyed) {
-        onContentChange(editor.getHTML());
+      if (!editor.isDestroyed) {
+        // Clear any pending timer
+        if (updateTimerRef.current) {
+          clearTimeout(updateTimerRef.current);
+        }
+
+        // Debounce the database update
+        updateTimerRef.current = setTimeout(() => {
+          if (onContentChange && !editor.isDestroyed) {
+            onContentChange(editor.getHTML());
+          }
+        }, 500); // 500ms debounce
       }
     };
 
@@ -37,6 +48,10 @@ const TextBlock = ({
     return () => {
       if (!editor.isDestroyed) {
         editor.off("update", updateListener);
+      }
+      // Clear any pending timer on cleanup
+      if (updateTimerRef.current) {
+        clearTimeout(updateTimerRef.current);
       }
     };
   }, [editor, onContentChange]);

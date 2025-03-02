@@ -41,15 +41,18 @@ interface EmailFooterFormProps {
   emailId?: number;
   footerData?: any;
   emailInset: boolean;
+  onFooterChange?: (data: any) => void;
 }
 
 export default function EmailFooterForm({
   emailId,
   footerData,
   emailInset,
+  onFooterChange,
 }: EmailFooterFormProps) {
   const { organizationId } = useUser();
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
   const updateEmailFooter = useUpdateEmailFooter();
 
   // Local state with default values
@@ -97,11 +100,24 @@ export default function EmailFooterForm({
 
   // Handle general state changes
   const handleChange = (key: string, value: any) => {
-    // Update local state immediately for responsive UI
-    setLocalState((prev) => {
-      const newState = { ...prev, [key]: value };
+    // Create new state
+    const newState = { ...localState, [key]: value };
 
-      // Update server immediately
+    // Update local state immediately for responsive UI
+    setLocalState(newState);
+
+    // Trigger immediate UI update through prop
+    if (onFooterChange) {
+      onFooterChange(newState);
+    }
+
+    // Debounce the database update
+    if (updateTimerRef.current) {
+      clearTimeout(updateTimerRef.current);
+    }
+
+    // Set a new timer for database updates
+    updateTimerRef.current = setTimeout(() => {
       if (emailId && organizationId) {
         updateEmailFooter.mutate({
           emailId,
@@ -109,9 +125,7 @@ export default function EmailFooterForm({
           updates: newState,
         });
       }
-
-      return newState;
-    });
+    }, 500); // 500ms debounce
   };
 
   const addLink = () => {

@@ -462,6 +462,17 @@ export default function DndProvider() {
     [updateBlocks]
   );
 
+  // Create a debounced version of updateEmailBlock for database updates
+  const debouncedDatabaseUpdate = useCallback(
+    debounce((blockId: number, value: any) => {
+      updateEmailBlock.mutate({
+        blockId,
+        value,
+      });
+    }, 500),
+    [updateEmailBlock]
+  );
+
   // Add handler for text content updates
   const handleTextContentChange = (blockId: string, content: string) => {
     // Immediately update the UI with the new content
@@ -494,14 +505,12 @@ export default function DndProvider() {
       const blockToUpdate = blocks.find((block) => block.id === blockId);
       const existingData = (blockToUpdate?.data as any) || {};
 
-      updateEmailBlock.mutate({
-        blockId: dbBlockId,
-        value: {
-          ...existingData,
-          content,
-          font: styles.defaultFont,
-          textColor: styles.defaultTextColor,
-        },
+      // Debounce the database update
+      debouncedDatabaseUpdate(dbBlockId, {
+        ...existingData,
+        content,
+        font: styles.defaultFont,
+        textColor: styles.defaultTextColor,
       });
     }
   };
@@ -1844,33 +1853,26 @@ export default function DndProvider() {
   }, [blocks, ensureBlocksVisibility, emailData, blocksBeingDeleted]);
 
   // Filter out blocks that are being deleted from the UI
-  useEffect(() => {
-    if (blocksBeingDeleted.size > 0) {
-      // Filter out blocks that are being deleted
-      const filteredBlocks = blocks.filter((block) => {
-        const isBeingDeleted = blocksBeingDeleted.has(block.id);
+  const filteredBlocks = blocks.filter((block) => {
+    const isBeingDeleted = blocksBeingDeleted.has(block.id);
+    const isNumericIdBeingDeleted =
+      !isNaN(parseInt(block.id, 10)) &&
+      blocksBeingDeleted.has(parseInt(block.id, 10).toString());
 
-        // Also check numeric version if it's a numeric ID
-        const isNumericIdBeingDeleted =
-          !isNaN(parseInt(block.id, 10)) &&
-          blocksBeingDeleted.has(parseInt(block.id, 10).toString());
+    return !isBeingDeleted && !isNumericIdBeingDeleted;
+  });
 
-        return !isBeingDeleted && !isNumericIdBeingDeleted;
-      });
-
-      // Only update if blocks were actually removed
-      if (filteredBlocks.length < blocks.length) {
-        updateBlocksWithoutHistory(filteredBlocks);
-      }
-    }
-  }, [blocksBeingDeleted, blocks, updateBlocksWithoutHistory]);
+  // Only update if blocks were actually removed
+  if (filteredBlocks.length < blocks.length) {
+    updateBlocksWithoutHistory(filteredBlocks);
+  }
 
   // Clear blocksBeingDeleted after a timeout to prevent blocks from being permanently excluded
   useEffect(() => {
     if (blocksBeingDeleted.size > 0) {
       const timer = setTimeout(() => {
         setBlocksBeingDeleted(new Set());
-      }, 5000); // Clear after 5 seconds to ensure server operations have completed
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
