@@ -261,7 +261,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             onChange={(e) => handleChange("title", e.target.value)}
           />
           <Label>Subtitle</Label>
-          <Input
+          <Textarea
             className="col-span-2"
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}

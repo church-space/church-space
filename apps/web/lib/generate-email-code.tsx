@@ -51,13 +51,23 @@ const CustomText: React.FC<{
   // Parse HTML content and convert to React Email components
   const sanitizedContent = content
     .replace(/class="[^"]*"/g, "")
-    // Add more space above h1 and h2, reduce space below all headings, and set font weights
-    .replace(/<h1/g, '<h1 style="margin: 1em 0 0.2em 0; font-weight: 700"')
-    .replace(/<h2/g, '<h2 style="margin: 1em 0 0.2em 0; font-weight: 700"')
-    .replace(/<h3/g, '<h3 style="margin: 1em 0 0.2em 0; font-weight: 600"')
+    // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
+    .replace(
+      /<h1/g,
+      '<h1 style="margin: 1em 0 0.2em 0; font-weight: 700; font-size: 2rem; line-height: 1.3"'
+    )
+    .replace(
+      /<h2/g,
+      '<h2 style="margin: 1em 0 0.2em 0; font-weight: 700; font-size: 1.5rem; line-height: 1.3"'
+    )
+    .replace(
+      /<h3/g,
+      '<h3 style="margin: 1em 0 0.2em 0; font-weight: 600; font-size: 1.25rem; line-height: 1.3"'
+    )
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = "font-weight: 300; line-height: 1.6";
+      const baseStyle =
+        "font-weight: 300; line-height: 1.6; font-size: 16px; margin: 0.5em 0";
       if (existingStyle) {
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
@@ -65,14 +75,24 @@ const CustomText: React.FC<{
     })
     // Style links with the specified linkColor
     .replace(/<a(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = `color: ${linkColor || "#0000ff"}; text-decoration: underline`;
+      const baseStyle = `color: ${linkColor || "#0000ff"}; text-decoration: underline; font-size: 16px`;
       if (existingStyle) {
         return `<a style="${existingStyle}; ${baseStyle}"`;
       }
       return `<a style="${baseStyle}"`;
     })
     // Handle empty paragraphs for line breaks
-    .replace(/<p style="[^"]*"><\/p>/g, '<div style="height: 1.6em"></div>');
+    .replace(/<p style="[^"]*"><\/p>/g, '<div style="height: 1.6em"></div>')
+    // Add font size to list items
+    .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"')
+    // Add font size to spans
+    .replace(/<span(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      const baseStyle = "font-size: 16px";
+      if (existingStyle) {
+        return `<span style="${existingStyle}; ${baseStyle}"`;
+      }
+      return `<span style="${baseStyle}"`;
+    });
 
   return (
     <div
@@ -81,6 +101,7 @@ const CustomText: React.FC<{
         color: textColor || defaultTextColor || "#000000",
         maxWidth: "100%",
         margin: "0",
+        fontSize: "16px",
       }}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
@@ -154,7 +175,8 @@ const CustomDivider: React.FC<{
   <Hr
     style={{
       borderTop: `1px solid ${color}`,
-      margin: `${margin * 1.2}px 0`,
+      marginTop: `${margin * 1.5}px`,
+      marginBottom: `${margin * 1.5}px`,
       width: "100%",
     }}
   />
@@ -379,7 +401,7 @@ const CustomCards: React.FC<{
               fontFamily: defaultFont || "sans-serif",
               fontSize: "16px",
               color: textColor,
-              opacity: 0.8,
+              fontWeight: "300",
             }}
           >
             {subtitle}
@@ -407,7 +429,7 @@ const CustomCards: React.FC<{
                   style={{
                     width: "50%",
                     padding: "8px",
-                    paddingBottom: "45px",
+
                     verticalAlign: "top",
                   }}
                 >

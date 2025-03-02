@@ -113,10 +113,13 @@ export const useFileUpload = (organizationId: string) => {
       // Add timestamp to filename to make it unique
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const fileExtension = file.name.split(".").pop();
-      const fileName = `${file.name.split(".")[0]}_${timestamp}.${fileExtension}`;
+      // Remove spaces from the file name
+      const fileNameWithoutSpaces = file.name.split(".")[0].replace(/\s+/g, "");
+      const fileName = `${fileNameWithoutSpaces}_${timestamp}.${fileExtension}`;
 
-      // Create the full path including organization folder
-      const filePath = `unsent/${organizationId}/${fileName}`;
+      // Create the full path including organization folder, ensuring no spaces
+      const sanitizedOrgId = organizationId.replace(/\s+/g, "");
+      const filePath = `unsent/${sanitizedOrgId}/${fileName}`;
 
       // Implement retry logic
       let attempts = 0;

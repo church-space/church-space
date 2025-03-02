@@ -103,7 +103,7 @@ export default function SendTestEmail() {
         body: JSON.stringify({
           emails: [
             {
-              from: "thomas@ibontech.com",
+              from: "thomas@trivo.app",
               to: [email],
               subject: emailData.email.subject || "Test Email",
               html: enhancedHtmlContent,
