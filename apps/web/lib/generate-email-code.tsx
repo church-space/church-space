@@ -736,38 +736,46 @@ const CustomAuthor: React.FC<{
                 </table>
               </td>
               <td style={{ textAlign: "right" }}>
-                {links.map((link, index) => (
-                  <a
-                    key={index}
-                    href={link.url}
-                    target="_blank"
-                    style={{
-                      marginLeft: "8px",
-                      color: finalTextColor,
-                      textDecoration: "none",
-                    }}
-                  >
-                    <span
+                {links.map((link, index) => {
+                  // Add mailto: prefix for mail icon links
+                  const href =
+                    link.icon === "mail" && !link.url.startsWith("mailto:")
+                      ? `mailto:${link.url}`
+                      : link.url;
+
+                  return (
+                    <a
+                      key={index}
+                      href={href}
+                      target="_blank"
                       style={{
-                        width: "20px",
-                        height: "20px",
-                        display: "inline-block",
+                        marginLeft: "8px",
+                        color: finalTextColor,
+                        textDecoration: "none",
                       }}
                     >
-                      {(() => {
-                        const Icon =
-                          socialIcons[link.icon as keyof typeof socialIcons];
-                        return Icon ? (
-                          <Icon
-                            fill={finalTextColor}
-                            width="18px"
-                            height="18px"
-                          />
-                        ) : null;
-                      })()}
-                    </span>
-                  </a>
-                ))}
+                      <span
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          display: "inline-block",
+                        }}
+                      >
+                        {(() => {
+                          const Icon =
+                            socialIcons[link.icon as keyof typeof socialIcons];
+                          return Icon ? (
+                            <Icon
+                              fill={finalTextColor}
+                              width="18px"
+                              height="18px"
+                            />
+                          ) : null;
+                        })()}
+                      </span>
+                    </a>
+                  );
+                })}
               </td>
             </tr>
           </table>
@@ -889,10 +897,16 @@ const CustomFooter: React.FC<{
               const Icon = socialIcons[link.icon as keyof typeof socialIcons];
               if (!Icon) return null;
 
+              // Add mailto: prefix for mail icon links
+              const href =
+                link.icon === "mail" && !link.url.startsWith("mailto:")
+                  ? `mailto:${link.url}`
+                  : link.url;
+
               return (
                 <a
                   key={index}
-                  href={link.url}
+                  href={href}
                   style={{
                     display: "inline-block",
                     margin: "0 4px",
