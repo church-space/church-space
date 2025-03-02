@@ -13,7 +13,7 @@
     "@supabase/ssr": "^0.5.2",
     "@church-space/types": "workspace:*",
     "@church-space/typescript-config": "workspace:*",
-    "next": "15.1.7",
+    "next": "15.2.0",
     "react": "^19.0.0",
     "server-only": "^0.0.1",
     "supabase": "^2.1.1"

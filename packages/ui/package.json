@@ -34,7 +34,8 @@
     "./toggle": "./src/toggle.tsx",
     "./toggle-group": "./src/toggle-group.tsx",
     "./text-annimate": "./src/text-annimate.tsx",
-    "./tabs": "./src/tabs.tsx"
+    "./tabs": "./src/tabs.tsx",
+    "./pagination": "./src/pagination.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

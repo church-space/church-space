@@ -17,6 +17,7 @@ import { XIcon, LoaderIcon } from "@church-space/ui/icons";
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useFileUpload } from "./use-file-upload";
+import AssetBrowserModal from "./asset-browser";
 
 interface FileUploadProps {
   organizationId: string;
@@ -139,63 +140,83 @@ const FileUpload = ({
     }
   };
 
+  const handleAssetSelect = (asset: { imageUrl: string }) => {
+    // Extract the path from the imageUrl and update the state
+    const path = asset.imageUrl.split("email_assets/")[1];
+    if (path) {
+      setFilePath(path);
+      onUploadComplete?.(path);
+    }
+  };
+
   return (
     <div className="flex items-center col-span-2">
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogTrigger asChild>
-          <Button
-            className={cn(
-              "w-full bg-transparent justify-start px-3 font-normal truncate",
-              file || filePath ? "rounded-r-none" : "text-muted-foreground"
-            )}
-            variant="outline"
-            disabled={isUploading || isDeleting}
-          >
-            {getDisplayName()}
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Upload File</DialogTitle>
-            <DialogDescription>
-              Email assets will become public once sent. Please ensure anything
-              you email is not sensitive information.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="relative">
-            <div
-              className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer"
-              onDrop={handleDrop}
-              onDragOver={(e) => e.preventDefault()}
-              onClick={handleClickUpload}
+      <div className="flex-1 flex">
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className={cn(
+                "flex-1 bg-transparent justify-start px-3 font-normal truncate",
+                file || filePath ? "rounded-r-none" : "text-muted-foreground"
+              )}
+              variant="outline"
+              disabled={isUploading || isDeleting}
             >
-              <Label htmlFor="fileInput" className="cursor-pointer">
-                Drop your file here or click to select
-              </Label>
-              <input
-                id="fileInput"
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                onChange={handleFileChange}
-                accept={type === "image" ? "image/*" : "*/*"}
-                key={`file-input-${isUploading ? "uploading" : "ready"}`}
-              />
-            </div>
-            {isUploading && (
-              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="animate-spin">
-                    <LoaderIcon height="44" width="44" />
-                  </div>
-                  <span className="text-sm">Uploading...</span>
-                </div>
+              {getDisplayName()}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Upload File</DialogTitle>
+              <DialogDescription>
+                Email assets will become public once sent. Please ensure
+                anything you email is not sensitive information.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="relative">
+              <div
+                className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer"
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+                onClick={handleClickUpload}
+              >
+                <Label htmlFor="fileInput" className="cursor-pointer">
+                  Drop your file here or click to select
+                </Label>
+                <input
+                  id="fileInput"
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  accept={type === "image" ? "image/*" : "*/*"}
+                  key={`file-input-${isUploading ? "uploading" : "ready"}`}
+                />
               </div>
-            )}
-          </div>
-          <p className="text-sm text-gray-500 mt-2">Max file size: 50MB</p>
-        </DialogContent>
-      </Dialog>
+              {isUploading && (
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin">
+                      <LoaderIcon height="44" width="44" />
+                    </div>
+                    <span className="text-sm">Uploading...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <p className="text-sm text-gray-500 mt-2">Max file size: 50MB</p>
+          </DialogContent>
+        </Dialog>
+
+        {!file && !filePath && (
+          <AssetBrowserModal
+            triggerText="Browse"
+            buttonClassName="ml-2"
+            onSelectAsset={handleAssetSelect}
+            modalName="file-browser"
+          />
+        )}
+      </div>
 
       {(file || filePath) && (
         <>
