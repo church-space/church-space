@@ -458,7 +458,7 @@ export default function DndProvider() {
       // This is a no-op update that just adds the current state to history
       // without changing the current state
       updateBlocks([...latestBlocksRef.current]);
-    }, 500),
+    }, 1000),
     [updateBlocks]
   );
 
@@ -469,7 +469,7 @@ export default function DndProvider() {
         blockId,
         value,
       });
-    }, 500),
+    }, 1000),
     [updateEmailBlock]
   );
 
@@ -1175,7 +1175,7 @@ export default function DndProvider() {
             }
           }
         }
-      }, 500); // 500ms debounce for database updates
+      }, 1000); // 1000ms debounce for database updates
     }
   };
 
