@@ -275,10 +275,11 @@ const FileUpload = ({
           >
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Confirm Remove</DialogTitle>
+                <DialogTitle>Are you sure?</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to remove this file? You can add it
-                  again from your file library.
+                  Are you sure you want to remove this file from the block? You
+                  can add it again from your file library if you change your
+                  mind.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="flex justify-end gap-2 mt-4">
@@ -295,10 +296,10 @@ const FileUpload = ({
                       <div className="animate-spin">
                         <LoaderIcon height="16" width="16" />
                       </div>
-                      <span>Deleting...</span>
+                      <span>Removing...</span>
                     </div>
                   ) : (
-                    "Delete"
+                    "Remove"
                   )}
                 </Button>
               </DialogFooter>

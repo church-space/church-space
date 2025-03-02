@@ -22,6 +22,8 @@ export default function ImageBlock({ data, isRounded }: ImageBlockProps) {
         .from("email_assets")
         .getPublicUrl(image);
       setImageUrl(urlData.publicUrl);
+    } else {
+      setImageUrl(""); // Clear the imageUrl when there is no image
     }
   }, [image]);
 
