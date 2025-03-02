@@ -1231,12 +1231,10 @@ export default function DndProvider() {
   useEffect(() => {
     if (selectedBlockId) {
       setActiveForm("block");
-    } else if (activeForm === "block") {
-      // Only reset to default if we're coming from block form
-      // This prevents resetting when clicking footer
+    } else {
       setActiveForm("default");
     }
-  }, [selectedBlockId, activeForm]);
+  }, [selectedBlockId]);
 
   const renderDragOverlay = () => {
     if (!activeId) return null;
@@ -2072,7 +2070,6 @@ export default function DndProvider() {
                 setActiveForm={setActiveForm}
                 activeForm={activeForm}
                 footerData={footerState || emailData?.footer || null}
-                onFooterChange={handleFooterChange}
                 defaultFont={styles.defaultFont}
                 defaultTextColor={styles.defaultTextColor}
                 linkColor={styles.linkColor}
