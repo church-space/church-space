@@ -94,7 +94,7 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
           <Slider
             value={[localState.margin]}
             max={100}
-            min={0}
+            min={1}
             step={1}
             className="col-span-2"
             onValueChange={handleMarginChange}

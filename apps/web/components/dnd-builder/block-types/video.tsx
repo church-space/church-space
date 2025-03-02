@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Youtube } from "@church-space/ui/icons";
+import { YoutubeFilled } from "@church-space/ui/icons";
 import { VideoBlockData } from "@/types/blocks";
 import Image from "next/image";
 import { cn } from "@church-space/ui/cn";
@@ -94,7 +94,7 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
         ></div>
       )}
       <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-        <Youtube
+        <YoutubeFilled
           height={String(
             data?.size ? Math.max(40, Math.min(80, (80 * data.size) / 100)) : 80
           )}

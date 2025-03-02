@@ -11,6 +11,7 @@ import * as React from "react";
 import {
   File,
   Youtube,
+  YoutubeFilled,
   MailFilled,
   Instagram,
   Facebook,
@@ -336,7 +337,7 @@ const CustomVideo: React.FC<{
                   transform: "translate(-50%, -50%)",
                 }}
               >
-                <Youtube
+                <YoutubeFilled
                   width={`${size ? Math.max(48, Math.min(96, (96 * size) / 100)) : 68}px`}
                   height={`${size ? Math.max(34, Math.min(68, (68 * size) / 100)) : 48}px`}
                   fill="#FF0000"
