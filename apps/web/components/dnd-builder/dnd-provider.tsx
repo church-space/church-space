@@ -109,6 +109,9 @@ export default function DndProvider() {
   // Add a ref to track blocks that have been deleted during the session
   const permanentlyDeletedBlocksRef = useRef<Set<string>>(new Set());
 
+  // Add ref for database update debouncing
+  const databaseUpdateTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Initialize blocks from the fetched data or use empty array
   const initialBlocks =
     (emailData?.blocks?.map((block) => ({
@@ -971,36 +974,24 @@ export default function DndProvider() {
     let newBlocks: BlockType[];
 
     if (isDuplication) {
-      // This is a duplication operation
-      // Find the original block to determine where to insert the duplicate
+      // Handle duplication case
       const originalBlock = blocks.find(
         (block) =>
           block.type === updatedBlock.type && block.id !== updatedBlock.id
       );
 
       if (originalBlock) {
-        // Find the index of the original block
         const originalIndex = blocks.findIndex(
           (block) => block.id === originalBlock.id
         );
-
-        // Insert the duplicated block after the original
         newBlocks = [...blocks];
-
-        // Set the order of the duplicated block to be right after the original
         updatedBlock.order = originalBlock.order + 1;
-
-        // Insert the duplicated block after the original
         newBlocks.splice(originalIndex + 1, 0, updatedBlock);
-
-        // Update the order of all subsequent blocks
         newBlocks = newBlocks.map((block, index) => ({
           ...block,
           order: index,
         }));
       } else {
-        // If we can't find the original block, just append the duplicated block
-
         updatedBlock.order = blocks.length;
         newBlocks = [...blocks, updatedBlock];
       }
@@ -1014,40 +1005,118 @@ export default function DndProvider() {
     // Ensure block order is maintained
     const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
-    // Update the UI with or without adding to history based on the parameter
+    // Always update UI immediately without history
+    updateBlocksWithoutHistory(sortedBlocks);
+
+    // If addToHistory is true, debounce the history update
     if (addToHistory) {
-      updateBlocks(sortedBlocks);
-    } else {
-      updateBlocksWithoutHistory(sortedBlocks);
+      debouncedHistoryUpdate();
     }
 
-    // For duplicated blocks, we need to add them to the database
-    if (isDuplication && emailId) {
-      addEmailBlock.mutate(
-        {
-          emailId,
-          type: updatedBlock.type,
-          value: updatedBlock.data || ({} as BlockData),
-          order: updatedBlock.order,
-          linkedFile: undefined,
-        },
-        {
-          onSuccess: (result) => {
-            if (result && result.id) {
-              // Update the block ID in our local state but keep the same block in the UI
+    // For duplicated blocks or database updates, debounce the operation
+    if (emailId) {
+      // Clear any existing database update timer
+      if (databaseUpdateTimerRef.current) {
+        clearTimeout(databaseUpdateTimerRef.current);
+      }
+
+      // Set a new timer for database updates
+      databaseUpdateTimerRef.current = setTimeout(() => {
+        if (isDuplication) {
+          // Handle duplication database update
+          addEmailBlock.mutate(
+            {
+              emailId,
+              type: updatedBlock.type,
+              value: updatedBlock.data || ({} as BlockData),
+              order: updatedBlock.order,
+              linkedFile: undefined,
+            },
+            {
+              onSuccess: (result) => {
+                if (result && result.id) {
+                  // Update block IDs and handle editor references
+                  const updatedBlocks = sortedBlocks.map((block) =>
+                    block.id === updatedBlock.id
+                      ? { ...block, id: result.id.toString() }
+                      : block
+                  );
+
+                  if (updatedBlock.type === "text") {
+                    setEditors((prev) => {
+                      const newEditors = { ...prev };
+                      if (newEditors[updatedBlock.id]) {
+                        newEditors[result.id.toString()] =
+                          newEditors[updatedBlock.id];
+                        delete newEditors[updatedBlock.id];
+                      }
+                      return newEditors;
+                    });
+                  }
+
+                  // Handle duplicate IDs
+                  const updatedBlockIds = updatedBlocks.map(
+                    (block) => block.id
+                  );
+                  const hasBlockDuplicates = updatedBlockIds.some(
+                    (id, index) => updatedBlockIds.indexOf(id) !== index
+                  );
+
+                  if (hasBlockDuplicates) {
+                    const seenIds = new Set<string>();
+                    const deduplicatedBlocks = updatedBlocks.filter((block) => {
+                      if (seenIds.has(block.id)) return false;
+                      seenIds.add(block.id);
+                      return true;
+                    });
+                    updateBlocks(deduplicatedBlocks);
+                  } else {
+                    updateBlocks(updatedBlocks);
+                  }
+
+                  updateBlockOrdersInDatabase(updatedBlocks);
+                  setSelectedBlockId(result.id.toString());
+                }
+              },
+            }
+          );
+        } else {
+          // Handle regular update database operations
+          if (!isNaN(parseInt(updatedBlock.id, 10))) {
+            // Update existing block
+            const dbBlockId = parseInt(updatedBlock.id, 10);
+            updateEmailBlock.mutate({
+              blockId: dbBlockId,
+              value: updatedBlock.data,
+              type: updatedBlock.type,
+            });
+          } else if (emailData && emailData.blocks) {
+            // Handle new block or UUID block updates
+            const matchingDbBlock = emailData.blocks.find(
+              (dbBlock) =>
+                dbBlock.type === updatedBlock.type &&
+                dbBlock.order === updatedBlock.order
+            );
+
+            if (matchingDbBlock) {
+              updateEmailBlock.mutate({
+                blockId: matchingDbBlock.id,
+                value: updatedBlock.data,
+                type: updatedBlock.type,
+              });
+
+              // Update block IDs and handle editor references
               const updatedBlocks = sortedBlocks.map((block) =>
                 block.id === updatedBlock.id
-                  ? { ...block, id: result.id.toString() }
+                  ? { ...block, id: matchingDbBlock.id.toString() }
                   : block
               );
 
-              // Update the editor reference if this is a text block
               if (updatedBlock.type === "text") {
                 setEditors((prev) => {
                   const newEditors = { ...prev };
                   if (newEditors[updatedBlock.id]) {
-                    // Move the editor reference to the new ID
-                    newEditors[result.id.toString()] =
+                    newEditors[matchingDbBlock.id.toString()] =
                       newEditors[updatedBlock.id];
                     delete newEditors[updatedBlock.id];
                   }
@@ -1055,224 +1124,92 @@ export default function DndProvider() {
                 });
               }
 
-              // Check for duplicate IDs
+              // Handle duplicate IDs
               const updatedBlockIds = updatedBlocks.map((block) => block.id);
               const hasBlockDuplicates = updatedBlockIds.some(
                 (id, index) => updatedBlockIds.indexOf(id) !== index
               );
 
               if (hasBlockDuplicates) {
-                // Keep only the first occurrence of each ID
                 const seenIds = new Set<string>();
                 const deduplicatedBlocks = updatedBlocks.filter((block) => {
-                  if (seenIds.has(block.id)) {
-                    return false;
-                  }
+                  if (seenIds.has(block.id)) return false;
                   seenIds.add(block.id);
                   return true;
                 });
-
                 updateBlocks(deduplicatedBlocks);
               } else {
                 updateBlocks(updatedBlocks);
               }
-
-              // Update the order of all blocks in the database to match their position in the UI
-              // This ensures blocks after the insertion point have their order properly updated
-              updateBlockOrdersInDatabase(updatedBlocks);
-
-              // Set the newly duplicated block as the selected block
-              setSelectedBlockId(result.id.toString());
-            }
-          },
-        }
-      );
-
-      return; // Skip the regular update logic for duplicated blocks
-    }
-
-    // Regular update logic for non-duplicated blocks
-    // Update in database if we have an emailId
-    if (emailId) {
-      // Check if the block ID is a number (from database) or a UUID (newly created)
-      if (!isNaN(parseInt(updatedBlock.id, 10))) {
-        // It's a numeric ID, update directly
-        const dbBlockId = parseInt(updatedBlock.id, 10);
-
-        updateEmailBlock.mutate({
-          blockId: dbBlockId,
-          value: updatedBlock.data,
-          type: updatedBlock.type,
-        });
-      } else {
-        // It's a UUID, we need to find the corresponding database ID
-
-        // If this is a newly created block that hasn't been saved to the database yet,
-        // we need to save it first
-        if (emailData && emailData.blocks) {
-          // Try to find a matching block in the database by comparing properties
-          // First try to match by type and order
-          let matchingDbBlock = emailData.blocks.find(
-            (dbBlock) =>
-              dbBlock.type === updatedBlock.type &&
-              dbBlock.order === updatedBlock.order
-          );
-
-          // If no match found, try to match by content similarity
-          if (!matchingDbBlock && updatedBlock.data) {
-            matchingDbBlock = emailData.blocks.find((dbBlock) => {
-              if (dbBlock.type !== updatedBlock.type) return false;
-
-              // For text blocks, compare content
-              if (
-                updatedBlock.type === "text" &&
-                dbBlock.value &&
-                updatedBlock.data
-              ) {
-                const dbValue = dbBlock.value as any;
-                const blockData = updatedBlock.data as any;
-                return dbValue.content === blockData.content;
-              }
-
-              // For author blocks, compare name and subtitle
-              if (
-                updatedBlock.type === "author" &&
-                dbBlock.value &&
-                updatedBlock.data
-              ) {
-                const dbValue = dbBlock.value as any;
-                const blockData = updatedBlock.data as any;
-                return (
-                  dbValue.name === blockData.name &&
-                  dbValue.subtitle === blockData.subtitle
-                );
-              }
-
-              return false;
-            });
-          }
-
-          if (matchingDbBlock) {
-            updateEmailBlock.mutate({
-              blockId: matchingDbBlock.id,
-              value: updatedBlock.data,
-              type: updatedBlock.type,
-            });
-
-            // Update the block ID in our local state to use the database ID
-            // but keep the same block in the UI
-            const updatedBlocks = sortedBlocks.map((block) =>
-              block.id === updatedBlock.id
-                ? { ...block, id: matchingDbBlock.id.toString() }
-                : block
-            );
-
-            // Update the editor reference if this is a text block
-            if (updatedBlock.type === "text") {
-              setEditors((prev) => {
-                const newEditors = { ...prev };
-                if (newEditors[updatedBlock.id]) {
-                  // Move the editor reference to the new ID
-                  newEditors[matchingDbBlock.id.toString()] =
-                    newEditors[updatedBlock.id];
-                  delete newEditors[updatedBlock.id];
-                }
-                return newEditors;
-              });
-            }
-
-            // Check for duplicate IDs
-            const updatedBlockIds = updatedBlocks.map((block) => block.id);
-            const hasBlockDuplicates = updatedBlockIds.some(
-              (id, index) => updatedBlockIds.indexOf(id) !== index
-            );
-
-            if (hasBlockDuplicates) {
-              // Keep only the first occurrence of each ID
-              const seenIds = new Set<string>();
-              const deduplicatedBlocks = updatedBlocks.filter((block) => {
-                if (seenIds.has(block.id)) {
-                  return false;
-                }
-                seenIds.add(block.id);
-                return true;
-              });
-
-              updateBlocks(deduplicatedBlocks);
             } else {
-              updateBlocks(updatedBlocks);
-            }
-          } else {
-            // Keep the block in the UI with its current UUID
-            addEmailBlock.mutate(
-              {
-                emailId,
-                type: updatedBlock.type,
-                value: updatedBlock.data || ({} as BlockData),
-                order: updatedBlock.order,
-                linkedFile: undefined,
-              },
-              {
-                onSuccess: (result) => {
-                  if (result && result.id) {
-                    // Update the block ID in our local state but keep the same block in the UI
-                    const updatedBlocks = sortedBlocks.map((block) =>
-                      block.id === updatedBlock.id
-                        ? { ...block, id: result.id.toString() }
-                        : block
-                    );
-
-                    // Update the editor reference if this is a text block
-                    if (updatedBlock.type === "text") {
-                      setEditors((prev) => {
-                        const newEditors = { ...prev };
-                        if (newEditors[updatedBlock.id]) {
-                          // Move the editor reference to the new ID
-                          newEditors[result.id.toString()] =
-                            newEditors[updatedBlock.id];
-                          delete newEditors[updatedBlock.id];
-                        }
-                        return newEditors;
-                      });
-                    }
-
-                    // Check for duplicate IDs
-                    const updatedBlockIds = updatedBlocks.map(
-                      (block) => block.id
-                    );
-                    const hasBlockDuplicates = updatedBlockIds.some(
-                      (id, index) => updatedBlockIds.indexOf(id) !== index
-                    );
-
-                    if (hasBlockDuplicates) {
-                      // Keep only the first occurrence of each ID
-                      const seenIds = new Set<string>();
-                      const deduplicatedBlocks = updatedBlocks.filter(
-                        (block) => {
-                          if (seenIds.has(block.id)) {
-                            return false;
-                          }
-                          seenIds.add(block.id);
-                          return true;
-                        }
-                      );
-
-                      updateBlocks(deduplicatedBlocks);
-                    } else {
-                      updateBlocks(updatedBlocks);
-                    }
-
-                    // Update the order of all blocks in the database to match their position in the UI
-                    // This ensures blocks after the insertion point have their order properly updated
-                    updateBlockOrdersInDatabase(updatedBlocks);
-                  }
+              // Add as new block
+              addEmailBlock.mutate(
+                {
+                  emailId,
+                  type: updatedBlock.type,
+                  value: updatedBlock.data || ({} as BlockData),
+                  order: updatedBlock.order,
+                  linkedFile: undefined,
                 },
-              }
-            );
+                {
+                  onSuccess: (result) => {
+                    if (result && result.id) {
+                      handleBlockIdUpdate(
+                        updatedBlock,
+                        result.id,
+                        sortedBlocks
+                      );
+                    }
+                  },
+                }
+              );
+            }
           }
         }
-      }
+      }, 500); // 500ms debounce for database updates
     }
+  };
+
+  // Helper function to handle block ID updates
+  const handleBlockIdUpdate = (
+    updatedBlock: BlockType,
+    newId: number,
+    sortedBlocks: BlockType[]
+  ) => {
+    const updatedBlocks = sortedBlocks.map((block) =>
+      block.id === updatedBlock.id ? { ...block, id: newId.toString() } : block
+    );
+
+    if (updatedBlock.type === "text") {
+      setEditors((prev) => {
+        const newEditors = { ...prev };
+        if (newEditors[updatedBlock.id]) {
+          newEditors[newId.toString()] = newEditors[updatedBlock.id];
+          delete newEditors[updatedBlock.id];
+        }
+        return newEditors;
+      });
+    }
+
+    // Handle duplicate IDs
+    const updatedBlockIds = updatedBlocks.map((block) => block.id);
+    const hasBlockDuplicates = updatedBlockIds.some(
+      (id, index) => updatedBlockIds.indexOf(id) !== index
+    );
+
+    if (hasBlockDuplicates) {
+      const seenIds = new Set<string>();
+      const deduplicatedBlocks = updatedBlocks.filter((block) => {
+        if (seenIds.has(block.id)) return false;
+        seenIds.add(block.id);
+        return true;
+      });
+      updateBlocks(deduplicatedBlocks);
+    } else {
+      updateBlocks(updatedBlocks);
+    }
+
+    updateBlockOrdersInDatabase(updatedBlocks);
   };
 
   // Update activeForm when selectedBlock changes
