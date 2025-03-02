@@ -21,8 +21,8 @@ interface ListFormProps {
 
 export default function ListForm({ block, onUpdate }: ListFormProps) {
   const [localState, setLocalState] = useState<ListBlockData>({
-    title: block.data?.title || "List Title",
-    subtitle: block.data?.subtitle || "List Subtitle",
+    title: block.data?.title || "",
+    subtitle: block.data?.subtitle || "",
     textColor: block.data?.textColor || "#000000",
     bulletColor: block.data?.bulletColor || "#000000",
     bulletType: block.data?.bulletType || "number",
@@ -75,8 +75,8 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
 
   useEffect(() => {
     setLocalState({
-      title: block.data?.title || "List Title",
-      subtitle: block.data?.subtitle || "List Subtitle",
+      title: block.data?.title || "",
+      subtitle: block.data?.subtitle || "",
       textColor: block.data?.textColor || "#000000",
       bulletColor: block.data?.bulletColor || "#000000",
       bulletType: block.data?.bulletType || "number",

@@ -12,8 +12,8 @@ export default function ListBlock({
   defaultFont,
   defaultTextColor,
 }: ListBlockProps) {
-  const title = data?.title || "List Title";
-  const subtitle = data?.subtitle || "List Subtitle";
+  const title = data?.title || "";
+  const subtitle = data?.subtitle || "";
   const bulletColor = data?.bulletColor || "#000000";
   const bulletType = data?.bulletType || "number";
   const items = data?.items || [];
@@ -24,15 +24,22 @@ export default function ListBlock({
       style={{ fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex flex-col">
-        <span className="text-xl font-bold" style={{ color: defaultTextColor }}>
-          {title}
-        </span>
-        <span
-          className="text-sm text-muted-foreground"
-          style={{ color: defaultTextColor }}
-        >
-          {subtitle}
-        </span>
+        {title && (
+          <span
+            className="text-2xl font-bold"
+            style={{ color: defaultTextColor }}
+          >
+            {title}
+          </span>
+        )}
+        {subtitle && (
+          <span
+            className="text-md text-muted-foreground"
+            style={{ color: defaultTextColor }}
+          >
+            {subtitle}
+          </span>
+        )}
       </div>
       <div className="flex flex-col gap-4 mt-4">
         {items.map((item, index) => (
@@ -46,7 +53,7 @@ export default function ListBlock({
             <div
               className={cn(
                 "h-8 w-8 flex-shrink-0 rounded-full flex items-center justify-center font-medium text-lg",
-                bulletType === "bullet" ? "text-4xl h-6" : ""
+                bulletType === "bullet" ? "text-4xl h-6 pt-2 w-6" : ""
               )}
               style={{
                 backgroundColor:
@@ -56,9 +63,9 @@ export default function ListBlock({
             >
               {bulletType === "number" ? index + 1 : "•"}
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col pt-0.5">
               <p
-                className="font-medium text-lg"
+                className="font-semibold text-lg"
                 style={{ color: defaultTextColor }}
               >
                 {item.title}
