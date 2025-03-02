@@ -113,6 +113,7 @@ export interface Block {
   type: BlockType;
   data?: BlockData;
   order: number;
+  duplicatedFromId?: string;
 }
 
 export interface Section {

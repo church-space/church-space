@@ -984,9 +984,11 @@ export default function DndProvider() {
 
     if (isDuplication) {
       // Handle duplication case
+      // Find the original block that was duplicated
+      // We need to track which block was duplicated to place the new block after it
+      const duplicatedFromId = updatedBlock.duplicatedFromId || updatedBlock.id;
       const originalBlock = blocks.find(
-        (block) =>
-          block.type === updatedBlock.type && block.id !== updatedBlock.id
+        (block) => block.id === duplicatedFromId
       );
 
       if (originalBlock) {
@@ -995,6 +997,8 @@ export default function DndProvider() {
         );
         newBlocks = [...blocks];
         updatedBlock.order = originalBlock.order + 1;
+        // Remove the duplicatedFromId property as it's no longer needed
+        delete updatedBlock.duplicatedFromId;
         newBlocks.splice(originalIndex + 1, 0, updatedBlock);
         newBlocks = newBlocks.map((block, index) => ({
           ...block,
@@ -1002,6 +1006,8 @@ export default function DndProvider() {
         }));
       } else {
         updatedBlock.order = blocks.length;
+        // Remove the duplicatedFromId property if it exists
+        delete updatedBlock.duplicatedFromId;
         newBlocks = [...blocks, updatedBlock];
       }
     } else {

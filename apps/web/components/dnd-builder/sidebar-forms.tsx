@@ -370,6 +370,7 @@ export default function DndBuilderSidebarForms({
                   const duplicatedBlock = {
                     ...JSON.parse(JSON.stringify(selectedBlock)), // Deep clone to avoid reference issues
                     id: crypto.randomUUID(), // Generate a new unique ID
+                    duplicatedFromId: selectedBlock.id, // Store the original block's ID
                   };
 
                   onBlockUpdate(duplicatedBlock, true, true);
