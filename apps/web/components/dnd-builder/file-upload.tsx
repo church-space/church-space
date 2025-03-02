@@ -122,6 +122,28 @@ const FileUpload = ({
     }
   };
 
+  const handleRemove = async () => {
+    if (!filePath) {
+      setFile(null);
+      onUploadComplete?.("");
+      onRemove?.();
+      return;
+    }
+
+    try {
+      setFile(null);
+      setFilePath("");
+      onUploadComplete?.("");
+      onRemove?.();
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete file. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
   // Extract filename from path for display
   const getDisplayName = () => {
     if (file) return file.name;
@@ -165,6 +187,8 @@ const FileUpload = ({
             onSelectAsset={handleAssetSelect}
             organizationId={organizationId}
             type={type}
+            setIsUploadModalOpen={setIsModalOpen}
+            handleDelete={handleDelete}
           />
         )}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -251,10 +275,10 @@ const FileUpload = ({
           >
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogTitle>Confirm Remove</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to delete this file? This action cannot
-                  be undone.
+                  Are you sure you want to remove this file? You can add it
+                  again from your file library.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="flex justify-end gap-2 mt-4">
@@ -263,7 +287,7 @@ const FileUpload = ({
                 </DialogClose>
                 <Button
                   variant="destructive"
-                  onClick={handleDelete}
+                  onClick={handleRemove}
                   disabled={isDeleting}
                 >
                   {isDeleting ? (

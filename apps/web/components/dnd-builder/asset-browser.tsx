@@ -9,6 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
+  DialogClose,
+  DialogDescription,
 } from "@church-space/ui/dialog";
 import { LoaderIcon } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
@@ -28,14 +31,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import { FileIcon, FileTextIcon, ImageIcon, Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  FileIcon,
+  FileTextIcon,
+  ImageIcon,
+  Search,
+  X,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import debounce from "lodash/debounce";
 import {
   fetchEmailAssets,
   type Asset,
   getFileType,
 } from "./fetch-email-assets";
 import { Skeleton } from "@church-space/ui/skeleton";
+import { useFileUpload } from "./use-file-upload";
 
 // Helper function to get icon based on file type
 const FileTypeIcon = ({ type }: { type: string }) => {
@@ -49,18 +61,127 @@ const FileTypeIcon = ({ type }: { type: string }) => {
   }
 };
 
+const AssetCard = ({
+  asset,
+  onSelect,
+  onDelete,
+}: {
+  asset: Asset;
+  onSelect: () => void;
+  onDelete: () => void;
+}) => {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    await onDelete();
+    setIsDeleting(false);
+    setIsDeleteDialogOpen(false);
+  };
+
+  return (
+    <Card
+      key={asset.id}
+      className="w-full overflow-hidden cursor-pointer hover:shadow-md transition-shadow relative group"
+    >
+      <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              variant="destructive"
+              size="icon"
+              className="h-8 w-8 opacity-50 hover:opacity-100 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Delete Asset</DialogTitle>
+              <DialogDescription>
+                This will permanently delete this asset. This action cannot be
+                undone, and the asset will be removed from all places it is
+                used.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex justify-end gap-2 mt-4">
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <div className="flex items-center gap-2">
+                    <LoaderIcon height="16" width="16" />
+                    <span>Deleting...</span>
+                  </div>
+                ) : (
+                  "Delete"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+      <div
+        className="aspect-video relative bg-muted flex items-center justify-center"
+        onClick={onSelect}
+      >
+        {asset.type === "image" ? (
+          <img
+            src={asset.imageUrl}
+            alt={asset.title}
+            className="object-contain w-full h-full"
+            loading="lazy"
+            onError={(e) => {
+              console.error("Image failed to load:", asset.imageUrl);
+              e.currentTarget.style.display = "none";
+              const parent = e.currentTarget.parentElement;
+              if (parent) {
+                parent.classList.add("flex");
+                const iconContainer = document.createElement("div");
+                iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`;
+                parent.appendChild(iconContainer);
+              }
+            }}
+          />
+        ) : (
+          <FileTypeIcon type={asset.type} />
+        )}
+        <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md capitalize">
+          {asset.type}
+        </div>
+      </div>
+      <CardFooter className="p-3" onClick={onSelect}>
+        <h3 className="font-medium text-sm truncate w-full">{asset.title}</h3>
+      </CardFooter>
+    </Card>
+  );
+};
+
 export default function AssetBrowserModal({
   triggerText,
   buttonClassName,
   onSelectAsset,
   organizationId,
   type,
+  setIsUploadModalOpen,
+  handleDelete: externalHandleDelete,
 }: {
   triggerText: string;
   buttonClassName: string;
   onSelectAsset: (asset: Asset) => void;
   organizationId: string;
   type?: "image" | "any";
+  setIsUploadModalOpen: (open: boolean) => void;
+  handleDelete: (asset: Asset) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -69,32 +190,48 @@ export default function AssetBrowserModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
+  const { deleteFile } = useFileUpload(organizationId);
 
   const itemsPerPage = 6;
 
-  // Fetch assets
-  const loadAssets = async () => {
-    setLoading(true);
-    setError(null);
+  // Create a ref to store the latest search query for the debounced function
+  const searchQueryRef = useRef(searchQuery);
 
-    const result = await fetchEmailAssets({
-      organizationId,
-      currentPage,
-      itemsPerPage,
-      searchQuery,
-      selectedType,
-      type,
-    });
-
-    setAssets(result.assets);
-    setTotalCount(result.totalCount);
-    setError(result.error);
-    setLoading(false);
-  };
-
-  // Fetch assets when the modal opens, organizationId changes, or search/page changes
+  // Update the ref whenever searchQuery changes
   useEffect(() => {
-    loadAssets();
+    searchQueryRef.current = searchQuery;
+  }, [searchQuery]);
+
+  // Create a debounced version of loadAssets
+  const debouncedLoadAssets = useCallback(
+    debounce(async () => {
+      setLoading(true);
+      setError(null);
+
+      const result = await fetchEmailAssets({
+        organizationId,
+        currentPage,
+        itemsPerPage,
+        searchQuery: searchQueryRef.current,
+        selectedType,
+        type,
+      });
+
+      setAssets(result.assets);
+      setTotalCount(result.totalCount);
+      setError(result.error);
+      setLoading(false);
+    }, 500),
+    [organizationId, currentPage, selectedType, type]
+  );
+
+  // Fetch assets when dependencies change
+  useEffect(() => {
+    debouncedLoadAssets();
+    // Cleanup
+    return () => {
+      debouncedLoadAssets.cancel();
+    };
   }, [organizationId, currentPage, searchQuery, selectedType]);
 
   // Reset to first page when filters change
@@ -116,6 +253,24 @@ export default function AssetBrowserModal({
 
   // Calculate total pages
   const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+  const handleAssetDelete = async (asset: Asset) => {
+    try {
+      // Delete from storage
+      await deleteFile(asset.path);
+
+      // Update local state
+      const updatedAssets = assets.filter((a) => a.id !== asset.id);
+      setAssets(updatedAssets);
+      setTotalCount((prev) => prev - 1);
+
+      // Call external handler if provided
+      externalHandleDelete(asset);
+    } catch (error) {
+      console.error("Failed to delete asset:", error);
+      setError("Failed to delete asset. Please try again.");
+    }
+  };
 
   return (
     <Dialog>
@@ -167,6 +322,15 @@ export default function AssetBrowserModal({
                 Clear
               </Button>
             )}
+            <Button
+              variant="default"
+              className="h-[38px] px-3"
+              onClick={() => {
+                setIsUploadModalOpen(true);
+              }}
+            >
+              Upload
+            </Button>
           </div>
 
           {/* Loading state */}
@@ -194,7 +358,11 @@ export default function AssetBrowserModal({
           {error && !loading && (
             <div className="text-center py-8 text-destructive">
               <p>{error}</p>
-              <Button variant="outline" className="mt-4" onClick={loadAssets}>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={debouncedLoadAssets}
+              >
                 Try Again
               </Button>
             </div>
@@ -204,47 +372,12 @@ export default function AssetBrowserModal({
           {!loading && !error && assets.length > 0 ? (
             <div className="w-full min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {assets.map((asset) => (
-                <Card
+                <AssetCard
                   key={asset.id}
-                  className="w-full overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => onSelectAsset(asset)}
-                >
-                  <div className="aspect-video relative bg-muted flex items-center justify-center">
-                    {asset.type === "image" ? (
-                      <img
-                        src={asset.imageUrl}
-                        alt={asset.title}
-                        className="object-cover w-full h-full"
-                        loading="lazy"
-                        onError={(e) => {
-                          console.error(
-                            "Image failed to load:",
-                            asset.imageUrl
-                          );
-                          // If image fails to load, show the file type icon
-                          e.currentTarget.style.display = "none";
-                          const parent = e.currentTarget.parentElement;
-                          if (parent) {
-                            parent.classList.add("flex");
-                            const iconContainer = document.createElement("div");
-                            iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`;
-                            parent.appendChild(iconContainer);
-                          }
-                        }}
-                      />
-                    ) : (
-                      <FileTypeIcon type={asset.type} />
-                    )}
-                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md capitalize">
-                      {asset.type}
-                    </div>
-                  </div>
-                  <CardFooter className="p-3">
-                    <h3 className="font-medium text-sm truncate w-full">
-                      {asset.title}
-                    </h3>
-                  </CardFooter>
-                </Card>
+                  asset={asset}
+                  onSelect={() => onSelectAsset(asset)}
+                  onDelete={() => handleAssetDelete(asset)}
+                />
               ))}
             </div>
           ) : !loading && !error ? (

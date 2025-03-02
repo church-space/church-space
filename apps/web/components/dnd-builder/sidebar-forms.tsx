@@ -119,50 +119,6 @@ export default function DndBuilderSidebarForms({
     }
   };
 
-  async function deleteBlockAssets(block: Block) {
-    const supabase = createClient();
-
-    try {
-      switch (block.type) {
-        case "image":
-          if ((block.data as ImageBlockData)?.image) {
-            await supabase.storage
-              .from("email_assets")
-              .remove([(block.data as ImageBlockData).image]);
-          }
-          break;
-
-        case "file-download":
-          if ((block.data as FileDownloadBlockData)?.file) {
-            await supabase.storage
-              .from("email_assets")
-              .remove([(block.data as FileDownloadBlockData).file]);
-          }
-          break;
-
-        case "author":
-          if ((block.data as AuthorBlockData)?.avatar) {
-            await supabase.storage
-              .from("email_assets")
-              .remove([(block.data as AuthorBlockData).avatar]);
-          }
-          break;
-
-        case "cards":
-          const cardImages = (block.data as CardsBlockData)?.cards
-            ?.map((card) => card.image)
-            .filter(Boolean);
-          if (cardImages?.length) {
-            await supabase.storage.from("email_assets").remove(cardImages);
-          }
-          break;
-      }
-    } catch (error) {
-      console.error("Error deleting assets:", error);
-      // Continue with block deletion even if asset deletion fails
-    }
-  }
-
   return (
     <div className="flex flex-col  overflow-hidden h-full">
       <div className="flex gap-2 mb-4 items-center">
@@ -297,69 +253,17 @@ export default function DndBuilderSidebarForms({
       {selectedBlock && formType === "block" && (
         <div className="flex gap-2 items-center justify-end mb-8 md:mb-0 border-t md:border-none pt-2">
           <div className="flex items-center justify-center gap-2">
-            {(selectedBlock.type === "button" ||
-              selectedBlock.type === "text" ||
-              selectedBlock.type === "video" ||
-              selectedBlock.type === "divider" ||
-              selectedBlock.type === "list") && (
-              <Button
-                variant="outline"
-                className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
-                onClick={() => {
-                  if (selectedBlock) {
-                    handleDeleteBlock(selectedBlock.id);
-                  }
-                }}
-              >
-                Delete Block
-              </Button>
-            )}
-            {(selectedBlock.type === "cards" ||
-              selectedBlock.type === "image" ||
-              selectedBlock.type === "author" ||
-              selectedBlock.type === "file-download") && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    Delete Block
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>
-                      Are you sure you want to delete this block?
-                    </DialogTitle>
-                    <DialogDescription>
-                      Deleting this block will delete any attached files and
-                      images from the database. This cannot be undone.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="outline" className=" px-2 py-0 h-7 ">
-                        Cancel
-                      </Button>
-                    </DialogClose>
-                    <Button
-                      variant="destructive"
-                      className="px-2 py-0 h-7"
-                      onClick={async () => {
-                        if (selectedBlock) {
-                          // Delete assets first, then the block
-                          await deleteBlockAssets(selectedBlock);
-                          handleDeleteBlock(selectedBlock.id);
-                        }
-                      }}
-                    >
-                      Delete Block
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            )}
+            <Button
+              variant="outline"
+              className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => {
+                if (selectedBlock) {
+                  handleDeleteBlock(selectedBlock.id);
+                }
+              }}
+            >
+              Delete Block
+            </Button>
 
             <Button
               variant="outline"
