@@ -14,7 +14,7 @@ import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { generateEmailCode } from "@/lib/generate-email-code";
 import { render } from "@react-email/render";
 import { toast } from "@church-space/ui/use-toast";
-import { Section, Block, BlockData, BlockType } from "@/types/blocks";
+import { Section, BlockData, BlockType } from "@/types/blocks";
 
 export default function SendTestEmail() {
   const [email, setEmail] = useState("");

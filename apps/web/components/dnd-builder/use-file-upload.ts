@@ -27,7 +27,7 @@ const compressImage = async (
         let ratio = 1;
 
         // Start with a high quality
-        let quality = 0.9;
+        const quality = 0.9;
         const maxSize = maxSizeKB * 1024; // Convert KB to bytes
 
         // If the image is very large, resize it first
