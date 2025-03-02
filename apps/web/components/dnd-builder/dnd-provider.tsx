@@ -56,6 +56,7 @@ import {
 } from "@church-space/ui/dialog";
 import EmailPreview from "./email-preview";
 import { useQueryState } from "nuqs";
+import SendTestEmail from "./send-test-email";
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
   | "cards"
@@ -2009,9 +2010,7 @@ export default function DndProvider() {
               <EmailPreview />
             </DialogContent>
           </Dialog>
-          <Button variant="outline" className="hidden md:block">
-            Send Test
-          </Button>
+          <SendTestEmail />
           <Button variant="default" onClick={handleSave} disabled={isSaving}>
             <span className="hidden md:block">
               {isSaving ? (
