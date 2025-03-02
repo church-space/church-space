@@ -740,6 +740,199 @@ function extractYouTubeId(url: string): string | undefined {
   return undefined;
 }
 
+// Add CustomFooter component before the main generator function
+const CustomFooter: React.FC<{
+  footerData: any;
+  defaultFont?: string;
+  emailBgColor?: string;
+  isInset?: boolean;
+  isRounded?: boolean;
+  linkColor?: string;
+}> = ({ footerData, defaultFont, emailBgColor, isInset, isRounded }) => {
+  if (!footerData) return null;
+
+  const {
+    logo,
+    name,
+    subtitle,
+    links = [],
+    address,
+    reason,
+    copyright_name,
+    bg_color = "#ffffff",
+    text_color = "#000000",
+    secondary_text_color = "#666666",
+    socials_style = "icon-only",
+    socials_color = "#000000",
+    socials_icon_color = "#ffffff",
+  } = footerData;
+
+  const logoUrl = logo
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${logo}`
+    : "";
+
+  const containerStyle = {
+    backgroundColor: !isInset ? bg_color : emailBgColor,
+    padding: "40px 0 32px",
+    width: "100%",
+    textAlign: "center" as const,
+  };
+
+  const contentStyle = {
+    maxWidth: "600px",
+    margin: "0 auto",
+    fontFamily: defaultFont,
+  };
+
+  return (
+    <div style={containerStyle}>
+      <div style={contentStyle}>
+        {logoUrl && (
+          <Img
+            src={logoUrl}
+            alt="Logo"
+            width="112"
+            height="112"
+            style={{
+              margin: "0 auto 16px",
+              objectFit: "contain",
+              borderRadius: isRounded ? "6px" : "0",
+            }}
+          />
+        )}
+
+        {name && (
+          <div
+            style={{
+              fontSize: "18px",
+              fontWeight: "600",
+              color: text_color,
+              marginBottom: "8px",
+            }}
+          >
+            {name}
+          </div>
+        )}
+
+        {subtitle && (
+          <div
+            style={{
+              fontSize: "14px",
+              color: secondary_text_color,
+              maxWidth: "384px",
+              margin: "0 auto 16px",
+              lineHeight: "1.4",
+            }}
+          >
+            {subtitle}
+          </div>
+        )}
+
+        {links.length > 0 && (
+          <div style={{ marginBottom: "24px" }}>
+            {links.map((link: any, index: number) => {
+              const Icon = socialIcons[link.icon as keyof typeof socialIcons];
+              if (!Icon) return null;
+
+              return (
+                <a
+                  key={index}
+                  href={link.url}
+                  style={{
+                    display: "inline-block",
+                    margin: "0 4px",
+                    padding: "8px",
+                    backgroundColor:
+                      socials_style === "filled"
+                        ? socials_color
+                        : "transparent",
+                    border:
+                      socials_style === "outline"
+                        ? `1px solid ${socials_color}`
+                        : "none",
+                    borderRadius: "50%",
+                    lineHeight: 0,
+                  }}
+                >
+                  <Icon
+                    width="18px"
+                    height="18px"
+                    fill={
+                      socials_style === "filled"
+                        ? socials_icon_color
+                        : socials_color
+                    }
+                  />
+                </a>
+              );
+            })}
+          </div>
+        )}
+
+        <Hr
+          style={{
+            borderTop: `1px solid ${secondary_text_color}`,
+            margin: "24px 0",
+            width: "100%",
+          }}
+        />
+
+        <div style={{ color: secondary_text_color }}>
+          {address && (
+            <div
+              style={{
+                fontSize: "12px",
+                marginBottom: "8px",
+                lineHeight: "1.2",
+              }}
+            >
+              {address}
+            </div>
+          )}
+
+          {reason && (
+            <div
+              style={{
+                fontSize: "12px",
+                marginBottom: "8px",
+                lineHeight: "1.2",
+              }}
+            >
+              {reason}
+            </div>
+          )}
+
+          <div style={{ fontSize: "12px", lineHeight: "1.5" }}>
+            <span>
+              © {new Date().getFullYear()} {copyright_name}
+            </span>
+            <br />
+            <a
+              href="#"
+              style={{
+                color: secondary_text_color,
+                textDecoration: "underline",
+              }}
+            >
+              Update your preferences
+            </a>
+            <span style={{ margin: "0 8px" }}>|</span>
+            <a
+              href="#"
+              style={{
+                color: secondary_text_color,
+                textDecoration: "underline",
+              }}
+            >
+              Unsubscribe
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main generator function
 export function generateEmailCode(
   sections: Section[],
@@ -877,7 +1070,15 @@ export function generateEmailCode(
             </EmailSection>
           ))}
         </Container>
+        {/* Add footer */}
       </div>
+      <CustomFooter
+        footerData={footerData}
+        defaultFont={defaultFont}
+        emailBgColor={emailBgColor}
+        isInset={isInset}
+        isRounded={isRounded}
+      />
     </Html>
   );
 }
