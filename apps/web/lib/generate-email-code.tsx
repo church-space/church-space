@@ -364,7 +364,7 @@ const CustomCards: React.FC<{
           <div
             style={{
               fontFamily: defaultFont || "sans-serif",
-              fontSize: "24px",
+              fontSize: "30px",
               fontWeight: "bold",
               color: textColor,
               marginBottom: "8px",
@@ -402,7 +402,15 @@ const CustomCards: React.FC<{
             {row.map((card: any, colIndex: number) => {
               const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${card.image}`;
               return (
-                <td key={colIndex} style={{ width: "50%", padding: "8px" }}>
+                <td
+                  key={colIndex}
+                  style={{
+                    width: "50%",
+                    padding: "8px",
+                    paddingBottom: "45px",
+                    verticalAlign: "top",
+                  }}
+                >
                   <div style={{ maxWidth: "100%" }}>
                     {card.image && (
                       <Img
@@ -459,12 +467,16 @@ const CustomCards: React.FC<{
                             backgroundColor: buttonColor,
                             borderRadius: isRounded ? "6px" : "0",
                             color: buttonTextColor,
-                            display: "inline-block",
+                            display: "block",
                             fontFamily: defaultFont || "sans-serif",
                             fontSize: "14px",
                             fontWeight: "500",
                             padding: "8px 16px",
                             textDecoration: "none",
+                            textAlign: "center",
+                            textWrap: "balance",
+                            boxSizing: "border-box",
+                            width: "100%",
                           }}
                         >
                           {card.buttonText}
@@ -1060,6 +1072,7 @@ export function generateEmailCode(
                             {...(block.data as any)}
                             defaultFont={defaultFont}
                             isRounded={isRounded}
+                            textColor={defaultTextColor}
                           />
                         </div>
                       );

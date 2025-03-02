@@ -43,7 +43,7 @@ export default function CardsBlock({
 
   return (
     <div
-      className="flex flex-col gap-5 py-4"
+      className="flex flex-col gap-5 py-2"
       style={{ fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex flex-col">
@@ -64,9 +64,9 @@ export default function CardsBlock({
           </span>
         )}
       </div>
-      <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 gap-y-10">
+      <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 gap-y-14">
         {cards.map((card, index) => (
-          <div className="w-full flex flex-col gap-2" key={index}>
+          <div className="w-full flex flex-col gap-1" key={index}>
             {card.image && imageUrls[card.image] && (
               <Image
                 src={imageUrls[card.image]}
@@ -102,7 +102,7 @@ export default function CardsBlock({
             {card.buttonText && (
               <div
                 className={cn(
-                  "h-8 px-4 items-center flex justify-center text-sm font-medium border ",
+                  "min-h-8 px-4 items-center flex justify-center text-sm font-medium  mt-2 text-center text-balance py-1",
                   isRounded && "rounded-md"
                 )}
                 style={{
