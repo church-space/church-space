@@ -180,8 +180,8 @@ export default function AssetBrowserModal({
   onSelectAsset: (asset: Asset) => void;
   organizationId: string;
   type?: "image" | "any";
-  setIsUploadModalOpen: (open: boolean) => void;
-  handleDelete: (asset: Asset) => void;
+  setIsUploadModalOpen?: (open: boolean) => void;
+  handleDelete?: (asset: Asset) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -265,7 +265,7 @@ export default function AssetBrowserModal({
       setTotalCount((prev) => prev - 1);
 
       // Call external handler if provided
-      externalHandleDelete(asset);
+      externalHandleDelete?.(asset);
     } catch (error) {
       console.error("Failed to delete asset:", error);
       setError("Failed to delete asset. Please try again.");
@@ -322,15 +322,17 @@ export default function AssetBrowserModal({
                 Clear
               </Button>
             )}
-            <Button
-              variant="default"
-              className="h-[38px] px-3"
-              onClick={() => {
-                setIsUploadModalOpen(true);
-              }}
-            >
-              Upload
-            </Button>
+            {setIsUploadModalOpen && (
+              <Button
+                variant="default"
+                className="h-[38px] px-3"
+                onClick={() => {
+                  setIsUploadModalOpen(true);
+                }}
+              >
+                Upload
+              </Button>
+            )}
           </div>
 
           {/* Loading state */}

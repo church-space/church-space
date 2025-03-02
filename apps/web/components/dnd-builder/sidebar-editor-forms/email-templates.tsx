@@ -57,6 +57,7 @@ export default function EmailTemplateForm({
                   buttonClassName="h-8 py-0 px-2.5"
                   onSelectAsset={() => {}}
                   organizationId={"213"}
+                  handleDelete={() => {}}
                 />
               </TooltipTrigger>
               <TooltipContent>Browse premade templates</TooltipContent>
