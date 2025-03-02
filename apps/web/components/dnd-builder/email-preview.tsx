@@ -11,6 +11,7 @@ import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { useParams } from "next/navigation";
 import { Block as BlockType, BlockData } from "@/types/blocks";
 import { useEffect, useState } from "react";
+import { Battery, Signal, Wifi } from "@church-space/ui/icons";
 
 export default function EmailPreview() {
   const [previewType, setPreviewType] = useQueryState("previewType");
@@ -75,11 +76,14 @@ export default function EmailPreview() {
           />
         </div>
       </TabsContent>
-      <TabsContent value="mobile" className="overflow-auto h-[95%] ">
-        <div className="flex flex-col gap-4 mx-auto max-w-sm w-full h-full items-start">
+      <TabsContent
+        value="mobile"
+        className="overflow-auto h-[95%] items-center justify-center flex"
+      >
+        <div className="mx-auto max-w-sm items-start w-full min-h-[200px] max-h-[800px] h-full  border-8 border-black rounded-[45px] shadow-lg">
           <iframe
             srcDoc={htmlContent}
-            className="w-full h-full border-0"
+            className="w-full h-full border-0 rounded-[36px] "
             title="Email Preview Mobile"
           />
         </div>

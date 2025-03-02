@@ -1477,3 +1477,152 @@ export function TemplatesIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function Battery({
+  fill = "currentColor",
+  secondaryfill = "currentColor",
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M13.75 4.25H3.75C2.64543 4.25 1.75 5.14543 1.75 6.25V11.75C1.75 12.8546 2.64543 13.75 3.75 13.75H13.75C14.8546 13.75 15.75 12.8546 15.75 11.75V6.25C15.75 5.14543 14.8546 4.25 13.75 4.25Z"
+          fill={secondaryfill}
+          stroke="none"
+        />
+        <path
+          d="M13.75 4.25H3.75C2.64543 4.25 1.75 5.14543 1.75 6.25V11.75C1.75 12.8546 2.64543 13.75 3.75 13.75H13.75C14.8546 13.75 15.75 12.8546 15.75 11.75V6.25C15.75 5.14543 14.8546 4.25 13.75 4.25Z"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M17.25 7.75H15.75V10.25H17.25V7.75Z"
+          fill={fill}
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Wifi({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M10.061,14.47c-.192,0-.384-.073-.531-.22-.282-.283-.777-.283-1.06,0-.293,.293-.768,.292-1.061,0-.293-.293-.293-.768,0-1.061,.85-.85,2.333-.85,3.183,0,.292,.293,.292,.768,0,1.061-.146,.146-.338,.219-.53,.219Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M12.182,12.348c-.192,0-.384-.073-.53-.22-1.462-1.462-3.842-1.462-5.304,0-.293,.293-.768,.293-1.061,0s-.293-.768,0-1.061c2.047-2.047,5.378-2.047,7.425,0,.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
+          fill={fill}
+        />
+        <path
+          d="M14.303,10.227c-.192,0-.384-.073-.53-.22-2.632-2.632-6.914-2.632-9.546,0-.293,.293-.768,.293-1.061,0s-.293-.768,0-1.061c3.217-3.217,8.45-3.217,11.667,0,.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M16.425,8.105c-.192,0-.384-.073-.53-.22-3.802-3.801-9.987-3.801-13.789,0-.293,.293-.768,.293-1.061,0s-.293-.768,0-1.061c4.387-4.386,11.523-4.386,15.91,0,.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
+          fill={fill}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Signal({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M2.75 12.75V14.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M5.75 10.25V14.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M9 7.75V14.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M12.25 5.25V14.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M15.25 2.75V14.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}

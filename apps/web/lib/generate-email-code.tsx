@@ -6,6 +6,7 @@ import {
   Hr,
   Html,
   Img,
+  Body,
 } from "@react-email/components";
 import * as React from "react";
 import {
@@ -1021,14 +1022,16 @@ export function generateEmailCode(
 
   const containerStyle = {
     backgroundColor: isInset ? emailBgColor : bgColor,
-    padding: isInset ? "18px 5px" : "18px",
+    padding: isInset ? "0" : "0",
+    margin: "0",
   };
 
   const contentStyle = {
     backgroundColor: isInset ? bgColor : undefined,
-    padding: isInset ? "0px 20px" : undefined,
+    padding: isInset ? "20px" : "20px",
     borderRadius: isInset && isRounded ? "12px" : undefined,
     maxWidth: "672px",
+    margin: "0 auto",
   };
 
   return (
@@ -1036,121 +1039,122 @@ export function generateEmailCode(
       <Head>
         <title>Email Preview</title>
       </Head>
-      <div style={containerStyle}>
-        <Container style={contentStyle}>
-          {sections.map((section, sectionIndex) => (
-            <EmailSection key={sectionIndex}>
-              {section.blocks.map((block, blockIndex) => {
-                const blockStyle = { margin: "20px 0" };
-                const Component = (() => {
-                  switch (block.type) {
-                    case "text":
-                      const textData = block.data as TextBlockData;
-                      return (
-                        <div style={blockStyle}>
-                          <CustomText
-                            content={textData?.content || ""}
-                            font={textData?.font}
-                            textColor={textData?.textColor}
-                            defaultFont={defaultFont}
-                            defaultTextColor={defaultTextColor}
-                            linkColor={linkColor}
-                          />
-                        </div>
-                      );
-                    case "button":
-                      return (
-                        <div style={blockStyle}>
-                          <CustomButton
-                            {...(block.data as any)}
-                            isRounded={isRounded}
-                            defaultFont={defaultFont}
-                          />
-                        </div>
-                      );
-                    case "divider":
-                      return (
-                        <div style={blockStyle}>
-                          <CustomDivider {...(block.data as any)} />
-                        </div>
-                      );
-                    case "image":
-                      return (
-                        <div style={blockStyle}>
-                          <CustomImage
-                            {...(block.data as any)}
-                            isRounded={isRounded}
-                          />
-                        </div>
-                      );
-                    case "file-download":
-                      return (
-                        <div style={blockStyle}>
-                          <CustomFileDownload
-                            {...(block.data as any)}
-                            defaultFont={defaultFont}
-                            isRounded={isRounded}
-                          />
-                        </div>
-                      );
-                    case "video":
-                      return (
-                        <div style={blockStyle}>
-                          <CustomVideo
-                            {...(block.data as any)}
-                            isRounded={isRounded}
-                          />
-                        </div>
-                      );
-                    case "cards":
-                      return (
-                        <div style={blockStyle}>
-                          <CustomCards
-                            {...(block.data as any)}
-                            defaultFont={defaultFont}
-                            isRounded={isRounded}
-                            textColor={defaultTextColor}
-                          />
-                        </div>
-                      );
-                    case "list":
-                      return (
-                        <div style={blockStyle}>
-                          <CustomList
-                            {...(block.data as any)}
-                            defaultFont={defaultFont}
-                            defaultTextColor={defaultTextColor}
-                          />
-                        </div>
-                      );
-                    case "author":
-                      return (
-                        <div style={blockStyle}>
-                          <CustomAuthor
-                            {...(block.data as any)}
-                            defaultFont={defaultFont}
-                            defaultTextColor={defaultTextColor}
-                          />
-                        </div>
-                      );
-                    default:
-                      return null;
-                  }
-                })();
-                return <div key={blockIndex}>{Component}</div>;
-              })}
-            </EmailSection>
-          ))}
-        </Container>
-        {/* Add footer */}
-      </div>
-      <CustomFooter
-        footerData={footerData}
-        defaultFont={defaultFont}
-        emailBgColor={emailBgColor}
-        isInset={isInset}
-        isRounded={isRounded}
-      />
+      <Body style={{ margin: 0, padding: 0 }}>
+        <div style={containerStyle}>
+          <Container style={contentStyle}>
+            {sections.map((section, sectionIndex) => (
+              <EmailSection key={sectionIndex}>
+                {section.blocks.map((block, blockIndex) => {
+                  const blockStyle = { margin: "20px 0" };
+                  const Component = (() => {
+                    switch (block.type) {
+                      case "text":
+                        const textData = block.data as TextBlockData;
+                        return (
+                          <div style={blockStyle}>
+                            <CustomText
+                              content={textData?.content || ""}
+                              font={textData?.font}
+                              textColor={textData?.textColor}
+                              defaultFont={defaultFont}
+                              defaultTextColor={defaultTextColor}
+                              linkColor={linkColor}
+                            />
+                          </div>
+                        );
+                      case "button":
+                        return (
+                          <div style={blockStyle}>
+                            <CustomButton
+                              {...(block.data as any)}
+                              isRounded={isRounded}
+                              defaultFont={defaultFont}
+                            />
+                          </div>
+                        );
+                      case "divider":
+                        return (
+                          <div style={blockStyle}>
+                            <CustomDivider {...(block.data as any)} />
+                          </div>
+                        );
+                      case "image":
+                        return (
+                          <div style={blockStyle}>
+                            <CustomImage
+                              {...(block.data as any)}
+                              isRounded={isRounded}
+                            />
+                          </div>
+                        );
+                      case "file-download":
+                        return (
+                          <div style={blockStyle}>
+                            <CustomFileDownload
+                              {...(block.data as any)}
+                              defaultFont={defaultFont}
+                              isRounded={isRounded}
+                            />
+                          </div>
+                        );
+                      case "video":
+                        return (
+                          <div style={blockStyle}>
+                            <CustomVideo
+                              {...(block.data as any)}
+                              isRounded={isRounded}
+                            />
+                          </div>
+                        );
+                      case "cards":
+                        return (
+                          <div style={blockStyle}>
+                            <CustomCards
+                              {...(block.data as any)}
+                              defaultFont={defaultFont}
+                              isRounded={isRounded}
+                              textColor={defaultTextColor}
+                            />
+                          </div>
+                        );
+                      case "list":
+                        return (
+                          <div style={blockStyle}>
+                            <CustomList
+                              {...(block.data as any)}
+                              defaultFont={defaultFont}
+                              defaultTextColor={defaultTextColor}
+                            />
+                          </div>
+                        );
+                      case "author":
+                        return (
+                          <div style={blockStyle}>
+                            <CustomAuthor
+                              {...(block.data as any)}
+                              defaultFont={defaultFont}
+                              defaultTextColor={defaultTextColor}
+                            />
+                          </div>
+                        );
+                      default:
+                        return null;
+                    }
+                  })();
+                  return <div key={blockIndex}>{Component}</div>;
+                })}
+              </EmailSection>
+            ))}
+          </Container>
+        </div>
+        <CustomFooter
+          footerData={footerData}
+          defaultFont={defaultFont}
+          emailBgColor={emailBgColor}
+          isInset={isInset}
+          isRounded={isRounded}
+        />
+      </Body>
     </Html>
   );
 }
