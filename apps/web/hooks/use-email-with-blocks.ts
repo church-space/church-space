@@ -26,7 +26,8 @@ export function useEmailWithBlocks(emailId: number | undefined) {
           bg_color,
           organization_id,
           type,
-          is_rounded
+          is_rounded,
+          link_color
         `
         )
         .eq("id", emailId)

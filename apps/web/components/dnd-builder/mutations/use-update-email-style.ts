@@ -10,6 +10,7 @@ interface UpdateEmailStyleParams {
     is_inset?: boolean;
     bg_color?: string;
     is_rounded?: boolean;
+    link_color?: string;
   };
 }
 

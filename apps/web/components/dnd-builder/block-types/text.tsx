@@ -8,6 +8,7 @@ interface TextBlockProps {
   onContentChange?: (content: string) => void;
   font?: string;
   textColor?: string;
+  linkColor?: string;
 }
 
 const TextBlock = ({
@@ -15,9 +16,11 @@ const TextBlock = ({
   onContentChange,
   font,
   textColor,
+  linkColor,
 }: TextBlockProps) => {
   const prevFontRef = useRef(font);
   const prevTextColorRef = useRef(textColor);
+  const prevLinkColorRef = useRef(linkColor);
 
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
@@ -53,7 +56,13 @@ const TextBlock = ({
       editor.commands.setColor(textColor);
       prevTextColorRef.current = textColor;
     }
-  }, [editor, font, textColor]);
+
+    if (linkColor && linkColor !== prevLinkColorRef.current) {
+      // Set link color using CSS custom property
+      editor.view.dom.style.setProperty("--link-color", linkColor);
+      prevLinkColorRef.current = linkColor;
+    }
+  }, [editor, font, textColor, linkColor]);
 
   if (!editor) {
     return <div className=" text-muted-foreground">Loading editor...</div>;
@@ -70,11 +79,19 @@ const TextBlock = ({
   return (
     <div
       className="relative prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none"
-      style={{
-        fontFamily: font,
-        color: textColor,
-      }}
+      style={
+        {
+          fontFamily: font,
+          color: textColor,
+          "--link-color": linkColor,
+        } as React.CSSProperties
+      }
     >
+      <style>{`
+        .ProseMirror a {
+          color: var(--link-color) !important;
+        }
+      `}</style>
       <EditorContent editor={editor} />
     </div>
   );

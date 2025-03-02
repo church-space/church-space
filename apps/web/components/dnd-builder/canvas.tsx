@@ -34,6 +34,7 @@ interface CanvasProps {
   footerData?: any;
   defaultFont?: string;
   defaultTextColor?: string;
+  linkColor?: string;
 }
 
 export default function DndBuilderCanvas({
@@ -51,6 +52,7 @@ export default function DndBuilderCanvas({
   footerData,
   defaultFont,
   defaultTextColor,
+  linkColor,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -114,6 +116,7 @@ export default function DndBuilderCanvas({
         defaultFont={defaultFont}
         defaultTextColor={defaultTextColor}
         isRounded={isRounded}
+        linkColor={linkColor}
       />
     );
   };

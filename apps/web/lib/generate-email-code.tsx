@@ -29,6 +29,7 @@ interface EmailStyle {
   emailBgColor?: string;
   defaultTextColor?: string;
   defaultFont?: string;
+  linkColor?: string;
 }
 
 // Custom components for email blocks
@@ -38,7 +39,15 @@ const CustomText: React.FC<{
   textColor?: string;
   defaultFont?: string;
   defaultTextColor?: string;
-}> = ({ content, font, textColor, defaultFont, defaultTextColor }) => {
+  linkColor?: string;
+}> = ({
+  content,
+  font,
+  textColor,
+  defaultFont,
+  defaultTextColor,
+  linkColor,
+}) => {
   // Parse HTML content and convert to React Email components
   const sanitizedContent = content
     .replace(/class="[^"]*"/g, "")
@@ -53,6 +62,14 @@ const CustomText: React.FC<{
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
       return `<p style="${baseStyle}"`;
+    })
+    // Style links with the specified linkColor
+    .replace(/<a(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      const baseStyle = `color: ${linkColor || "#0000ff"}; text-decoration: underline`;
+      if (existingStyle) {
+        return `<a style="${existingStyle}; ${baseStyle}"`;
+      }
+      return `<a style="${baseStyle}"`;
     })
     // Handle empty paragraphs for line breaks
     .replace(/<p style="[^"]*"><\/p>/g, '<div style="height: 1.6em"></div>');
@@ -736,6 +753,7 @@ export function generateEmailCode(
     emailBgColor = "#eeeeee",
     defaultTextColor = "#000000",
     defaultFont = "sans-serif",
+    linkColor = "#0000ff",
   } = style;
 
   const containerStyle = {
@@ -773,6 +791,7 @@ export function generateEmailCode(
                             textColor={textData?.textColor}
                             defaultFont={defaultFont}
                             defaultTextColor={defaultTextColor}
+                            linkColor={linkColor}
                           />
                         </div>
                       );

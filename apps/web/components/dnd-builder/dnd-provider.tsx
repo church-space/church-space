@@ -122,6 +122,7 @@ export default function DndProvider() {
     bgColor: emailData?.email?.blocks_bg_color || "#f4f4f5",
     isInset: emailData?.email?.is_inset || false,
     emailBgColor: emailData?.email?.bg_color || "#ffffff",
+    linkColor: emailData?.email?.link_color || "#0000ff",
     defaultTextColor: emailData?.email?.default_text_color || "#000000",
     defaultFont: emailData?.email?.default_font || "Inter",
     isRounded: emailData?.email?.is_rounded ?? true,
@@ -251,6 +252,20 @@ export default function DndProvider() {
           updates: {
             bg_color: color,
           },
+        });
+      }
+    },
+    [emailId, updateEmailStyle, updateStyles]
+  );
+
+  const handleLinkColorChange = useCallback(
+    (color: string) => {
+      updateStyles({ linkColor: color });
+
+      if (emailId) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates: { link_color: color },
         });
       }
     },
@@ -1351,6 +1366,7 @@ export default function DndProvider() {
           is_inset: styles.isInset,
           is_rounded: styles.isRounded,
           bg_color: styles.emailBgColor,
+          link_color: styles.linkColor,
         },
       });
 
@@ -1449,6 +1465,7 @@ export default function DndProvider() {
     styles.isInset,
     styles.isRounded,
     styles.emailBgColor,
+    styles.linkColor,
     blocks,
     queryClient,
     router,
@@ -1506,6 +1523,11 @@ export default function DndProvider() {
         previousState.styles.emailBgColor !== currentState.styles.emailBgColor
       ) {
         styleChanges.bg_color = previousState.styles.emailBgColor;
+        hasStyleChanges = true;
+      }
+
+      if (previousState.styles.linkColor !== currentState.styles.linkColor) {
+        styleChanges.link_color = previousState.styles.linkColor;
         hasStyleChanges = true;
       }
 
@@ -1655,6 +1677,11 @@ export default function DndProvider() {
 
       if (nextState.styles.emailBgColor !== currentState.styles.emailBgColor) {
         styleChanges.bg_color = nextState.styles.emailBgColor;
+        hasStyleChanges = true;
+      }
+
+      if (nextState.styles.linkColor !== currentState.styles.linkColor) {
+        styleChanges.link_color = nextState.styles.linkColor;
         hasStyleChanges = true;
       }
 
@@ -2045,6 +2072,8 @@ export default function DndProvider() {
             setActiveForm={setActiveForm}
             emailId={emailId}
             footerData={emailData?.footer || null}
+            linkColor={styles.linkColor}
+            onLinkColorChange={handleLinkColorChange}
           />
           <div className="flex-1 relative">
             <AnimatePresence>
@@ -2081,6 +2110,7 @@ export default function DndProvider() {
                 footerData={emailData?.footer || null}
                 defaultFont={styles.defaultFont}
                 defaultTextColor={styles.defaultTextColor}
+                linkColor={styles.linkColor}
               />
             </SortableContext>
           </div>

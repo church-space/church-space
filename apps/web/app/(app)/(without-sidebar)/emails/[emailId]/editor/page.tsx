@@ -35,7 +35,8 @@ export default async function Page(props: { params: Params }) {
           is_inset,
           organization_id,
           type, 
-          is_rounded
+          is_rounded,
+          link_color
         `
         )
         .eq("id", emailId)

@@ -14,6 +14,8 @@ interface TextFormProps {
   onDefaultTextColorChange?: (color: string) => void;
   defaultFont?: string;
   onDefaultFontChange?: (font: string) => void;
+  linkColor?: string;
+  onLinkColorChange?: (color: string) => void;
 }
 
 export default function TextForm({
@@ -21,6 +23,8 @@ export default function TextForm({
   onDefaultTextColorChange,
   defaultFont = "sans-serif",
   onDefaultFontChange,
+  linkColor = "#0000ff",
+  onLinkColorChange,
 }: TextFormProps) {
   return (
     <div className="flex flex-col gap-10 px-2">
@@ -34,6 +38,14 @@ export default function TextForm({
           <ColorPicker
             value={defaultTextColor}
             onChange={(color) => onDefaultTextColorChange?.(color)}
+          />
+        </div>
+        <div className="grid grid-cols-3 items-center gap-2">
+          <Label className="font-medium">Link Color</Label>
+
+          <ColorPicker
+            value={linkColor}
+            onChange={(color) => onLinkColorChange?.(color)}
           />
         </div>
 

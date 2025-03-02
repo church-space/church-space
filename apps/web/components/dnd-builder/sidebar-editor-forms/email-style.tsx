@@ -22,6 +22,8 @@ interface EmailStyleFormProps {
   onDefaultTextColorChange?: (color: string) => void;
   defaultFont?: string;
   onDefaultFontChange?: (font: string) => void;
+  linkColor?: string;
+  onLinkColorChange?: (color: string) => void;
 }
 
 export default function EmailStyleForm({
@@ -37,6 +39,8 @@ export default function EmailStyleForm({
   onDefaultTextColorChange,
   defaultFont = "sans-serif",
   onDefaultFontChange,
+  linkColor = "#0000ff",
+  onLinkColorChange,
 }: EmailStyleFormProps) {
   return (
     <div className="flex flex-col gap-4 pr-1">
@@ -76,6 +80,14 @@ export default function EmailStyleForm({
         <ColorPicker
           value={defaultTextColor}
           onChange={(color) => onDefaultTextColorChange?.(color)}
+        />
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Link Color</Label>
+
+        <ColorPicker
+          value={linkColor}
+          onChange={(color) => onLinkColorChange?.(color)}
         />
       </div>
 

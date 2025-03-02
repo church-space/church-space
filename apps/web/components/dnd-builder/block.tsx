@@ -26,6 +26,7 @@ interface BlockProps {
   defaultFont?: string;
   defaultTextColor?: string;
   isRounded?: boolean;
+  linkColor?: string;
 }
 
 export default function Block({
@@ -41,6 +42,7 @@ export default function Block({
   defaultFont,
   defaultTextColor,
   isRounded,
+  linkColor,
 }: BlockProps) {
   // Add state to track if the editor is focused
   const [isEditorFocused, setIsEditorFocused] = useState(false);
@@ -97,6 +99,7 @@ export default function Block({
             }}
             font={block.data?.font}
             textColor={block.data?.textColor}
+            linkColor={linkColor}
           />
         );
       case "divider":

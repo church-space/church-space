@@ -9,6 +9,7 @@ export interface EmailStyles {
   defaultTextColor: string;
   defaultFont: string;
   isRounded: boolean;
+  linkColor: string;
 }
 
 interface BlockStateHistory {
@@ -35,6 +36,7 @@ export function useBlockStateManager(
     defaultTextColor: "#000000",
     defaultFont: "sans-serif",
     isRounded: true,
+    linkColor: "#0000ff",
   }
 ) {
   const [history, setHistory] = useState<BlockStateHistory>({

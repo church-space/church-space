@@ -61,6 +61,8 @@ interface DndBuilderSidebarProps {
   onIsInsetChange?: (isInset: boolean) => void;
   isRounded?: boolean;
   onIsRoundedChange?: (isRounded: boolean) => void;
+  linkColor?: string;
+  onLinkColorChange?: (color: string) => void;
   emailBgColor?: string;
   onEmailBgColorChange?: (color: string) => void;
   activeForm:
@@ -171,6 +173,8 @@ export default function DndBuilderSidebar({
   setActiveForm,
   emailId,
   footerData,
+  linkColor,
+  onLinkColorChange,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
 
@@ -248,6 +252,8 @@ export default function DndBuilderSidebar({
                   footerData={footerData}
                   isRounded={isRounded}
                   onIsRoundedChange={onIsRoundedChange}
+                  linkColor={linkColor}
+                  onLinkColorChange={onLinkColorChange}
                 />
               </motion.div>
             ) : (

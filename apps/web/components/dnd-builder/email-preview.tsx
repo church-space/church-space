@@ -43,6 +43,7 @@ export default function EmailPreview() {
     defaultTextColor: emailData?.email?.default_text_color || "#000000",
     defaultFont: emailData?.email?.default_font || "Inter",
     isRounded: emailData?.email?.is_rounded ?? true,
+    linkColor: emailData?.email?.link_color || "#0000ff",
   };
 
   useEffect(() => {

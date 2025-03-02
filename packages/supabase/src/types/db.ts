@@ -254,6 +254,7 @@ export type Database = {
           id: number
           is_inset: boolean
           is_rounded: boolean
+          link_color: string | null
           list_id: number | null
           organization_id: string
           reply_to: string | null
@@ -276,6 +277,7 @@ export type Database = {
           id?: number
           is_inset?: boolean
           is_rounded?: boolean
+          link_color?: string | null
           list_id?: number | null
           organization_id: string
           reply_to?: string | null
@@ -298,6 +300,7 @@ export type Database = {
           id?: number
           is_inset?: boolean
           is_rounded?: boolean
+          link_color?: string | null
           list_id?: number | null
           organization_id?: string
           reply_to?: string | null
