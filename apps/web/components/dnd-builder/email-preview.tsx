@@ -1,17 +1,16 @@
+import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
+import { generateEmailCode } from "@/lib/generate-email-code";
+import { BlockData, Block as BlockType } from "@/types/blocks";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@church-space/ui/tabs";
-import { useQueryState } from "nuqs";
 import { render } from "@react-email/render";
-import { generateEmailCode } from "@/lib/generate-email-code";
-import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { useParams } from "next/navigation";
-import { Block as BlockType, BlockData } from "@/types/blocks";
+import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
-import { Battery, Signal, Wifi } from "@church-space/ui/icons";
 
 export default function EmailPreview() {
   const [previewType, setPreviewType] = useQueryState("previewType");
@@ -80,7 +79,7 @@ export default function EmailPreview() {
         value="mobile"
         className="overflow-auto h-[95%] items-center justify-center flex"
       >
-        <div className="mx-auto max-w-sm items-start w-full min-h-[200px] max-h-[800px] h-full  border-8 border-black rounded-[45px] shadow-lg">
+        <div className="mx-auto max-w-sm items-start w-full min-h-[200px] max-h-[800px] h-full  border-8 border-black dark:border-muted rounded-[45px] shadow-lg ">
           <iframe
             srcDoc={htmlContent}
             className="w-full h-full border-0 rounded-[36px] "

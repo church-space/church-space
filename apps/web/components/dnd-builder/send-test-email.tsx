@@ -84,6 +84,7 @@ export default function SendTestEmail() {
         .replace(
           "<head>",
           `<head>
+          <meta name="color-scheme" content="only">
           <!--[if gte mso 9]>
           <xml>
             <o:OfficeDocumentSettings>
