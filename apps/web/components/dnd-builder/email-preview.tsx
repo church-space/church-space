@@ -75,7 +75,7 @@ export default function EmailPreview() {
           />
         </div>
       </TabsContent>
-      <TabsContent value="mobile" className="overflow-auto h-[95%]">
+      <TabsContent value="mobile" className="overflow-auto h-[95%] ">
         <div className="flex flex-col gap-4 mx-auto max-w-sm w-full h-full items-start">
           <iframe
             srcDoc={htmlContent}

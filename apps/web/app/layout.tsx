@@ -6,7 +6,7 @@ import { Toaster } from "@church-space/ui/toaster";
 import { TooltipProvider } from "@church-space/ui/tooltip";
 import { ReactQueryProvider } from "../components/providers/react-query";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-
+import { ThemeProvider } from "../components/providers/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       {/* <head>
         <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
       </head>
@@ -28,7 +28,9 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased`}>
         <ReactQueryProvider>
           <TooltipProvider delayDuration={300}>
-            <NuqsAdapter>{children}</NuqsAdapter>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <NuqsAdapter>{children}</NuqsAdapter>
+            </ThemeProvider>
           </TooltipProvider>
         </ReactQueryProvider>
         <Toaster />
