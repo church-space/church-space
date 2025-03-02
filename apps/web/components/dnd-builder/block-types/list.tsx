@@ -53,17 +53,18 @@ export default function ListBlock({
             <div
               className={cn(
                 "h-8 w-8 flex-shrink-0 rounded-full flex items-center justify-center font-medium text-lg",
-                bulletType === "bullet" ? "text-4xl h-6 pt-2 w-6" : ""
+                bulletType === "bullet" ? "text-4xl h-6 pt-2 w-6" : "",
+                bulletType === "number" && item.description ? "mt-1" : "-mt-0.5"
               )}
               style={{
                 backgroundColor:
                   bulletType === "number" ? bulletColor : "transparent",
-                color: bulletType === "number" ? "#FFFFFF" : bulletColor,
+                color: bulletType === "number" ? "#FFFFFF" : defaultTextColor,
               }}
             >
               {bulletType === "number" ? index + 1 : "•"}
             </div>
-            <div className="flex flex-col pt-0.5">
+            <div className="flex flex-col">
               <p
                 className="font-semibold text-lg"
                 style={{ color: defaultTextColor }}

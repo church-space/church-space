@@ -493,6 +493,7 @@ const CustomList: React.FC<{
     description: string;
   }>;
   defaultFont?: string;
+  defaultTextColor?: string;
 }> = ({
   title,
   subtitle,
@@ -501,15 +502,17 @@ const CustomList: React.FC<{
   bulletType,
   items,
   defaultFont,
+  defaultTextColor,
 }) => (
-  <div style={{ padding: "32px 0" }}>
-    <div style={{ marginBottom: "24px" }}>
+  <div style={{ padding: "10px 0", paddingRight: "12px" }}>
+    <div style={{ marginBottom: "4px" }}>
       <div
         style={{
           fontFamily: defaultFont || "sans-serif",
-          fontSize: "20px",
-          fontWeight: "bold",
-          color: textColor,
+          fontSize: "1.5rem",
+          fontWeight: "800",
+          color: defaultTextColor || textColor,
+          lineHeight: "1.5",
         }}
       >
         {title}
@@ -517,9 +520,10 @@ const CustomList: React.FC<{
       <div
         style={{
           fontFamily: defaultFont || "sans-serif",
-          fontSize: "14px",
-          color: textColor,
+          fontSize: "1rem",
+          color: defaultTextColor || textColor,
           opacity: 0.8,
+          lineHeight: "1.5",
         }}
       >
         {subtitle}
@@ -528,24 +532,39 @@ const CustomList: React.FC<{
     <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
       {items.map((item, index) => (
         <tr key={index}>
-          <td style={{ padding: "16px 0", verticalAlign: "top" }}>
+          <td
+            style={{
+              padding: bulletType === "number" ? "10px 0" : "8px 0",
+              verticalAlign: "top",
+            }}
+          >
             <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
               <tr>
-                <td style={{ width: "40px", verticalAlign: "top" }}>
+                <td
+                  style={{
+                    width: bulletType === "number" ? "48px" : "24px",
+                    verticalAlign: "top",
+                  }}
+                >
                   <div
                     style={{
                       width: bulletType === "number" ? "32px" : "24px",
-                      height: bulletType === "number" ? "32px" : "24px",
+                      height: bulletType === "number" ? "32px" : "21px",
                       backgroundColor:
                         bulletType === "number" ? bulletColor : "transparent",
                       borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: bulletType === "number" ? "#FFFFFF" : bulletColor,
+                      color:
+                        bulletType === "number" ? "#FFFFFF" : defaultTextColor,
                       fontFamily: defaultFont || "sans-serif",
-                      fontSize: bulletType === "number" ? "18px" : "24px",
+                      fontSize: bulletType === "number" ? "18px" : "36px",
                       fontWeight: "500",
+                      paddingTop:
+                        bulletType !== "number" && !item.description
+                          ? "3px"
+                          : "0px",
                     }}
                   >
                     {bulletType === "number" ? index + 1 : "•"}
@@ -556,9 +575,10 @@ const CustomList: React.FC<{
                     style={{
                       fontFamily: defaultFont || "sans-serif",
                       fontSize: "18px",
-                      fontWeight: "500",
-                      color: textColor,
+                      fontWeight: "600",
+                      color: defaultTextColor || textColor,
                       marginBottom: "4px",
+                      marginTop: item.description ? "0px" : "3px",
                     }}
                   >
                     {item.title}
@@ -567,8 +587,9 @@ const CustomList: React.FC<{
                     style={{
                       fontFamily: defaultFont || "sans-serif",
                       fontSize: "14px",
-                      color: textColor,
+                      color: defaultTextColor || textColor,
                       opacity: 0.8,
+                      lineHeight: "1.5",
                     }}
                   >
                     {item.description}
@@ -1048,6 +1069,7 @@ export function generateEmailCode(
                           <CustomList
                             {...(block.data as any)}
                             defaultFont={defaultFont}
+                            defaultTextColor={defaultTextColor}
                           />
                         </div>
                       );

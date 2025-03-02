@@ -117,16 +117,12 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             onChange={(e) => handleChange("title", e.target.value)}
           />
           <Label>Subtitle</Label>
-          <Input
+          <Textarea
             className="col-span-2"
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
-          <Label>Bullet Color</Label>
-          <ColorPicker
-            value={localState.textColor}
-            onChange={(color) => handleChange("bulletColor", color)}
-          />
+
           <Label>Bullet Type</Label>
           <Select
             value={localState.bulletType}
@@ -140,6 +136,15 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
               <SelectItem value="bullet">Bullet</SelectItem>
             </SelectContent>
           </Select>
+          {localState.bulletType === "number" && (
+            <>
+              <Label>Bullet Color</Label>
+              <ColorPicker
+                value={localState.bulletColor}
+                onChange={(color) => handleChange("bulletColor", color)}
+              />
+            </>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-4">
