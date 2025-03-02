@@ -1231,10 +1231,12 @@ export default function DndProvider() {
   useEffect(() => {
     if (selectedBlockId) {
       setActiveForm("block");
-    } else {
+    } else if (activeForm === "block") {
+      // Only reset to default if we're coming from block form
+      // This prevents resetting when clicking footer
       setActiveForm("default");
     }
-  }, [selectedBlockId]);
+  }, [selectedBlockId, activeForm]);
 
   const renderDragOverlay = () => {
     if (!activeId) return null;
