@@ -43,9 +43,9 @@ const CustomText: React.FC<{
   const sanitizedContent = content
     .replace(/class="[^"]*"/g, "")
     // Add more space above h1 and h2, reduce space below all headings, and set font weights
-    .replace(/<h1/g, '<h1 style="margin: 1.5em 0 0.5em 0; font-weight: 700"')
-    .replace(/<h2/g, '<h2 style="margin: 1.2em 0 0.5em 0; font-weight: 700"')
-    .replace(/<h3/g, '<h3 style="margin: 1em 0 0.5em 0; font-weight: 600"')
+    .replace(/<h1/g, '<h1 style="margin: 1em 0 0.2em 0; font-weight: 700"')
+    .replace(/<h2/g, '<h2 style="margin: 1em 0 0.2em 0; font-weight: 700"')
+    .replace(/<h3/g, '<h3 style="margin: 1em 0 0.2em 0; font-weight: 600"')
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle = "font-weight: 300; line-height: 1.6";

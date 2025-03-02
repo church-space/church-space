@@ -134,7 +134,7 @@
 .ProseMirror h1:first-child,
 .ProseMirror h2:first-child,
 .ProseMirror h3:first-child {
-  margin-top: 0.5em;
+  margin-top: 0.2em;
 }
 
 /* Style for the heading class added in the editor configuration */
@@ -170,4 +170,9 @@
   color: #adb5bd;
   pointer-events: none;
   height: 0;
+}
+
+/* TipTap editor styles */
+.ProseMirror strong {
+  font-weight: 700;
 }
