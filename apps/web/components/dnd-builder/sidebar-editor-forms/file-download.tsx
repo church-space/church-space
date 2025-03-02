@@ -1,7 +1,6 @@
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { useUser } from "@/stores/use-user";
-import FileUpload from "../file-upload";
 import type { Block, FileDownloadBlockData } from "@/types/blocks";
 import { useCallback, useState, useEffect, useRef } from "react";
 import debounce from "lodash/debounce";
@@ -76,11 +75,6 @@ export default function FileDownloadForm({
   if (!organizationId) {
     return null;
   }
-
-  const onFileRemove = () => {
-    // Update the file with an empty string
-    handleChange("file", "");
-  };
 
   return (
     <div className="flex flex-col gap-10 px-2">

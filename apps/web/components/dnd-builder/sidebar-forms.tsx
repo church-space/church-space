@@ -10,16 +10,6 @@ import {
   VideoBlockData,
 } from "@/types/blocks";
 import { Button } from "@church-space/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@church-space/ui/dialog";
 import { ChevronLeft } from "@church-space/ui/icons";
 import AuthorForm from "./sidebar-editor-forms/author";
 import ButtonForm from "./sidebar-editor-forms/buttons";
@@ -33,7 +23,6 @@ import ImageForm from "./sidebar-editor-forms/image";
 import ListForm from "./sidebar-editor-forms/list";
 import TextForm from "./sidebar-editor-forms/text";
 import VideoForm from "./sidebar-editor-forms/video";
-import { createClient } from "@church-space/supabase/client";
 
 export default function DndBuilderSidebarForms({
   selectedBlock,

@@ -41,11 +41,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import debounce from "lodash/debounce";
-import {
-  fetchEmailAssets,
-  type Asset,
-  getFileType,
-} from "./fetch-email-assets";
+import { fetchEmailAssets, type Asset } from "./fetch-email-assets";
 import { Skeleton } from "@church-space/ui/skeleton";
 import { useFileUpload } from "./use-file-upload";
 
