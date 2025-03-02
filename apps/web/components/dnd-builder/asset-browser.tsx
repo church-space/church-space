@@ -1,8 +1,6 @@
 "use client";
 
 import type React from "react";
-
-import { createClient } from "@church-space/supabase/client";
 import { Button } from "@church-space/ui/button";
 import { Card, CardFooter } from "@church-space/ui/card";
 import {
@@ -32,37 +30,12 @@ import {
 } from "@church-space/ui/select";
 import { FileIcon, FileTextIcon, ImageIcon, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
-
-interface Asset {
-  id: string;
-  title: string;
-  type: string;
-  imageUrl: string;
-  path: string;
-  created_at: string;
-}
-
-// Helper function to determine file type from extension
-const getFileType = (filename: string): string => {
-  const extension = filename.split(".").pop()?.toLowerCase() || "";
-
-  const imageExtensions = ["jpg", "jpeg", "png", "gif", "svg", "webp"];
-  const documentExtensions = [
-    "pdf",
-    "doc",
-    "docx",
-    "xls",
-    "xlsx",
-    "ppt",
-    "pptx",
-    "txt",
-  ];
-
-  if (imageExtensions.includes(extension)) return "image";
-  if (documentExtensions.includes(extension)) return "document";
-
-  return "other";
-};
+import {
+  fetchEmailAssets,
+  type Asset,
+  getFileType,
+} from "./fetch-email-assets";
+import { Skeleton } from "@church-space/ui/skeleton";
 
 // Helper function to get icon based on file type
 const FileTypeIcon = ({ type }: { type: string }) => {
@@ -97,107 +70,31 @@ export default function AssetBrowserModal({
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
 
-  const supabase = createClient();
   const itemsPerPage = 6;
 
-  // Fetch assets from Supabase
-  const fetchAssets = async () => {
-    if (!organizationId) return;
-
+  // Fetch assets
+  const loadAssets = async () => {
     setLoading(true);
     setError(null);
 
-    try {
-      const sanitizedOrgId = organizationId.replace(/\s+/g, "");
-      const path = `unsent/${sanitizedOrgId}`;
+    const result = await fetchEmailAssets({
+      organizationId,
+      currentPage,
+      itemsPerPage,
+      searchQuery,
+      selectedType,
+      type,
+    });
 
-      // First, get the total count of files to properly handle pagination
-      const { data: allFiles, error: countError } = await supabase.storage
-        .from("email_assets")
-        .list(path);
-
-      if (countError) {
-        throw countError;
-      }
-
-      // Filter by type and search query
-      let filteredFiles = allFiles || [];
-
-      // Filter by type if needed
-      if (type === "image") {
-        const imageExtensions = ["jpg", "jpeg", "png", "gif", "svg", "webp"];
-        filteredFiles = filteredFiles.filter((file) => {
-          const extension = file.name.split(".").pop()?.toLowerCase() || "";
-          return imageExtensions.includes(extension);
-        });
-      }
-
-      // Filter by search query if provided
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        filteredFiles = filteredFiles.filter((file) =>
-          file.name.toLowerCase().includes(query)
-        );
-      }
-
-      // Sort by newest first (using created_at)
-      filteredFiles.sort((a, b) => {
-        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-        return dateB - dateA;
-      });
-
-      // Set total count for pagination
-      setTotalCount(filteredFiles.length);
-
-      // Calculate pagination parameters
-      const from = (currentPage - 1) * itemsPerPage;
-      const to = Math.min(from + itemsPerPage, filteredFiles.length);
-
-      // Get the paginated subset
-      const paginatedFiles = filteredFiles.slice(from, to);
-
-      // Get public URLs for each file
-      const assetsWithUrls = await Promise.all(
-        paginatedFiles.map(async (file) => {
-          const filePath = `${path}/${file.name}`;
-          const fileType = getFileType(file.name);
-
-          // Get the public URL
-          const { data: publicUrlData } = await supabase.storage
-            .from("email_assets")
-            .getPublicUrl(filePath);
-
-          // For images, we'll use the direct URL without transformations
-          // as the transformations might be causing display issues
-          const imageUrl = publicUrlData.publicUrl;
-
-          // Extract the original filename without timestamp
-          const filenameWithoutTimestamp = file.name.split("_")[0] || file.name;
-
-          return {
-            id: file.id,
-            title: filenameWithoutTimestamp,
-            type: fileType,
-            imageUrl: imageUrl,
-            path: filePath,
-            created_at: file.created_at || new Date().toISOString(),
-          };
-        })
-      );
-
-      setAssets(assetsWithUrls);
-    } catch (err) {
-      console.error("Error fetching assets:", err);
-      setError("Failed to load assets. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    setAssets(result.assets);
+    setTotalCount(result.totalCount);
+    setError(result.error);
+    setLoading(false);
   };
 
   // Fetch assets when the modal opens, organizationId changes, or search/page changes
   useEffect(() => {
-    fetchAssets();
+    loadAssets();
   }, [organizationId, currentPage, searchQuery, selectedType]);
 
   // Reset to first page when filters change
@@ -227,14 +124,14 @@ export default function AssetBrowserModal({
           {triggerText}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[900px] max-h-[620px] h-full overflow-y-auto top-20 translate-y-0 justify-start flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Asset Library</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4 h-flex-1">
           {/* Search and filter controls */}
-          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <div className="flex flex-col sm:flex-row gap-1.5 items-start sm:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -255,7 +152,6 @@ export default function AssetBrowserModal({
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="image">Images</SelectItem>
                   <SelectItem value="document">Documents</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -265,9 +161,9 @@ export default function AssetBrowserModal({
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="h-10"
+                className="h-9 px-2 text-orange-600"
               >
-                <X className="h-4 w-4 mr-2" />
+                <X className="h-4 w-4 " />
                 Clear
               </Button>
             )}
@@ -275,12 +171,21 @@ export default function AssetBrowserModal({
 
           {/* Loading state */}
           {loading && (
-            <div className="flex justify-center items-center py-12">
-              <div className="flex flex-col items-center gap-2">
-                <div className="animate-spin">
-                  <LoaderIcon height="44" width="44" />
-                </div>
-                <span className="text-sm">Loading assets...</span>
+            <div className="flex justify-center items-center ">
+              <div className="w-full min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <Card
+                    key={index}
+                    className="w-full overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <Skeleton className="w-full aspect-video rounded-b-none relative">
+                      <div className="absolute top-2 right-2 h-6 w-12 bg-primary text-primary-foreground text-xs px-2 py-1 animate-pulse rounded-md"></div>
+                    </Skeleton>
+                    <CardFooter className="p-3">
+                      <Skeleton className="w-[70%] h-4" />
+                    </CardFooter>
+                  </Card>
+                ))}
               </div>
             </div>
           )}
@@ -289,7 +194,7 @@ export default function AssetBrowserModal({
           {error && !loading && (
             <div className="text-center py-8 text-destructive">
               <p>{error}</p>
-              <Button variant="outline" className="mt-4" onClick={fetchAssets}>
+              <Button variant="outline" className="mt-4" onClick={loadAssets}>
                 Try Again
               </Button>
             </div>
@@ -297,11 +202,11 @@ export default function AssetBrowserModal({
 
           {/* Asset grid */}
           {!loading && !error && assets.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="w-full min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {assets.map((asset) => (
                 <Card
                   key={asset.id}
-                  className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                  className="w-full overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => onSelectAsset(asset)}
                 >
                   <div className="aspect-video relative bg-muted flex items-center justify-center">
@@ -330,7 +235,7 @@ export default function AssetBrowserModal({
                     ) : (
                       <FileTypeIcon type={asset.type} />
                     )}
-                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md">
+                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md capitalize">
                       {asset.type}
                     </div>
                   </div>
