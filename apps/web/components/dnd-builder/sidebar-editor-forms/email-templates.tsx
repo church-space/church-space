@@ -56,7 +56,7 @@ export default function EmailTemplateForm({
                   triggerText="Gallery"
                   buttonClassName="h-8 py-0 px-2.5"
                   onSelectAsset={() => {}}
-                  modalName="template-gallery"
+                  organizationId={"213"}
                 />
               </TooltipTrigger>
               <TooltipContent>Browse premade templates</TooltipContent>

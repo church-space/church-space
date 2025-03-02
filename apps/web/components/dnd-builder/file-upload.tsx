@@ -141,9 +141,14 @@ const FileUpload = ({
     }
   };
 
-  const handleAssetSelect = (asset: { imageUrl: string }) => {
-    // Extract the path from the imageUrl and update the state
-    const path = asset.imageUrl.split("email_assets/")[1];
+  const handleAssetSelect = (asset: { imageUrl: string; path: string }) => {
+    // Use the path directly if available, otherwise extract from imageUrl
+    const path =
+      asset.path ||
+      (asset.imageUrl.includes("email_assets/")
+        ? asset.imageUrl.split("email_assets/")[1]
+        : "");
+
     if (path) {
       setFilePath(path);
       onUploadComplete?.(path);
@@ -158,7 +163,8 @@ const FileUpload = ({
             triggerText="Browse"
             buttonClassName="flex-1 rounded-r-none border-r-0"
             onSelectAsset={handleAssetSelect}
-            modalName="file-browser"
+            organizationId={organizationId}
+            type={type}
           />
         )}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
