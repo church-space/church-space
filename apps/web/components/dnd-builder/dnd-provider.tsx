@@ -347,6 +347,7 @@ export default function DndProvider() {
           textColor: "#FFFFFF",
           style: "filled" as "filled" | "outline",
           size: "fit" as "fit" | "full",
+          centered: true,
         };
       } else if (blockType === "list") {
         blockData = {
@@ -747,18 +748,19 @@ export default function DndProvider() {
           order: existingBlock.order, // Preserve the existing order
         };
       }
-
-      // Update the block while preserving order of all blocks
       newBlocks = blocks.map((block) =>
         block.id === updatedBlock.id ? updatedBlock : block
       );
 
-      // Always update UI immediately
-      updateBlocksWithoutHistory(newBlocks);
+      // Ensure block order is maintained
+      const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
-      // If shouldAddToHistory is true, add to history immediately to ensure consistency
+      // Always update UI immediately
+      updateBlocksWithoutHistory(sortedBlocks);
+
+      // If shouldAddToHistory is true, add to history
       if (shouldAddToHistory) {
-        addToHistory(true); // Force immediate history update
+        addToHistory();
       }
 
       // For database updates, debounce the operation

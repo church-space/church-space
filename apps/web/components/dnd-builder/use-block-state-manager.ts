@@ -117,7 +117,7 @@ export function useBlockStateManager(
   // Create a debounced version of the history update
   const debouncedUpdateHistory = useCallback(
     debounce((state: typeof currentState) => {
-      updateHistory(state);
+      updateHistory(state, true);
     }, 500),
     [updateHistory]
   );
@@ -149,7 +149,7 @@ export function useBlockStateManager(
           if (pendingHistoryUpdate.current) {
             updateHistory(pendingHistoryUpdate.current, true);
           }
-        }, 1000);
+        }, 500);
       }
     },
     [currentState, debouncedUpdateHistory, updateHistory]
@@ -211,9 +211,9 @@ export function useBlockStateManager(
 
   const redo = useCallback(() => {
     // If we're in the middle of a debounced update, commit it first
-    if (isDebouncing.current && pendingHistoryUpdate.current) {
+    if (pendingHistoryUpdate.current) {
       debouncedUpdateHistory.cancel();
-      updateHistory(pendingHistoryUpdate.current);
+      updateHistory(pendingHistoryUpdate.current, true);
     }
 
     let nextState = { blocks: [] as Block[], styles: {} as EmailStyles };

@@ -1,4 +1,4 @@
-import { Section, TextBlockData } from "@/types/blocks";
+import { Section, TextBlockData, ButtonBlockData } from "@/types/blocks";
 import {
   Container,
   Section as EmailSection,
@@ -119,6 +119,7 @@ const CustomButton: React.FC<{
   size: "fit" | "full";
   isRounded?: boolean;
   defaultFont?: string;
+  centered?: boolean;
 }> = ({
   text,
   link,
@@ -128,19 +129,24 @@ const CustomButton: React.FC<{
   size,
   isRounded,
   defaultFont,
+  centered = true,
 }) => {
   const buttonWidth = size === "full" ? "100%" : "auto";
   const borderRadius = isRounded ? "6px" : "0";
 
   return (
     <table
-      style={{ width: "100%", textAlign: "center", margin: "12px 0" }}
+      style={{
+        width: "100%",
+        textAlign: centered ? "center" : "left",
+        margin: "12px 0",
+      }}
       cellPadding="0"
       cellSpacing="0"
       border={0}
     >
       <tr>
-        <td align="center" style={{ width: "100%" }}>
+        <td align={centered ? "center" : "left"} style={{ width: "100%" }}>
           <a
             href={link || "#"}
             target="_blank"
@@ -1066,7 +1072,7 @@ export function generateEmailCode(
                         return (
                           <div style={blockStyle}>
                             <CustomButton
-                              {...(block.data as any)}
+                              {...(block.data as ButtonBlockData)}
                               isRounded={isRounded}
                               defaultFont={defaultFont}
                             />

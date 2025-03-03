@@ -35,6 +35,7 @@ export interface ButtonBlockData {
   textColor: string;
   style: "outline" | "filled";
   size: "fit" | "full";
+  centered: boolean;
 }
 
 export interface ListBlockData {

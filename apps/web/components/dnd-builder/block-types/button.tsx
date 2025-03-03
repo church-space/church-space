@@ -18,12 +18,14 @@ export default function ButtonBlock({
   const textColor = data?.textColor || "#FFFFFF";
   const style = data?.style || "filled";
   const size = data?.size || "fit";
+  const centered = data?.centered ?? true;
 
   return (
     <div
       className={cn(
         "flex gap-2 w-full items-center",
-        size === "fit" ? "justify-center" : "justify-stretch"
+        size === "fit" ? "justify-center" : "justify-stretch",
+        centered ? "justify-center" : "justify-start"
       )}
     >
       <div

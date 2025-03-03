@@ -12,6 +12,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { z } from "zod";
 import debounce from "lodash/debounce";
 import ColorPicker from "../color-picker";
+import { Switch } from "@church-space/ui/switch";
 
 interface ButtonFormProps {
   block: Block & { data?: ButtonBlockData };
@@ -26,6 +27,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
     textColor: block.data?.textColor || "#FFFFFF",
     style: block.data?.style || "filled",
     size: block.data?.size || "fit",
+    centered: block.data?.centered ?? true,
   });
   const [linkError, setLinkError] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -47,6 +49,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
       textColor: block.data?.textColor || "#FFFFFF",
       style: block.data?.style || "filled",
       size: block.data?.size || "fit",
+      centered: block.data?.centered ?? true,
     });
   }, [block.data]);
 
@@ -116,7 +119,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
     }
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | boolean) => {
     const newState = {
       ...localState,
       [field]: value,
@@ -135,7 +138,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
       // Set a new timer to validate after typing stops
       debounceTimerRef.current = setTimeout(() => {
         setIsTyping(false);
-        const isValid = validateUrl(value);
+        const isValid = validateUrl(value as string);
 
         // Only update parent if valid
         if (isValid) {
@@ -265,6 +268,15 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
               <SelectItem value="full">Full Width</SelectItem>
             </SelectContent>
           </Select>
+          {localState.size === "fit" && (
+            <>
+              <Label>Centered</Label>
+              <Switch
+                checked={localState.centered}
+                onCheckedChange={(checked) => handleChange("centered", checked)}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
