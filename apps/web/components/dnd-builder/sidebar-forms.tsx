@@ -97,7 +97,7 @@ export default function DndBuilderSidebarForms({
   // Safe wrapper for onBlockUpdate
   const handleBlockUpdate = (block: Block) => {
     if (onBlockUpdate) {
-      onBlockUpdate(block);
+      onBlockUpdate(block, true);
     }
   };
 

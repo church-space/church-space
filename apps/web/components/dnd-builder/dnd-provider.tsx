@@ -1025,12 +1025,13 @@ export default function DndProvider() {
     // Ensure block order is maintained
     const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
-    // Always update UI immediately without history
-    updateBlocksWithoutHistory(sortedBlocks);
-
-    // If addToHistory is true, debounce the history update
+    // If addToHistory is true, update blocks with history
     if (addToHistory) {
-      debouncedHistoryUpdate();
+      // Add to history immediately instead of debouncing
+      updateBlocks(sortedBlocks);
+    } else {
+      // Always update UI immediately without history
+      updateBlocksWithoutHistory(sortedBlocks);
     }
 
     // For duplicated blocks or database updates, debounce the operation
