@@ -53,10 +53,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@church-space/ui/dialog";
 import EmailPreview from "./email-preview";
 import { useQueryState } from "nuqs";
 import SendTestEmail from "./send-test-email";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
   | "cards"
@@ -85,6 +88,8 @@ interface ContentUpdate {
 
 export default function DndProvider() {
   const params = useParams();
+  const isMobile = useIsMobile();
+  const [showMobileWarning, setShowMobileWarning] = useState(true);
   const emailId = params.emailId
     ? parseInt(params.emailId as string, 10)
     : undefined;
@@ -1903,6 +1908,31 @@ export default function DndProvider() {
 
   return (
     <div className="flex flex-col h-full relative">
+      <Dialog
+        open={isMobile && showMobileWarning}
+        onOpenChange={setShowMobileWarning}
+      >
+        <DialogContent className="rounded-lg max-w-[94%]">
+          <DialogHeader>
+            <DialogTitle>Mobile Editing (Beta)</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>
+              You are currently using the email editor on a mobile device. While
+              we support mobile editing, it is still in beta and you may
+              encounter some limitations.
+            </p>
+            <p className="mt-2">
+              For the best experience, we recommend using a desktop computer.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowMobileWarning(false)}>
+              I understand
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b sticky top-0 left-0 right-0 bg-background z-10">
         <div className="flex items-center gap-2 px-4">
           <Breadcrumb>
