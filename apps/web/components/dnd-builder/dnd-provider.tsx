@@ -88,6 +88,7 @@ interface ContentUpdate {
 }
 
 export default function DndProvider() {
+  // Move all hooks to the top level
   const params = useParams();
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -96,21 +97,6 @@ export default function DndProvider() {
     ? parseInt(params.emailId as string, 10)
     : undefined;
   const { data: emailData } = useEmailWithBlocks(emailId);
-
-  // Return EmailNotFound if email data is not found
-  if (emailId && !emailData?.email) {
-    return <EmailNotFound />;
-  }
-
-  // Redirect to preview if email is sent, sending, or template
-  if (
-    emailData?.email?.status &&
-    ["sent", "sending", "template"].includes(emailData.email.status)
-  ) {
-    router.push(`/emails/${emailId}/preview`);
-    return null;
-  }
-
   const addEmailBlock = useAddEmailBlock();
   const deleteEmailBlock = useDeleteEmailBlock();
   const updateEmailBlock = useUpdateEmailBlock();
@@ -118,29 +104,18 @@ export default function DndProvider() {
   const batchUpdateEmailBlocks = useBatchUpdateEmailBlocks();
   const queryClient = useQueryClient();
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
-
-  // Add a state for tracking save operation
   const [isSaving, setIsSaving] = useState(false);
-
-  // Track blocks that are being deleted to prevent them from being re-added
   const [blocksBeingDeleted, setBlocksBeingDeleted] = useState<Set<string>>(
     new Set()
   );
-
-  // Add a ref to track blocks that have been deleted during the session
   const permanentlyDeletedBlocksRef = useRef<Set<string>>(new Set());
-
-  // Add ref for database update debouncing
   const databaseUpdateTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // State for managing blocks and editors
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [editors, setEditors] = useState<Record<string, Editor>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeForm, setActiveForm] = useState<
     "default" | "block" | "email-style" | "email-footer" | "email-templates"
   >("default");
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -149,7 +124,7 @@ export default function DndProvider() {
     })
   );
 
-  // Initialize blocks from the fetched data or use empty array
+  // Initialize blocks and styles
   const initialBlocks =
     (emailData?.blocks?.map((block) => ({
       id: block.id.toString(),
@@ -158,7 +133,6 @@ export default function DndProvider() {
       data: block.value as unknown as BlockData,
     })) as BlockType[]) || [];
 
-  // Initialize styles from the fetched data or use defaults
   const initialStyles: EmailStyles = {
     bgColor: emailData?.email?.blocks_bg_color || "#f4f4f5",
     isInset: emailData?.email?.is_inset || false,
@@ -193,6 +167,19 @@ export default function DndProvider() {
   useEffect(() => {
     stylesRef.current = styles;
   }, [styles]);
+
+  // Early returns after all hooks are declared
+  if (emailId && !emailData?.email) {
+    return <EmailNotFound />;
+  }
+
+  if (
+    emailData?.email?.status &&
+    ["sent", "sending", "template"].includes(emailData.email.status)
+  ) {
+    router.push(`/emails/${emailId}/preview`);
+    return null;
+  }
 
   // Helper function to update block orders in the database
   const updateBlockOrdersInDatabase = useCallback(
