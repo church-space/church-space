@@ -735,8 +735,6 @@ export default function DndProvider() {
   // Fix handleBlockUpdate to include history update
   const handleBlockUpdate = useCallback(
     (updatedBlock: BlockType, shouldAddToHistory: boolean = true) => {
-      let newBlocks: BlockType[];
-
       // Regular update operation
       const existingBlock = blocks.find(
         (block) => block.id === updatedBlock.id
@@ -747,7 +745,7 @@ export default function DndProvider() {
           order: existingBlock.order, // Preserve the existing order
         };
       }
-      newBlocks = blocks.map((block) =>
+      const newBlocks = blocks.map((block) =>
         block.id === updatedBlock.id ? updatedBlock : block
       );
 
