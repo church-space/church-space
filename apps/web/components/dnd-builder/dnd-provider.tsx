@@ -8,6 +8,10 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  closestCenter,
+  pointerWithin,
+  rectIntersection,
+  CollisionDetection,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -1650,6 +1654,55 @@ export default function DndProvider() {
     };
   }, [handleUndo, handleRedo]);
 
+  // Custom collision detection that handles large blocks differently
+  const customCollisionDetection: CollisionDetection = (args) => {
+    const {
+      active,
+      droppableContainers,
+      droppableRects,
+      collisionRect,
+      pointerCoordinates,
+    } = args;
+
+    // If the active item is not from sidebar (existing block being moved)
+    if (!active.data.current?.fromSidebar) {
+      // Use standard collision detection for existing blocks
+      return closestCenter(args);
+    }
+
+    // For new blocks from sidebar
+    const activeHeight = active.rect.current.translated?.height || 0;
+    const isLargeBlock = activeHeight > 100; // Define what "large" means
+
+    if (!isLargeBlock) {
+      // For small blocks, use standard collision detection
+      return closestCenter(args);
+    }
+
+    // For large blocks, we need a more precise algorithm
+    // First, find all intersecting containers
+    const modifiedArgs = {
+      ...args,
+      collisionRect: {
+        ...collisionRect,
+        // Make the collision rect taller to increase chances of intersection
+        height: collisionRect.height * 0.5,
+        // Center it vertically on the pointer
+        top: collisionRect.top + collisionRect.height * 0.25,
+      },
+    };
+
+    const intersections = pointerWithin(modifiedArgs);
+
+    // If we have intersections, return them
+    if (intersections.length > 0) {
+      return intersections;
+    }
+
+    // Fallback to standard collision detection
+    return rectIntersection(args);
+  };
+
   return (
     <div className="flex flex-col h-full relative">
       <Dialog
@@ -1779,6 +1832,7 @@ export default function DndProvider() {
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        collisionDetection={customCollisionDetection}
       >
         <div className="flex md:gap-4 md:p-4 p-2 relative">
           <DndBuilderSidebar
