@@ -1,10 +1,10 @@
 import DndProvider from "@/components/dnd-builder/dnd-provider";
+import { createClient } from "@church-space/supabase/server";
 import {
   HydrationBoundary,
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
-import { createClient } from "@church-space/supabase/server";
 
 type Params = Promise<{ emailId: string }>;
 

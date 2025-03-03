@@ -59,6 +59,7 @@ import EmailPreview from "./email-preview";
 import { useQueryState } from "nuqs";
 import SendTestEmail from "./send-test-email";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import EmailNotFound from "@/components/not-found/email";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -88,19 +89,34 @@ interface ContentUpdate {
 
 export default function DndProvider() {
   const params = useParams();
+  const router = useRouter();
   const isMobile = useIsMobile();
   const [showMobileWarning, setShowMobileWarning] = useState(true);
   const emailId = params.emailId
     ? parseInt(params.emailId as string, 10)
     : undefined;
   const { data: emailData } = useEmailWithBlocks(emailId);
+
+  // Return EmailNotFound if email data is not found
+  if (emailId && !emailData?.email) {
+    return <EmailNotFound />;
+  }
+
+  // Redirect to preview if email is sent, sending, or template
+  if (
+    emailData?.email?.status &&
+    ["sent", "sending", "template"].includes(emailData.email.status)
+  ) {
+    router.push(`/emails/${emailId}/preview`);
+    return null;
+  }
+
   const addEmailBlock = useAddEmailBlock();
   const deleteEmailBlock = useDeleteEmailBlock();
   const updateEmailBlock = useUpdateEmailBlock();
   const updateEmailStyle = useUpdateEmailStyle();
   const batchUpdateEmailBlocks = useBatchUpdateEmailBlocks();
   const queryClient = useQueryClient();
-  const router = useRouter();
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
 
   // Add a state for tracking save operation

@@ -1,6 +1,7 @@
 import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { generateEmailCode } from "@/lib/generate-email-code";
 import { BlockData, Block as BlockType } from "@/types/blocks";
+import { Button } from "@church-space/ui/button";
 import {
   Tabs,
   TabsContent,
@@ -8,11 +9,17 @@ import {
   TabsTrigger,
 } from "@church-space/ui/tabs";
 import { render } from "@react-email/render";
+import { ChevronLeft } from "@church-space/ui/icons";
 import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
-export default function EmailPreview() {
+export default function EmailPreview({
+  showBackButton = false,
+}: {
+  showBackButton?: boolean;
+}) {
   const [previewType, setPreviewType] = useQueryState("previewType");
   const [htmlContent, setHtmlContent] = useState<string>("");
   const params = useParams();
@@ -62,10 +69,23 @@ export default function EmailPreview() {
       defaultValue={previewType || "web"}
       onValueChange={(value) => setPreviewType(value)}
     >
-      <TabsList>
-        <TabsTrigger value="web">Web</TabsTrigger>
-        <TabsTrigger value="mobile">Mobile</TabsTrigger>
-      </TabsList>
+      <div className="flex justify-between items-center">
+        {showBackButton && (
+          <Link
+            href={`/emails/${emailId}`}
+            className="flex flex-row gap-1 items-center font-medium  text-sm cursor-pointer group  -translate-x-px"
+          >
+            <span className="group-hover:-translate-x-1 transition-transform duration-300">
+              <ChevronLeft height={"14"} width={"14"} />
+            </span>
+            Back to Email
+          </Link>
+        )}
+        <TabsList>
+          <TabsTrigger value="web">Web</TabsTrigger>
+          <TabsTrigger value="mobile">Mobile</TabsTrigger>
+        </TabsList>
+      </div>
       <TabsContent value="web" className="overflow-auto h-[95%]">
         <div className="flex flex-col gap-4 mx-auto w-full h-full items-start">
           <iframe
