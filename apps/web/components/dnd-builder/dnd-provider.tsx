@@ -1545,7 +1545,17 @@ export default function DndProvider() {
       const contentUpdates: ContentUpdate[] = [];
       const blocksToAdd: BlockType[] = [];
 
-      // Process each added or modified block
+      // First, prepare order updates for ALL blocks in the previous state
+      previousState.blocks.forEach((block, index) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          orderUpdates.push({
+            id: parseInt(block.id, 10),
+            order: index,
+          });
+        }
+      });
+
+      // Process each added or modified block for content updates
       addedOrModifiedBlocks.forEach((block) => {
         if (isNaN(parseInt(block.id, 10))) {
           // This is a new block with a UUID, add it to the database
@@ -1553,14 +1563,8 @@ export default function DndProvider() {
             blocksToAdd.push(block);
           }
         } else {
-          // This is an existing block, update it
+          // This is an existing block, update its content if needed
           const blockId = parseInt(block.id, 10);
-
-          // Always update the order
-          orderUpdates.push({
-            id: blockId,
-            order: block.order,
-          });
 
           // Update content if the block type is valid
           if (isValidDatabaseBlockType(block.type)) {
@@ -1697,7 +1701,17 @@ export default function DndProvider() {
       const contentUpdates: ContentUpdate[] = [];
       const blocksToAdd: BlockType[] = [];
 
-      // Process each added or modified block
+      // First, prepare order updates for ALL blocks in the next state
+      nextState.blocks.forEach((block, index) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          orderUpdates.push({
+            id: parseInt(block.id, 10),
+            order: index,
+          });
+        }
+      });
+
+      // Process each added or modified block for content updates
       addedOrModifiedBlocks.forEach((block) => {
         if (isNaN(parseInt(block.id, 10))) {
           // This is a new block with a UUID, add it to the database
@@ -1705,14 +1719,8 @@ export default function DndProvider() {
             blocksToAdd.push(block);
           }
         } else {
-          // This is an existing block, update it
+          // This is an existing block, update its content if needed
           const blockId = parseInt(block.id, 10);
-
-          // Always update the order
-          orderUpdates.push({
-            id: blockId,
-            order: block.order,
-          });
 
           // Update content if the block type is valid
           if (isValidDatabaseBlockType(block.type)) {
