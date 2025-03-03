@@ -314,11 +314,11 @@ export default function DndBuilderSidebar({
                     </div>
                   </div>
                   <div className="flex flex-col gap-4">
-                    <Separator />
+                    {/* <Separator />
                     <Label className="font-bold px-2 text-sm">
                       Editors Online
                     </Label>
-                    <div className="flex items-center gap-2"></div>
+                    <div className="flex items-center gap-2"></div> */}
                   </div>
                 </div>
               </motion.div>

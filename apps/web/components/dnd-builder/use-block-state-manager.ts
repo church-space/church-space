@@ -1,5 +1,6 @@
 import type { Block } from "@/types/blocks";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
+import { debounce } from "lodash";
 
 // Define the email styles interface
 export interface EmailStyles {
@@ -54,6 +55,12 @@ export function useBlockStateManager(
     future: [],
   });
 
+  // Track if we're in the middle of a debounced update
+  const isDebouncing = useRef(false);
+  const lastHistoryUpdate = useRef<typeof currentState>(currentState);
+  const pendingHistoryUpdate = useRef<typeof currentState | null>(null);
+  const pendingCommitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Update blocks immediately for UI without affecting history
   const updateBlocksWithoutHistory = useCallback((newBlocks: Block[]) => {
     setCurrentState((current) => ({
@@ -76,16 +83,103 @@ export function useBlockStateManager(
     []
   );
 
-  // Add current state to history (to be debounced)
-  const addToHistory = useCallback(() => {
-    setHistory((currentHistory) => ({
-      past: [...currentHistory.past, currentHistory.present],
-      present: currentState,
-      future: [],
-    }));
-  }, [currentState]);
+  // The actual history update function
+  const updateHistory = useCallback(
+    (state: typeof currentState, force: boolean = false) => {
+      // Clear any pending commit timeout
+      if (pendingCommitTimeoutRef.current) {
+        clearTimeout(pendingCommitTimeoutRef.current);
+        pendingCommitTimeoutRef.current = null;
+      }
+
+      setHistory((currentHistory) => {
+        // Only add to history if the state has actually changed or if forced
+        if (
+          !force &&
+          JSON.stringify(currentHistory.present) === JSON.stringify(state)
+        ) {
+          return currentHistory;
+        }
+
+        return {
+          past: [...currentHistory.past, currentHistory.present],
+          present: state,
+          future: [],
+        };
+      });
+      lastHistoryUpdate.current = state;
+      isDebouncing.current = false;
+      pendingHistoryUpdate.current = null;
+    },
+    []
+  );
+
+  // Create a debounced version of the history update
+  const debouncedUpdateHistory = useCallback(
+    debounce((state: typeof currentState) => {
+      updateHistory(state);
+    }, 500),
+    [updateHistory]
+  );
+
+  // Add current state to history
+  const addToHistory = useCallback(
+    (immediate: boolean = false) => {
+      // Clear any pending commit timeout
+      if (pendingCommitTimeoutRef.current) {
+        clearTimeout(pendingCommitTimeoutRef.current);
+        pendingCommitTimeoutRef.current = null;
+      }
+
+      // Store the current state as pending
+      pendingHistoryUpdate.current = currentState;
+
+      if (immediate) {
+        // Cancel any pending debounced updates
+        debouncedUpdateHistory.cancel();
+        // Update history immediately
+        updateHistory(currentState, true);
+      } else {
+        // If we're already debouncing, just update the timer
+        isDebouncing.current = true;
+        debouncedUpdateHistory(currentState);
+
+        // Set a timeout to force commit if no new changes come in
+        pendingCommitTimeoutRef.current = setTimeout(() => {
+          if (pendingHistoryUpdate.current) {
+            updateHistory(pendingHistoryUpdate.current, true);
+          }
+        }, 1000);
+      }
+    },
+    [currentState, debouncedUpdateHistory, updateHistory]
+  );
+
+  // Cleanup debounced function and timeouts on unmount
+  useEffect(() => {
+    return () => {
+      // Cancel any pending debounced updates
+      debouncedUpdateHistory.cancel();
+
+      // Clear any pending commit timeout
+      if (pendingCommitTimeoutRef.current) {
+        clearTimeout(pendingCommitTimeoutRef.current);
+      }
+
+      // If there's a pending update, commit it before unmounting
+      if (pendingHistoryUpdate.current) {
+        updateHistory(pendingHistoryUpdate.current, true);
+      }
+    };
+  }, [debouncedUpdateHistory, updateHistory]);
 
   const undo = useCallback(() => {
+    // If we're in the middle of a debounced update, commit it first
+    if (pendingHistoryUpdate.current) {
+      debouncedUpdateHistory.cancel();
+      updateHistory(pendingHistoryUpdate.current, true);
+    }
+
     let previousState = { blocks: [] as Block[], styles: {} as EmailStyles };
     let currentStateSnapshot = {
       blocks: [] as Block[],
@@ -113,9 +207,15 @@ export function useBlockStateManager(
 
     // Return the previous state and current state for database updates
     return { previousState, currentState: currentStateSnapshot };
-  }, []);
+  }, [currentState, debouncedUpdateHistory, updateHistory]);
 
   const redo = useCallback(() => {
+    // If we're in the middle of a debounced update, commit it first
+    if (isDebouncing.current && pendingHistoryUpdate.current) {
+      debouncedUpdateHistory.cancel();
+      updateHistory(pendingHistoryUpdate.current);
+    }
+
     let nextState = { blocks: [] as Block[], styles: {} as EmailStyles };
     let currentStateSnapshot = {
       blocks: [] as Block[],
@@ -143,7 +243,7 @@ export function useBlockStateManager(
 
     // Return the next state and current state for database updates
     return { nextState, currentState: currentStateSnapshot };
-  }, []);
+  }, [currentState, debouncedUpdateHistory, updateHistory]);
 
   const canUndo = history.past.length > 0;
   const canRedo = history.future.length > 0;
