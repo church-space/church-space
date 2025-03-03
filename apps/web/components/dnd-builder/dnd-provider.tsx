@@ -59,7 +59,6 @@ import EmailPreview from "./email-preview";
 import { useQueryState } from "nuqs";
 import SendTestEmail from "./send-test-email";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import EmailNotFound from "@/components/not-found/email";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =

@@ -5,6 +5,8 @@ import {
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
+import EmailNotFound from "@/components/not-found/email";
+import { redirect } from "next/navigation";
 
 type Params = Promise<{ emailId: string }>;
 
@@ -46,6 +48,19 @@ export default async function Page(props: { params: Params }) {
         throw emailError;
       }
 
+      // Early return if email status is sent or sending, or if type is template
+      if (
+        (emailData?.status && ["sent", "sending"].includes(emailData.status)) ||
+        emailData?.type === "template"
+      ) {
+        return {
+          email: emailData,
+          blocks: [],
+          footer: null,
+          shouldRedirect: true,
+        };
+      }
+
       // Get the blocks with proper ordering
       const { data: blocksData, error: blocksError } = await supabase
         .from("email_blocks")
@@ -73,9 +88,23 @@ export default async function Page(props: { params: Params }) {
         email: emailData,
         blocks: blocksData || [],
         footer: footerData,
+        shouldRedirect: false,
       };
     },
   });
+
+  // Get the prefetched data to check for early returns
+  const emailData = queryClient.getQueryData(["email", emailId]) as any;
+
+  // Early return if email not found
+  if (!emailData?.email) {
+    return <EmailNotFound />;
+  }
+
+  // Redirect if email status is sent/sending or type is template
+  if (emailData.shouldRedirect) {
+    redirect(`/emails/${emailId}/preview`);
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
