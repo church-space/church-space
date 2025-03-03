@@ -39,6 +39,12 @@ export function useBlockStateManager(
     linkColor: "#0000ff",
   }
 ) {
+  // Separate state for current values (UI) and history
+  const [currentState, setCurrentState] = useState({
+    blocks: initialBlocks,
+    styles: initialStyles,
+  });
+
   const [history, setHistory] = useState<BlockStateHistory>({
     past: [],
     present: {
@@ -48,64 +54,43 @@ export function useBlockStateManager(
     future: [],
   });
 
-  // Update blocks and add to history
-  const updateBlocks = useCallback((newBlocks: Block[]) => {
-    setHistory((currentHistory) => ({
-      past: [...currentHistory.past, currentHistory.present],
-      present: {
-        ...currentHistory.present,
-        blocks: newBlocks,
-      },
-      future: [],
-    }));
-  }, []);
-
-  // Update blocks without adding to history - for immediate UI updates
+  // Update blocks immediately for UI without affecting history
   const updateBlocksWithoutHistory = useCallback((newBlocks: Block[]) => {
-    setHistory((currentHistory) => ({
-      ...currentHistory,
-      present: {
-        ...currentHistory.present,
-        blocks: newBlocks,
-      },
+    setCurrentState((current) => ({
+      ...current,
+      blocks: newBlocks,
     }));
   }, []);
 
-  // Update styles and add to history
-  const updateStyles = useCallback((newStyles: Partial<EmailStyles>) => {
-    setHistory((currentHistory) => ({
-      past: [...currentHistory.past, currentHistory.present],
-      present: {
-        ...currentHistory.present,
-        styles: {
-          ...currentHistory.present.styles,
-          ...newStyles,
-        },
-      },
-      future: [],
-    }));
-  }, []);
-
-  // Update styles without adding to history
+  // Update styles immediately for UI without affecting history
   const updateStylesWithoutHistory = useCallback(
     (newStyles: Partial<EmailStyles>) => {
-      setHistory((currentHistory) => ({
-        ...currentHistory,
-        present: {
-          ...currentHistory.present,
-          styles: {
-            ...currentHistory.present.styles,
-            ...newStyles,
-          },
+      setCurrentState((current) => ({
+        ...current,
+        styles: {
+          ...current.styles,
+          ...newStyles,
         },
       }));
     },
     []
   );
 
+  // Add current state to history (to be debounced)
+  const addToHistory = useCallback(() => {
+    setHistory((currentHistory) => ({
+      past: [...currentHistory.past, currentHistory.present],
+      present: currentState,
+      future: [],
+    }));
+  }, [currentState]);
+
   const undo = useCallback(() => {
     let previousState = { blocks: [] as Block[], styles: {} as EmailStyles };
-    let currentState = { blocks: [] as Block[], styles: {} as EmailStyles };
+    let currentStateSnapshot = {
+      blocks: [] as Block[],
+      styles: {} as EmailStyles,
+    };
 
     setHistory((currentHistory) => {
       const { past, present, future } = currentHistory;
@@ -113,7 +98,7 @@ export function useBlockStateManager(
       if (past.length === 0) return currentHistory;
 
       previousState = past[past.length - 1];
-      currentState = present;
+      currentStateSnapshot = present;
       const newPast = past.slice(0, past.length - 1);
 
       return {
@@ -123,13 +108,19 @@ export function useBlockStateManager(
       };
     });
 
+    // Update the current state to match history
+    setCurrentState(previousState);
+
     // Return the previous state and current state for database updates
-    return { previousState, currentState };
+    return { previousState, currentState: currentStateSnapshot };
   }, []);
 
   const redo = useCallback(() => {
     let nextState = { blocks: [] as Block[], styles: {} as EmailStyles };
-    let currentState = { blocks: [] as Block[], styles: {} as EmailStyles };
+    let currentStateSnapshot = {
+      blocks: [] as Block[],
+      styles: {} as EmailStyles,
+    };
 
     setHistory((currentHistory) => {
       const { past, present, future } = currentHistory;
@@ -137,7 +128,7 @@ export function useBlockStateManager(
       if (future.length === 0) return currentHistory;
 
       nextState = future[0];
-      currentState = present;
+      currentStateSnapshot = present;
       const newFuture = future.slice(1);
 
       return {
@@ -147,19 +138,23 @@ export function useBlockStateManager(
       };
     });
 
+    // Update the current state to match history
+    setCurrentState(nextState);
+
     // Return the next state and current state for database updates
-    return { nextState, currentState };
+    return { nextState, currentState: currentStateSnapshot };
   }, []);
 
   const canUndo = history.past.length > 0;
   const canRedo = history.future.length > 0;
 
   return {
-    blocks: history.present.blocks,
-    styles: history.present.styles,
-    updateBlocks,
+    // Current state for UI
+    blocks: currentState.blocks,
+    styles: currentState.styles,
+    // History management
+    addToHistory,
     updateBlocksWithoutHistory,
-    updateStyles,
     updateStylesWithoutHistory,
     undo,
     redo,
