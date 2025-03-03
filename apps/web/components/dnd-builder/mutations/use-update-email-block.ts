@@ -62,9 +62,18 @@ export function useUpdateEmailBlock() {
       }
     },
     onSuccess: (data) => {
-      // Invalidate the email query to refetch the data
+      // Instead of invalidating the query, update the cache directly
       if (data && data.email_id) {
-        queryClient.invalidateQueries({ queryKey: ["email", data.email_id] });
+        queryClient.setQueryData(["email", data.email_id], (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            blocks: oldData.blocks.map((block: any) =>
+              block.id === data.id ? { ...block, ...data } : block
+            ),
+          };
+        });
       }
     },
   });

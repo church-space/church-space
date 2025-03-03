@@ -76,11 +76,55 @@ export function useBatchUpdateEmailBlocks() {
         throw new Error(`Failed to update ${errors.length} blocks`);
       }
 
-      return { success: true, emailId };
+      return { success: true, emailId, orderUpdates, contentUpdates };
     },
     onSuccess: (data) => {
-      // Invalidate the email query to refetch the data
-      queryClient.invalidateQueries({ queryKey: ["email", data.emailId] });
+      // Instead of invalidating the query, update the cache directly
+      if (data && data.emailId) {
+        queryClient.setQueryData(["email", data.emailId], (oldData: any) => {
+          if (!oldData) return oldData;
+
+          const updatedBlocks = [...oldData.blocks];
+
+          // Apply order updates
+          if (data.orderUpdates && data.orderUpdates.length > 0) {
+            data.orderUpdates.forEach(({ id, order }: OrderUpdate) => {
+              const blockIndex = updatedBlocks.findIndex(
+                (block) => block.id === id
+              );
+              if (blockIndex !== -1) {
+                updatedBlocks[blockIndex] = {
+                  ...updatedBlocks[blockIndex],
+                  order,
+                };
+              }
+            });
+          }
+
+          // Apply content updates
+          if (data.contentUpdates && data.contentUpdates.length > 0) {
+            data.contentUpdates.forEach(
+              ({ id, type, value }: ContentUpdate) => {
+                const blockIndex = updatedBlocks.findIndex(
+                  (block) => block.id === id
+                );
+                if (blockIndex !== -1) {
+                  updatedBlocks[blockIndex] = {
+                    ...updatedBlocks[blockIndex],
+                    type,
+                    value,
+                  };
+                }
+              }
+            );
+          }
+
+          return {
+            ...oldData,
+            blocks: updatedBlocks.sort((a, b) => a.order - b.order),
+          };
+        });
+      }
     },
   });
 }
