@@ -6,7 +6,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     h1: ({ className, ...props }) => (
       <h1
         className={cn(
-          "mt-2  scroll-m-20 text-4xl font-bold tracking-tight",
+          "  scroll-m-20 text-4xl font-bold tracking-tight",
           className
         )}
         {...props}
@@ -15,7 +15,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     h2: ({ className, ...props }) => (
       <h2
         className={cn(
-          "mt-10 scroll-m-20 border-b pb-1 text-3xl font-semibold tracking-tight leading-10",
+          "mt-12 scroll-m-20 border-b pb-1 text-3xl font-medium tracking-tight leading-10",
           className
         )}
         {...props}
@@ -24,7 +24,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     h3: ({ className, ...props }) => (
       <h3
         className={cn(
-          "mt-8 scroll-m-20 text-2xl font-semibold tracking-tight",
+          "mt-5 scroll-m-20 text-2xl font-medium tracking-tight",
           className
         )}
         {...props}
@@ -32,12 +32,12 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
     p: ({ className, ...props }) => (
       <p
-        className={cn("leading-7 [&:not(:first-child)]:mt-6", className)}
+        className={cn("leading-7 mt-2 [&:not(:first-child)]:mt-4", className)}
         {...props}
       />
     ),
     ul: ({ className, ...props }) => (
-      <ul className={cn("my-2 ml-6 list-disc", className)} {...props} />
+      <ul className={cn("my-2 ml-12 list-disc", className)} {...props} />
     ),
     li: ({ className, ...props }) => (
       <li className={cn("mt-2", className)} {...props} />
@@ -53,7 +53,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
     hr: ({ className, ...props }) => (
       <hr
-        className={cn("my-8 border-muted-foreground md:my-20", className)}
+        className={cn("my-12 border-muted-foreground md:my-20", className)}
         {...props}
       />
     ),

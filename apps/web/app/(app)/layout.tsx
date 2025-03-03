@@ -26,6 +26,8 @@ export default async function ProtectedLayout({
   if (user.pcoConnection === null) {
     return redirect("/pco-reconnect");
   }
+  const headersList = await headers();
+  console.log("headersList", headersList.get("x-pathname"));
 
   if (user.pcoConnection) {
     const lastRefreshed = new Date(user.pcoConnection.last_refreshed);

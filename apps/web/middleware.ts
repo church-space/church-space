@@ -1,5 +1,5 @@
 import { updateSession } from "@church-space/supabase/middleware";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   // Clone the request headers
@@ -8,15 +8,13 @@ export async function middleware(request: NextRequest) {
   // Add the current pathname to the headers
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
-  // First update the headers
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
+  // Create a new request with updated headers
+  const requestWithHeaders = new NextRequest(request.url, {
+    headers: requestHeaders,
   });
 
-  // Then update the session
-  return await updateSession(request);
+  // Update the session with the modified request
+  return await updateSession(requestWithHeaders);
 }
 
 export const config = {
