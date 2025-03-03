@@ -1,7 +1,6 @@
 import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { generateEmailCode } from "@/lib/generate-email-code";
 import { BlockData, Block as BlockType } from "@/types/blocks";
-import { Button } from "@church-space/ui/button";
 import {
   Tabs,
   TabsContent,

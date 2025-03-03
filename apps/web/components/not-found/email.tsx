@@ -13,7 +13,8 @@ export default function EmailNotFound() {
         <h1 className="text-3xl font-bold tracking-tight">Email Not Found</h1>
 
         <p className="text-muted-foreground">
-          The email you're looking for doesn't exist or may have been deleted.
+          The email you&apos;re looking for doesn&apos;t exist or may have been
+          deleted.
         </p>
 
         <Button asChild size="lg">
