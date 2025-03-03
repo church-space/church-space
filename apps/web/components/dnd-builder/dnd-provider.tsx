@@ -243,13 +243,17 @@ export default function DndProvider() {
             font: styles.defaultFont,
             textColor: styles.defaultTextColor,
           } as BlockType["data"],
+          order: block.order, // Explicitly preserve the order
         } as BlockType;
       }
       return block;
     });
 
+    // Ensure block order is maintained by sorting
+    const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
+
     // Update the UI immediately without adding to history
-    updateBlocksWithoutHistory(newBlocks);
+    updateBlocksWithoutHistory(sortedBlocks);
 
     // Add to history - the hook will handle debouncing
     addToHistory();
@@ -286,15 +290,21 @@ export default function DndProvider() {
         // Create a new blocks array with the reordered blocks
         const newBlocks = arrayMove(blocks, oldIndex, newIndex);
 
+        // Update the order property for each block to match its new position
+        const reorderedBlocks = newBlocks.map((block, index) => ({
+          ...block,
+          order: index,
+        }));
+
         // Check for duplicate IDs
-        const updatedIds = newBlocks.map((block) => block.id);
+        const updatedIds = reorderedBlocks.map((block) => block.id);
         const hasDuplicates = updatedIds.some(
           (id, index) => updatedIds.indexOf(id) !== index
         );
 
         if (hasDuplicates) {
           const seenIds = new Set<string>();
-          const deduplicatedBlocks = newBlocks.filter((block) => {
+          const deduplicatedBlocks = reorderedBlocks.filter((block) => {
             if (seenIds.has(block.id)) return false;
             seenIds.add(block.id);
             return true;
@@ -302,7 +312,7 @@ export default function DndProvider() {
 
           updateBlocksWithoutHistory(deduplicatedBlocks);
         } else {
-          updateBlocksWithoutHistory(newBlocks);
+          updateBlocksWithoutHistory(reorderedBlocks);
         }
 
         // Add to history immediately for block movements
@@ -310,7 +320,7 @@ export default function DndProvider() {
 
         // Update order in database for all affected blocks
         if (emailId) {
-          updateBlockOrdersInDatabase(newBlocks);
+          updateBlockOrdersInDatabase(reorderedBlocks);
         }
       }
     } else {
@@ -755,7 +765,7 @@ export default function DndProvider() {
         block.id === updatedBlock.id ? updatedBlock : block
       );
 
-      // Ensure block order is maintained
+      // Ensure block order is maintained by explicitly sorting
       const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
       // Always update UI immediately

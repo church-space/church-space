@@ -63,9 +63,12 @@ export function useBlockStateManager(
 
   // Update blocks immediately for UI without affecting history
   const updateBlocksWithoutHistory = useCallback((newBlocks: Block[]) => {
+    // Ensure blocks are sorted by order
+    const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
+
     setCurrentState((current) => ({
       ...current,
-      blocks: newBlocks,
+      blocks: sortedBlocks,
     }));
   }, []);
 
@@ -92,22 +95,28 @@ export function useBlockStateManager(
         pendingCommitTimeoutRef.current = null;
       }
 
+      // Ensure blocks are sorted by order
+      const sortedState = {
+        ...state,
+        blocks: [...state.blocks].sort((a, b) => a.order - b.order),
+      };
+
       setHistory((currentHistory) => {
         // Only add to history if the state has actually changed or if forced
         if (
           !force &&
-          JSON.stringify(currentHistory.present) === JSON.stringify(state)
+          JSON.stringify(currentHistory.present) === JSON.stringify(sortedState)
         ) {
           return currentHistory;
         }
 
         return {
           past: [...currentHistory.past, currentHistory.present],
-          present: state,
+          present: sortedState,
           future: [],
         };
       });
-      lastHistoryUpdate.current = state;
+      lastHistoryUpdate.current = sortedState;
       isDebouncing.current = false;
       pendingHistoryUpdate.current = null;
     },
@@ -131,18 +140,24 @@ export function useBlockStateManager(
         pendingCommitTimeoutRef.current = null;
       }
 
+      // Ensure blocks are sorted by order
+      const sortedState = {
+        ...currentState,
+        blocks: [...currentState.blocks].sort((a, b) => a.order - b.order),
+      };
+
       // Store the current state as pending
-      pendingHistoryUpdate.current = currentState;
+      pendingHistoryUpdate.current = sortedState;
 
       if (immediate) {
         // Cancel any pending debounced updates
         debouncedUpdateHistory.cancel();
         // Update history immediately
-        updateHistory(currentState, true);
+        updateHistory(sortedState, true);
       } else {
         // If we're already debouncing, just update the timer
         isDebouncing.current = true;
-        debouncedUpdateHistory(currentState);
+        debouncedUpdateHistory(sortedState);
 
         // Set a timeout to force commit if no new changes come in
         pendingCommitTimeoutRef.current = setTimeout(() => {
@@ -202,11 +217,20 @@ export function useBlockStateManager(
       };
     });
 
+    // Ensure blocks are sorted by order
+    const sortedPreviousState = {
+      ...previousState,
+      blocks: [...previousState.blocks].sort((a, b) => a.order - b.order),
+    };
+
     // Update the current state to match history
-    setCurrentState(previousState);
+    setCurrentState(sortedPreviousState);
 
     // Return the previous state and current state for database updates
-    return { previousState, currentState: currentStateSnapshot };
+    return {
+      previousState: sortedPreviousState,
+      currentState: currentStateSnapshot,
+    };
   }, [currentState, debouncedUpdateHistory, updateHistory]);
 
   const redo = useCallback(() => {
@@ -238,11 +262,17 @@ export function useBlockStateManager(
       };
     });
 
+    // Ensure blocks are sorted by order
+    const sortedNextState = {
+      ...nextState,
+      blocks: [...nextState.blocks].sort((a, b) => a.order - b.order),
+    };
+
     // Update the current state to match history
-    setCurrentState(nextState);
+    setCurrentState(sortedNextState);
 
     // Return the next state and current state for database updates
-    return { nextState, currentState: currentStateSnapshot };
+    return { nextState: sortedNextState, currentState: currentStateSnapshot };
   }, [currentState, debouncedUpdateHistory, updateHistory]);
 
   const canUndo = history.past.length > 0;
