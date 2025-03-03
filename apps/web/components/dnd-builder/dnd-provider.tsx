@@ -747,19 +747,18 @@ export default function DndProvider() {
           order: existingBlock.order, // Preserve the existing order
         };
       }
+
+      // Update the block while preserving order of all blocks
       newBlocks = blocks.map((block) =>
         block.id === updatedBlock.id ? updatedBlock : block
       );
 
-      // Ensure block order is maintained
-      const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
-
       // Always update UI immediately
-      updateBlocksWithoutHistory(sortedBlocks);
+      updateBlocksWithoutHistory(newBlocks);
 
-      // If shouldAddToHistory is true, add to history
+      // If shouldAddToHistory is true, add to history immediately to ensure consistency
       if (shouldAddToHistory) {
-        addToHistory();
+        addToHistory(true); // Force immediate history update
       }
 
       // For database updates, debounce the operation

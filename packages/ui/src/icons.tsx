@@ -1680,3 +1680,71 @@ export function CloudUpload({
     </svg>
   );
 }
+
+export function EmailError({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M1.75 5.64296L8.565 9.54C8.84 9.673 9.16 9.673 9.434 9.54L16.25 5.64239V5.25C16.25 4.14543 15.3546 3.25 14.25 3.25H3.75C2.64543 3.25 1.75 4.14543 1.75 5.25V5.64296Z"
+          fill={secondaryfill}
+          fillOpacity="0.3"
+          fillRule="evenodd"
+          stroke="none"
+        />
+        <path
+          d="M1.75 5.75L8.517 9.483C8.818 9.649 9.182 9.649 9.483 9.483L16.25 5.75"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M16.25 9.898V5.25C16.25 4.146 15.355 3.25 14.25 3.25H3.75C2.645 3.25 1.75 4.146 1.75 5.25V12.75C1.75 13.854 2.645 14.75 3.75 14.75H6.75"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M15.5 16.75H15.899C16.694 16.75 17.171 15.867 16.735 15.202L13.836 10.777C13.441 10.174 12.558 10.174 12.163 10.777L9.26399 15.202C8.82799 15.867 9.30499 16.75 10.1 16.75H10.499"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M13 13.25V15.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M13 18C13.4142 18 13.75 17.6642 13.75 17.25C13.75 16.8358 13.4142 16.5 13 16.5C12.5858 16.5 12.25 16.8358 12.25 17.25C12.25 17.6642 12.5858 18 13 18Z"
+          fill={fill}
+          stroke="none"
+        />
+      </g>
+    </svg>
+  );
+}

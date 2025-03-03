@@ -19,7 +19,6 @@ import {
   ChevronRight,
 } from "@church-space/ui/icons";
 import { X } from "lucide-react";
-import { Label } from "@church-space/ui/label";
 import { Separator } from "@church-space/ui/separator";
 import { DragOverlay, useDraggable } from "@dnd-kit/core";
 import { AnimatePresence, motion } from "framer-motion";
