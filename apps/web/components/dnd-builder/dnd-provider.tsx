@@ -168,19 +168,6 @@ export default function DndProvider() {
     stylesRef.current = styles;
   }, [styles]);
 
-  // Early returns after all hooks are declared
-  if (emailId && !emailData?.email) {
-    return <EmailNotFound />;
-  }
-
-  if (
-    emailData?.email?.status &&
-    ["sent", "sending", "template"].includes(emailData.email.status)
-  ) {
-    router.push(`/emails/${emailId}/preview`);
-    return null;
-  }
-
   // Helper function to update block orders in the database
   const updateBlockOrdersInDatabase = useCallback(
     (blocksToUpdate: BlockType[]) => {
