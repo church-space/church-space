@@ -34,8 +34,19 @@ export function useUpdateEmailStyle() {
       return data;
     },
     onSuccess: (data, variables) => {
-      // Invalidate the email query to refetch the data
-      queryClient.invalidateQueries({ queryKey: ["email", variables.emailId] });
+      // Instead of invalidating the query which causes a refetch,
+      // update the cached data directly
+      queryClient.setQueryData(["email", variables.emailId], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          email: {
+            ...oldData.email,
+            ...variables.updates,
+          },
+        };
+      });
     },
   });
 }

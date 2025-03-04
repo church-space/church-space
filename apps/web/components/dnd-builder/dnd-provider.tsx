@@ -156,6 +156,19 @@ export default function DndProvider() {
     canRedo,
   } = useBlockStateManager(initialBlocks, initialStyles);
 
+  // Create a debounced function for style updates to reduce API calls
+  const debouncedStyleUpdate = useCallback(
+    debounce((updates: Record<string, any>) => {
+      if (emailId && Object.keys(updates).length > 0) {
+        updateEmailStyle.mutate({
+          emailId,
+          updates,
+        });
+      }
+    }, 500),
+    [emailId, updateEmailStyle],
+  );
+
   // Create refs to track the latest blocks and styles
   const blocksRef = useRef(blocks);
   const stylesRef = useRef(styles);
@@ -1267,13 +1280,10 @@ export default function DndProvider() {
 
       // Only update styles if they changed
       if (Object.keys(styleChanges).length > 0) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: styleChanges,
-        });
+        debouncedStyleUpdate(styleChanges);
       }
     }
-  }, [canUndo, undo, emailId, updateEmailStyle, batchUpdateEmailBlocks]);
+  }, [canUndo, undo, emailId, debouncedStyleUpdate, batchUpdateEmailBlocks]);
 
   // Handle redo button click
   const handleRedo = useCallback(() => {
@@ -1361,13 +1371,10 @@ export default function DndProvider() {
 
       // Only update styles if they changed
       if (Object.keys(styleChanges).length > 0) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: styleChanges,
-        });
+        debouncedStyleUpdate(styleChanges);
       }
     }
-  }, [canRedo, redo, emailId, updateEmailStyle, batchUpdateEmailBlocks]);
+  }, [canRedo, redo, emailId, debouncedStyleUpdate, batchUpdateEmailBlocks]);
 
   // Function to ensure all database blocks are visible in the UI
   const ensureBlocksVisibility = useCallback(() => {
@@ -1529,15 +1536,12 @@ export default function DndProvider() {
 
       // Update database if we have an emailId
       if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: {
-            blocks_bg_color: color,
-          },
+        debouncedStyleUpdate({
+          blocks_bg_color: color,
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleIsInsetChange to include history update
@@ -1551,15 +1555,12 @@ export default function DndProvider() {
 
       // Update database if we have an emailId
       if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: {
-            is_inset: inset,
-          },
+        debouncedStyleUpdate({
+          is_inset: inset,
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleIsRoundedChange to include history update
@@ -1573,15 +1574,12 @@ export default function DndProvider() {
 
       // Update in database if we have an emailId
       if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: {
-            is_rounded: rounded,
-          },
+        debouncedStyleUpdate({
+          is_rounded: rounded,
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleEmailBgColorChange to include history update
@@ -1595,15 +1593,12 @@ export default function DndProvider() {
 
       // Update in database if we have an emailId
       if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: {
-            bg_color: color,
-          },
+        debouncedStyleUpdate({
+          bg_color: color,
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleLinkColorChange to include history update
@@ -1616,13 +1611,12 @@ export default function DndProvider() {
       addToHistory();
 
       if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: { link_color: color },
+        debouncedStyleUpdate({
+          link_color: color,
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleDefaultTextColorChange to include history update
@@ -1636,15 +1630,12 @@ export default function DndProvider() {
 
       // Update in database if we have an emailId
       if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: {
-            default_text_color: color,
-          },
+        debouncedStyleUpdate({
+          default_text_color: color,
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleDefaultFontChange to include history update
@@ -1658,15 +1649,12 @@ export default function DndProvider() {
 
       // Update in database if we have an emailId
       if (emailId) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates: {
-            default_font: font,
-          },
+        debouncedStyleUpdate({
+          default_font: font,
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
   );
 
   // Initialize editors for text blocks
