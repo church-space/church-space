@@ -19,16 +19,10 @@ export function useEmailWithBlocks(emailId: number | undefined) {
           id,
           subject,
           status,
-          blocks_bg_color,
-          default_text_color,
-          default_font,
-          is_inset,
-          bg_color,
+          style,
           organization_id,
-          type,
-          is_rounded,
-          link_color
-        `
+          type
+        `,
         )
         .eq("id", emailId)
         .single();

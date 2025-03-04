@@ -121,3 +121,13 @@ export interface Section {
   id: string;
   blocks: Block[];
 }
+
+export interface EmailStyle {
+  blocks_bg_color?: string;
+  default_text_color?: string;
+  default_font?: string;
+  is_inset?: boolean;
+  bg_color?: string;
+  is_rounded?: boolean;
+  link_color?: string;
+}

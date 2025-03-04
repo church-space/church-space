@@ -134,14 +134,18 @@ export default function DndProvider() {
       data: block.value as unknown as BlockData,
     })) as BlockType[]) || [];
 
+  // Use type assertion to avoid TypeScript errors
+  const email = emailData?.email as any;
+  const emailStyle = email?.style || {};
+
   const initialStyles: EmailStyles = {
-    bgColor: emailData?.email?.blocks_bg_color || "#f4f4f5",
-    isInset: emailData?.email?.is_inset || false,
-    emailBgColor: emailData?.email?.bg_color || "#ffffff",
-    linkColor: emailData?.email?.link_color || "#0000ff",
-    defaultTextColor: emailData?.email?.default_text_color || "#000000",
-    defaultFont: emailData?.email?.default_font || "Inter",
-    isRounded: emailData?.email?.is_rounded ?? true,
+    bgColor: emailStyle.blocks_bg_color || "#f4f4f5",
+    isInset: emailStyle.is_inset || false,
+    emailBgColor: emailStyle.bg_color || "#ffffff",
+    linkColor: emailStyle.link_color || "#0000ff",
+    defaultTextColor: emailStyle.default_text_color || "#000000",
+    defaultFont: emailStyle.default_font || "Inter",
+    isRounded: emailStyle.is_rounded ?? true,
   };
 
   const {
@@ -1945,7 +1949,7 @@ export default function DndProvider() {
                   href={`/emails/${emailId}`}
                   className="truncate"
                 >
-                  {emailData?.email?.subject || "Email Subject"}
+                  {(emailData?.email as any)?.subject || "Email Subject"}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />

@@ -13,6 +13,7 @@ import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function EmailPreview({
   showBackButton = false,
@@ -26,6 +27,7 @@ export default function EmailPreview({
     ? parseInt(params.emailId as string, 10)
     : undefined;
   const { data: emailData } = useEmailWithBlocks(emailId);
+  const queryClient = useQueryClient();
 
   // Convert blocks to sections format
   const sections = [
@@ -42,14 +44,16 @@ export default function EmailPreview({
   ];
 
   // Prepare email style
+  const emailStyle = (emailData?.email?.style || {}) as any;
+
   const style = {
-    bgColor: emailData?.email?.blocks_bg_color || "#f4f4f5",
-    isInset: emailData?.email?.is_inset || false,
-    emailBgColor: emailData?.email?.bg_color || "#ffffff",
-    defaultTextColor: emailData?.email?.default_text_color || "#000000",
-    defaultFont: emailData?.email?.default_font || "Inter",
-    isRounded: emailData?.email?.is_rounded ?? true,
-    linkColor: emailData?.email?.link_color || "#0000ff",
+    bgColor: emailStyle.blocks_bg_color || "#f4f4f5",
+    isInset: emailStyle.is_inset || false,
+    emailBgColor: emailStyle.bg_color || "#ffffff",
+    defaultTextColor: emailStyle.default_text_color || "#000000",
+    defaultFont: emailStyle.default_font || "Inter",
+    isRounded: emailStyle.is_rounded ?? true,
+    linkColor: emailStyle.link_color || "#0000ff",
   };
 
   useEffect(() => {

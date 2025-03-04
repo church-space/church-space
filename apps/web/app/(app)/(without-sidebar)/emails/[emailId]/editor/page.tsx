@@ -35,15 +35,9 @@ export default async function Page(props: { params: Params }) {
           id,
           subject,
           status,
-          bg_color,
-          blocks_bg_color,
-          default_text_color,
-          default_font,
-          is_inset,
+          style,
           organization_id,
-          type, 
-          is_rounded,
-          link_color
+          type
         `,
         )
         .eq("id", emailId)

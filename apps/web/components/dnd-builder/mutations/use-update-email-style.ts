@@ -1,17 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@church-space/supabase/client";
+import { EmailStyle } from "@/types/blocks";
+
+interface StyleUpdates {
+  blocks_bg_color?: string;
+  default_text_color?: string;
+  default_font?: string;
+  is_inset?: boolean;
+  bg_color?: string;
+  is_rounded?: boolean;
+  link_color?: string;
+}
 
 interface UpdateEmailStyleParams {
   emailId: number;
-  updates: {
-    blocks_bg_color?: string;
-    default_text_color?: string;
-    default_font?: string;
-    is_inset?: boolean;
-    bg_color?: string;
-    is_rounded?: boolean;
-    link_color?: string;
-  };
+  updates: StyleUpdates;
 }
 
 export function useUpdateEmailStyle() {
@@ -20,9 +23,36 @@ export function useUpdateEmailStyle() {
 
   return useMutation({
     mutationFn: async ({ emailId, updates }: UpdateEmailStyleParams) => {
+      // Get the current data from the cache
+      const cachedData = queryClient.getQueryData(["email", emailId]) as any;
+      const currentStyle = cachedData?.email?.style || {};
+
+      // Create the updated style object by merging with current style
+      const updatedStyle = {
+        ...currentStyle,
+        ...(updates.blocks_bg_color !== undefined && {
+          blocks_bg_color: updates.blocks_bg_color,
+        }),
+        ...(updates.default_text_color !== undefined && {
+          default_text_color: updates.default_text_color,
+        }),
+        ...(updates.default_font !== undefined && {
+          default_font: updates.default_font,
+        }),
+        ...(updates.is_inset !== undefined && { is_inset: updates.is_inset }),
+        ...(updates.bg_color !== undefined && { bg_color: updates.bg_color }),
+        ...(updates.is_rounded !== undefined && {
+          is_rounded: updates.is_rounded,
+        }),
+        ...(updates.link_color !== undefined && {
+          link_color: updates.link_color,
+        }),
+      };
+
+      // Update the style column
       const { data, error } = await supabase
         .from("emails")
-        .update(updates)
+        .update({ style: updatedStyle })
         .eq("id", emailId)
         .select()
         .single();
@@ -43,7 +73,7 @@ export function useUpdateEmailStyle() {
           ...oldData,
           email: {
             ...oldData.email,
-            ...variables.updates,
+            style: data.style,
           },
         };
       });

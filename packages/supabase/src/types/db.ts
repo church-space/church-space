@@ -244,69 +244,51 @@ export type Database = {
       }
       emails: {
         Row: {
-          bg_color: string | null
-          blocks_bg_color: string | null
           created_at: string
-          default_font: string | null
-          default_text_color: string | null
           from_email: string | null
           from_name: string | null
           id: number
-          is_inset: boolean
-          is_rounded: boolean
-          link_color: string | null
           list_id: number | null
           organization_id: string
           reply_to: string | null
           scheduled_for: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["email_statuses"] | null
+          style: Json | null
           subject: string | null
           trigger_dev_schduled_id: string | null
           type: Database["public"]["Enums"]["email_types"]
           updated_at: string | null
         }
         Insert: {
-          bg_color?: string | null
-          blocks_bg_color?: string | null
           created_at?: string
-          default_font?: string | null
-          default_text_color?: string | null
           from_email?: string | null
           from_name?: string | null
           id?: number
-          is_inset?: boolean
-          is_rounded?: boolean
-          link_color?: string | null
           list_id?: number | null
           organization_id: string
           reply_to?: string | null
           scheduled_for?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_statuses"] | null
+          style?: Json | null
           subject?: string | null
           trigger_dev_schduled_id?: string | null
           type?: Database["public"]["Enums"]["email_types"]
           updated_at?: string | null
         }
         Update: {
-          bg_color?: string | null
-          blocks_bg_color?: string | null
           created_at?: string
-          default_font?: string | null
-          default_text_color?: string | null
           from_email?: string | null
           from_name?: string | null
           id?: number
-          is_inset?: boolean
-          is_rounded?: boolean
-          link_color?: string | null
           list_id?: number | null
           organization_id?: string
           reply_to?: string | null
           scheduled_for?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_statuses"] | null
+          style?: Json | null
           subject?: string | null
           trigger_dev_schduled_id?: string | null
           type?: Database["public"]["Enums"]["email_types"]
