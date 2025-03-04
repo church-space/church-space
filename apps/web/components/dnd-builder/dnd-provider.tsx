@@ -1937,16 +1937,19 @@ export default function DndProvider() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">Emails</BreadcrumbLink>
+                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  href={`/emails/${emailId}`}
+                  className="truncate"
+                >
                   {emailData?.email?.subject || "Email Subject"}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
+              <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbPage>Designer</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
