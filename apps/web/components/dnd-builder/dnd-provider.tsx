@@ -313,233 +313,236 @@ export default function DndProvider() {
           updateBlockOrdersInDatabase(reorderedBlocks);
         }
       }
-    } else {
-      // Handle new blocks from sidebar
-      const newBlockId = crypto.randomUUID();
-      const blockType = active.data.current.type;
+      return;
+    }
 
-      // Create the block data based on the block type
-      let blockData: BlockData;
+    // Only proceed with new block creation if dropping over canvas or an existing block
+    if (over.id !== "canvas" && !blocks.some((block) => block.id === over.id)) {
+      return;
+    }
 
-      if (blockType === "text") {
-        blockData = {
-          content: "",
-          font: styles.defaultFont,
-          textColor: styles.defaultTextColor,
-        };
-      } else if (blockType === "video") {
-        blockData = {
-          url: "",
-          size: 100,
-          centered: true,
-        };
-      } else if (blockType === "file-download") {
-        blockData = {
-          title: "File Name",
-          file: "",
-          bgColor: "#ffffff",
-          textColor: "#000000",
-        };
-      } else if (blockType === "divider") {
-        blockData = { color: styles.defaultTextColor, margin: 0 };
-      } else if (blockType === "button") {
-        blockData = {
-          text: "Button",
-          link: "",
-          color: styles.defaultTextColor,
-          textColor: "#FFFFFF",
-          style: "filled" as "filled" | "outline",
-          size: "fit" as "fit" | "full",
-          centered: true,
-        };
-      } else if (blockType === "list") {
-        blockData = {
-          title: "List Title",
-          subtitle: "List Subtitle",
-          textColor: "#000000",
-          bulletColor: "#000000",
-          bulletType: "number" as "number" | "bullet",
-          items: [
-            {
-              title: "First Item",
-              description: "Description",
-            },
-          ],
-        };
-      } else if (blockType === "cards") {
-        blockData = {
-          title: "Cards Title",
-          subtitle: "Cards Subtitle",
-          textColor: "#000000",
-          labelColor: "#4274D2",
-          buttonColor: "#4274D2",
-          buttonTextColor: "#FFFFFF",
-          cards: [
-            {
-              title: "First Card",
-              description: "Card description here",
-              label: "",
-              buttonText: "Learn More",
-              buttonLink: "",
-              image: "",
-            },
-          ],
-        };
-      } else if (blockType === "image") {
-        blockData = {
-          image: "",
-          size: 100,
-          link: "",
-          centered: true,
-        };
-      } else {
-        // Default to text block data if type is not recognized
-        blockData = { content: "" };
-      }
+    // Handle new blocks from sidebar
+    const newBlockId = crypto.randomUUID();
+    const blockType = active.data.current.type;
+    let newBlocks;
+    let newBlockOrder;
 
-      let newBlocks: BlockType[];
-      let newBlockOrder: number;
+    // Create the block data based on the block type
+    let blockData: BlockData;
 
-      // Determine where to insert the new block
-      if (over.id === "canvas") {
-        // If dropping directly on canvas, add to the end
-        newBlockOrder = blocks.length;
-      } else {
-        // If dropping on an existing block, find its position
-        const overIndex = blocks.findIndex((block) => block.id === over.id);
-        if (overIndex !== -1) {
-          const rect = over.rect as DOMRect;
-          const mouseY = active.rect.current.translated.top;
-          const threshold = rect.top + rect.height / 2;
-
-          // Insert before or after the target block based on mouse position
-          newBlockOrder = mouseY < threshold ? overIndex : overIndex + 1;
-        } else {
-          // Fallback to end of list
-          newBlockOrder = blocks.length;
-        }
-      }
-
-      // Create the new block with the correct order
-      const newBlock: BlockType = {
-        id: newBlockId,
-        type: blockType,
-        order: newBlockOrder,
-        data: blockData,
+    if (blockType === "text") {
+      blockData = {
+        content: "",
+        font: styles.defaultFont,
+        textColor: styles.defaultTextColor,
       };
-
-      // Initialize editor for text blocks
-      if (blockType === "text") {
-        const initialContent =
-          blockData && (blockData as any).content
-            ? (blockData as any).content
-            : "";
-
-        const newEditor = createEditor(
-          initialContent,
-          styles.defaultFont,
-          styles.defaultTextColor,
-          false // new blocks should use email defaults
-        );
-        setEditors((prev) => ({
-          ...prev,
-          [newBlockId]: newEditor,
-        }));
-      }
-
-      // Insert the block at the correct position
-      newBlocks = [...blocks];
-      newBlocks.splice(newBlockOrder, 0, newBlock);
-
-      // Update the order of all blocks after the insertion point
-      newBlocks = newBlocks.map((block, index) => ({
-        ...block,
-        order: index,
-      }));
-
-      // Update the local state
-      updateBlocksWithoutHistory(newBlocks);
-
-      // Add to history immediately for new blocks
-      addToHistory(true);
-
-      // Add the block to the database if we have an emailId
-      if (emailId) {
-        // First update the UI optimistically
-        // Then add to database
-        addEmailBlock.mutate(
+    } else if (blockType === "video") {
+      blockData = {
+        url: "",
+        size: 100,
+        centered: true,
+      };
+    } else if (blockType === "file-download") {
+      blockData = {
+        title: "File Name",
+        file: "",
+        bgColor: "#ffffff",
+        textColor: "#000000",
+      };
+    } else if (blockType === "divider") {
+      blockData = { color: styles.defaultTextColor, margin: 0 };
+    } else if (blockType === "button") {
+      blockData = {
+        text: "Button",
+        link: "",
+        color: styles.defaultTextColor,
+        textColor: "#FFFFFF",
+        style: "filled" as "filled" | "outline",
+        size: "fit" as "fit" | "full",
+        centered: true,
+      };
+    } else if (blockType === "list") {
+      blockData = {
+        title: "List Title",
+        subtitle: "List Subtitle",
+        textColor: "#000000",
+        bulletColor: "#000000",
+        bulletType: "number" as "number" | "bullet",
+        items: [
           {
-            emailId,
-            type: blockType,
-            value: blockData,
-            order: newBlockOrder,
-            linkedFile: undefined,
+            title: "First Item",
+            description: "Description",
           },
+        ],
+      };
+    } else if (blockType === "cards") {
+      blockData = {
+        title: "Cards Title",
+        subtitle: "Cards Subtitle",
+        textColor: "#000000",
+        labelColor: "#4274D2",
+        buttonColor: "#4274D2",
+        buttonTextColor: "#FFFFFF",
+        cards: [
           {
-            onSuccess: (result) => {
-              if (result && result.id) {
-                // Update the block ID in our local state to use the database ID
-                // but keep the same block in the UI
-                const updatedBlocks = newBlocks.map((block) =>
-                  block.id === newBlockId
-                    ? { ...block, id: result.id.toString() }
-                    : block
-                );
+            title: "First Card",
+            description: "Card description here",
+            label: "",
+            buttonText: "Learn More",
+            buttonLink: "",
+            image: "",
+          },
+        ],
+      };
+    } else if (blockType === "image") {
+      blockData = {
+        image: "",
+        size: 100,
+        link: "",
+        centered: true,
+      };
+    } else {
+      // Default to text block data if type is not recognized
+      blockData = { content: "" };
+    }
 
-                // Update the editor reference if this is a text block
-                if (blockType === "text") {
-                  setEditors((prev) => {
-                    const newEditors = { ...prev };
-                    if (newEditors[newBlockId]) {
-                      // Move the editor reference to the new ID
-                      newEditors[result.id.toString()] = newEditors[newBlockId];
-                      delete newEditors[newBlockId];
-                    }
-                    return newEditors;
-                  });
-                }
+    // Determine where to insert the new block
+    if (over.id === "canvas") {
+      // If dropping directly on canvas, add to the end
+      newBlockOrder = blocks.length;
+    } else {
+      // If dropping on an existing block, find its position
+      const overIndex = blocks.findIndex((block) => block.id === over.id);
+      if (overIndex !== -1) {
+        const rect = over.rect as DOMRect;
+        const mouseY = active.rect.current.translated.top;
+        const threshold = rect.top + rect.height / 2;
 
-                // Check for duplicate IDs
-                const updatedBlockIds = updatedBlocks.map((block) => block.id);
-                const hasBlockDuplicates = updatedBlockIds.some(
-                  (id, index) => updatedBlockIds.indexOf(id) !== index
-                );
-
-                if (hasBlockDuplicates) {
-                  // Keep only the first occurrence of each ID
-                  const seenIds = new Set<string>();
-                  const deduplicatedBlocks = updatedBlocks.filter((block) => {
-                    if (seenIds.has(block.id)) {
-                      return false;
-                    }
-                    seenIds.add(block.id);
-                    return true;
-                  });
-
-                  updateBlocksWithoutHistory(deduplicatedBlocks);
-                } else {
-                  updateBlocksWithoutHistory(updatedBlocks);
-                }
-
-                // Set the newly created block as the selected block
-                setSelectedBlockId(result.id.toString());
-
-                // Update the order of all blocks in the database to match their position in the UI
-                // This ensures blocks after the insertion point have their order properly updated
-                updateBlockOrdersInDatabase(updatedBlocks);
-              } else {
-                console.error(
-                  "Failed to add block to database - no ID returned"
-                );
-              }
-            },
-            onError: (error) => {
-              console.error("Error adding block to database:", error);
-              // You could show an error toast here
-            },
-          }
-        );
+        // Insert before or after the target block based on mouse position
+        newBlockOrder = mouseY < threshold ? overIndex : overIndex + 1;
+      } else {
+        // Fallback to end of list
+        newBlockOrder = blocks.length;
       }
+    }
+
+    // Create the new block with the correct order
+    const newBlock: BlockType = {
+      id: newBlockId,
+      type: blockType,
+      order: newBlockOrder,
+      data: blockData,
+    };
+
+    // Initialize editor for text blocks
+    if (blockType === "text") {
+      const initialContent =
+        blockData && (blockData as any).content
+          ? (blockData as any).content
+          : "";
+
+      const newEditor = createEditor(
+        initialContent,
+        styles.defaultFont,
+        styles.defaultTextColor,
+        false // new blocks should use email defaults
+      );
+      setEditors((prev) => ({
+        ...prev,
+        [newBlockId]: newEditor,
+      }));
+    }
+
+    // Insert the block at the correct position
+    newBlocks = [...blocks];
+    newBlocks.splice(newBlockOrder, 0, newBlock);
+
+    // Update the order of all blocks after the insertion point
+    newBlocks = newBlocks.map((block, index) => ({
+      ...block,
+      order: index,
+    }));
+
+    // Update the local state
+    updateBlocksWithoutHistory(newBlocks);
+
+    // Add to history immediately for new blocks
+    addToHistory(true);
+
+    // Add the block to the database if we have an emailId
+    if (emailId) {
+      // First update the UI optimistically
+      // Then add to database
+      addEmailBlock.mutate(
+        {
+          emailId,
+          type: blockType,
+          value: blockData,
+          order: newBlockOrder,
+          linkedFile: undefined,
+        },
+        {
+          onSuccess: (result) => {
+            if (result && result.id) {
+              // Update the block ID in our local state to use the database ID
+              // but keep the same block in the UI
+              const updatedBlocks = newBlocks.map((block) =>
+                block.id === newBlockId
+                  ? { ...block, id: result.id.toString() }
+                  : block
+              );
+
+              // Update the editor reference if this is a text block
+              if (blockType === "text") {
+                setEditors((prev) => {
+                  const newEditors = { ...prev };
+                  if (newEditors[newBlockId]) {
+                    // Move the editor reference to the new ID
+                    newEditors[result.id.toString()] = newEditors[newBlockId];
+                    delete newEditors[newBlockId];
+                  }
+                  return newEditors;
+                });
+              }
+
+              // Check for duplicate IDs
+              const updatedBlockIds = updatedBlocks.map((block) => block.id);
+              const hasBlockDuplicates = updatedBlockIds.some(
+                (id, index) => updatedBlockIds.indexOf(id) !== index
+              );
+
+              if (hasBlockDuplicates) {
+                // Keep only the first occurrence of each ID
+                const seenIds = new Set<string>();
+                const deduplicatedBlocks = updatedBlocks.filter((block) => {
+                  if (seenIds.has(block.id)) {
+                    return false;
+                  }
+                  seenIds.add(block.id);
+                  return true;
+                });
+
+                updateBlocksWithoutHistory(deduplicatedBlocks);
+              } else {
+                updateBlocksWithoutHistory(updatedBlocks);
+              }
+
+              // Set the newly created block as the selected block
+              setSelectedBlockId(result.id.toString());
+
+              // Update the order of all blocks in the database to match their position in the UI
+              // This ensures blocks after the insertion point have their order properly updated
+              updateBlockOrdersInDatabase(updatedBlocks);
+            } else {
+              console.error("Failed to add block to database - no ID returned");
+            }
+          },
+          onError: (error) => {
+            console.error("Error adding block to database:", error);
+            // You could show an error toast here
+          },
+        }
+      );
     }
   };
 
@@ -1671,36 +1674,88 @@ export default function DndProvider() {
     }
 
     // For new blocks from sidebar
-    const activeHeight = active.rect.current.translated?.height || 0;
-    const isLargeBlock = activeHeight > 100; // Define what "large" means
+    if (!pointerCoordinates) return [];
 
-    if (!isLargeBlock) {
-      // For small blocks, use standard collision detection
-      return closestCenter(args);
+    // Get the canvas container
+    const canvasContainer = droppableContainers.find(
+      (container) => container.id === "canvas"
+    );
+    if (!canvasContainer) return [];
+
+    // Get the canvas rect
+    const canvasRect = droppableRects.get(canvasContainer.id);
+    if (!canvasRect) return [];
+
+    // Check if pointer is actually within the canvas bounds
+    const isOverCanvas =
+      pointerCoordinates.x >= canvasRect.left &&
+      pointerCoordinates.x <= canvasRect.right &&
+      pointerCoordinates.y >= canvasRect.top &&
+      pointerCoordinates.y <= canvasRect.bottom;
+
+    // If not over canvas, return no collisions
+    if (!isOverCanvas) return [];
+
+    // Filter containers to only those in the canvas
+    const filtered = droppableContainers.filter((container) => {
+      const rect = droppableRects.get(container.id);
+      if (!rect) return false;
+
+      return (
+        container.id === "canvas" ||
+        (blocks.some((block) => block.id === container.id) &&
+          rect.top >= canvasRect.top &&
+          rect.bottom <= canvasRect.bottom &&
+          rect.left >= canvasRect.left &&
+          rect.right <= canvasRect.right)
+      );
+    });
+
+    // For each container, calculate its center point and distance to pointer
+    const distances = filtered.map((container) => {
+      const rect = droppableRects.get(container.id);
+      if (!rect) return { container, distance: Infinity };
+
+      // For blocks, use the y-position of the pointer relative to the block's center
+      // to determine if we should consider it as a target
+      const centerY = rect.top + rect.height / 2;
+      const pointerY = pointerCoordinates.y;
+
+      // Create a "virtual" target zone that extends halfway into the blocks above and below
+      const virtualZoneTop = rect.top - rect.height / 2;
+      const virtualZoneBottom = rect.bottom + rect.height / 2;
+
+      // If pointer is within this extended zone, consider this block as a potential target
+      const isInVerticalRange =
+        pointerY >= virtualZoneTop && pointerY <= virtualZoneBottom;
+
+      // Calculate distance from pointer to center of block
+      const distance = Math.sqrt(
+        Math.pow(rect.left + rect.width / 2 - pointerCoordinates.x, 2) +
+          Math.pow(centerY - pointerCoordinates.y, 2)
+      );
+
+      return {
+        container,
+        distance: isInVerticalRange ? distance : Infinity,
+      };
+    });
+
+    // Sort by distance and get the closest container
+    distances.sort((a, b) => a.distance - b.distance);
+
+    // Return the closest container if it's within a reasonable distance
+    const closest = distances[0];
+    if (closest && closest.distance !== Infinity) {
+      return [{ id: closest.container.id }];
     }
 
-    // For large blocks, we need a more precise algorithm
-    // First, find all intersecting containers
-    const modifiedArgs = {
-      ...args,
-      collisionRect: {
-        ...collisionRect,
-        // Make the collision rect taller to increase chances of intersection
-        height: collisionRect.height * 0.5,
-        // Center it vertically on the pointer
-        top: collisionRect.top + collisionRect.height * 0.25,
-      },
-    };
-
-    const intersections = pointerWithin(modifiedArgs);
-
-    // If we have intersections, return them
-    if (intersections.length > 0) {
-      return intersections;
+    // If no close blocks found but we're over the canvas, return canvas as target
+    if (canvasContainer) {
+      return [{ id: canvasContainer.id }];
     }
 
-    // Fallback to standard collision detection
-    return rectIntersection(args);
+    return [];
   };
 
   return (

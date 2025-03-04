@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import React, { useRef } from "react";
 import Block from "./block";
 import Footer from "./footer";
+import { Layout } from "@church-space/ui/icons";
 
 interface CanvasProps {
   blocks: BlockType[];
@@ -141,9 +142,10 @@ export default function DndBuilderCanvas({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex flex-col gap-3 p-4 min-h-[102px] max-w-2xl w-full mx-auto ",
+          "flex flex-col gap-3 p-4  max-w-2xl w-full mx-auto ",
           isInset && " shadow-md mb-2",
-          isRounded && "rounded-lg"
+          isRounded && "rounded-lg",
+          blocks.length === 0 && "min-h-[102px] "
         )}
         style={{ backgroundColor: bgColor }}
       >
@@ -157,7 +159,16 @@ export default function DndBuilderCanvas({
                 transition={{ duration: 0.2 }}
               />
             ) : (
-              "Drag blocks here"
+              <div className="flex flex-col gap-2 items-center justify-center py-12 w-full rounded-md border border-dashed border-muted-foreground/50 p-4 bg-card/80">
+                <Layout height="5rem" width="5rem" />
+                <div className="text-lg font-medium text-foreground">
+                  Drag blocks here
+                </div>
+                <div className="text-sm text-muted-foreground max-w-xs text-center">
+                  Drag and drop email blocks from the left panel to build your
+                  email template
+                </div>
+              </div>
             )}
           </div>
         ) : (

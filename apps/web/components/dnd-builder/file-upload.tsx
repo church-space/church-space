@@ -202,7 +202,7 @@ const FileUpload = ({
               disabled={isUploading || isDeleting}
             >
               {getDisplayName() ? (
-                <span className="block truncate overflow-hidden text-ellipsis max-w-[170px] w-full">
+                <span className="block truncate overflow-hidden text-ellipsis max-w-[180px] w-full">
                   {getDisplayName()}
                 </span>
               ) : (
