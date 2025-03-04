@@ -739,8 +739,171 @@ export default function DndProvider() {
 
   // Fix handleBlockUpdate to include history update
   const handleBlockUpdate = useCallback(
-    (updatedBlock: BlockType, shouldAddToHistory: boolean = true) => {
-      // Regular update operation
+    (
+      updatedBlock: BlockType,
+      shouldAddToHistory: boolean = true,
+      isDuplication: boolean = false,
+    ) => {
+      // For duplications, we need to add the block to the list instead of updating an existing one
+      if (isDuplication) {
+        // Find the original block to determine where to insert the duplicated block
+        const originalBlock = blocks.find(
+          (block) => block.id === updatedBlock.duplicatedFromId,
+        );
+
+        let insertIndex = blocks.length; // Default to end of list
+        if (originalBlock) {
+          // Insert after the original block
+          insertIndex = originalBlock.order + 1;
+        }
+
+        // Create a new array with all blocks
+        let newBlocks = [...blocks];
+
+        // Set the correct order for the duplicated block
+        updatedBlock = {
+          ...updatedBlock,
+          order: insertIndex,
+        };
+
+        // Insert the duplicated block at the correct position
+        newBlocks.splice(insertIndex, 0, updatedBlock);
+
+        // Update the order of all blocks after the insertion point
+        newBlocks = newBlocks.map((block, index) => ({
+          ...block,
+          order: index,
+        }));
+
+        // Update the UI immediately
+        updateBlocksWithoutHistory(newBlocks);
+
+        // Add to history
+        if (shouldAddToHistory) {
+          addToHistory();
+        }
+
+        // Add the duplicated block to the database if we have an emailId
+        if (emailId) {
+          // Create a default value if data is undefined based on block type
+          let blockValue: BlockData;
+          if (!updatedBlock.data) {
+            // Create a minimal default value based on block type
+            switch (updatedBlock.type) {
+              case "text":
+                blockValue = { content: "" };
+                break;
+              case "button":
+                blockValue = {
+                  text: "Button",
+                  link: "#",
+                  color: "#000000",
+                  textColor: "#ffffff",
+                  style: "filled",
+                  size: "fit",
+                  centered: true,
+                };
+                break;
+              case "divider":
+                blockValue = { color: "#000000", margin: 20 };
+                break;
+              case "image":
+                blockValue = {
+                  image: "",
+                  size: 100,
+                  link: "",
+                  centered: true,
+                };
+                break;
+              case "video":
+                blockValue = {
+                  url: "",
+                  size: 100,
+                  centered: true,
+                };
+                break;
+              case "file-download":
+                blockValue = {
+                  title: "Download",
+                  file: "",
+                  bgColor: "#f5f5f5",
+                  textColor: "#000000",
+                };
+                break;
+              case "cards":
+                blockValue = {
+                  title: "",
+                  subtitle: "",
+                  textColor: "#000000",
+                  labelColor: "#666666",
+                  buttonColor: "#000000",
+                  buttonTextColor: "#ffffff",
+                  cards: [],
+                };
+                break;
+              case "list":
+                blockValue = {
+                  title: "",
+                  subtitle: "",
+                  textColor: "#000000",
+                  bulletColor: "#000000",
+                  bulletType: "bullet",
+                  items: [],
+                };
+                break;
+              case "author":
+                blockValue = {
+                  name: "",
+                  subtitle: "",
+                  avatar: "",
+                  textColor: "#000000",
+                  links: [],
+                };
+                break;
+              default:
+                // This should never happen as we're duplicating an existing block
+                blockValue = { content: "" } as BlockData;
+            }
+          } else {
+            blockValue = updatedBlock.data;
+          }
+
+          addEmailBlock.mutate(
+            {
+              emailId,
+              type: updatedBlock.type,
+              value: blockValue,
+              order: insertIndex,
+              linkedFile: undefined,
+            },
+            {
+              onSuccess: (result) => {
+                if (result && result.id) {
+                  // Update the block ID in our local state to use the database ID
+                  const updatedBlocks = newBlocks.map((block) =>
+                    block.id === updatedBlock.id
+                      ? { ...block, id: result.id.toString() }
+                      : block,
+                  );
+
+                  // Update the UI with the new ID
+                  updateBlocksWithoutHistory(updatedBlocks);
+
+                  // Set the newly created block as the selected block
+                  setSelectedBlockId(result.id.toString());
+
+                  // Update the order of all blocks in the database
+                  updateBlockOrdersInDatabase(updatedBlocks);
+                }
+              },
+            },
+          );
+        }
+
+        return;
+      }
+
+      // Regular update operation (non-duplication)
       const existingBlock = blocks.find(
         (block) => block.id === updatedBlock.id,
       );
@@ -791,6 +954,9 @@ export default function DndProvider() {
       updateBlocksWithoutHistory,
       addToHistory,
       updateEmailBlock,
+      addEmailBlock,
+      setSelectedBlockId,
+      updateBlockOrdersInDatabase,
     ],
   );
 
