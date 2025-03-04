@@ -1,25 +1,8 @@
 "use client";
 
 import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { BlockData, Block as BlockType } from "@/types/blocks";
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
-  pointerWithin,
-  rectIntersection,
-  CollisionDetection,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { useQueryClient } from "@tanstack/react-query";
-import { Editor } from "@tiptap/react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,18 +12,45 @@ import {
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import { Button } from "@church-space/ui/button";
-import { Redo, Undo, LoaderIcon } from "@church-space/ui/icons";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@church-space/ui/dialog";
+import { LoaderIcon, Redo, Undo } from "@church-space/ui/icons";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
+import {
+  closestCenter,
+  CollisionDetection,
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useQueryClient } from "@tanstack/react-query";
+import { Editor } from "@tiptap/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
+import { Eye, SaveIcon } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { useQueryState } from "nuqs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Block from "./block";
 import DndBuilderCanvas from "./canvas";
+import EmailPreview from "./email-preview";
 import { useAddEmailBlock } from "./mutations/use-add-email-block";
 import { useBatchUpdateEmailBlocks } from "./mutations/use-batch-update-email-blocks";
 import { useDeleteEmailBlock } from "./mutations/use-delete-email-block";
@@ -48,21 +58,9 @@ import { useUpdateEmailBlock } from "./mutations/use-update-email-block";
 import { useUpdateEmailStyle } from "./mutations/use-update-email-style";
 import { createEditor } from "./rich-text-editor/editor";
 import Toolbar from "./rich-text-editor/rich-text-format-bar";
-import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
-import { useBlockStateManager, EmailStyles } from "./use-block-state-manager";
-import { Eye, SaveIcon } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@church-space/ui/dialog";
-import EmailPreview from "./email-preview";
-import { useQueryState } from "nuqs";
 import SendTestEmail from "./send-test-email";
-import { useIsMobile } from "@/hooks/use-is-mobile";
+import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
+import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
