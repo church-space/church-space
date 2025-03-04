@@ -11,5 +11,7 @@ export default async function Page(props: { params: Params }) {
   const cookieStore = await cookies();
   const organizationId = cookieStore.get("organizationId")?.value;
 
+  console.log(organizationId);
+
   return <ClientPage emailId={emailId} />;
 }

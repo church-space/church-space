@@ -735,11 +735,7 @@ export default function DndProvider() {
 
   // Fix handleBlockUpdate to include history update
   const handleBlockUpdate = useCallback(
-    (
-      updatedBlock: BlockType,
-      shouldAddToHistory: boolean = true,
-      isDuplication: boolean = false,
-    ) => {
+    (updatedBlock: BlockType, isDuplication: boolean = false) => {
       // For duplications, we need to add the block to the list instead of updating an existing one
       if (isDuplication) {
         // Find the original block to determine where to insert the duplicated block

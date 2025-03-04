@@ -22,10 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import debounce from "lodash/debounce";
-import { useCallback, useEffect, useRef, useState } from "react";
-import FileUpload from "../file-upload";
+import { useRef, useState } from "react";
 import { z } from "zod";
+import FileUpload from "../file-upload";
 
 interface AuthorFormProps {
   block: Block & { data?: AuthorBlockData };

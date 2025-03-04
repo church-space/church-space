@@ -1,12 +1,12 @@
+import { useUser } from "@/stores/use-user";
+import { Block, ImageBlockData } from "@/types/blocks";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { Slider } from "@church-space/ui/slider";
 import { Switch } from "@church-space/ui/switch";
-import { useUser } from "@/stores/use-user";
-import FileUpload from "../file-upload";
-import { Block, ImageBlockData } from "@/types/blocks";
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
+import FileUpload from "../file-upload";
 
 interface ImageFormProps {
   block: Block & { data?: ImageBlockData };

@@ -1,5 +1,4 @@
 import { Label } from "@church-space/ui/label";
-import ColorPicker from "../color-picker";
 import {
   Select,
   SelectContent,
@@ -8,6 +7,7 @@ import {
   SelectValue,
 } from "@church-space/ui/select";
 import { InfoIcon } from "lucide-react";
+import ColorPicker from "../color-picker";
 
 interface TextFormProps {
   defaultTextColor?: string;

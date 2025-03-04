@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@church-space/supabase/client";
-import { EmailStyle } from "@/types/blocks";
 
 interface StyleUpdates {
   blocks_bg_color?: string;

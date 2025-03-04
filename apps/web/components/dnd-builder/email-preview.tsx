@@ -13,7 +13,6 @@ import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 
 export default function EmailPreview({
   showBackButton = false,
@@ -27,7 +26,6 @@ export default function EmailPreview({
     ? parseInt(params.emailId as string, 10)
     : undefined;
   const { data: emailData } = useEmailWithBlocks(emailId);
-  const queryClient = useQueryClient();
 
   // Convert blocks to sections format
   const sections = [

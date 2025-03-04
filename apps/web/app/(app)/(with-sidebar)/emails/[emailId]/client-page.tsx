@@ -23,6 +23,7 @@ import { Eye } from "lucide-react";
 import { useQueryState } from "nuqs";
 
 export default function ClientPage({ emailId }: { emailId: number }) {
+  console.log(emailId);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   return (
     <>

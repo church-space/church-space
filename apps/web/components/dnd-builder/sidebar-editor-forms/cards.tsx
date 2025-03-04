@@ -1,20 +1,19 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { Button } from "@church-space/ui/button";
-import { Input } from "@church-space/ui/input";
-import { Label } from "@church-space/ui/label";
-import { Textarea } from "@church-space/ui/textarea";
+import { useUser } from "@/stores/use-user";
+import type { Block, CardsBlockData } from "@/types/blocks";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@church-space/ui/accordion";
-import { useUser } from "@/stores/use-user";
-import FileUpload from "../file-upload";
-import type { Block, CardsBlockData } from "@/types/blocks";
-import debounce from "lodash/debounce";
+import { Button } from "@church-space/ui/button";
+import { Input } from "@church-space/ui/input";
+import { Label } from "@church-space/ui/label";
+import { Textarea } from "@church-space/ui/textarea";
+import { useRef, useState } from "react";
 import { z } from "zod";
 import ColorPicker from "../color-picker";
+import FileUpload from "../file-upload";
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };

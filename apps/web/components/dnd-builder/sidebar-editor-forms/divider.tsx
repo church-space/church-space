@@ -1,6 +1,6 @@
+import type { Block, DividerBlockData } from "@/types/blocks";
 import { Label } from "@church-space/ui/label";
 import { Slider } from "@church-space/ui/slider";
-import type { Block, DividerBlockData } from "@/types/blocks";
 import { useEffect, useState } from "react";
 import ColorPicker from "../color-picker";
 

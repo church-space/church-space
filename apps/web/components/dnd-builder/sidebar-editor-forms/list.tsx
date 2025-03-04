@@ -1,7 +1,6 @@
 import type { Block, ListBlockData } from "@/types/blocks";
 import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
-import { Textarea } from "@church-space/ui/textarea";
 import { Label } from "@church-space/ui/label";
 import {
   Select,
@@ -10,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
+import { Textarea } from "@church-space/ui/textarea";
 import { useEffect, useState } from "react";
 import ColorPicker from "../color-picker";
 

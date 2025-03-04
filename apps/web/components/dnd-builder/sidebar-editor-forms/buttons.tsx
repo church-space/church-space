@@ -8,11 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import { useEffect, useState, useRef, useCallback } from "react";
-import { z } from "zod";
-import debounce from "lodash/debounce";
-import ColorPicker from "../color-picker";
 import { Switch } from "@church-space/ui/switch";
+import { useEffect, useRef, useState } from "react";
+import { z } from "zod";
+import ColorPicker from "../color-picker";
 
 interface ButtonFormProps {
   block: Block & { data?: ButtonBlockData };

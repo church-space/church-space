@@ -1,10 +1,10 @@
+import { useUser } from "@/stores/use-user";
+import type { Block, FileDownloadBlockData } from "@/types/blocks";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
-import { useUser } from "@/stores/use-user";
-import FileUpload from "../file-upload";
-import type { Block, FileDownloadBlockData } from "@/types/blocks";
 import { useState } from "react";
 import ColorPicker from "../color-picker";
+import FileUpload from "../file-upload";
 
 interface FileDownloadFormProps {
   block: Block & { data?: FileDownloadBlockData };

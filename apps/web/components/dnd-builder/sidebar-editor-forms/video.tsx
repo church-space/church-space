@@ -1,8 +1,8 @@
+import { Block, VideoBlockData } from "@/types/blocks";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { Slider } from "@church-space/ui/slider";
 import { Switch } from "@church-space/ui/switch";
-import { Block, VideoBlockData } from "@/types/blocks";
 import { useEffect, useState } from "react";
 
 interface VideoFormProps {
