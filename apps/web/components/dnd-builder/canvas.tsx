@@ -153,13 +153,22 @@ export default function DndBuilderCanvas({
           <div className="flex-1 flex items-center justify-center text-muted-foreground ">
             {isDragging && isFromSidebar ? (
               <motion.div
-                className="h-20  rounded-md border border-dashed border-blue-500 w-full mx-1 max-w-2xl bg-blue-500/10 "
+                className="flex flex-col gap-2 items-center justify-center py-12 w-full rounded-md border border-dashed border-blue-500 max-w-2xl bg-blue-500/10 "
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2 }}
-              />
+              >
+                <Layout height="5rem" width="5rem" fill="#3b82f6" />
+                <div className="text-lg font-medium text-foreground text-blue-500">
+                  Drag blocks here
+                </div>
+                <div className="text-sm text-muted-foreground max-w-xs text-center text-blue-300">
+                  Drag and drop email blocks from the left panel to build your
+                  email template
+                </div>
+              </motion.div>
             ) : (
-              <div className="flex flex-col gap-2 items-center justify-center py-12 w-full rounded-md border border-dashed border-muted-foreground/50 p-4 bg-card/80">
+              <div className="flex flex-col gap-2 items-center justify-center py-12 w-full rounded-md border border-dashed border-muted-foreground/50 p-4 bg-card/80 max-w-2xl">
                 <Layout height="5rem" width="5rem" />
                 <div className="text-lg font-medium text-foreground">
                   Drag blocks here
