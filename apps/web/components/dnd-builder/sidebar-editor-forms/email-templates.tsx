@@ -47,7 +47,7 @@ export default function EmailTemplateForm({
   return (
     <div className="flex flex-col gap-5 px-1">
       <div className="flex flex-col gap-1">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Email Templates</h2>
           <div className="flex gap-2">
             <Tooltip>
@@ -64,7 +64,7 @@ export default function EmailTemplateForm({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" className="h-8 py-0 px-2">
+                <Button variant="outline" className="h-8 px-2 py-0">
                   <Save />
                 </Button>
               </TooltipTrigger>
@@ -78,23 +78,23 @@ export default function EmailTemplateForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label className="text-sm text-secondary-foreground px-1">
+        <Label className="px-1 text-sm text-secondary-foreground">
           Your Templates
         </Label>
         <Input
           placeholder="Search your templates"
-          className="w-full mb-3"
+          className="mb-3 w-full"
           onChange={(e) => setSearch(e.target.value)}
         />
         <div className="grid grid-cols-2 gap-3">
           {templates.map((template) => (
             <Card
               key={template.id}
-              className="cursor-pointer hover:border-primary transition-colors"
+              className="cursor-pointer transition-colors hover:border-primary"
               onClick={() => onSelectTemplate?.(template.id)}
             >
-              <CardContent className="p-3 flex flex-col gap-2">
-                <h3 className="font-medium text-sm">{template.name}</h3>
+              <CardContent className="flex flex-col gap-2 p-3">
+                <h3 className="text-sm font-medium">{template.name}</h3>
                 <p className="text-xs text-muted-foreground">
                   {template.description}
                 </p>

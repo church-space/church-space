@@ -4,12 +4,12 @@ import { PropsWithChildren } from "react";
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
-    <div className="max-w-2xl mx-auto my-12 flex flex-col ">
+    <div className="mx-auto my-12 flex max-w-2xl flex-col">
       <Link
         href="/policies"
-        className="flex flex-row gap-1 items-center font-light text-muted-foreground text-sm cursor-pointer group mb-3 -translate-x-px"
+        className="group mb-3 flex -translate-x-px cursor-pointer flex-row items-center gap-1 text-sm font-light text-muted-foreground"
       >
-        <span className="group-hover:-translate-x-1 transition-transform duration-300">
+        <span className="transition-transform duration-300 group-hover:-translate-x-1">
           <ChevronLeft height={"14"} width={"14"} />
         </span>
         Back to Policies

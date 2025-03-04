@@ -57,29 +57,29 @@ export default function CardsBlock({
         )}
         {subtitle && (
           <span
-            className=" text-muted-foreground"
+            className="text-muted-foreground"
             style={{ color: defaultTextColor }}
           >
             {subtitle}
           </span>
         )}
       </div>
-      <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 gap-y-14">
+      <div className="grid grid-cols-1 gap-6 gap-y-14 lg:grid-cols-2">
         {cards.map((card, index) => (
-          <div className="w-full flex flex-col gap-1" key={index}>
+          <div className="flex w-full flex-col gap-1" key={index}>
             {card.image && imageUrls[card.image] && (
               <Image
                 src={imageUrls[card.image]}
                 alt={card.title}
                 className={cn(
-                  "w-full h-48 object-cover ",
-                  isRounded && "rounded-md"
+                  "h-48 w-full object-cover",
+                  isRounded && "rounded-md",
                 )}
                 width={1280}
                 height={720}
               />
             )}
-            <div className="flex flex-col px-1 gap-0.5">
+            <div className="flex flex-col gap-0.5 px-1">
               <h3
                 className="text-sm font-medium"
                 style={{ color: data?.labelColor }}
@@ -102,8 +102,8 @@ export default function CardsBlock({
             {card.buttonText && (
               <div
                 className={cn(
-                  "min-h-8 px-4 items-center flex justify-center text-sm font-medium  mt-2 text-center text-balance py-1",
-                  isRounded && "rounded-md"
+                  "mt-2 flex min-h-8 items-center justify-center text-balance px-4 py-1 text-center text-sm font-medium",
+                  isRounded && "rounded-md",
                 )}
                 style={{
                   backgroundColor: data?.buttonColor,

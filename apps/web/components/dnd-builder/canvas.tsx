@@ -24,7 +24,7 @@ interface CanvasProps {
       | "block"
       | "email-style"
       | "email-footer"
-      | "email-templates"
+      | "email-templates",
   ) => void;
   activeForm:
     | "default"
@@ -125,9 +125,9 @@ export default function DndBuilderCanvas({
   return (
     <div
       className={cn(
-        "flex flex-col  w-full mx-auto items-center justify-center border shadow-sm mb-20 md:mb-0",
-        isInset ? "pt-3 px-3" : "",
-        isRounded ? "rounded-md" : "rounded-none"
+        "mx-auto mb-20 flex w-full flex-col items-center justify-center border shadow-sm md:mb-0",
+        isInset ? "px-3 pt-3" : "",
+        isRounded ? "rounded-md" : "rounded-none",
       )}
       style={
         isInset
@@ -142,38 +142,38 @@ export default function DndBuilderCanvas({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex flex-col gap-3 p-4  max-w-2xl w-full mx-auto ",
-          isInset && " shadow-md mb-2",
+          "mx-auto flex w-full max-w-2xl flex-col gap-3 p-4",
+          isInset && "mb-2 shadow-md",
           isRounded && "rounded-lg",
-          blocks.length === 0 && "min-h-[102px] "
+          blocks.length === 0 && "min-h-[102px]",
         )}
         style={{ backgroundColor: bgColor }}
       >
         {blocks.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground ">
+          <div className="flex flex-1 items-center justify-center text-muted-foreground">
             {isDragging && isFromSidebar ? (
               <motion.div
-                className="flex flex-col gap-2 items-center justify-center py-12 w-full rounded-md border border-dashed border-blue-500 max-w-2xl bg-blue-500/10 "
+                className="flex w-full max-w-2xl flex-col items-center justify-center gap-2 rounded-md border border-dashed border-blue-500 bg-blue-500/10 py-12"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2 }}
               >
                 <Layout height="5rem" width="5rem" fill="#3b82f6" />
-                <div className="text-lg font-medium text-foreground text-blue-500">
+                <div className="text-lg font-medium text-blue-500 text-foreground">
                   Drag blocks here
                 </div>
-                <div className="text-sm text-muted-foreground max-w-xs text-center text-blue-300">
+                <div className="max-w-xs text-center text-sm text-blue-300 text-muted-foreground">
                   Drag and drop email blocks from the left panel to build your
                   email template
                 </div>
               </motion.div>
             ) : (
-              <div className="flex flex-col gap-2 items-center justify-center py-12 w-full rounded-md border border-dashed border-muted-foreground/50 p-4 bg-card/80 max-w-2xl">
+              <div className="flex w-full max-w-2xl flex-col items-center justify-center gap-2 rounded-md border border-dashed border-muted-foreground/50 bg-card/80 p-4 py-12">
                 <Layout height="5rem" width="5rem" />
                 <div className="text-lg font-medium text-foreground">
                   Drag blocks here
                 </div>
-                <div className="text-sm text-muted-foreground max-w-xs text-center">
+                <div className="max-w-xs text-center text-sm text-muted-foreground">
                   Drag and drop email blocks from the left panel to build your
                   email template
                 </div>
@@ -186,7 +186,7 @@ export default function DndBuilderCanvas({
               <React.Fragment key={block.id}>
                 {isDragging && isFromSidebar && insertionIndex === index && (
                   <motion.div
-                    className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10"
+                    className="mx-auto h-20 w-full max-w-2xl rounded-md border border-dashed border-blue-500 bg-blue-500/10"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.2 }}
@@ -199,7 +199,7 @@ export default function DndBuilderCanvas({
                     damping: 20,
                     stiffness: 300,
                   }}
-                  className={cn("w-full max-w-2xl mx-auto")}
+                  className={cn("mx-auto w-full max-w-2xl")}
                   ref={(el) => {
                     if (el) blockRefs.current[block.id] = el;
                   }}
@@ -216,7 +216,7 @@ export default function DndBuilderCanvas({
               isFromSidebar &&
               insertionIndex === blocks.length && (
                 <motion.div
-                  className="h-20 rounded-md border border-dashed border-blue-500 w-full max-w-2xl mx-auto bg-blue-500/10"
+                  className="mx-auto h-20 w-full max-w-2xl rounded-md border border-dashed border-blue-500 bg-blue-500/10"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2 }}

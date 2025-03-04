@@ -163,10 +163,10 @@ export default function Block({
         ? listeners
         : {})}
       className={cn(
-        "relative mx-auto w-full max-w-2xl rounded-md p-1 border border-transparent hover:border-border group/block",
+        "group/block relative mx-auto w-full max-w-2xl rounded-md border border-transparent p-1 hover:border-border",
         isDragging && "opacity-50",
         isSelected && "ring-2 ring-blue-500",
-        isOverlay && "opacity-80 shadow-lg"
+        isOverlay && "opacity-80 shadow-lg",
       )}
       onClick={(e) => onSelect?.(e)}
       data-block-id={id}

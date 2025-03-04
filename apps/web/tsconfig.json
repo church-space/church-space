@@ -32,7 +32,8 @@
     "**/*.mdx",
     ".next/types/**/*.ts",
     "postcss.config.js",
-    "trigger.config.ts"
+    "trigger.config.ts",
+    ". prettierrc"
   ],
   "exclude": ["node_modules"]
 }

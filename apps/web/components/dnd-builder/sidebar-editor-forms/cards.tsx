@@ -25,7 +25,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   const { organizationId } = useUser();
   const [openCard, setOpenCard] = useState<string | undefined>(undefined);
   const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
-    {}
+    {},
   );
   const [isTyping, setIsTyping] = useState<Record<number, boolean>>({});
   const debounceTimerRef = useRef<Record<number, NodeJS.Timeout | null>>({});
@@ -57,10 +57,10 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
           ...block,
           data: stateRef.current,
         },
-        true
+        true,
       );
     }, 500),
-    [block, onUpdate]
+    [block, onUpdate],
   );
 
   // Cleanup the debounced function when component unmounts
@@ -129,7 +129,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
         ...block,
         data: newState,
       },
-      false
+      false,
     );
 
     // Debounce the history update
@@ -206,7 +206,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             ...block,
             data: localState,
           },
-          false
+          false,
         );
 
         // Debounce the history update
@@ -253,7 +253,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   return (
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
+        <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
           <Label>Title</Label>
           <Input
             className="col-span-2"
@@ -285,8 +285,8 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center">
-          <Label className="font-bold text-md">Cards</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-md font-bold">Cards</Label>
           <Button variant="outline" onClick={addCard}>
             Add Card
           </Button>
@@ -303,7 +303,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                 {card.title ? card.title : `Card ${index + 1}`}
               </AccordionTrigger>
               <AccordionContent>
-                <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center py-1 pr-1">
+                <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4 py-1 pr-1">
                   <Label>Title</Label>
                   <Input
                     className="col-span-2"

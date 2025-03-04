@@ -107,7 +107,7 @@ export default function DndProvider() {
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const [isSaving, setIsSaving] = useState(false);
   const [blocksBeingDeleted, setBlocksBeingDeleted] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const permanentlyDeletedBlocksRef = useRef<Set<string>>(new Set());
   const databaseUpdateTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -122,7 +122,7 @@ export default function DndProvider() {
       activationConstraint: {
         distance: 3,
       },
-    })
+    }),
   );
 
   // Initialize blocks and styles
@@ -185,7 +185,7 @@ export default function DndProvider() {
           return null;
         })
         .filter(
-          (update): update is { id: number; order: number } => update !== null
+          (update): update is { id: number; order: number } => update !== null,
         );
 
       // Only update blocks that already exist in the database (have numeric IDs)
@@ -196,7 +196,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, batchUpdateEmailBlocks]
+    [emailId, batchUpdateEmailBlocks],
   );
 
   // Create a ref to track the latest blocks for debounced history updates
@@ -215,7 +215,7 @@ export default function DndProvider() {
         value,
       });
     }, 1000),
-    [updateEmailBlock]
+    [updateEmailBlock],
   );
 
   // Update handleTextContentChange
@@ -287,7 +287,7 @@ export default function DndProvider() {
         // Check for duplicate IDs
         const updatedIds = reorderedBlocks.map((block) => block.id);
         const hasDuplicates = updatedIds.some(
-          (id, index) => updatedIds.indexOf(id) !== index
+          (id, index) => updatedIds.indexOf(id) !== index,
         );
 
         if (hasDuplicates) {
@@ -443,7 +443,7 @@ export default function DndProvider() {
         initialContent,
         styles.defaultFont,
         styles.defaultTextColor,
-        false // new blocks should use email defaults
+        false, // new blocks should use email defaults
       );
       setEditors((prev) => ({
         ...prev,
@@ -487,7 +487,7 @@ export default function DndProvider() {
               const updatedBlocks = newBlocks.map((block) =>
                 block.id === newBlockId
                   ? { ...block, id: result.id.toString() }
-                  : block
+                  : block,
               );
 
               // Update the editor reference if this is a text block
@@ -506,7 +506,7 @@ export default function DndProvider() {
               // Check for duplicate IDs
               const updatedBlockIds = updatedBlocks.map((block) => block.id);
               const hasBlockDuplicates = updatedBlockIds.some(
-                (id, index) => updatedBlockIds.indexOf(id) !== index
+                (id, index) => updatedBlockIds.indexOf(id) !== index,
               );
 
               if (hasBlockDuplicates) {
@@ -539,7 +539,7 @@ export default function DndProvider() {
             console.error("Error adding block to database:", error);
             // You could show an error toast here
           },
-        }
+        },
       );
     }
   };
@@ -582,7 +582,7 @@ export default function DndProvider() {
       permanentlyDeletedBlocksRef.current.add(blockToDelete.id);
       if (!isNaN(parseInt(blockToDelete.id, 10))) {
         permanentlyDeletedBlocksRef.current.add(
-          parseInt(blockToDelete.id, 10).toString()
+          parseInt(blockToDelete.id, 10).toString(),
         );
       }
     }
@@ -639,7 +639,7 @@ export default function DndProvider() {
                 return newSet;
               });
             },
-          }
+          },
         );
       } else if (emailData && emailData.blocks) {
         // It's a UUID, we need to find the corresponding database ID
@@ -656,7 +656,7 @@ export default function DndProvider() {
         if (matchingDbBlock) {
           // Add the matching DB block ID to permanently deleted blocks
           permanentlyDeletedBlocksRef.current.add(
-            matchingDbBlock.id.toString()
+            matchingDbBlock.id.toString(),
           );
 
           deleteEmailBlock.mutate(
@@ -690,7 +690,7 @@ export default function DndProvider() {
                   return newSet;
                 });
               },
-            }
+            },
           );
         } else {
           // Remove from the set of blocks being deleted since there's no database operation
@@ -742,7 +742,7 @@ export default function DndProvider() {
     (updatedBlock: BlockType, shouldAddToHistory: boolean = true) => {
       // Regular update operation
       const existingBlock = blocks.find(
-        (block) => block.id === updatedBlock.id
+        (block) => block.id === updatedBlock.id,
       );
       if (existingBlock) {
         updatedBlock = {
@@ -751,7 +751,7 @@ export default function DndProvider() {
         };
       }
       const newBlocks = blocks.map((block) =>
-        block.id === updatedBlock.id ? updatedBlock : block
+        block.id === updatedBlock.id ? updatedBlock : block,
       );
 
       // Ensure block order is maintained by explicitly sorting
@@ -791,7 +791,7 @@ export default function DndProvider() {
       updateBlocksWithoutHistory,
       addToHistory,
       updateEmailBlock,
-    ]
+    ],
   );
 
   // Update activeForm when selectedBlock changes
@@ -813,7 +813,7 @@ export default function DndProvider() {
 
       if (blockData) {
         return (
-          <div className="flex flex-col items-center gap-1 bg-accent p-3 rounded-md cursor-grab border shadow-sm opacity-80">
+          <div className="flex cursor-grab flex-col items-center gap-1 rounded-md border bg-accent p-3 opacity-80 shadow-sm">
             <blockData.icon />
             <span>{blockData.label}</span>
           </div>
@@ -832,7 +832,7 @@ export default function DndProvider() {
           content,
           styles.defaultFont,
           styles.defaultTextColor,
-          false // always use email defaults
+          false, // always use email defaults
         );
 
         return (
@@ -893,7 +893,7 @@ export default function DndProvider() {
       // 2. First, add any blocks with UUID IDs to the database
       const blocksWithUUID = blocks.filter(
         (block) =>
-          isNaN(parseInt(block.id, 10)) && isValidDatabaseBlockType(block.type)
+          isNaN(parseInt(block.id, 10)) && isValidDatabaseBlockType(block.type),
       );
 
       // Keep track of the updated blocks
@@ -914,7 +914,7 @@ export default function DndProvider() {
           // Update the block ID in our local state but keep the same block in the UI
           if (result && result.id) {
             currentBlocks = currentBlocks.map((b) =>
-              b.id === block.id ? { ...b, id: result.id.toString() } : b
+              b.id === block.id ? { ...b, id: result.id.toString() } : b,
             );
           }
         } catch (error) {
@@ -944,7 +944,7 @@ export default function DndProvider() {
         .filter(
           (block) =>
             !isNaN(parseInt(block.id, 10)) &&
-            isValidDatabaseBlockType(block.type)
+            isValidDatabaseBlockType(block.type),
         )
         .map((block) => ({
           id: parseInt(block.id, 10),
@@ -993,7 +993,7 @@ export default function DndProvider() {
 
   // Helper function to check if a block type is valid for the database
   const isValidDatabaseBlockType = (
-    type: string
+    type: string,
   ): type is DatabaseBlockType => {
     const validTypes: DatabaseBlockType[] = [
       "cards",
@@ -1023,7 +1023,7 @@ export default function DndProvider() {
       // Find blocks that were actually changed
       const changedBlocks = previousState.blocks.filter((prevBlock) => {
         const currentBlock = currentState.blocks.find(
-          (currBlock) => currBlock.id === prevBlock.id
+          (currBlock) => currBlock.id === prevBlock.id,
         );
         return (
           !currentBlock ||
@@ -1121,7 +1121,7 @@ export default function DndProvider() {
       // Find blocks that were actually changed
       const changedBlocks = nextState.blocks.filter((nextBlock) => {
         const currentBlock = currentState.blocks.find(
-          (currBlock) => currBlock.id === nextBlock.id
+          (currBlock) => currBlock.id === nextBlock.id,
         );
         return (
           !currentBlock ||
@@ -1214,7 +1214,7 @@ export default function DndProvider() {
 
     // Check for duplicate blocks in UI
     const duplicateIds = uiBlockIds.filter(
-      (id, index) => uiBlockIds.indexOf(id) !== index
+      (id, index) => uiBlockIds.indexOf(id) !== index,
     );
 
     if (duplicateIds.length > 0) {
@@ -1235,7 +1235,7 @@ export default function DndProvider() {
       if (deduplicatedBlocks.length !== blocks.length) {
         // Sort blocks by order
         const sortedBlocks = [...deduplicatedBlocks].sort(
-          (a, b) => (a.order || 0) - (b.order || 0)
+          (a, b) => (a.order || 0) - (b.order || 0),
         );
 
         updateBlocksWithoutHistory(sortedBlocks);
@@ -1277,7 +1277,7 @@ export default function DndProvider() {
 
       // Sort blocks by order
       const sortedBlocks = combinedBlocks.sort(
-        (a, b) => (a.order || 0) - (b.order || 0)
+        (a, b) => (a.order || 0) - (b.order || 0),
       );
 
       updateBlocksWithoutHistory(sortedBlocks);
@@ -1371,7 +1371,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory]
+    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleIsInsetChange to include history update
@@ -1393,7 +1393,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory]
+    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleIsRoundedChange to include history update
@@ -1415,7 +1415,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory]
+    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleEmailBgColorChange to include history update
@@ -1437,7 +1437,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory]
+    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleLinkColorChange to include history update
@@ -1456,7 +1456,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory]
+    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleDefaultTextColorChange to include history update
@@ -1478,7 +1478,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory]
+    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
   );
 
   // Fix handleDefaultFontChange to include history update
@@ -1500,13 +1500,13 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory]
+    [emailId, updateEmailStyle, updateStylesWithoutHistory, addToHistory],
   );
 
   // Initialize editors for text blocks
   useEffect(() => {
     const missingEditors = blocks.filter(
-      (block) => block.type === "text" && !editors[block.id]
+      (block) => block.type === "text" && !editors[block.id],
     );
 
     if (missingEditors.length > 0) {
@@ -1523,7 +1523,7 @@ export default function DndProvider() {
           initialContent,
           styles.defaultFont,
           styles.defaultTextColor,
-          false // always use email defaults
+          false, // always use email defaults
         );
         newEditors[block.id] = newEditor;
       });
@@ -1589,7 +1589,7 @@ export default function DndProvider() {
         // Prepare content updates for all text blocks
         const contentUpdates: ContentUpdate[] = updatedBlocks
           .filter(
-            (block) => block.type === "text" && !isNaN(parseInt(block.id, 10))
+            (block) => block.type === "text" && !isNaN(parseInt(block.id, 10)),
           )
           .map((block) => ({
             id: parseInt(block.id, 10),
@@ -1671,7 +1671,7 @@ export default function DndProvider() {
 
     // Get the canvas container
     const canvasContainer = droppableContainers.find(
-      (container) => container.id === "canvas"
+      (container) => container.id === "canvas",
     );
     if (!canvasContainer) return [];
 
@@ -1725,7 +1725,7 @@ export default function DndProvider() {
       // Calculate distance from pointer to center of block
       const distance = Math.sqrt(
         Math.pow(rect.left + rect.width / 2 - pointerCoordinates.x, 2) +
-          Math.pow(centerY - pointerCoordinates.y, 2)
+          Math.pow(centerY - pointerCoordinates.y, 2),
       );
 
       return {
@@ -1752,12 +1752,12 @@ export default function DndProvider() {
   };
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="relative flex h-full flex-col">
       <Dialog
         open={isMobile && showMobileWarning}
         onOpenChange={setShowMobileWarning}
       >
-        <DialogContent className="rounded-lg max-w-[94%]">
+        <DialogContent className="max-w-[94%] rounded-lg">
           <DialogHeader>
             <DialogTitle>Mobile Editing (Beta)</DialogTitle>
           </DialogHeader>
@@ -1778,7 +1778,7 @@ export default function DndProvider() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b sticky top-0 left-0 right-0 bg-background z-10">
+      <header className="sticky left-0 right-0 top-0 z-10 flex h-12 shrink-0 items-center justify-between gap-2 border-b bg-background">
         <div className="flex items-center gap-2 px-4">
           <Breadcrumb>
             <BreadcrumbList>
@@ -1839,7 +1839,7 @@ export default function DndProvider() {
                 </span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="min-w-[95%] h-[95%] p-4">
+            <DialogContent className="h-[95%] min-w-[95%] p-4">
               <DialogHeader className="sr-only">
                 <DialogTitle>Preview</DialogTitle>
               </DialogHeader>
@@ -1852,7 +1852,7 @@ export default function DndProvider() {
             <span className="hidden md:block">
               {isSaving ? (
                 <>
-                  <div className="h-4 w-4 animate-spin items-center justify-center flex">
+                  <div className="flex h-4 w-4 animate-spin items-center justify-center">
                     <LoaderIcon />
                   </div>
                   <span>Saving...</span>
@@ -1864,7 +1864,7 @@ export default function DndProvider() {
             <span className="block md:hidden">
               {isSaving ? (
                 <>
-                  <div className="h-4 w-4 animate-spin items-center justify-center flex">
+                  <div className="flex h-4 w-4 animate-spin items-center justify-center">
                     <LoaderIcon />
                   </div>
                 </>
@@ -1882,7 +1882,7 @@ export default function DndProvider() {
         onDragEnd={handleDragEnd}
         collisionDetection={customCollisionDetection}
       >
-        <div className="flex md:gap-4 md:p-4 p-2 relative">
+        <div className="relative flex p-2 md:gap-4 md:p-4">
           <DndBuilderSidebar
             type="email"
             onBgColorChange={handleBgColorChange}
@@ -1913,7 +1913,7 @@ export default function DndProvider() {
             linkColor={styles.linkColor}
             onLinkColorChange={handleLinkColorChange}
           />
-          <div className="flex-1 relative">
+          <div className="relative flex-1">
             <AnimatePresence>
               {selectedBlockId &&
                 blocks.find((block) => block.id === selectedBlockId)?.type ===
@@ -1923,7 +1923,7 @@ export default function DndProvider() {
                     animate={{ opacity: 1, height: 44 }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.2, damping: 20 }}
-                    className="sticky top-12 bg-background z-50 overflow-hidden "
+                    className="sticky top-12 z-50 overflow-hidden bg-background"
                   >
                     <Toolbar editor={editors[selectedBlockId]} />
                   </motion.div>

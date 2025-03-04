@@ -4,8 +4,8 @@ import { MailX } from "lucide-react";
 
 export default function EmailNotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4">
-      <div className="flex flex-col items-center max-w-md text-center space-y-6">
+    <div className="flex min-h-[70vh] flex-col items-center justify-center px-4">
+      <div className="flex max-w-md flex-col items-center space-y-6 text-center">
         <div className="rounded-full bg-muted p-6">
           <MailX className="h-12 w-12 text-muted-foreground" />
         </div>

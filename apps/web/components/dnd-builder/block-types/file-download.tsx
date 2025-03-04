@@ -20,8 +20,8 @@ export default function FileDownloadBlock({
   return (
     <div
       className={cn(
-        "p-2 pl-4 flex justify-between items-center border",
-        isRounded && "rounded-md"
+        "flex items-center justify-between border p-2 pl-4",
+        isRounded && "rounded-md",
       )}
       style={{ backgroundColor: bgColor, fontFamily: defaultFont || "inherit" }}
     >
@@ -32,7 +32,7 @@ export default function FileDownloadBlock({
         </p>
       </div>
       <div
-        className="h-8 px-4 items-center flex justify-center text-sm font-medium border rounded-md"
+        className="flex h-8 items-center justify-center rounded-md border px-4 text-sm font-medium"
         style={{
           color: bgColor,
           borderColor: bgColor,

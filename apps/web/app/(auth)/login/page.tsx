@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import React, { useState, useCallback, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@church-space/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@church-space/ui/card";
 import { EmailForm } from "@/components/auth/email-form";
 import { Button } from "@church-space/ui/button";
 import { InputOTPForm } from "@/components/auth/otp-form";
@@ -255,7 +260,7 @@ export default function Page() {
                     href="/signup"
                   >
                     Sign up{" "}
-                    <span className="group-hover:translate-x-1 transition-transform">
+                    <span className="transition-transform group-hover:translate-x-1">
                       <ArrowRight />
                     </span>
                   </Link>

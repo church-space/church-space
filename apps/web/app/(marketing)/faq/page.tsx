@@ -3,7 +3,7 @@ export default function FAQs() {
     <section className="scroll-py-16 py-16 md:scroll-py-32 md:py-32">
       <div className="mx-auto max-w-5xl px-6">
         <div className="grid gap-y-12 px-2 lg:[grid-template-columns:1fr_auto]">
-          <div className="text-center lg:text-left lg:sticky top-12 h-fit ">
+          <div className="top-12 h-fit text-center lg:sticky lg:text-left">
             <h2 className="mb-4 text-3xl font-semibold md:text-4xl">
               Frequently <br className="hidden lg:block" /> Asked{" "}
               <br className="hidden lg:block" />
@@ -15,21 +15,21 @@ export default function FAQs() {
           <div className="divide-y divide-dashed sm:mx-auto sm:max-w-lg lg:mx-0">
             <div className="pb-6">
               <h3 className="font-medium">What is the refund policy?</h3>
-              <p className="text-muted-foreground mt-4">
+              <p className="mt-4 text-muted-foreground">
                 We offer a 30-day money back guarantee. If you are not satisfied
                 with our product, you can request a refund within 30 days of
                 your purchase.
               </p>
 
               <ol className="list-outside list-decimal space-y-2 pl-4">
-                <li className="text-muted-foreground mt-4">
+                <li className="mt-4 text-muted-foreground">
                   To request a refund, please contact our support team with your
                   order number and reason for the refund.
                 </li>
-                <li className="text-muted-foreground mt-4">
+                <li className="mt-4 text-muted-foreground">
                   Refunds will be processed within 3-5 business days.
                 </li>
-                <li className="text-muted-foreground mt-4">
+                <li className="mt-4 text-muted-foreground">
                   Please note that refunds are only available for new customers
                   and are limited to one per customer.
                 </li>
@@ -37,14 +37,14 @@ export default function FAQs() {
             </div>
             <div className="py-6">
               <h3 className="font-medium">How do I cancel my subscription?</h3>
-              <p className="text-muted-foreground mt-4">
+              <p className="mt-4 text-muted-foreground">
                 You can cancel your subscription at any time by logging into
                 your account and clicking on the cancel button.
               </p>
             </div>
             <div className="py-6">
               <h3 className="font-medium">Can I upgrade my plan?</h3>
-              <p className="text-muted-foreground my-4">
+              <p className="my-4 text-muted-foreground">
                 Yes, you can upgrade your plan at any time by logging into your
                 account and selecting the plan you want to upgrade to.
               </p>
@@ -61,7 +61,7 @@ export default function FAQs() {
             </div>
             <div className="py-6">
               <h3 className="font-medium">Do you offer phone support?</h3>
-              <p className="text-muted-foreground mt-4">
+              <p className="mt-4 text-muted-foreground">
                 We do not offer phone support at this time. However, you can
                 contact us via email or live chat for any questions or concerns
                 you may have.

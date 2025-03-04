@@ -70,16 +70,16 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
       {result.success ? (
         <div
           className={cn(
-            "bg-background aspect-video ",
-            isRounded && "rounded-md"
+            "aspect-video bg-background",
+            isRounded && "rounded-md",
           )}
         >
           <Image
             src={imageUrl}
             alt="Video Thumbnail"
             className={cn(
-              "w-full h-full object-cover ",
-              isRounded && "rounded-md"
+              "h-full w-full object-cover",
+              isRounded && "rounded-md",
             )}
             width={1920}
             height={1080}
@@ -88,18 +88,22 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
       ) : (
         <div
           className={cn(
-            "bg-background aspect-video ",
-            isRounded && "rounded-md"
+            "aspect-video bg-background",
+            isRounded && "rounded-md",
           )}
         ></div>
       )}
-      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+      <div className="absolute left-0 top-0 flex h-full w-full items-center justify-center">
         <YoutubeFilled
           height={String(
-            data?.size ? Math.max(40, Math.min(80, (80 * data.size) / 100)) : 80
+            data?.size
+              ? Math.max(40, Math.min(80, (80 * data.size) / 100))
+              : 80,
           )}
           width={String(
-            data?.size ? Math.max(40, Math.min(80, (80 * data.size) / 100)) : 80
+            data?.size
+              ? Math.max(40, Math.min(80, (80 * data.size) / 100))
+              : 80,
           )}
           fill="#FF0000"
           secondaryfill="#FFFFFF"

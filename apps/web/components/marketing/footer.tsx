@@ -135,7 +135,7 @@ export default function Footer() {
                   <Link
                     key={index}
                     href={item.href}
-                    className="text-muted-foreground hover:text-primary block duration-150"
+                    className="block text-muted-foreground duration-150 hover:text-primary"
                   >
                     <span>{item.title}</span>
                   </Link>
@@ -145,7 +145,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-12 flex flex-wrap items-end justify-between gap-6 border-t py-6">
-          <span className="text-muted-foreground order-last block text-center text-sm md:order-first">
+          <span className="order-last block text-center text-sm text-muted-foreground md:order-first">
             © {new Date().getFullYear()} Tailus UI, All rights reserved
           </span>
           <div className="order-first flex flex-wrap justify-center gap-6 text-sm md:order-last">
@@ -154,7 +154,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X/Twitter"
-              className="text-muted-foreground hover:text-primary block"
+              className="block text-muted-foreground hover:text-primary"
             >
               <svg
                 className="size-6"
@@ -174,7 +174,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
-              className="text-muted-foreground hover:text-primary block"
+              className="block text-muted-foreground hover:text-primary"
             >
               <svg
                 className="size-6"
@@ -194,7 +194,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook"
-              className="text-muted-foreground hover:text-primary block"
+              className="block text-muted-foreground hover:text-primary"
             >
               <svg
                 className="size-6"
@@ -214,7 +214,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Threads"
-              className="text-muted-foreground hover:text-primary block"
+              className="block text-muted-foreground hover:text-primary"
             >
               <svg
                 className="size-6"
@@ -239,7 +239,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
-              className="text-muted-foreground hover:text-primary block"
+              className="block text-muted-foreground hover:text-primary"
             >
               <svg
                 className="size-6"
@@ -259,7 +259,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="TikTok"
-              className="text-muted-foreground hover:text-primary block"
+              className="block text-muted-foreground hover:text-primary"
             >
               <svg
                 className="size-6"

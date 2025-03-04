@@ -44,10 +44,10 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
           ...block,
           data: stateRef.current,
         },
-        true
+        true,
       );
     }, 500),
-    [block, onUpdate]
+    [block, onUpdate],
   );
 
   // Cleanup debounce timer on unmount
@@ -103,7 +103,7 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
 
   const handleChange = (
     field: keyof ImageBlockData,
-    value: string | number | boolean
+    value: string | number | boolean,
   ) => {
     const newState = { ...localState, [field]: value };
     setLocalState(newState);
@@ -130,7 +130,7 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
               ...block,
               data: newState,
             },
-            false
+            false,
           );
 
           // Debounce the history update
@@ -146,7 +146,7 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
           ...block,
           data: newState,
         },
-        false
+        false,
       );
 
       // Debounce the history update
@@ -171,7 +171,7 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
             ...block,
             data: localState,
           },
-          false
+          false,
         );
 
         // Debounce the history update
@@ -190,7 +190,7 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
   return (
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
+        <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
           <Label>Image</Label>
           <FileUpload
             organizationId={organizationId}

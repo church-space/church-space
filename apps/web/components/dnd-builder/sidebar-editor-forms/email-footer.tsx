@@ -94,7 +94,7 @@ export default function EmailFooterForm({
   }, [footerData]);
 
   const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
-    {}
+    {},
   );
   const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
 
@@ -153,7 +153,7 @@ export default function EmailFooterForm({
   const validateLink = (
     value: string,
     type: string,
-    index: number
+    index: number,
   ): boolean => {
     try {
       if (type === "mail") {
@@ -283,7 +283,7 @@ export default function EmailFooterForm({
 
   const removeLink = (index: number) => {
     const newLinks = localState.links.filter(
-      (_: Link, i: number) => i !== index
+      (_: Link, i: number) => i !== index,
     );
 
     // Update local state and server
@@ -460,8 +460,8 @@ export default function EmailFooterForm({
         )}
       </div>
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <Label className="font-bold text-md">Social Links</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-md font-bold">Social Links</Label>
           <Button
             variant="outline"
             onClick={addLink}
@@ -473,7 +473,7 @@ export default function EmailFooterForm({
         {localState.links.map((link: Link, index: number) => (
           <div
             key={index}
-            className="grid grid-cols-3 gap-y-2 gap-x-2 items-center"
+            className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
           >
             <Label>Icon</Label>
             <div className="col-span-2 flex gap-2">

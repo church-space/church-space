@@ -79,7 +79,7 @@ export default function SendTestEmail() {
       const enhancedHtmlContent = htmlContent
         .replace(
           "<html",
-          '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"'
+          '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
         )
         .replace(
           "<head>",
@@ -92,7 +92,7 @@ export default function SendTestEmail() {
               <o:PixelsPerInch>96</o:PixelsPerInch>
             </o:OfficeDocumentSettings>
           </xml>
-          <![endif]-->`
+          <![endif]-->`,
         );
 
       // Send to API

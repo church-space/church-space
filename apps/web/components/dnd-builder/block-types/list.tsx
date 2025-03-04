@@ -41,20 +41,22 @@ export default function ListBlock({
           </span>
         )}
       </div>
-      <div className="flex flex-col gap-4 mt-4">
+      <div className="mt-4 flex flex-col gap-4">
         {items.map((item, index) => (
           <div
             key={index}
             className={cn(
-              "flex gap-4 items-start",
-              bulletType === "bullet" ? "gap-0" : ""
+              "flex items-start gap-4",
+              bulletType === "bullet" ? "gap-0" : "",
             )}
           >
             <div
               className={cn(
-                "h-8 w-8 flex-shrink-0 rounded-full flex items-center justify-center font-medium text-lg",
-                bulletType === "bullet" ? "text-4xl h-6 pt-2 w-6" : "",
-                bulletType === "number" && item.description ? "mt-1" : "-mt-0.5"
+                "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-lg font-medium",
+                bulletType === "bullet" ? "h-6 w-6 pt-2 text-4xl" : "",
+                bulletType === "number" && item.description
+                  ? "mt-1"
+                  : "-mt-0.5",
               )}
               style={{
                 backgroundColor:
@@ -66,13 +68,13 @@ export default function ListBlock({
             </div>
             <div className="flex flex-col">
               <p
-                className="font-semibold text-lg"
+                className="text-lg font-semibold"
                 style={{ color: defaultTextColor }}
               >
                 {item.title}
               </p>
               <p
-                className="text-sm text-muted-foreground text-pretty !break-words overflow-hidden whitespace-pre-wrap"
+                className="overflow-hidden whitespace-pre-wrap text-pretty !break-words text-sm text-muted-foreground"
                 style={{ color: defaultTextColor }}
               >
                 {item.description}

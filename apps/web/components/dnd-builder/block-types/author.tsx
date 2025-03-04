@@ -69,7 +69,7 @@ export default function AuthorBlock({
 
   return (
     <div
-      className="flex items-center justify-between w-full"
+      className="flex w-full items-center justify-between"
       style={{ fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex items-center gap-3">

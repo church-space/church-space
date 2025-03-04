@@ -48,7 +48,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
 
   // Track validation errors for links
   const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
-    {}
+    {},
   );
   // Track which links are currently being typed
   const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
@@ -111,7 +111,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   const validateLink = (
     value: string,
     type: string,
-    index: number
+    index: number,
   ): boolean => {
     try {
       if (type === "mail") {
@@ -159,10 +159,10 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
           ...block,
           data: stateRef.current,
         },
-        true
+        true,
       );
     }, 500),
-    [block, onUpdate]
+    [block, onUpdate],
   );
 
   useEffect(() => {
@@ -186,7 +186,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
         ...block,
         data: newState,
       },
-      false
+      false,
     );
 
     // Debounce the history update
@@ -295,7 +295,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   return (
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
+        <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
           <Label>Avatar</Label>
           <div className="col-span-2">
             <FileUpload
@@ -321,8 +321,8 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <Label className="font-bold text-md">Social Links</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-md font-bold">Social Links</Label>
           <Button
             variant="outline"
             onClick={addLink}
@@ -334,7 +334,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
         {localState.links.map((link, index) => (
           <div
             key={index}
-            className="grid grid-cols-3 gap-y-2 gap-x-2 items-center"
+            className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
           >
             <Label>Icon</Label>
             <div className="col-span-2 flex gap-2">

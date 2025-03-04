@@ -44,7 +44,7 @@ export default async function Page(props: { params: Params }) {
           type, 
           is_rounded,
           link_color
-        `
+        `,
         )
         .eq("id", emailId)
         .single();

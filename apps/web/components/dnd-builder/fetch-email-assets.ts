@@ -97,7 +97,7 @@ export async function fetchEmailAssets({
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filteredFiles = filteredFiles.filter((file) =>
-        file.name.toLowerCase().includes(query)
+        file.name.toLowerCase().includes(query),
       );
     }
 
@@ -137,7 +137,7 @@ export async function fetchEmailAssets({
           path: filePath,
           created_at: file.created_at || new Date().toISOString(),
         };
-      })
+      }),
     );
 
     return {

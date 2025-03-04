@@ -30,9 +30,9 @@ export default function ImageBlock({ data, isRounded }: ImageBlockProps) {
   const Content = () => (
     <div
       className={cn(
-        "  overflow-hidden ",
+        "overflow-hidden",
         isRounded && "rounded-md",
-        centered && "mx-auto"
+        centered && "mx-auto",
       )}
       style={{ width: `${size}%` }}
     >
@@ -40,7 +40,7 @@ export default function ImageBlock({ data, isRounded }: ImageBlockProps) {
         <Image
           src={imageUrl}
           alt="Uploaded content"
-          className="w-full h-full object-contain "
+          className="h-full w-full object-contain"
           width={1000}
           height={1000}
         />

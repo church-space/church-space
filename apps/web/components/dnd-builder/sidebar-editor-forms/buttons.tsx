@@ -62,10 +62,10 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
           ...block,
           data: stateRef.current,
         },
-        true
+        true,
       );
     }, 500),
-    [block, onUpdate]
+    [block, onUpdate],
   );
 
   // Cleanup debounce timer on unmount
@@ -148,7 +148,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
               ...block,
               data: newState,
             },
-            false
+            false,
           );
 
           // Debounce the history update
@@ -165,7 +165,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
           ...block,
           data: newState,
         },
-        false
+        false,
       );
 
       // Debounce the history update
@@ -190,7 +190,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             ...block,
             data: localState,
           },
-          false
+          false,
         );
 
         // Debounce the history update
@@ -202,10 +202,10 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
   return (
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <Label className="font-bold text-md">Details</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-md font-bold">Details</Label>
         </div>
-        <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
+        <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
           <Label>Text</Label>
           <Input
             className="col-span-2"

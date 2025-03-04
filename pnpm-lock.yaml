@@ -228,8 +228,11 @@ importers:
       postcss:
         specifier: ^8.5.2
         version: 8.5.3
+      prettier:
+        specifier: ^3.5.0
+        version: 3.5.2
       prettier-plugin-tailwindcss:
-        specifier: ^0.6.6
+        specifier: ^0.6.11
         version: 0.6.11(prettier@3.5.2)
       react-email:
         specifier: 3.0.7

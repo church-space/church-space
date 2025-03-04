@@ -6,8 +6,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     h1: ({ className, ...props }) => (
       <h1
         className={cn(
-          "  scroll-m-20 text-4xl font-bold tracking-tight",
-          className
+          "scroll-m-20 text-4xl font-bold tracking-tight",
+          className,
         )}
         {...props}
       />
@@ -15,8 +15,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     h2: ({ className, ...props }) => (
       <h2
         className={cn(
-          "mt-12 scroll-m-20 border-b pb-1 text-3xl font-medium tracking-tight leading-10",
-          className
+          "mt-12 scroll-m-20 border-b pb-1 text-3xl font-medium leading-10 tracking-tight",
+          className,
         )}
         {...props}
       />
@@ -25,14 +25,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <h3
         className={cn(
           "mt-5 scroll-m-20 text-2xl font-medium tracking-tight",
-          className
+          className,
         )}
         {...props}
       />
     ),
     p: ({ className, ...props }) => (
       <p
-        className={cn("leading-7 mt-2 [&:not(:first-child)]:mt-4", className)}
+        className={cn("mt-2 leading-7 [&:not(:first-child)]:mt-4", className)}
         {...props}
       />
     ),
@@ -46,7 +46,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <a
         className={cn(
           "underline decoration-muted-foreground underline-offset-4 hover:text-primary",
-          className
+          className,
         )}
         {...props}
       />
@@ -72,7 +72,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <th
         className={cn(
           "border bg-muted px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
-          className
+          className,
         )}
         {...props}
       />
@@ -81,7 +81,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <td
         className={cn(
           "border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right",
-          className
+          className,
         )}
         {...props}
       />

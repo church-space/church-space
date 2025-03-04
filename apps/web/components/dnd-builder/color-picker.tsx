@@ -7,7 +7,7 @@ const hexColorSchema = z
   .string()
   .regex(
     /^[0-9a-fA-F]{6}$/,
-    "Must be a valid 6-character hex color (0-9, a-f)"
+    "Must be a valid 6-character hex color (0-9, a-f)",
   );
 
 export default function ColorPicker({
@@ -55,7 +55,7 @@ export default function ColorPicker({
       <div className="flex items-center">
         <Input
           type="color"
-          className="w-[42px] h-9 border-r-0 rounded-r-none py-0.5 px-1"
+          className="h-9 w-[42px] rounded-r-none border-r-0 px-1 py-0.5"
           value={color}
           onChange={(e) => {
             const newColor = e.target.value;
@@ -117,13 +117,13 @@ export default function ColorPicker({
               }
             }}
           />
-          <span className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-2.5 text-sm peer-disabled:opacity-50">
+          <span className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-2.5 text-sm text-muted-foreground peer-disabled:opacity-50">
             #
           </span>
         </div>
       </div>
       {error && !isTyping && (
-        <p className="text-red-500 text-xs mt-1">{error}</p>
+        <p className="mt-1 text-xs text-red-500">{error}</p>
       )}
     </div>
   );

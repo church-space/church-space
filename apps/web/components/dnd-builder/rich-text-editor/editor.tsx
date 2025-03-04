@@ -12,7 +12,7 @@ export const createEditor = (
   initialContent?: string,
   defaultFont?: string,
   defaultTextColor?: string,
-  preserveExistingStyles: boolean = false
+  preserveExistingStyles: boolean = false,
 ) => {
   // Use the provided content or empty string for placeholder to work
   const content =

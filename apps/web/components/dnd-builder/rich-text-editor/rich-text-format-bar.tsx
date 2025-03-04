@@ -45,7 +45,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   const [linkUrl, setLinkUrl] = useState("");
   const [, setForceUpdate] = useState(0);
   const [currentHeadingLevel, setCurrentHeadingLevel] = useState<number | null>(
-    null
+    null,
   );
 
   // Set default alignment to left when editor is initialized
@@ -147,7 +147,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   };
 
   return (
-    <div className="flex-shrink-0 flex flex-wrap gap-2 px-2 pt-1.5">
+    <div className="flex flex-shrink-0 flex-wrap gap-2 px-2 pt-1.5">
       <ToggleGroup type="multiple" className="flex-wrap">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -265,14 +265,14 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 : ""
             }
           >
-            <Text className="h-4 w-4 mr-2" />
+            <Text className="mr-2 h-4 w-4" />
             Normal Text
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               editor.chain().focus().toggleHeading({ level: 1 }).run();
               setCurrentHeadingLevel(
-                editor.isActive("heading", { level: 1 }) ? 1 : null
+                editor.isActive("heading", { level: 1 }) ? 1 : null,
               );
             }}
             className={
@@ -281,14 +281,14 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 : ""
             }
           >
-            <Heading1 className="h-4 w-4 mr-2" />
+            <Heading1 className="mr-2 h-4 w-4" />
             Heading 1
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               editor.chain().focus().toggleHeading({ level: 2 }).run();
               setCurrentHeadingLevel(
-                editor.isActive("heading", { level: 2 }) ? 2 : null
+                editor.isActive("heading", { level: 2 }) ? 2 : null,
               );
             }}
             className={
@@ -297,14 +297,14 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 : ""
             }
           >
-            <Heading2 className="h-4 w-4 mr-2" />
+            <Heading2 className="mr-2 h-4 w-4" />
             Heading 2
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               editor.chain().focus().toggleHeading({ level: 3 }).run();
               setCurrentHeadingLevel(
-                editor.isActive("heading", { level: 3 }) ? 3 : null
+                editor.isActive("heading", { level: 3 }) ? 3 : null,
               );
             }}
             className={
@@ -313,7 +313,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 : ""
             }
           >
-            <Heading3 className="h-4 w-4 mr-2" />
+            <Heading3 className="mr-2 h-4 w-4" />
             Heading 3
           </DropdownMenuItem>
         </DropdownMenuContent>

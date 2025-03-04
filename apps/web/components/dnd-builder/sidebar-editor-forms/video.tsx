@@ -37,10 +37,10 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
           ...block,
           data: stateRef.current,
         },
-        true
+        true,
       );
     }, 500),
-    [block, onUpdate]
+    [block, onUpdate],
   );
 
   // Cleanup debounce on unmount
@@ -90,7 +90,7 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
         ...block,
         data: newState,
       },
-      false
+      false,
     );
 
     // Debounce the history update
@@ -100,10 +100,10 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
   return (
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <Label className="font-bold text-md">Details</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-md font-bold">Details</Label>
         </div>
-        <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
+        <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
           <Label>YouTube URL</Label>
           <div className="col-span-2">
             <Input
@@ -112,7 +112,7 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
               placeholder="YouTube URL"
               className={error ? "border-red-500" : ""}
             />
-            {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
           <Label>Size</Label>
           <Slider

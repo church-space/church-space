@@ -29,8 +29,8 @@ export default function TextForm({
   return (
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <Label className="font-bold text-md">Details</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-md font-bold">Details</Label>
         </div>
         <div className="grid grid-cols-3 items-center gap-2">
           <Label className="font-medium">Text Color</Label>
@@ -66,8 +66,8 @@ export default function TextForm({
           </Select>
         </div>
 
-        <div className="flex mt-4 items-start gap-2 p-3 bg-accent text-muted-foreground rounded-md border ">
-          <InfoIcon className="h-5 w-5 flex-shrink-0 mt-0.5" />
+        <div className="mt-4 flex items-start gap-2 rounded-md border bg-accent p-3 text-muted-foreground">
+          <InfoIcon className="mt-0.5 h-5 w-5 flex-shrink-0" />
           <div className="text-sm">
             <p>
               Add your content to the text block, and make changes to the

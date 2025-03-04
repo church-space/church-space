@@ -26,7 +26,7 @@ export default function Page(props: { searchParams: SearchParams }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="flex flex-col items-center justify-center gap-2 mb-6"
+            className="mb-6 flex flex-col items-center justify-center gap-2"
           >
             <div className="text-3xl font-bold">PCO Already Connected</div>
           </motion.div>
@@ -35,15 +35,15 @@ export default function Page(props: { searchParams: SearchParams }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
           >
-            <Card className=" px-0">
-              <CardContent className=" text-center pt-[30px]">
+            <Card className="px-0">
+              <CardContent className="pt-[30px] text-center">
                 {searchParams.connectedByFirstName}{" "}
                 {searchParams.connectedByLastName} already connected your
-                organization to Church Space. Please contact them directly to gain
-                access.
+                organization to Church Space. Please contact them directly to
+                gain access.
               </CardContent>
             </Card>
-            <div className="text-center pt-4">
+            <div className="pt-4 text-center">
               <Button variant="ghost" asChild>
                 <Link href="/">Return Home</Link>
               </Button>

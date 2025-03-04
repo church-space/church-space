@@ -68,13 +68,13 @@ export default function EmailPreview({
       defaultValue={previewType || "web"}
       onValueChange={(value) => setPreviewType(value)}
     >
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         {showBackButton && (
           <Link
             href={`/emails/${emailId}`}
-            className="flex flex-row gap-1 items-center font-medium  text-sm cursor-pointer group  -translate-x-px"
+            className="group flex -translate-x-px cursor-pointer flex-row items-center gap-1 text-sm font-medium"
           >
-            <span className="group-hover:-translate-x-1 transition-transform duration-300">
+            <span className="transition-transform duration-300 group-hover:-translate-x-1">
               <ChevronLeft height={"14"} width={"14"} />
             </span>
             Back to Email
@@ -85,23 +85,23 @@ export default function EmailPreview({
           <TabsTrigger value="mobile">Mobile</TabsTrigger>
         </TabsList>
       </div>
-      <TabsContent value="web" className="overflow-auto h-[95%]">
-        <div className="flex flex-col gap-4 mx-auto w-full h-full items-start">
+      <TabsContent value="web" className="h-[95%] overflow-auto">
+        <div className="mx-auto flex h-full w-full flex-col items-start gap-4">
           <iframe
             srcDoc={htmlContent}
-            className="w-full h-full border-0"
+            className="h-full w-full border-0"
             title="Email Preview"
           />
         </div>
       </TabsContent>
       <TabsContent
         value="mobile"
-        className="overflow-auto h-[95%] items-center justify-center flex"
+        className="flex h-[95%] items-center justify-center overflow-auto"
       >
-        <div className="mx-auto max-w-sm items-start w-full min-h-[200px] max-h-[800px] h-full  border-8 border-black dark:border-muted rounded-[45px] shadow-lg ">
+        <div className="mx-auto h-full max-h-[800px] min-h-[200px] w-full max-w-sm items-start rounded-[45px] border-8 border-black shadow-lg dark:border-muted">
           <iframe
             srcDoc={htmlContent}
-            className="w-full h-full border-0 rounded-[36px] "
+            className="h-full w-full rounded-[36px] border-0"
             title="Email Preview Mobile"
           />
         </div>

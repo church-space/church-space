@@ -22,7 +22,7 @@ export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
             retry: 1,
           },
         },
-      })
+      }),
   );
 
   return (

@@ -80,12 +80,12 @@ const TextBlock = ({
   }, [editor, font, textColor, linkColor]);
 
   if (!editor) {
-    return <div className=" text-muted-foreground">Loading editor...</div>;
+    return <div className="text-muted-foreground">Loading editor...</div>;
   }
 
   if (editor.isDestroyed) {
     return (
-      <div className=" text-muted-foreground">
+      <div className="text-muted-foreground">
         Editor is being initialized...
       </div>
     );
@@ -93,7 +93,7 @@ const TextBlock = ({
 
   return (
     <div
-      className="relative prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none"
+      className="prose prose-sm sm:prose lg:prose-lg xl:prose-2xl relative mx-auto focus:outline-none"
       style={
         {
           fontFamily: font,

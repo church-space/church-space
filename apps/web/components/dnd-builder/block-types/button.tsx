@@ -23,19 +23,19 @@ export default function ButtonBlock({
   return (
     <div
       className={cn(
-        "flex gap-2 w-full items-center",
+        "flex w-full items-center gap-2",
         size === "fit" ? "justify-center" : "justify-stretch",
-        centered ? "justify-center" : "justify-start"
+        centered ? "justify-center" : "justify-start",
       )}
     >
       <div
         className={cn(
-          "inline-flex h-9 px-4 py-2  text-sm font-medium items-center",
+          "inline-flex h-9 items-center px-4 py-2 text-sm font-medium",
           isRounded && "rounded-md",
           size === "full" && "w-full justify-center",
           style === "filled"
             ? ["hover:opacity-90"]
-            : ["border-2", "hover:bg-opacity-10"]
+            : ["border-2", "hover:bg-opacity-10"],
         )}
         style={{
           backgroundColor: style === "filled" ? color : "transparent",

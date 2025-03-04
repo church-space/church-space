@@ -15,7 +15,11 @@ import {
   FormItem,
   FormMessage,
 } from "@church-space/ui/form";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@church-space/ui/input-otp";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@church-space/ui/input-otp";
 import { toast } from "@church-space/ui/use-toast";
 import { verifyOtp } from "@/app/(auth)/actions";
 

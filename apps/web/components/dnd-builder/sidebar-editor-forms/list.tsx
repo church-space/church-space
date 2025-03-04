@@ -46,10 +46,10 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
           ...block,
           data: stateRef.current,
         },
-        true
+        true,
       );
     }, 500),
-    [block, onUpdate]
+    [block, onUpdate],
   );
 
   const handleChange = (field: string, value: any) => {
@@ -66,7 +66,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
         ...block,
         data: newState,
       },
-      false
+      false,
     );
 
     // Debounce the history update
@@ -104,12 +104,12 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
   };
 
   return (
-    <div className="flex flex-col gap-10 ">
+    <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-4 px-2">
-        <div className="flex justify-between items-center">
-          <Label className="font-bold text-md">Details</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-md font-bold">Details</Label>
         </div>
-        <div className="grid grid-cols-3 gap-y-4 gap-x-2 items-center">
+        <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
           <Label>Title</Label>
           <Input
             className="col-span-2"
@@ -148,8 +148,8 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
         </div>
       </div>
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center px-2">
-          <Label className="font-bold text-md">Items</Label>
+        <div className="flex items-center justify-between px-2">
+          <Label className="text-md font-bold">Items</Label>
           <Button variant="outline" onClick={addItem}>
             Add Item
           </Button>
@@ -157,7 +157,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
         {localState.items.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-3 gap-y-2 gap-x-2 items-center border rounded-md p-3"
+            className="grid grid-cols-3 items-center gap-x-2 gap-y-2 rounded-md border p-3"
           >
             <Label>Title</Label>
             <Input

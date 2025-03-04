@@ -66,7 +66,7 @@ const FileUpload = ({
   };
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile && selectedFile.size <= 50 * 1024 * 1024) {
@@ -178,8 +178,8 @@ const FileUpload = ({
   };
 
   return (
-    <div className="flex items-center col-span-2 w-full">
-      <div className="flex-1 flex w-full">
+    <div className="col-span-2 flex w-full items-center">
+      <div className="flex w-full flex-1">
         {!file && !filePath && (
           <AssetBrowserModal
             triggerText="Browse"
@@ -195,18 +195,18 @@ const FileUpload = ({
           <DialogTrigger asChild>
             <Button
               className={cn(
-                " bg-transparent justify-start px-3 font-normal ",
-                file || filePath ? "rounded-r-none" : "rounded-l-none"
+                "justify-start bg-transparent px-3 font-normal",
+                file || filePath ? "rounded-r-none" : "rounded-l-none",
               )}
               variant="outline"
               disabled={isUploading || isDeleting}
             >
               {getDisplayName() ? (
-                <span className="block truncate overflow-hidden text-ellipsis max-w-[180px] w-full">
+                <span className="block w-full max-w-[180px] overflow-hidden truncate text-ellipsis">
                   {getDisplayName()}
                 </span>
               ) : (
-                <div className="flex items-center ">
+                <div className="flex items-center">
                   <CloudUpload />
                 </div>
               )}
@@ -222,7 +222,7 @@ const FileUpload = ({
             </DialogHeader>
             <div className="relative">
               <div
-                className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer"
+                className="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center"
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
                 onClick={handleClickUpload}
@@ -241,7 +241,7 @@ const FileUpload = ({
                 />
               </div>
               {isUploading && (
-                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm">
                   <div className="flex flex-col items-center gap-2">
                     <div className="animate-spin">
                       <LoaderIcon height="44" width="44" />
@@ -251,7 +251,7 @@ const FileUpload = ({
                 </div>
               )}
             </div>
-            <p className="text-sm text-gray-500 mt-2">Max file size: 50MB</p>
+            <p className="mt-2 text-sm text-gray-500">Max file size: 50MB</p>
           </DialogContent>
         </Dialog>
       </div>
@@ -282,7 +282,7 @@ const FileUpload = ({
                   mind.
                 </DialogDescription>
               </DialogHeader>
-              <DialogFooter className="flex justify-end gap-2 mt-4">
+              <DialogFooter className="mt-4 flex justify-end gap-2">
                 <DialogClose asChild>
                   <Button variant="outline">Cancel</Button>
                 </DialogClose>

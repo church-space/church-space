@@ -4,7 +4,7 @@ import { useCallback } from "react";
 // Helper function to compress images
 const compressImage = async (
   file: File,
-  maxSizeKB: number = 200
+  maxSizeKB: number = 200,
 ): Promise<File> => {
   // Only compress image files
   if (!file.type.startsWith("image/")) {
@@ -102,7 +102,7 @@ export const useFileUpload = (organizationId: string) => {
         try {
           fileToUpload = await compressImage(file);
           console.log(
-            `Compressed image from ${(file.size / 1024).toFixed(2)}KB to ${(fileToUpload.size / 1024).toFixed(2)}KB`
+            `Compressed image from ${(file.size / 1024).toFixed(2)}KB to ${(fileToUpload.size / 1024).toFixed(2)}KB`,
           );
         } catch (error) {
           console.error("Image compression failed:", error);
@@ -141,7 +141,7 @@ export const useFileUpload = (organizationId: string) => {
 
             // Wait before retrying (exponential backoff)
             await new Promise((resolve) =>
-              setTimeout(resolve, 1000 * Math.pow(2, attempts))
+              setTimeout(resolve, 1000 * Math.pow(2, attempts)),
             );
             continue;
           }
@@ -157,14 +157,14 @@ export const useFileUpload = (organizationId: string) => {
 
           // Wait before retrying
           await new Promise((resolve) =>
-            setTimeout(resolve, 1000 * Math.pow(2, attempts))
+            setTimeout(resolve, 1000 * Math.pow(2, attempts)),
           );
         }
       }
 
       throw new Error("Upload failed after multiple attempts");
     },
-    [organizationId, supabase]
+    [organizationId, supabase],
   );
 
   const deleteFile = useCallback(
@@ -182,7 +182,7 @@ export const useFileUpload = (organizationId: string) => {
 
       return true;
     },
-    [supabase]
+    [supabase],
   );
 
   return { uploadFile, deleteFile };

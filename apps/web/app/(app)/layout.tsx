@@ -43,7 +43,7 @@ export default async function ProtectedLayout({
         currentPath || headersList.get("x-invoke-path") || "/home";
 
       return redirect(
-        `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`
+        `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`,
       );
     }
 

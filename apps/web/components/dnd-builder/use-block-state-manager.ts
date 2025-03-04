@@ -38,7 +38,7 @@ export function useBlockStateManager(
     defaultFont: "sans-serif",
     isRounded: true,
     linkColor: "#0000ff",
-  }
+  },
 ) {
   // Separate state for current values (UI) and history
   const [currentState, setCurrentState] = useState({
@@ -83,7 +83,7 @@ export function useBlockStateManager(
         },
       }));
     },
-    []
+    [],
   );
 
   // The actual history update function
@@ -120,7 +120,7 @@ export function useBlockStateManager(
       isDebouncing.current = false;
       pendingHistoryUpdate.current = null;
     },
-    []
+    [],
   );
 
   // Create a debounced version of the history update
@@ -128,7 +128,7 @@ export function useBlockStateManager(
     debounce((state: typeof currentState) => {
       updateHistory(state, true);
     }, 500),
-    [updateHistory]
+    [updateHistory],
   );
 
   // Add current state to history
@@ -167,7 +167,7 @@ export function useBlockStateManager(
         }, 500);
       }
     },
-    [currentState, debouncedUpdateHistory, updateHistory]
+    [currentState, debouncedUpdateHistory, updateHistory],
   );
 
   // Cleanup debounced function and timeouts on unmount

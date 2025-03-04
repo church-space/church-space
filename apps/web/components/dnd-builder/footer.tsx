@@ -98,7 +98,7 @@ export default function Footer({
 
   return (
     <div
-      className={cn("pt-5 pb-4 w-full ")}
+      className={cn("w-full pb-4 pt-5")}
       style={
         !emailInset
           ? { backgroundColor: footerBgColor }
@@ -107,8 +107,8 @@ export default function Footer({
     >
       <div
         className={cn(
-          "flex gap-4 pt-5 w-full max-w-2xl mx-auto px-4 flex-col items-center cursor-pointer border border-transparent hover:border-border rounded-md",
-          isActive && "ring-2 ring-blue-500"
+          "mx-auto flex w-full max-w-2xl cursor-pointer flex-col items-center gap-4 rounded-md border border-transparent px-4 pt-5 hover:border-border",
+          isActive && "ring-2 ring-blue-500",
         )}
         onClick={onClick}
         style={{ fontFamily: footerFont }}
@@ -118,13 +118,13 @@ export default function Footer({
             <img
               src={logoUrl}
               alt="Logo"
-              className="h-28 w-28 object-contain rounded-md"
+              className="h-28 w-28 rounded-md object-contain"
             />
           )}
 
           {footerData?.name && (
             <div
-              className="font-semibold text-lg "
+              className="text-lg font-semibold"
               style={{ color: footerTextColor }}
             >
               {footerData.name}
@@ -132,7 +132,7 @@ export default function Footer({
           )}
           {footerData?.subtitle && (
             <div
-              className="text-sm text-muted-foreground max-w-sm text-center leading-tight text-pretty"
+              className="max-w-sm text-pretty text-center text-sm leading-tight text-muted-foreground"
               style={{ color: footerSecondaryTextColor }}
             >
               {footerData?.subtitle ||
@@ -149,7 +149,7 @@ export default function Footer({
                 <div
                   key={index}
                   className={cn(
-                    "h-7 w-7 rounded-full flex items-center justify-center"
+                    "flex h-7 w-7 items-center justify-center rounded-full",
                   )}
                   style={{
                     backgroundColor:
@@ -175,7 +175,7 @@ export default function Footer({
         )}
 
         <Separator
-          className="w-full mb-2 mt-4 "
+          className="mb-2 mt-4 w-full"
           style={{ backgroundColor: footerSecondaryTextColor }}
         />
         <div
@@ -183,22 +183,22 @@ export default function Footer({
           style={{ color: footerSecondaryTextColor }}
         >
           {footerData?.address && (
-            <div className="text-xs text-center leading-none text-pretty">
+            <div className="text-pretty text-center text-xs leading-none">
               {footerData?.address}
             </div>
           )}
           {footerData?.reason && (
-            <div className="text-xs leading-none text-center text-pretty">
+            <div className="text-pretty text-center text-xs leading-none">
               {footerData?.reason}
             </div>
           )}
-          <div className="text-xs items-center w-full flex flex-col md:flex-row justify-center md:gap-2 md:leading-10 text-pretty pb-1">
+          <div className="flex w-full flex-col items-center justify-center text-pretty pb-1 text-xs md:flex-row md:gap-2 md:leading-10">
             <span>
               &copy; {getYear(new Date())}{" "}
               {footerData?.copyright_name && footerData?.copyright_name}
             </span>
             <span className="hidden md:block">|</span>
-            <div className="flex gap-2 items-center leading-7">
+            <div className="flex items-center gap-2 leading-7">
               <span className="underline">Update your preferences</span>
               <span>|</span>
               <span className="underline">Unsubscribe</span>

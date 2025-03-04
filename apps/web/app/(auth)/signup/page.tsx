@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import React, { useState, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@church-space/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@church-space/ui/card";
 import { EmailForm } from "@/components/auth/email-form";
 import { Button } from "@church-space/ui/button";
 import { InputOTPForm } from "@/components/auth/otp-form";
@@ -255,11 +260,11 @@ export default function Page() {
                   <div className="flex w-full justify-center gap-1 text-center text-sm font-light text-muted-foreground">
                     Already have an account?{" "}
                     <Link
-                      className="flex items-center gap-1 text-foreground hover:underline group"
+                      className="group flex items-center gap-1 text-foreground hover:underline"
                       href="/login"
                     >
                       Login{" "}
-                      <span className="group-hover:translate-x-1 transition-transform">
+                      <span className="transition-transform group-hover:translate-x-1">
                         <ArrowRight />
                       </span>
                     </Link>

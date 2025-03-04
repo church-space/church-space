@@ -76,7 +76,7 @@ interface DndBuilderSidebarProps {
       | "block"
       | "email-style"
       | "email-footer"
-      | "email-templates"
+      | "email-templates",
   ) => void;
   emailId?: number;
   footerData?: any;
@@ -107,8 +107,8 @@ function DraggableBlock({
   const BlockContent = ({ className }: { className?: string }) => (
     <div
       className={cn(
-        "flex flex-col items-center gap-1 bg-accent p-3 rounded-md cursor-grab border shadow-sm",
-        className
+        "flex cursor-grab flex-col items-center gap-1 rounded-md border bg-accent p-3 shadow-sm",
+        className,
       )}
     >
       <block.icon />
@@ -213,8 +213,8 @@ export default function DndBuilderSidebar({
       <div className="hidden md:block">
         <div
           className={cn(
-            "md:w-[320px] lg:w-[400px] flex-shrink-0 bg-sidebar rounded-md h-[calc(100vh-5rem)] sticky top-16 p-4 overflow-hidden border shadow-sm",
-            className
+            "sticky top-16 h-[calc(100vh-5rem)] flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm md:w-[320px] lg:w-[400px]",
+            className,
           )}
         >
           <AnimatePresence mode="sync">
@@ -230,7 +230,7 @@ export default function DndBuilderSidebar({
                   damping: 20,
                   mass: 0.8,
                 }}
-                className="absolute inset-0 p-4 bg-sidebar"
+                className="absolute inset-0 bg-sidebar p-4"
               >
                 <DndBuilderSidebarForms
                   selectedBlock={selectedBlock as Block}
@@ -271,9 +271,9 @@ export default function DndBuilderSidebar({
                   mass: 0.8,
                 }}
               >
-                <div className="flex flex-col justify-between h-[calc(100vh-7rem)]">
+                <div className="flex h-[calc(100vh-7rem)] flex-col justify-between">
                   <div className="flex flex-col">
-                    <div className="gap-2 grid grid-cols-3">
+                    <div className="grid grid-cols-3 gap-2">
                       {blockTypes.map((block) => (
                         <DraggableBlock key={block.type} block={block} />
                       ))}
@@ -281,7 +281,7 @@ export default function DndBuilderSidebar({
                     <Separator className="my-6" />
                     <div className="flex flex-col gap-4">
                       <div
-                        className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                        className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                         onClick={() => setActiveForm("email-style")}
                       >
                         <div className="flex items-center gap-2">
@@ -291,7 +291,7 @@ export default function DndBuilderSidebar({
                         <ChevronRight />
                       </div>
                       <div
-                        className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                        className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                         onClick={() => setActiveForm("email-footer")}
                       >
                         <div className="flex items-center gap-2">
@@ -301,7 +301,7 @@ export default function DndBuilderSidebar({
                         <ChevronRight />
                       </div>
                       <div
-                        className="flex rounded-md bg-accent pr-2 py-3 justify-between items-center w-full border shadow-sm text-sm pl-3 cursor-pointer hover:bg-accent/80 transition-colors"
+                        className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                         onClick={() => setActiveForm("email-templates")}
                       >
                         <div className="flex items-center gap-2">
@@ -325,10 +325,10 @@ export default function DndBuilderSidebar({
           </AnimatePresence>
         </div>
       </div>
-      <div className="fixed bottom-4 left-20 right-20 p-2 px-3 bg-background flex  items-center justify-between rounded-full shadow-lg z-50 text-center md:hidden">
+      <div className="fixed bottom-4 left-20 right-20 z-50 flex items-center justify-between rounded-full bg-background p-2 px-3 text-center shadow-lg md:hidden">
         <Button
           variant="ghost"
-          className="p-0 flex-shrink-0 aspect-square rounded-full"
+          className="aspect-square flex-shrink-0 rounded-full p-0"
           onClick={() => setActiveForm("email-style")}
         >
           <Palette height="22px" width="22px" />
@@ -342,13 +342,13 @@ export default function DndBuilderSidebar({
               className="w-[calc(100vw-3rem)] p-0"
               sideOffset={16}
             >
-              <div className="gap-2 grid grid-cols-3 p-4">
+              <div className="grid grid-cols-3 gap-2 p-4">
                 {blockTypes.map((block) => (
                   <div
                     key={block.type}
                     className={cn(
-                      "flex flex-col items-center gap-1 bg-accent p-5 rounded-md border shadow-sm",
-                      className
+                      "flex flex-col items-center gap-1 rounded-md border bg-accent p-5 shadow-sm",
+                      className,
                     )}
                   >
                     <block.icon />
@@ -361,7 +361,7 @@ export default function DndBuilderSidebar({
         </div>
         <Button
           variant="ghost"
-          className="p-0 flex-shrink-0 aspect-square rounded-full"
+          className="aspect-square flex-shrink-0 rounded-full p-0"
           onClick={() => setActiveForm("email-footer")}
         >
           <FooterIcon height="40px" width="40px" />
@@ -401,7 +401,7 @@ export default function DndBuilderSidebar({
           modal={false}
         >
           <SheetContent
-            className="md:hidden pt-3 h-[calc(100vh-10rem)] overflow-y-auto"
+            className="h-[calc(100vh-10rem)] overflow-y-auto pt-3 md:hidden"
             side="bottom"
           >
             <SheetHeader>

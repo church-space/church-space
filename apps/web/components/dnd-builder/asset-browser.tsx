@@ -79,15 +79,15 @@ const AssetCard = ({
   return (
     <Card
       key={asset.id}
-      className="w-full overflow-hidden cursor-pointer hover:shadow-md transition-shadow relative group"
+      className="group relative w-full cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
     >
-      <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute left-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogTrigger asChild>
             <Button
               variant="destructive"
               size="icon"
-              className="h-8 w-8 opacity-50 hover:opacity-100 transition-opacity"
+              className="h-8 w-8 opacity-50 transition-opacity hover:opacity-100"
               onClick={(e) => {
                 e.stopPropagation(); // Prevent card click
               }}
@@ -104,7 +104,7 @@ const AssetCard = ({
                 used.
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="flex justify-end gap-2 mt-4">
+            <DialogFooter className="mt-4 flex justify-end gap-2">
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
@@ -127,14 +127,14 @@ const AssetCard = ({
         </Dialog>
       </div>
       <div
-        className="aspect-video relative bg-muted flex items-center justify-center"
+        className="relative flex aspect-video items-center justify-center bg-muted"
         onClick={onSelect}
       >
         {asset.type === "image" ? (
           <img
             src={asset.imageUrl}
             alt={asset.title}
-            className="object-contain w-full h-full"
+            className="h-full w-full object-contain"
             loading="lazy"
             onError={(e) => {
               console.error("Image failed to load:", asset.imageUrl);
@@ -151,12 +151,12 @@ const AssetCard = ({
         ) : (
           <FileTypeIcon type={asset.type} />
         )}
-        <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md capitalize">
+        <div className="absolute right-2 top-2 rounded-md bg-primary px-2 py-1 text-xs capitalize text-primary-foreground">
           {asset.type}
         </div>
       </div>
       <CardFooter className="p-3" onClick={onSelect}>
-        <h3 className="font-medium text-sm truncate w-full">{asset.title}</h3>
+        <h3 className="w-full truncate text-sm font-medium">{asset.title}</h3>
       </CardFooter>
     </Card>
   );
@@ -218,7 +218,7 @@ export default function AssetBrowserModal({
       setError(result.error);
       setLoading(false);
     }, 500),
-    [organizationId, currentPage, selectedType, type]
+    [organizationId, currentPage, selectedType, type],
   );
 
   // Fetch assets when dependencies change
@@ -275,14 +275,14 @@ export default function AssetBrowserModal({
           {triggerText}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[900px] max-h-[620px] h-full overflow-y-auto top-20 translate-y-0 justify-start flex flex-col">
+      <DialogContent className="top-20 flex h-full max-h-[620px] translate-y-0 flex-col justify-start overflow-y-auto sm:max-w-[900px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Asset Library</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col space-y-4 h-flex-1">
+        <div className="h-flex-1 flex flex-col space-y-4">
           {/* Search and filter controls */}
-          <div className="flex flex-col sm:flex-row gap-1.5 items-start sm:items-center">
+          <div className="flex flex-col items-start gap-1.5 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -314,7 +314,7 @@ export default function AssetBrowserModal({
                 onClick={clearFilters}
                 className="h-9 px-2 text-orange-600"
               >
-                <X className="h-4 w-4 " />
+                <X className="h-4 w-4" />
                 Clear
               </Button>
             )}
@@ -333,18 +333,18 @@ export default function AssetBrowserModal({
 
           {/* Loading state */}
           {loading && (
-            <div className="flex justify-center items-center ">
-              <div className="w-full min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex items-center justify-center">
+              <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {Array.from({ length: 3 }).map((_, index) => (
                   <Card
                     key={index}
-                    className="w-full overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                    className="w-full cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
                   >
-                    <Skeleton className="w-full aspect-video rounded-b-none relative">
-                      <div className="absolute top-2 right-2 h-6 w-12 bg-primary text-primary-foreground text-xs px-2 py-1 animate-pulse rounded-md"></div>
+                    <Skeleton className="relative aspect-video w-full rounded-b-none">
+                      <div className="absolute right-2 top-2 h-6 w-12 animate-pulse rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground"></div>
                     </Skeleton>
                     <CardFooter className="p-3">
-                      <Skeleton className="w-[70%] h-4" />
+                      <Skeleton className="h-4 w-[70%]" />
                     </CardFooter>
                   </Card>
                 ))}
@@ -354,7 +354,7 @@ export default function AssetBrowserModal({
 
           {/* Error state */}
           {error && !loading && (
-            <div className="text-center py-8 text-destructive">
+            <div className="py-8 text-center text-destructive">
               <p>{error}</p>
               <Button
                 variant="outline"
@@ -368,7 +368,7 @@ export default function AssetBrowserModal({
 
           {/* Asset grid */}
           {!loading && !error && assets.length > 0 ? (
-            <div className="w-full min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {assets.map((asset) => (
                 <AssetCard
                   key={asset.id}
@@ -379,7 +379,7 @@ export default function AssetBrowserModal({
               ))}
             </div>
           ) : !loading && !error ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="py-8 text-center text-muted-foreground">
               No assets found matching your criteria.
             </div>
           ) : null}

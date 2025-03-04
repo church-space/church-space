@@ -56,7 +56,7 @@ export default function DndBuilderSidebarForms({
   onBlockUpdate?: (
     block: Block,
     addToHistory?: boolean,
-    isDuplication?: boolean
+    isDuplication?: boolean,
   ) => void;
   formType?: "block" | "email-style" | "email-footer" | "email-templates";
   onBack?: () => void;
@@ -109,10 +109,10 @@ export default function DndBuilderSidebarForms({
   };
 
   return (
-    <div className="flex flex-col  overflow-hidden h-full">
-      <div className="flex gap-2 mb-4 items-center">
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="mb-4 flex items-center gap-2">
         <Button
-          className="px-1 py-0 h-7 text-muted-foreground gap-1 md:flex hidden"
+          className="hidden h-7 gap-1 px-1 py-0 text-muted-foreground md:flex"
           variant="ghost"
           onClick={handleBack}
         >
@@ -240,11 +240,11 @@ export default function DndBuilderSidebarForms({
           )}
       </div>
       {selectedBlock && formType === "block" && (
-        <div className="flex gap-2 items-center justify-end mb-8 md:mb-0 border-t md:border-none pt-2">
+        <div className="mb-8 flex items-center justify-end gap-2 border-t pt-2 md:mb-0 md:border-none">
           <div className="flex items-center justify-center gap-2">
             <Button
               variant="outline"
-              className="text-destructive border-destructive px-2 py-0 h-7 hover:bg-destructive/10 hover:text-destructive"
+              className="h-7 border-destructive px-2 py-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
               onClick={() => {
                 if (selectedBlock) {
                   handleDeleteBlock(selectedBlock.id);
@@ -256,7 +256,7 @@ export default function DndBuilderSidebarForms({
 
             <Button
               variant="outline"
-              className=" px-2 py-0 h-7 "
+              className="h-7 px-2 py-0"
               onClick={() => {
                 if (selectedBlock && onBlockUpdate) {
                   // Create a deep copy of the selected block with a new ID

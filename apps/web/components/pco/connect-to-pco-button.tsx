@@ -13,11 +13,11 @@ export default function ConnectToPcoButton() {
 
       const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/pco-callback`;
       const authUrl = new URL(
-        "https://api.planningcenteronline.com/oauth/authorize"
+        "https://api.planningcenteronline.com/oauth/authorize",
       );
       authUrl.searchParams.set(
         "client_id",
-        process.env.NEXT_PUBLIC_PCO_CLIENT_ID!
+        process.env.NEXT_PUBLIC_PCO_CLIENT_ID!,
       );
       authUrl.searchParams.set("redirect_uri", redirectUri);
       authUrl.searchParams.set("response_type", "code");
@@ -31,7 +31,7 @@ export default function ConnectToPcoButton() {
   };
 
   return (
-    <div className="flex flex-col gap-2 ">
+    <div className="flex flex-col gap-2">
       <Button
         className="w-full px-4 py-2"
         onClick={handleConnect}
@@ -40,7 +40,7 @@ export default function ConnectToPcoButton() {
         <Image src={"/pco-logo.png"} alt="PCO Logo" width={22} height={22} />{" "}
         Connect to PCO
       </Button>
-      <span className="text-sm text-muted-foreground text-center px-4">
+      <span className="px-4 text-center text-sm text-muted-foreground">
         Click the button above to connect to your Planning Center account.
       </span>
     </div>
@@ -56,11 +56,11 @@ export function ReConnectToPcoButton() {
 
       const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/pco-reconnect-callback`;
       const authUrl = new URL(
-        "https://api.planningcenteronline.com/oauth/authorize"
+        "https://api.planningcenteronline.com/oauth/authorize",
       );
       authUrl.searchParams.set(
         "client_id",
-        process.env.NEXT_PUBLIC_PCO_CLIENT_ID!
+        process.env.NEXT_PUBLIC_PCO_CLIENT_ID!,
       );
       authUrl.searchParams.set("redirect_uri", redirectUri);
       authUrl.searchParams.set("response_type", "code");
@@ -74,7 +74,7 @@ export function ReConnectToPcoButton() {
   };
 
   return (
-    <div className="flex flex-col gap-2 ">
+    <div className="flex flex-col gap-2">
       <Button
         className="w-full px-4 py-2"
         onClick={handleConnect}
@@ -83,7 +83,7 @@ export function ReConnectToPcoButton() {
         <Image src={"/pco-logo.png"} alt="PCO Logo" width={22} height={22} />{" "}
         Reconnect to PCO
       </Button>
-      <span className="text-sm text-muted-foreground text-center px-4">
+      <span className="px-4 text-center text-sm text-muted-foreground">
         Click the button above to reconnect to your Planning Center account.
       </span>
     </div>
