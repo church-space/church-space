@@ -204,20 +204,26 @@ export default function AssetBrowserModal({
       setLoading(true);
       setError(null);
 
-      const result = await fetchEmailAssets({
-        organizationId,
-        currentPage,
-        itemsPerPage,
-        searchQuery: searchQueryRef.current,
-        selectedType,
-        type,
-      });
+      try {
+        const result = await fetchEmailAssets({
+          organizationId,
+          currentPage,
+          itemsPerPage,
+          searchQuery: searchQueryRef.current,
+          selectedType,
+          type,
+        });
 
-      setAssets(result.assets);
-      setTotalCount(result.totalCount);
-      setError(result.error);
-      setLoading(false);
-    }, 500),
+        setAssets(result.assets);
+        setTotalCount(result.totalCount);
+        setError(result.error);
+      } catch (err) {
+        console.error("Error loading assets:", err);
+        setError("Failed to load assets. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }, 300), // Reduced debounce time for faster response
     [organizationId, currentPage, selectedType, type],
   );
 
@@ -331,68 +337,70 @@ export default function AssetBrowserModal({
             )}
           </div>
 
-          {/* Loading state */}
-          {loading && (
-            <div className="flex items-center justify-center">
+          {/* Asset grid */}
+          <div className="min-h-[300px]">
+            {" "}
+            {/* Added min-height to prevent layout shift */}
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Card
+                      key={index}
+                      className="w-full cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+                    >
+                      <Skeleton className="relative aspect-video w-full rounded-b-none">
+                        <div className="absolute right-2 top-2 h-6 w-12 animate-pulse rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground"></div>
+                      </Skeleton>
+                      <CardFooter className="p-3">
+                        <Skeleton className="h-5 w-[70%]" />
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ) : error ? (
+              <div className="py-8 text-center text-destructive">
+                <p>{error}</p>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={debouncedLoadAssets}
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : assets.length > 0 ? (
               <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <Card
-                    key={index}
-                    className="w-full cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
-                  >
-                    <Skeleton className="relative aspect-video w-full rounded-b-none">
-                      <div className="absolute right-2 top-2 h-6 w-12 animate-pulse rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground"></div>
-                    </Skeleton>
-                    <CardFooter className="p-3">
-                      <Skeleton className="h-4 w-[70%]" />
-                    </CardFooter>
-                  </Card>
+                {assets.map((asset) => (
+                  <AssetCard
+                    key={asset.id}
+                    asset={asset}
+                    onSelect={() => onSelectAsset(asset)}
+                    onDelete={() => handleAssetDelete(asset)}
+                  />
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="py-8 text-center text-muted-foreground">
+                No assets found matching your criteria.
+              </div>
+            )}
+          </div>
 
-          {/* Error state */}
-          {error && !loading && (
-            <div className="py-8 text-center text-destructive">
-              <p>{error}</p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={debouncedLoadAssets}
-              >
-                Try Again
-              </Button>
-            </div>
-          )}
-
-          {/* Asset grid */}
-          {!loading && !error && assets.length > 0 ? (
-            <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {assets.map((asset) => (
-                <AssetCard
-                  key={asset.id}
-                  asset={asset}
-                  onSelect={() => onSelectAsset(asset)}
-                  onDelete={() => handleAssetDelete(asset)}
-                />
-              ))}
-            </div>
-          ) : !loading && !error ? (
-            <div className="py-8 text-center text-muted-foreground">
-              No assets found matching your criteria.
-            </div>
-          ) : null}
-
-          {/* Pagination */}
-          {!loading && !error && totalCount > itemsPerPage && (
+          {/* Pagination - always show if there are items to paginate */}
+          {totalCount > itemsPerPage && (
             <Pagination className="mx-auto">
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    onClick={() =>
+                      !loading && setCurrentPage(Math.max(1, currentPage - 1))
+                    }
                     className={
-                      currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                      currentPage === 1 || loading
+                        ? "pointer-events-none opacity-50"
+                        : ""
                     }
                   />
                 </PaginationItem>
@@ -414,8 +422,9 @@ export default function AssetBrowserModal({
                   return (
                     <PaginationItem key={pageNumber}>
                       <PaginationLink
-                        onClick={() => setCurrentPage(pageNumber)}
+                        onClick={() => !loading && setCurrentPage(pageNumber)}
                         isActive={currentPage === pageNumber}
+                        className={loading ? "pointer-events-none" : ""}
                       >
                         {pageNumber}
                       </PaginationLink>
@@ -432,10 +441,11 @@ export default function AssetBrowserModal({
                 <PaginationItem>
                   <PaginationNext
                     onClick={() =>
+                      !loading &&
                       setCurrentPage(Math.min(totalPages, currentPage + 1))
                     }
                     className={
-                      currentPage === totalPages
+                      currentPage === totalPages || loading
                         ? "pointer-events-none opacity-50"
                         : ""
                     }

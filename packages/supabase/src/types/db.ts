@@ -937,7 +937,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      count_direct_storage_items: {
+        Args: {
+          bucket_name: string
+          folder_path: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       automation_conditions: "added_to_list" | "removed_from_list"

@@ -64,17 +64,39 @@ export async function fetchEmailAssets({
     const sanitizedOrgId = organizationId.replace(/\s+/g, "");
     const path = `unsent/${sanitizedOrgId}`;
 
-    // First, get the total count of files to properly handle pagination
-    const { data: allFiles, error: countError } = await supabase.storage
-      .from("email_assets")
-      .list(path);
+    // Get the total count using the RPC function
+    const { data: countData, error: countError } = await supabase.rpc(
+      "count_direct_storage_items",
+      { bucket_name: "email_assets", folder_path: `${path}/` },
+    );
+
+    console.log("countData", countData);
 
     if (countError) {
+      console.error("Count error:", countError);
       throw countError;
     }
 
-    // Filter by type and search query
-    let filteredFiles = allFiles || [];
+    const totalCount = countData || 0;
+
+    // Calculate pagination
+    const offset = (currentPage - 1) * itemsPerPage;
+
+    // Fetch only the files for the current page
+    const { data: files, error: filesError } = await supabase.storage
+      .from("email_assets")
+      .list(path, {
+        limit: itemsPerPage,
+        offset: offset,
+        sortBy: { column: "created_at", order: "desc" },
+      });
+
+    if (filesError) {
+      throw filesError;
+    }
+
+    // Apply filters to the paginated results
+    let filteredFiles = files || [];
 
     // Filter by type if needed
     if (type === "image") {
@@ -101,23 +123,9 @@ export async function fetchEmailAssets({
       );
     }
 
-    // Sort by newest first (using created_at)
-    filteredFiles.sort((a, b) => {
-      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-      return dateB - dateA;
-    });
-
-    // Calculate pagination parameters
-    const from = (currentPage - 1) * itemsPerPage;
-    const to = Math.min(from + itemsPerPage, filteredFiles.length);
-
-    // Get the paginated subset
-    const paginatedFiles = filteredFiles.slice(from, to);
-
     // Get public URLs for each file
     const assetsWithUrls = await Promise.all(
-      paginatedFiles.map(async (file) => {
+      filteredFiles.map(async (file) => {
         const filePath = `${path}/${file.name}`;
         const fileType = getFileType(file.name);
 
@@ -142,7 +150,7 @@ export async function fetchEmailAssets({
 
     return {
       assets: assetsWithUrls,
-      totalCount: filteredFiles.length,
+      totalCount: totalCount,
       error: null,
     };
   } catch (err) {
