@@ -1657,13 +1657,8 @@ export default function DndProvider() {
 
   // Custom collision detection that handles large blocks differently
   const customCollisionDetection: CollisionDetection = (args) => {
-    const {
-      active,
-      droppableContainers,
-      droppableRects,
-      collisionRect,
-      pointerCoordinates,
-    } = args;
+    const { active, droppableContainers, droppableRects, pointerCoordinates } =
+      args;
 
     // If the active item is not from sidebar (existing block being moved)
     if (!active.data.current?.fromSidebar) {
