@@ -151,13 +151,8 @@ export default function DndProvider() {
   const {
     blocks,
     styles,
-    addToHistory,
     updateBlocksWithoutHistory,
     updateStylesWithoutHistory,
-    undo,
-    redo,
-    canUndo,
-    canRedo,
   } = useBlockStateManager(initialBlocks, initialStyles);
 
   // Create a debounced function for style updates to reduce API calls
@@ -260,9 +255,6 @@ export default function DndProvider() {
     // Update the UI immediately without adding to history
     updateBlocksWithoutHistory(sortedBlocks);
 
-    // Add to history - the hook will handle debouncing
-    addToHistory();
-
     // Update in database if we have an emailId and the block exists in the database
     if (emailId && !isNaN(parseInt(blockId, 10))) {
       const dbBlockId = parseInt(blockId, 10);
@@ -319,9 +311,6 @@ export default function DndProvider() {
         } else {
           updateBlocksWithoutHistory(reorderedBlocks);
         }
-
-        // Add to history immediately for block movements
-        addToHistory(true);
 
         // Update order in database for all affected blocks
         if (emailId) {
@@ -481,9 +470,6 @@ export default function DndProvider() {
     // Update the local state
     updateBlocksWithoutHistory(newBlocks);
 
-    // Add to history immediately for new blocks
-    addToHistory(true);
-
     // Add the block to the database if we have an emailId
     if (emailId) {
       // First update the UI optimistically
@@ -614,9 +600,6 @@ export default function DndProvider() {
     }));
 
     updateBlocksWithoutHistory(reorderedBlocks);
-
-    // Add to history immediately for block deletions
-    addToHistory(true);
 
     if (selectedBlockId === id) {
       setSelectedBlockId(null);
@@ -795,11 +778,6 @@ export default function DndProvider() {
         // Update the UI immediately
         updateBlocksWithoutHistory(newBlocks);
 
-        // Add to history
-        if (shouldAddToHistory) {
-          addToHistory();
-        }
-
         // Add the duplicated block to the database if we have an emailId
         if (emailId) {
           // Create a default value if data is undefined based on block type
@@ -940,11 +918,6 @@ export default function DndProvider() {
       // Always update UI immediately
       updateBlocksWithoutHistory(sortedBlocks);
 
-      // If shouldAddToHistory is true, add to history
-      if (shouldAddToHistory) {
-        addToHistory();
-      }
-
       // For database updates, debounce the operation
       if (emailId) {
         if (databaseUpdateTimerRef.current) {
@@ -969,7 +942,6 @@ export default function DndProvider() {
       emailId,
       blocks,
       updateBlocksWithoutHistory,
-      addToHistory,
       updateEmailBlock,
       addEmailBlock,
       setSelectedBlockId,
@@ -1194,192 +1166,6 @@ export default function DndProvider() {
     return isValid;
   };
 
-  // Handle undo button click
-  const handleUndo = useCallback(() => {
-    if (!canUndo) return;
-
-    // Perform the undo operation
-    const { previousState, currentState } = undo();
-
-    // Update the database with the changes
-    if (emailId) {
-      // Find blocks that were actually changed
-      const changedBlocks = previousState.blocks.filter((prevBlock) => {
-        const currentBlock = currentState.blocks.find(
-          (currBlock) => currBlock.id === prevBlock.id,
-        );
-        return (
-          !currentBlock ||
-          JSON.stringify(prevBlock) !== JSON.stringify(currentBlock)
-        );
-      });
-
-      // Prepare batch updates for all blocks
-      const orderUpdates: OrderUpdate[] = [];
-      const contentUpdates: ContentUpdate[] = [];
-
-      // First, collect all order updates since position changes affect all blocks
-      previousState.blocks.forEach((block, index) => {
-        if (!isNaN(parseInt(block.id, 10))) {
-          orderUpdates.push({
-            id: parseInt(block.id, 10),
-            order: index,
-          });
-        }
-      });
-
-      // Then collect content updates for changed blocks
-      changedBlocks.forEach((block) => {
-        if (
-          !isNaN(parseInt(block.id, 10)) &&
-          isValidDatabaseBlockType(block.type)
-        ) {
-          contentUpdates.push({
-            id: parseInt(block.id, 10),
-            type: block.type as DatabaseBlockType,
-            value: block.data,
-          });
-        }
-      });
-
-      // Send batch updates if there are any changes
-      if (orderUpdates.length > 0 || contentUpdates.length > 0) {
-        batchUpdateEmailBlocks.mutate({
-          emailId,
-          orderUpdates,
-          contentUpdates,
-        });
-      }
-
-      // Check if styles changed
-      const styleChanges: Record<string, any> = {};
-      if (previousState.styles.bgColor !== currentState.styles.bgColor) {
-        styleChanges.blocks_bg_color = previousState.styles.bgColor;
-      }
-      if (previousState.styles.isInset !== currentState.styles.isInset) {
-        styleChanges.is_inset = previousState.styles.isInset;
-      }
-      if (previousState.styles.isRounded !== currentState.styles.isRounded) {
-        styleChanges.is_rounded = previousState.styles.isRounded;
-      }
-      if (
-        previousState.styles.emailBgColor !== currentState.styles.emailBgColor
-      ) {
-        styleChanges.bg_color = previousState.styles.emailBgColor;
-      }
-      if (previousState.styles.linkColor !== currentState.styles.linkColor) {
-        styleChanges.link_color = previousState.styles.linkColor;
-      }
-      if (
-        previousState.styles.defaultTextColor !==
-        currentState.styles.defaultTextColor
-      ) {
-        styleChanges.default_text_color = previousState.styles.defaultTextColor;
-      }
-      if (
-        previousState.styles.defaultFont !== currentState.styles.defaultFont
-      ) {
-        styleChanges.default_font = previousState.styles.defaultFont;
-      }
-
-      // Only update styles if they changed
-      if (Object.keys(styleChanges).length > 0) {
-        debouncedStyleUpdate(styleChanges);
-      }
-    }
-  }, [canUndo, undo, emailId, debouncedStyleUpdate, batchUpdateEmailBlocks]);
-
-  // Handle redo button click
-  const handleRedo = useCallback(() => {
-    if (!canRedo) return;
-
-    // Perform the redo operation
-    const { nextState, currentState } = redo();
-
-    // Update the database with the changes
-    if (emailId) {
-      // Find blocks that were actually changed
-      const changedBlocks = nextState.blocks.filter((nextBlock) => {
-        const currentBlock = currentState.blocks.find(
-          (currBlock) => currBlock.id === nextBlock.id,
-        );
-        return (
-          !currentBlock ||
-          JSON.stringify(nextBlock) !== JSON.stringify(currentBlock)
-        );
-      });
-
-      // Prepare batch updates for all blocks
-      const orderUpdates: OrderUpdate[] = [];
-      const contentUpdates: ContentUpdate[] = [];
-
-      // First, collect all order updates since position changes affect all blocks
-      nextState.blocks.forEach((block, index) => {
-        if (!isNaN(parseInt(block.id, 10))) {
-          orderUpdates.push({
-            id: parseInt(block.id, 10),
-            order: index,
-          });
-        }
-      });
-
-      // Then collect content updates for changed blocks
-      changedBlocks.forEach((block) => {
-        if (
-          !isNaN(parseInt(block.id, 10)) &&
-          isValidDatabaseBlockType(block.type)
-        ) {
-          contentUpdates.push({
-            id: parseInt(block.id, 10),
-            type: block.type as DatabaseBlockType,
-            value: block.data,
-          });
-        }
-      });
-
-      // Send batch updates if there are any changes
-      if (orderUpdates.length > 0 || contentUpdates.length > 0) {
-        batchUpdateEmailBlocks.mutate({
-          emailId,
-          orderUpdates,
-          contentUpdates,
-        });
-      }
-
-      // Check if styles changed
-      const styleChanges: Record<string, any> = {};
-      if (nextState.styles.bgColor !== currentState.styles.bgColor) {
-        styleChanges.blocks_bg_color = nextState.styles.bgColor;
-      }
-      if (nextState.styles.isInset !== currentState.styles.isInset) {
-        styleChanges.is_inset = nextState.styles.isInset;
-      }
-      if (nextState.styles.isRounded !== currentState.styles.isRounded) {
-        styleChanges.is_rounded = nextState.styles.isRounded;
-      }
-      if (nextState.styles.emailBgColor !== currentState.styles.emailBgColor) {
-        styleChanges.bg_color = nextState.styles.emailBgColor;
-      }
-      if (nextState.styles.linkColor !== currentState.styles.linkColor) {
-        styleChanges.link_color = nextState.styles.linkColor;
-      }
-      if (
-        nextState.styles.defaultTextColor !==
-        currentState.styles.defaultTextColor
-      ) {
-        styleChanges.default_text_color = nextState.styles.defaultTextColor;
-      }
-      if (nextState.styles.defaultFont !== currentState.styles.defaultFont) {
-        styleChanges.default_font = nextState.styles.defaultFont;
-      }
-
-      // Only update styles if they changed
-      if (Object.keys(styleChanges).length > 0) {
-        debouncedStyleUpdate(styleChanges);
-      }
-    }
-  }, [canRedo, redo, emailId, debouncedStyleUpdate, batchUpdateEmailBlocks]);
-
   // Function to ensure all database blocks are visible in the UI
   const ensureBlocksVisibility = useCallback(() => {
     if (!emailData || !emailData.blocks || !blocks) return;
@@ -1535,9 +1321,6 @@ export default function DndProvider() {
       // Update UI immediately
       updateStylesWithoutHistory({ bgColor: color });
 
-      // Add to history - the hook will handle debouncing
-      addToHistory();
-
       // Update database if we have an emailId
       if (emailId) {
         debouncedStyleUpdate({
@@ -1545,7 +1328,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
   );
 
   // Fix handleIsInsetChange to include history update
@@ -1554,9 +1337,6 @@ export default function DndProvider() {
       // Update UI immediately
       updateStylesWithoutHistory({ isInset: inset });
 
-      // Add to history - the hook will handle debouncing
-      addToHistory();
-
       // Update database if we have an emailId
       if (emailId) {
         debouncedStyleUpdate({
@@ -1564,7 +1344,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
   );
 
   // Fix handleIsRoundedChange to include history update
@@ -1573,9 +1353,6 @@ export default function DndProvider() {
       // Update UI immediately
       updateStylesWithoutHistory({ isRounded: rounded });
 
-      // Add to history - the hook will handle debouncing
-      addToHistory();
-
       // Update in database if we have an emailId
       if (emailId) {
         debouncedStyleUpdate({
@@ -1583,7 +1360,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
   );
 
   // Fix handleEmailBgColorChange to include history update
@@ -1592,9 +1369,6 @@ export default function DndProvider() {
       // Update UI immediately
       updateStylesWithoutHistory({ emailBgColor: color });
 
-      // Add to history - the hook will handle debouncing
-      addToHistory();
-
       // Update in database if we have an emailId
       if (emailId) {
         debouncedStyleUpdate({
@@ -1602,7 +1376,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
   );
 
   // Fix handleLinkColorChange to include history update
@@ -1611,16 +1385,13 @@ export default function DndProvider() {
       // Update UI immediately
       updateStylesWithoutHistory({ linkColor: color });
 
-      // Add to history - the hook will handle debouncing
-      addToHistory();
-
       if (emailId) {
         debouncedStyleUpdate({
           link_color: color,
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
   );
 
   // Fix handleDefaultTextColorChange to include history update
@@ -1629,9 +1400,6 @@ export default function DndProvider() {
       // Update UI immediately
       updateStylesWithoutHistory({ defaultTextColor: color });
 
-      // Add to history - the hook will handle debouncing
-      addToHistory();
-
       // Update in database if we have an emailId
       if (emailId) {
         debouncedStyleUpdate({
@@ -1639,7 +1407,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
   );
 
   // Fix handleDefaultFontChange to include history update
@@ -1648,9 +1416,6 @@ export default function DndProvider() {
       // Update UI immediately
       updateStylesWithoutHistory({ defaultFont: font });
 
-      // Add to history - the hook will handle debouncing
-      addToHistory();
-
       // Update in database if we have an emailId
       if (emailId) {
         debouncedStyleUpdate({
@@ -1658,7 +1423,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory, addToHistory],
+    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
   );
 
   // Initialize editors for text blocks
@@ -1774,44 +1539,6 @@ export default function DndProvider() {
     updateBlocksWithoutHistory,
     batchUpdateEmailBlocks,
   ]);
-
-  // Add keyboard shortcut handler
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if the target is an input or textarea
-      const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
-        return;
-      }
-
-      // Handle undo (Command/Ctrl + Z)
-      if (
-        (e.metaKey || e.ctrlKey) &&
-        !e.shiftKey &&
-        e.key.toLowerCase() === "z"
-      ) {
-        e.preventDefault();
-        handleUndo();
-      }
-      // Handle redo (Command/Ctrl + Shift + Z)
-      if (
-        (e.metaKey || e.ctrlKey) &&
-        e.shiftKey &&
-        e.key.toLowerCase() === "z"
-      ) {
-        e.preventDefault();
-        handleRedo();
-      }
-    };
-
-    // Add event listener
-    window.addEventListener("keydown", handleKeyDown);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [handleUndo, handleRedo]);
 
   // Custom collision detection that handles large blocks differently
   const customCollisionDetection: CollisionDetection = (args) => {
@@ -1963,12 +1690,7 @@ export default function DndProvider() {
           <div className="flex">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleUndo}
-                  disabled={!canUndo}
-                >
+                <Button variant="ghost" size="icon">
                   <Undo />
                 </Button>
               </TooltipTrigger>
@@ -1976,12 +1698,7 @@ export default function DndProvider() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleRedo}
-                  disabled={!canRedo}
-                >
+                <Button variant="ghost" size="icon">
                   <Redo />
                 </Button>
               </TooltipTrigger>

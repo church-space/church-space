@@ -3,12 +3,11 @@ import { Label } from "@church-space/ui/label";
 import { Slider } from "@church-space/ui/slider";
 import { Switch } from "@church-space/ui/switch";
 import { Block, VideoBlockData } from "@/types/blocks";
-import { useEffect, useState, useRef, useCallback } from "react";
-import debounce from "lodash/debounce";
+import { useEffect, useState } from "react";
 
 interface VideoFormProps {
   block: Block & { data?: VideoBlockData };
-  onUpdate: (block: Block, addToHistory?: boolean) => void;
+  onUpdate: (block: Block) => void;
 }
 
 export default function VideoForm({ block, onUpdate }: VideoFormProps) {
@@ -19,36 +18,6 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
     centered: block.data?.centered || false,
   });
   const [error, setError] = useState("");
-
-  // Create a ref to store the latest state for the debounced function
-  const stateRef = useRef(localState);
-
-  // Update the ref whenever localState changes
-  useEffect(() => {
-    stateRef.current = localState;
-  }, [localState]);
-
-  // Create a debounced function that only updates the history
-  const debouncedHistoryUpdate = useCallback(
-    debounce(() => {
-      // Add to history
-      onUpdate(
-        {
-          ...block,
-          data: stateRef.current,
-        },
-        true,
-      );
-    }, 500),
-    [block, onUpdate],
-  );
-
-  // Cleanup debounce on unmount
-  useEffect(() => {
-    return () => {
-      debouncedHistoryUpdate.cancel();
-    };
-  }, [debouncedHistoryUpdate]);
 
   // Update local state if block props change from parent
   useEffect(() => {
@@ -84,17 +53,11 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
     const newState = { ...localState, [field]: value };
     setLocalState(newState);
 
-    // Update the UI immediately without adding to history
-    onUpdate(
-      {
-        ...block,
-        data: newState,
-      },
-      false,
-    );
-
-    // Debounce the history update
-    debouncedHistoryUpdate();
+    // Update the UI
+    onUpdate({
+      ...block,
+      data: newState,
+    });
   };
 
   return (

@@ -10,13 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import debounce from "lodash/debounce";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import ColorPicker from "../color-picker";
 
 interface ListFormProps {
   block: Block & { data?: ListBlockData };
-  onUpdate: (block: Block, addToHistory?: boolean) => void;
+  onUpdate: (block: Block) => void;
 }
 
 export default function ListForm({ block, onUpdate }: ListFormProps) {
@@ -29,50 +28,6 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
     items: block.data?.items || [],
   });
 
-  // Create a ref to store the latest state for the debounced function
-  const stateRef = useRef(localState);
-
-  // Update the ref whenever localState changes
-  useEffect(() => {
-    stateRef.current = localState;
-  }, [localState]);
-
-  // Create a debounced function that only updates the history
-  const debouncedHistoryUpdate = useCallback(
-    debounce(() => {
-      // Add to history
-      onUpdate(
-        {
-          ...block,
-          data: stateRef.current,
-        },
-        true,
-      );
-    }, 500),
-    [block, onUpdate],
-  );
-
-  const handleChange = (field: string, value: any) => {
-    // Immediately update the local state for responsive UI
-    const newState = {
-      ...localState,
-      [field]: value,
-    };
-    setLocalState(newState);
-
-    // Update the UI immediately without adding to history
-    onUpdate(
-      {
-        ...block,
-        data: newState,
-      },
-      false,
-    );
-
-    // Debounce the history update
-    debouncedHistoryUpdate();
-  };
-
   useEffect(() => {
     setLocalState({
       title: block.data?.title || "",
@@ -83,6 +38,21 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
       items: block.data?.items || [],
     });
   }, [block.data]);
+
+  const handleChange = (field: string, value: any) => {
+    // Immediately update the local state for responsive UI
+    const newState = {
+      ...localState,
+      [field]: value,
+    };
+    setLocalState(newState);
+
+    // Update the UI
+    onUpdate({
+      ...block,
+      data: newState,
+    });
+  };
 
   const addItem = () => {
     const newItems = [

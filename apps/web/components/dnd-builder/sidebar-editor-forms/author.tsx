@@ -29,7 +29,7 @@ import { z } from "zod";
 
 interface AuthorFormProps {
   block: Block & { data?: AuthorBlockData };
-  onUpdate: (block: Block, addToHistory?: boolean) => void;
+  onUpdate: (block: Block) => void;
 }
 
 export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
@@ -42,9 +42,6 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     links: block.data?.links || [],
     textColor: block.data?.textColor || "#000000",
   });
-
-  // Create a ref to store the latest state for the debounced function
-  const stateRef = useRef(localState);
 
   // Track validation errors for links
   const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
@@ -136,61 +133,16 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     }
   };
 
-  // Update the ref whenever localState changes
-  useEffect(() => {
-    stateRef.current = localState;
-  }, [localState]);
-
-  // Cleanup debounce timers on unmount
-  useEffect(() => {
-    return () => {
-      Object.values(linkTimersRef.current).forEach((timer) => {
-        if (timer) clearTimeout(timer);
-      });
-    };
-  }, []);
-
-  // Create a debounced function that only updates the history
-  const debouncedHistoryUpdate = useCallback(
-    debounce(() => {
-      // Add to history
-      onUpdate(
-        {
-          ...block,
-          data: stateRef.current,
-        },
-        true,
-      );
-    }, 500),
-    [block, onUpdate],
-  );
-
-  useEffect(() => {
-    setLocalState({
-      name: block.data?.name || "",
-      subtitle: block.data?.subtitle || "",
-      avatar: block.data?.avatar || "",
-      links: block.data?.links || [],
-      textColor: block.data?.textColor || "#000000",
-    });
-  }, [block.data]);
-
   const handleChange = (key: keyof AuthorBlockData, value: any) => {
     // Immediately update the local state for responsive UI
     const newState = { ...localState, [key]: value };
     setLocalState(newState);
 
-    // Update the UI immediately without adding to history
-    onUpdate(
-      {
-        ...block,
-        data: newState,
-      },
-      false,
-    );
-
-    // Debounce the history update
-    debouncedHistoryUpdate();
+    // Update the UI
+    onUpdate({
+      ...block,
+      data: newState,
+    });
   };
 
   const handleUploadComplete = (path: string) => {
@@ -285,9 +237,6 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   const onImageRemove = () => {
     // Update the avatar with an empty string
     handleChange("avatar", "");
-
-    // Force an update to history to ensure the change is saved
-    debouncedHistoryUpdate();
   };
 
   if (!organizationId) return null;

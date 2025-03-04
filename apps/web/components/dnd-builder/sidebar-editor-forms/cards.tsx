@@ -18,7 +18,7 @@ import ColorPicker from "../color-picker";
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };
-  onUpdate: (block: Block, addToHistory?: boolean) => void;
+  onUpdate: (block: Block) => void;
 }
 
 export default function CardsForm({ block, onUpdate }: CardsFormProps) {
@@ -39,40 +39,6 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     buttonColor: block.data?.buttonColor || "#4274D2",
     buttonTextColor: block.data?.buttonTextColor || "#FFFFFF",
   });
-
-  // Create a ref to store the latest state for the debounced function
-  const stateRef = useRef(localState);
-
-  // Update the ref whenever localState changes
-  useEffect(() => {
-    stateRef.current = localState;
-  }, [localState]);
-
-  // Create a debounced function that only updates the history
-  const debouncedHistoryUpdate = useCallback(
-    debounce(() => {
-      // Add to history
-      onUpdate(
-        {
-          ...block,
-          data: stateRef.current,
-        },
-        true,
-      );
-    }, 500),
-    [block, onUpdate],
-  );
-
-  // Cleanup the debounced function when component unmounts
-  useEffect(() => {
-    return () => {
-      debouncedHistoryUpdate.cancel();
-      // Clear all debounce timers
-      Object.values(debounceTimerRef.current).forEach((timer) => {
-        if (timer) clearTimeout(timer);
-      });
-    };
-  }, [debouncedHistoryUpdate]);
 
   // URL validation schema using Zod
   const urlSchema = z.string().superRefine((url, ctx) => {
@@ -123,17 +89,11 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     const newState = { ...localState, [key]: value };
     setLocalState(newState);
 
-    // Update the UI immediately without adding to history
-    onUpdate(
-      {
-        ...block,
-        data: newState,
-      },
-      false,
-    );
-
-    // Debounce the history update
-    debouncedHistoryUpdate();
+    // Update the UI
+    onUpdate({
+      ...block,
+      data: newState,
+    });
   };
 
   const addCard = () => {
@@ -200,17 +160,10 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
       const isValid = validateUrl(buttonLink, index);
 
       if (isValid) {
-        // Update UI immediately without adding to history
-        onUpdate(
-          {
-            ...block,
-            data: localState,
-          },
-          false,
-        );
-
-        // Debounce the history update
-        debouncedHistoryUpdate();
+        onUpdate({
+          ...block,
+          data: localState,
+        });
       }
     }
   };
@@ -243,9 +196,6 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     const newCards = [...localState.cards];
     newCards[index] = { ...newCards[index], image: "" };
     handleChange("cards", newCards);
-
-    // Force an update to history to ensure the change is saved
-    debouncedHistoryUpdate();
   };
 
   if (!organizationId) return null;

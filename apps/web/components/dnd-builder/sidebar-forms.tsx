@@ -53,11 +53,7 @@ export default function DndBuilderSidebarForms({
   selectedBlock?: Block;
   setSelectedBlockId?: (id: string | null) => void;
   onDeleteBlock?: (id: string) => void;
-  onBlockUpdate?: (
-    block: Block,
-    addToHistory?: boolean,
-    isDuplication?: boolean,
-  ) => void;
+  onBlockUpdate?: (block: Block, isDuplication?: boolean) => void;
   formType?: "block" | "email-style" | "email-footer" | "email-templates";
   onBack?: () => void;
   bgColor?: string;
@@ -266,7 +262,7 @@ export default function DndBuilderSidebarForms({
                     duplicatedFromId: selectedBlock.id, // Store the original block's ID
                   };
 
-                  onBlockUpdate(duplicatedBlock, true, true);
+                  onBlockUpdate(duplicatedBlock, true);
                 }
               }}
             >

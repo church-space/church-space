@@ -5,13 +5,12 @@ import { Switch } from "@church-space/ui/switch";
 import { useUser } from "@/stores/use-user";
 import FileUpload from "../file-upload";
 import { Block, ImageBlockData } from "@/types/blocks";
-import { useCallback, useState, useRef, useEffect } from "react";
-import debounce from "lodash/debounce";
+import { useState, useRef } from "react";
 import { z } from "zod";
 
 interface ImageFormProps {
   block: Block & { data?: ImageBlockData };
-  onUpdate: (block: Block, addToHistory?: boolean) => void;
+  onUpdate: (block: Block) => void;
 }
 
 export default function ImageForm({ block, onUpdate }: ImageFormProps) {
@@ -26,39 +25,6 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
   const [linkError, setLinkError] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Create a ref to store the latest state for the debounced function
-  const stateRef = useRef(localState);
-
-  // Update the ref whenever localState changes
-  useEffect(() => {
-    stateRef.current = localState;
-  }, [localState]);
-
-  // Create a debounced function that only updates the history
-  const debouncedHistoryUpdate = useCallback(
-    debounce(() => {
-      // Add to history
-      onUpdate(
-        {
-          ...block,
-          data: stateRef.current,
-        },
-        true,
-      );
-    }, 500),
-    [block, onUpdate],
-  );
-
-  // Cleanup debounce timer on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      debouncedHistoryUpdate.cancel();
-    };
-  }, [debouncedHistoryUpdate]);
 
   // URL validation schema using Zod
   const urlSchema = z.string().superRefine((url, ctx) => {
@@ -124,33 +90,19 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
 
         // Only update parent if valid
         if (isValid) {
-          // Update UI immediately without adding to history
-          onUpdate(
-            {
-              ...block,
-              data: newState,
-            },
-            false,
-          );
-
-          // Debounce the history update
-          debouncedHistoryUpdate();
+          onUpdate({
+            ...block,
+            data: newState,
+          });
         }
       }, 800); // 800ms debounce
     }
     // Immediately update for all other fields
     else {
-      // Update UI immediately without adding to history
-      onUpdate(
-        {
-          ...block,
-          data: newState,
-        },
-        false,
-      );
-
-      // Debounce the history update
-      debouncedHistoryUpdate();
+      onUpdate({
+        ...block,
+        data: newState,
+      });
     }
   };
 
@@ -165,17 +117,10 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
 
       const isValid = validateUrl(localState.link);
       if (isValid) {
-        // Update UI immediately without adding to history
-        onUpdate(
-          {
-            ...block,
-            data: localState,
-          },
-          false,
-        );
-
-        // Debounce the history update
-        debouncedHistoryUpdate();
+        onUpdate({
+          ...block,
+          data: localState,
+        });
       }
     }
   };

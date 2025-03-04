@@ -16,7 +16,7 @@ import { Switch } from "@church-space/ui/switch";
 
 interface ButtonFormProps {
   block: Block & { data?: ButtonBlockData };
-  onUpdate: (block: Block, addToHistory?: boolean) => void;
+  onUpdate: (block: Block) => void;
 }
 
 export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
@@ -52,31 +52,6 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
       centered: block.data?.centered ?? true,
     });
   }, [block.data]);
-
-  // Create a debounced function that only updates the history
-  const debouncedHistoryUpdate = useCallback(
-    debounce(() => {
-      // Add to history
-      onUpdate(
-        {
-          ...block,
-          data: stateRef.current,
-        },
-        true,
-      );
-    }, 500),
-    [block, onUpdate],
-  );
-
-  // Cleanup debounce timer on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      debouncedHistoryUpdate.cancel();
-    };
-  }, [debouncedHistoryUpdate]);
 
   // URL validation schema using Zod
   const urlSchema = z.string().superRefine((url, ctx) => {
@@ -142,34 +117,19 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
 
         // Only update parent if valid
         if (isValid) {
-          // Update UI immediately without adding to history
-          onUpdate(
-            {
-              ...block,
-              data: newState,
-            },
-            false,
-          );
-
-          // Debounce the history update
-          debouncedHistoryUpdate();
+          onUpdate({
+            ...block,
+            data: newState,
+          });
         }
       }, 800); // 800ms debounce
     } else {
       // For other fields, update immediately
       setLocalState(newState);
-
-      // Update UI immediately without adding to history
-      onUpdate(
-        {
-          ...block,
-          data: newState,
-        },
-        false,
-      );
-
-      // Debounce the history update
-      debouncedHistoryUpdate();
+      onUpdate({
+        ...block,
+        data: newState,
+      });
     }
   };
 
@@ -184,17 +144,10 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
 
       const isValid = validateUrl(localState.link);
       if (isValid) {
-        // Update UI immediately without adding to history
-        onUpdate(
-          {
-            ...block,
-            data: localState,
-          },
-          false,
-        );
-
-        // Debounce the history update
-        debouncedHistoryUpdate();
+        onUpdate({
+          ...block,
+          data: localState,
+        });
       }
     }
   };

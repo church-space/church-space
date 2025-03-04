@@ -1,13 +1,12 @@
 import { Label } from "@church-space/ui/label";
 import { Slider } from "@church-space/ui/slider";
 import type { Block, DividerBlockData } from "@/types/blocks";
-import { useEffect, useState, useCallback, useRef } from "react";
-import debounce from "lodash/debounce";
+import { useEffect, useState } from "react";
 import ColorPicker from "../color-picker";
 
 interface DividerFormProps {
   block: Block & { data?: DividerBlockData };
-  onUpdate: (block: Block, addToHistory?: boolean) => void;
+  onUpdate: (block: Block) => void;
 }
 
 export default function DividerForm({ block, onUpdate }: DividerFormProps) {
@@ -16,35 +15,12 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
     margin: block.data?.margin || 0,
   });
 
-  // Create a ref to store the latest state for the debounced function
-  const stateRef = useRef(localState);
-
-  // Update the ref whenever localState changes
-  useEffect(() => {
-    stateRef.current = localState;
-  }, [localState]);
-
   useEffect(() => {
     setLocalState({
       color: block.data?.color || "#e2e8f0",
       margin: block.data?.margin || 8,
     });
   }, [block.data]);
-
-  // Create a debounced function that only updates the history
-  const debouncedHistoryUpdate = useCallback(
-    debounce(() => {
-      // Add to history
-      onUpdate(
-        {
-          ...block,
-          data: stateRef.current,
-        },
-        true,
-      );
-    }, 500),
-    [block, onUpdate],
-  );
 
   const handleChange = (field: keyof DividerBlockData, value: any) => {
     // Immediately update the local state for responsive UI
@@ -54,29 +30,16 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
     };
     setLocalState(newState);
 
-    // Update the UI immediately without adding to history
-    onUpdate(
-      {
-        ...block,
-        data: newState,
-      },
-      false,
-    );
-
-    // Debounce the history update
-    debouncedHistoryUpdate();
+    // Update the UI
+    onUpdate({
+      ...block,
+      data: newState,
+    });
   };
 
   const handleMarginChange = (value: number[]) => {
     handleChange("margin", value[0]);
   };
-
-  // Cleanup debounce on unmount
-  useEffect(() => {
-    return () => {
-      debouncedHistoryUpdate.cancel();
-    };
-  }, [debouncedHistoryUpdate]);
 
   return (
     <div className="flex flex-col gap-10 px-2">
