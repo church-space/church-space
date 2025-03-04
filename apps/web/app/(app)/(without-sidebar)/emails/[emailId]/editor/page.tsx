@@ -7,12 +7,17 @@ import {
 } from "@tanstack/react-query";
 import EmailNotFound from "@/components/not-found/email";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 type Params = Promise<{ emailId: string }>;
 
 export default async function Page(props: { params: Params }) {
   const params = await props.params;
   const emailId = parseInt(params.emailId, 10);
+
+  // Get organizationId from cookies
+  const cookieStore = await cookies();
+  const organizationId = cookieStore.get("organizationId")?.value;
 
   const queryClient = new QueryClient();
 
@@ -96,8 +101,8 @@ export default async function Page(props: { params: Params }) {
   // Get the prefetched data to check for early returns
   const emailData = queryClient.getQueryData(["email", emailId]) as any;
 
-  // Early return if email not found
-  if (!emailData?.email) {
+  // Early return if email not found or organization ID doesn't match
+  if (!emailData?.email || emailData.email.organization_id !== organizationId) {
     return <EmailNotFound />;
   }
 
