@@ -31,7 +31,7 @@ export function useBlockStateManager(
   });
 
   // Update blocks immediately for UI
-  const updateBlocksWithoutHistory = useCallback((newBlocks: Block[]) => {
+  const updateBlocksHistory = useCallback((newBlocks: Block[]) => {
     // Ensure blocks are sorted by order
     const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
@@ -42,25 +42,22 @@ export function useBlockStateManager(
   }, []);
 
   // Update styles immediately for UI
-  const updateStylesWithoutHistory = useCallback(
-    (newStyles: Partial<EmailStyles>) => {
-      setCurrentState((current) => ({
-        ...current,
-        styles: {
-          ...current.styles,
-          ...newStyles,
-        },
-      }));
-    },
-    [],
-  );
+  const updateStylesHistory = useCallback((newStyles: Partial<EmailStyles>) => {
+    setCurrentState((current) => ({
+      ...current,
+      styles: {
+        ...current.styles,
+        ...newStyles,
+      },
+    }));
+  }, []);
 
   return {
     // Current state for UI
     blocks: currentState.blocks,
     styles: currentState.styles,
     // Update functions
-    updateBlocksWithoutHistory,
-    updateStylesWithoutHistory,
+    updateBlocksHistory,
+    updateStylesHistory,
   };
 }

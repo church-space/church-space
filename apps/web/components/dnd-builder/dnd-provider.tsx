@@ -148,12 +148,8 @@ export default function DndProvider() {
     isRounded: emailStyle.is_rounded ?? true,
   };
 
-  const {
-    blocks,
-    styles,
-    updateBlocksWithoutHistory,
-    updateStylesWithoutHistory,
-  } = useBlockStateManager(initialBlocks, initialStyles);
+  const { blocks, styles, updateBlocksHistory, updateStylesHistory } =
+    useBlockStateManager(initialBlocks, initialStyles);
 
   // Create a debounced function for style updates to reduce API calls
   const debouncedStyleUpdate = useCallback(
@@ -252,8 +248,8 @@ export default function DndProvider() {
     // Ensure block order is maintained by sorting
     const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
-    // Update the UI immediately without adding to history
-    updateBlocksWithoutHistory(sortedBlocks);
+    // Update the UI immediately  adding to history
+    updateBlocksHistory(sortedBlocks);
 
     // Update in database if we have an emailId and the block exists in the database
     if (emailId && !isNaN(parseInt(blockId, 10))) {
@@ -307,9 +303,9 @@ export default function DndProvider() {
             return true;
           });
 
-          updateBlocksWithoutHistory(deduplicatedBlocks);
+          updateBlocksHistory(deduplicatedBlocks);
         } else {
-          updateBlocksWithoutHistory(reorderedBlocks);
+          updateBlocksHistory(reorderedBlocks);
         }
 
         // Update order in database for all affected blocks
@@ -468,7 +464,7 @@ export default function DndProvider() {
     }));
 
     // Update the local state
-    updateBlocksWithoutHistory(newBlocks);
+    updateBlocksHistory(newBlocks);
 
     // Add the block to the database if we have an emailId
     if (emailId) {
@@ -523,9 +519,9 @@ export default function DndProvider() {
                   return true;
                 });
 
-                updateBlocksWithoutHistory(deduplicatedBlocks);
+                updateBlocksHistory(deduplicatedBlocks);
               } else {
-                updateBlocksWithoutHistory(updatedBlocks);
+                updateBlocksHistory(updatedBlocks);
               }
 
               // Set the newly created block as the selected block
@@ -599,7 +595,7 @@ export default function DndProvider() {
       order: index,
     }));
 
-    updateBlocksWithoutHistory(reorderedBlocks);
+    updateBlocksHistory(reorderedBlocks);
 
     if (selectedBlockId === id) {
       setSelectedBlockId(null);
@@ -776,7 +772,7 @@ export default function DndProvider() {
         }));
 
         // Update the UI immediately
-        updateBlocksWithoutHistory(newBlocks);
+        updateBlocksHistory(newBlocks);
 
         // Add the duplicated block to the database if we have an emailId
         if (emailId) {
@@ -882,7 +878,7 @@ export default function DndProvider() {
                   );
 
                   // Update the UI with the new ID
-                  updateBlocksWithoutHistory(updatedBlocks);
+                  updateBlocksHistory(updatedBlocks);
 
                   // Set the newly created block as the selected block
                   setSelectedBlockId(result.id.toString());
@@ -916,7 +912,7 @@ export default function DndProvider() {
       const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
       // Always update UI immediately
-      updateBlocksWithoutHistory(sortedBlocks);
+      updateBlocksHistory(sortedBlocks);
 
       // For database updates, debounce the operation
       if (emailId) {
@@ -941,7 +937,7 @@ export default function DndProvider() {
     [
       emailId,
       blocks,
-      updateBlocksWithoutHistory,
+      updateBlocksHistory,
       updateEmailBlock,
       addEmailBlock,
       setSelectedBlockId,
@@ -1079,7 +1075,7 @@ export default function DndProvider() {
 
       // Update blocks with new IDs but keep the same UI
       if (JSON.stringify(currentBlocks) !== JSON.stringify(blocks)) {
-        updateBlocksWithoutHistory(currentBlocks);
+        updateBlocksHistory(currentBlocks);
       }
 
       // 3. Prepare batch updates for all blocks with database IDs
@@ -1201,7 +1197,7 @@ export default function DndProvider() {
           (a, b) => (a.order || 0) - (b.order || 0),
         );
 
-        updateBlocksWithoutHistory(sortedBlocks);
+        updateBlocksHistory(sortedBlocks);
         return; // Exit early since we've updated the blocks
       }
     }
@@ -1243,9 +1239,9 @@ export default function DndProvider() {
         (a, b) => (a.order || 0) - (b.order || 0),
       );
 
-      updateBlocksWithoutHistory(sortedBlocks);
+      updateBlocksHistory(sortedBlocks);
     }
-  }, [emailData, blocks, updateBlocksWithoutHistory, blocksBeingDeleted]);
+  }, [emailData, blocks, updateBlocksHistory, blocksBeingDeleted]);
 
   // Call ensureBlocksVisibility when emailData changes
   useEffect(() => {
@@ -1284,7 +1280,7 @@ export default function DndProvider() {
 
   // Only update if blocks were actually removed
   if (filteredBlocks.length < blocks.length) {
-    updateBlocksWithoutHistory(filteredBlocks);
+    updateBlocksHistory(filteredBlocks);
   }
 
   // Clear blocksBeingDeleted after a timeout to prevent blocks from being permanently excluded
@@ -1319,7 +1315,7 @@ export default function DndProvider() {
   const handleBgColorChange = useCallback(
     (color: string) => {
       // Update UI immediately
-      updateStylesWithoutHistory({ bgColor: color });
+      updateStylesHistory({ bgColor: color });
 
       // Update database if we have an emailId
       if (emailId) {
@@ -1328,14 +1324,14 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleIsInsetChange to include history update
   const handleIsInsetChange = useCallback(
     (inset: boolean) => {
       // Update UI immediately
-      updateStylesWithoutHistory({ isInset: inset });
+      updateStylesHistory({ isInset: inset });
 
       // Update database if we have an emailId
       if (emailId) {
@@ -1344,14 +1340,14 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleIsRoundedChange to include history update
   const handleIsRoundedChange = useCallback(
     (rounded: boolean) => {
       // Update UI immediately
-      updateStylesWithoutHistory({ isRounded: rounded });
+      updateStylesHistory({ isRounded: rounded });
 
       // Update in database if we have an emailId
       if (emailId) {
@@ -1360,14 +1356,14 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleEmailBgColorChange to include history update
   const handleEmailBgColorChange = useCallback(
     (color: string) => {
       // Update UI immediately
-      updateStylesWithoutHistory({ emailBgColor: color });
+      updateStylesHistory({ emailBgColor: color });
 
       // Update in database if we have an emailId
       if (emailId) {
@@ -1376,14 +1372,14 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleLinkColorChange to include history update
   const handleLinkColorChange = useCallback(
     (color: string) => {
       // Update UI immediately
-      updateStylesWithoutHistory({ linkColor: color });
+      updateStylesHistory({ linkColor: color });
 
       if (emailId) {
         debouncedStyleUpdate({
@@ -1391,14 +1387,14 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleDefaultTextColorChange to include history update
   const handleDefaultTextColorChange = useCallback(
     (color: string) => {
       // Update UI immediately
-      updateStylesWithoutHistory({ defaultTextColor: color });
+      updateStylesHistory({ defaultTextColor: color });
 
       // Update in database if we have an emailId
       if (emailId) {
@@ -1407,14 +1403,14 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleDefaultFontChange to include history update
   const handleDefaultFontChange = useCallback(
     (font: string) => {
       // Update UI immediately
-      updateStylesWithoutHistory({ defaultFont: font });
+      updateStylesHistory({ defaultFont: font });
 
       // Update in database if we have an emailId
       if (emailId) {
@@ -1423,7 +1419,7 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesWithoutHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Initialize editors for text blocks
@@ -1495,8 +1491,8 @@ export default function DndProvider() {
 
     // Only update if there are actual changes to make
     if (needsUpdate) {
-      // Update the blocks without adding to history
-      updateBlocksWithoutHistory(updatedBlocks);
+      // Update the blocks  adding to history
+      updateBlocksHistory(updatedBlocks);
 
       // Update all text editors to use the new font and color
       Object.values(editors).forEach((editor) => {
@@ -1536,7 +1532,7 @@ export default function DndProvider() {
     emailId,
     blocks,
     editors,
-    updateBlocksWithoutHistory,
+    updateBlocksHistory,
     batchUpdateEmailBlocks,
   ]);
 
