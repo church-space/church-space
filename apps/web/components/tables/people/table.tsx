@@ -78,7 +78,6 @@ export default function PeopleTable({
       <DataTable
         columns={columns}
         data={data}
-        initialSorting={[{ id: "name", desc: false }]}
         pageSize={pageSize}
         loadMore={initialLoadMore}
         hasNextPage={hasNextPage}

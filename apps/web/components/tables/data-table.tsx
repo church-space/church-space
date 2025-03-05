@@ -1,15 +1,5 @@
 "use client";
 
-import { cn } from "@church-space/ui/cn";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@church-space/ui/table";
-import { useId, useState, useRef, useEffect, useCallback } from "react";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
@@ -19,6 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@church-space/ui/table";
 import {
   Column,
   ColumnDef,
@@ -31,11 +29,11 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   RowData,
-  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from "lucide-react";
 import debounce from "lodash/debounce";
+import { SearchIcon } from "lucide-react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -49,7 +47,6 @@ declare module "@tanstack/react-table" {
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
-  initialSorting?: SortingState;
   pageSize?: number;
   hasNextPage?: boolean;
   loadMore?: (params: {
@@ -64,7 +61,6 @@ interface DataTableProps<TData> {
 export default function DataTable<TData>({
   columns,
   data: initialData,
-  initialSorting = [],
   pageSize = 25,
   hasNextPage: initialHasNextPage,
   loadMore,
@@ -74,7 +70,6 @@ export default function DataTable<TData>({
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState(searchQuery);
-  const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [data, setData] = useState<TData[]>(initialData);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMorePages, setHasMorePages] = useState(initialHasNextPage);
@@ -175,7 +170,6 @@ export default function DataTable<TData>({
     data,
     columns,
     state: {
-      sorting,
       columnFilters,
       globalFilter: "",
     },
@@ -187,8 +181,7 @@ export default function DataTable<TData>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    onSortingChange: setSorting,
-    enableSortingRemoval: false,
+    enableSorting: false,
   });
 
   return (
@@ -238,61 +231,13 @@ export default function DataTable<TData>({
                     <TableHead
                       key={header.id}
                       className="relative h-10 select-none border-t"
-                      aria-sort={
-                        header.column.getIsSorted() === "asc"
-                          ? "ascending"
-                          : header.column.getIsSorted() === "desc"
-                            ? "descending"
-                            : "none"
-                      }
                     >
-                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                        <div
-                          className={cn(
-                            header.column.getCanSort() &&
-                              "flex h-full cursor-pointer select-none items-center justify-between gap-2",
-                          )}
-                          onClick={header.column.getToggleSortingHandler()}
-                          onKeyDown={(e) => {
-                            if (
-                              header.column.getCanSort() &&
-                              (e.key === "Enter" || e.key === " ")
-                            ) {
-                              e.preventDefault();
-                              header.column.getToggleSortingHandler()?.(e);
-                            }
-                          }}
-                          tabIndex={header.column.getCanSort() ? 0 : undefined}
-                        >
-                          {flexRender(
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
                             header.column.columnDef.header,
                             header.getContext(),
                           )}
-                          {{
-                            asc: (
-                              <ChevronUpIcon
-                                className="shrink-0 opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            ),
-                            desc: (
-                              <ChevronDownIcon
-                                className="shrink-0 opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            ),
-                          }[header.column.getIsSorted() as string] ?? (
-                            <span className="size-4" aria-hidden="true" />
-                          )}
-                        </div>
-                      ) : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )
-                      )}
                     </TableHead>
                   );
                 })}

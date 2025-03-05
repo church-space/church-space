@@ -76,7 +76,6 @@ export default function EmailsTable({
       <DataTable
         columns={columns}
         data={data}
-        initialSorting={[{ id: "created_at", desc: true }]}
         pageSize={pageSize}
         loadMore={initialLoadMore}
         hasNextPage={hasNextPage}
