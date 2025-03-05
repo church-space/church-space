@@ -14,7 +14,7 @@ import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { generateEmailCode } from "@/lib/generate-email-code";
 import { render } from "@react-email/render";
 import { toast } from "@church-space/ui/use-toast";
-import { Section, BlockData, BlockType } from "@/types/blocks";
+import { Section, BlockData, BlockType, EmailStyle } from "@/types/blocks";
 
 export default function SendTestEmail() {
   const [email, setEmail] = useState("");
@@ -61,14 +61,15 @@ export default function SendTestEmail() {
       ];
 
       // Get style from email data
+      const emailStyle = emailData.email.style as unknown as EmailStyle;
       const style = {
-        bgColor: emailData.email.blocks_bg_color || "#ffffff",
-        isInset: emailData.email.is_inset || false,
-        isRounded: emailData.email.is_rounded || false,
-        emailBgColor: emailData.email.bg_color || "#eeeeee",
-        defaultTextColor: emailData.email.default_text_color || "#000000",
-        defaultFont: emailData.email.default_font || "sans-serif",
-        linkColor: emailData.email.link_color || "#0000ff",
+        bgColor: emailStyle?.bg_color || "#ffffff",
+        isInset: emailStyle?.is_inset || false,
+        isRounded: emailStyle?.is_rounded || false,
+        emailBgColor: emailStyle?.bg_color || "#eeeeee",
+        defaultTextColor: emailStyle?.default_text_color || "#000000",
+        defaultFont: emailStyle?.default_font || "sans-serif",
+        linkColor: emailStyle?.link_color || "#0000ff",
       };
 
       // Generate email code

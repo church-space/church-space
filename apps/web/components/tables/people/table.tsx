@@ -62,6 +62,8 @@ export default function PeopleTable({
 
     fetchData();
 
+    console.log(data);
+
     return () => {
       isCurrent = false;
     };
