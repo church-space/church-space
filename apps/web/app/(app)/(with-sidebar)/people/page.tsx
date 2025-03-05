@@ -1,5 +1,6 @@
 import React from "react";
 import { getCachedPeopleWithEmails } from "@church-space/supabase/queries/cached/people";
+import DataTable from "@/components/tables/data-table";
 
 export default async function Page() {
   const people = await getCachedPeopleWithEmails();
@@ -8,6 +9,7 @@ export default async function Page() {
     <div className="p-6">
       <h1 className="mb-6 text-2xl font-bold">People</h1>
       <div className="space-y-4">
+        <DataTable />
         {people?.data?.map((person) => (
           <div key={person.id} className="rounded-lg border p-4 shadow-sm">
             <div className="flex items-center justify-between">

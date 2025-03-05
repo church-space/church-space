@@ -1,10 +1,61 @@
 import { Client } from "../../types";
 
+export interface QueryParams {
+  page?: number;
+  pageSize?: number;
+  emailStatus?: ("subscribed" | "pco_blocked" | "unsubscribed")[];
+  searchTerm?: string;
+  unsubscribedCategories?: number[];
+}
+
+export async function getPeopleCount(
+  supabase: Client,
+  organizationId: string,
+  params?: QueryParams
+) {
+  let query = supabase
+    .from("people")
+    .select(
+      `
+      id,
+      people_emails!inner(status)
+    `,
+      { count: "exact", head: true }
+    )
+    .eq("organization_id", organizationId);
+
+  // Apply filters if provided
+  if (params?.emailStatus && params.emailStatus.length > 0) {
+    query = query.in("people_emails.status", params.emailStatus);
+  }
+
+  if (params?.searchTerm) {
+    const searchTerm = `%${params.searchTerm}%`;
+    query = query.or(
+      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},people_emails.email.ilike.${searchTerm}`
+    );
+  }
+
+  if (
+    params?.unsubscribedCategories &&
+    params.unsubscribedCategories.length > 0
+  ) {
+    query = query.in(
+      "email_category_unsubscribes.category_id",
+      params.unsubscribedCategories
+    );
+  }
+
+  const { count, error } = await query;
+  return { count, error };
+}
+
 export async function getPeopleWithEmailsAndSubscriptionStatus(
   supabase: Client,
-  organizationId: string
+  organizationId: string,
+  params?: QueryParams
 ) {
-  const { data, error } = await supabase
+  let query = supabase
     .from("people")
     .select(
       `
@@ -38,7 +89,36 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
     .order("last_name", { ascending: false })
     .eq("organization_id", organizationId);
 
-  console.log(data);
+  // Apply filters if provided
+  if (params?.emailStatus && params.emailStatus.length > 0) {
+    query = query.in("people_emails.status", params.emailStatus);
+  }
+
+  if (params?.searchTerm) {
+    const searchTerm = `%${params.searchTerm}%`;
+    query = query.or(
+      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},people_emails.email.ilike.${searchTerm}`
+    );
+  }
+
+  if (
+    params?.unsubscribedCategories &&
+    params.unsubscribedCategories.length > 0
+  ) {
+    query = query.in(
+      "email_category_unsubscribes.category_id",
+      params.unsubscribedCategories
+    );
+  }
+
+  // Apply pagination if provided
+  if (params?.page !== undefined && params?.pageSize !== undefined) {
+    const from = params.page * params.pageSize;
+    const to = from + params.pageSize - 1;
+    query = query.range(from, to);
+  }
+
+  const { data, error } = await query;
 
   return { data, error };
 }
