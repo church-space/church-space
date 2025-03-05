@@ -31,12 +31,13 @@ async function searchPeople(searchTerm: string) {
   };
 }
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
-  const searchParamsValue = await Promise.resolve(searchParams);
+type PageProps = {
+  params: Promise<{}>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function Page({ searchParams }: PageProps) {
+  const searchParamsValue = await searchParams;
   const search =
     typeof searchParamsValue.search === "string"
       ? searchParamsValue.search
