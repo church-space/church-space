@@ -9,9 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@church-space/ui/table";
-import { useId, useMemo, useState } from "react";
+import { useId, useState } from "react";
 
-import { Checkbox } from "@church-space/ui/checkbox";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
@@ -42,6 +41,7 @@ declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
     filterVariant?: "text" | "range" | "select";
+    enumValues?: string[];
   }
 }
 
@@ -57,6 +57,7 @@ export default function DataTable<TData>({
   initialSorting = [],
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
 
   const table = useReactTable({
@@ -65,8 +66,10 @@ export default function DataTable<TData>({
     state: {
       sorting,
       columnFilters,
+      globalFilter,
     },
     onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -75,22 +78,55 @@ export default function DataTable<TData>({
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
     onSortingChange: setSorting,
     enableSortingRemoval: false,
+    globalFilterFn: (row, columnId, filterValue) => {
+      const searchValue = filterValue.toLowerCase();
+
+      // Search in name
+      const name = `${row.getValue("name") || ""}`.toLowerCase();
+      if (name.includes(searchValue)) return true;
+
+      // Search in email
+      const rowData = row.original as {
+        people_emails?: Array<{ email: string }>;
+      };
+      const emails = rowData.people_emails || [];
+      return emails.some((email) =>
+        email.email.toLowerCase().includes(searchValue),
+      );
+    },
   });
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
+      {/* Search and Filters */}
       <div className="flex flex-wrap gap-3">
+        {/* Global Search */}
+        <div className="min-w-72 flex-1">
+          <Label htmlFor="global-search">Search</Label>
+          <div className="relative">
+            <Input
+              id="global-search"
+              className="ps-9"
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              placeholder="Search by name or email..."
+              type="text"
+            />
+            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80">
+              <SearchIcon size={16} />
+            </div>
+          </div>
+        </div>
+
+        {/* Email Status Filter */}
         {table
           .getAllColumns()
-          .filter((column) => column.getCanFilter())
-          .map((column) => {
-            return (
-              <div key={column.id} className="w-auto min-w-36">
-                <Filter column={column} />
-              </div>
-            );
-          })}
+          .filter((column) => column.columnDef.meta?.filterVariant === "select")
+          .map((column) => (
+            <div key={column.id} className="w-auto min-w-36">
+              <Filter column={column} />
+            </div>
+          ))}
       </div>
 
       <div className="overflow-auto [&>div]:max-h-[calc(100vh-300px)]">
@@ -204,23 +240,36 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   const { filterVariant } = column.columnDef.meta ?? {};
   const columnHeader =
     typeof column.columnDef.header === "string" ? column.columnDef.header : "";
-  const sortedUniqueValues = useMemo(() => {
-    if (filterVariant === "range") return [];
 
-    // Get all unique values from the column
-    const values = Array.from(column.getFacetedUniqueValues().keys());
-
-    // If the values are arrays, flatten them and get unique items
-    const flattenedValues = values.reduce((acc: string[], curr) => {
-      if (Array.isArray(curr)) {
-        return [...acc, ...curr];
-      }
-      return [...acc, curr];
-    }, []);
-
-    // Get unique values and sort them
-    return Array.from(new Set(flattenedValues)).sort();
-  }, [column.getFacetedUniqueValues(), filterVariant]);
+  if (filterVariant === "select" && columnHeader === "Email Status") {
+    return (
+      <div className="*:not-first:mt-2">
+        <Label htmlFor={`${id}-select`}>{columnHeader}</Label>
+        <Select
+          value={columnFilterValue?.toString() ?? "all"}
+          onValueChange={(value) => {
+            column.setFilterValue(value === "all" ? undefined : value);
+          }}
+        >
+          <SelectTrigger id={`${id}-select`}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            {column.columnDef.meta?.enumValues?.map((value) => (
+              <SelectItem key={value} value={value}>
+                {value === "partially subscribed"
+                  ? "Partially Subscribed"
+                  : value === "pco_blocked"
+                    ? "PCO Blocked"
+                    : value.charAt(0).toUpperCase() + value.slice(1)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
 
   if (filterVariant === "range") {
     return (
@@ -256,32 +305,6 @@ function Filter({ column }: { column: Column<any, unknown> }) {
             aria-label={`${columnHeader} max`}
           />
         </div>
-      </div>
-    );
-  }
-
-  if (filterVariant === "select") {
-    return (
-      <div className="*:not-first:mt-2">
-        <Label htmlFor={`${id}-select`}>{columnHeader}</Label>
-        <Select
-          value={columnFilterValue?.toString() ?? "all"}
-          onValueChange={(value) => {
-            column.setFilterValue(value === "all" ? undefined : value);
-          }}
-        >
-          <SelectTrigger id={`${id}-select`}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            {sortedUniqueValues.map((value) => (
-              <SelectItem key={String(value)} value={String(value)}>
-                {String(value)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
     );
   }

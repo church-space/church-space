@@ -2,6 +2,7 @@
 
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
+import { EMAIL_STATUS_OPTIONS, type EmailStatus } from "./filters";
 
 export type Person = {
   id: number;
@@ -64,9 +65,6 @@ export const columns: ColumnDef<Person>[] = [
         </div>
       );
     },
-    meta: {
-      filterVariant: "text",
-    },
   },
   {
     header: "Email",
@@ -88,15 +86,12 @@ export const columns: ColumnDef<Person>[] = [
         </div>
       );
     },
-    meta: {
-      filterVariant: "text",
-    },
   },
   {
     header: "Email Status",
     accessorFn: (row) => {
       const firstEmail = row.people_emails?.[0];
-      if (!firstEmail) return "No Email";
+      if (!firstEmail) return undefined;
 
       // If subscribed but has unsubscribe categories, mark as partially subscribed
       if (
@@ -110,6 +105,7 @@ export const columns: ColumnDef<Person>[] = [
     },
     meta: {
       filterVariant: "select",
+      enumValues: EMAIL_STATUS_OPTIONS.map((option) => option.value),
     },
   },
   {
