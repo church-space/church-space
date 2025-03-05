@@ -21,7 +21,10 @@ export default function ConnectToPcoButton() {
       );
       authUrl.searchParams.set("redirect_uri", redirectUri);
       authUrl.searchParams.set("response_type", "code");
-      authUrl.searchParams.set("scope", "people registrations groups");
+      authUrl.searchParams.set(
+        "scope",
+        "people registrations groups services calendar check_ins publishing",
+      );
 
       window.location.href = authUrl.toString();
     } catch (error) {

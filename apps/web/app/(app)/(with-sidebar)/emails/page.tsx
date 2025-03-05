@@ -9,8 +9,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
+import { getCachedEmails } from "@church-space/supabase/queries/cached/emails";
 
-export default function Page() {
+export default async function Page() {
+  const emails = await getCachedEmails();
+
   return (
     <>
       <header className="flex h-12 shrink-0 items-center gap-2">
@@ -30,7 +33,11 @@ export default function Page() {
           </Breadcrumb>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">Page</div>
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        {emails?.data?.map((email) => (
+          <div key={email.id}>{email.subject}</div>
+        ))}
+      </div>
     </>
   );
 }

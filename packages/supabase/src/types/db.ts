@@ -105,6 +105,103 @@ export type Database = {
           },
         ]
       }
+      email_category_unsubscribes: {
+        Row: {
+          category_id: number | null
+          created_at: string
+          email_address: string
+          id: number
+          organization_id: string
+          person_id: number | null
+          reason: string | null
+          unsub_email_id: number | null
+        }
+        Insert: {
+          category_id?: number | null
+          created_at?: string
+          email_address: string
+          id?: number
+          organization_id: string
+          person_id?: number | null
+          reason?: string | null
+          unsub_email_id?: number | null
+        }
+        Update: {
+          category_id?: number | null
+          created_at?: string
+          email_address?: string
+          id?: number
+          organization_id?: string
+          person_id?: number | null
+          reason?: string | null
+          unsub_email_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_email_unsubscribes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "email_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_email_unsubscribes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_email_unsubscribes_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_email_unsubscribes_unsub_email_id_fkey"
+            columns: ["unsub_email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_editor_history: {
+        Row: {
+          created_at: string
+          email_id: number | null
+          id: number
+          operation_data: Json
+          operation_type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_id?: number | null
+          id?: never
+          operation_data: Json
+          operation_type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_id?: number | null
+          id?: never
+          operation_data?: Json
+          operation_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_editor_history_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_footers: {
         Row: {
           address: string | null
@@ -346,45 +443,6 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      list_automations: {
-        Row: {
-          condition: Database["public"]["Enums"]["automation_conditions"]
-          created_at: string
-          email_to_send: number | null
-          id: number
-          list_id: number
-        }
-        Insert: {
-          condition?: Database["public"]["Enums"]["automation_conditions"]
-          created_at?: string
-          email_to_send?: number | null
-          id?: number
-          list_id: number
-        }
-        Update: {
-          condition?: Database["public"]["Enums"]["automation_conditions"]
-          created_at?: string
-          email_to_send?: number | null
-          id?: number
-          list_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "list_automations_email_to_send_fkey"
-            columns: ["email_to_send"]
-            isOneToOne: false
-            referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "list_automations_list_id_fkey"
-            columns: ["list_id"]
-            isOneToOne: false
-            referencedRelation: "pco_lists"
             referencedColumns: ["id"]
           },
         ]
@@ -695,58 +753,6 @@ export type Database = {
           },
         ]
       }
-      people_email_unsubscribes: {
-        Row: {
-          category_id: number | null
-          created_at: string
-          email_address: string
-          id: number
-          organization_id: string
-          reason: string | null
-          unsub_email_id: number | null
-        }
-        Insert: {
-          category_id?: number | null
-          created_at?: string
-          email_address: string
-          id?: number
-          organization_id: string
-          reason?: string | null
-          unsub_email_id?: number | null
-        }
-        Update: {
-          category_id?: number | null
-          created_at?: string
-          email_address?: string
-          id?: number
-          organization_id?: string
-          reason?: string | null
-          unsub_email_id?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "people_email_unsubscribes_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "email_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "people_email_unsubscribes_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "people_email_unsubscribes_unsub_email_id_fkey"
-            columns: ["unsub_email_id"]
-            isOneToOne: false
-            referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       people_emails: {
         Row: {
           created_at: string
@@ -782,6 +788,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_emails_pco_person_id_fkey"
+            columns: ["pco_person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["pco_id"]
           },
         ]
       }
@@ -925,6 +938,10 @@ export type Database = {
           folder_path: string
         }
         Returns: number
+      }
+      delete_old_email_history: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

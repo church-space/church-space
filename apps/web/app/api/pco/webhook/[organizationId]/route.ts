@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 export async function POST(
   request: NextRequest,
-  context: unknown
+  context: unknown,
 ): Promise<NextResponse> {
   // Safely cast the context so that we know params has organizationId.
   const { organizationId } = (context as { params: { organizationId: string } })
@@ -15,14 +15,14 @@ export async function POST(
   const webhookId = request.headers.get("X-PCO-Webhooks-Event-ID");
   const webhookName = request.headers.get("X-PCO-Webhooks-Name");
   const webhookAuthenticity = request.headers.get(
-    "X-PCO-Webhooks-Authenticity"
+    "X-PCO-Webhooks-Authenticity",
   );
 
   if (!webhookId) {
     console.error("No webhook ID found in request headers");
     return NextResponse.json(
       { received: false, error: "No webhook ID found" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -30,7 +30,7 @@ export async function POST(
     console.error("No authenticity secret found in request headers");
     return NextResponse.json(
       { received: false, error: "No authenticity secret found" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -38,7 +38,7 @@ export async function POST(
     console.error("No webhook name found in request headers");
     return NextResponse.json(
       { received: false, error: "No webhook name found" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -53,7 +53,7 @@ export async function POST(
     console.error("Error fetching webhook data:", fetchError);
     return NextResponse.json(
       { received: false, error: "Failed to fetch secret" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -61,7 +61,7 @@ export async function POST(
     console.error("No authenticity secret found for webhook ID:", webhookId);
     return NextResponse.json(
       { received: false, error: "Authenticity secret not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -75,7 +75,7 @@ export async function POST(
     console.error("Webhook authenticity verification failed.");
     return NextResponse.json(
       { received: false, error: "Invalid signature" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -106,7 +106,7 @@ export async function POST(
           console.error("Error deleting list:", deleteError);
           return NextResponse.json(
             { received: false, error: "Failed to delete list" },
-            { status: 500 }
+            { status: 500 },
           );
         }
       } else {
@@ -122,14 +122,14 @@ export async function POST(
           {
             onConflict: "pco_list_id",
             ignoreDuplicates: false,
-          }
+          },
         );
 
         if (upsertError) {
           console.error("Error inserting/updating list:", upsertError);
           return NextResponse.json(
             { received: false, error: "Failed to insert/update list" },
-            { status: 500 }
+            { status: 500 },
           );
         }
       }
@@ -204,21 +204,24 @@ export async function POST(
         const pcoEmailId = emailData.id;
         const pcoPersonId = emailData.relationships.person.data.id;
 
-        const { error } = await supabase
-          .from("people_emails")
-          .insert({
-            organization_id: organizationId,
-            pco_person_id: pcoPersonId,
-            pco_email_id: pcoEmailId,
-            email: email,
-          })
-          .select("id");
-        if (error) {
-          console.error("Error inserting email:", error);
-          return NextResponse.json(
-            { received: false, error: "Failed to insert email" },
-            { status: 500 }
-          );
+        // Only insert if this is a primary email
+        if (emailData.attributes.primary) {
+          const { error } = await supabase
+            .from("people_emails")
+            .insert({
+              organization_id: organizationId,
+              pco_person_id: pcoPersonId,
+              pco_email_id: pcoEmailId,
+              email: email,
+            })
+            .select("id");
+          if (error) {
+            console.error("Error inserting email:", error);
+            return NextResponse.json(
+              { received: false, error: "Failed to insert email" },
+              { status: 500 },
+            );
+          }
         }
       }
       break;
@@ -238,7 +241,7 @@ export async function POST(
           console.error("Error deleting email:", error);
           return NextResponse.json(
             { received: false, error: "Failed to delete email" },
-            { status: 500 }
+            { status: 500 },
           );
         }
       }
@@ -268,7 +271,7 @@ export async function POST(
           console.error("Error updating email:", error);
           return NextResponse.json(
             { received: false, error: "Failed to update email" },
-            { status: 500 }
+            { status: 500 },
           );
         }
 
@@ -284,7 +287,7 @@ export async function POST(
             console.error("Error deleting email:", deleteError);
             return NextResponse.json(
               { received: false, error: "Failed to delete email" },
-              { status: 500 }
+              { status: 500 },
             );
           }
         }
@@ -308,7 +311,7 @@ export async function POST(
             console.error("Error deleting person:", deleteError);
             return NextResponse.json(
               { received: false, error: "Failed to delete person" },
-              { status: 500 }
+              { status: 500 },
             );
           }
         } else {
@@ -325,14 +328,14 @@ export async function POST(
             {
               onConflict: "pco_id",
               ignoreDuplicates: false,
-            }
+            },
           );
 
           if (upsertError) {
             console.error("Error inserting/updating person:", upsertError);
             return NextResponse.json(
               { received: false, error: "Failed to insert/update person" },
-              { status: 500 }
+              { status: 500 },
             );
           }
         }

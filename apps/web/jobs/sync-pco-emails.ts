@@ -16,7 +16,7 @@ export const syncPcoEmails = task({
 
     if (pcoError || !pcoConnection) {
       throw new Error(
-        `No PCO connection found for org ${payload.organization_id}`
+        `No PCO connection found for org ${payload.organization_id}`,
       );
     }
 
@@ -37,7 +37,7 @@ export const syncPcoEmails = task({
 
       if (!response.ok) {
         throw new Error(
-          `PCO API error: ${response.status} ${response.statusText}`
+          `PCO API error: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -66,11 +66,16 @@ export const syncPcoEmails = task({
           for (const emailData of person.relationships.emails.data) {
             // Find the email in the included array
             const email = data.included.find(
-              (item: any) => item.type === "Email" && item.id === emailData.id
+              (item: any) => item.type === "Email" && item.id === emailData.id,
             );
 
             if (!email) {
               console.warn(`Email data not found for email ID ${emailData.id}`);
+              continue;
+            }
+
+            // Only process primary emails
+            if (!email.attributes.primary) {
               continue;
             }
 
@@ -89,7 +94,7 @@ export const syncPcoEmails = task({
             if (emailError) {
               console.error(
                 `Error inserting email ${email.id} for person ${person.id}:`,
-                emailError
+                emailError,
               );
             }
           }

@@ -41,7 +41,7 @@
     "@tiptap/extension-underline": "^2.11.5",
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
-    "@trigger.dev/sdk": "^3.3.16",
+    "@trigger.dev/sdk": "3.3.17",
     "@types/mdx": "^2.0.13",
     "@upstash/ratelimit": "^2.0.5",
     "babel-plugin-react-compiler": "19.0.0-beta-e1e972c-20250221",
@@ -71,7 +71,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/typography": "^0.5.15",
-    "@trigger.dev/build": "^3.3.16",
+    "@trigger.dev/build": "3.3.17",
     "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.17.15",
     "@types/node": "^20",
