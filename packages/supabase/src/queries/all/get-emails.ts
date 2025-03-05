@@ -51,7 +51,9 @@ export async function getEmailsQuery(
       from_name,
       reply_to,
       scheduled_for,
-      updated_at
+      updated_at,
+      status,
+      sent_at
     `
     )
     .order("created_at", { ascending: false })

@@ -1,14 +1,8 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@church-space/ui/checkbox";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@church-space/ui/sheet";
+import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 
 export type Email = {
   id: number;
@@ -21,6 +15,8 @@ export type Email = {
   reply_to: string | null;
   scheduled_for: string | null;
   updated_at: string | null;
+  status: string | null;
+  sent_at: string | null;
 };
 
 export const columns: ColumnDef<Email>[] = [
@@ -52,34 +48,53 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => {
       const email = row.original;
       return (
-        <Sheet>
-          <SheetTrigger>
-            <div className="font-medium hover:underline">
-              {email.subject || "No Subject"}
-            </div>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>{email.subject || "No Subject"}</SheetTitle>
-            </SheetHeader>
-            <div className="space-y-4">
-              <div>Type: {email.type}</div>
-              <div>From: {email.from_name || email.from_email || "N/A"}</div>
-              <div>
-                Created: {new Date(email.created_at).toLocaleDateString()}
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+        <Link
+          href={`/emails/${email.id}`}
+          className="font-medium hover:underline"
+        >
+          {email.subject || "No Subject"}
+        </Link>
       );
     },
   },
   {
-    header: "Type",
-    accessorKey: "type",
+    header: "Status",
+    accessorKey: "status",
     meta: {
       filterVariant: "select",
-      enumValues: ["standard"],
+      enumValues: ["scheduled", "sent", "sending", "draft", "failed"],
+    },
+  },
+  {
+    header: "Scheduled For",
+    accessorKey: "scheduled_for",
+    cell: ({ row }) => {
+      return row.original.scheduled_for
+        ? new Date(row.original.scheduled_for).toLocaleDateString()
+        : "N/A";
+    },
+  },
+  {
+    header: "Sent at",
+    accessorKey: "sent_at",
+    cell: ({ row }) => {
+      return row.original.sent_at
+        ? new Date(row.original.sent_at).toLocaleDateString()
+        : "N/A";
+    },
+  },
+  {
+    header: "From",
+    accessorKey: "from_name",
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="font-semibold">{row.original.from_name}</span>
+          <span className="text-muted-foreground">
+            {row.original.from_email}
+          </span>
+        </div>
+      );
     },
   },
   {
