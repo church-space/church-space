@@ -3,7 +3,6 @@
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { EMAIL_STATUS_OPTIONS } from "./filters";
 
 export type Email = {
   id: number;

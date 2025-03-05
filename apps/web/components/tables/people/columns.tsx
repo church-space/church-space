@@ -2,7 +2,6 @@
 
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
-import { EMAIL_STATUS_OPTIONS } from "./filters";
 import {
   Sheet,
   SheetContent,
