@@ -65,7 +65,7 @@ export default function DataTable<TData>({
   data: initialData,
   initialSorting = [],
   pageSize = 25,
-  hasNextPage,
+  hasNextPage: initialHasNextPage,
   loadMore,
   onLoadingStateChange,
   searchQuery = "",
@@ -76,6 +76,7 @@ export default function DataTable<TData>({
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [data, setData] = useState<TData[]>(initialData);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasMorePages, setHasMorePages] = useState(initialHasNextPage);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Create a memoized debounced search handler
@@ -94,6 +95,10 @@ export default function DataTable<TData>({
     setGlobalFilter(searchQuery);
   }, [searchQuery]);
 
+  useEffect(() => {
+    setHasMorePages(initialHasNextPage);
+  }, [initialHasNextPage]);
+
   // Handle search input changes
   const handleSearchChange = useCallback(
     (value: string) => {
@@ -111,7 +116,8 @@ export default function DataTable<TData>({
   }, [debouncedSearch]);
 
   const handleScroll = useCallback(async () => {
-    if (!containerRef.current || !loadMore || !hasNextPage || isLoading) return;
+    if (!containerRef.current || !loadMore || !hasMorePages || isLoading)
+      return;
 
     const sentinel = containerRef.current.querySelector(".sentinel");
     if (!sentinel) return;
@@ -127,9 +133,16 @@ export default function DataTable<TData>({
             const from = data.length;
             const to = from + pageSize - 1;
             const result = await loadMore({ from, to });
-            setData((prevData) => [...prevData, ...result.data]);
+
+            // If no more data is returned, we've reached the end
+            if (!result.data.length) {
+              setHasMorePages(false);
+            } else {
+              setData((prevData) => [...prevData, ...result.data]);
+            }
           } catch (error) {
             console.error("Error loading more data:", error);
+            setHasMorePages(false); // Also set hasMorePages to false on error
           } finally {
             setIsLoading(false);
             onLoadingStateChange?.(false);
@@ -146,7 +159,7 @@ export default function DataTable<TData>({
     return () => observer.disconnect();
   }, [
     data.length,
-    hasNextPage,
+    hasMorePages,
     isLoading,
     loadMore,
     onLoadingStateChange,
@@ -213,7 +226,7 @@ export default function DataTable<TData>({
       <div
         ref={containerRef}
         className="overflow-auto"
-        style={{ maxHeight: "calc(100vh - 200px)" }}
+        style={{ maxHeight: "calc(100vh - 300px)" }}
       >
         <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
           <TableHeader className="backdrop-blur-xs sticky top-0 z-10 bg-background/90">
@@ -320,7 +333,7 @@ export default function DataTable<TData>({
           </div>
         )}
         {/* Sentinel element for intersection observer */}
-        {hasNextPage && !isLoading && (
+        {hasMorePages && !isLoading && (
           <div className="sentinel h-4" data-testid="sentinel" />
         )}
       </div>
