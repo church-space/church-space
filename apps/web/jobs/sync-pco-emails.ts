@@ -79,6 +79,14 @@ export const syncPcoEmails = task({
               continue;
             }
 
+            // Skip blocked emails
+            if (email.attributes.blocked) {
+              console.warn(
+                `Skipping blocked email ${email.id} for person ${person.id}`,
+              );
+              continue;
+            }
+
             const emailAddress = email.attributes.address;
 
             // Insert into people_emails table
