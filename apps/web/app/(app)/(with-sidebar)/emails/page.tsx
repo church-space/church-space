@@ -42,7 +42,7 @@ async function searchEmails(searchTerm: string) {
 }
 
 type PageProps = {
-  params: Promise<{}>;
+  params: Promise<Record<string, never>>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
