@@ -86,7 +86,7 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
       )
     `
     )
-    .order("last_name", { ascending: true })
+    .order("first_name", { ascending: true })
     .eq("organization_id", organizationId);
 
   // Apply filters if provided
