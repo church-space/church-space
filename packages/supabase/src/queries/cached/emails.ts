@@ -74,7 +74,7 @@ export const getCachedEmails = async (params?: QueryParams) => {
     [cacheKey],
     {
       tags: [`emails_${organizationId}`],
-      revalidate: 1,
+      revalidate: 3600,
     }
   )();
 };
@@ -101,7 +101,7 @@ export const getCachedEmailsCount = async (
     [cacheKey],
     {
       tags: [`emails_count_${organizationId}`],
-      revalidate: 1,
+      revalidate: 3600,
     }
   )();
 };

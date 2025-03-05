@@ -44,7 +44,7 @@ export const getCachedPeopleWithEmails = async (params?: QueryParams) => {
     [cacheKey],
     {
       tags: [`people_${organizationId}`],
-      revalidate: 1,
+      revalidate: 300,
     }
   )();
 };
@@ -69,7 +69,7 @@ export const getCachedPeopleCount = async (
     [cacheKey],
     {
       tags: [`people_count_${organizationId}`],
-      revalidate: 1,
+      revalidate: 300,
     }
   )();
 };
