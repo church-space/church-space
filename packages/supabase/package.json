@@ -32,6 +32,6 @@
     "./get-user-with-details": "./src/queries/all/get-user-with-details.ts",
     "./mutations/platform": "./src/mutations/platform.ts",
     "./functions/refreshPcoTokens": "./src/functions/refreshPcoTokens.ts",
-    "./queries/all/emails": "./src/queries/all/emails.ts"
+    "./queries/cached/emails": "./src/queries/cached/emails.ts"
   }
 }

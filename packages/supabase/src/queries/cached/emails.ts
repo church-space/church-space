@@ -5,7 +5,7 @@ import { createClient } from "../../clients/server";
 import { getEmailQuery } from "../all/get-email";
 import { getUserWithDetails } from "./platform";
 
-export const getEmail = async (emailId: number) => {
+export const getCachedEmail = async (emailId: number) => {
   const supabase = await createClient();
 
   const user = await getUserWithDetails();
