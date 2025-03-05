@@ -36,12 +36,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  ExternalLinkIcon,
-  SearchIcon,
-} from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from "lucide-react";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -50,219 +45,22 @@ declare module "@tanstack/react-table" {
   }
 }
 
-type Item = {
-  id: string;
-  keyword: string;
-  intents: Array<
-    "Informational" | "Navigational" | "Commercial" | "Transactional"
-  >;
-  volume: number;
-  cpc: number;
-  traffic: number;
-  link: string;
-};
+interface DataTableProps<TData> {
+  columns: ColumnDef<TData>[];
+  data: TData[];
+  initialSorting?: SortingState;
+}
 
-const columns: ColumnDef<Item>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-  },
-  {
-    header: "Keyword",
-    accessorKey: "keyword",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("keyword")}</div>
-    ),
-  },
-  {
-    header: "Intents",
-    accessorKey: "intents",
-    cell: ({ row }) => {
-      const intents = row.getValue("intents") as string[];
-      return (
-        <div className="flex gap-1">
-          {intents.map((intent) => {
-            const styles = {
-              Informational: "bg-indigo-400/20 text-indigo-500",
-              Navigational: "bg-emerald-400/20 text-emerald-500",
-              Commercial: "bg-amber-400/20 text-amber-500",
-              Transactional: "bg-rose-400/20 text-rose-500",
-            }[intent];
-
-            return (
-              <div
-                key={intent}
-                className={cn(
-                  "flex size-5 items-center justify-center rounded text-xs font-medium",
-                  styles,
-                )}
-              >
-                {intent.charAt(0)}
-              </div>
-            );
-          })}
-        </div>
-      );
-    },
-    enableSorting: false,
-    meta: {
-      filterVariant: "select",
-    },
-    filterFn: (row, id, filterValue) => {
-      const rowValue = row.getValue(id);
-      return Array.isArray(rowValue) && rowValue.includes(filterValue);
-    },
-  },
-  {
-    header: "Volume",
-    accessorKey: "volume",
-    cell: ({ row }) => {
-      const volume = parseInt(row.getValue("volume"));
-      return new Intl.NumberFormat("en-US", {
-        notation: "compact",
-        maximumFractionDigits: 1,
-      }).format(volume);
-    },
-    meta: {
-      filterVariant: "range",
-    },
-  },
-  {
-    header: "CPC",
-    accessorKey: "cpc",
-    cell: ({ row }) => <div>${row.getValue("cpc")}</div>,
-    meta: {
-      filterVariant: "range",
-    },
-  },
-  {
-    header: "Traffic",
-    accessorKey: "traffic",
-    cell: ({ row }) => {
-      const traffic = parseInt(row.getValue("traffic"));
-      return new Intl.NumberFormat("en-US", {
-        notation: "compact",
-        maximumFractionDigits: 1,
-      }).format(traffic);
-    },
-    meta: {
-      filterVariant: "range",
-    },
-  },
-  {
-    header: "Link",
-    accessorKey: "link",
-    cell: ({ row }) => (
-      <a className="inline-flex items-center gap-1 hover:underline" href="#">
-        {row.getValue("link")} <ExternalLinkIcon size={12} aria-hidden="true" />
-      </a>
-    ),
-    enableSorting: false,
-  },
-];
-
-const items: Item[] = [
-  {
-    id: "1",
-    keyword: "react components",
-    intents: ["Informational", "Navigational"],
-    volume: 2507,
-    cpc: 2.5,
-    traffic: 88,
-    link: "https://originui.com",
-  },
-  {
-    id: "2",
-    keyword: "buy react templates",
-    intents: ["Commercial", "Transactional"],
-    volume: 1850,
-    cpc: 4.75,
-    traffic: 65,
-    link: "https://originui.com/input",
-  },
-  {
-    id: "3",
-    keyword: "react ui library",
-    intents: ["Informational", "Commercial"],
-    volume: 3200,
-    cpc: 3.25,
-    traffic: 112,
-    link: "https://originui.com/badge",
-  },
-  {
-    id: "4",
-    keyword: "tailwind components download",
-    intents: ["Transactional"],
-    volume: 890,
-    cpc: 1.95,
-    traffic: 45,
-    link: "https://originui.com/alert",
-  },
-  {
-    id: "5",
-    keyword: "react dashboard template free",
-    intents: ["Commercial", "Transactional"],
-    volume: 4100,
-    cpc: 5.5,
-    traffic: 156,
-    link: "https://originui.com/tabs",
-  },
-  {
-    id: "6",
-    keyword: "how to use react components",
-    intents: ["Informational"],
-    volume: 1200,
-    cpc: 1.25,
-    traffic: 42,
-    link: "https://originui.com/table",
-  },
-  {
-    id: "7",
-    keyword: "react ui kit premium",
-    intents: ["Commercial", "Transactional"],
-    volume: 760,
-    cpc: 6.8,
-    traffic: 28,
-    link: "https://originui.com/avatar",
-  },
-  {
-    id: "8",
-    keyword: "react component documentation",
-    intents: ["Informational", "Navigational"],
-    volume: 950,
-    cpc: 1.8,
-    traffic: 35,
-    link: "https://originui.com",
-  },
-];
-
-export default function Component() {
+export default function DataTable<TData>({
+  columns,
+  data,
+  initialSorting = [],
+}: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: "traffic",
-      desc: false,
-    },
-  ]);
+  const [sorting, setSorting] = useState<SortingState>(initialSorting);
 
   const table = useReactTable({
-    data: items,
+    data,
     columns,
     state: {
       sorting,
@@ -270,11 +68,11 @@ export default function Component() {
     },
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(), //client-side filtering
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(), // client-side faceting
-    getFacetedUniqueValues: getFacetedUniqueValues(), // generate unique values for select filter/autocomplete
-    getFacetedMinMaxValues: getFacetedMinMaxValues(), // generate min/max values for range filter
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
     onSortingChange: setSorting,
     enableSortingRemoval: false,
   });
@@ -283,29 +81,19 @@ export default function Component() {
     <div className="space-y-6">
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
-        {/* Search input */}
-        <div className="w-44">
-          <Filter column={table.getColumn("keyword")!} />
-        </div>
-        {/* Intents select */}
-        <div className="w-36">
-          <Filter column={table.getColumn("intents")!} />
-        </div>
-        {/* Volume inputs */}
-        <div className="w-36">
-          <Filter column={table.getColumn("volume")!} />
-        </div>
-        {/* CPC inputs */}
-        <div className="w-36">
-          <Filter column={table.getColumn("cpc")!} />
-        </div>
-        {/* Traffic inputs */}
-        <div className="w-36">
-          <Filter column={table.getColumn("traffic")!} />
-        </div>
+        {table
+          .getAllColumns()
+          .filter((column) => column.getCanFilter())
+          .map((column) => {
+            return (
+              <div key={column.id} className="w-auto min-w-36">
+                <Filter column={column} />
+              </div>
+            );
+          })}
       </div>
 
-      <div className="overflow-auto [&>div]:max-h-24">
+      <div className="overflow-auto [&>div]:max-h-[calc(100vh-300px)]">
         <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
           <TableHeader className="backdrop-blur-xs sticky top-0 z-10 bg-background/90">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -331,7 +119,6 @@ export default function Component() {
                           )}
                           onClick={header.column.getToggleSortingHandler()}
                           onKeyDown={(e) => {
-                            // Enhanced keyboard handling for sorting
                             if (
                               header.column.getCanSort() &&
                               (e.key === "Enter" || e.key === " ")
@@ -406,17 +193,6 @@ export default function Component() {
             )}
           </TableBody>
         </Table>
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Data table with filters made with{" "}
-          <a
-            className="underline hover:text-foreground"
-            href="https://tanstack.com/table"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            TanStack Table
-          </a>
-        </p>
       </div>
     </div>
   );
