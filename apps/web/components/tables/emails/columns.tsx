@@ -22,14 +22,6 @@ export type Email = {
 
 export const columns: ColumnDef<Email>[] = [
   {
-    id: "status",
-    accessorKey: "status",
-    enableHiding: true,
-    meta: {
-      filterVariant: "select",
-    },
-  },
-  {
     id: "select",
     header: ({ table }) => (
       <Checkbox
@@ -67,8 +59,12 @@ export const columns: ColumnDef<Email>[] = [
     },
   },
   {
-    header: "Status",
+    id: "status",
     accessorKey: "status",
+    enableHiding: true,
+    meta: {
+      filterVariant: "select",
+    },
   },
   {
     header: "Scheduled For",
