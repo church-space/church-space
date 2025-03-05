@@ -1,8 +1,8 @@
 import { Client } from "../../types";
 
 export interface QueryParams {
-  page?: number;
-  pageSize?: number;
+  start?: number;
+  end?: number;
   emailStatus?: ("subscribed" | "pco_blocked" | "unsubscribed")[];
   searchTerm?: string;
   unsubscribedCategories?: number[];
@@ -32,7 +32,7 @@ export async function getPeopleCount(
   if (params?.searchTerm) {
     const searchTerm = `%${params.searchTerm}%`;
     query = query.or(
-      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},people_emails.email.ilike.${searchTerm}`
+      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm}`
     );
   }
 
@@ -86,7 +86,7 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
       )
     `
     )
-    .order("last_name", { ascending: false })
+    .order("last_name", { ascending: true })
     .eq("organization_id", organizationId);
 
   // Apply filters if provided
@@ -97,7 +97,7 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
   if (params?.searchTerm) {
     const searchTerm = `%${params.searchTerm}%`;
     query = query.or(
-      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},people_emails.email.ilike.${searchTerm}`
+      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm}`
     );
   }
 
@@ -112,13 +112,14 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
   }
 
   // Apply pagination if provided
-  if (params?.page !== undefined && params?.pageSize !== undefined) {
-    const from = params.page * params.pageSize;
-    const to = from + params.pageSize - 1;
-    query = query.range(from, to);
+  if (params?.start !== undefined && params?.end !== undefined) {
+    query = query.range(params.start, params.end);
   }
 
   const { data, error } = await query;
+
+  console.log(data);
+  console.log(error);
 
   return { data, error };
 }

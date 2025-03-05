@@ -2,7 +2,7 @@
 
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
-import { EMAIL_STATUS_OPTIONS, type EmailStatus } from "./filters";
+import { EMAIL_STATUS_OPTIONS } from "./filters";
 
 export type Person = {
   id: number;

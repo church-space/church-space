@@ -9,8 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@church-space/ui/table";
-import { useId, useState } from "react";
-
+import { useId, useState, useRef, useEffect, useCallback } from "react";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
@@ -36,6 +35,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from "lucide-react";
+import debounce from "lodash/debounce";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -49,16 +49,113 @@ interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
   initialSorting?: SortingState;
+  pageSize?: number;
+  hasNextPage?: boolean;
+  loadMore?: (params: {
+    from: number;
+    to: number;
+  }) => Promise<{ data: TData[] }>;
+  onLoadingStateChange?: (isLoading: boolean) => void;
+  searchQuery?: string;
+  onSearch?: (value: string) => void;
 }
 
 export default function DataTable<TData>({
   columns,
-  data,
+  data: initialData,
   initialSorting = [],
+  pageSize = 25,
+  hasNextPage,
+  loadMore,
+  onLoadingStateChange,
+  searchQuery = "",
+  onSearch,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [globalFilter, setGlobalFilter] = useState(searchQuery);
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
+  const [data, setData] = useState<TData[]>(initialData);
+  const [isLoading, setIsLoading] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Create a memoized debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      onSearch?.(value);
+    }, 300),
+    [onSearch],
+  );
+
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
+  useEffect(() => {
+    setGlobalFilter(searchQuery);
+  }, [searchQuery]);
+
+  // Handle search input changes
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setGlobalFilter(value);
+      debouncedSearch(value);
+    },
+    [debouncedSearch],
+  );
+
+  // Clean up the debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
+  const handleScroll = useCallback(async () => {
+    if (!containerRef.current || !loadMore || !hasNextPage || isLoading) return;
+
+    const sentinel = containerRef.current.querySelector(".sentinel");
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          setIsLoading(true);
+          onLoadingStateChange?.(true);
+
+          try {
+            const from = data.length;
+            const to = from + pageSize - 1;
+            const result = await loadMore({ from, to });
+            setData((prevData) => [...prevData, ...result.data]);
+          } catch (error) {
+            console.error("Error loading more data:", error);
+          } finally {
+            setIsLoading(false);
+            onLoadingStateChange?.(false);
+          }
+        }
+      },
+      {
+        root: containerRef.current,
+        threshold: 0.1,
+      },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [
+    data.length,
+    hasNextPage,
+    isLoading,
+    loadMore,
+    onLoadingStateChange,
+    pageSize,
+  ]);
+
+  useEffect(() => {
+    handleScroll();
+  }, [handleScroll]);
 
   const table = useReactTable({
     data,
@@ -66,7 +163,7 @@ export default function DataTable<TData>({
     state: {
       sorting,
       columnFilters,
-      globalFilter,
+      globalFilter: "",
     },
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
@@ -78,22 +175,6 @@ export default function DataTable<TData>({
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
     onSortingChange: setSorting,
     enableSortingRemoval: false,
-    globalFilterFn: (row, columnId, filterValue) => {
-      const searchValue = filterValue.toLowerCase();
-
-      // Search in name
-      const name = `${row.getValue("name") || ""}`.toLowerCase();
-      if (name.includes(searchValue)) return true;
-
-      // Search in email
-      const rowData = row.original as {
-        people_emails?: Array<{ email: string }>;
-      };
-      const emails = rowData.people_emails || [];
-      return emails.some((email) =>
-        email.email.toLowerCase().includes(searchValue),
-      );
-    },
   });
 
   return (
@@ -108,7 +189,7 @@ export default function DataTable<TData>({
               id="global-search"
               className="ps-9"
               value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search by name or email..."
               type="text"
             />
@@ -129,7 +210,11 @@ export default function DataTable<TData>({
           ))}
       </div>
 
-      <div className="overflow-auto [&>div]:max-h-[calc(100vh-300px)]">
+      <div
+        ref={containerRef}
+        className="overflow-auto"
+        style={{ maxHeight: "calc(100vh - 200px)" }}
+      >
         <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
           <TableHeader className="backdrop-blur-xs sticky top-0 z-10 bg-background/90">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -229,6 +314,15 @@ export default function DataTable<TData>({
             )}
           </TableBody>
         </Table>
+        {isLoading && (
+          <div className="py-4 text-center text-sm text-muted-foreground">
+            Loading more...
+          </div>
+        )}
+        {/* Sentinel element for intersection observer */}
+        {hasNextPage && !isLoading && (
+          <div className="sentinel h-4" data-testid="sentinel" />
+        )}
       </div>
     </div>
   );
