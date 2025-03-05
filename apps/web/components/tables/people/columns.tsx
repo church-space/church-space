@@ -3,6 +3,13 @@
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { EMAIL_STATUS_OPTIONS } from "./filters";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@church-space/ui/sheet";
 
 export type Person = {
   id: number;
@@ -53,16 +60,32 @@ export const columns: ColumnDef<Person>[] = [
     cell: ({ row }) => {
       const person = row.original;
       return (
-        <div>
-          <div className="font-medium">
-            {person.first_name} {person.last_name}
-          </div>
-          {person.nickname && (
-            <div className="text-sm text-muted-foreground">
-              ({person.nickname})
+        <Sheet>
+          <SheetTrigger>
+            <div className="font-medium hover:underline">
+              {person.first_name} {person.last_name}
             </div>
-          )}
-        </div>
+            {person.nickname && (
+              <div className="text-sm text-muted-foreground">
+                ({person.nickname})
+              </div>
+            )}
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>
+                {person.first_name} {person.last_name}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="space-y-4">
+              {person.email_category_unsubscribes.map((unsubscribe) => (
+                <div key={unsubscribe.id}>
+                  {unsubscribe.email_categories.name}
+                </div>
+              ))}
+            </div>
+          </SheetContent>
+        </Sheet>
       );
     },
   },
