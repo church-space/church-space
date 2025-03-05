@@ -3,6 +3,7 @@
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import { EMAIL_STATUS_OPTIONS } from "./filters";
 
 export type Email = {
   id: number;
@@ -20,6 +21,14 @@ export type Email = {
 };
 
 export const columns: ColumnDef<Email>[] = [
+  {
+    id: "status",
+    accessorKey: "status",
+    enableHiding: true,
+    meta: {
+      filterVariant: "select",
+    },
+  },
   {
     id: "select",
     header: ({ table }) => (
@@ -60,10 +69,6 @@ export const columns: ColumnDef<Email>[] = [
   {
     header: "Status",
     accessorKey: "status",
-    meta: {
-      filterVariant: "select",
-      enumValues: ["scheduled", "sent", "sending", "draft", "failed"],
-    },
   },
   {
     header: "Scheduled For",

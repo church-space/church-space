@@ -18,17 +18,19 @@ import EmailsTable from "@/components/tables/emails/table";
 const ITEMS_PER_PAGE = 25;
 
 // Server action to fetch data
-async function searchEmails(searchTerm: string) {
+async function searchEmails(searchTerm: string, status?: string) {
   "use server";
 
   const result = await getCachedEmails({
     start: 0,
     end: ITEMS_PER_PAGE - 1,
     searchTerm,
+    status: status as any,
   });
 
   const countResult = await getCachedEmailsCount({
     searchTerm,
+    status: status as any,
   });
 
   const count = countResult?.count ?? 0;
@@ -52,17 +54,23 @@ export default async function Page({ searchParams }: PageProps) {
     typeof searchParamsValue.search === "string"
       ? searchParamsValue.search
       : "";
+  const status =
+    typeof searchParamsValue.status === "string"
+      ? searchParamsValue.status
+      : undefined;
 
   // Get initial data
   const result = await getCachedEmails({
     start: 0,
     end: ITEMS_PER_PAGE - 1,
     searchTerm: search,
+    status: status as any,
   });
 
   // Get total count
   const countResult = await getCachedEmailsCount({
     searchTerm: search,
+    status: status as any,
   });
 
   const count = countResult?.count ?? 0;
@@ -74,6 +82,7 @@ export default async function Page({ searchParams }: PageProps) {
       start: from,
       end: to,
       searchTerm: search,
+      status: status as any,
     });
 
     return { data: result?.data ?? [] };

@@ -111,7 +111,7 @@ export const columns: ColumnDef<Person>[] = [
     },
   },
   {
-    header: "Email Status",
+    id: "emailStatus",
     accessorFn: (row) => {
       const firstEmail = row.people_emails?.[0];
       if (!firstEmail) return undefined;
@@ -126,9 +126,10 @@ export const columns: ColumnDef<Person>[] = [
 
       return firstEmail.status;
     },
+    enableHiding: true,
+    // This column is hidden by default and only used for filtering
     meta: {
       filterVariant: "select",
-      enumValues: EMAIL_STATUS_OPTIONS.map((option) => option.value),
     },
   },
   {

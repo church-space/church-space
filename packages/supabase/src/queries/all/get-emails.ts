@@ -1,12 +1,20 @@
 import { Client } from "../../types";
 
 export type EmailType = "standard" | "template";
+export type EmailStatus =
+  | "scheduled"
+  | "sent"
+  | "sending"
+  | "draft"
+  | "failed"
+  | null;
 
 export interface QueryParams {
   start?: number;
   end?: number;
   type?: EmailType[];
   searchTerm?: string;
+  status?: EmailStatus;
 }
 
 export async function getEmailsCount(
@@ -27,6 +35,10 @@ export async function getEmailsCount(
   if (params?.searchTerm) {
     const searchTerm = `%${params.searchTerm}%`;
     query = query.ilike("subject", searchTerm);
+  }
+
+  if (params?.status) {
+    query = query.eq("status", params.status as any);
   }
 
   const { count, error } = await query;
@@ -67,6 +79,10 @@ export async function getEmailsQuery(
   if (params?.searchTerm) {
     const searchTerm = `%${params.searchTerm}%`;
     query = query.ilike("subject", searchTerm);
+  }
+
+  if (params?.status) {
+    query = query.eq("status", params.status as any);
   }
 
   // Apply pagination if provided

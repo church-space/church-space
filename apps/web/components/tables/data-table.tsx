@@ -44,6 +44,20 @@ declare module "@tanstack/react-table" {
   }
 }
 
+// Define a type for filter configuration
+export interface FilterOption {
+  label: string;
+  value: string;
+}
+
+export interface FilterConfig {
+  [key: string]: {
+    type: "select" | "text" | "range";
+    options?: FilterOption[];
+    defaultValue?: string;
+  };
+}
+
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
@@ -56,6 +70,13 @@ interface DataTableProps<TData> {
   onLoadingStateChange?: (isLoading: boolean) => void;
   searchQuery?: string;
   onSearch?: (value: string) => void;
+  filterConfig?: FilterConfig;
+  onFilterChange?: {
+    [key: string]: (value: any) => void;
+  };
+  initialFilters?: {
+    [key: string]: string | undefined;
+  };
 }
 
 export default function DataTable<TData>({
@@ -67,6 +88,9 @@ export default function DataTable<TData>({
   onLoadingStateChange,
   searchQuery = "",
   onSearch,
+  filterConfig,
+  onFilterChange,
+  initialFilters,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState(searchQuery);
@@ -74,6 +98,23 @@ export default function DataTable<TData>({
   const [isLoading, setIsLoading] = useState(false);
   const [hasMorePages, setHasMorePages] = useState(initialHasNextPage);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Initialize column filters from initialFilters prop
+  useEffect(() => {
+    if (initialFilters) {
+      const filters: ColumnFiltersState = [];
+
+      Object.entries(initialFilters).forEach(([key, value]) => {
+        if (value && value !== "all") {
+          filters.push({ id: key, value });
+        }
+      });
+
+      if (filters.length > 0) {
+        setColumnFilters(filters);
+      }
+    }
+  }, [initialFilters]);
 
   // Create a memoized debounced search handler
   const debouncedSearch = useCallback(
@@ -206,10 +247,73 @@ export default function DataTable<TData>({
           </div>
         </div>
 
-        {/* Email Status Filter */}
+        {/* Filters from filterConfig */}
+        {filterConfig &&
+          Object.entries(filterConfig).map(([key, config]) => {
+            if (config.type === "select" && config.options) {
+              // Find the current filter value
+              const currentFilterValue = columnFilters.find(
+                (filter) => filter.id === key,
+              )?.value as string;
+
+              return (
+                <div key={key} className="w-auto min-w-36">
+                  <Label htmlFor={`filter-${key}`}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </Label>
+                  <Select
+                    value={currentFilterValue ?? config.defaultValue ?? "all"}
+                    onValueChange={(value) => {
+                      // Update the column filter
+                      if (value === "all") {
+                        setColumnFilters((prev) =>
+                          prev.filter((filter) => filter.id !== key),
+                        );
+                      } else {
+                        setColumnFilters((prev) => {
+                          const existing = prev.find(
+                            (filter) => filter.id === key,
+                          );
+                          if (existing) {
+                            return prev.map((filter) =>
+                              filter.id === key ? { ...filter, value } : filter,
+                            );
+                          }
+                          return [...prev, { id: key, value }];
+                        });
+                      }
+
+                      // Call the onFilterChange callback if provided
+                      if (onFilterChange && onFilterChange[key]) {
+                        onFilterChange[key](value);
+                      }
+                    }}
+                  >
+                    <SelectTrigger id={`filter-${key}`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {config.options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              );
+            }
+            return null;
+          })}
+
+        {/* Column-based filters */}
         {table
           .getAllColumns()
-          .filter((column) => column.columnDef.meta?.filterVariant === "select")
+          .filter(
+            (column) =>
+              column.columnDef.meta?.filterVariant === "select" &&
+              !filterConfig?.[column.id],
+          )
           .map((column) => (
             <div key={column.id} className="w-auto min-w-36">
               <Filter column={column} />
@@ -294,7 +398,7 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   const columnHeader =
     typeof column.columnDef.header === "string" ? column.columnDef.header : "";
 
-  if (filterVariant === "select" && columnHeader === "Email Status") {
+  if (filterVariant === "select") {
     return (
       <div className="*:not-first:mt-2">
         <Label htmlFor={`${id}-select`}>{columnHeader}</Label>

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, type Person } from "./columns";
 import { useQueryState } from "nuqs";
+import { getPeopleFilterConfig, type EmailStatus } from "./filters";
 
 interface PeopleTableProps {
   data: Person[];
@@ -13,7 +14,10 @@ interface PeopleTableProps {
     to: number;
   }) => Promise<{ data: Person[] }>;
   hasNextPage?: boolean;
-  searchPeople: (searchTerm: string) => Promise<{
+  searchPeople: (
+    searchTerm: string,
+    emailStatus?: string,
+  ) => Promise<{
     data: Person[];
     hasNextPage: boolean;
     count: number;
@@ -28,6 +32,7 @@ export default function PeopleTable({
   searchPeople,
 }: PeopleTableProps) {
   const [search, setSearch] = useQueryState("search");
+  const [emailStatus, setEmailStatus] = useQueryState("emailStatus");
   const [data, setData] = useState(initialData);
   const [hasNextPage, setHasNextPage] = useState(initialHasNextPage);
   const [count, setCount] = useState(0);
@@ -35,12 +40,26 @@ export default function PeopleTable({
   const handleSearch = useCallback(
     async (value: string | null) => {
       await setSearch(value);
-      const result = await searchPeople(value ?? "");
+      const result = await searchPeople(value ?? "", emailStatus ?? undefined);
       setData(result.data);
       setHasNextPage(result.hasNextPage);
       setCount(result.count);
     },
-    [searchPeople, setSearch],
+    [searchPeople, setSearch, emailStatus],
+  );
+
+  const handleEmailStatusChange = useCallback(
+    async (value: EmailStatus) => {
+      await setEmailStatus(value === "all" ? null : value);
+      const result = await searchPeople(
+        search ?? "",
+        value === "all" ? undefined : value,
+      );
+      setData(result.data);
+      setHasNextPage(result.hasNextPage);
+      setCount(result.count);
+    },
+    [searchPeople, setEmailStatus, search],
   );
 
   // Initial load
@@ -49,7 +68,10 @@ export default function PeopleTable({
 
     async function fetchData() {
       try {
-        const result = await searchPeople(search ?? "");
+        const result = await searchPeople(
+          search ?? "",
+          emailStatus ?? undefined,
+        );
         if (isCurrent) {
           setData(result.data);
           setHasNextPage(result.hasNextPage);
@@ -62,12 +84,10 @@ export default function PeopleTable({
 
     fetchData();
 
-    console.log(data);
-
     return () => {
       isCurrent = false;
     };
-  }, [search, searchPeople]);
+  }, [search, emailStatus, searchPeople]);
 
   return (
     <>
@@ -83,6 +103,13 @@ export default function PeopleTable({
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
+        filterConfig={getPeopleFilterConfig()}
+        onFilterChange={{
+          emailStatus: handleEmailStatusChange,
+        }}
+        initialFilters={{
+          emailStatus: emailStatus ?? undefined,
+        }}
       />
     </>
   );
