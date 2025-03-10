@@ -8,7 +8,7 @@ import {
   TabsTrigger,
 } from "@church-space/ui/tabs";
 import { render } from "@react-email/render";
-import { ChevronLeft, ChevronRight } from "@church-space/ui/icons";
+import { ChevronLeft } from "@church-space/ui/icons";
 import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";

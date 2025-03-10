@@ -98,7 +98,7 @@ export default function Footer({
 
   return (
     <div
-      className={cn("w-full pb-4 pt-5")}
+      className={cn("w-full rounded-b-md pb-4 pt-5")}
       style={
         !emailInset
           ? { backgroundColor: footerBgColor }
