@@ -1034,7 +1034,7 @@ export function generateEmailCode(
 
   const contentStyle = {
     backgroundColor: isInset ? bgColor : undefined,
-    padding: "5px",
+    padding: isInset ? "5px 20px" : "5px 0",
     borderRadius: isInset && isRounded ? "12px" : undefined,
     maxWidth: "672px",
     margin: "0 auto",
