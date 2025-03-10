@@ -249,8 +249,9 @@ function Calendar({
   classNames,
   showOutsideDays = true,
   yearRange = 50,
+  disabledPast = false,
   ...props
-}: CalendarProps & { yearRange?: number }) {
+}: CalendarProps & { yearRange?: number; disabledPast?: boolean }) {
   const MONTHS = React.useMemo(() => {
     let locale: Pick<Locale, "options" | "localize" | "formatLong"> = enUS;
     const { options, localize, formatLong } = props.locale || {};
@@ -331,6 +332,7 @@ function Calendar({
         hidden: "invisible",
         ...classNames,
       }}
+      disabled={disabledPast && { before: new Date() }}
       components={{
         Chevron: ({ ...props }) =>
           props.orientation === "left" ? (
@@ -748,6 +750,7 @@ const DateTimePicker = React.forwardRef<
       granularity = "second",
       placeholder = "Pick a date",
       className,
+      disabledPast = false,
       ...props
     },
     ref
@@ -874,6 +877,7 @@ const DateTimePicker = React.forwardRef<
             onMonthChange={handleMonthChange}
             yearRange={yearRange}
             locale={locale}
+            disabledPast={disabledPast}
             {...props}
           />
           {granularity !== "day" && (

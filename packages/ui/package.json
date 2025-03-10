@@ -41,7 +41,8 @@
     "./badge": "./src/badge.tsx",
     "./auto-size-textarea": "./src/auto-size-textarea.tsx",
     "./calendar": "./src/calendar.tsx",
-    "./date-time-picker": "./src/date-time-picker.tsx"
+    "./date-time-picker": "./src/date-time-picker.tsx",
+    "./command": "./src/command.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -83,6 +84,7 @@
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
     "class-variance-authority": "^0.7.1",
+    "cmdk": "^1.0.4",
     "date-fns": "^4.1.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.477.0",
