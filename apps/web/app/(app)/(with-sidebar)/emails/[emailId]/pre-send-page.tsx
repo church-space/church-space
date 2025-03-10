@@ -498,7 +498,7 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={(e) => {
+                  onClick={() => {
                     setPreviewOpen("true");
                   }}
                 >
