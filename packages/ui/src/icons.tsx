@@ -1785,3 +1785,283 @@ export function Layout({
     </svg>
   );
 }
+
+export function Sun({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M9 13.25C11.3472 13.25 13.25 11.3472 13.25 9C13.25 6.65279 11.3472 4.75 9 4.75C6.65279 4.75 4.75 6.65279 4.75 9C4.75 11.3472 6.65279 13.25 9 13.25Z"
+          fill={secondaryfill}
+          fillOpacity="0.3"
+          stroke="none"
+        />
+        <path
+          d="M9 0.75V2.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M14.834 3.16599L13.773 4.22699"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M17.25 9H15.75"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M14.834 14.834L13.773 13.773"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M9 17.25V15.75"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M3.16602 14.834L4.22702 13.773"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M0.75 9H2.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M3.16602 3.16599L4.22702 4.22699"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M9 13.25C11.3472 13.25 13.25 11.3472 13.25 9C13.25 6.65279 11.3472 4.75 9 4.75C6.65279 4.75 4.75 6.65279 4.75 9C4.75 11.3472 6.65279 13.25 9 13.25Z"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Settings({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M15.9391 7.44101L14.8771 7.27802C14.7531 6.85402 14.5851 6.447 14.3721 6.06L15.0081 5.19299C15.3761 4.69199 15.3241 4.00801 14.8841 3.57001L14.4281 3.11401C13.9901 2.67501 13.3071 2.62299 12.8041 2.98999L11.9371 3.62701C11.5501 3.41401 11.1431 3.24601 10.7201 3.12201L10.5561 2.05899C10.4611 1.44499 9.94208 0.998993 9.32108 0.998993H8.67609C8.05509 0.998993 7.53509 1.445 7.44109 2.06L7.27808 3.12201C6.85408 3.24601 6.44709 3.41401 6.06009 3.62701L5.19308 2.991C4.69108 2.624 4.00808 2.676 3.57008 3.116L3.11409 3.57199C2.67509 4.01099 2.62309 4.69401 2.99009 5.19601L3.62709 6.06299C3.41509 6.44999 3.24609 6.857 3.12209 7.28L2.05909 7.444C1.44509 7.539 0.999084 8.05799 0.999084 8.67899V9.32401C0.999084 9.94501 1.44509 10.465 2.06009 10.559L3.12209 10.722C3.24609 11.146 3.41409 11.553 3.62709 11.94L2.99109 12.807C2.62409 13.308 2.67609 13.991 3.11609 14.43L3.57209 14.886C4.01109 15.326 4.69508 15.378 5.19608 15.01L6.06308 14.373C6.45008 14.585 6.85709 14.754 7.28009 14.878L7.44408 15.941C7.53908 16.555 8.05808 17.001 8.67908 17.001H9.32409C9.94509 17.001 10.4651 16.555 10.5591 15.94L10.7221 14.878C11.1461 14.754 11.5531 14.586 11.9401 14.373L12.8071 15.009C13.3081 15.377 13.9911 15.324 14.4301 14.885L14.8861 14.429C15.3251 13.99 15.3771 13.307 15.0101 12.805L14.3731 11.938C14.5861 11.551 14.7541 11.144 14.8781 10.721L15.9411 10.557C16.5551 10.462 17.0011 9.94299 17.0011 9.32199V8.677C17.0011 8.056 16.5551 7.53599 15.9411 7.44199L15.9391 7.44101Z"
+          fill={secondaryfill}
+          opacity="0.4"
+        />
+        <path
+          d="M9.00009 11.5C10.3808 11.5 11.5001 10.3807 11.5001 9C11.5001 7.61929 10.3808 6.5 9.00009 6.5C7.61938 6.5 6.50009 7.61929 6.50009 9C6.50009 10.3807 7.61938 11.5 9.00009 11.5Z"
+          fill={fill}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Computer({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M9.75 13.5H8.25V15.0244C7.12269 15.0976 6.19231 15.3241 5.52446 15.5347C5.12941 15.6593 4.91014 16.0805 5.0347 16.4755C5.15926 16.8706 5.58048 17.0898 5.97552 16.9653C6.68077 16.7429 7.72315 16.5 8.99999 16.5C9.73958 16.5 10.8063 16.5819 12.0248 16.9654C12.4199 17.0898 12.841 16.8703 12.9654 16.4752C13.0897 16.0801 12.8703 15.659 12.4752 15.5346C11.446 15.2107 10.511 15.0741 9.75 15.0244V13.5Z"
+          fill={fill}
+          fillRule="evenodd"
+        />
+        <path
+          d="M3.75 2C2.23079 2 1 3.23079 1 4.75V10.75C1 12.2692 2.23079 13.5 3.75 13.5H14.25C15.7692 13.5 17 12.2692 17 10.75V4.75C17 3.23079 15.7692 2 14.25 2H3.75Z"
+          fill={secondaryfill}
+          fillOpacity="0.4"
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Moon({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M13 11.75C9.548 11.75 6.75 8.952 6.75 5.5C6.75 4.148 7.183 2.901 7.912 1.878C4.548 2.506 2 5.453 2 9C2 13.004 5.246 16.25 9.25 16.25C12.622 16.25 15.448 13.944 16.259 10.826C15.309 11.409 14.196 11.75 13 11.75Z"
+          fill={secondaryfill}
+          fillOpacity="0.3"
+          stroke="none"
+        />
+        <path
+          d="M13 11.75C9.548 11.75 6.75 8.952 6.75 5.5C6.75 4.148 7.183 2.901 7.912 1.878C4.548 2.506 2 5.453 2 9C2 13.004 5.246 16.25 9.25 16.25C12.622 16.25 15.448 13.944 16.259 10.826C15.309 11.409 14.196 11.75 13 11.75Z"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Logout({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M13.75 1.5H8.25C6.73122 1.5 5.5 2.73122 5.5 4.25V13.749C5.5 15.2678 6.73122 16.499 8.25 16.499H13.75C15.2688 16.499 16.5 15.2678 16.5 13.749V4.25C16.5 2.73122 15.2688 1.5 13.75 1.5Z"
+          fill={secondaryfill}
+          opacity="0.4"
+        />
+        <path
+          d="M9.24999 8.24999H2.56049L4.03019 6.78026C4.32319 6.48726 4.32319 6.01273 4.03019 5.71983C3.73719 5.42693 3.26259 5.42683 2.96969 5.71983L0.219689 8.46983C-0.073311 8.76283 -0.073311 9.23736 0.219689 9.53026L2.96969 12.2803C3.11619 12.4268 3.30759 12.5 3.49999 12.5C3.69239 12.5 3.8838 12.4268 4.0303 12.2803C4.3233 11.9873 4.3233 11.5127 4.0303 11.2198L2.56059 9.75011H9.2501C9.6642 9.75011 10.0001 9.41421 10.0001 9.00011C10.0001 8.58601 9.66409 8.24999 9.24999 8.24999Z"
+          fill={fill}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function ChevronUpDown({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M12.5 6.25L9 2.75L5.5 6.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M12.5 11.75L9 15.25L5.5 11.75"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
