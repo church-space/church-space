@@ -38,7 +38,10 @@
     "./pagination": "./src/pagination.tsx",
     "./table": "./src/table.tsx",
     "./checkbox": "./src/checkbox.tsx",
-    "./badge": "./src/badge.tsx"
+    "./badge": "./src/badge.tsx",
+    "./auto-size-textarea": "./src/auto-size-textarea.tsx",
+    "./calendar": "./src/calendar.tsx",
+    "./date-time-picker": "./src/date-time-picker.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -80,10 +83,12 @@
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
     "class-variance-authority": "^0.7.1",
+    "date-fns": "^4.1.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.477.0",
     "motion": "^12.4.7",
     "react": "^19.0.0",
+    "react-day-picker": "9.6.1",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "zod": "^3.24.2"

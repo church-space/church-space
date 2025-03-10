@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import { Textarea } from "@church-space/ui/textarea";
+import { AutosizeTextarea } from "@church-space/ui/auto-size-textarea";
 import { useEffect, useState } from "react";
 import ColorPicker from "../color-picker";
 
@@ -87,10 +87,11 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             onChange={(e) => handleChange("title", e.target.value)}
           />
           <Label>Subtitle</Label>
-          <Textarea
+          <AutosizeTextarea
             className="col-span-2"
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
+            maxHeight={150}
           />
 
           <Label>Bullet Type</Label>
@@ -136,10 +137,11 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
               onChange={(e) => updateItem(index, "title", e.target.value)}
             />
             <Label>Description</Label>
-            <Textarea
+            <AutosizeTextarea
               className="col-span-2"
               value={item.description}
               onChange={(e) => updateItem(index, "description", e.target.value)}
+              maxHeight={150}
             />
             <Button
               variant="outline"
