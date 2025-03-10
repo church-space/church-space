@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@church-space/supabase/client";
 import type {
-  RealtimeChannel,
   RealtimePostgresChangesPayload,
   User,
 } from "@supabase/supabase-js";
@@ -21,15 +20,11 @@ type PresenceEventPayload = {
   leftPresences?: PresenceUser[];
 };
 
-type AuthUserResponse = {
-  data: {
-    user: User | null;
-  };
-};
-
 export default function RealtimeListener({ emailId }: { emailId: string }) {
   const [presenceState, setPresenceState] = useState<Record<string, any>>({});
   const supabase = createClient();
+
+  console.log(presenceState);
 
   useEffect(() => {
     if (!emailId) return;
