@@ -37,7 +37,8 @@
     "./tabs": "./src/tabs.tsx",
     "./pagination": "./src/pagination.tsx",
     "./table": "./src/table.tsx",
-    "./checkbox": "./src/checkbox.tsx"
+    "./checkbox": "./src/checkbox.tsx",
+    "./badge": "./src/badge.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

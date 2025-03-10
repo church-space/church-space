@@ -3,6 +3,7 @@
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import { Badge } from "@church-space/ui/badge";
 
 export type Email = {
   id: number;
@@ -61,6 +62,26 @@ export const columns: ColumnDef<Email>[] = [
     id: "status",
     accessorKey: "status",
     enableHiding: true,
+    cell: ({ row }) => {
+      return (
+        <Badge
+          variant={
+            row.original.status === "sent"
+              ? "success"
+              : row.original.status === "sending"
+                ? "warning"
+                : row.original.status === "failed"
+                  ? "destructive"
+                  : row.original.status === "scheduled"
+                    ? "default"
+                    : "secondary"
+          }
+          className="capitalize"
+        >
+          {row.original.status}
+        </Badge>
+      );
+    },
     meta: {
       filterVariant: "select",
     },
@@ -71,7 +92,7 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => {
       return row.original.scheduled_for
         ? new Date(row.original.scheduled_for).toLocaleDateString()
-        : "N/A";
+        : "—";
     },
   },
   {
@@ -80,7 +101,7 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => {
       return row.original.sent_at
         ? new Date(row.original.sent_at).toLocaleDateString()
-        : "N/A";
+        : "—";
     },
   },
   {
