@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@church-space/supabase/client";
-import type {
-  RealtimePostgresChangesPayload,
-  User,
-} from "@supabase/supabase-js";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 type PresenceUser = {
   user_id: string;

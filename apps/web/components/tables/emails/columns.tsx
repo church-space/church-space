@@ -38,6 +38,7 @@ export const columns: ColumnDef<Email>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
+        className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
       />
     ),
     enableSorting: false,

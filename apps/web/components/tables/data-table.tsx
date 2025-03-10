@@ -354,7 +354,7 @@ export default function DataTable<TData>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="h-20"
+                  className="group/table-row h-20"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
