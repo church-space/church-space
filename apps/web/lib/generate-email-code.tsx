@@ -56,15 +56,15 @@ const CustomText: React.FC<{
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(
       /<h1/g,
-      '<h1 style="margin: 1em 0 0.2em 0; font-weight: 700; font-size: 2rem; line-height: 1.3"'
+      '<h1 style="margin: 1em 0 0.2em 0; font-weight: 700; font-size: 2rem; line-height: 1.3"',
     )
     .replace(
       /<h2/g,
-      '<h2 style="margin: 1em 0 0.2em 0; font-weight: 700; font-size: 1.5rem; line-height: 1.3"'
+      '<h2 style="margin: 1em 0 0.2em 0; font-weight: 700; font-size: 1.5rem; line-height: 1.3"',
     )
     .replace(
       /<h3/g,
-      '<h3 style="margin: 1em 0 0.2em 0; font-weight: 600; font-size: 1.25rem; line-height: 1.3"'
+      '<h3 style="margin: 1em 0 0.2em 0; font-weight: 600; font-size: 1.25rem; line-height: 1.3"',
     )
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
@@ -158,9 +158,9 @@ const CustomButton: React.FC<{
               display: "inline-block",
               fontFamily: defaultFont || "sans-serif",
               fontSize: "14px",
-              fontWeight: "300",
+              fontWeight: "100",
               lineHeight: "1",
-              padding: "10px 18px",
+              padding: "10px 15px",
               textDecoration: "none",
               textAlign: "center",
               width: buttonWidth,
@@ -1014,7 +1014,7 @@ const CustomFooter: React.FC<{
 export function generateEmailCode(
   sections: Section[],
   style: EmailStyle,
-  footerData?: any
+  footerData?: any,
 ): React.ReactElement {
   const {
     bgColor = "#ffffff",
@@ -1028,16 +1028,19 @@ export function generateEmailCode(
 
   const containerStyle = {
     backgroundColor: isInset ? emailBgColor : bgColor,
-    padding: isInset ? "0" : "0",
+    padding: isInset ? "10px" : "0",
     margin: "0",
   };
 
   const contentStyle = {
     backgroundColor: isInset ? bgColor : undefined,
-    padding: isInset ? "20px" : "20px",
+    padding: "5px",
     borderRadius: isInset && isRounded ? "12px" : undefined,
     maxWidth: "672px",
     margin: "0 auto",
+    boxShadow: isInset
+      ? "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+      : undefined,
   };
 
   return (

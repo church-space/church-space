@@ -8,7 +8,7 @@ import {
   TabsTrigger,
 } from "@church-space/ui/tabs";
 import { render } from "@react-email/render";
-import { ChevronLeft } from "@church-space/ui/icons";
+import { ChevronLeft, ChevronRight } from "@church-space/ui/icons";
 import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
@@ -101,9 +101,28 @@ export default function EmailPreview({
         className="flex h-[95%] items-center justify-center overflow-auto"
       >
         <div className="mx-auto h-full max-h-[800px] min-h-[200px] w-full max-w-sm items-start rounded-[45px] border-8 border-black shadow-lg dark:border-muted">
+          <div className="sticky w-full rounded-t-[36px] border-b bg-card pb-3 pt-2">
+            <div className="mx-auto h-8 w-28 rounded-full bg-black"></div>
+            <div className="flex w-full items-center justify-between px-4 pt-2">
+              <div className="flex items-center gap-0.5 text-blue-500">
+                <ChevronLeft strokewidth={2} height={"20"} width={"20"} />{" "}
+                <div className="flex items-center rounded-full bg-blue-500 px-2 py-0.5 text-center text-xs text-white">
+                  14
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-blue-500">
+                <div className="rotate-90">
+                  <ChevronLeft strokewidth={2} height={"20"} width={"20"} />
+                </div>
+                <div className="-rotate-90">
+                  <ChevronLeft strokewidth={2} height={"20"} width={"20"} />
+                </div>
+              </div>
+            </div>
+          </div>
           <iframe
             srcDoc={htmlContent}
-            className="h-full w-full rounded-[36px] border-0"
+            className="h-full max-h-[706px] w-full rounded-b-[36px] border-0"
             title="Email Preview Mobile"
           />
         </div>
