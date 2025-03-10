@@ -8,6 +8,7 @@ import {
 import EmailNotFound from "@/components/not-found/email";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import RealtimeWrapper from "./realtime-wrapper";
 
 type Params = Promise<{ emailId: string }>;
 
@@ -107,6 +108,7 @@ export default async function Page(props: { params: Params }) {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
+      <RealtimeWrapper emailId={emailId.toString()} />
       <DndProvider />
     </HydrationBoundary>
   );
