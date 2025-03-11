@@ -89,11 +89,7 @@ interface ContentUpdate {
   value: any;
 }
 
-export default function DndProvider({
-  organizationId,
-}: {
-  organizationId: string;
-}) {
+export default function DndProvider() {
   // Move all hooks to the top level
   const params = useParams();
   const router = useRouter();
@@ -155,16 +151,8 @@ export default function DndProvider({
     accentTextColor: emailStyle.accent_text_color || "#666666",
   };
 
-  const {
-    blocks,
-    styles,
-    updateBlocksHistory,
-    updateStylesHistory,
-    handleUndo,
-    handleRedo,
-    canUndo,
-    canRedo,
-  } = useBlockStateManager(initialBlocks, initialStyles);
+  const { blocks, styles, updateBlocksHistory, updateStylesHistory } =
+    useBlockStateManager(initialBlocks, initialStyles);
 
   // Create a debounced function for style updates to reduce API calls
   const debouncedStyleUpdate = useCallback(
@@ -1697,39 +1685,6 @@ export default function DndProvider({
     ],
   );
 
-  // Add handlers for undo/redo that update server state
-  const handleUndoWithServer = useCallback(() => {
-    const undoneBlocks = handleUndo();
-    if (undoneBlocks && emailId) {
-      // Update server state
-      const orderUpdates = undoneBlocks.map((block, index) => ({
-        id: parseInt(block.id, 10),
-        order: index,
-      }));
-
-      batchUpdateEmailBlocks.mutate({
-        emailId,
-        orderUpdates,
-      });
-    }
-  }, [handleUndo, emailId, batchUpdateEmailBlocks]);
-
-  const handleRedoWithServer = useCallback(() => {
-    const redoneBlocks = handleRedo();
-    if (redoneBlocks && emailId) {
-      // Update server state
-      const orderUpdates = redoneBlocks.map((block, index) => ({
-        id: parseInt(block.id, 10),
-        order: index,
-      }));
-
-      batchUpdateEmailBlocks.mutate({
-        emailId,
-        orderUpdates,
-      });
-    }
-  }, [handleRedo, emailId, batchUpdateEmailBlocks]);
-
   return (
     <div className="relative flex h-full flex-col">
       <Dialog
@@ -1784,12 +1739,7 @@ export default function DndProvider({
           <div className="flex">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleUndoWithServer}
-                  disabled={!canUndo}
-                >
+                <Button variant="ghost" size="icon">
                   <Undo />
                 </Button>
               </TooltipTrigger>
@@ -1797,12 +1747,7 @@ export default function DndProvider({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleRedoWithServer}
-                  disabled={!canRedo}
-                >
+                <Button variant="ghost" size="icon">
                   <Redo />
                 </Button>
               </TooltipTrigger>
@@ -1897,7 +1842,6 @@ export default function DndProvider({
             onlineUsers={onlineUsers}
             accentTextColor={styles.accentTextColor}
             onAccentTextColorChange={handleAccentTextColorChange}
-            organizationId={organizationId}
           />
           <div className="relative flex-1">
             <AnimatePresence>
@@ -1946,10 +1890,10 @@ export default function DndProvider({
         </div>
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
-      {/* <RealtimeWrapper
+      <RealtimeWrapper
         emailId={emailId?.toString() || ""}
         onPresenceChange={handlePresenceChange}
-      /> */}
+      />
     </div>
   );
 }
