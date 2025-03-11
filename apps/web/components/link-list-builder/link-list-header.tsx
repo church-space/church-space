@@ -1,7 +1,31 @@
 import React from "react";
 import { Button } from "@church-space/ui/button";
 
-export default function LinkListHeader() {
+interface LinkListHeaderProps {
+  headerBgColor: string;
+  headerTextColor: string;
+  headerSecondaryTextColor: string;
+  headerTitle: string;
+  headerDescription: string;
+  headerName: string;
+  headerButtonText: string;
+  headerButtonLink: string;
+  headerButtonColor: string;
+  headerButtonTextColor: string;
+}
+
+export default function LinkListHeader({
+  headerBgColor,
+  headerTextColor,
+  headerSecondaryTextColor,
+  headerTitle,
+  headerDescription,
+  headerName,
+  headerButtonText,
+  headerButtonLink,
+  headerButtonColor,
+  headerButtonTextColor,
+}: LinkListHeaderProps) {
   return (
     <div className="h flex flex-col rounded-t-md bg-red-500 p-4 py-8">
       <div className="flex items-center gap-2">

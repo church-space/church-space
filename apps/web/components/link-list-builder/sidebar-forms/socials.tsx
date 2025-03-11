@@ -24,19 +24,33 @@ import { Input } from "@church-space/ui/input";
 import { useState } from "react";
 import { z } from "zod";
 import ColorPicker from "@/components/dnd-builder/color-picker";
-
-// Define types for our state
-interface SocialLink {
-  icon: string;
-  url: string;
-}
+import { SocialLink } from "../link-list-builder";
 
 interface LocalState {
   links: SocialLink[];
   socials_style: string;
 }
 
-export default function SocialsForm() {
+interface SocialsFormProps {
+  socialsStyle: "outline" | "filled" | "icon-only";
+  socialsColor: string;
+  socialsIconColor: string;
+  socialLinks: SocialLink[];
+  setSocialsStyle: (style: "outline" | "filled" | "icon-only") => void;
+  setSocialsColor: (color: string) => void;
+  setSocialsIconColor: (color: string) => void;
+  setSocialLinks: (links: SocialLink[]) => void;
+}
+export default function SocialsForm({
+  socialsStyle,
+  socialsColor,
+  socialsIconColor,
+  socialLinks,
+  setSocialsStyle,
+  setSocialsColor,
+  setSocialsIconColor,
+  setSocialLinks,
+}: SocialsFormProps) {
   const [localState, setLocalState] = useState<LocalState>({
     links: [],
     socials_style: "filled",

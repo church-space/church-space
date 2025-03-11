@@ -1,5 +1,7 @@
-import React, { useRef } from "react";
+import ColorPicker from "@/components/dnd-builder/color-picker";
 import { Button } from "@church-space/ui/button";
+import { LinkIcon, MailFilled } from "@church-space/ui/icons";
+import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
   Select,
@@ -8,22 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import {
-  MailFilled,
-  LinkIcon,
-  Facebook,
-  Youtube,
-  Instagram,
-  TikTok,
-  XTwitter,
-  Threads,
-  Bluesky,
-  Linkedin,
-} from "@church-space/ui/icons";
-import { Input } from "@church-space/ui/input";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
-import ColorPicker from "@/components/dnd-builder/color-picker";
+import { Link } from "../link-list-builder";
 
 // Define types for our state
 interface SocialLink {
@@ -36,13 +25,32 @@ interface LocalState {
   socials_style: string;
 }
 
-export default function LinksForm() {
+interface LinksFormProps {
+  links: Link[];
+  buttonColor: string;
+  buttonTextColor: string;
+  bgColor: string;
+  setLinks: (links: Link[]) => void;
+  setButtonColor: (color: string) => void;
+  setButtonTextColor: (color: string) => void;
+  setBgColor: (color: string) => void;
+}
+
+export default function LinksForm({
+  links,
+  buttonColor,
+  buttonTextColor,
+  bgColor,
+  setLinks,
+  setButtonColor,
+  setButtonTextColor,
+  setBgColor,
+}: LinksFormProps) {
   const [localState, setLocalState] = useState<LocalState>({
     links: [],
     socials_style: "filled",
   });
 
-  const [bgColor, setBgColor] = useState("#000000");
   const [primaryTextColor, setPrimaryTextColor] = useState("#FFFFFF");
 
   // Track validation errors for links
@@ -247,64 +255,67 @@ export default function LinksForm() {
             Add Link
           </Button>
         </div>
-
-        {localState.links.map((link, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
-          >
-            <Label>Icon</Label>
-            <div className="col-span-2 flex">
-              <Select
-                value={link.icon}
-                onValueChange={(value) => updateLink(index, "icon", value)}
-              >
-                <SelectTrigger className="rounded-r-none">
-                  <SelectValue placeholder="Icon" />
-                </SelectTrigger>
-                <SelectContent className="min-w-20">
-                  <SelectItem value="link">
-                    <div className="flex flex-row gap-2">
-                      <LinkIcon height={"20"} width={"20"} /> Website
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="mail">
-                    <div className="flex flex-row gap-2">
-                      <MailFilled height={"20"} width={"20"} /> Email
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                onClick={() => removeLink(index)}
-                size="icon"
-                className="rounded-l-none border-l-0"
-              >
-                ×
-              </Button>
+        <div className="flex flex-col gap-6">
+          {localState.links.map((link, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
+            >
+              <Label>Icon</Label>
+              <div className="col-span-2 flex">
+                <Select
+                  value={link.icon}
+                  onValueChange={(value) => updateLink(index, "icon", value)}
+                >
+                  <SelectTrigger className="rounded-r-none">
+                    <SelectValue placeholder="Icon" />
+                  </SelectTrigger>
+                  <SelectContent className="min-w-20">
+                    <SelectItem value="link">
+                      <div className="flex flex-row gap-2">
+                        <LinkIcon height={"20"} width={"20"} /> Website
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="mail">
+                      <div className="flex flex-row gap-2">
+                        <MailFilled height={"20"} width={"20"} /> Email
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  onClick={() => removeLink(index)}
+                  size="icon"
+                  className="rounded-l-none border-l-0"
+                >
+                  ×
+                </Button>
+              </div>
+              <Label>Text</Label>
+              <Input className="col-span-2" />
+              <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
+              <div className="col-span-2 flex flex-col gap-1">
+                <Input
+                  className={
+                    linkErrors[index] && !typingLinks[index]
+                      ? "border-red-500"
+                      : ""
+                  }
+                  value={link.url}
+                  onChange={(e) => updateLink(index, "url", e.target.value)}
+                  onBlur={() => handleLinkBlur(index)}
+                  placeholder={
+                    link.icon === "mail" ? "email@example.com" : "https://"
+                  }
+                />
+                {linkErrors[index] && !typingLinks[index] && (
+                  <p className="text-xs text-red-500">{linkErrors[index]}</p>
+                )}
+              </div>
             </div>
-            <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
-            <div className="col-span-2 flex flex-col gap-1">
-              <Input
-                className={
-                  linkErrors[index] && !typingLinks[index]
-                    ? "border-red-500"
-                    : ""
-                }
-                value={link.url}
-                onChange={(e) => updateLink(index, "url", e.target.value)}
-                onBlur={() => handleLinkBlur(index)}
-                placeholder={
-                  link.icon === "mail" ? "email@example.com" : "https://"
-                }
-              />
-              {linkErrors[index] && !typingLinks[index] && (
-                <p className="text-xs text-red-500">{linkErrors[index]}</p>
-              )}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

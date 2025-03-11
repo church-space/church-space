@@ -14,7 +14,7 @@ import {
   Youtube,
 } from "@church-space/ui/icons";
 
-const socialIcons = {
+export const socialIcons = {
   instagram: Instagram,
   tiktok: TikTok,
   x: XTwitter,
@@ -27,43 +27,47 @@ const socialIcons = {
   threads: Threads,
 };
 
-interface LinkListSocialsProps {
-  style: "outline" | "filled" | "icon-only";
+interface Link {
+  icon: keyof typeof socialIcons;
+  url: string;
+  text?: string;
 }
 
-// Helper function to get 5 random entries from socialIcons
-const getRandomIcons = () => {
-  const entries = Object.entries(socialIcons);
-  const shuffled = [...entries].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, 5);
-};
+interface LinkListSocialsProps {
+  style: "outline" | "filled" | "icon-only";
+  color: string;
+  iconColor: string;
+  links: Link[];
+}
 
-export default function LinkListSocials({ style }: LinkListSocialsProps) {
-  const [randomIcons, setRandomIcons] = React.useState<[string, any][]>([]);
-
-  React.useEffect(() => {
-    setRandomIcons(getRandomIcons());
-  }, []);
-
+export default function LinkListSocials({
+  style,
+  color,
+  iconColor,
+  links,
+}: LinkListSocialsProps) {
   return (
     <div className="mx-auto flex w-fit flex-wrap items-center justify-between gap-3 px-6">
-      {randomIcons.map(([key, Icon]) => (
-        <div
-          key={key}
-          className="flex h-8 w-8 items-center justify-center rounded-full"
-          style={{
-            backgroundColor: style === "filled" ? "#ffffff" : "transparent",
-            color: style === "filled" ? "#000000" : "#ffffff",
-            borderColor: style === "outline" ? "#ffffff" : "transparent",
-            borderWidth: style === "outline" ? "1px" : "0px",
-          }}
-        >
-          <Icon
-            height={style === "icon-only" ? "22" : "20"}
-            width={style === "icon-only" ? "22" : "20"}
-          />
-        </div>
-      ))}
+      {links.map((link, index) => {
+        const IconComponent = socialIcons[link.icon] || socialIcons.link;
+        return (
+          <div
+            key={index}
+            className="flex h-8 w-8 items-center justify-center rounded-full"
+            style={{
+              backgroundColor: style === "filled" ? color : "transparent",
+              color: iconColor,
+              borderColor: style === "outline" ? iconColor : "transparent",
+              borderWidth: style === "outline" ? "1px" : "0px",
+            }}
+          >
+            <IconComponent
+              height={style === "icon-only" ? "22" : "20"}
+              width={style === "icon-only" ? "22" : "20"}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
