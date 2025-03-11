@@ -118,6 +118,7 @@ export default function DndProvider() {
   const [activeForm, setActiveForm] = useState<
     "default" | "block" | "email-style" | "email-footer" | "email-templates"
   >("default");
+  const [isUndoRedoOperation, setIsUndoRedoOperation] = useState(false);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -237,8 +238,11 @@ export default function DndProvider() {
     [updateEmailBlock],
   );
 
-  // Update handleTextContentChange
+  // Update handleTextContentChange to check the isUndoRedoOperation flag
   const handleTextContentChange = (blockId: string, content: string) => {
+    // Skip updating history during undo/redo operations
+    if (isUndoRedoOperation) return;
+
     // Immediately update the UI with the new content
     const newBlocks = blocks.map((block) => {
       if (block.id === blockId && block.type === "text") {
@@ -1829,6 +1833,9 @@ export default function DndProvider() {
 
   // Handle undo button click
   const handleUndo = useCallback(() => {
+    // Set flag to prevent recursive updates
+    setIsUndoRedoOperation(true);
+
     const previousState = undo();
     if (previousState) {
       // Store the current blocks before the undo operation
@@ -1836,11 +1843,62 @@ export default function DndProvider() {
 
       // Update server state based on the differences
       debouncedServerUpdate(previousState.blocks, blocksBeforeUndo);
+
+      // Update editor content for text blocks
+      previousState.blocks.forEach((block) => {
+        if (
+          block.type === "text" &&
+          editors[block.id] &&
+          !editors[block.id].isDestroyed
+        ) {
+          const content = (block.data as any)?.content || "";
+
+          // Only update if content has changed to avoid unnecessary re-renders
+          if (editors[block.id].getHTML() !== content) {
+            // Set content directly
+            editors[block.id].commands.setContent(content);
+          }
+        }
+      });
+
+      // Handle blocks that exist in the current state but not in the previous state
+      // (these editors need to be destroyed)
+      blocksBeforeUndo.forEach((block) => {
+        const stillExists = previousState.blocks.some((b) => b.id === block.id);
+        if (
+          !stillExists &&
+          block.type === "text" &&
+          editors[block.id] &&
+          !editors[block.id].isDestroyed
+        ) {
+          // Clean up the editor
+          try {
+            editors[block.id].destroy();
+          } catch (error) {
+            console.error("Error destroying editor during undo:", error);
+          }
+
+          // Remove from editors state
+          setEditors((prev) => {
+            const newEditors = { ...prev };
+            delete newEditors[block.id];
+            return newEditors;
+          });
+        }
+      });
     }
-  }, [undo, blocks, debouncedServerUpdate]);
+
+    // Reset flag after a short delay to allow updates to complete
+    setTimeout(() => {
+      setIsUndoRedoOperation(false);
+    }, 100);
+  }, [undo, blocks, debouncedServerUpdate, editors, setEditors]);
 
   // Handle redo button click
   const handleRedo = useCallback(() => {
+    // Set flag to prevent recursive updates
+    setIsUndoRedoOperation(true);
+
     const nextState = redo();
     if (nextState) {
       // Store the current blocks before the redo operation
@@ -1848,8 +1906,79 @@ export default function DndProvider() {
 
       // Update server state based on the differences
       debouncedServerUpdate(nextState.blocks, blocksBeforeRedo);
+
+      // Update editor content for text blocks
+      nextState.blocks.forEach((block) => {
+        if (block.type === "text") {
+          const content = (block.data as any)?.content || "";
+
+          // Check if the editor exists
+          if (editors[block.id] && !editors[block.id].isDestroyed) {
+            // Only update if content has changed to avoid unnecessary re-renders
+            if (editors[block.id].getHTML() !== content) {
+              // Set content directly
+              editors[block.id].commands.setContent(content);
+            }
+          } else {
+            // Create a new editor for this block if it doesn't exist
+            const newEditor = createEditor(
+              content,
+              styles.defaultFont,
+              styles.defaultTextColor,
+              true, // preserve existing styles
+              styles.accentTextColor,
+            );
+
+            // Add to editors state
+            setEditors((prev) => ({
+              ...prev,
+              [block.id]: newEditor,
+            }));
+          }
+        }
+      });
+
+      // Handle blocks that exist in the current state but not in the next state
+      // (these editors need to be destroyed)
+      blocksBeforeRedo.forEach((block) => {
+        const stillExists = nextState.blocks.some((b) => b.id === block.id);
+        if (
+          !stillExists &&
+          block.type === "text" &&
+          editors[block.id] &&
+          !editors[block.id].isDestroyed
+        ) {
+          // Clean up the editor
+          try {
+            editors[block.id].destroy();
+          } catch (error) {
+            console.error("Error destroying editor during redo:", error);
+          }
+
+          // Remove from editors state
+          setEditors((prev) => {
+            const newEditors = { ...prev };
+            delete newEditors[block.id];
+            return newEditors;
+          });
+        }
+      });
     }
-  }, [redo, blocks, debouncedServerUpdate]);
+
+    // Reset flag after a short delay to allow updates to complete
+    setTimeout(() => {
+      setIsUndoRedoOperation(false);
+    }, 100);
+  }, [
+    redo,
+    blocks,
+    debouncedServerUpdate,
+    editors,
+    setEditors,
+    styles.defaultFont,
+    styles.defaultTextColor,
+    styles.accentTextColor,
+  ]);
 
   return (
     <div className="relative flex h-full flex-col">
@@ -2060,6 +2189,7 @@ export default function DndProvider() {
                 defaultTextColor={styles.defaultTextColor}
                 linkColor={styles.linkColor}
                 accentTextColor={styles.accentTextColor}
+                isUndoRedoOperation={isUndoRedoOperation}
               />
             </SortableContext>
           </div>

@@ -37,6 +37,7 @@ interface CanvasProps {
   defaultTextColor?: string;
   linkColor?: string;
   accentTextColor?: string;
+  isUndoRedoOperation?: boolean;
 }
 
 export default function DndBuilderCanvas({
@@ -56,6 +57,7 @@ export default function DndBuilderCanvas({
   defaultTextColor,
   linkColor,
   accentTextColor,
+  isUndoRedoOperation = false,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -102,18 +104,17 @@ export default function DndBuilderCanvas({
   const insertionIndex = isDragging ? getInsertionIndex() : -1;
 
   const renderBlock = (block: BlockType, isRounded: boolean) => {
-    const isSelected = selectedBlockId === block.id;
     return (
       <Block
         key={block.id}
         id={block.id}
         type={block.type}
-        isSelected={isSelected}
+        isSelected={selectedBlockId === block.id}
         onSelect={(e) => {
           e.stopPropagation();
           onBlockSelect(block.id);
         }}
-        editor={editors[block.id]}
+        editor={editors[block.id] || null}
         block={block}
         onTextContentChange={onTextContentChange}
         defaultFont={defaultFont}
@@ -121,6 +122,7 @@ export default function DndBuilderCanvas({
         isRounded={isRounded}
         linkColor={linkColor}
         accentTextColor={accentTextColor}
+        isUndoRedoOperation={isUndoRedoOperation}
       />
     );
   };

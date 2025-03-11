@@ -28,6 +28,7 @@ interface BlockProps {
   isRounded?: boolean;
   linkColor?: string;
   accentTextColor?: string;
+  isUndoRedoOperation?: boolean;
 }
 
 export default function Block({
@@ -45,6 +46,7 @@ export default function Block({
   isRounded,
   linkColor,
   accentTextColor,
+  isUndoRedoOperation = false,
 }: BlockProps) {
   // Add state to track if the editor is focused
   const [isEditorFocused, setIsEditorFocused] = useState(false);
@@ -94,14 +96,16 @@ export default function Block({
         return (
           <TextBlock
             editor={editor}
-            onContentChange={(content) => {
-              if (id && onTextContentChange) {
-                onTextContentChange(id, content);
-              }
-            }}
+            onContentChange={
+              id && onTextContentChange
+                ? (content) => onTextContentChange(id, content)
+                : undefined
+            }
             font={block.data?.font || defaultFont}
             textColor={block.data?.textColor || defaultTextColor}
             linkColor={linkColor}
+            accentTextColor={accentTextColor}
+            isUndoRedoOperation={isUndoRedoOperation}
           />
         );
       case "divider":
