@@ -19,6 +19,8 @@ type PresenceEventPayload = {
 
 export default function RealtimeListener({ emailId }: { emailId: number }) {
   const [presenceState, setPresenceState] = useState<Record<string, any>>({});
+  const [connectionStatus, setConnectionStatus] =
+    useState<string>("initializing");
   const supabase = createClient();
 
   console.log(presenceState);
@@ -33,8 +35,14 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
         const { data } = await supabase.auth.getUser();
         const userId = data.user?.id || "anonymous";
 
-        // Create a channel for this specific email
-        const channel = supabase.channel(`email:${emailId}`, {
+        console.log("Setting up realtime channel for email:", emailId);
+        setConnectionStatus("connecting");
+
+        // Create a simple channel first to test basic connectivity
+        const simpleChannel = supabase.channel("simple-test");
+
+        // Create the main channel with a simpler configuration
+        const channel = supabase.channel(`email-${emailId}`, {
           config: {
             presence: {
               key: userId,
@@ -44,6 +52,22 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
 
         // Listen for changes to the emails table for this specific emailId
         channel
+
+          // Listen for changes to the email_blocks table for this specific emailId
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "email_blocks",
+              filter: `email_id=eq.${emailId}`,
+            },
+            (payload: RealtimePostgresChangesPayload<any>) => {
+              console.log("Email block change received:", payload);
+            },
+          )
+
+          // Listen for changes to the emails table for this specific emailId
           .on(
             "postgres_changes",
             {
@@ -69,19 +93,6 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
               console.log("Email footer change received:", payload);
             },
           )
-          // Listen for changes to the email_blocks table for this specific emailId
-          .on(
-            "postgres_changes",
-            {
-              event: "*",
-              schema: "public",
-              table: "email_blocks",
-              filter: `email_id=eq.${emailId}`,
-            },
-            (payload: RealtimePostgresChangesPayload<any>) => {
-              console.log("Email block change received:", payload);
-            },
-          )
           // Set up presence handlers
           .on("presence", { event: "sync" }, () => {
             const newState = channel.presenceState();
@@ -103,9 +114,21 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
             },
           );
 
-        // Subscribe to the channel
-        channel.subscribe(async (status: string) => {
+        // Subscribe to the simple channel first
+        simpleChannel.subscribe((status) => {
+          console.log("Simple channel status:", status);
           if (status === "SUBSCRIBED") {
+            console.log("Simple channel connected successfully!");
+          }
+        });
+
+        // Subscribe to the main channel with better error handling
+        channel.subscribe(async (status, err) => {
+          console.log("Main channel subscription status:", status);
+          setConnectionStatus(status);
+
+          if (status === "SUBSCRIBED") {
+            console.log("Successfully subscribed to channel");
             // Track presence once subscribed
             const presenceTrackStatus = await channel.track({
               user_id: userId,
@@ -115,15 +138,32 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
             });
 
             console.log("Presence tracking status:", presenceTrackStatus);
+          } else if (status === "CLOSED") {
+            console.log("Attempting to diagnose the issue...");
+
+            // Try to diagnose the issue
+            console.log("Checking Supabase client configuration:");
+            console.log("URL defined:", !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+            console.log(
+              "ANON KEY defined:",
+              !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+            );
+          } else if (status === "CHANNEL_ERROR") {
+            console.error("Channel error:", err);
+          } else {
+            console.error("Subscription status:", status, err);
           }
         });
 
         // Return cleanup function
         return () => {
+          console.log("Cleaning up channel subscriptions");
           channel.unsubscribe();
+          simpleChannel.unsubscribe();
         };
       } catch (error) {
         console.error("Error setting up realtime listener:", error);
+        setConnectionStatus("error");
         return () => {}; // Empty cleanup function in case of error
       }
     };
@@ -134,6 +174,10 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
     };
   }, [emailId, supabase]);
 
-  // This component doesn't render anything visible
-  return null;
+  return (
+    <div style={{ display: "none" }}>
+      {/* Hidden debug info */}
+      <div data-connection-status={connectionStatus}></div>
+    </div>
+  );
 }
