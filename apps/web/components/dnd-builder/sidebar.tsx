@@ -90,6 +90,7 @@ interface DndBuilderSidebarProps {
   footerData?: any;
   onFooterChange?: (data: any) => void;
   onlineUsers?: Record<string, any>;
+  organizationId?: string;
 }
 
 function DraggableBlock({
@@ -187,6 +188,7 @@ export default function DndBuilderSidebar({
   onFooterChange,
   accentTextColor,
   onAccentTextColorChange,
+  organizationId,
   onlineUsers = {},
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
@@ -271,6 +273,7 @@ export default function DndBuilderSidebar({
                   accentTextColor={accentTextColor}
                   onAccentTextColorChange={onAccentTextColorChange}
                   setActiveForm={setActiveForm}
+                  organizationId={organizationId}
                 />
               </motion.div>
             ) : (

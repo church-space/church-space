@@ -8,41 +8,83 @@ import {
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
 import { Save } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { debounce } from "lodash";
 import AssetBrowserModal from "../asset-browser";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { createClient } from "@church-space/supabase/client";
+import { useInView } from "react-intersection-observer";
 
 interface EmailTemplateFormProps {
   onSelectTemplate?: (templateId: string) => void;
+  organizationId: string;
 }
 
 export default function EmailTemplateForm({
   onSelectTemplate,
+  organizationId,
 }: EmailTemplateFormProps) {
   const [search, setSearch] = useState("");
-  console.log(search);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const supabaseClient = createClient();
+  const { ref, inView } = useInView();
 
-  const templates = [
-    {
-      id: "welcome",
-      name: "Welcome Email",
-      description: "A welcome email for new users",
+  // Properly implement debouncing with useEffect
+  useEffect(() => {
+    const updateDebouncedSearch = debounce((value: string) => {
+      setDebouncedSearch(value);
+    }, 300);
+
+    updateDebouncedSearch(search);
+
+    // Cleanup
+    return () => {
+      updateDebouncedSearch.cancel();
+    };
+  }, [search]);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error,
+  } = useInfiniteQuery({
+    queryKey: ["emailTemplates", organizationId, debouncedSearch],
+    queryFn: async ({ pageParam = 0 }) => {
+      const from = pageParam * 20;
+      const to = from + 19;
+
+      let query = supabaseClient
+        .from("emails")
+        .select("*")
+        .eq("organization_id", organizationId)
+        .eq("type", "template")
+        .range(from, to);
+
+      if (debouncedSearch) {
+        const searchTerm = `%${debouncedSearch}%`;
+        query = query.ilike("subject", searchTerm);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return { data, nextPage: data.length === 20 ? pageParam + 1 : undefined };
     },
-    {
-      id: "newsletter",
-      name: "Newsletter",
-      description: "A standard newsletter template",
-    },
-    {
-      id: "promotion",
-      name: "Promotion",
-      description: "Promotional email with call to action",
-    },
-    {
-      id: "announcement",
-      name: "Announcement",
-      description: "Important announcement template",
-    },
-  ];
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: 0,
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Flatten all pages of data
+  const templates = data?.pages.flatMap((page) => page.data) || [];
 
   return (
     <div className="flex flex-col gap-5 px-1">
@@ -56,7 +98,7 @@ export default function EmailTemplateForm({
                   triggerText="Gallery"
                   buttonClassName="h-8 py-0 px-2.5"
                   onSelectAsset={() => {}}
-                  organizationId={"213"}
+                  organizationId={organizationId}
                   handleDelete={() => {}}
                 />
               </TooltipTrigger>
@@ -84,24 +126,45 @@ export default function EmailTemplateForm({
         <Input
           placeholder="Search your templates"
           className="mb-3 w-full"
+          value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <div className="grid grid-cols-2 gap-3">
-          {templates.map((template) => (
-            <Card
-              key={template.id}
-              className="cursor-pointer transition-colors hover:border-primary"
-              onClick={() => onSelectTemplate?.(template.id)}
-            >
-              <CardContent className="flex flex-col gap-2 p-3">
-                <h3 className="text-sm font-medium">{template.name}</h3>
-                <p className="text-xs text-muted-foreground">
-                  {template.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+
+        {isLoading ? (
+          <div className="flex justify-center py-4">Loading templates...</div>
+        ) : error ? (
+          <div className="py-2 text-red-500">Error loading templates</div>
+        ) : templates.length === 0 ? (
+          <div className="py-4 text-center text-muted-foreground">
+            No templates found
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {templates.map((template) => (
+              <Card
+                key={template.id}
+                className="cursor-pointer transition-colors hover:border-primary"
+                onClick={() => onSelectTemplate?.(template.id.toString())}
+              >
+                <CardContent className="flex flex-col gap-2 p-3">
+                  <h3 className="text-sm font-medium">
+                    {template.subject || "Untitled Template"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {template.subject || "No description"}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Intersection observer target for infinite scrolling */}
+            {hasNextPage && (
+              <div ref={ref} className="col-span-2 py-2 text-center">
+                {isFetchingNextPage ? "Loading more..." : ""}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

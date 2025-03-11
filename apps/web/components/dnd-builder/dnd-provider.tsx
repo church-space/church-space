@@ -89,7 +89,11 @@ interface ContentUpdate {
   value: any;
 }
 
-export default function DndProvider() {
+export default function DndProvider({
+  organizationId,
+}: {
+  organizationId: string;
+}) {
   // Move all hooks to the top level
   const params = useParams();
   const router = useRouter();
@@ -1842,6 +1846,7 @@ export default function DndProvider() {
             onlineUsers={onlineUsers}
             accentTextColor={styles.accentTextColor}
             onAccentTextColorChange={handleAccentTextColorChange}
+            organizationId={organizationId}
           />
           <div className="relative flex-1">
             <AnimatePresence>
@@ -1890,10 +1895,10 @@ export default function DndProvider() {
         </div>
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
-      <RealtimeWrapper
+      {/* <RealtimeWrapper
         emailId={emailId?.toString() || ""}
         onPresenceChange={handlePresenceChange}
-      />
+      /> */}
     </div>
   );
 }

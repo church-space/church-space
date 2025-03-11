@@ -35,6 +35,8 @@
     "./queries/cached/emails": "./src/queries/cached/emails.ts",
     "./queries/cached/people": "./src/queries/cached/people.ts",
     "./queries/all/get-people-with-emails": "./src/queries/all/get-people-with-emails.ts",
-    "./queries/all/get-db-user": "./src/queries/all/get-db-user.ts"
+    "./queries/all/get-db-user": "./src/queries/all/get-db-user.ts",
+    "./queries/all/get-email-templates": "./src/queries/all/get-email-templates.ts",
+    "./queries/all/get-footer-templates": "./src/queries/all/get-footer-templates.ts"
   }
 }

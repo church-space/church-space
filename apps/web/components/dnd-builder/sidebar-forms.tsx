@@ -51,6 +51,7 @@ export default function DndBuilderSidebarForms({
   onLinkColorChange,
   onFooterChange,
   accentTextColor,
+  organizationId,
   onAccentTextColorChange,
 }: {
   selectedBlock?: Block;
@@ -83,6 +84,7 @@ export default function DndBuilderSidebarForms({
   onFooterChange?: (data: any) => void;
   accentTextColor?: string;
   onAccentTextColorChange?: (color: string) => void;
+  organizationId?: string;
   setActiveForm?: (
     form:
       | "default"
@@ -160,7 +162,10 @@ export default function DndBuilderSidebarForms({
           />
         )}
         {formType === "email-templates" && (
-          <EmailTemplateForm onSelectTemplate={onSelectTemplate} />
+          <EmailTemplateForm
+            onSelectTemplate={onSelectTemplate}
+            organizationId={organizationId || ""}
+          />
         )}
 
         {/* Block specific forms */}
