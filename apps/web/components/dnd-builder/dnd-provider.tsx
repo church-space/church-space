@@ -151,8 +151,16 @@ export default function DndProvider() {
     accentTextColor: emailStyle.accent_text_color || "#666666",
   };
 
-  const { blocks, styles, updateBlocksHistory, updateStylesHistory } =
-    useBlockStateManager(initialBlocks, initialStyles);
+  const {
+    blocks,
+    styles,
+    updateBlocksHistory,
+    updateStylesHistory,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useBlockStateManager(initialBlocks, initialStyles);
 
   // Create a debounced function for style updates to reduce API calls
   const debouncedStyleUpdate = useCallback(
@@ -1685,6 +1693,124 @@ export default function DndProvider() {
     ],
   );
 
+  // Create a debounced function for server updates during undo/redo
+  const debouncedServerUpdate = useCallback(
+    debounce((currentBlocks: BlockType[], previousBlocks: BlockType[]) => {
+      if (!emailId) return;
+
+      // 1. Find blocks that were in previousBlocks but not in currentBlocks (deleted blocks)
+      const deletedBlocks = previousBlocks.filter(
+        (prevBlock) =>
+          !currentBlocks.some((currBlock) => currBlock.id === prevBlock.id),
+      );
+
+      // 2. Find blocks that are in currentBlocks but not in previousBlocks (new blocks)
+      const newBlocks = currentBlocks.filter(
+        (currBlock) =>
+          !previousBlocks.some((prevBlock) => prevBlock.id === currBlock.id),
+      );
+
+      // 3. Find blocks that exist in both but have different content (updated blocks)
+      const updatedBlocks = currentBlocks.filter((currBlock) => {
+        const prevBlock = previousBlocks.find((pb) => pb.id === currBlock.id);
+        if (!prevBlock) return false;
+
+        // Check if the block has changed (excluding order changes which are handled separately)
+        return (
+          JSON.stringify(currBlock.data) !== JSON.stringify(prevBlock.data) ||
+          currBlock.type !== prevBlock.type
+        );
+      });
+
+      // 4. Process deleted blocks (if they have numeric IDs, delete from server)
+      deletedBlocks.forEach((block) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          const blockId = parseInt(block.id, 10);
+          deleteEmailBlock.mutate({ blockId });
+        }
+      });
+
+      // 5. Process new blocks (if they have UUID IDs, add to server)
+      newBlocks.forEach((block) => {
+        if (isNaN(parseInt(block.id, 10))) {
+          addEmailBlock.mutate({
+            emailId,
+            type: block.type,
+            value: block.data || ({} as BlockData),
+            order: block.order,
+            linkedFile: undefined,
+          });
+        }
+      });
+
+      // 6. Process updated blocks (if they have numeric IDs, update on server)
+      updatedBlocks.forEach((block) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          const blockId = parseInt(block.id, 10);
+          updateEmailBlock.mutate({
+            blockId,
+            type: block.type,
+            value: block.data,
+            order: block.order,
+          });
+        }
+      });
+
+      // 7. Update all block orders
+      const orderUpdates = currentBlocks
+        .map((block, index) => {
+          if (!isNaN(parseInt(block.id, 10))) {
+            return {
+              id: parseInt(block.id, 10),
+              order: index,
+            };
+          }
+          return null;
+        })
+        .filter(
+          (update): update is { id: number; order: number } => update !== null,
+        );
+
+      if (orderUpdates.length > 0) {
+        batchUpdateEmailBlocks.mutate({
+          emailId,
+          orderUpdates,
+        });
+      }
+    }, 500),
+    [
+      emailId,
+      addEmailBlock,
+      deleteEmailBlock,
+      updateEmailBlock,
+      batchUpdateEmailBlocks,
+    ],
+  );
+
+  // Handle undo button click
+  const handleUndo = useCallback(() => {
+    const previousState = undo();
+    if (previousState) {
+      // Store the current blocks before the undo operation
+      const blocksBeforeUndo = [...blocks];
+
+      // Update server state based on the differences
+      debouncedServerUpdate(previousState.blocks, blocksBeforeUndo);
+    }
+  }, [undo, blocks, debouncedServerUpdate]);
+
+  // Handle redo button click
+  const handleRedo = useCallback(() => {
+    const nextState = redo();
+    if (nextState) {
+      // Store the current blocks before the redo operation
+      const blocksBeforeRedo = [...blocks];
+
+      // Update server state based on the differences
+      debouncedServerUpdate(nextState.blocks, blocksBeforeRedo);
+    }
+  }, [redo, blocks, debouncedServerUpdate]);
+
   return (
     <div className="relative flex h-full flex-col">
       <Dialog
@@ -1739,7 +1865,12 @@ export default function DndProvider() {
           <div className="flex">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleUndo}
+                  disabled={!canUndo()}
+                >
                   <Undo />
                 </Button>
               </TooltipTrigger>
@@ -1747,7 +1878,12 @@ export default function DndProvider() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRedo}
+                  disabled={!canRedo()}
+                >
                   <Redo />
                 </Button>
               </TooltipTrigger>
