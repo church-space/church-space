@@ -4,15 +4,9 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
 // Dynamically import the RealtimeListener component with no SSR
-const RealtimeListener = dynamic(
-  () =>
-    import(
-      "../../../../../../components/listeners/email-builder/realtime-listener"
-    ),
-  {
-    ssr: false,
-  },
-);
+const RealtimeListener = dynamic(() => import("./realtime-listener"), {
+  ssr: false,
+});
 
 export default function RealtimeWrapper({
   emailId,

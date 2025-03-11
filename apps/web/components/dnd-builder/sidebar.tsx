@@ -38,6 +38,13 @@ import {
 } from "@church-space/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@church-space/ui/button";
+import { getDbUser } from "@church-space/supabase/cached-queries/platform";
+import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
 
 interface DndBuilderSidebarProps {
   className?: string;
@@ -81,6 +88,7 @@ interface DndBuilderSidebarProps {
   emailId?: number;
   footerData?: any;
   onFooterChange?: (data: any) => void;
+  onlineUsers?: Record<string, any>;
 }
 
 function DraggableBlock({
@@ -176,6 +184,7 @@ export default function DndBuilderSidebar({
   linkColor,
   onLinkColorChange,
   onFooterChange,
+  onlineUsers = {},
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
 
@@ -313,11 +322,36 @@ export default function DndBuilderSidebar({
                     </div>
                   </div>
                   <div className="flex flex-col gap-4">
-                    {/* <Separator />
-                    <Label className="font-bold px-2 text-sm">
-                      Editors Online
-                    </Label>
-                    <div className="flex items-center gap-2"></div> */}
+                    <Separator />
+                    <div className="px-2 text-sm font-bold">Editors Online</div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {Object.entries(onlineUsers).map(([key, presences]) =>
+                        (presences as any[]).map((presence, index) => (
+                          <div key={`${key}-${index}`} className="relative">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Avatar>
+                                  <AvatarImage src={presence.image_url} />
+                                  <AvatarFallback>
+                                    {presence.first_name?.charAt(0)}
+                                    {presence.last_name?.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </TooltipTrigger>
+                              <TooltipContent align="start">
+                                Thomas Harmond
+                              </TooltipContent>
+                            </Tooltip>
+                            <div className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-[3px] border-sidebar bg-green-500"></div>
+                          </div>
+                        )),
+                      )}
+                      {Object.keys(onlineUsers).length === 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          No other editors online
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </motion.div>

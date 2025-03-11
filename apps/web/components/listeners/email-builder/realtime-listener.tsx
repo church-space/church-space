@@ -178,6 +178,7 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
     <div style={{ display: "none" }}>
       {/* Hidden debug info */}
       <div data-connection-status={connectionStatus}></div>
+      <div data-presence-state={JSON.stringify(presenceState)}></div>
     </div>
   );
 }

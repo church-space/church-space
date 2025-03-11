@@ -61,6 +61,7 @@ import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
+import RealtimeWrapper from "@/components/listeners/email-builder/realtime-wrapper";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -124,6 +125,7 @@ export default function DndProvider() {
       },
     }),
   );
+  const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
 
   // Initialize blocks and styles
   const initialBlocks =
@@ -1628,6 +1630,14 @@ export default function DndProvider() {
     return [];
   };
 
+  // Add a handler for presence changes
+  const handlePresenceChange = useCallback(
+    (presenceState: Record<string, any>) => {
+      setOnlineUsers(presenceState);
+    },
+    [],
+  );
+
   return (
     <div className="relative flex h-full flex-col">
       <Dialog
@@ -1782,6 +1792,7 @@ export default function DndProvider() {
             onFooterChange={handleFooterChange}
             linkColor={styles.linkColor}
             onLinkColorChange={handleLinkColorChange}
+            onlineUsers={onlineUsers}
           />
           <div className="relative flex-1">
             <AnimatePresence>
@@ -1825,6 +1836,10 @@ export default function DndProvider() {
         </div>
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
+      <RealtimeWrapper
+        emailId={emailId?.toString() || ""}
+        onPresenceChange={handlePresenceChange}
+      />
     </div>
   );
 }
