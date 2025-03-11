@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
+import LinkListBuilder from "@/components/link-list-builder/link-list-builder";
 
 export default function Page() {
   return (
@@ -30,13 +31,19 @@ export default function Page() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Link Page ID</BreadcrumbPage>
+                <BreadcrumbLink href="/links/link-list/link-page-id">
+                  Link Page ID
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Editor</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
       </header>
-      <div>This needs an edit button and link stats</div>
+      <LinkListBuilder />
     </>
   );
 }
