@@ -126,8 +126,6 @@ export default function RealtimeListener({
             });
           } else if (status === "CHANNEL_ERROR") {
             console.error("Channel error:", err);
-          } else {
-            console.error("Subscription status:", status, err);
           }
         });
 
