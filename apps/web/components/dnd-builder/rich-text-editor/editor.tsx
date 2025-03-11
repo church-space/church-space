@@ -7,12 +7,14 @@ import TextStyle from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
 import { Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { DynamicColor } from "./dynamic-color-extension";
 
 export const createEditor = (
   initialContent?: string,
   defaultFont?: string,
   defaultTextColor?: string,
   preserveExistingStyles: boolean = false,
+  accentTextColor?: string,
 ) => {
   // Use the provided content or empty string for placeholder to work
   const content =
@@ -52,6 +54,7 @@ export const createEditor = (
         placeholder: "Start typing here...",
         showOnlyWhenEditable: true,
       }),
+      DynamicColor,
     ],
     content,
     editorProps: {
@@ -73,5 +76,37 @@ export const createEditor = (
     }
   }
 
+  // Set up dynamic color CSS variables
+  if (defaultTextColor) {
+    editor.view.dom.style.setProperty("--default-text-color", defaultTextColor);
+  }
+
+  if (accentTextColor) {
+    editor.view.dom.style.setProperty("--accent-text-color", accentTextColor);
+  }
+
   return editor;
+};
+
+// Add a function to update dynamic colors in an existing editor
+export const updateEditorColors = (
+  editor: Editor | null,
+  defaultTextColor?: string,
+  accentTextColor?: string,
+) => {
+  if (!editor || editor.isDestroyed) return;
+
+  if (defaultTextColor) {
+    editor.view.dom.style.setProperty("--default-text-color", defaultTextColor);
+  }
+
+  if (accentTextColor) {
+    editor.view.dom.style.setProperty("--accent-text-color", accentTextColor);
+  }
+
+  // Use the dynamic color extension command to update colors
+  editor.commands.updateDynamicColors(
+    defaultTextColor || "#000000",
+    accentTextColor || "#666666",
+  );
 };

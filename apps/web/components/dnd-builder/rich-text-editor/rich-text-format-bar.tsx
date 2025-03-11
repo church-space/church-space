@@ -36,12 +36,19 @@ import {
   Text,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Palette } from "@church-space/ui/icons";
 
 interface ToolbarProps {
   editor: Editor | null;
+  defaultTextColor?: string;
+  accentTextColor?: string;
 }
 
-const Toolbar = ({ editor }: ToolbarProps) => {
+const Toolbar = ({
+  editor,
+  defaultTextColor = "#000000",
+  accentTextColor = "#666666",
+}: ToolbarProps) => {
   const [linkUrl, setLinkUrl] = useState("");
   const [, setForceUpdate] = useState(0);
   const [currentHeadingLevel, setCurrentHeadingLevel] = useState<number | null>(
@@ -436,6 +443,47 @@ const Toolbar = ({ editor }: ToolbarProps) => {
           </div>
         </PopoverContent>
       </Popover>
+
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Palette />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Text Color</TooltipContent>
+        </Tooltip>
+        <DropdownMenuContent>
+          <DropdownMenuItem
+            onClick={() => {
+              editor.chain().focus().setColor(defaultTextColor).run();
+              editor.chain().focus().setDefaultTextColor().run();
+              setForceUpdate((prev) => prev + 1);
+            }}
+          >
+            <div
+              className="mr-2 h-5 w-5 rounded-full"
+              style={{ backgroundColor: defaultTextColor }}
+            />
+            Default
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              editor.chain().focus().setColor(accentTextColor).run();
+              editor.chain().focus().setAccentTextColor().run();
+              setForceUpdate((prev) => prev + 1);
+            }}
+          >
+            <div
+              className="mr-2 h-5 w-5 rounded-full"
+              style={{ backgroundColor: accentTextColor }}
+            />
+            Accent
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

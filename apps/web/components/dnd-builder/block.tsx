@@ -27,6 +27,7 @@ interface BlockProps {
   defaultTextColor?: string;
   isRounded?: boolean;
   linkColor?: string;
+  accentTextColor?: string;
 }
 
 export default function Block({
@@ -43,6 +44,7 @@ export default function Block({
   defaultTextColor,
   isRounded,
   linkColor,
+  accentTextColor,
 }: BlockProps) {
   // Add state to track if the editor is focused
   const [isEditorFocused, setIsEditorFocused] = useState(false);
@@ -97,8 +99,8 @@ export default function Block({
                 onTextContentChange(id, content);
               }
             }}
-            font={block.data?.font}
-            textColor={block.data?.textColor}
+            font={block.data?.font || defaultFont}
+            textColor={block.data?.textColor || defaultTextColor}
             linkColor={linkColor}
           />
         );

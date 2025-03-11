@@ -27,6 +27,7 @@ import { z } from "zod";
 import ColorPicker from "../color-picker";
 import FileUpload from "../file-upload";
 import { useUpdateEmailFooter } from "../mutations/use-update-email-footer";
+import { Separator } from "@church-space/ui/separator";
 
 interface Link {
   icon: string;
@@ -363,7 +364,7 @@ export default function EmailFooterForm({
   if (!organizationId) return null;
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-6 px-1">
       <h2 className="text-lg font-semibold">Email Footer</h2>
       <div className="grid grid-cols-3 items-center gap-2">
         <Label>Logo</Label>
@@ -381,17 +382,25 @@ export default function EmailFooterForm({
           value={localState.name}
           onChange={(e) => handleChange("name", e.target.value)}
         />
-        <Label className="font-medium">Title Color</Label>
-        <ColorPicker
-          value={localState.text_color}
-          onChange={(color) => handleChange("text_color", color)}
-        />
         <Label>Subtitle</Label>
         <Textarea
           className="col-span-2"
           value={localState.subtitle}
           onChange={(e) => handleChange("subtitle", e.target.value)}
         />
+        <Separator className="col-span-3 my-4" />
+        <Label className="font-medium">Title Color</Label>
+        <ColorPicker
+          value={localState.text_color}
+          onChange={(color) => handleChange("text_color", color)}
+        />
+
+        <Label className="font-medium">Accent Text Color</Label>
+        <ColorPicker
+          value={localState.secondary_text_color}
+          onChange={(color) => handleChange("secondary_text_color", color)}
+        />
+        <Separator className="col-span-3 my-4" />
         <Label>Address</Label>
         <Textarea
           className="col-span-2"
@@ -419,13 +428,7 @@ export default function EmailFooterForm({
             />
           </>
         )}
-
-        <Label className="font-medium">Secondary Text Color</Label>
-        <ColorPicker
-          value={localState.secondary_text_color}
-          onChange={(color) => handleChange("secondary_text_color", color)}
-        />
-
+        <Separator className="col-span-3 my-4" />
         <Label className="font-medium">Social Icon Style</Label>
         <Select
           value={localState.socials_style}

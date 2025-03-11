@@ -36,6 +36,7 @@ interface CanvasProps {
   defaultFont?: string;
   defaultTextColor?: string;
   linkColor?: string;
+  accentTextColor?: string;
 }
 
 export default function DndBuilderCanvas({
@@ -54,6 +55,7 @@ export default function DndBuilderCanvas({
   defaultFont,
   defaultTextColor,
   linkColor,
+  accentTextColor,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -118,6 +120,7 @@ export default function DndBuilderCanvas({
         defaultTextColor={defaultTextColor}
         isRounded={isRounded}
         linkColor={linkColor}
+        accentTextColor={accentTextColor}
       />
     );
   };
@@ -136,7 +139,9 @@ export default function DndBuilderCanvas({
       }
       onClick={() => {
         onBlockSelect(null);
-        setActiveForm("default");
+        activeForm !== "default" &&
+          activeForm !== "email-style" &&
+          setActiveForm("default");
       }}
     >
       <div

@@ -9,6 +9,7 @@ interface TextBlockProps {
   font?: string;
   textColor?: string;
   linkColor?: string;
+  accentTextColor?: string;
 }
 
 const TextBlock = ({
@@ -17,10 +18,12 @@ const TextBlock = ({
   font,
   textColor,
   linkColor,
+  accentTextColor,
 }: TextBlockProps) => {
   const prevFontRef = useRef(font);
   const prevTextColorRef = useRef(textColor);
   const prevLinkColorRef = useRef(linkColor);
+  const prevAccentTextColorRef = useRef(accentTextColor);
   const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -77,7 +80,13 @@ const TextBlock = ({
       editor.view.dom.style.setProperty("--link-color", linkColor);
       prevLinkColorRef.current = linkColor;
     }
-  }, [editor, font, textColor, linkColor]);
+
+    if (accentTextColor && accentTextColor !== prevAccentTextColorRef.current) {
+      // Set accent text color using CSS custom property
+      editor.view.dom.style.setProperty("--accent-text-color", accentTextColor);
+      prevAccentTextColorRef.current = accentTextColor;
+    }
+  }, [editor, font, textColor, linkColor, accentTextColor]);
 
   if (!editor) {
     return <div className="text-muted-foreground">Loading editor...</div>;
@@ -99,12 +108,25 @@ const TextBlock = ({
           fontFamily: font,
           color: textColor,
           "--link-color": linkColor,
+          "--accent-text-color": accentTextColor,
         } as React.CSSProperties
       }
     >
       <style>{`
         .ProseMirror a {
           color: var(--link-color) !important;
+        }
+        
+        .ProseMirror [style*="color: var(--accent-text-color)"] {
+          color: var(--accent-text-color) !important;
+        }
+
+        .ProseMirror .default-text-color {
+          color: var(--default-text-color) !important;
+        }
+        
+        .ProseMirror .accent-text-color {
+          color: var(--accent-text-color) !important;
         }
       `}</style>
       <EditorContent editor={editor} />

@@ -56,7 +56,7 @@ import { useBatchUpdateEmailBlocks } from "./mutations/use-batch-update-email-bl
 import { useDeleteEmailBlock } from "./mutations/use-delete-email-block";
 import { useUpdateEmailBlock } from "./mutations/use-update-email-block";
 import { useUpdateEmailStyle } from "./mutations/use-update-email-style";
-import { createEditor } from "./rich-text-editor/editor";
+import { createEditor, updateEditorColors } from "./rich-text-editor/editor";
 import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
@@ -448,7 +448,8 @@ export default function DndProvider() {
         initialContent,
         styles.defaultFont,
         styles.defaultTextColor,
-        false, // new blocks should use email defaults
+        true, // preserve existing styles
+        styles.accentTextColor,
       );
       setEditors((prev) => ({
         ...prev,
@@ -982,7 +983,8 @@ export default function DndProvider() {
           content,
           styles.defaultFont,
           styles.defaultTextColor,
-          false, // always use email defaults
+          true, // preserve existing styles
+          styles.accentTextColor,
         );
 
         return (
@@ -1397,6 +1399,13 @@ export default function DndProvider() {
       // Update UI immediately
       updateStylesHistory({ defaultTextColor: color });
 
+      // Update all editors with the new default text color
+      Object.values(editors).forEach((editor) => {
+        if (editor && !editor.isDestroyed) {
+          updateEditorColors(editor, color, styles.accentTextColor);
+        }
+      });
+
       // Update in database if we have an emailId
       if (emailId) {
         debouncedStyleUpdate({
@@ -1404,7 +1413,13 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory],
+    [
+      emailId,
+      debouncedStyleUpdate,
+      updateStylesHistory,
+      editors,
+      styles.accentTextColor,
+    ],
   );
 
   // Fix handleDefaultFontChange to include history update
@@ -1443,7 +1458,8 @@ export default function DndProvider() {
           initialContent,
           styles.defaultFont,
           styles.defaultTextColor,
-          false, // always use email defaults
+          true, // preserve existing styles
+          styles.accentTextColor,
         );
         newEditors[block.id] = newEditor;
       });
@@ -1646,6 +1662,13 @@ export default function DndProvider() {
       // Update UI immediately
       updateStylesHistory({ accentTextColor: color });
 
+      // Update all editors with the new accent text color
+      Object.values(editors).forEach((editor) => {
+        if (editor && !editor.isDestroyed) {
+          updateEditorColors(editor, styles.defaultTextColor, color);
+        }
+      });
+
       // Update in database if we have an emailId
       if (emailId) {
         debouncedStyleUpdate({
@@ -1653,7 +1676,13 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory],
+    [
+      emailId,
+      debouncedStyleUpdate,
+      updateStylesHistory,
+      editors,
+      styles.defaultTextColor,
+    ],
   );
 
   return (
@@ -1826,7 +1855,11 @@ export default function DndProvider() {
                     transition={{ duration: 0.2, damping: 20 }}
                     className="sticky top-12 z-50 overflow-hidden bg-background"
                   >
-                    <Toolbar editor={editors[selectedBlockId]} />
+                    <Toolbar
+                      editor={editors[selectedBlockId]}
+                      defaultTextColor={styles.defaultTextColor}
+                      accentTextColor={styles.accentTextColor}
+                    />
                   </motion.div>
                 )}
             </AnimatePresence>
@@ -1850,6 +1883,7 @@ export default function DndProvider() {
                 defaultFont={styles.defaultFont}
                 defaultTextColor={styles.defaultTextColor}
                 linkColor={styles.linkColor}
+                accentTextColor={styles.accentTextColor}
               />
             </SortableContext>
           </div>

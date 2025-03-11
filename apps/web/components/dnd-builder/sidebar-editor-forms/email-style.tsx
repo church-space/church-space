@@ -8,6 +8,7 @@ import {
 } from "@church-space/ui/select";
 import { Switch } from "@church-space/ui/switch";
 import ColorPicker from "../color-picker";
+import { Separator } from "@church-space/ui/separator";
 
 interface EmailStyleFormProps {
   bgColor?: string;
@@ -20,8 +21,6 @@ interface EmailStyleFormProps {
   onEmailBgColorChange?: (color: string) => void;
   defaultTextColor?: string;
   onDefaultTextColorChange?: (color: string) => void;
-  primaryTextColor?: string;
-  onPrimaryTextColorChange?: (color: string) => void;
   defaultFont?: string;
   onDefaultFontChange?: (font: string) => void;
   linkColor?: string;
@@ -41,8 +40,6 @@ export default function EmailStyleForm({
   onEmailBgColorChange,
   defaultTextColor = "#000000",
   onDefaultTextColorChange,
-  primaryTextColor = "#333333",
-  onPrimaryTextColorChange,
   defaultFont = "sans-serif",
   onDefaultFontChange,
   linkColor = "#0000ff",
@@ -55,6 +52,14 @@ export default function EmailStyleForm({
       <h2 className="text-lg font-semibold">Email Style</h2>
 
       <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Rounded Corners</Label>
+        <Switch checked={isRounded} onCheckedChange={onIsRoundedChange} />
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Inset Email</Label>
+        <Switch checked={isInset} onCheckedChange={onIsInsetChange} />
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">
           {isInset ? "Content BG Color" : "Background Color"}
         </Label>
@@ -63,14 +68,6 @@ export default function EmailStyleForm({
           value={bgColor}
           onChange={(color) => onBgColorChange?.(color)}
         />
-      </div>
-      <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Rounded Corners</Label>
-        <Switch checked={isRounded} onCheckedChange={onIsRoundedChange} />
-      </div>
-      <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Inset Email</Label>
-        <Switch checked={isInset} onCheckedChange={onIsInsetChange} />
       </div>
       {isInset && (
         <div className="grid grid-cols-3 items-center gap-2">
@@ -82,19 +79,14 @@ export default function EmailStyleForm({
           />
         </div>
       )}
+      <Separator className="my-4" />
+      <Label className="text-lg">Text</Label>
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Text Color</Label>
 
         <ColorPicker
           value={defaultTextColor}
           onChange={(color) => onDefaultTextColorChange?.(color)}
-        />
-      </div>
-      <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Primary Text</Label>
-        <ColorPicker
-          value={primaryTextColor}
-          onChange={(color) => onPrimaryTextColorChange?.(color)}
         />
       </div>
 

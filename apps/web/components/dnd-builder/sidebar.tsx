@@ -270,6 +270,7 @@ export default function DndBuilderSidebar({
                   onFooterChange={onFooterChange}
                   accentTextColor={accentTextColor}
                   onAccentTextColorChange={onAccentTextColorChange}
+                  setActiveForm={setActiveForm}
                 />
               </motion.div>
             ) : (

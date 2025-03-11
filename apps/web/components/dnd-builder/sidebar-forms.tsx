@@ -27,6 +27,7 @@ import VideoForm from "./sidebar-editor-forms/video";
 export default function DndBuilderSidebarForms({
   selectedBlock,
   setSelectedBlockId,
+  setActiveForm,
   onDeleteBlock,
   onBlockUpdate,
   formType = "block",
@@ -82,6 +83,14 @@ export default function DndBuilderSidebarForms({
   onFooterChange?: (data: any) => void;
   accentTextColor?: string;
   onAccentTextColorChange?: (color: string) => void;
+  setActiveForm?: (
+    form:
+      | "default"
+      | "email-style"
+      | "block"
+      | "email-footer"
+      | "email-templates",
+  ) => void;
 }) {
   const handleBack = () => {
     if (onBack) {
@@ -167,15 +176,7 @@ export default function DndBuilderSidebarForms({
         {selectedBlock &&
           formType === "block" &&
           selectedBlock.type === "text" && (
-            <TextForm
-              key={selectedBlock.id}
-              defaultTextColor={defaultTextColor || "#000000"}
-              onDefaultTextColorChange={onDefaultTextColorChange}
-              defaultFont={defaultFont || "sans-serif"}
-              onDefaultFontChange={onDefaultFontChange}
-              linkColor={linkColor}
-              onLinkColorChange={onLinkColorChange}
-            />
+            <TextForm key={selectedBlock.id} setActiveForm={setActiveForm} />
           )}
         {selectedBlock &&
           formType === "block" &&
