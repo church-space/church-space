@@ -2,12 +2,11 @@
 
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import FileUpload from "@/components/dnd-builder/file-upload";
+import { useUser } from "@/stores/use-user";
+import { AutosizeTextarea } from "@church-space/ui/auto-size-textarea";
+import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { Separator } from "@church-space/ui/separator";
-import { useState } from "react";
-import { Input } from "@church-space/ui/input";
-import { AutosizeTextarea } from "@church-space/ui/auto-size-textarea";
-import { useUser } from "@/stores/use-user";
 
 interface HeaderFormProps {
   headerBgColor: string;

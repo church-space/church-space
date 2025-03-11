@@ -47,13 +47,6 @@ export default function LinksForm({
   setButtonTextColor,
   setBgColor,
 }: LinksFormProps) {
-  const [localState, setLocalState] = useState<LocalState>({
-    links: [],
-    socials_style: "filled",
-  });
-
-  const [primaryTextColor, setPrimaryTextColor] = useState("#FFFFFF");
-
   // Track validation errors for links
   const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
     {},
@@ -62,10 +55,6 @@ export default function LinksForm({
   const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
   // Debounce timers for link validation
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
-
-  const handleChange = (key: keyof LocalState, value: any) => {
-    setLocalState((prev) => ({ ...prev, [key]: value }));
-  };
 
   // URL validation schema using Zod
   const urlSchema = z.string().superRefine((url, ctx) => {

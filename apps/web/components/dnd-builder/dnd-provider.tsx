@@ -61,7 +61,7 @@ import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
-import RealtimeWrapper from "@/components/listeners/email-builder/realtime-wrapper";
+// import RealtimeWrapper from "@/components/listeners/email-builder/realtime-wrapper";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -296,7 +296,6 @@ export default function DndProvider() {
 
       if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
         // Store the current blocks before reordering for server updates
-        const blocksBeforeReordering = [...blocks];
 
         // Create a new blocks array with the reordered blocks
         const newBlocks = arrayMove(blocks, oldIndex, newIndex);
@@ -609,9 +608,6 @@ export default function DndProvider() {
       }
     }
 
-    // Store the current blocks before deletion for potential undo
-    const blocksBeforeDeletion = [...blocks];
-
     // Update local state
     const updatedBlocks = blocks.filter((block) => block.id !== id);
 
@@ -763,9 +759,6 @@ export default function DndProvider() {
   // Fix handleBlockUpdate to include history update
   const handleBlockUpdate = useCallback(
     (updatedBlock: BlockType, isDuplication: boolean = false) => {
-      // Store the current blocks before update for potential undo
-      const blocksBeforeUpdate = [...blocks];
-
       // For duplications, we need to add the block to the list instead of updating an existing one
       if (isDuplication) {
         // Find the original block to determine where to insert the duplicated block
@@ -1343,9 +1336,6 @@ export default function DndProvider() {
   // Fix handleBgColorChange to include history update
   const handleBgColorChange = useCallback(
     (color: string) => {
-      // Store the current styles before the change
-      const stylesBeforeChange = { ...styles };
-
       // Update UI immediately - this will add to history
       updateStylesHistory({ bgColor: color });
 
@@ -1362,9 +1352,6 @@ export default function DndProvider() {
   // Fix handleIsInsetChange to include history update
   const handleIsInsetChange = useCallback(
     (inset: boolean) => {
-      // Store the current styles before the change
-      const stylesBeforeChange = { ...styles };
-
       // Update UI immediately - this will add to history
       updateStylesHistory({ isInset: inset });
 
@@ -1381,9 +1368,6 @@ export default function DndProvider() {
   // Fix handleIsRoundedChange to include history update
   const handleIsRoundedChange = useCallback(
     (rounded: boolean) => {
-      // Store the current styles before the change
-      const stylesBeforeChange = { ...styles };
-
       // Update UI immediately - this will add to history
       updateStylesHistory({ isRounded: rounded });
 
@@ -1400,9 +1384,6 @@ export default function DndProvider() {
   // Fix handleEmailBgColorChange to include history update
   const handleEmailBgColorChange = useCallback(
     (color: string) => {
-      // Store the current styles before the change
-      const stylesBeforeChange = { ...styles };
-
       // Update UI immediately - this will add to history
       updateStylesHistory({ emailBgColor: color });
 
@@ -1419,9 +1400,6 @@ export default function DndProvider() {
   // Fix handleLinkColorChange to include history update
   const handleLinkColorChange = useCallback(
     (color: string) => {
-      // Store the current styles before the change
-      const stylesBeforeChange = { ...styles };
-
       // Update UI immediately - this will add to history
       updateStylesHistory({ linkColor: color });
 
@@ -1437,9 +1415,6 @@ export default function DndProvider() {
   // Fix handleDefaultTextColorChange to include history update
   const handleDefaultTextColorChange = useCallback(
     (color: string) => {
-      // Store the current styles before the change
-      const stylesBeforeChange = { ...styles };
-
       // Update UI immediately - this will add to history
       updateStylesHistory({ defaultTextColor: color });
 
@@ -1470,9 +1445,6 @@ export default function DndProvider() {
   // Fix handleDefaultFontChange to include history update
   const handleDefaultFontChange = useCallback(
     (font: string) => {
-      // Store the current styles before the change
-      const stylesBeforeChange = { ...styles };
-
       // Update UI immediately - this will add to history
       updateStylesHistory({ defaultFont: font });
 
@@ -1488,9 +1460,6 @@ export default function DndProvider() {
 
   const handleAccentTextColorChange = useCallback(
     (color: string) => {
-      // Store the current styles before the change
-      const stylesBeforeChange = { ...styles };
-
       // Update UI immediately - this will add to history
       updateStylesHistory({ accentTextColor: color });
 
@@ -1728,14 +1697,6 @@ export default function DndProvider() {
 
     return [];
   };
-
-  // Add a handler for presence changes
-  const handlePresenceChange = useCallback(
-    (presenceState: Record<string, any>) => {
-      setOnlineUsers(presenceState);
-    },
-    [],
-  );
 
   // Create a debounced function for server updates during undo/redo
   const debouncedServerUpdate = useCallback(

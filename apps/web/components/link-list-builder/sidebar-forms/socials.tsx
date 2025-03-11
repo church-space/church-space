@@ -52,14 +52,6 @@ export default function SocialsForm({
   setSocialsIconColor,
   setSocialLinks,
 }: SocialsFormProps) {
-  const [localState, setLocalState] = useState<LocalState>({
-    links: [],
-    socials_style: "filled",
-  });
-
-  const [bgColor, setBgColor] = useState("#000000");
-  const [primaryTextColor, setPrimaryTextColor] = useState("#FFFFFF");
-
   // Track validation errors for links
   const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
     {},

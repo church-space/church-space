@@ -26,7 +26,9 @@ export default function TextForm({
       </div>
       <Button
         onClick={() => {
-          setActiveForm && setActiveForm("email-style");
+          if (setActiveForm) {
+            setActiveForm("email-style");
+          }
         }}
       >
         Email Style
