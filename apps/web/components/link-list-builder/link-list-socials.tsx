@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   MailFilled,
@@ -29,12 +31,37 @@ interface LinkListSocialsProps {
   style: "outline" | "filled" | "icon-only";
 }
 
+// Helper function to get 5 random entries from socialIcons
+const getRandomIcons = () => {
+  const entries = Object.entries(socialIcons);
+  const shuffled = [...entries].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 5);
+};
+
 export default function LinkListSocials({ style }: LinkListSocialsProps) {
+  const [randomIcons, setRandomIcons] = React.useState<[string, any][]>([]);
+
+  React.useEffect(() => {
+    setRandomIcons(getRandomIcons());
+  }, []);
+
   return (
-    <div className="mx-auto flex w-fit flex-wrap items-center justify-between gap-4 px-6 py-4">
-      {Object.entries(socialIcons).map(([key, Icon]) => (
-        <div className="flex h-7 w-7 items-center justify-center rounded-full">
-          <Icon key={key} height={"22"} width={"22"} />
+    <div className="mx-auto flex w-fit flex-wrap items-center justify-between gap-3 px-6">
+      {randomIcons.map(([key, Icon]) => (
+        <div
+          key={key}
+          className="flex h-8 w-8 items-center justify-center rounded-full"
+          style={{
+            backgroundColor: style === "filled" ? "#ffffff" : "transparent",
+            color: style === "filled" ? "#000000" : "#ffffff",
+            borderColor: style === "outline" ? "#ffffff" : "transparent",
+            borderWidth: style === "outline" ? "1px" : "0px",
+          }}
+        >
+          <Icon
+            height={style === "icon-only" ? "22" : "20"}
+            width={style === "icon-only" ? "22" : "20"}
+          />
         </div>
       ))}
     </div>

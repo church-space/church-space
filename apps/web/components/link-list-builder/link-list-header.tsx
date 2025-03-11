@@ -3,7 +3,7 @@ import { Button } from "@church-space/ui/button";
 
 export default function LinkListHeader() {
   return (
-    <div className="h flex flex-col bg-red-500 p-4 py-8">
+    <div className="h flex flex-col rounded-t-md bg-red-500 p-4 py-8">
       <div className="flex items-center gap-2">
         <div className="h-8 w-8 rounded-full bg-blue-500"></div>
         <div className="font-semibold tracking-tight">Church Name</div>
@@ -14,7 +14,7 @@ export default function LinkListHeader() {
       <div className="mt-1 text-pretty">
         This is a longer subtitle for a list. Now I'm making it even longer.
       </div>
-      <Button className="mt-8 rounded-full">Primary Button</Button>
+      <Button className="mt-8 h-10 rounded-full">Primary Button</Button>
     </div>
   );
 }
