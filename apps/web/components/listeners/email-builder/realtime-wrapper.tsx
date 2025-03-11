@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { getDbUserQuery } from "@church-space/supabase/queries/all/get-db-user";
 import { createClient } from "@church-space/supabase/client";
 
@@ -18,10 +18,8 @@ export default function RealtimeWrapper({
   onPresenceChange?: (presenceState: Record<string, any>) => void;
 }) {
   const [presenceState, setPresenceState] = useState<Record<string, any>>({});
-  const [enrichedPresenceState, setEnrichedPresenceState] = useState<
-    Record<string, any>
-  >({});
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const userCache = useRef<Record<string, any>>({});
 
   const supabase = createClient();
 
@@ -37,75 +35,48 @@ export default function RealtimeWrapper({
     getCurrentUser();
   }, [supabase]);
 
-  // Function to observe presence state changes
-  useEffect(() => {
-    if (!onPresenceChange) return;
+  // Fetch user details and update presence state.  useCallback makes this stable.
+  const handlePresenceUpdate = useCallback(
+    async (newState: Record<string, any>) => {
+      console.log("Processing presence state:", newState);
 
-    // Function to read and process presence state
-    const processPresenceState = () => {
-      const presenceStateEl = document.querySelector("[data-presence-state]");
-      if (presenceStateEl) {
-        try {
-          const presenceState = JSON.parse(
-            presenceStateEl.getAttribute("data-presence-state") || "{}",
-          );
-          setPresenceState(presenceState);
-        } catch (e) {
-          console.error("Failed to parse presence state:", e);
+      const enrichedState: Record<string, any> = {};
+
+      for (const [key, presences] of Object.entries(newState)) {
+        if (!Array.isArray(presences) || presences.length === 0) {
+          continue;
         }
-      }
-    };
 
-    // Use MutationObserver to watch for changes to the presence state
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "data-presence-state"
-        ) {
-          processPresenceState();
-        }
-      });
-    });
-
-    // Start observing after a short delay to ensure the element exists
-    const timeout = setTimeout(() => {
-      const presenceStateEl = document.querySelector("[data-presence-state]");
-      if (presenceStateEl) {
-        // Process initial state
-        processPresenceState();
-
-        // Then start observing for changes
-        observer.observe(presenceStateEl, { attributes: true });
-      }
-    }, 1000);
-
-    return () => {
-      clearTimeout(timeout);
-      observer.disconnect();
-    };
-  }, [onPresenceChange]);
-
-  // Fetch user details for each user in the presence state
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      const enrichedState = { ...presenceState };
-
-      for (const [key, presences] of Object.entries(presenceState)) {
         const updatedPresences = await Promise.all(
           (presences as any[]).map(async (presence) => {
             if (presence.user_id) {
+              if (userCache.current[presence.user_id]) {
+                const cachedUser = userCache.current[presence.user_id];
+                return {
+                  ...presence,
+                  first_name: cachedUser.first_name,
+                  last_name: cachedUser.last_name,
+                  avatar_url: cachedUser.avatar_url,
+                };
+              }
+
               try {
                 const userDetails = await getDbUserQuery(
                   supabase,
                   presence.user_id,
                 );
                 if (userDetails?.userDetails) {
-                  return {
-                    ...presence,
+                  const userData = {
                     first_name: userDetails.userDetails.first_name,
                     last_name: userDetails.userDetails.last_name,
                     avatar_url: userDetails.userDetails.avatar_url,
+                  };
+
+                  userCache.current[presence.user_id] = userData;
+
+                  return {
+                    ...presence,
+                    ...userData,
                   };
                 }
               } catch (error) {
@@ -115,32 +86,36 @@ export default function RealtimeWrapper({
             return presence;
           }),
         );
-        enrichedState[key] = updatedPresences;
-      }
-
-      setEnrichedPresenceState(enrichedState);
-      if (onPresenceChange) {
-        // Filter out the current user before passing to onPresenceChange
-        const filteredState = { ...enrichedState };
-        for (const key in filteredState) {
-          filteredState[key] = (filteredState[key] as any[]).filter(
-            (presence) => presence.user_id !== currentUserId,
-          );
-
-          // Remove empty arrays
-          if (filteredState[key].length === 0) {
-            delete filteredState[key];
-          }
+        if (updatedPresences.length > 0) {
+          enrichedState[key] = updatedPresences;
         }
-
-        onPresenceChange(filteredState);
       }
-    };
 
-    if (Object.keys(presenceState).length > 0) {
-      fetchUserDetails();
-    }
-  }, [presenceState, onPresenceChange, currentUserId]);
+      // Filter out the current user
+      const filteredState = { ...enrichedState };
+      for (const key in filteredState) {
+        if (!filteredState[key]) continue;
 
-  return <RealtimeListener emailId={parseInt(emailId)} />;
+        filteredState[key] = (filteredState[key] as any[]).filter(
+          (presence) => presence.user_id !== currentUserId,
+        );
+
+        if (!filteredState[key] || filteredState[key].length === 0) {
+          delete filteredState[key];
+        }
+      }
+
+      console.log("Sending to UI:", filteredState);
+      setPresenceState(filteredState); // Update local state
+      onPresenceChange?.(filteredState); // Notify parent
+    },
+    [currentUserId, userCache, onPresenceChange, supabase],
+  ); // Add dependencies to useCallback
+
+  return (
+    <RealtimeListener
+      emailId={parseInt(emailId)}
+      onPresenceUpdate={handlePresenceUpdate} // Pass the handler
+    />
+  );
 }

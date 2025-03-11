@@ -321,16 +321,18 @@ export default function DndBuilderSidebar({
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-4">
-                    <Separator />
-                    <div className="px-2 text-sm font-bold">Editors Online</div>
-                    <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-col">
+                    <Separator className="my-2" />
+                    <div className="mb-1.5 px-2 text-sm font-bold">
+                      Editors Online
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 px-1.5">
                       {Object.entries(onlineUsers).map(([key, presences]) =>
                         (presences as any[]).map((presence, index) => (
                           <div key={`${key}-${index}`} className="relative">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Avatar>
+                                <Avatar className="h-8 w-8">
                                   <AvatarImage src={presence.avatar_url} />
                                   <AvatarFallback>
                                     {presence.first_name?.charAt(0)}
@@ -342,7 +344,7 @@ export default function DndBuilderSidebar({
                                 {presence.first_name} {presence.last_name}
                               </TooltipContent>
                             </Tooltip>
-                            <div className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-[3px] border-sidebar bg-green-500"></div>
+                            <div className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-sidebar bg-green-500"></div>
                           </div>
                         )),
                       )}

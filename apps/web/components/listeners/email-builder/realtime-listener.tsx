@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@church-space/supabase/client";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { debounce } from "lodash";
 
 type PresenceUser = {
   user_id: string;
@@ -17,134 +18,147 @@ type PresenceEventPayload = {
   leftPresences?: PresenceUser[];
 };
 
-export default function RealtimeListener({ emailId }: { emailId: number }) {
-  const [presenceState, setPresenceState] = useState<Record<string, any>>({});
+export default function RealtimeListener({
+  emailId,
+  onPresenceUpdate,
+}: {
+  emailId: number;
+  onPresenceUpdate: (state: Record<string, any>) => void;
+}) {
   const [connectionStatus, setConnectionStatus] =
     useState<string>("initializing");
+  const connectionStatusRef = useRef(connectionStatus);
   const supabase = createClient();
+  const channelRef = useRef<any>(null); // Ref to hold the channel
+  const simpleChannelRef = useRef<any>(null); // Ref for the simple channel
+  const listenersAttached = useRef(false); // Track if listeners are attached
+  const isSubscribedRef = useRef(false); // Track subscription status
 
-  console.log(presenceState);
-
+  // Update the ref whenever connectionStatus changes
   useEffect(() => {
-    if (!emailId) return;
+    connectionStatusRef.current = connectionStatus;
+  }, [connectionStatus]);
 
-    let channel: any;
-    let simpleChannel: any;
+  // Debounced setupChannel:  This is the KEY FIX
+  const debouncedSetupChannel = useRef(
+    debounce(async () => {
+      if (isSubscribedRef.current) {
+        console.log("Already subscribed, skipping setup.");
+        return;
+      }
 
-    // Get the user ID first, then create the channel
-    const setupChannel = async () => {
+      let isSettingUp = true;
+
       try {
-        // Get current user info
         const { data } = await supabase.auth.getUser();
         const userId = data.user?.id || "anonymous";
 
         console.log("Setting up realtime channel for email:", emailId);
         setConnectionStatus("connecting");
 
-        // Create a simple channel first to test basic connectivity
-        simpleChannel = supabase.channel("simple-test");
+        if (!simpleChannelRef.current) {
+          simpleChannelRef.current = supabase.channel("simple-test");
+          simpleChannelRef.current.subscribe((status: string) => {
+            console.log("Simple channel status:", status);
+            if (status === "SUBSCRIBED") {
+              console.log("Simple channel connected successfully!");
+            }
+          });
+        }
 
-        // Create the main channel with a simpler configuration
-        channel = supabase.channel(`email-${emailId}`, {
-          config: {
-            presence: {
-              key: userId,
+        if (!channelRef.current) {
+          channelRef.current = supabase.channel(`email-${emailId}`, {
+            config: {
+              presence: {
+                key: userId,
+              },
             },
-          },
-        });
+          });
+        }
 
-        // Listen for changes to the emails table for this specific emailId
-        channel
+        const channel = channelRef.current;
 
-          // Listen for changes to the email_blocks table for this specific emailId
-          .on(
-            "postgres_changes",
-            {
-              event: "*",
-              schema: "public",
-              table: "email_blocks",
-              filter: `email_id=eq.${emailId}`,
-            },
-            (payload: RealtimePostgresChangesPayload<any>) => {
-              console.log("Email block change received:", payload);
-            },
-          )
+        if (!listenersAttached.current) {
+          channel
+            .on(
+              "postgres_changes",
+              {
+                event: "*",
+                schema: "public",
+                table: "email_blocks",
+                filter: `email_id=eq.${emailId}`,
+              },
+              (payload: RealtimePostgresChangesPayload<any>) => {
+                console.log("Email block change received:", payload);
+              },
+            )
+            .on(
+              "postgres_changes",
+              {
+                event: "*",
+                schema: "public",
+                table: "emails",
+                filter: `id=eq.${emailId}`,
+              },
+              (payload: RealtimePostgresChangesPayload<any>) => {
+                console.log("Email change received:", payload);
+              },
+            )
+            .on(
+              "postgres_changes",
+              {
+                event: "*",
+                schema: "public",
+                table: "email_footers",
+                filter: `email_id=eq.${emailId}`,
+              },
+              (payload: RealtimePostgresChangesPayload<any>) => {
+                console.log("Email footer change received:", payload);
+              },
+            )
+            .on("presence", { event: "sync" }, () => {
+              const newState = channel.presenceState();
+              console.log("Presence sync:", newState);
+              onPresenceUpdate(newState);
+            })
+            .on(
+              "presence",
+              { event: "join" },
+              ({ key, newPresences }: PresenceEventPayload) => {
+                console.log("User joined:", key, newPresences);
+                const newState = channel.presenceState();
+                onPresenceUpdate(newState);
+              },
+            )
+            .on(
+              "presence",
+              { event: "leave" },
+              ({ key, leftPresences }: PresenceEventPayload) => {
+                console.log("User left:", key, leftPresences);
+                const newState = channel.presenceState();
+                onPresenceUpdate(newState);
+              },
+            );
 
-          // Listen for changes to the emails table for this specific emailId
-          .on(
-            "postgres_changes",
-            {
-              event: "*",
-              schema: "public",
-              table: "emails",
-              filter: `id=eq.${emailId}`,
-            },
-            (payload: RealtimePostgresChangesPayload<any>) => {
-              console.log("Email change received:", payload);
-            },
-          )
-          // Listen for changes to the email_footers table for this specific emailId
-          .on(
-            "postgres_changes",
-            {
-              event: "*",
-              schema: "public",
-              table: "email_footers",
-              filter: `email_id=eq.${emailId}`,
-            },
-            (payload: RealtimePostgresChangesPayload<any>) => {
-              console.log("Email footer change received:", payload);
-            },
-          )
-          // Set up presence handlers
-          .on("presence", { event: "sync" }, () => {
-            const newState = channel.presenceState();
-            console.log("Presence sync:", newState);
-            setPresenceState(newState as Record<string, any>);
-          })
-          .on(
-            "presence",
-            { event: "join" },
-            ({ key, newPresences }: PresenceEventPayload) => {
-              console.log("User joined:", key, newPresences);
-            },
-          )
-          .on(
-            "presence",
-            { event: "leave" },
-            ({ key, leftPresences }: PresenceEventPayload) => {
-              console.log("User left:", key, leftPresences);
-            },
-          );
+          listenersAttached.current = true;
+        }
 
-        // Subscribe to the simple channel first
-        simpleChannel.subscribe((status: string) => {
-          console.log("Simple channel status:", status);
-          if (status === "SUBSCRIBED") {
-            console.log("Simple channel connected successfully!");
-          }
-        });
-
-        // Subscribe to the main channel with better error handling
         channel.subscribe(async (status: string, err: any) => {
           console.log("Main channel subscription status:", status);
           setConnectionStatus(status);
 
           if (status === "SUBSCRIBED") {
             console.log("Successfully subscribed to channel");
-            // Track presence once subscribed
+            isSubscribedRef.current = true; // Set subscribed flag
             const presenceTrackStatus = await channel.track({
               user_id: userId,
               email: data.user?.email,
               name: data.user?.user_metadata?.full_name,
               online_at: new Date().toISOString(),
             });
-
             console.log("Presence tracking status:", presenceTrackStatus);
           } else if (status === "CLOSED") {
             console.log("Attempting to diagnose the issue...");
-
-            // Try to diagnose the issue
             console.log("Checking Supabase client configuration:");
             console.log("URL defined:", !!process.env.NEXT_PUBLIC_SUPABASE_URL);
             console.log(
@@ -152,64 +166,62 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
               !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
             );
           } else if (status === "CHANNEL_ERROR") {
-            console.error(
-              "Channel error:",
-              err || "No error details available",
-            );
+            console.error("Channel error:", err);
           } else {
-            console.error(
-              "Subscription status:",
-              status,
-              err || "No error details available",
-            );
+            console.error("Subscription status:", status, err);
           }
         });
 
-        // Return cleanup function
-        return () => {
-          console.log("Cleaning up channel subscriptions");
-          channel.unsubscribe();
-          simpleChannel.unsubscribe();
-        };
+        isSettingUp = false;
       } catch (error) {
         console.error("Error setting up realtime listener:", error);
         setConnectionStatus("error");
-        return () => {}; // Empty cleanup function in case of error
+        isSettingUp = false; // Ensure this is reset even on error
       }
-    };
+    }, 500), // 500ms debounce
+  ).current;
 
-    // Set up visibility change handler to reconnect when tab becomes visible again
+  useEffect(() => {
+    if (!emailId) return;
+
+    debouncedSetupChannel(); // Call the debounced function
+
     const handleVisibilityChange = () => {
       if (
         document.visibilityState === "visible" &&
-        connectionStatus !== "SUBSCRIBED"
+        connectionStatusRef.current !== "SUBSCRIBED" &&
+        connectionStatusRef.current !== "connecting"
       ) {
         console.log("Tab became visible, reconnecting...");
-
-        // Clean up existing channels if they exist
-        if (channel) channel.unsubscribe();
-        if (simpleChannel) simpleChannel.unsubscribe();
-
-        // Set up channels again
-        setupChannel();
+        // Use the debounced function here too
+        debouncedSetupChannel();
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    const cleanupPromise = setupChannel();
-
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      cleanupPromise.then((cleanupFn) => cleanupFn && cleanupFn());
+      // Cleanup: Unsubscribe and reset EVERYTHING
+      if (channelRef.current) {
+        console.log("Cleaning up channel subscriptions");
+        channelRef.current.unsubscribe();
+        channelRef.current = null;
+      }
+      if (simpleChannelRef.current) {
+        simpleChannelRef.current.unsubscribe();
+        simpleChannelRef.current = null;
+      }
+      listenersAttached.current = false;
+      isSubscribedRef.current = false; // Reset subscribed flag
+      debouncedSetupChannel.cancel(); // Cancel any pending debounced calls
     };
-  }, [emailId, supabase, connectionStatus]);
+  }, [emailId, supabase]); // Keep dependencies minimal
 
   return (
     <div style={{ display: "none" }}>
       {/* Hidden debug info */}
       <div data-connection-status={connectionStatus}></div>
-      <div data-presence-state={JSON.stringify(presenceState)}></div>
     </div>
   );
 }
