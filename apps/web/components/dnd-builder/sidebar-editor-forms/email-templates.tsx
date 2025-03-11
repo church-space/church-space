@@ -35,7 +35,11 @@ export default function EmailTemplateForm({
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const supabaseClient = createClient();
-  const { ref, inView } = useInView();
+  const { ref: loadMoreRef, inView: loadMoreInView } = useInView();
+  const { ref: componentRef, inView: componentInView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
 
   // Properly implement debouncing with useEffect
   useEffect(() => {
@@ -83,19 +87,20 @@ export default function EmailTemplateForm({
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
+    enabled: componentInView, // Only enable the query when component is in view
   });
 
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
+    if (loadMoreInView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [loadMoreInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Flatten all pages of data
   const templates = data?.pages.flatMap((page) => page.data) || [];
 
   return (
-    <div className="flex flex-col gap-5 px-1">
+    <div className="flex flex-col gap-5 px-1" ref={componentRef}>
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Email Templates</h2>
@@ -187,7 +192,7 @@ export default function EmailTemplateForm({
 
             {/* Intersection observer target for infinite scrolling */}
             {hasNextPage && (
-              <div ref={ref} className="col-span-2 py-2 text-center">
+              <div ref={loadMoreRef} className="col-span-2 py-2 text-center">
                 {isFetchingNextPage ? "Loading more..." : ""}
               </div>
             )}
