@@ -148,6 +148,7 @@ export default function DndProvider() {
     defaultTextColor: emailStyle.default_text_color || "#000000",
     defaultFont: emailStyle.default_font || "Inter",
     isRounded: emailStyle.is_rounded ?? true,
+    accentTextColor: emailStyle.accent_text_color || "#666666",
   };
 
   const { blocks, styles, updateBlocksHistory, updateStylesHistory } =
@@ -1031,6 +1032,7 @@ export default function DndProvider() {
         updates: {
           blocks_bg_color: styles.bgColor,
           default_text_color: styles.defaultTextColor,
+          accent_text_color: styles.accentTextColor,
           default_font: styles.defaultFont,
           is_inset: styles.isInset,
           is_rounded: styles.isRounded,
@@ -1135,6 +1137,7 @@ export default function DndProvider() {
     styles.isRounded,
     styles.emailBgColor,
     styles.linkColor,
+    styles.accentTextColor,
     blocks,
     queryClient,
     router,
@@ -1638,6 +1641,21 @@ export default function DndProvider() {
     [],
   );
 
+  const handleAccentTextColorChange = useCallback(
+    (color: string) => {
+      // Update UI immediately
+      updateStylesHistory({ accentTextColor: color });
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        debouncedStyleUpdate({
+          accent_text_color: color,
+        });
+      }
+    },
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
+  );
+
   return (
     <div className="relative flex h-full flex-col">
       <Dialog
@@ -1793,6 +1811,8 @@ export default function DndProvider() {
             linkColor={styles.linkColor}
             onLinkColorChange={handleLinkColorChange}
             onlineUsers={onlineUsers}
+            accentTextColor={styles.accentTextColor}
+            onAccentTextColorChange={handleAccentTextColorChange}
           />
           <div className="relative flex-1">
             <AnimatePresence>

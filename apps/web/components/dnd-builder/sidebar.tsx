@@ -68,6 +68,8 @@ interface DndBuilderSidebarProps {
   onIsRoundedChange?: (isRounded: boolean) => void;
   linkColor?: string;
   onLinkColorChange?: (color: string) => void;
+  accentTextColor?: string;
+  onAccentTextColorChange?: (color: string) => void;
   emailBgColor?: string;
   onEmailBgColorChange?: (color: string) => void;
   activeForm:
@@ -183,6 +185,8 @@ export default function DndBuilderSidebar({
   linkColor,
   onLinkColorChange,
   onFooterChange,
+  accentTextColor,
+  onAccentTextColorChange,
   onlineUsers = {},
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
@@ -264,6 +268,8 @@ export default function DndBuilderSidebar({
                   linkColor={linkColor}
                   onLinkColorChange={onLinkColorChange}
                   onFooterChange={onFooterChange}
+                  accentTextColor={accentTextColor}
+                  onAccentTextColorChange={onAccentTextColorChange}
                 />
               </motion.div>
             ) : (

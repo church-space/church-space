@@ -125,6 +125,7 @@ export interface Section {
 export interface EmailStyle {
   blocks_bg_color?: string;
   default_text_color?: string;
+  accent_text_color?: string;
   default_font?: string;
   is_inset?: boolean;
   bg_color?: string;

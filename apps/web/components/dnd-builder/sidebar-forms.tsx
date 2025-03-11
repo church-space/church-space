@@ -49,6 +49,8 @@ export default function DndBuilderSidebarForms({
   linkColor,
   onLinkColorChange,
   onFooterChange,
+  accentTextColor,
+  onAccentTextColorChange,
 }: {
   selectedBlock?: Block;
   setSelectedBlockId?: (id: string | null) => void;
@@ -78,6 +80,8 @@ export default function DndBuilderSidebarForms({
   linkColor?: string;
   onLinkColorChange?: (color: string) => void;
   onFooterChange?: (data: any) => void;
+  accentTextColor?: string;
+  onAccentTextColorChange?: (color: string) => void;
 }) {
   const handleBack = () => {
     if (onBack) {
@@ -134,6 +138,8 @@ export default function DndBuilderSidebarForms({
             onIsRoundedChange={onIsRoundedChange}
             linkColor={linkColor}
             onLinkColorChange={onLinkColorChange}
+            accentTextColor={accentTextColor}
+            onAccentTextColorChange={onAccentTextColorChange}
           />
         )}
         {formType === "email-footer" && (

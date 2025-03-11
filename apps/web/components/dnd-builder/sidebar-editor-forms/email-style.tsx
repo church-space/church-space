@@ -20,10 +20,14 @@ interface EmailStyleFormProps {
   onEmailBgColorChange?: (color: string) => void;
   defaultTextColor?: string;
   onDefaultTextColorChange?: (color: string) => void;
+  primaryTextColor?: string;
+  onPrimaryTextColorChange?: (color: string) => void;
   defaultFont?: string;
   onDefaultFontChange?: (font: string) => void;
   linkColor?: string;
   onLinkColorChange?: (color: string) => void;
+  accentTextColor?: string;
+  onAccentTextColorChange?: (color: string) => void;
 }
 
 export default function EmailStyleForm({
@@ -37,10 +41,14 @@ export default function EmailStyleForm({
   onEmailBgColorChange,
   defaultTextColor = "#000000",
   onDefaultTextColorChange,
+  primaryTextColor = "#333333",
+  onPrimaryTextColorChange,
   defaultFont = "sans-serif",
   onDefaultFontChange,
   linkColor = "#0000ff",
   onLinkColorChange,
+  accentTextColor = "#666666",
+  onAccentTextColorChange,
 }: EmailStyleFormProps) {
   return (
     <div className="flex flex-col gap-4 pr-1">
@@ -83,11 +91,27 @@ export default function EmailStyleForm({
         />
       </div>
       <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Primary Text</Label>
+        <ColorPicker
+          value={primaryTextColor}
+          onChange={(color) => onPrimaryTextColorChange?.(color)}
+        />
+      </div>
+
+      <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Link Color</Label>
 
         <ColorPicker
           value={linkColor}
           onChange={(color) => onLinkColorChange?.(color)}
+        />
+      </div>
+
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Accent Text Color</Label>
+        <ColorPicker
+          value={accentTextColor}
+          onChange={(color) => onAccentTextColorChange?.(color)}
         />
       </div>
 

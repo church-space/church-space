@@ -7,6 +7,7 @@ export interface EmailStyles {
   isInset: boolean;
   emailBgColor: string;
   defaultTextColor: string;
+  accentTextColor: string;
   defaultFont: string;
   isRounded: boolean;
   linkColor: string;
@@ -19,6 +20,7 @@ export function useBlockStateManager(
     isInset: false,
     emailBgColor: "#eeeeee",
     defaultTextColor: "#000000",
+    accentTextColor: "#666666",
     defaultFont: "sans-serif",
     isRounded: true,
     linkColor: "#0000ff",

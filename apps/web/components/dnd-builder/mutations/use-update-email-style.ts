@@ -4,6 +4,7 @@ import { createClient } from "@church-space/supabase/client";
 interface StyleUpdates {
   blocks_bg_color?: string;
   default_text_color?: string;
+  accent_text_color?: string;
   default_font?: string;
   is_inset?: boolean;
   bg_color?: string;
@@ -34,6 +35,9 @@ export function useUpdateEmailStyle() {
         }),
         ...(updates.default_text_color !== undefined && {
           default_text_color: updates.default_text_color,
+        }),
+        ...(updates.accent_text_color !== undefined && {
+          accent_text_color: updates.accent_text_color,
         }),
         ...(updates.default_font !== undefined && {
           default_font: updates.default_font,
