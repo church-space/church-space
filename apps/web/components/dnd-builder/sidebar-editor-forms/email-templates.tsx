@@ -14,6 +14,14 @@ import AssetBrowserModal from "../asset-browser";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createClient } from "@church-space/supabase/client";
 import { useInView } from "react-intersection-observer";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@church-space/ui/dialog";
 
 interface EmailTemplateFormProps {
   onSelectTemplate?: (templateId: string) => void;
@@ -106,9 +114,29 @@ export default function EmailTemplateForm({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" className="h-8 px-2 py-0">
-                  <Save />
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="h-8 px-2 py-0">
+                      <Save />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Save Email as Template</DialogTitle>
+                    </DialogHeader>
+                    <DialogDescription>
+                      Save the current email as a template for future use.
+                    </DialogDescription>
+                    <Input
+                      placeholder="Template name"
+                      className="mb-3 w-full"
+                    />
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline">Cancel</Button>
+                      <Button>Save</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </TooltipTrigger>
               <TooltipContent>Save current email as template</TooltipContent>
             </Tooltip>
