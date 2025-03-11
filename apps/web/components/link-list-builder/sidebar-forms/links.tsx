@@ -21,11 +21,6 @@ interface SocialLink {
   text: string;
 }
 
-interface LocalState {
-  links: SocialLink[];
-  socials_style: string;
-}
-
 interface LinksFormProps {
   links: Link[];
   buttonColor: string;

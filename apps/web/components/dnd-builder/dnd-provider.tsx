@@ -126,7 +126,7 @@ export default function DndProvider() {
       },
     }),
   );
-  const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
+  // const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
 
   // Initialize blocks and styles
   const initialBlocks =
@@ -2105,7 +2105,7 @@ export default function DndProvider() {
             onFooterChange={handleFooterChange}
             linkColor={styles.linkColor}
             onLinkColorChange={handleLinkColorChange}
-            onlineUsers={onlineUsers}
+            // onlineUsers={onlineUsers}
             accentTextColor={styles.accentTextColor}
             onAccentTextColorChange={handleAccentTextColorChange}
           />
