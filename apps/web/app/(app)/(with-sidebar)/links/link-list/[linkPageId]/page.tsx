@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
+import LinkListBuilder from "@/components/link-list-builder/link-list-builder";
 
 export default function Page() {
   return (
@@ -40,7 +41,7 @@ export default function Page() {
           </Breadcrumb>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">Page</div>
+      <LinkListBuilder />
     </>
   );
 }
