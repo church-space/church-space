@@ -484,7 +484,7 @@ export default function EmailFooterForm({
                 value={link.icon}
                 onValueChange={(value) => updateLink(index, "icon", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="rounded-r-none">
                   <SelectValue placeholder="Icon" />
                 </SelectTrigger>
                 <SelectContent className="min-w-20">
@@ -544,6 +544,7 @@ export default function EmailFooterForm({
                 variant="outline"
                 onClick={() => removeLink(index)}
                 size="icon"
+                className="rounded-l-none border-l-0"
               >
                 ×
               </Button>

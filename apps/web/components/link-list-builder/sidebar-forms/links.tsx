@@ -1,19 +1,5 @@
-import { useUser } from "@/stores/use-user";
-import type { AuthorBlockData, Block } from "@/types/blocks";
+import React, { useRef } from "react";
 import { Button } from "@church-space/ui/button";
-import {
-  Bluesky,
-  Facebook,
-  Instagram,
-  Linkedin,
-  LinkIcon,
-  MailFilled,
-  Threads,
-  TikTok,
-  XTwitter,
-  Youtube,
-} from "@church-space/ui/icons";
-import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
   Select,
@@ -22,25 +8,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import { useRef, useState } from "react";
+import {
+  MailFilled,
+  LinkIcon,
+  Facebook,
+  Youtube,
+  Instagram,
+  TikTok,
+  XTwitter,
+  Threads,
+  Bluesky,
+  Linkedin,
+} from "@church-space/ui/icons";
+import { Input } from "@church-space/ui/input";
+import { useState } from "react";
 import { z } from "zod";
-import FileUpload from "../file-upload";
+import ColorPicker from "@/components/dnd-builder/color-picker";
 
-interface AuthorFormProps {
-  block: Block & { data?: AuthorBlockData };
-  onUpdate: (block: Block) => void;
+// Define types for our state
+interface SocialLink {
+  icon: string;
+  url: string;
 }
 
-export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
-  const { organizationId } = useUser();
+interface LocalState {
+  links: SocialLink[];
+  socials_style: string;
+}
 
-  const [localState, setLocalState] = useState<AuthorBlockData>({
-    name: block.data?.name || "",
-    subtitle: block.data?.subtitle || "",
-    avatar: block.data?.avatar || "",
-    links: block.data?.links || [],
-    textColor: block.data?.textColor || "#000000",
+export default function LinksForm() {
+  const [localState, setLocalState] = useState<LocalState>({
+    links: [],
+    socials_style: "filled",
   });
+
+  const [bgColor, setBgColor] = useState("#000000");
+  const [primaryTextColor, setPrimaryTextColor] = useState("#FFFFFF");
 
   // Track validation errors for links
   const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
@@ -50,6 +53,10 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
   // Debounce timers for link validation
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+
+  const handleChange = (key: keyof LocalState, value: any) => {
+    setLocalState((prev) => ({ ...prev, [key]: value }));
+  };
 
   // URL validation schema using Zod
   const urlSchema = z.string().superRefine((url, ctx) => {
@@ -130,23 +137,6 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
       }
       return true;
     }
-  };
-
-  const handleChange = (key: keyof AuthorBlockData, value: any) => {
-    // Immediately update the local state for responsive UI
-    const newState = { ...localState, [key]: value };
-    setLocalState(newState);
-
-    // Update the UI
-    onUpdate({
-      ...block,
-      data: newState,
-    });
-  };
-
-  const handleUploadComplete = (path: string) => {
-    // Update the avatar with the file path
-    handleChange("avatar", path);
   };
 
   const addLink = () => {
@@ -233,44 +223,22 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     }
   };
 
-  const onImageRemove = () => {
-    // Update the avatar with an empty string
-    handleChange("avatar", "");
-  };
-
-  if (!organizationId) return null;
-
   return (
-    <div className="flex flex-col gap-10 px-2">
-      <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
-          <Label>Avatar</Label>
-          <div className="col-span-2">
-            <FileUpload
-              organizationId={organizationId}
-              onUploadComplete={handleUploadComplete}
-              initialFilePath={localState.avatar}
-              onRemove={onImageRemove}
-            />
-          </div>
-          <Label>Name</Label>
-          <Input
-            className="col-span-2"
-            value={localState.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-          />
-          <Label>Title</Label>
-          <Input
-            className="col-span-2"
-            value={localState.subtitle}
-            onChange={(e) => handleChange("subtitle", e.target.value)}
-          />
-        </div>
+    <div className="flex flex-col gap-8 px-1">
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Background Color</Label>
+        <ColorPicker value={bgColor} onChange={(color) => setBgColor(color)} />
+        <Label className="font-medium">Button Color</Label>
+        <ColorPicker value={bgColor} onChange={(color) => setBgColor(color)} />
+        <Label className="font-medium">Button Text Color</Label>
+        <ColorPicker
+          value={primaryTextColor}
+          onChange={(color) => setPrimaryTextColor(color)}
+        />
       </div>
-
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <Label className="text-md font-bold">Social Links</Label>
+          <Label className="text-md font-bold">Links</Label>
           <Button
             variant="outline"
             onClick={addLink}
@@ -279,13 +247,14 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             Add Link
           </Button>
         </div>
+
         {localState.links.map((link, index) => (
           <div
             key={index}
             className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
           >
             <Label>Icon</Label>
-            <div className="col-span-2 flex gap-2">
+            <div className="col-span-2 flex">
               <Select
                 value={link.icon}
                 onValueChange={(value) => updateLink(index, "icon", value)}
@@ -294,54 +263,14 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
                   <SelectValue placeholder="Icon" />
                 </SelectTrigger>
                 <SelectContent className="min-w-20">
-                  <SelectItem value="mail">
-                    <div className="flex flex-row gap-2">
-                      <MailFilled height={"20"} width={"20"} /> Email
-                    </div>
-                  </SelectItem>
                   <SelectItem value="link">
                     <div className="flex flex-row gap-2">
                       <LinkIcon height={"20"} width={"20"} /> Website
                     </div>
                   </SelectItem>
-                  <SelectItem value="facebook">
+                  <SelectItem value="mail">
                     <div className="flex flex-row gap-2">
-                      <Facebook height={"20"} width={"20"} /> Facebook
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="youtube">
-                    <div className="flex flex-row gap-2">
-                      <Youtube height={"20"} width={"20"} /> Youtube
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="instagram">
-                    <div className="flex flex-row gap-2">
-                      <Instagram height={"20"} width={"20"} /> Instagram
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="tiktok">
-                    <div className="flex flex-row gap-2">
-                      <TikTok height={"20"} width={"20"} /> TikTok
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="x">
-                    <div className="flex flex-row gap-2">
-                      <XTwitter height={"20"} width={"20"} /> X
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="threads">
-                    <div className="flex flex-row gap-2">
-                      <Threads height={"20"} width={"20"} /> Threads
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="bluesky">
-                    <div className="flex flex-row gap-2">
-                      <Bluesky height={"20"} width={"20"} /> Bluesky
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="linkedin">
-                    <div className="flex flex-row gap-2">
-                      <Linkedin height={"20"} width={"20"} /> LinkedIn
+                      <MailFilled height={"20"} width={"20"} /> Email
                     </div>
                   </SelectItem>
                 </SelectContent>
