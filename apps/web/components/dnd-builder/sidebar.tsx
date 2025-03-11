@@ -1,8 +1,13 @@
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { Block } from "@/types/blocks";
+import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
+import { Button } from "@church-space/ui/button";
 import { cn } from "@church-space/ui/cn";
 import {
   ArrowRight,
   Button as ButtonIcon,
+  ChevronRight,
+  CirclePlus,
   CircleUser,
   Divider,
   Download,
@@ -15,36 +20,30 @@ import {
   TemplatesIcon,
   Typography,
   Video,
-  CirclePlus,
-  ChevronRight,
 } from "@church-space/ui/icons";
-import { X } from "lucide-react";
-import { Separator } from "@church-space/ui/separator";
-import { DragOverlay, useDraggable } from "@dnd-kit/core";
-import { AnimatePresence, motion } from "framer-motion";
-import React from "react";
-import DndBuilderSidebarForms from "./sidebar-forms";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@church-space/ui/popover";
+import { Separator } from "@church-space/ui/separator";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetClose,
 } from "@church-space/ui/sheet";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@church-space/ui/button";
-import { getDbUser } from "@church-space/supabase/cached-queries/platform";
-import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
+import { DragOverlay, useDraggable } from "@dnd-kit/core";
+import { AnimatePresence, motion } from "framer-motion";
+import { X } from "lucide-react";
+import React from "react";
+import DndBuilderSidebarForms from "./sidebar-forms";
 
 interface DndBuilderSidebarProps {
   className?: string;
