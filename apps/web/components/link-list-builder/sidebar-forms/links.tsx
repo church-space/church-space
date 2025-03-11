@@ -14,13 +14,6 @@ import { useRef, useState } from "react";
 import { z } from "zod";
 import { Link } from "../link-list-builder";
 
-// Define types for our state
-interface SocialLink {
-  icon: string;
-  url: string;
-  text: string;
-}
-
 interface LinksFormProps {
   links: Link[];
   buttonColor: string;
