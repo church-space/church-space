@@ -89,7 +89,10 @@ const compressImage = async (
   });
 };
 
-export const useFileUpload = (organizationId: string) => {
+export const useFileUpload = (
+  organizationId: string,
+  bucket: "email_assets" | "link_list_assets",
+) => {
   const supabase = createClient();
 
   const uploadFile = useCallback(
@@ -119,7 +122,10 @@ export const useFileUpload = (organizationId: string) => {
 
       // Create the full path including organization folder, ensuring no spaces
       const sanitizedOrgId = organizationId.replace(/\s+/g, "");
-      const filePath = `unsent/${sanitizedOrgId}/${fileName}`;
+      const filePath =
+        bucket === "email_assets"
+          ? `unsent/${sanitizedOrgId}/${fileName}`
+          : `${sanitizedOrgId}/${fileName}`;
 
       // Implement retry logic
       let attempts = 0;
@@ -128,7 +134,7 @@ export const useFileUpload = (organizationId: string) => {
       while (attempts < maxAttempts) {
         try {
           const { data, error } = await supabase.storage
-            .from("email_assets")
+            .from(bucket)
             .upload(filePath, fileToUpload);
 
           if (error) {
@@ -171,9 +177,7 @@ export const useFileUpload = (organizationId: string) => {
     async (filePath: string) => {
       if (!filePath) return false;
 
-      const { error } = await supabase.storage
-        .from("email_assets")
-        .remove([filePath]);
+      const { error } = await supabase.storage.from(bucket).remove([filePath]);
 
       if (error) {
         console.error("Error deleting file:", error);

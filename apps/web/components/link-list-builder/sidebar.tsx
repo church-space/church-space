@@ -28,6 +28,8 @@ interface LinkListBuilderSidebarProps {
   headerButtonLink: string;
   headerButtonColor: string;
   headerButtonTextColor: string;
+  headerImage: string;
+  logoImage: string;
   setBgColor: (color: string) => void;
   setButtonColor: (color: string) => void;
   setButtonTextColor: (color: string) => void;
@@ -46,6 +48,8 @@ interface LinkListBuilderSidebarProps {
   setHeaderButtonColor: (color: string) => void;
   setHeaderButtonTextColor: (color: string) => void;
   setLinks: (links: Link[]) => void;
+  setHeaderImage: (image: string) => void;
+  setLogoImage: (image: string) => void;
 }
 
 export default function LinkListBuilderSidebar({
@@ -68,6 +72,8 @@ export default function LinkListBuilderSidebar({
   headerButtonLink,
   headerButtonColor,
   headerButtonTextColor,
+  headerImage,
+  logoImage,
   setBgColor,
   setButtonColor,
   setButtonTextColor,
@@ -86,6 +92,8 @@ export default function LinkListBuilderSidebar({
   setHeaderButtonColor,
   setHeaderButtonTextColor,
   setLinks,
+  setHeaderImage,
+  setLogoImage,
 }: LinkListBuilderSidebarProps) {
   const [activeForm, setActiveForm] = useState<
     "header" | "socials" | "links" | "default"
@@ -141,6 +149,8 @@ export default function LinkListBuilderSidebar({
                   headerButtonLink={headerButtonLink}
                   headerButtonColor={headerButtonColor}
                   headerButtonTextColor={headerButtonTextColor}
+                  headerImage={headerImage}
+                  logoImage={logoImage}
                   setHeaderBgColor={setHeaderBgColor}
                   setHeaderTextColor={setHeaderTextColor}
                   setHeaderSecondaryTextColor={setHeaderSecondaryTextColor}
@@ -151,6 +161,8 @@ export default function LinkListBuilderSidebar({
                   setHeaderButtonLink={setHeaderButtonLink}
                   setHeaderButtonColor={setHeaderButtonColor}
                   setHeaderButtonTextColor={setHeaderButtonTextColor}
+                  setHeaderImage={setHeaderImage}
+                  setLogoImage={setLogoImage}
                 />
               )}
               {activeForm === "socials" && (

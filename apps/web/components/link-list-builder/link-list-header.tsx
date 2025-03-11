@@ -12,6 +12,8 @@ interface LinkListHeaderProps {
   headerButtonLink: string;
   headerButtonColor: string;
   headerButtonTextColor: string;
+  headerImage: string;
+  logoImage: string;
 }
 
 export default function LinkListHeader({

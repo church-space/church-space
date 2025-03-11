@@ -26,6 +26,7 @@ interface FileUploadProps {
   type?: "image" | "any";
   initialFilePath?: string;
   onRemove?: () => void;
+  bucket?: "email_assets" | "link_list_assets";
 }
 
 const FileUpload = ({
@@ -34,6 +35,7 @@ const FileUpload = ({
   type = "any",
   initialFilePath = "",
   onRemove,
+  bucket = "email_assets",
 }: FileUploadProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [filePath, setFilePath] = useState<string>(initialFilePath);
@@ -42,7 +44,7 @@ const FileUpload = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { uploadFile, deleteFile } = useFileUpload(organizationId);
+  const { uploadFile, deleteFile } = useFileUpload(organizationId, bucket);
 
   // Update filePath when initialFilePath changes
   useEffect(() => {
@@ -167,8 +169,8 @@ const FileUpload = ({
     // Use the path directly if available, otherwise extract from imageUrl
     const path =
       asset.path ||
-      (asset.imageUrl.includes("email_assets/")
-        ? asset.imageUrl.split("email_assets/")[1]
+      (asset.imageUrl.includes(bucket + "/")
+        ? asset.imageUrl.split(bucket + "/")[1]
         : "");
 
     if (path) {
@@ -189,6 +191,7 @@ const FileUpload = ({
             type={type}
             setIsUploadModalOpen={setIsModalOpen}
             handleDelete={handleDelete}
+            bucket={bucket}
           />
         )}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -216,8 +219,9 @@ const FileUpload = ({
             <DialogHeader>
               <DialogTitle>Upload File</DialogTitle>
               <DialogDescription>
-                Email assets will become public once sent. Please ensure
-                anything you email is not sensitive information.
+                {bucket === "email_assets"
+                  ? "Email assets will become public once sent. Please ensure anything you email is not sensitive information."
+                  : "Link list assets are visible to the public web. Please ensure anything you upload is not sensitive information."}
               </DialogDescription>
             </DialogHeader>
             <div className="relative">

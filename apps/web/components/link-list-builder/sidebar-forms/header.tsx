@@ -7,6 +7,7 @@ import { Separator } from "@church-space/ui/separator";
 import { useState } from "react";
 import { Input } from "@church-space/ui/input";
 import { AutosizeTextarea } from "@church-space/ui/auto-size-textarea";
+import { useUser } from "@/stores/use-user";
 
 interface HeaderFormProps {
   headerBgColor: string;
@@ -19,6 +20,8 @@ interface HeaderFormProps {
   headerDescription: string;
   headerButtonText: string;
   headerButtonLink: string;
+  headerImage: string;
+  logoImage: string;
   setHeaderBgColor: (color: string) => void;
   setHeaderTextColor: (color: string) => void;
   setHeaderSecondaryTextColor: (color: string) => void;
@@ -29,6 +32,8 @@ interface HeaderFormProps {
   setHeaderDescription: (description: string) => void;
   setHeaderButtonText: (buttonText: string) => void;
   setHeaderButtonLink: (buttonLink: string) => void;
+  setHeaderImage: (image: string) => void;
+  setLogoImage: (image: string) => void;
 }
 
 export default function HeaderForm({
@@ -42,6 +47,8 @@ export default function HeaderForm({
   headerDescription,
   headerButtonText,
   headerButtonLink,
+  headerImage,
+  logoImage,
   setHeaderBgColor,
   setHeaderTextColor,
   setHeaderSecondaryTextColor,
@@ -52,16 +59,22 @@ export default function HeaderForm({
   setHeaderDescription,
   setHeaderButtonText,
   setHeaderButtonLink,
+  setHeaderImage,
+  setLogoImage,
 }: HeaderFormProps) {
+  const { organizationId } = useUser();
+
+  if (!organizationId) return null;
+
   return (
     <div className="grid grid-cols-3 items-center gap-2">
       <Label className="font-medium">Background Image</Label>
       <FileUpload
-        organizationId={"12"}
-        onUploadComplete={(path) => console.log(path)}
+        organizationId={organizationId || ""}
+        onUploadComplete={(path) => setHeaderImage(path)}
         type="image"
-        initialFilePath={""}
-        onRemove={() => {}}
+        initialFilePath={headerImage}
+        onRemove={() => setHeaderImage("")}
       />
       <Label className="font-medium">Background Color</Label>
       <ColorPicker
@@ -81,11 +94,11 @@ export default function HeaderForm({
       <Separator className="col-span-3 my-4" />
       <Label className="font-medium">Logo</Label>
       <FileUpload
-        organizationId={"12"}
-        onUploadComplete={(path) => console.log(path)}
+        organizationId={organizationId || ""}
+        onUploadComplete={(path) => setLogoImage(path)}
         type="image"
-        initialFilePath={""}
-        onRemove={() => {}}
+        initialFilePath={logoImage}
+        onRemove={() => setLogoImage("")}
       />
       <Label className="font-medium">Name</Label>
       <Input

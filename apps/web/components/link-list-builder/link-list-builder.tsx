@@ -43,6 +43,8 @@ export default function LinkListBuilder() {
   const [headerButtonColor, setHeaderButtonColor] = useState<string>("");
   const [headerButtonTextColor, setHeaderButtonTextColor] =
     useState<string>("");
+  const [headerImage, setHeaderImage] = useState<string>("");
+  const [logoImage, setLogoImage] = useState<string>("");
 
   return (
     <div className="relative flex p-2 pt-0 md:gap-4 md:p-4 md:pt-0">
@@ -65,6 +67,8 @@ export default function LinkListBuilder() {
         headerButtonLink={headerButtonLink}
         headerButtonColor={headerButtonColor}
         headerButtonTextColor={headerButtonTextColor}
+        headerImage={headerImage}
+        logoImage={logoImage}
         setBgColor={setBgColor}
         setButtonColor={setButtonColor}
         setButtonTextColor={setButtonTextColor}
@@ -83,6 +87,8 @@ export default function LinkListBuilder() {
         setHeaderButtonColor={setHeaderButtonColor}
         setHeaderButtonTextColor={setHeaderButtonTextColor}
         setLinks={setLinks}
+        setHeaderImage={setHeaderImage}
+        setLogoImage={setLogoImage}
       />
       <div className="relative flex-1">
         <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col overflow-y-auto rounded-md">
@@ -97,6 +103,8 @@ export default function LinkListBuilder() {
             headerButtonLink={headerButtonLink}
             headerButtonColor={headerButtonColor}
             headerButtonTextColor={headerButtonTextColor}
+            headerImage={headerImage}
+            logoImage={logoImage}
           />
           <div
             className="flex flex-col gap-6 py-6"

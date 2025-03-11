@@ -42,6 +42,7 @@ import {
 import { useEffect, useState, useCallback, useRef } from "react";
 import debounce from "lodash/debounce";
 import { fetchEmailAssets, type Asset } from "./fetch-email-assets";
+import { fetchLinkListAssets } from "@/components/link-list-builder/fetch-link-list-assets";
 import { Skeleton } from "@church-space/ui/skeleton";
 import { useFileUpload } from "./use-file-upload";
 
@@ -170,6 +171,7 @@ export default function AssetBrowserModal({
   type,
   setIsUploadModalOpen,
   handleDelete: externalHandleDelete,
+  bucket,
 }: {
   triggerText: string;
   buttonClassName: string;
@@ -178,6 +180,7 @@ export default function AssetBrowserModal({
   type?: "image" | "any";
   setIsUploadModalOpen?: (open: boolean) => void;
   handleDelete?: (asset: Asset) => void;
+  bucket: "email_assets" | "link_list_assets";
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -186,7 +189,7 @@ export default function AssetBrowserModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
-  const { deleteFile } = useFileUpload(organizationId);
+  const { deleteFile } = useFileUpload(organizationId, bucket);
 
   const itemsPerPage = 6;
 
@@ -205,14 +208,24 @@ export default function AssetBrowserModal({
       setError(null);
 
       try {
-        const result = await fetchEmailAssets({
-          organizationId,
-          currentPage,
-          itemsPerPage,
-          searchQuery: searchQueryRef.current,
-          selectedType,
-          type,
-        });
+        const result =
+          bucket === "email_assets"
+            ? await fetchEmailAssets({
+                organizationId,
+                currentPage,
+                itemsPerPage,
+                searchQuery: searchQueryRef.current,
+                selectedType,
+                type,
+              })
+            : await fetchLinkListAssets({
+                organizationId,
+                currentPage,
+                itemsPerPage,
+                searchQuery: searchQueryRef.current,
+                selectedType,
+                type,
+              });
 
         setAssets(result.assets);
         setTotalCount(result.totalCount);
