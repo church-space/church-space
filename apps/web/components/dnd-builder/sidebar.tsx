@@ -331,7 +331,7 @@ export default function DndBuilderSidebar({
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Avatar>
-                                  <AvatarImage src={presence.image_url} />
+                                  <AvatarImage src={presence.avatar_url} />
                                   <AvatarFallback>
                                     {presence.first_name?.charAt(0)}
                                     {presence.last_name?.charAt(0)}
@@ -339,7 +339,7 @@ export default function DndBuilderSidebar({
                                 </Avatar>
                               </TooltipTrigger>
                               <TooltipContent align="start">
-                                Thomas Harmond
+                                {presence.first_name} {presence.last_name}
                               </TooltipContent>
                             </Tooltip>
                             <div className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-[3px] border-sidebar bg-green-500"></div>

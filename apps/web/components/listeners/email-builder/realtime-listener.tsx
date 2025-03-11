@@ -28,6 +28,9 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
   useEffect(() => {
     if (!emailId) return;
 
+    let channel: any;
+    let simpleChannel: any;
+
     // Get the user ID first, then create the channel
     const setupChannel = async () => {
       try {
@@ -39,10 +42,10 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
         setConnectionStatus("connecting");
 
         // Create a simple channel first to test basic connectivity
-        const simpleChannel = supabase.channel("simple-test");
+        simpleChannel = supabase.channel("simple-test");
 
         // Create the main channel with a simpler configuration
-        const channel = supabase.channel(`email-${emailId}`, {
+        channel = supabase.channel(`email-${emailId}`, {
           config: {
             presence: {
               key: userId,
@@ -115,7 +118,7 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
           );
 
         // Subscribe to the simple channel first
-        simpleChannel.subscribe((status) => {
+        simpleChannel.subscribe((status: string) => {
           console.log("Simple channel status:", status);
           if (status === "SUBSCRIBED") {
             console.log("Simple channel connected successfully!");
@@ -123,7 +126,7 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
         });
 
         // Subscribe to the main channel with better error handling
-        channel.subscribe(async (status, err) => {
+        channel.subscribe(async (status: string, err: any) => {
           console.log("Main channel subscription status:", status);
           setConnectionStatus(status);
 
@@ -149,9 +152,16 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
               !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
             );
           } else if (status === "CHANNEL_ERROR") {
-            console.error("Channel error:", err);
+            console.error(
+              "Channel error:",
+              err || "No error details available",
+            );
           } else {
-            console.error("Subscription status:", status, err);
+            console.error(
+              "Subscription status:",
+              status,
+              err || "No error details available",
+            );
           }
         });
 
@@ -168,11 +178,32 @@ export default function RealtimeListener({ emailId }: { emailId: number }) {
       }
     };
 
+    // Set up visibility change handler to reconnect when tab becomes visible again
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "visible" &&
+        connectionStatus !== "SUBSCRIBED"
+      ) {
+        console.log("Tab became visible, reconnecting...");
+
+        // Clean up existing channels if they exist
+        if (channel) channel.unsubscribe();
+        if (simpleChannel) simpleChannel.unsubscribe();
+
+        // Set up channels again
+        setupChannel();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     const cleanupPromise = setupChannel();
+
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       cleanupPromise.then((cleanupFn) => cleanupFn && cleanupFn());
     };
-  }, [emailId, supabase]);
+  }, [emailId, supabase, connectionStatus]);
 
   return (
     <div style={{ display: "none" }}>
