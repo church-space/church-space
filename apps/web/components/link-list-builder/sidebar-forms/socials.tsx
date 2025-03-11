@@ -25,6 +25,7 @@ import { useState } from "react";
 import { z } from "zod";
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import { SocialLink } from "../link-list-builder";
+import { socialIcons } from "../link-list-socials";
 
 interface LocalState {
   links: SocialLink[];
@@ -69,7 +70,9 @@ export default function SocialsForm({
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
 
   const handleChange = (key: keyof LocalState, value: any) => {
-    setLocalState((prev) => ({ ...prev, [key]: value }));
+    if (key === "socials_style") {
+      setSocialsStyle(value as "outline" | "filled" | "icon-only");
+    }
   };
 
   // URL validation schema using Zod
@@ -154,18 +157,25 @@ export default function SocialsForm({
   };
 
   const addLink = () => {
-    if (localState.links.length < 5) {
-      const newLinks = [...localState.links, { icon: "", url: "" }];
-      handleChange("links", newLinks);
+    if (socialLinks.length < 5) {
+      const newLinks = [
+        ...socialLinks,
+        { icon: "link" as keyof typeof socialIcons, url: "" },
+      ];
+      setSocialLinks(newLinks);
     }
   };
 
-  const updateLink = (index: number, key: "icon" | "url", value: string) => {
-    const newLinks = [...localState.links];
-    newLinks[index] = { ...newLinks[index], [key]: value };
+  const updateLink = (
+    index: number,
+    field: keyof SocialLink,
+    value: string,
+  ) => {
+    const newLinks = [...socialLinks];
+    newLinks[index] = { ...newLinks[index], [field]: value };
 
     // If updating the URL field
-    if (key === "url") {
+    if (field === "url") {
       // Mark as typing
       setTypingLinks((prev) => ({ ...prev, [index]: true }));
 
@@ -183,21 +193,15 @@ export default function SocialsForm({
 
         // Only update if valid
         if (isValid) {
-          handleChange("links", newLinks);
+          setSocialLinks(newLinks);
         }
       }, 800); // 800ms debounce
 
       // Update local state immediately for responsive UI
-      setLocalState((prev) => ({
-        ...prev,
-        links: newLinks,
-      }));
+      setSocialLinks(newLinks);
     } else {
-      // For icon changes, update immediately and clear any existing errors
-      if (key === "icon") {
-        setLinkErrors((prev) => ({ ...prev, [index]: null }));
-      }
-      handleChange("links", newLinks);
+      // For icon changes, update immediately
+      setSocialLinks(newLinks);
     }
   };
 
@@ -211,18 +215,18 @@ export default function SocialsForm({
         linkTimersRef.current[index] = null;
       }
 
-      const link = localState.links[index];
+      const link = socialLinks[index];
       const isValid = validateLink(link.url, link.icon, index);
 
       if (isValid) {
-        handleChange("links", localState.links);
+        setSocialLinks(socialLinks);
       }
     }
   };
 
   const removeLink = (index: number) => {
-    const newLinks = localState.links.filter((_, i) => i !== index);
-    handleChange("links", newLinks);
+    const newLinks = socialLinks.filter((_, i) => i !== index);
+    setSocialLinks(newLinks);
 
     // Clean up any errors or timers for this index
     setLinkErrors((prev) => {
@@ -242,7 +246,7 @@ export default function SocialsForm({
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Icon Style</Label>
         <Select
-          value={localState.socials_style}
+          value={socialsStyle}
           onValueChange={(value) => handleChange("socials_style", value)}
         >
           <SelectTrigger className="col-span-2">
@@ -256,11 +260,14 @@ export default function SocialsForm({
         </Select>
 
         <Label className="font-medium">Background Color</Label>
-        <ColorPicker value={bgColor} onChange={(color) => setBgColor(color)} />
-        <Label className="font-medium">Link Color</Label>
         <ColorPicker
-          value={primaryTextColor}
-          onChange={(color) => setPrimaryTextColor(color)}
+          value={socialsColor}
+          onChange={(color) => setSocialsColor(color)}
+        />
+        <Label className="font-medium">Icon Color</Label>
+        <ColorPicker
+          value={socialsIconColor}
+          onChange={(color) => setSocialsIconColor(color)}
         />
       </div>
       <div className="flex flex-col gap-4">
@@ -269,13 +276,13 @@ export default function SocialsForm({
           <Button
             variant="outline"
             onClick={addLink}
-            disabled={localState.links.length >= 5}
+            disabled={socialLinks.length >= 5}
           >
             Add Link
           </Button>
         </div>
 
-        {localState.links.map((link, index) => (
+        {socialLinks.map((link, index) => (
           <div
             key={index}
             className="grid grid-cols-3 items-center gap-x-2 gap-y-2"

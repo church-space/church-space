@@ -18,6 +18,7 @@ import { Link } from "../link-list-builder";
 interface SocialLink {
   icon: string;
   url: string;
+  text: string;
 }
 
 interface LocalState {
@@ -148,18 +149,18 @@ export default function LinksForm({
   };
 
   const addLink = () => {
-    if (localState.links.length < 5) {
-      const newLinks = [...localState.links, { icon: "", url: "" }];
-      handleChange("links", newLinks);
+    if (links.length < 50) {
+      const newLinks = [...links, { icon: "", url: "", text: "" }];
+      setLinks(newLinks);
     }
   };
 
-  const updateLink = (index: number, key: "icon" | "url", value: string) => {
-    const newLinks = [...localState.links];
-    newLinks[index] = { ...newLinks[index], [key]: value };
+  const updateLink = (index: number, field: keyof Link, value: string) => {
+    const newLinks = [...links];
+    newLinks[index] = { ...newLinks[index], [field]: value };
 
     // If updating the URL field
-    if (key === "url") {
+    if (field === "url") {
       // Mark as typing
       setTypingLinks((prev) => ({ ...prev, [index]: true }));
 
@@ -177,21 +178,15 @@ export default function LinksForm({
 
         // Only update if valid
         if (isValid) {
-          handleChange("links", newLinks);
+          setLinks(newLinks);
         }
       }, 800); // 800ms debounce
 
       // Update local state immediately for responsive UI
-      setLocalState((prev) => ({
-        ...prev,
-        links: newLinks,
-      }));
+      setLinks(newLinks);
     } else {
-      // For icon changes, update immediately and clear any existing errors
-      if (key === "icon") {
-        setLinkErrors((prev) => ({ ...prev, [index]: null }));
-      }
-      handleChange("links", newLinks);
+      // For icon and text changes, update immediately
+      setLinks(newLinks);
     }
   };
 
@@ -205,18 +200,18 @@ export default function LinksForm({
         linkTimersRef.current[index] = null;
       }
 
-      const link = localState.links[index];
+      const link = links[index];
       const isValid = validateLink(link.url, link.icon, index);
 
       if (isValid) {
-        handleChange("links", localState.links);
+        setLinks(links);
       }
     }
   };
 
   const removeLink = (index: number) => {
-    const newLinks = localState.links.filter((_, i) => i !== index);
-    handleChange("links", newLinks);
+    const newLinks = links.filter((_, i) => i !== index);
+    setLinks(newLinks);
 
     // Clean up any errors or timers for this index
     setLinkErrors((prev) => {
@@ -237,11 +232,14 @@ export default function LinksForm({
         <Label className="font-medium">Background Color</Label>
         <ColorPicker value={bgColor} onChange={(color) => setBgColor(color)} />
         <Label className="font-medium">Button Color</Label>
-        <ColorPicker value={bgColor} onChange={(color) => setBgColor(color)} />
+        <ColorPicker
+          value={buttonColor}
+          onChange={(color) => setButtonColor(color)}
+        />
         <Label className="font-medium">Button Text Color</Label>
         <ColorPicker
-          value={primaryTextColor}
-          onChange={(color) => setPrimaryTextColor(color)}
+          value={buttonTextColor}
+          onChange={(color) => setButtonTextColor(color)}
         />
       </div>
       <div className="flex flex-col gap-4">
@@ -250,13 +248,13 @@ export default function LinksForm({
           <Button
             variant="outline"
             onClick={addLink}
-            disabled={localState.links.length >= 5}
+            disabled={links.length >= 50}
           >
             Add Link
           </Button>
         </div>
         <div className="flex flex-col gap-6">
-          {localState.links.map((link, index) => (
+          {links.map((link, index) => (
             <div
               key={index}
               className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
@@ -293,7 +291,12 @@ export default function LinksForm({
                 </Button>
               </div>
               <Label>Text</Label>
-              <Input className="col-span-2" />
+              <Input
+                className="col-span-2"
+                value={link.text}
+                onChange={(e) => updateLink(index, "text", e.target.value)}
+                placeholder="Link text"
+              />
               <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
               <div className="col-span-2 flex flex-col gap-1">
                 <Input

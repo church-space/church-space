@@ -18,8 +18,8 @@ export default function LinkListLinks({
 }: LinkListLinksProps) {
   return (
     <div className="flex w-full flex-col gap-4 px-4">
-      {links.map((link) => (
-        <a href={link.url} key={link.url} target="_blank">
+      {links.map((link, index) => (
+        <a href={link.url} key={index} target="_blank">
           <button
             className="flex w-full items-center justify-center text-pretty rounded-full py-3 text-center text-sm font-semibold transition-opacity hover:opacity-90"
             style={{
