@@ -71,32 +71,18 @@ export default function RealtimeListener({
 
         if (!listenersAttached.current) {
           channel
-            .on("postgres_changes", {
-              event: "*",
-              schema: "public",
-              table: "email_blocks",
-              filter: `email_id=eq.${emailId}`,
-            })
-            .on("postgres_changes", {
-              event: "*",
-              schema: "public",
-              table: "emails",
-              filter: `id=eq.${emailId}`,
-            })
-            .on("postgres_changes", {
-              event: "*",
-              schema: "public",
-              table: "email_footers",
-              filter: `email_id=eq.${emailId}`,
-            })
-            .on("presence", { event: "sync" }, () => {
-              const newState = channel.presenceState();
-              onPresenceUpdate(newState);
-            })
+            .on(
+              "presence",
+              { event: "sync" },
+              (payload: { presence: Record<string, PresenceUser[]> }) => {
+                const newState = channel.presenceState();
+                onPresenceUpdate(newState);
+              },
+            )
             .on(
               "presence",
               { event: "join" },
-              ({ key, newPresences }: PresenceEventPayload) => {
+              (payload: PresenceEventPayload) => {
                 const newState = channel.presenceState();
                 onPresenceUpdate(newState);
               },
@@ -104,7 +90,7 @@ export default function RealtimeListener({
             .on(
               "presence",
               { event: "leave" },
-              ({ key, leftPresences }: PresenceEventPayload) => {
+              (payload: PresenceEventPayload) => {
                 const newState = channel.presenceState();
                 onPresenceUpdate(newState);
               },
