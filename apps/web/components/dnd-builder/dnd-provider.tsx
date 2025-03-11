@@ -259,7 +259,7 @@ export default function DndProvider() {
     // Ensure block order is maintained by sorting
     const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
-    // Update the UI immediately  adding to history
+    // Update the UI immediately - this will add to history
     updateBlocksHistory(sortedBlocks);
 
     // Update in database if we have an emailId and the block exists in the database
@@ -291,6 +291,9 @@ export default function DndProvider() {
       const newIndex = blocks.findIndex((block) => block.id === over.id);
 
       if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+        // Store the current blocks before reordering for server updates
+        const blocksBeforeReordering = [...blocks];
+
         // Create a new blocks array with the reordered blocks
         const newBlocks = arrayMove(blocks, oldIndex, newIndex);
 
@@ -314,8 +317,10 @@ export default function DndProvider() {
             return true;
           });
 
+          // Update the UI with the new block order - this will add to history
           updateBlocksHistory(deduplicatedBlocks);
         } else {
+          // Update the UI with the new block order - this will add to history
           updateBlocksHistory(reorderedBlocks);
         }
 
@@ -475,7 +480,7 @@ export default function DndProvider() {
       order: index,
     }));
 
-    // Update the local state
+    // Update the local state - this will add to history
     updateBlocksHistory(newBlocks);
 
     // Add the block to the database if we have an emailId
@@ -531,8 +536,10 @@ export default function DndProvider() {
                   return true;
                 });
 
+                // Update the UI - this will add to history
                 updateBlocksHistory(deduplicatedBlocks);
               } else {
+                // Update the UI - this will add to history
                 updateBlocksHistory(updatedBlocks);
               }
 
@@ -598,6 +605,9 @@ export default function DndProvider() {
       }
     }
 
+    // Store the current blocks before deletion for potential undo
+    const blocksBeforeDeletion = [...blocks];
+
     // Update local state
     const updatedBlocks = blocks.filter((block) => block.id !== id);
 
@@ -607,6 +617,7 @@ export default function DndProvider() {
       order: index,
     }));
 
+    // Update the UI - this will add to history
     updateBlocksHistory(reorderedBlocks);
 
     if (selectedBlockId === id) {
@@ -748,6 +759,9 @@ export default function DndProvider() {
   // Fix handleBlockUpdate to include history update
   const handleBlockUpdate = useCallback(
     (updatedBlock: BlockType, isDuplication: boolean = false) => {
+      // Store the current blocks before update for potential undo
+      const blocksBeforeUpdate = [...blocks];
+
       // For duplications, we need to add the block to the list instead of updating an existing one
       if (isDuplication) {
         // Find the original block to determine where to insert the duplicated block
@@ -779,7 +793,7 @@ export default function DndProvider() {
           order: index,
         }));
 
-        // Update the UI immediately
+        // Update the UI immediately - this will add to history
         updateBlocksHistory(newBlocks);
 
         // Add the duplicated block to the database if we have an emailId
@@ -885,7 +899,7 @@ export default function DndProvider() {
                       : block,
                   );
 
-                  // Update the UI with the new ID
+                  // Update the UI with the new ID - this will add to history
                   updateBlocksHistory(updatedBlocks);
 
                   // Set the newly created block as the selected block
@@ -919,7 +933,7 @@ export default function DndProvider() {
       // Ensure block order is maintained by explicitly sorting
       const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
 
-      // Always update UI immediately
+      // Always update UI immediately - this will add to history
       updateBlocksHistory(sortedBlocks);
 
       // For database updates, debounce the operation
@@ -1325,7 +1339,10 @@ export default function DndProvider() {
   // Fix handleBgColorChange to include history update
   const handleBgColorChange = useCallback(
     (color: string) => {
-      // Update UI immediately
+      // Store the current styles before the change
+      const stylesBeforeChange = { ...styles };
+
+      // Update UI immediately - this will add to history
       updateStylesHistory({ bgColor: color });
 
       // Update database if we have an emailId
@@ -1335,13 +1352,16 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
   );
 
   // Fix handleIsInsetChange to include history update
   const handleIsInsetChange = useCallback(
     (inset: boolean) => {
-      // Update UI immediately
+      // Store the current styles before the change
+      const stylesBeforeChange = { ...styles };
+
+      // Update UI immediately - this will add to history
       updateStylesHistory({ isInset: inset });
 
       // Update database if we have an emailId
@@ -1351,13 +1371,16 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
   );
 
   // Fix handleIsRoundedChange to include history update
   const handleIsRoundedChange = useCallback(
     (rounded: boolean) => {
-      // Update UI immediately
+      // Store the current styles before the change
+      const stylesBeforeChange = { ...styles };
+
+      // Update UI immediately - this will add to history
       updateStylesHistory({ isRounded: rounded });
 
       // Update in database if we have an emailId
@@ -1367,13 +1390,16 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
   );
 
   // Fix handleEmailBgColorChange to include history update
   const handleEmailBgColorChange = useCallback(
     (color: string) => {
-      // Update UI immediately
+      // Store the current styles before the change
+      const stylesBeforeChange = { ...styles };
+
+      // Update UI immediately - this will add to history
       updateStylesHistory({ emailBgColor: color });
 
       // Update in database if we have an emailId
@@ -1383,13 +1409,16 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
   );
 
   // Fix handleLinkColorChange to include history update
   const handleLinkColorChange = useCallback(
     (color: string) => {
-      // Update UI immediately
+      // Store the current styles before the change
+      const stylesBeforeChange = { ...styles };
+
+      // Update UI immediately - this will add to history
       updateStylesHistory({ linkColor: color });
 
       if (emailId) {
@@ -1398,13 +1427,16 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
   );
 
   // Fix handleDefaultTextColorChange to include history update
   const handleDefaultTextColorChange = useCallback(
     (color: string) => {
-      // Update UI immediately
+      // Store the current styles before the change
+      const stylesBeforeChange = { ...styles };
+
+      // Update UI immediately - this will add to history
       updateStylesHistory({ defaultTextColor: color });
 
       // Update all editors with the new default text color
@@ -1427,13 +1459,17 @@ export default function DndProvider() {
       updateStylesHistory,
       editors,
       styles.accentTextColor,
+      styles,
     ],
   );
 
   // Fix handleDefaultFontChange to include history update
   const handleDefaultFontChange = useCallback(
     (font: string) => {
-      // Update UI immediately
+      // Store the current styles before the change
+      const stylesBeforeChange = { ...styles };
+
+      // Update UI immediately - this will add to history
       updateStylesHistory({ defaultFont: font });
 
       // Update in database if we have an emailId
@@ -1443,7 +1479,39 @@ export default function DndProvider() {
         });
       }
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory],
+    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
+  );
+
+  const handleAccentTextColorChange = useCallback(
+    (color: string) => {
+      // Store the current styles before the change
+      const stylesBeforeChange = { ...styles };
+
+      // Update UI immediately - this will add to history
+      updateStylesHistory({ accentTextColor: color });
+
+      // Update all editors with the new accent text color
+      Object.values(editors).forEach((editor) => {
+        if (editor && !editor.isDestroyed) {
+          updateEditorColors(editor, styles.defaultTextColor, color);
+        }
+      });
+
+      // Update in database if we have an emailId
+      if (emailId) {
+        debouncedStyleUpdate({
+          accent_text_color: color,
+        });
+      }
+    },
+    [
+      emailId,
+      debouncedStyleUpdate,
+      updateStylesHistory,
+      editors,
+      styles.defaultTextColor,
+      styles,
+    ],
   );
 
   // Initialize editors for text blocks
@@ -1663,34 +1731,6 @@ export default function DndProvider() {
       setOnlineUsers(presenceState);
     },
     [],
-  );
-
-  const handleAccentTextColorChange = useCallback(
-    (color: string) => {
-      // Update UI immediately
-      updateStylesHistory({ accentTextColor: color });
-
-      // Update all editors with the new accent text color
-      Object.values(editors).forEach((editor) => {
-        if (editor && !editor.isDestroyed) {
-          updateEditorColors(editor, styles.defaultTextColor, color);
-        }
-      });
-
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          accent_text_color: color,
-        });
-      }
-    },
-    [
-      emailId,
-      debouncedStyleUpdate,
-      updateStylesHistory,
-      editors,
-      styles.defaultTextColor,
-    ],
   );
 
   // Create a debounced function for server updates during undo/redo
@@ -2026,10 +2066,10 @@ export default function DndProvider() {
         </div>
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
-      <RealtimeWrapper
+      {/* <RealtimeWrapper
         emailId={emailId?.toString() || ""}
         onPresenceChange={handlePresenceChange}
-      />
+      /> */}
     </div>
   );
 }
