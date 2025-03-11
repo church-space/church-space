@@ -17,7 +17,7 @@ type PresenceEventPayload = {
   leftPresences?: PresenceUser[];
 };
 
-export default function RealtimeListener({ emailId }: { emailId: string }) {
+export default function RealtimeListener({ emailId }: { emailId: number }) {
   const [presenceState, setPresenceState] = useState<Record<string, any>>({});
   const supabase = createClient();
 

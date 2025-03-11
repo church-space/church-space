@@ -8,5 +8,5 @@ const RealtimeListener = dynamic(() => import("./realtime-listener"), {
 });
 
 export default function RealtimeWrapper({ emailId }: { emailId: string }) {
-  return <RealtimeListener emailId={emailId} />;
+  return <RealtimeListener emailId={parseInt(emailId)} />;
 }
