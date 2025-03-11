@@ -847,6 +847,8 @@ const CustomFooter: React.FC<{
     padding: "40px 0 32px",
     width: "100%",
     textAlign: "center" as const,
+    marginTop: "-1px",
+    borderTop: "none",
   };
 
   const contentStyle = {
