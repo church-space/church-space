@@ -56,7 +56,7 @@ const CustomText: React.FC<{
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(
       /<h1/g,
-      '<h1 style="margin: 1em 0 0.2em 0; font-weight: 700; font-size: 2rem; line-height: 1.3"',
+      '<h1 style="margin: 1em 0 0.2em 0; font-weight: 600; font-size: 2rem; line-height: 1"',
     )
     .replace(
       /<h2/g,
@@ -69,7 +69,7 @@ const CustomText: React.FC<{
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        "font-weight: 300; line-height: 1.6; font-size: 16px; margin: 0.5em 0";
+        "font-weight: 200; line-height: 1.5; font-size: 16px; margin: 0.5em 0";
       if (existingStyle) {
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
@@ -87,14 +87,35 @@ const CustomText: React.FC<{
     .replace(/<p style="[^"]*"><\/p>/g, '<div style="height: 1.6em"></div>')
     // Add font size to list items
     .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"')
-    // Add font size to spans
-    .replace(/<span(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = "font-size: 16px";
-      if (existingStyle) {
-        return `<span style="${existingStyle}; ${baseStyle}"`;
-      }
-      return `<span style="${baseStyle}"`;
-    });
+    // Add font size to spans, but don't override font size for spans inside headings
+    .replace(
+      /<(h[1-6])([^>]*)>([\s\S]*?)<\/\1>/g,
+      (fullHeading, tag, attributes, headingContent) => {
+        // Process the heading content to preserve spans without adding font-size
+        const processedContent = headingContent.replace(
+          /<span(?: style="([^"]*)")?/g,
+          (match: string, existingStyle?: string) => {
+            if (existingStyle) {
+              return `<span style="${existingStyle}"`;
+            }
+            return `<span`;
+          },
+        );
+
+        return `<${tag}${attributes}>${processedContent}</${tag}>`;
+      },
+    )
+    // Then process remaining spans (those not in headings) to add font-size
+    .replace(
+      /<span(?: style="([^"]*)")?/g,
+      (match: string, existingStyle?: string) => {
+        const baseStyle = "font-size: 16px";
+        if (existingStyle) {
+          return `<span style="${existingStyle}; ${baseStyle}"`;
+        }
+        return `<span style="${baseStyle}"`;
+      },
+    );
 
   return (
     <div
