@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@church-space/ui/dialog";
 
 interface EmailTemplateFormProps {
@@ -175,20 +176,40 @@ export default function EmailTemplateForm({
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {templates.map((template) => (
-              <Card
-                key={template.id}
-                className="cursor-pointer transition-colors hover:border-primary"
-                onClick={() => onSelectTemplate?.(template.id.toString())}
-              >
-                <CardContent className="flex flex-col gap-2 p-3">
-                  <h3 className="text-sm font-medium">
-                    {template.subject || "Untitled Template"}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    {template.subject || "No description"}
-                  </p>
-                </CardContent>
-              </Card>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Card
+                    key={template.id}
+                    className="cursor-pointer transition-colors hover:border-primary"
+                    onClick={() => onSelectTemplate?.(template.id.toString())}
+                  >
+                    <CardContent className="flex flex-col gap-2 p-3">
+                      <h3 className="text-sm font-medium">
+                        {template.subject || "Untitled Template"}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {template.subject || "No description"}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>{template.subject}</DialogTitle>
+                  </DialogHeader>
+                  <DialogDescription>
+                    Are you sure you want to apply this template?{" "}
+                    <span className="font-bold">
+                      This will overwrite any content you have in the current
+                      email.
+                    </span>
+                  </DialogDescription>
+                  <DialogFooter>
+                    <Button variant="ghost">Cancel</Button>
+                    <Button>Apply</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             ))}
 
             {/* Intersection observer target for infinite scrolling */}

@@ -107,9 +107,7 @@ export default async function Page(props: { params: Params }) {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <DndProvider
-      // organizationId={organizationId || ""}
-      />
+      <DndProvider organizationId={organizationId || ""} />
     </HydrationBoundary>
   );
 }

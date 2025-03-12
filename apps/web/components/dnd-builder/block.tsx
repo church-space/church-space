@@ -12,6 +12,7 @@ import ImageBlock from "./block-types/image";
 import ListBlock from "./block-types/list";
 import TextBlock from "./block-types/text";
 import VideoBlock from "./block-types/video";
+import { Avatar, AvatarImage, AvatarFallback } from "@church-space/ui/avatar";
 
 interface BlockProps {
   type: string;
@@ -29,6 +30,7 @@ interface BlockProps {
   linkColor?: string;
   accentTextColor?: string;
   isUndoRedoOperation?: boolean;
+  hasEditor?: boolean;
 }
 
 export default function Block({
@@ -47,6 +49,7 @@ export default function Block({
   linkColor,
   accentTextColor,
   isUndoRedoOperation = false,
+  hasEditor = false,
 }: BlockProps) {
   // Add state to track if the editor is focused
   const [isEditorFocused, setIsEditorFocused] = useState(false);
@@ -173,10 +176,19 @@ export default function Block({
         isDragging && "opacity-50",
         isSelected && "ring-2 ring-blue-500",
         isOverlay && "opacity-80 shadow-lg",
+        hasEditor && "ring-2",
       )}
       onClick={(e) => onSelect?.(e)}
       data-block-id={id}
     >
+      {hasEditor && (
+        <div className="absolute -right-[17px] top-1/2 -translate-y-1/2">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+        </div>
+      )}
       {renderBlock()}
     </div>
   );
