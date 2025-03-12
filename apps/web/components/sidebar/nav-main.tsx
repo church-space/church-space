@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
 } from "@church-space/ui/sidebar";
 export function NavMain({
   items,
@@ -17,6 +18,11 @@ export function NavMain({
     url: string;
     icon: LucideIcon;
     isActive?: boolean;
+    submenu?: {
+      title: string;
+      url: string;
+      icon: LucideIcon;
+    }[];
   }[];
 }) {
   return (
@@ -33,6 +39,20 @@ export function NavMain({
                 <span>{item.title}</span>
               </a>
             </SidebarMenuButton>
+            {item.submenu && item.isActive && (
+              <SidebarMenuSub>
+                {item.submenu?.map((submenuItem) => (
+                  <SidebarMenuItem key={submenuItem.title}>
+                    <SidebarMenuButton asChild tooltip={submenuItem.title}>
+                      <a href={submenuItem.url}>
+                        <submenuItem.icon />
+                        <span>{submenuItem.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenuSub>
+            )}
           </SidebarMenuItem>
         ))}
       </SidebarMenu>

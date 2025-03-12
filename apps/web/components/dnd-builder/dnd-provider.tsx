@@ -502,7 +502,6 @@ export default function DndProvider() {
           onSuccess: (result) => {
             if (result && result.id) {
               // Update the block ID in our local state to use the database ID
-              // but keep the same block in the UI
               const updatedBlocks = newBlocks.map((block) =>
                 block.id === newBlockId
                   ? { ...block, id: result.id.toString() }
@@ -586,26 +585,27 @@ export default function DndProvider() {
 
     // Find the block to be deleted
     const blockToDelete = blocks.find((block) => block.id === id);
+    if (!blockToDelete) return;
 
     // Add to the set of blocks being deleted
     setBlocksBeingDeleted((prev) => {
       const newSet = new Set(prev);
       newSet.add(id);
       // If it's a numeric ID, also add the string version
-      if (blockToDelete && !isNaN(parseInt(blockToDelete.id, 10))) {
+      if (!isNaN(parseInt(blockToDelete.id, 10))) {
         newSet.add(parseInt(blockToDelete.id, 10).toString());
       }
       return newSet;
     });
 
     // Also add to permanently deleted blocks
-    if (blockToDelete) {
-      permanentlyDeletedBlocksRef.current.add(blockToDelete.id);
-      if (!isNaN(parseInt(blockToDelete.id, 10))) {
-        permanentlyDeletedBlocksRef.current.add(
-          parseInt(blockToDelete.id, 10).toString(),
-        );
-      }
+    // These will be removed from this set if the block is restored through undo/redo
+    // and will be recreated on the server
+    permanentlyDeletedBlocksRef.current.add(blockToDelete.id);
+    if (!isNaN(parseInt(blockToDelete.id, 10))) {
+      permanentlyDeletedBlocksRef.current.add(
+        parseInt(blockToDelete.id, 10).toString(),
+      );
     }
 
     // Update local state
@@ -896,15 +896,61 @@ export default function DndProvider() {
                       : block,
                   );
 
-                  // Update the UI with the new ID - this will add to history
-                  updateBlocksHistory(updatedBlocks);
+                  // Update the editor reference if this is a text block
+                  if (updatedBlock.type === "text") {
+                    setEditors((prev) => {
+                      const newEditors = { ...prev };
+                      if (newEditors[updatedBlock.id]) {
+                        // Move the editor reference to the new ID
+                        newEditors[result.id.toString()] =
+                          newEditors[updatedBlock.id];
+                        delete newEditors[updatedBlock.id];
+                      }
+                      return newEditors;
+                    });
+                  }
+
+                  // Check for duplicate IDs
+                  const updatedBlockIds = updatedBlocks.map(
+                    (block) => block.id,
+                  );
+                  const hasBlockDuplicates = updatedBlockIds.some(
+                    (id, index) => updatedBlockIds.indexOf(id) !== index,
+                  );
+
+                  if (hasBlockDuplicates) {
+                    // Keep only the first occurrence of each ID
+                    const seenIds = new Set<string>();
+                    const deduplicatedBlocks = updatedBlocks.filter((block) => {
+                      if (seenIds.has(block.id)) {
+                        return false;
+                      }
+                      seenIds.add(block.id);
+                      return true;
+                    });
+
+                    // Update the UI - this will add to history
+                    updateBlocksHistory(deduplicatedBlocks);
+                  } else {
+                    // Update the UI - this will add to history
+                    updateBlocksHistory(updatedBlocks);
+                  }
 
                   // Set the newly created block as the selected block
                   setSelectedBlockId(result.id.toString());
 
-                  // Update the order of all blocks in the database
+                  // Update the order of all blocks in the database to match their position in the UI
+                  // This ensures blocks after the insertion point have their order properly updated
                   updateBlockOrdersInDatabase(updatedBlocks);
+                } else {
+                  console.error(
+                    "Failed to add block to database - no ID returned",
+                  );
                 }
+              },
+              onError: (error) => {
+                console.error("Error adding block to database:", error);
+                // You could show an error toast here
               },
             },
           );
@@ -1709,7 +1755,7 @@ export default function DndProvider() {
           !currentBlocks.some((currBlock) => currBlock.id === prevBlock.id),
       );
 
-      // 2. Find blocks that are in currentBlocks but not in previousBlocks (new blocks)
+      // 2. Find blocks that are in currentBlocks but not in previousBlocks (new blocks or restored blocks)
       const newBlocks = currentBlocks.filter(
         (currBlock) =>
           !previousBlocks.some((prevBlock) => prevBlock.id === currBlock.id),
@@ -1735,16 +1781,72 @@ export default function DndProvider() {
         }
       });
 
-      // 5. Process new blocks (if they have UUID IDs, add to server)
+      // 5. Process new blocks
       newBlocks.forEach((block) => {
-        if (isNaN(parseInt(block.id, 10))) {
-          addEmailBlock.mutate({
-            emailId,
-            type: block.type,
-            value: block.data || ({} as BlockData),
-            order: block.order,
-            linkedFile: undefined,
-          });
+        // Check if the block has a numeric ID (could be a previously deleted block being restored)
+        const hasNumericId = !isNaN(parseInt(block.id, 10));
+
+        // Check if this block was previously deleted and is now being restored
+        const wasDeleted =
+          hasNumericId &&
+          (permanentlyDeletedBlocksRef.current.has(block.id) ||
+            permanentlyDeletedBlocksRef.current.has(
+              parseInt(block.id, 10).toString(),
+            ));
+
+        // Only create blocks on the server if:
+        // 1. They have a UUID (new blocks from sidebar)
+        // 2. OR they were previously deleted and are being restored (have numeric IDs)
+        if (!hasNumericId || wasDeleted) {
+          // For blocks with UUID IDs, add them normally
+          // For blocks with numeric IDs that were deleted, recreate them
+          addEmailBlock.mutate(
+            {
+              emailId,
+              type: block.type,
+              value: block.data || ({} as BlockData),
+              order: block.order,
+              linkedFile: undefined,
+            },
+            {
+              onSuccess: (result) => {
+                // If the block was successfully created on the server, update the UI with the new ID
+                if (result && result.id) {
+                  // Only update the UI if the IDs are different
+                  if (block.id !== result.id.toString()) {
+                    // Find the current blocks
+                    const currentUIBlocks = blocksRef.current;
+
+                    // Update the block ID in our local state
+                    const updatedBlocks = currentUIBlocks.map((b) =>
+                      b.id === block.id
+                        ? { ...b, id: result.id.toString() }
+                        : b,
+                    );
+
+                    // Update the UI with the new ID - this will add to history
+                    // We use a setTimeout to avoid conflicts with the current operation
+                    setTimeout(() => {
+                      updateBlocksHistory(updatedBlocks);
+                    }, 0);
+                  }
+                }
+
+                // Remove from permanently deleted blocks if it was there
+                if (wasDeleted) {
+                  permanentlyDeletedBlocksRef.current.delete(block.id);
+                  if (hasNumericId) {
+                    permanentlyDeletedBlocksRef.current.delete(
+                      parseInt(block.id, 10).toString(),
+                    );
+                  }
+                }
+
+                // Invalidate the query to refresh the data
+                queryClient.invalidateQueries({ queryKey: ["email", emailId] });
+              },
+            },
+          );
         }
       });
 
@@ -1761,27 +1863,35 @@ export default function DndProvider() {
         }
       });
 
-      // 7. Update all block orders
-      const orderUpdates = currentBlocks
-        .map((block, index) => {
-          if (!isNaN(parseInt(block.id, 10))) {
-            return {
-              id: parseInt(block.id, 10),
-              order: index,
-            };
-          }
-          return null;
-        })
-        .filter(
-          (update): update is { id: number; order: number } => update !== null,
-        );
+      // 7. Update all block orders - this ensures all blocks have the correct order on the server
+      // We need to do this after processing all blocks to ensure the order is consistent
+      setTimeout(() => {
+        // Get the latest blocks from the UI
+        const latestBlocks = blocksRef.current;
 
-      if (orderUpdates.length > 0) {
-        batchUpdateEmailBlocks.mutate({
-          emailId,
-          orderUpdates,
-        });
-      }
+        // Create order updates for all blocks with numeric IDs
+        const orderUpdates = latestBlocks
+          .map((block, index) => {
+            if (!isNaN(parseInt(block.id, 10))) {
+              return {
+                id: parseInt(block.id, 10),
+                order: index, // Use the index as the order to ensure consistent ordering
+              };
+            }
+            return null;
+          })
+          .filter(
+            (update): update is { id: number; order: number } =>
+              update !== null,
+          );
+
+        if (orderUpdates.length > 0 && emailId) {
+          batchUpdateEmailBlocks.mutate({
+            emailId,
+            orderUpdates,
+          });
+        }
+      }, 1000); // Wait a bit to ensure all block creations have completed
     }, 500),
     [
       emailId,
@@ -1789,6 +1899,8 @@ export default function DndProvider() {
       deleteEmailBlock,
       updateEmailBlock,
       batchUpdateEmailBlocks,
+      queryClient,
+      updateBlocksHistory,
     ],
   );
 
@@ -1802,7 +1914,26 @@ export default function DndProvider() {
       // Store the current blocks before the undo operation
       const blocksBeforeUndo = [...blocks];
 
+      // Find blocks that are being restored (in previousState but not in blocksBeforeUndo)
+      const restoredBlocks = previousState.blocks.filter(
+        (prevBlock) =>
+          !blocksBeforeUndo.some((currBlock) => currBlock.id === prevBlock.id),
+      );
+
+      // For each restored block, check if it has a numeric ID and mark it as deleted
+      // so that it will be recreated on the server
+      restoredBlocks.forEach((block) => {
+        // If it has a numeric ID, mark it as deleted so it will be recreated
+        if (!isNaN(parseInt(block.id, 10))) {
+          permanentlyDeletedBlocksRef.current.add(block.id);
+          permanentlyDeletedBlocksRef.current.add(
+            parseInt(block.id, 10).toString(),
+          );
+        }
+      });
+
       // Update server state based on the differences
+      // This will recreate any restored blocks on the server
       debouncedServerUpdate(previousState.blocks, blocksBeforeUndo);
 
       // Update editor content for text blocks
@@ -1865,7 +1996,26 @@ export default function DndProvider() {
       // Store the current blocks before the redo operation
       const blocksBeforeRedo = [...blocks];
 
+      // Find blocks that are being restored (in nextState but not in blocksBeforeRedo)
+      const restoredBlocks = nextState.blocks.filter(
+        (nextBlock) =>
+          !blocksBeforeRedo.some((currBlock) => currBlock.id === nextBlock.id),
+      );
+
+      // For each restored block, check if it has a numeric ID and mark it as deleted
+      // so that it will be recreated on the server
+      restoredBlocks.forEach((block) => {
+        // If it has a numeric ID, mark it as deleted so it will be recreated
+        if (!isNaN(parseInt(block.id, 10))) {
+          permanentlyDeletedBlocksRef.current.add(block.id);
+          permanentlyDeletedBlocksRef.current.add(
+            parseInt(block.id, 10).toString(),
+          );
+        }
+      });
+
       // Update server state based on the differences
+      // This will recreate any restored blocks on the server
       debouncedServerUpdate(nextState.blocks, blocksBeforeRedo);
 
       // Update editor content for text blocks

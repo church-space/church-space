@@ -8,6 +8,8 @@ import {
   Settings2,
   User,
   Waypoints,
+  QrCode,
+  List,
 } from "lucide-react";
 import * as React from "react";
 
@@ -44,6 +46,23 @@ const data = {
     {
       title: "Links",
       url: "/links",
+      icon: Link,
+      submenu: [
+        {
+          title: "QR Codes",
+          url: "/qr-codes",
+          icon: QrCode,
+        },
+        {
+          title: "Link Lists",
+          url: "/link-lists",
+          icon: List,
+        },
+      ],
+    },
+    {
+      title: "Courses",
+      url: "/courses",
       icon: Link,
     },
     // {
