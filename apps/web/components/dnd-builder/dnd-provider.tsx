@@ -2210,6 +2210,48 @@ export default function DndProvider() {
     setCurrentState,
   ]);
 
+  // UNDO REDO KEY COMMANDS
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if the target is an input or textarea to avoid capturing keystrokes during text editing
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      // Undo: Cmd+Z (Mac) or Ctrl+Z (Windows)
+      if ((e.metaKey || e.ctrlKey) && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        if (canUndo()) {
+          handleUndo();
+        }
+      }
+
+      // Redo: Cmd+Y or Cmd+Shift+Z (Mac) or Ctrl+Y or Ctrl+Shift+Z (Windows)
+      if (
+        (e.metaKey || e.ctrlKey) &&
+        (e.key === "y" || (e.key === "z" && e.shiftKey))
+      ) {
+        e.preventDefault();
+        if (canRedo()) {
+          handleRedo();
+        }
+      }
+    };
+
+    // Add event listener
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Clean up
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [canUndo, canRedo, handleUndo, handleRedo]);
+
   return (
     <div className="relative flex h-full flex-col">
       <Dialog
