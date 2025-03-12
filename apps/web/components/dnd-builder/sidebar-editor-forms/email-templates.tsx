@@ -11,7 +11,7 @@ import { Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { debounce } from "lodash";
 import AssetBrowserModal from "../asset-browser";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@church-space/supabase/client";
 import { useInView } from "react-intersection-observer";
 import {
@@ -23,6 +23,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@church-space/ui/dialog";
+import { useToast } from "@church-space/ui/use-toast";
+import { createEmailTemplateAction } from "@/actions/create-email-template";
+import type { ActionResponse } from "@/types/action";
 
 interface EmailTemplateFormProps {
   emailId: number;
@@ -37,12 +40,17 @@ export default function EmailTemplateForm({
 }: EmailTemplateFormProps) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [templateName, setTemplateName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const supabaseClient = createClient();
   const { ref: loadMoreRef, inView: loadMoreInView } = useInView();
   const { ref: componentRef, inView: componentInView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Properly implement debouncing with useEffect
   useEffect(() => {
@@ -103,6 +111,93 @@ export default function EmailTemplateForm({
   // Flatten all pages of data
   const templates = data?.pages.flatMap((page) => page.data) || [];
 
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a template name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      console.log("Saving template:", {
+        subject: templateName,
+        organization_id: organizationId,
+        source_email_id: emailId,
+      });
+
+      const result = await createEmailTemplateAction({
+        subject: templateName,
+        organization_id: organizationId,
+        source_email_id: emailId,
+      });
+
+      console.log("Template save result:", JSON.stringify(result, null, 2));
+
+      // Use a type assertion to access the properties
+      const resultObj = result as any;
+
+      // Check if the result has a data property, which indicates success
+      if (resultObj && resultObj.data) {
+        console.log("Template saved successfully:", resultObj.data);
+
+        toast({
+          title: "Success",
+          description: "Email template saved successfully",
+        });
+
+        // Refresh the templates list
+        try {
+          console.log("Refreshing templates list...");
+          // Instead of invalidating, refetch the current query
+          await queryClient.refetchQueries({
+            queryKey: ["emailTemplates", organizationId],
+          });
+          console.log("Templates list refreshed");
+        } catch (refreshError) {
+          console.error("Error refreshing templates list:", refreshError);
+          // Continue with the success flow even if refresh fails
+        }
+
+        setDialogOpen(false);
+        setTemplateName("");
+      } else {
+        // Log the full result object to see what's happening
+        console.error("Error saving template - full result:", resultObj);
+
+        // Try to extract the error message
+        let errorMessage = "Failed to save template";
+        if (resultObj && typeof resultObj.error === "string") {
+          errorMessage = resultObj.error;
+        }
+
+        console.error("Error saving template:", errorMessage);
+
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Exception saving template:", error);
+
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? `Error: ${error.message}`
+            : "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5 px-1" ref={componentRef}>
       <div className="flex flex-col gap-1">
@@ -124,7 +219,7 @@ export default function EmailTemplateForm({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Dialog>
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="h-8 px-2 py-0">
                       <Save />
@@ -140,10 +235,19 @@ export default function EmailTemplateForm({
                     <Input
                       placeholder="Template name"
                       className="mb-3 w-full"
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
                     />
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline">Cancel</Button>
-                      <Button>Save</Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSaveTemplate} disabled={isSaving}>
+                        {isSaving ? "Saving..." : "Save"}
+                      </Button>
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -179,10 +283,9 @@ export default function EmailTemplateForm({
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {templates.map((template) => (
-              <Dialog>
+              <Dialog key={template.id}>
                 <DialogTrigger asChild>
                   <Card
-                    key={template.id}
                     className="cursor-pointer transition-colors hover:border-primary"
                     onClick={() => onSelectTemplate?.(template.id.toString())}
                   >

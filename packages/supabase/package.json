@@ -38,6 +38,7 @@
     "./queries/all/get-db-user": "./src/queries/all/get-db-user.ts",
     "./queries/all/get-email-templates": "./src/queries/all/get-email-templates.ts",
     "./queries/all/get-footer-templates": "./src/queries/all/get-footer-templates.ts",
-    "./mutations/emails": "./src/mutations/emails.ts"
+    "./mutations/emails": "./src/mutations/emails.ts",
+    "./queries/all/get-email-with-footer-and-blocks": "./src/queries/all/get-email-with-footer-and-blocks.ts"
   }
 }
