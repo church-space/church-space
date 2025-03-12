@@ -1,5 +1,5 @@
 import type { Block } from "@/types/blocks";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // Define the email styles interface
 export interface EmailStyles {
@@ -38,6 +38,10 @@ export function useBlockStateManager(
     styles: initialStyles,
   });
 
+  // Add state for undo/redo availability to trigger re-renders
+  const [canUndoState, setCanUndoState] = useState(false);
+  const [canRedoState, setCanRedoState] = useState(false);
+
   // History management
   const historyRef = useRef<HistoryState[]>([
     { blocks: initialBlocks, styles: initialStyles },
@@ -47,28 +51,43 @@ export function useBlockStateManager(
   const batchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isUndoRedoOperationRef = useRef<boolean>(false);
 
-  // Add a new state to history
-  const addToHistory = useCallback((newState: HistoryState) => {
-    // Don't add to history if this is an undo/redo operation
-    if (isUndoRedoOperationRef.current) {
-      return;
-    }
-
-    // Clear any states after the current index
-    const newHistory = historyRef.current.slice(0, currentIndexRef.current + 1);
-
-    // Add the new state
-    newHistory.push(newState);
-
-    // Trim history if it exceeds max length
-    if (newHistory.length > maxHistoryLength) {
-      newHistory.shift();
-    }
-
-    // Update refs
-    historyRef.current = newHistory;
-    currentIndexRef.current = newHistory.length - 1;
+  // Function to update the undo/redo state
+  const updateUndoRedoState = useCallback(() => {
+    setCanUndoState(currentIndexRef.current > 0);
+    setCanRedoState(currentIndexRef.current < historyRef.current.length - 1);
   }, []);
+
+  // Add a new state to history
+  const addToHistory = useCallback(
+    (newState: HistoryState) => {
+      // Don't add to history if this is an undo/redo operation
+      if (isUndoRedoOperationRef.current) {
+        return;
+      }
+
+      // Clear any states after the current index
+      const newHistory = historyRef.current.slice(
+        0,
+        currentIndexRef.current + 1,
+      );
+
+      // Add the new state
+      newHistory.push(newState);
+
+      // Trim history if it exceeds max length
+      if (newHistory.length > maxHistoryLength) {
+        newHistory.shift();
+      }
+
+      // Update refs
+      historyRef.current = newHistory;
+      currentIndexRef.current = newHistory.length - 1;
+
+      // Update undo/redo state
+      updateUndoRedoState();
+    },
+    [updateUndoRedoState],
+  );
 
   // Batch updates to avoid creating too many history entries for similar operations
   const batchHistoryUpdate = useCallback(
@@ -77,8 +96,15 @@ export function useBlockStateManager(
         clearTimeout(batchTimeoutRef.current);
       }
 
+      // Store the current index before the batch operation
+      const indexBeforeBatch = currentIndexRef.current;
+
       batchTimeoutRef.current = setTimeout(() => {
-        addToHistory(newState);
+        // Only add to history if we're still at the same index
+        // This prevents issues where undo/redo operations happen during the batch window
+        if (currentIndexRef.current === indexBeforeBatch) {
+          addToHistory(newState);
+        }
         batchTimeoutRef.current = null;
       }, 500); // 500ms batch window
     },
@@ -130,11 +156,19 @@ export function useBlockStateManager(
       currentIndexRef.current--;
       const previousState = historyRef.current[currentIndexRef.current];
       setCurrentState(previousState);
-      isUndoRedoOperationRef.current = false;
+
+      // Update undo/redo state immediately
+      updateUndoRedoState();
+
+      // Reset the flag after the operation is complete
+      setTimeout(() => {
+        isUndoRedoOperationRef.current = false;
+      }, 0);
+
       return previousState;
     }
     return null;
-  }, []);
+  }, [updateUndoRedoState]);
 
   // Redo function
   const redo = useCallback(() => {
@@ -143,21 +177,34 @@ export function useBlockStateManager(
       currentIndexRef.current++;
       const nextState = historyRef.current[currentIndexRef.current];
       setCurrentState(nextState);
-      isUndoRedoOperationRef.current = false;
+
+      // Update undo/redo state immediately
+      updateUndoRedoState();
+
+      // Reset the flag after the operation is complete
+      setTimeout(() => {
+        isUndoRedoOperationRef.current = false;
+      }, 0);
+
       return nextState;
     }
     return null;
-  }, []);
+  }, [updateUndoRedoState]);
 
-  // Check if undo is available
+  // Check if undo is available - use the state value for consistent rendering
   const canUndo = useCallback(() => {
-    return currentIndexRef.current > 0;
-  }, []);
+    return canUndoState;
+  }, [canUndoState]);
 
-  // Check if redo is available
+  // Check if redo is available - use the state value for consistent rendering
   const canRedo = useCallback(() => {
-    return currentIndexRef.current < historyRef.current.length - 1;
-  }, []);
+    return canRedoState;
+  }, [canRedoState]);
+
+  // Initialize undo/redo state
+  useEffect(() => {
+    updateUndoRedoState();
+  }, [updateUndoRedoState]);
 
   return {
     // Current state for UI

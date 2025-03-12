@@ -61,7 +61,6 @@ import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
-// import RealtimeWrapper from "@/components/listeners/email-builder/realtime-wrapper";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -1926,11 +1925,13 @@ export default function DndProvider() {
     // Set flag to prevent recursive updates
     setIsUndoRedoOperation(true);
 
-    const previousState = undo();
-    if (previousState) {
-      // Store the current blocks before the undo operation
-      const blocksBeforeUndo = [...blocks];
+    // Store the current blocks before the undo operation
+    const blocksBeforeUndo = [...blocks];
 
+    // Perform the undo operation
+    const previousState = undo();
+
+    if (previousState) {
       // Find blocks that are being restored (in previousState but not in blocksBeforeUndo)
       const restoredBlocks = previousState.blocks.filter(
         (prevBlock) =>
@@ -2063,11 +2064,13 @@ export default function DndProvider() {
     // Set flag to prevent recursive updates
     setIsUndoRedoOperation(true);
 
-    const nextState = redo();
-    if (nextState) {
-      // Store the current blocks before the redo operation
-      const blocksBeforeRedo = [...blocks];
+    // Store the current blocks before the redo operation
+    const blocksBeforeRedo = [...blocks];
 
+    // Perform the redo operation
+    const nextState = redo();
+
+    if (nextState) {
       // Find blocks that are being restored (in nextState but not in blocksBeforeRedo)
       const restoredBlocks = nextState.blocks.filter(
         (nextBlock) =>
@@ -2252,6 +2255,24 @@ export default function DndProvider() {
     };
   }, [canUndo, canRedo, handleUndo, handleRedo]);
 
+  // Extract canUndo and canRedo values for UI rendering
+  const canUndoValue = canUndo();
+  const canRedoValue = canRedo();
+
+  // Update canUndo and canRedo values when blocks or styles change
+  useEffect(() => {
+    // Force a re-evaluation of canUndo and canRedo
+    const newCanUndoValue = canUndo();
+    const newCanRedoValue = canRedo();
+
+    // Only update if values have changed to avoid unnecessary re-renders
+    if (newCanUndoValue !== canUndoValue || newCanRedoValue !== canRedoValue) {
+      // This will trigger a re-render with the updated values
+      setIsUndoRedoOperation((prev) => !prev); // Toggle to force re-render
+      setIsUndoRedoOperation((prev) => !prev); // Toggle back
+    }
+  }, [blocks, styles, canUndo, canRedo, canUndoValue, canRedoValue]);
+
   return (
     <div className="relative flex h-full flex-col">
       <Dialog
@@ -2310,7 +2331,7 @@ export default function DndProvider() {
                   variant="ghost"
                   size="icon"
                   onClick={handleUndo}
-                  disabled={!canUndo()}
+                  disabled={!canUndoValue}
                 >
                   <Undo />
                 </Button>
@@ -2323,7 +2344,7 @@ export default function DndProvider() {
                   variant="ghost"
                   size="icon"
                   onClick={handleRedo}
-                  disabled={!canRedo()}
+                  disabled={!canRedoValue}
                 >
                   <Redo />
                 </Button>
@@ -2468,10 +2489,6 @@ export default function DndProvider() {
         </div>
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
-      {/* <RealtimeWrapper
-        emailId={emailId?.toString() || ""}
-        onPresenceChange={handlePresenceChange}
-      /> */}
     </div>
   );
 }
