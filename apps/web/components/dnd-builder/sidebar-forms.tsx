@@ -119,6 +119,10 @@ export default function DndBuilderSidebarForms({
     }
   };
 
+  if (!emailId) {
+    return null;
+  }
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="mb-4 flex items-center gap-2">
@@ -163,6 +167,7 @@ export default function DndBuilderSidebarForms({
         )}
         {formType === "email-templates" && (
           <EmailTemplateForm
+            emailId={emailId}
             onSelectTemplate={onSelectTemplate}
             organizationId={organizationId || ""}
           />

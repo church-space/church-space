@@ -25,11 +25,13 @@ import {
 } from "@church-space/ui/dialog";
 
 interface EmailTemplateFormProps {
+  emailId: number;
   onSelectTemplate?: (templateId: string) => void;
   organizationId: string;
 }
 
 export default function EmailTemplateForm({
+  emailId,
   onSelectTemplate,
   organizationId,
 }: EmailTemplateFormProps) {
@@ -74,6 +76,7 @@ export default function EmailTemplateForm({
         .select("*")
         .eq("organization_id", organizationId)
         .eq("type", "template")
+        .order("created_at", { ascending: false })
         .range(from, to);
 
       if (debouncedSearch) {
