@@ -14,7 +14,7 @@ export interface EmailStyles {
 }
 
 // Define a history state interface
-interface HistoryState {
+export interface HistoryState {
   blocks: Block[];
   styles: EmailStyles;
 }
@@ -171,5 +171,7 @@ export function useBlockStateManager(
     redo,
     canUndo,
     canRedo,
+    // Expose setCurrentState for direct state updates
+    setCurrentState,
   };
 }

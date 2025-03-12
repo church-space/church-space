@@ -161,6 +161,7 @@ export default function DndProvider() {
     redo,
     canUndo,
     canRedo,
+    setCurrentState,
   } = useBlockStateManager(initialBlocks, initialStyles);
 
   // Create a debounced function for style updates to reduce API calls
@@ -1342,8 +1343,14 @@ export default function DndProvider() {
     const isNumericIdBeingDeleted =
       !isNaN(parseInt(block.id, 10)) &&
       blocksBeingDeleted.has(parseInt(block.id, 10).toString());
+    const isPermanentlyDeleted =
+      permanentlyDeletedBlocksRef.current.has(block.id) ||
+      (!isNaN(parseInt(block.id, 10)) &&
+        permanentlyDeletedBlocksRef.current.has(
+          parseInt(block.id, 10).toString(),
+        ));
 
-    return !isBeingDeleted && !isNumericIdBeingDeleted;
+    return !isBeingDeleted && !isNumericIdBeingDeleted && !isPermanentlyDeleted;
   });
 
   // Only update if blocks were actually removed
@@ -1355,7 +1362,17 @@ export default function DndProvider() {
   useEffect(() => {
     if (blocksBeingDeleted.size > 0) {
       const timer = setTimeout(() => {
-        setBlocksBeingDeleted(new Set());
+        // Only clear IDs that aren't in permanentlyDeletedBlocksRef
+        setBlocksBeingDeleted((prev) => {
+          const newSet = new Set<string>();
+          prev.forEach((id) => {
+            // Only keep IDs that are in permanentlyDeletedBlocksRef
+            if (permanentlyDeletedBlocksRef.current.has(id)) {
+              newSet.add(id);
+            }
+          });
+          return newSet;
+        });
       }, 1000);
 
       return () => clearTimeout(timer);
@@ -1920,6 +1937,53 @@ export default function DndProvider() {
           !blocksBeforeUndo.some((currBlock) => currBlock.id === prevBlock.id),
       );
 
+      // Find blocks that are being removed (in blocksBeforeUndo but not in previousState)
+      // These are likely duplicated blocks that are being undone
+      const removedBlocks = blocksBeforeUndo.filter(
+        (currBlock) =>
+          !previousState.blocks.some(
+            (prevBlock) => prevBlock.id === currBlock.id,
+          ),
+      );
+
+      // Add removed blocks to blocksBeingDeleted to ensure they're filtered out of the UI
+      if (removedBlocks.length > 0) {
+        // Add to blocksBeingDeleted for immediate UI filtering
+        setBlocksBeingDeleted((prev) => {
+          const newSet = new Set(prev);
+          removedBlocks.forEach((block) => {
+            newSet.add(block.id);
+            if (!isNaN(parseInt(block.id, 10))) {
+              newSet.add(parseInt(block.id, 10).toString());
+            }
+
+            // Also add to permanentlyDeletedBlocksRef to ensure they don't reappear
+            permanentlyDeletedBlocksRef.current.add(block.id);
+            if (!isNaN(parseInt(block.id, 10))) {
+              permanentlyDeletedBlocksRef.current.add(
+                parseInt(block.id, 10).toString(),
+              );
+            }
+          });
+          return newSet;
+        });
+
+        // Immediately update the UI to remove these blocks
+        // This ensures they don't jump to the bottom of the page
+        const filteredCurrentBlocks = blocksBeforeUndo.filter(
+          (block) => !removedBlocks.some((removed) => removed.id === block.id),
+        );
+
+        // Only update if blocks were actually removed
+        if (filteredCurrentBlocks.length < blocksBeforeUndo.length) {
+          // Force the UI to update with the filtered blocks
+          setCurrentState({
+            blocks: previousState.blocks,
+            styles: previousState.styles,
+          });
+        }
+      }
+
       // For each restored block, check if it has a numeric ID and mark it as deleted
       // so that it will be recreated on the server
       restoredBlocks.forEach((block) => {
@@ -1984,7 +2048,15 @@ export default function DndProvider() {
     setTimeout(() => {
       setIsUndoRedoOperation(false);
     }, 100);
-  }, [undo, blocks, debouncedServerUpdate, editors, setEditors]);
+  }, [
+    undo,
+    blocks,
+    debouncedServerUpdate,
+    editors,
+    setEditors,
+    setBlocksBeingDeleted,
+    setCurrentState,
+  ]);
 
   // Handle redo button click
   const handleRedo = useCallback(() => {
@@ -2001,6 +2073,51 @@ export default function DndProvider() {
         (nextBlock) =>
           !blocksBeforeRedo.some((currBlock) => currBlock.id === nextBlock.id),
       );
+
+      // Find blocks that are being removed (in blocksBeforeRedo but not in nextState)
+      // These could be blocks that were deleted in the next state
+      const removedBlocks = blocksBeforeRedo.filter(
+        (currBlock) =>
+          !nextState.blocks.some((nextBlock) => nextBlock.id === currBlock.id),
+      );
+
+      // Add removed blocks to blocksBeingDeleted to ensure they're filtered out of the UI
+      if (removedBlocks.length > 0) {
+        // Add to blocksBeingDeleted for immediate UI filtering
+        setBlocksBeingDeleted((prev) => {
+          const newSet = new Set(prev);
+          removedBlocks.forEach((block) => {
+            newSet.add(block.id);
+            if (!isNaN(parseInt(block.id, 10))) {
+              newSet.add(parseInt(block.id, 10).toString());
+            }
+
+            // Also add to permanentlyDeletedBlocksRef to ensure they don't reappear
+            permanentlyDeletedBlocksRef.current.add(block.id);
+            if (!isNaN(parseInt(block.id, 10))) {
+              permanentlyDeletedBlocksRef.current.add(
+                parseInt(block.id, 10).toString(),
+              );
+            }
+          });
+          return newSet;
+        });
+
+        // Immediately update the UI to remove these blocks
+        // This ensures they don't jump to the bottom of the page
+        const filteredCurrentBlocks = blocksBeforeRedo.filter(
+          (block) => !removedBlocks.some((removed) => removed.id === block.id),
+        );
+
+        // Only update if blocks were actually removed
+        if (filteredCurrentBlocks.length < blocksBeforeRedo.length) {
+          // Force the UI to update with the filtered blocks
+          setCurrentState({
+            blocks: nextState.blocks,
+            styles: nextState.styles,
+          });
+        }
+      }
 
       // For each restored block, check if it has a numeric ID and mark it as deleted
       // so that it will be recreated on the server
@@ -2089,6 +2206,8 @@ export default function DndProvider() {
     styles.defaultFont,
     styles.defaultTextColor,
     styles.accentTextColor,
+    setBlocksBeingDeleted,
+    setCurrentState,
   ]);
 
   return (
