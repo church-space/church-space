@@ -119,11 +119,7 @@ export default function DndBuilderSidebarForms({
     }
   };
 
-  if (!emailId) {
-    return null;
-  }
-
-  if (!courseId) {
+  if (!emailId && !courseId) {
     return null;
   }
 
@@ -168,7 +164,7 @@ export default function DndBuilderSidebarForms({
             onFooterChange={onFooterChange}
           />
         )}
-        {formType === "email-templates" && (
+        {formType === "email-templates" && emailId && (
           <EmailTemplateForm
             emailId={emailId}
             organizationId={organizationId || ""}

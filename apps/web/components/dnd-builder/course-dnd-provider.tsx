@@ -1,6 +1,5 @@
 "use client";
 
-import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { BlockData, Block as BlockType } from "@/types/blocks";
 import {
