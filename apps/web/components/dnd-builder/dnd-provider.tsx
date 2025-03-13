@@ -180,6 +180,25 @@ export default function DndProvider({
     [emailId, updateEmailStyle],
   );
 
+  // Function to update styles on the server based on EmailStyles object
+  const updateStylesOnServer = useCallback(
+    (styleObj: EmailStyles) => {
+      if (!emailId) return;
+
+      debouncedStyleUpdate({
+        blocks_bg_color: styleObj.bgColor,
+        default_text_color: styleObj.defaultTextColor,
+        accent_text_color: styleObj.accentTextColor,
+        default_font: styleObj.defaultFont,
+        is_inset: styleObj.isInset,
+        is_rounded: styleObj.isRounded,
+        bg_color: styleObj.emailBgColor,
+        link_color: styleObj.linkColor,
+      });
+    },
+    [emailId, debouncedStyleUpdate],
+  );
+
   // Create refs to track the latest blocks and styles
   const blocksRef = useRef(blocks);
   const stylesRef = useRef(styles);
@@ -1969,6 +1988,7 @@ export default function DndProvider({
 
     // Store the current blocks before the undo operation
     const blocksBeforeUndo = [...blocks];
+    const stylesBeforeUndo = { ...styles };
 
     // Perform the undo operation
     const previousState = undo();
@@ -2043,6 +2063,14 @@ export default function DndProvider({
       // This will recreate any restored blocks on the server
       debouncedServerUpdate(previousState.blocks, blocksBeforeUndo);
 
+      // Check if styles have changed and update on server if needed
+      if (
+        JSON.stringify(previousState.styles) !==
+        JSON.stringify(stylesBeforeUndo)
+      ) {
+        updateStylesOnServer(previousState.styles);
+      }
+
       // Update editor content for text blocks
       previousState.blocks.forEach((block) => {
         if (
@@ -2094,7 +2122,9 @@ export default function DndProvider({
   }, [
     undo,
     blocks,
+    styles,
     debouncedServerUpdate,
+    updateStylesOnServer,
     editors,
     setEditors,
     setBlocksBeingDeleted,
@@ -2108,6 +2138,7 @@ export default function DndProvider({
 
     // Store the current blocks before the redo operation
     const blocksBeforeRedo = [...blocks];
+    const stylesBeforeRedo = { ...styles };
 
     // Perform the redo operation
     const nextState = redo();
@@ -2120,7 +2151,6 @@ export default function DndProvider({
       );
 
       // Find blocks that are being removed (in blocksBeforeRedo but not in nextState)
-      // These could be blocks that were deleted in the next state
       const removedBlocks = blocksBeforeRedo.filter(
         (currBlock) =>
           !nextState.blocks.some((nextBlock) => nextBlock.id === currBlock.id),
@@ -2179,6 +2209,13 @@ export default function DndProvider({
       // Update server state based on the differences
       // This will recreate any restored blocks on the server
       debouncedServerUpdate(nextState.blocks, blocksBeforeRedo);
+
+      // Check if styles have changed and update on server if needed
+      if (
+        JSON.stringify(nextState.styles) !== JSON.stringify(stylesBeforeRedo)
+      ) {
+        updateStylesOnServer(nextState.styles);
+      }
 
       // Update editor content for text blocks
       nextState.blocks.forEach((block) => {
@@ -2245,7 +2282,9 @@ export default function DndProvider({
   }, [
     redo,
     blocks,
+    styles,
     debouncedServerUpdate,
+    updateStylesOnServer,
     editors,
     setEditors,
     styles.defaultFont,
