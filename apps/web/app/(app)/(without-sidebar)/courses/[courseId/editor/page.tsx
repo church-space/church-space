@@ -1,4 +1,4 @@
-import EmailDndProvider from "@/components/dnd-builder/email-dnd-provider";
+import CourseDndProvider from "@/components/dnd-builder/course-dnd-provider";
 import { createClient } from "@church-space/supabase/server";
 import {
   HydrationBoundary,
@@ -107,7 +107,7 @@ export default async function Page(props: { params: Params }) {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <EmailDndProvider organizationId={organizationId || ""} />
+      <CourseDndProvider organizationId={organizationId || ""} />
     </HydrationBoundary>
   );
 }

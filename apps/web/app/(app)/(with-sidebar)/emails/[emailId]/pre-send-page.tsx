@@ -62,13 +62,26 @@ import {
   DropdownMenuTrigger,
 } from "@church-space/ui/dropdown-menu";
 
-function SaveButtons() {
+function SaveButtons(props: {
+  isSaving: boolean;
+  hasChanges: boolean;
+  setIsSaving: (isSaving: boolean) => void;
+}) {
+  const { isSaving, hasChanges, setIsSaving } = props;
   return (
     <div className="mt-4 flex w-full items-center justify-end gap-2 border-t pt-4">
-      <Button variant="outline" size="sm">
+      <Button variant="outline" size="sm" disabled={isSaving}>
         Cancel
       </Button>
-      <Button size="sm">Save</Button>
+      <Button
+        size="sm"
+        disabled={isSaving || !hasChanges}
+        onClick={() => {
+          setIsSaving(true);
+        }}
+      >
+        {isSaving ? "Saving..." : "Save"}
+      </Button>
     </div>
   );
 }
@@ -106,6 +119,16 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
   const [listValue, setListValue] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categoryValue, setCategoryValue] = useState("");
+
+  const [toHasChanges, setToHasChanges] = useState(false);
+  const [fromHasChanges, setFromHasChanges] = useState(false);
+  const [subjectHasChanges, setSubjectHasChanges] = useState(false);
+  const [scheduleHasChanges, setScheduleHasChanges] = useState(false);
+
+  const [toIsSaving, setToIsSaving] = useState(false);
+  const [fromIsSaving, setFromIsSaving] = useState(false);
+  const [subjectIsSaving, setSubjectIsSaving] = useState(false);
+  const [scheduleIsSaving, setScheduleIsSaving] = useState(false);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -303,6 +326,11 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
                 from.
               </span>
             </div>
+            <SaveButtons
+              isSaving={toIsSaving}
+              hasChanges={toHasChanges}
+              setIsSaving={setToIsSaving}
+            />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="from">
@@ -361,6 +389,11 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
                 </Select>
               </div>
             </div>
+            <SaveButtons
+              isSaving={fromIsSaving}
+              hasChanges={fromHasChanges}
+              setIsSaving={setFromIsSaving}
+            />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="subject">
@@ -440,6 +473,11 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
                 Preview text shows below the subject line in an email inbox.
               </span>
             </div>
+            <SaveButtons
+              isSaving={subjectIsSaving}
+              hasChanges={subjectHasChanges}
+              setIsSaving={setSubjectIsSaving}
+            />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="schedule">
@@ -513,7 +551,11 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
                 top right corner.
               </TabsContent>
             </Tabs>
-            <SaveButtons />
+            <SaveButtons
+              isSaving={scheduleIsSaving}
+              hasChanges={scheduleHasChanges}
+              setIsSaving={setScheduleIsSaving}
+            />
           </AccordionContent>
         </AccordionItem>
         <div className="flex flex-1 items-center justify-between rounded-xl border bg-card py-4 pl-6 pr-5 text-left font-medium transition-all hover:bg-accent/50">

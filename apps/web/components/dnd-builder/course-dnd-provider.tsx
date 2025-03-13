@@ -54,14 +54,12 @@ import { useAddEmailBlock } from "./mutations/use-add-email-block";
 import { useBatchUpdateEmailBlocks } from "./mutations/use-batch-update-email-blocks";
 import { useDeleteEmailBlock } from "./mutations/use-delete-email-block";
 import { useUpdateEmailBlock } from "./mutations/use-update-email-block";
-import { useUpdateEmailStyle } from "./mutations/use-update-email-style";
 import { createEditor, updateEditorColors } from "./rich-text-editor/editor";
 import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
 import EmailBuilderRealtimeListener from "@/components/listeners/email-builder/realtime-listener";
-import { useUpdateEmailFooter } from "./mutations/use-update-email-footer";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -89,7 +87,7 @@ interface ContentUpdate {
   value: any;
 }
 
-export default function DndProvider({
+export default function CourseDndProvider({
   organizationId,
 }: {
   organizationId: string;
@@ -106,7 +104,6 @@ export default function DndProvider({
   const addEmailBlock = useAddEmailBlock();
   const deleteEmailBlock = useDeleteEmailBlock();
   const updateEmailBlock = useUpdateEmailBlock();
-  const updateEmailStyle = useUpdateEmailStyle();
   const batchUpdateEmailBlocks = useBatchUpdateEmailBlocks();
   const queryClient = useQueryClient();
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
@@ -120,7 +117,7 @@ export default function DndProvider({
   const [editors, setEditors] = useState<Record<string, Editor>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeForm, setActiveForm] = useState<
-    "default" | "block" | "email-style" | "email-footer" | "email-templates"
+    "default" | "block" | "email-templates" | "email-style" | "email-footer"
   >("default");
   const [isUndoRedoOperation, setIsUndoRedoOperation] = useState(false);
   const sensors = useSensors(
@@ -131,7 +128,6 @@ export default function DndProvider({
     }),
   );
   const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
-  const updateEmailFooter = useUpdateEmailFooter();
 
   // Initialize blocks and styles
   const initialBlocks =
@@ -159,81 +155,21 @@ export default function DndProvider({
 
   const {
     blocks,
-    styles,
     updateBlocksHistory,
-    updateStylesHistory,
-    updateFooterHistory,
     undo,
     redo,
     canUndo,
     canRedo,
     setCurrentState,
-    footer,
-  } = useBlockStateManager(
-    initialBlocks,
-    initialStyles,
-    emailData?.footer || null,
-  );
-
-  // Create a debounced function for style updates to reduce API calls
-  const debouncedStyleUpdate = useCallback(
-    debounce((updates: Record<string, any>) => {
-      if (emailId && Object.keys(updates).length > 0) {
-        updateEmailStyle.mutate({
-          emailId,
-          updates,
-        });
-      }
-    }, 500),
-    [emailId, updateEmailStyle],
-  );
-
-  // Function to update footer on the server
-  const updateFooterOnServer = useCallback(
-    (footerData: any) => {
-      if (!emailId || !organizationId || !footerData) return;
-
-      // Use the updateEmailFooter mutation directly
-      updateEmailFooter.mutate({
-        emailId,
-        organizationId,
-        updates: footerData,
-      });
-    },
-    [emailId, organizationId, updateEmailFooter],
-  );
-
-  // Function to update styles on the server based on EmailStyles object
-  const updateStylesOnServer = useCallback(
-    (styleObj: EmailStyles) => {
-      if (!emailId) return;
-
-      debouncedStyleUpdate({
-        blocks_bg_color: styleObj.bgColor,
-        default_text_color: styleObj.defaultTextColor,
-        accent_text_color: styleObj.accentTextColor,
-        default_font: styleObj.defaultFont,
-        is_inset: styleObj.isInset,
-        is_rounded: styleObj.isRounded,
-        bg_color: styleObj.emailBgColor,
-        link_color: styleObj.linkColor,
-      });
-    },
-    [emailId, debouncedStyleUpdate],
-  );
+  } = useBlockStateManager(initialBlocks);
 
   // Create refs to track the latest blocks and styles
   const blocksRef = useRef(blocks);
-  const stylesRef = useRef(styles);
 
   // Update the refs whenever blocks or styles change
   useEffect(() => {
     blocksRef.current = blocks;
   }, [blocks]);
-
-  useEffect(() => {
-    stylesRef.current = styles;
-  }, [styles]);
 
   // Helper function to update block orders in the database
   const updateBlockOrdersInDatabase = useCallback(
@@ -297,8 +233,8 @@ export default function DndProvider({
           data: {
             ...block.data,
             content,
-            font: styles.defaultFont,
-            textColor: styles.defaultTextColor,
+            font: initialStyles.defaultFont,
+            textColor: initialStyles.defaultTextColor,
           } as BlockType["data"],
           order: block.order, // Explicitly preserve the order
         } as BlockType;
@@ -322,8 +258,8 @@ export default function DndProvider({
       debouncedDatabaseUpdate(dbBlockId, {
         ...existingData,
         content,
-        font: styles.defaultFont,
-        textColor: styles.defaultTextColor,
+        font: initialStyles.defaultFont,
+        textColor: initialStyles.defaultTextColor,
       });
     }
   };
@@ -398,8 +334,8 @@ export default function DndProvider({
     if (blockType === "text") {
       blockData = {
         content: "",
-        font: styles.defaultFont,
-        textColor: styles.defaultTextColor,
+        font: initialStyles.defaultFont,
+        textColor: initialStyles.defaultTextColor,
       };
     } else if (blockType === "video") {
       blockData = {
@@ -415,12 +351,12 @@ export default function DndProvider({
         textColor: "#000000",
       };
     } else if (blockType === "divider") {
-      blockData = { color: styles.defaultTextColor, margin: 0 };
+      blockData = { color: initialStyles.defaultTextColor, margin: 0 };
     } else if (blockType === "button") {
       blockData = {
         text: "Button",
         link: "",
-        color: styles.defaultTextColor,
+        color: initialStyles.defaultTextColor,
         textColor: "#FFFFFF",
         style: "filled" as "filled" | "outline",
         size: "fit" as "fit" | "full",
@@ -521,10 +457,10 @@ export default function DndProvider({
 
       const newEditor = createEditor(
         initialContent,
-        styles.defaultFont,
-        styles.defaultTextColor,
+        initialStyles.defaultFont,
+        initialStyles.defaultTextColor,
         true, // preserve existing styles
-        styles.accentTextColor,
+        initialStyles.accentTextColor,
       );
       setEditors((prev) => ({
         ...prev,
@@ -1105,10 +1041,10 @@ export default function DndProvider({
 
         const overlayEditor = createEditor(
           content,
-          styles.defaultFont,
-          styles.defaultTextColor,
+          initialStyles.defaultFont,
+          initialStyles.defaultTextColor,
           true, // preserve existing styles
-          styles.accentTextColor,
+          initialStyles.accentTextColor,
         );
 
         return (
@@ -1119,9 +1055,9 @@ export default function DndProvider({
             editor={overlayEditor}
             isOverlay
             block={draggedBlock}
-            defaultFont={styles.defaultFont}
-            defaultTextColor={styles.defaultTextColor}
-            isRounded={styles.isRounded}
+            defaultFont={initialStyles.defaultFont}
+            defaultTextColor={initialStyles.defaultTextColor}
+            isRounded={initialStyles.isRounded}
           />
         );
       }
@@ -1134,9 +1070,9 @@ export default function DndProvider({
           editor={editors[draggedBlock.id]}
           isOverlay
           block={draggedBlock}
-          defaultFont={styles.defaultFont}
-          defaultTextColor={styles.defaultTextColor}
-          isRounded={styles.isRounded}
+          defaultFont={initialStyles.defaultFont}
+          defaultTextColor={initialStyles.defaultTextColor}
+          isRounded={initialStyles.isRounded}
         />
       );
     }
@@ -1152,21 +1088,6 @@ export default function DndProvider({
     setIsSaving(true);
 
     try {
-      // 1. Update email styles
-      await updateEmailStyle.mutateAsync({
-        emailId,
-        updates: {
-          blocks_bg_color: styles.bgColor,
-          default_text_color: styles.defaultTextColor,
-          accent_text_color: styles.accentTextColor,
-          default_font: styles.defaultFont,
-          is_inset: styles.isInset,
-          is_rounded: styles.isRounded,
-          bg_color: styles.emailBgColor,
-          link_color: styles.linkColor,
-        },
-      });
-
       // 2. First, add any blocks with UUID IDs to the database
       const blocksWithUUID = blocks.filter(
         (block) =>
@@ -1253,17 +1174,8 @@ export default function DndProvider({
     }
   }, [
     emailId,
-    updateEmailStyle,
     batchUpdateEmailBlocks,
     addEmailBlock,
-    styles.bgColor,
-    styles.defaultTextColor,
-    styles.defaultFont,
-    styles.isInset,
-    styles.isRounded,
-    styles.emailBgColor,
-    styles.linkColor,
-    styles.accentTextColor,
     blocks,
     queryClient,
     router,
@@ -1437,169 +1349,6 @@ export default function DndProvider({
     }
   }, [blocksBeingDeleted]);
 
-  // Handle footer changes locally before sending to server
-  const handleFooterChange = (updatedFooter: any) => {
-    // Add to history system - this will update the UI state
-    updateFooterHistory(updatedFooter);
-
-    // Update the server
-    updateFooterOnServer(updatedFooter);
-  };
-
-  // Fix handleBgColorChange to include history update
-  const handleBgColorChange = useCallback(
-    (color: string) => {
-      // Update UI immediately - this will add to history
-      updateStylesHistory({ bgColor: color });
-
-      // Update database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          blocks_bg_color: color,
-        });
-      }
-    },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
-  );
-
-  // Fix handleIsInsetChange to include history update
-  const handleIsInsetChange = useCallback(
-    (inset: boolean) => {
-      // Update UI immediately - this will add to history
-      updateStylesHistory({ isInset: inset });
-
-      // Update database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          is_inset: inset,
-        });
-      }
-    },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
-  );
-
-  // Fix handleIsRoundedChange to include history update
-  const handleIsRoundedChange = useCallback(
-    (rounded: boolean) => {
-      // Update UI immediately - this will add to history
-      updateStylesHistory({ isRounded: rounded });
-
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          is_rounded: rounded,
-        });
-      }
-    },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
-  );
-
-  // Fix handleEmailBgColorChange to include history update
-  const handleEmailBgColorChange = useCallback(
-    (color: string) => {
-      // Update UI immediately - this will add to history
-      updateStylesHistory({ emailBgColor: color });
-
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          bg_color: color,
-        });
-      }
-    },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
-  );
-
-  // Fix handleLinkColorChange to include history update
-  const handleLinkColorChange = useCallback(
-    (color: string) => {
-      // Update UI immediately - this will add to history
-      updateStylesHistory({ linkColor: color });
-
-      if (emailId) {
-        debouncedStyleUpdate({
-          link_color: color,
-        });
-      }
-    },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
-  );
-
-  // Fix handleDefaultTextColorChange to include history update
-  const handleDefaultTextColorChange = useCallback(
-    (color: string) => {
-      // Update UI immediately - this will add to history
-      updateStylesHistory({ defaultTextColor: color });
-
-      // Update all editors with the new default text color
-      Object.values(editors).forEach((editor) => {
-        if (editor && !editor.isDestroyed) {
-          updateEditorColors(editor, color, styles.accentTextColor);
-        }
-      });
-
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          default_text_color: color,
-        });
-      }
-    },
-    [
-      emailId,
-      debouncedStyleUpdate,
-      updateStylesHistory,
-      editors,
-      styles.accentTextColor,
-      styles,
-    ],
-  );
-
-  // Fix handleDefaultFontChange to include history update
-  const handleDefaultFontChange = useCallback(
-    (font: string) => {
-      // Update UI immediately - this will add to history
-      updateStylesHistory({ defaultFont: font });
-
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          default_font: font,
-        });
-      }
-    },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
-  );
-
-  const handleAccentTextColorChange = useCallback(
-    (color: string) => {
-      // Update UI immediately - this will add to history
-      updateStylesHistory({ accentTextColor: color });
-
-      // Update all editors with the new accent text color
-      Object.values(editors).forEach((editor) => {
-        if (editor && !editor.isDestroyed) {
-          updateEditorColors(editor, styles.defaultTextColor, color);
-        }
-      });
-
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          accent_text_color: color,
-        });
-      }
-    },
-    [
-      emailId,
-      debouncedStyleUpdate,
-      updateStylesHistory,
-      editors,
-      styles.defaultTextColor,
-      styles,
-    ],
-  );
-
   // Initialize editors for text blocks
   useEffect(() => {
     const missingEditors = blocks.filter(
@@ -1618,102 +1367,17 @@ export default function DndProvider({
         // Always use the default font and color from email settings
         const newEditor = createEditor(
           initialContent,
-          styles.defaultFont,
-          styles.defaultTextColor,
+          initialStyles.defaultFont,
+          initialStyles.defaultTextColor,
           true, // preserve existing styles
-          styles.accentTextColor,
+          initialStyles.accentTextColor,
         );
         newEditors[block.id] = newEditor;
       });
 
       setEditors(newEditors);
     }
-  }, [blocks, styles.defaultFont, styles.defaultTextColor]);
-
-  // Update all text blocks when default font or color changes
-  useEffect(() => {
-    // Skip if there are no blocks or editors
-    if (blocks.length === 0 || Object.keys(editors).length === 0) return;
-
-    // Create a flag to check if any blocks actually need updating
-    let needsUpdate = false;
-
-    // Update all text blocks to use the new default font and color
-    const updatedBlocks = blocks.map((block) => {
-      if (block.type === "text") {
-        // Get the current content from the editor if available
-        const content =
-          editors[block.id]?.getHTML() || (block.data as any)?.content || null;
-
-        // Check if this block actually needs updating
-        const blockData = (block.data as any) || {};
-        if (
-          blockData.font !== styles.defaultFont ||
-          blockData.textColor !== styles.defaultTextColor
-        ) {
-          needsUpdate = true;
-
-          // Update the block data to use the default font and color
-          return {
-            ...block,
-            data: {
-              ...block.data,
-              content,
-              font: styles.defaultFont,
-              textColor: styles.defaultTextColor,
-            } as BlockType["data"],
-          };
-        }
-      }
-      return block;
-    });
-
-    // Only update if there are actual changes to make
-    if (needsUpdate) {
-      // Update the blocks  adding to history
-      updateBlocksHistory(updatedBlocks);
-
-      // Update all text editors to use the new font and color
-      Object.values(editors).forEach((editor) => {
-        if (!editor.isDestroyed) {
-          // Set the font and color for the editor
-          editor.commands.setFontFamily(styles.defaultFont);
-          editor.commands.setColor(styles.defaultTextColor);
-        }
-      });
-
-      // Update in database if we have an emailId
-      if (emailId) {
-        // Prepare content updates for all text blocks
-        const contentUpdates: ContentUpdate[] = updatedBlocks
-          .filter(
-            (block) => block.type === "text" && !isNaN(parseInt(block.id, 10)),
-          )
-          .map((block) => ({
-            id: parseInt(block.id, 10),
-            type: "text" as DatabaseBlockType,
-            value: block.data,
-          }));
-
-        // Send batch updates if there are any
-        if (contentUpdates.length > 0) {
-          batchUpdateEmailBlocks.mutate({
-            emailId,
-            orderUpdates: [],
-            contentUpdates,
-          });
-        }
-      }
-    }
-  }, [
-    styles.defaultFont,
-    styles.defaultTextColor,
-    emailId,
-    blocks,
-    editors,
-    updateBlocksHistory,
-    batchUpdateEmailBlocks,
-  ]);
+  }, [blocks, initialStyles.defaultFont, initialStyles.defaultTextColor]);
 
   // Custom collision detection that handles large blocks differently
   const customCollisionDetection: CollisionDetection = (args) => {
@@ -2003,8 +1667,6 @@ export default function DndProvider({
 
     // Store the current blocks before the undo operation
     const blocksBeforeUndo = [...blocks];
-    const stylesBeforeUndo = { ...styles };
-    const footerBeforeUndo = footer;
 
     // Perform the undo operation
     const previousState = undo();
@@ -2080,22 +1742,6 @@ export default function DndProvider({
       // This will recreate any restored blocks on the server
       debouncedServerUpdate(previousState.blocks, blocksBeforeUndo);
 
-      // Check if styles have changed and update on server if needed
-      if (
-        JSON.stringify(previousState.styles) !==
-        JSON.stringify(stylesBeforeUndo)
-      ) {
-        updateStylesOnServer(previousState.styles);
-      }
-
-      // Check if footer has changed and update on server if needed
-      if (
-        JSON.stringify(previousState.footer) !==
-        JSON.stringify(footerBeforeUndo)
-      ) {
-        updateFooterOnServer(previousState.footer);
-      }
-
       // Update editor content for text blocks
       previousState.blocks.forEach((block) => {
         if (
@@ -2147,10 +1793,7 @@ export default function DndProvider({
   }, [
     undo,
     blocks,
-    styles,
     debouncedServerUpdate,
-    updateStylesOnServer,
-    updateFooterOnServer,
     editors,
     setEditors,
     setBlocksBeingDeleted,
@@ -2164,8 +1807,6 @@ export default function DndProvider({
 
     // Store the current blocks before the redo operation
     const blocksBeforeRedo = [...blocks];
-    const stylesBeforeRedo = { ...styles };
-    const footerBeforeRedo = footer;
 
     // Perform the redo operation
     const nextState = redo();
@@ -2238,20 +1879,6 @@ export default function DndProvider({
       // This will recreate any restored blocks on the server
       debouncedServerUpdate(nextState.blocks, blocksBeforeRedo);
 
-      // Check if styles have changed and update on server if needed
-      if (
-        JSON.stringify(nextState.styles) !== JSON.stringify(stylesBeforeRedo)
-      ) {
-        updateStylesOnServer(nextState.styles);
-      }
-
-      // Check if footer has changed and update on server if needed
-      if (
-        JSON.stringify(nextState.footer) !== JSON.stringify(footerBeforeRedo)
-      ) {
-        updateFooterOnServer(nextState.footer);
-      }
-
       // Update editor content for text blocks
       nextState.blocks.forEach((block) => {
         if (block.type === "text") {
@@ -2268,10 +1895,10 @@ export default function DndProvider({
             // Create a new editor for this block if it doesn't exist
             const newEditor = createEditor(
               content,
-              styles.defaultFont,
-              styles.defaultTextColor,
+              initialStyles.defaultFont,
+              initialStyles.defaultTextColor,
               true, // preserve existing styles
-              styles.accentTextColor,
+              initialStyles.accentTextColor,
             );
 
             // Add to editors state
@@ -2317,15 +1944,12 @@ export default function DndProvider({
   }, [
     redo,
     blocks,
-    styles,
     debouncedServerUpdate,
-    updateStylesOnServer,
-    updateFooterOnServer,
     editors,
     setEditors,
-    styles.defaultFont,
-    styles.defaultTextColor,
-    styles.accentTextColor,
+    initialStyles.defaultFont,
+    initialStyles.defaultTextColor,
+    initialStyles.accentTextColor,
     setBlocksBeingDeleted,
     setCurrentState,
   ]);
@@ -2388,7 +2012,7 @@ export default function DndProvider({
       setIsUndoRedoOperation((prev) => !prev); // Toggle to force re-render
       setIsUndoRedoOperation((prev) => !prev); // Toggle back
     }
-  }, [blocks, styles, canUndo, canRedo, canUndoValue, canRedoValue]);
+  }, [blocks, canUndo, canRedo, canUndoValue, canRedoValue]);
 
   return (
     <div className="relative flex h-full flex-col">
@@ -2527,18 +2151,6 @@ export default function DndProvider({
         <div className="relative flex p-2 md:gap-4 md:p-4">
           <DndBuilderSidebar
             type="email"
-            onBgColorChange={handleBgColorChange}
-            bgColor={styles.bgColor}
-            defaultTextColor={styles.defaultTextColor}
-            onDefaultTextColorChange={handleDefaultTextColorChange}
-            defaultFont={styles.defaultFont}
-            onDefaultFontChange={handleDefaultFontChange}
-            isInset={styles.isInset}
-            onIsInsetChange={handleIsInsetChange}
-            isRounded={styles.isRounded}
-            onIsRoundedChange={handleIsRoundedChange}
-            emailBgColor={styles.emailBgColor}
-            onEmailBgColorChange={handleEmailBgColorChange}
             selectedBlock={
               selectedBlockId
                 ? blocks.find((block) => block.id === selectedBlockId) || null
@@ -2550,13 +2162,7 @@ export default function DndProvider({
             activeForm={activeForm}
             setActiveForm={setActiveForm}
             emailId={emailId}
-            footerData={footer}
-            onFooterChange={handleFooterChange}
-            linkColor={styles.linkColor}
-            onLinkColorChange={handleLinkColorChange}
             onlineUsers={onlineUsers}
-            accentTextColor={styles.accentTextColor}
-            onAccentTextColorChange={handleAccentTextColorChange}
             organizationId={organizationId}
           />
           <div className="relative flex-1">
@@ -2573,8 +2179,8 @@ export default function DndProvider({
                   >
                     <Toolbar
                       editor={editors[selectedBlockId]}
-                      defaultTextColor={styles.defaultTextColor}
-                      accentTextColor={styles.accentTextColor}
+                      defaultTextColor={initialStyles.defaultTextColor}
+                      accentTextColor={initialStyles.accentTextColor}
                     />
                   </motion.div>
                 )}
@@ -2585,21 +2191,20 @@ export default function DndProvider({
             >
               <DndBuilderCanvas
                 blocks={blocks}
-                bgColor={styles.bgColor}
-                isInset={styles.isInset}
-                isRounded={styles.isRounded}
-                emailBgColor={styles.emailBgColor}
+                bgColor={initialStyles.bgColor}
+                isInset={initialStyles.isInset}
+                isRounded={initialStyles.isRounded}
+                emailBgColor={initialStyles.emailBgColor}
                 onBlockSelect={setSelectedBlockId}
                 selectedBlockId={selectedBlockId}
                 editors={editors}
                 onTextContentChange={handleTextContentChange}
                 setActiveForm={setActiveForm}
                 activeForm={activeForm}
-                footerData={footer}
-                defaultFont={styles.defaultFont}
-                defaultTextColor={styles.defaultTextColor}
-                linkColor={styles.linkColor}
-                accentTextColor={styles.accentTextColor}
+                defaultFont={initialStyles.defaultFont}
+                defaultTextColor={initialStyles.defaultTextColor}
+                linkColor={initialStyles.linkColor}
+                accentTextColor={initialStyles.accentTextColor}
                 isUndoRedoOperation={isUndoRedoOperation}
               />
             </SortableContext>
