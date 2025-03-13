@@ -62,9 +62,6 @@ import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
 import EmailBuilderRealtimeListener from "@/components/listeners/email-builder/realtime-listener";
-import EmailStyleListener from "@/components/listeners/email-builder/email-style-listener";
-import EmailBlocksListener from "@/components/listeners/email-builder/email-blocks-listener";
-import { useToast } from "@church-space/ui/use-toast";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -114,7 +111,6 @@ export default function DndProvider({
   const queryClient = useQueryClient();
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const [isSaving, setIsSaving] = useState(false);
-  const [isLocalUpdate, setIsLocalUpdate] = useState(false);
   const [blocksBeingDeleted, setBlocksBeingDeleted] = useState<Set<string>>(
     new Set(),
   );
@@ -135,11 +131,6 @@ export default function DndProvider({
     }),
   );
   const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
-  const [lastExternalStyleUpdate, setLastExternalStyleUpdate] =
-    useState<Date | null>(null);
-  const [lastExternalBlocksUpdate, setLastExternalBlocksUpdate] =
-    useState<Date | null>(null);
-  const { toast } = useToast();
 
   // Initialize blocks and styles
   const initialBlocks =
@@ -1774,69 +1765,163 @@ export default function DndProvider({
     return [];
   };
 
-  // Create a debounced function for server updates
+  // Create a debounced function for server updates during undo/redo
   const debouncedServerUpdate = useCallback(
-    debounce(
-      async (currentBlocks: BlockType[], previousBlocks: BlockType[]) => {
-        if (!emailId) return;
+    debounce((currentBlocks: BlockType[], previousBlocks: BlockType[]) => {
+      if (!emailId) return;
 
-        setIsSaving(true);
-        setIsLocalUpdate(true); // Mark that we're making a local update
+      // 1. Find blocks that were in previousBlocks but not in currentBlocks (deleted blocks)
+      const deletedBlocks = previousBlocks.filter(
+        (prevBlock) =>
+          !currentBlocks.some((currBlock) => currBlock.id === prevBlock.id),
+      );
 
-        try {
-          // Update email style
-          await updateEmailStyle.mutateAsync({
-            emailId,
-            updates: {
-              blocks_bg_color: styles.bgColor,
-              default_text_color: styles.defaultTextColor,
-              accent_text_color: styles.accentTextColor,
-              default_font: styles.defaultFont,
-              is_inset: styles.isInset,
-              bg_color: styles.emailBgColor,
-              is_rounded: styles.isRounded,
-              link_color: styles.linkColor,
-            },
-          });
+      // 2. Find blocks that are in currentBlocks but not in previousBlocks (new blocks or restored blocks)
+      const newBlocks = currentBlocks.filter(
+        (currBlock) =>
+          !previousBlocks.some((prevBlock) => prevBlock.id === currBlock.id),
+      );
 
-          // Prepare content updates for blocks
-          const contentUpdates = blocks.map((block) => ({
-            id: parseInt(block.id, 10),
-            type: block.type as DatabaseBlockType,
-            value: block.data as any, // Cast to any to avoid type issues
-            order: block.order,
-          }));
+      // 3. Find blocks that exist in both but have different content (updated blocks)
+      const updatedBlocks = currentBlocks.filter((currBlock) => {
+        const prevBlock = previousBlocks.find((pb) => pb.id === currBlock.id);
+        if (!prevBlock) return false;
 
-          // Batch update blocks
-          await batchUpdateEmailBlocks.mutateAsync({
-            emailId,
-            contentUpdates,
-          });
+        // Check if the block has changed (excluding order changes which are handled separately)
+        return (
+          JSON.stringify(currBlock.data) !== JSON.stringify(prevBlock.data) ||
+          currBlock.type !== prevBlock.type
+        );
+      });
 
-          // Invalidate queries to refresh data
-          queryClient.invalidateQueries({
-            queryKey: ["email", emailId],
-          });
-        } catch (error) {
-          console.error("Error updating email:", error);
-        } finally {
-          setIsSaving(false);
-
-          // Reset isLocalUpdate after a delay to allow for the update to propagate
-          setTimeout(() => {
-            setIsLocalUpdate(false);
-          }, 500);
+      // 4. Process deleted blocks (if they have numeric IDs, delete from server)
+      deletedBlocks.forEach((block) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          const blockId = parseInt(block.id, 10);
+          deleteEmailBlock.mutate({ blockId });
         }
-      },
-      1000,
-    ),
+      });
+
+      // 5. Process new blocks
+      newBlocks.forEach((block) => {
+        // Check if the block has a numeric ID (could be a previously deleted block being restored)
+        const hasNumericId = !isNaN(parseInt(block.id, 10));
+
+        // Check if this block was previously deleted and is now being restored
+        const wasDeleted =
+          hasNumericId &&
+          (permanentlyDeletedBlocksRef.current.has(block.id) ||
+            permanentlyDeletedBlocksRef.current.has(
+              parseInt(block.id, 10).toString(),
+            ));
+
+        // Only create blocks on the server if:
+        // 1. They have a UUID (new blocks from sidebar)
+        // 2. OR they were previously deleted and are being restored (have numeric IDs)
+        if (!hasNumericId || wasDeleted) {
+          // For blocks with UUID IDs, add them normally
+          // For blocks with numeric IDs that were deleted, recreate them
+          addEmailBlock.mutate(
+            {
+              emailId,
+              type: block.type,
+              value: block.data || ({} as BlockData),
+              order: block.order,
+              linkedFile: undefined,
+            },
+            {
+              onSuccess: (result) => {
+                // If the block was successfully created on the server, update the UI with the new ID
+                if (result && result.id) {
+                  // Only update the UI if the IDs are different
+                  if (block.id !== result.id.toString()) {
+                    // Find the current blocks
+                    const currentUIBlocks = blocksRef.current;
+
+                    // Update the block ID in our local state
+                    const updatedBlocks = currentUIBlocks.map((b) =>
+                      b.id === block.id
+                        ? { ...b, id: result.id.toString() }
+                        : b,
+                    );
+
+                    // Update the UI with the new ID - this will add to history
+                    // We use a setTimeout to avoid conflicts with the current operation
+                    setTimeout(() => {
+                      updateBlocksHistory(updatedBlocks);
+                    }, 0);
+                  }
+                }
+
+                // Remove from permanently deleted blocks if it was there
+                if (wasDeleted) {
+                  permanentlyDeletedBlocksRef.current.delete(block.id);
+                  if (hasNumericId) {
+                    permanentlyDeletedBlocksRef.current.delete(
+                      parseInt(block.id, 10).toString(),
+                    );
+                  }
+                }
+
+                // Invalidate the query to refresh the data
+                queryClient.invalidateQueries({ queryKey: ["email", emailId] });
+              },
+            },
+          );
+        }
+      });
+
+      // 6. Process updated blocks (if they have numeric IDs, update on server)
+      updatedBlocks.forEach((block) => {
+        if (!isNaN(parseInt(block.id, 10))) {
+          const blockId = parseInt(block.id, 10);
+          updateEmailBlock.mutate({
+            blockId,
+            type: block.type,
+            value: block.data,
+            order: block.order,
+          });
+        }
+      });
+
+      // 7. Update all block orders - this ensures all blocks have the correct order on the server
+      // We need to do this after processing all blocks to ensure the order is consistent
+      setTimeout(() => {
+        // Get the latest blocks from the UI
+        const latestBlocks = blocksRef.current;
+
+        // Create order updates for all blocks with numeric IDs
+        const orderUpdates = latestBlocks
+          .map((block, index) => {
+            if (!isNaN(parseInt(block.id, 10))) {
+              return {
+                id: parseInt(block.id, 10),
+                order: index, // Use the index as the order to ensure consistent ordering
+              };
+            }
+            return null;
+          })
+          .filter(
+            (update): update is { id: number; order: number } =>
+              update !== null,
+          );
+
+        if (orderUpdates.length > 0 && emailId) {
+          batchUpdateEmailBlocks.mutate({
+            emailId,
+            orderUpdates,
+          });
+        }
+      }, 1000); // Wait a bit to ensure all block creations have completed
+    }, 500),
     [
       emailId,
-      blocks,
-      styles,
-      updateEmailStyle,
+      addEmailBlock,
+      deleteEmailBlock,
+      updateEmailBlock,
       batchUpdateEmailBlocks,
       queryClient,
+      updateBlocksHistory,
     ],
   );
 
@@ -1852,35 +1937,70 @@ export default function DndProvider({
     const previousState = undo();
 
     if (previousState) {
-      // Find blocks that are being deleted (in blocksBeforeUndo but not in previousState)
-      const deletedBlocks = blocksBeforeUndo.filter(
+      // Find blocks that are being restored (in previousState but not in blocksBeforeUndo)
+      const restoredBlocks = previousState.blocks.filter(
+        (prevBlock) =>
+          !blocksBeforeUndo.some((currBlock) => currBlock.id === prevBlock.id),
+      );
+
+      // Find blocks that are being removed (in blocksBeforeUndo but not in previousState)
+      // These are likely duplicated blocks that are being undone
+      const removedBlocks = blocksBeforeUndo.filter(
         (currBlock) =>
           !previousState.blocks.some(
             (prevBlock) => prevBlock.id === currBlock.id,
           ),
       );
 
-      // Add deleted blocks to blocksBeingDeleted to ensure they're filtered out of the UI
-      if (deletedBlocks.length > 0) {
+      // Add removed blocks to blocksBeingDeleted to ensure they're filtered out of the UI
+      if (removedBlocks.length > 0) {
         // Add to blocksBeingDeleted for immediate UI filtering
         setBlocksBeingDeleted((prev) => {
           const newSet = new Set(prev);
-          deletedBlocks.forEach((block) => {
+          removedBlocks.forEach((block) => {
             newSet.add(block.id);
+            if (!isNaN(parseInt(block.id, 10))) {
+              newSet.add(parseInt(block.id, 10).toString());
+            }
+
+            // Also add to permanentlyDeletedBlocksRef to ensure they don't reappear
+            permanentlyDeletedBlocksRef.current.add(block.id);
+            if (!isNaN(parseInt(block.id, 10))) {
+              permanentlyDeletedBlocksRef.current.add(
+                parseInt(block.id, 10).toString(),
+              );
+            }
           });
           return newSet;
         });
 
-        // Add to permanentlyDeletedBlocksRef for tracking blocks that need to be recreated if restored
-        deletedBlocks.forEach((block) => {
-          if (!isNaN(parseInt(block.id, 10))) {
-            permanentlyDeletedBlocksRef.current.add(block.id);
-            permanentlyDeletedBlocksRef.current.add(
-              parseInt(block.id, 10).toString(),
-            );
-          }
-        });
+        // Immediately update the UI to remove these blocks
+        // This ensures they don't jump to the bottom of the page
+        const filteredCurrentBlocks = blocksBeforeUndo.filter(
+          (block) => !removedBlocks.some((removed) => removed.id === block.id),
+        );
+
+        // Only update if blocks were actually removed
+        if (filteredCurrentBlocks.length < blocksBeforeUndo.length) {
+          // Force the UI to update with the filtered blocks
+          setCurrentState({
+            blocks: previousState.blocks,
+            styles: previousState.styles,
+          });
+        }
       }
+
+      // For each restored block, check if it has a numeric ID and mark it as deleted
+      // so that it will be recreated on the server
+      restoredBlocks.forEach((block) => {
+        // If it has a numeric ID, mark it as deleted so it will be recreated
+        if (!isNaN(parseInt(block.id, 10))) {
+          permanentlyDeletedBlocksRef.current.add(block.id);
+          permanentlyDeletedBlocksRef.current.add(
+            parseInt(block.id, 10).toString(),
+          );
+        }
+      });
 
       // Update server state based on the differences
       // This will recreate any restored blocks on the server
@@ -1956,33 +2076,68 @@ export default function DndProvider({
     const nextState = redo();
 
     if (nextState) {
-      // Find blocks that are being deleted (in blocksBeforeRedo but not in nextState)
-      const deletedBlocks = blocksBeforeRedo.filter(
+      // Find blocks that are being restored (in nextState but not in blocksBeforeRedo)
+      const restoredBlocks = nextState.blocks.filter(
+        (nextBlock) =>
+          !blocksBeforeRedo.some((currBlock) => currBlock.id === nextBlock.id),
+      );
+
+      // Find blocks that are being removed (in blocksBeforeRedo but not in nextState)
+      // These could be blocks that were deleted in the next state
+      const removedBlocks = blocksBeforeRedo.filter(
         (currBlock) =>
           !nextState.blocks.some((nextBlock) => nextBlock.id === currBlock.id),
       );
 
-      // Add deleted blocks to blocksBeingDeleted to ensure they're filtered out of the UI
-      if (deletedBlocks.length > 0) {
+      // Add removed blocks to blocksBeingDeleted to ensure they're filtered out of the UI
+      if (removedBlocks.length > 0) {
         // Add to blocksBeingDeleted for immediate UI filtering
         setBlocksBeingDeleted((prev) => {
           const newSet = new Set(prev);
-          deletedBlocks.forEach((block) => {
+          removedBlocks.forEach((block) => {
             newSet.add(block.id);
+            if (!isNaN(parseInt(block.id, 10))) {
+              newSet.add(parseInt(block.id, 10).toString());
+            }
+
+            // Also add to permanentlyDeletedBlocksRef to ensure they don't reappear
+            permanentlyDeletedBlocksRef.current.add(block.id);
+            if (!isNaN(parseInt(block.id, 10))) {
+              permanentlyDeletedBlocksRef.current.add(
+                parseInt(block.id, 10).toString(),
+              );
+            }
           });
           return newSet;
         });
 
-        // Add to permanentlyDeletedBlocksRef for tracking blocks that need to be recreated if restored
-        deletedBlocks.forEach((block) => {
-          if (!isNaN(parseInt(block.id, 10))) {
-            permanentlyDeletedBlocksRef.current.add(block.id);
-            permanentlyDeletedBlocksRef.current.add(
-              parseInt(block.id, 10).toString(),
-            );
-          }
-        });
+        // Immediately update the UI to remove these blocks
+        // This ensures they don't jump to the bottom of the page
+        const filteredCurrentBlocks = blocksBeforeRedo.filter(
+          (block) => !removedBlocks.some((removed) => removed.id === block.id),
+        );
+
+        // Only update if blocks were actually removed
+        if (filteredCurrentBlocks.length < blocksBeforeRedo.length) {
+          // Force the UI to update with the filtered blocks
+          setCurrentState({
+            blocks: nextState.blocks,
+            styles: nextState.styles,
+          });
+        }
       }
+
+      // For each restored block, check if it has a numeric ID and mark it as deleted
+      // so that it will be recreated on the server
+      restoredBlocks.forEach((block) => {
+        // If it has a numeric ID, mark it as deleted so it will be recreated
+        if (!isNaN(parseInt(block.id, 10))) {
+          permanentlyDeletedBlocksRef.current.add(block.id);
+          permanentlyDeletedBlocksRef.current.add(
+            parseInt(block.id, 10).toString(),
+          );
+        }
+      });
 
       // Update server state based on the differences
       // This will recreate any restored blocks on the server
@@ -2056,6 +2211,9 @@ export default function DndProvider({
     debouncedServerUpdate,
     editors,
     setEditors,
+    styles.defaultFont,
+    styles.defaultTextColor,
+    styles.accentTextColor,
     setBlocksBeingDeleted,
     setCurrentState,
   ]);
@@ -2119,60 +2277,6 @@ export default function DndProvider({
       setIsUndoRedoOperation((prev) => !prev); // Toggle back
     }
   }, [blocks, styles, canUndo, canRedo, canUndoValue, canRedoValue]);
-
-  // Handle realtime style updates from other users
-  const handleExternalStyleChange = useCallback(
-    (newStyles: EmailStyles) => {
-      // Skip if we're already in the process of saving or if this is a local update
-      if (isSaving || isLocalUpdate) return;
-
-      // Update the timestamp of the last external update
-      setLastExternalStyleUpdate(new Date());
-
-      // Update the styles in our state manager
-      updateStylesHistory(newStyles);
-
-      // Add toast for debugging purposes
-      toast({
-        title: "Style updated",
-        description: `Style updated at ${new Date().toLocaleTimeString()}`,
-        variant: "default",
-      });
-
-      console.log(
-        "External style update received and processed",
-        new Date().toLocaleTimeString(),
-      );
-    },
-    [isSaving, isLocalUpdate, updateStylesHistory, toast],
-  );
-
-  // Handle realtime block updates from other users
-  const handleExternalBlocksChange = useCallback(
-    (newBlocks: BlockType[]) => {
-      // Skip if we're already in the process of saving or if this is a local update
-      if (isSaving || isLocalUpdate) return;
-
-      // Update the timestamp of the last external update
-      setLastExternalBlocksUpdate(new Date());
-
-      // Update the blocks in our state manager
-      updateBlocksHistory(newBlocks);
-
-      // Add toast for debugging purposes
-      toast({
-        title: "Content updated",
-        description: `Content updated at ${new Date().toLocaleTimeString()}`,
-        variant: "default",
-      });
-
-      console.log(
-        "External blocks update received and processed",
-        new Date().toLocaleTimeString(),
-      );
-    },
-    [isSaving, isLocalUpdate, updateBlocksHistory, toast],
-  );
 
   return (
     <div className="relative flex h-full flex-col">
@@ -2392,14 +2496,6 @@ export default function DndProvider({
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
       <EmailBuilderRealtimeListener onOnlineUsersChange={setOnlineUsers} />
-      <EmailStyleListener
-        onStyleChange={handleExternalStyleChange}
-        isSaving={isSaving || isLocalUpdate}
-      />
-      <EmailBlocksListener
-        onBlocksChange={handleExternalBlocksChange}
-        isSaving={isSaving || isLocalUpdate}
-      />
     </div>
   );
 }

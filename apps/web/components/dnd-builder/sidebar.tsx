@@ -331,38 +331,44 @@ export default function DndBuilderSidebar({
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <Separator className="my-2" />
-                    <div className="mb-1.5 px-2 text-sm font-bold">
-                      Editors Online
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 px-1.5">
-                      {Object.entries(onlineUsers).map(([key, presences]) =>
-                        (presences as any[]).map((presence, index) => (
-                          <div key={`${key}-${index}`} className="relative">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Avatar className="h-8 w-8">
-                                  <AvatarImage src={presence.avatar_url} />
-                                  <AvatarFallback>
-                                    {presence.first_name?.charAt(0)}
-                                    {presence.last_name?.charAt(0)}
-                                  </AvatarFallback>
-                                </Avatar>
-                              </TooltipTrigger>
-                              <TooltipContent align="start">
-                                {presence.first_name} {presence.last_name}
-                              </TooltipContent>
-                            </Tooltip>
-                            <div className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-sidebar bg-green-500"></div>
-                          </div>
-                        )),
-                      )}
-                      {Object.keys(onlineUsers).length === 0 && (
-                        <div className="text-xs text-muted-foreground">
-                          No other editors online
+                    {Object.keys(onlineUsers).length > 0 && (
+                      <>
+                        <div className="mb-2 rounded-lg border border-destructive bg-destructive/20 p-2 px-2 text-sm">
+                          You will not see the edits other users make until you
+                          refresh. We recommend only having one person edit an
+                          email at a time until we add real-time collaboration
+                          features.
                         </div>
-                      )}
-                    </div>
+                        <Separator className="my-2" />
+                        <div className="mb-2 px-2 text-sm font-bold">
+                          Editors Online
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 px-1.5">
+                          {Object.entries(onlineUsers).map(([key, presences]) =>
+                            (presences as any[]).map((presence, index) => (
+                              <div key={`${key}-${index}`} className="relative">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarImage src={presence.avatar_url} />
+                                      <AvatarFallback>
+                                        {presence.first_name?.charAt(0)}
+                                        {presence.last_name?.charAt(0)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  </TooltipTrigger>
+                                  <TooltipContent align="start">
+                                    {presence.first_name} {presence.last_name}
+                                  </TooltipContent>
+                                </Tooltip>
+                                <div className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-sidebar bg-green-500"></div>
+                              </div>
+                            )),
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </motion.div>
