@@ -74,6 +74,7 @@ export default function HeaderForm({
         type="image"
         initialFilePath={headerImage}
         onRemove={() => setHeaderImage("")}
+        bucket="link_list_assets"
       />
       <Label className="font-medium">Background Color</Label>
       <ColorPicker
