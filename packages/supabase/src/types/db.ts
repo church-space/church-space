@@ -275,24 +275,30 @@ export type Database = {
           email_address: string | null
           email_id: number
           id: number
+          people_email_id: number | null
           resend_email_id: string | null
           status: Database["public"]["Enums"]["email_delivery_status"] | null
+          unsubscribe_token: string | null
         }
         Insert: {
           created_at?: string
           email_address?: string | null
           email_id: number
           id?: number
+          people_email_id?: number | null
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
+          unsubscribe_token?: string | null
         }
         Update: {
           created_at?: string
           email_address?: string | null
           email_id?: number
           id?: number
+          people_email_id?: number | null
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
+          unsubscribe_token?: string | null
         }
         Relationships: [
           {
@@ -300,6 +306,13 @@ export type Database = {
             columns: ["email_id"]
             isOneToOne: false
             referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_recipients_people_email_id_fkey"
+            columns: ["people_email_id"]
+            isOneToOne: false
+            referencedRelation: "people_emails"
             referencedColumns: ["id"]
           },
         ]
