@@ -25,7 +25,6 @@ import {
 } from "@church-space/ui/dialog";
 import { useToast } from "@church-space/ui/use-toast";
 import { createEmailTemplateAction } from "@/actions/create-email-template";
-import type { ActionResponse } from "@/types/action";
 
 interface EmailTemplateFormProps {
   emailId: number;

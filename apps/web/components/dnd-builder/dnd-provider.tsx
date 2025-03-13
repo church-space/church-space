@@ -27,7 +27,6 @@ import {
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
 import {
-  closestCenter,
   CollisionDetection,
   DndContext,
   DragOverlay,

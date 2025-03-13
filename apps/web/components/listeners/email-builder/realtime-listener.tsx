@@ -25,6 +25,8 @@ export default function EmailBuilderRealtimeListener({
 
   const supabase = createClient();
 
+  console.log(channel);
+
   useEffect(() => {
     if (!user || !emailId) return;
 
