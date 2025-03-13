@@ -2132,9 +2132,19 @@ export default function DndProvider({
       // Update the styles in our state manager
       updateStylesHistory(newStyles);
 
-      // No toast notification - removed to avoid spam
+      // Add toast for debugging purposes
+      toast({
+        title: "Style updated",
+        description: `Style updated at ${new Date().toLocaleTimeString()}`,
+        variant: "default",
+      });
+
+      console.log(
+        "External style update received and processed",
+        new Date().toLocaleTimeString(),
+      );
     },
-    [isSaving, isLocalUpdate, updateStylesHistory],
+    [isSaving, isLocalUpdate, updateStylesHistory, toast],
   );
 
   // Handle realtime block updates from other users
@@ -2149,9 +2159,19 @@ export default function DndProvider({
       // Update the blocks in our state manager
       updateBlocksHistory(newBlocks);
 
-      // No toast notification - removed to avoid spam
+      // Add toast for debugging purposes
+      toast({
+        title: "Content updated",
+        description: `Content updated at ${new Date().toLocaleTimeString()}`,
+        variant: "default",
+      });
+
+      console.log(
+        "External blocks update received and processed",
+        new Date().toLocaleTimeString(),
+      );
     },
-    [isSaving, isLocalUpdate, updateBlocksHistory],
+    [isSaving, isLocalUpdate, updateBlocksHistory, toast],
   );
 
   return (
