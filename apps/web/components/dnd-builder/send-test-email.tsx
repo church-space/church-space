@@ -63,7 +63,7 @@ export default function SendTestEmail() {
       // Get style from email data
       const emailStyle = emailData.email.style as unknown as EmailStyle;
       const style = {
-        bgColor: emailStyle?.bg_color || "#ffffff",
+        bgColor: emailStyle?.blocks_bg_color || "#ffffff",
         isInset: emailStyle?.is_inset || false,
         isRounded: emailStyle?.is_rounded || false,
         emailBgColor: emailStyle?.bg_color || "#eeeeee",

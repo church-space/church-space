@@ -31,6 +31,7 @@ interface EmailData {
   organization_id: string;
   style: {
     bg_color?: string;
+    blocks_bg_color?: string;
     is_inset?: boolean;
     is_rounded?: boolean;
     default_text_color?: string;
@@ -133,7 +134,7 @@ export const sendBulkEmails = task({
       // Get style from email data
       const emailStyle = typedEmailData.style || {};
       const style = {
-        bgColor: emailStyle.bg_color || "#ffffff",
+        bgColor: emailStyle.blocks_bg_color || "#ffffff",
         isInset: emailStyle.is_inset || false,
         isRounded: emailStyle.is_rounded || false,
         emailBgColor: emailStyle.bg_color || "#eeeeee",
@@ -329,9 +330,6 @@ export const sendBulkEmails = task({
               }
             }
           }
-
-          // Wait 500ms between batches to respect rate limits
-          await wait.for({ seconds: 0.5 });
         }
       }
 
