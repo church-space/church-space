@@ -87,10 +87,7 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
         </div>
       ) : (
         <div
-          className={cn(
-            "aspect-video bg-background",
-            isRounded && "rounded-md",
-          )}
+          className={cn("aspect-video bg-zinc-300", isRounded && "rounded-md")}
         ></div>
       )}
       <div className="absolute left-0 top-0 flex h-full w-full items-center justify-center">

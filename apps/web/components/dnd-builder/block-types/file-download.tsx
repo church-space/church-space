@@ -20,7 +20,7 @@ export default function FileDownloadBlock({
   return (
     <div
       className={cn(
-        "flex items-center justify-between border p-2 pl-4",
+        "flex items-center justify-between p-2 pl-4",
         isRounded && "rounded-md",
       )}
       style={{ backgroundColor: bgColor, fontFamily: defaultFont || "inherit" }}

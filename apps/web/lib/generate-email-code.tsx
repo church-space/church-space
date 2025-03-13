@@ -242,67 +242,75 @@ const CustomFileDownload: React.FC<{
   textColor: string;
   defaultFont?: string;
   isRounded?: boolean;
-}> = ({ title, file, bgColor, textColor, defaultFont, isRounded }) => (
-  <table
-    style={{ width: "100%", borderCollapse: "collapse", margin: "12px 0" }}
-    cellPadding="0"
-    cellSpacing="0"
-  >
-    <tr>
-      <td>
-        <a
-          href={file}
-          target="_blank"
-          style={{
-            textDecoration: "none",
-            display: "block",
-          }}
-        >
-          <div
+}> = ({ title, file, bgColor, textColor, defaultFont, isRounded }) => {
+  if (!file) {
+    return null;
+  }
+
+  return (
+    <table
+      style={{ width: "100%", borderCollapse: "collapse", margin: "12px 0" }}
+      cellPadding="0"
+      cellSpacing="0"
+    >
+      <tr>
+        <td>
+          <a
+            href={file}
+            target="_blank"
             style={{
-              backgroundColor: bgColor,
-              borderRadius: isRounded ? "6px" : "0",
-              padding: "8px 8px 8px 13px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+              textDecoration: "none",
+              display: "block",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <File width="20px" height="20px" fill={textColor} />
-              <span
-                style={{
-                  fontFamily: defaultFont || "sans-serif",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  color: textColor,
-                }}
+            <div
+              style={{
+                backgroundColor: bgColor,
+                borderRadius: isRounded ? "6px" : "0",
+                padding: "8px 8px 8px 13px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
-                {title}
-              </span>
+                <File width="20px" height="20px" fill={textColor} />
+                <span
+                  style={{
+                    fontFamily: defaultFont || "sans-serif",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: textColor,
+                  }}
+                >
+                  {title}
+                </span>
+              </div>
+              <div>
+                <span
+                  style={{
+                    border: `1px solid ${bgColor}`,
+                    borderRadius: isRounded ? "6px" : "0",
+                    color: bgColor,
+                    backgroundColor: textColor,
+                    display: "inline-block",
+                    fontFamily: defaultFont || "sans-serif",
+                    fontSize: "14px",
+                    padding: "6px 16px",
+                  }}
+                >
+                  Download
+                </span>
+              </div>
             </div>
-            <div>
-              <span
-                style={{
-                  border: `1px solid ${bgColor}`,
-                  borderRadius: isRounded ? "6px" : "0",
-                  color: bgColor,
-                  backgroundColor: textColor,
-                  display: "inline-block",
-                  fontFamily: defaultFont || "sans-serif",
-                  fontSize: "14px",
-                  padding: "6px 16px",
-                }}
-              >
-                Download
-              </span>
-            </div>
-          </div>
-        </a>
-      </td>
-    </tr>
-  </table>
-);
+          </a>
+        </td>
+      </tr>
+    </table>
+  );
+};
 
 const CustomVideo: React.FC<{
   url: string;
@@ -320,6 +328,10 @@ const CustomVideo: React.FC<{
     margin: centered ? "0 auto" : "0",
     position: "relative" as const,
   };
+
+  if (!videoId) {
+    return null;
+  }
 
   return (
     <div style={containerStyle}>
@@ -395,9 +407,9 @@ const CustomCards: React.FC<{
   defaultFont,
   isRounded,
 }) => (
-  <div style={{ padding: "12px 0" }}>
+  <div style={{ paddingTop: "12px" }}>
     {(title || subtitle) && (
-      <div style={{ marginBottom: "24px" }}>
+      <div style={{ marginBottom: "20px" }}>
         {title && (
           <div
             style={{
@@ -425,7 +437,11 @@ const CustomCards: React.FC<{
         )}
       </div>
     )}
-    <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
+    <table
+      style={{ width: "100%", rowGap: "56px" }}
+      cellPadding="0"
+      cellSpacing="0"
+    >
       {cards
         .reduce((rows, card, index) => {
           if (index % 2 === 0) {
@@ -444,8 +460,6 @@ const CustomCards: React.FC<{
                   key={colIndex}
                   style={{
                     width: "50%",
-                    padding: "8px",
-
                     verticalAlign: "top",
                   }}
                 >

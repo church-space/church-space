@@ -245,6 +245,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
           collapsible
           value={openCard}
           onValueChange={setOpenCard}
+          className="space-y-2"
         >
           {localState.cards.map((card, index) => (
             <AccordionItem key={index} value={index.toString()}>

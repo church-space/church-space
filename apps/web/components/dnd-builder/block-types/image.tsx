@@ -3,7 +3,7 @@ import { createClient } from "@church-space/supabase/client";
 import { cn } from "@church-space/ui/cn";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-
+import { Image as ImageIcon } from "@church-space/ui/icons";
 interface ImageBlockProps {
   data?: ImageBlockData;
   isRounded?: boolean;
@@ -45,7 +45,11 @@ export default function ImageBlock({ data, isRounded }: ImageBlockProps) {
           height={1000}
         />
       ) : (
-        <div className="aspect-video bg-background" />
+        <div className="aspect-video bg-zinc-300">
+          <div className="flex h-full w-full items-center justify-center">
+            <ImageIcon fill="#000000" height={"50"} width={"50"} />
+          </div>
+        </div>
       )}
     </div>
   );
