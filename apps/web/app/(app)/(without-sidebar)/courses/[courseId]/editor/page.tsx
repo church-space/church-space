@@ -9,11 +9,11 @@ import EmailNotFound from "@/components/not-found/email";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
-type Params = Promise<{ emailId: string }>;
+type Params = Promise<{ courseId: string }>;
 
 export default async function Page(props: { params: Params }) {
   const params = await props.params;
-  const emailId = parseInt(params.emailId, 10);
+  const courseId = parseInt(params.courseId, 10);
 
   // Get organizationId from cookies
   const cookieStore = await cookies();
@@ -23,7 +23,7 @@ export default async function Page(props: { params: Params }) {
 
   // Prefetch the email data
   await queryClient.prefetchQuery({
-    queryKey: ["email", emailId],
+    queryKey: ["email", courseId],
     queryFn: async () => {
       const supabase = await createClient();
 
@@ -40,7 +40,7 @@ export default async function Page(props: { params: Params }) {
           type
         `,
         )
-        .eq("id", emailId)
+        .eq("id", courseId)
         .single();
 
       if (emailError) {
@@ -64,7 +64,7 @@ export default async function Page(props: { params: Params }) {
       const { data: blocksData, error: blocksError } = await supabase
         .from("email_blocks")
         .select("*")
-        .eq("email_id", emailId)
+        .eq("email_id", courseId)
         .order("order", { ascending: true });
 
       if (blocksError) {
@@ -75,7 +75,7 @@ export default async function Page(props: { params: Params }) {
       const { data: footerData, error: footerError } = await supabase
         .from("email_footers")
         .select("*")
-        .eq("email_id", emailId)
+        .eq("email_id", courseId)
         .maybeSingle();
 
       // Only throw if it's not a "not found" error
@@ -93,16 +93,11 @@ export default async function Page(props: { params: Params }) {
   });
 
   // Get the prefetched data to check for early returns
-  const emailData = queryClient.getQueryData(["email", emailId]) as any;
+  const emailData = queryClient.getQueryData(["email", courseId]) as any;
 
   // Early return if email not found or organization ID doesn't match
   if (!emailData?.email || emailData.email.organization_id !== organizationId) {
     return <EmailNotFound />;
-  }
-
-  // Redirect if email status is sent/sending or type is template
-  if (emailData.shouldRedirect) {
-    redirect(`/emails/${emailId}?previewOpen=true`);
   }
 
   return (

@@ -15,7 +15,9 @@ export type BlockType =
   | "file-upload"
   | "rating"
   | "address"
-  | "list";
+  | "list"
+  | "audio"
+  | "quiz";
 
 export interface TextBlockData {
   content: string | null;

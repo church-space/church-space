@@ -20,6 +20,8 @@ import {
   TemplatesIcon,
   Typography,
   Video,
+  Quiz as QuizIcon,
+  Audio as AudioIcon,
 } from "@church-space/ui/icons";
 import {
   Popover,
@@ -47,7 +49,7 @@ import DndBuilderSidebarForms from "./sidebar-forms";
 
 interface DndBuilderSidebarProps {
   className?: string;
-  type: "email" | "form";
+  type: "email" | "form" | "content";
   onBgColorChange?: (color: string) => void;
   bgColor?: string;
   onFooterBgColorChange?: (color: string) => void;
@@ -117,7 +119,7 @@ function DraggableBlock({
   const BlockContent = ({ className }: { className?: string }) => (
     <div
       className={cn(
-        "flex cursor-grab flex-col items-center gap-1 rounded-md border bg-accent p-3 shadow-sm",
+        "flex cursor-grab flex-col items-center gap-1 rounded-md border bg-accent p-3 shadow-sm hover:bg-accent/80",
         className,
       )}
     >
@@ -128,7 +130,13 @@ function DraggableBlock({
 
   return (
     <>
-      <div ref={setNodeRef} {...listeners} {...attributes} style={style}>
+      <div
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
+        style={style}
+        className={cn(block.type === "quiz" && "col-span-3 mt-4")}
+      >
         <BlockContent />
       </div>
       {isDragging && (
@@ -158,6 +166,8 @@ export const allBlockTypes = [
   { label: "File Upload", type: "file-upload", icon: ArrowRight },
   { label: "Rating", type: "rating", icon: Home },
   { label: "Address", type: "address", icon: ArrowRight },
+  { label: "Audio", type: "audio", icon: AudioIcon },
+  { label: "Quiz", type: "quiz", icon: QuizIcon },
 ];
 
 export default function DndBuilderSidebar({
@@ -217,10 +227,28 @@ export default function DndBuilderSidebar({
     "list",
   ];
 
+  const contentBlockTypes = [
+    "section",
+    "text",
+    "image",
+    "button",
+    "file-download",
+    "divider",
+    "video",
+    "author",
+    "list",
+    "audio",
+    "quiz",
+  ];
+
   const blockTypes =
     type === "email"
       ? allBlockTypes.filter((block) => emailBlockTypes.includes(block.type))
-      : allBlockTypes;
+      : type === "content"
+        ? allBlockTypes.filter((block) =>
+            contentBlockTypes.includes(block.type),
+          )
+        : allBlockTypes;
 
   return (
     <>
@@ -298,26 +326,30 @@ export default function DndBuilderSidebar({
                     </div>
                     <Separator className="my-6" />
                     <div className="flex flex-col gap-4">
-                      <div
-                        className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
-                        onClick={() => setActiveForm("email-style")}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Palette />
-                          Styles
-                        </div>
-                        <ChevronRight />
-                      </div>
-                      <div
-                        className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
-                        onClick={() => setActiveForm("email-footer")}
-                      >
-                        <div className="flex items-center gap-2">
-                          <FooterIcon />
-                          Footer
-                        </div>
-                        <ChevronRight />
-                      </div>
+                      {type === "email" && (
+                        <>
+                          <div
+                            className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
+                            onClick={() => setActiveForm("email-style")}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Palette />
+                              Styles
+                            </div>
+                            <ChevronRight />
+                          </div>
+                          <div
+                            className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
+                            onClick={() => setActiveForm("email-footer")}
+                          >
+                            <div className="flex items-center gap-2">
+                              <FooterIcon />
+                              Footer
+                            </div>
+                            <ChevronRight />
+                          </div>
+                        </>
+                      )}
                       <div
                         className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                         onClick={() => setActiveForm("email-templates")}

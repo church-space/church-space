@@ -9,6 +9,7 @@ import Footer from "./footer";
 import { Layout } from "@church-space/ui/icons";
 
 interface CanvasProps {
+  type: "email" | "form" | "content";
   blocks: BlockType[];
   bgColor: string;
   isInset?: boolean;
@@ -41,6 +42,7 @@ interface CanvasProps {
 }
 
 export default function DndBuilderCanvas({
+  type,
   blocks,
   bgColor,
   isInset = false,
@@ -187,8 +189,9 @@ export default function DndBuilderCanvas({
                   Drag blocks here
                 </div>
                 <div className="max-w-xs text-center text-sm text-blue-300 text-muted-foreground">
-                  Drag and drop email blocks from the left panel to build your
-                  email template
+                  Drag and drop {type === "email" ? "email" : "course"} blocks
+                  from the left panel to build your{" "}
+                  {type === "email" ? "email" : "course"}
                 </div>
               </motion.div>
             ) : (
@@ -198,8 +201,9 @@ export default function DndBuilderCanvas({
                   Drag blocks here
                 </div>
                 <div className="max-w-xs text-center text-sm text-muted-foreground">
-                  Drag and drop email blocks from the left panel to build your
-                  email template
+                  Drag and drop {type === "email" ? "email" : "course"} blocks
+                  from the left panel to build your{" "}
+                  {type === "email" ? "email" : "course"}
                 </div>
               </div>
             )}
@@ -251,18 +255,20 @@ export default function DndBuilderCanvas({
           </>
         )}
       </div>
-      <Footer
-        onClick={(e) => {
-          e.stopPropagation();
-          onBlockSelect(null);
-          setActiveForm("email-footer");
-        }}
-        isActive={activeForm === "email-footer"}
-        footerData={footerData}
-        emailInset={isInset}
-        emailBgColor={emailBgColor}
-        defaultFont={defaultFont}
-      />
+      {type === "email" && (
+        <Footer
+          onClick={(e) => {
+            e.stopPropagation();
+            onBlockSelect(null);
+            setActiveForm("email-footer");
+          }}
+          isActive={activeForm === "email-footer"}
+          footerData={footerData}
+          emailInset={isInset}
+          emailBgColor={emailBgColor}
+          defaultFont={defaultFont}
+        />
+      )}
     </div>
   );
 }

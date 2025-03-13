@@ -2584,6 +2584,7 @@ export default function EmailDndProvider({
               strategy={verticalListSortingStrategy}
             >
               <DndBuilderCanvas
+                type="email"
                 blocks={blocks}
                 bgColor={styles.bgColor}
                 isInset={styles.isInset}

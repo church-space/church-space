@@ -2150,7 +2150,7 @@ export default function CourseDndProvider({
       >
         <div className="relative flex p-2 md:gap-4 md:p-4">
           <DndBuilderSidebar
-            type="email"
+            type="content"
             selectedBlock={
               selectedBlockId
                 ? blocks.find((block) => block.id === selectedBlockId) || null
@@ -2190,6 +2190,7 @@ export default function CourseDndProvider({
               strategy={verticalListSortingStrategy}
             >
               <DndBuilderCanvas
+                type="content"
                 blocks={blocks}
                 bgColor={initialStyles.bgColor}
                 isInset={initialStyles.isInset}
