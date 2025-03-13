@@ -9,6 +9,80 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      course_blocks: {
+        Row: {
+          course_id: number
+          created_at: string
+          id: number
+          linked_file: string | null
+          order: number | null
+          type: Database["public"]["Enums"]["block_types"]
+          value: Json | null
+        }
+        Insert: {
+          course_id: number
+          created_at?: string
+          id?: number
+          linked_file?: string | null
+          order?: number | null
+          type: Database["public"]["Enums"]["block_types"]
+          value?: Json | null
+        }
+        Update: {
+          course_id?: number
+          created_at?: string
+          id?: number
+          linked_file?: string | null
+          order?: number | null
+          type?: Database["public"]["Enums"]["block_types"]
+          value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_blocks_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_blocks_email_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          id: number
+          organization_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          organization_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          organization_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       domains: {
         Row: {
           created_at: string
@@ -954,6 +1028,8 @@ export type Database = {
         | "spacer"
         | "list"
         | "author"
+        | "quiz"
+        | "audio"
       email_address_status: "unsubscribed" | "pco_blocked" | "subscribed"
       email_delivery_status:
         | "sent"

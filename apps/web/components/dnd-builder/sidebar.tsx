@@ -89,6 +89,7 @@ interface DndBuilderSidebarProps {
       | "email-templates",
   ) => void;
   emailId?: number;
+  courseId?: number;
   footerData?: any;
   onFooterChange?: (data: any) => void;
   onlineUsers?: Record<string, any>;
@@ -192,6 +193,7 @@ export default function DndBuilderSidebar({
   activeForm,
   setActiveForm,
   emailId,
+  courseId,
   footerData,
   linkColor,
   onLinkColorChange,
@@ -292,6 +294,7 @@ export default function DndBuilderSidebar({
                   defaultFont={defaultFont}
                   onDefaultFontChange={onDefaultFontChange}
                   emailId={emailId}
+                  courseId={courseId}
                   footerData={footerData}
                   isRounded={isRounded}
                   onIsRoundedChange={onIsRoundedChange}

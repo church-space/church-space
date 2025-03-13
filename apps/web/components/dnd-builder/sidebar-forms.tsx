@@ -43,6 +43,7 @@ export default function DndBuilderSidebarForms({
   defaultFont,
   onDefaultFontChange,
   emailId,
+  courseId,
   footerData,
   isRounded,
   onIsRoundedChange,
@@ -74,6 +75,7 @@ export default function DndBuilderSidebarForms({
   defaultFont?: string;
   onDefaultFontChange?: (font: string) => void;
   emailId?: number;
+  courseId?: number;
   footerData?: any;
   isRounded?: boolean;
   onIsRoundedChange?: (isRounded: boolean) => void;
@@ -118,6 +120,10 @@ export default function DndBuilderSidebarForms({
   };
 
   if (!emailId) {
+    return null;
+  }
+
+  if (!courseId) {
     return null;
   }
 

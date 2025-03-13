@@ -50,42 +50,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Block from "./block";
 import DndBuilderCanvas from "./canvas";
 import EmailPreview from "./email-preview";
-import { useAddEmailBlock } from "./mutations/use-add-email-block";
-import { useBatchUpdateEmailBlocks } from "./mutations/use-batch-update-email-blocks";
-import { useDeleteEmailBlock } from "./mutations/use-delete-email-block";
-import { useUpdateEmailBlock } from "./mutations/use-update-email-block";
-import { createEditor, updateEditorColors } from "./rich-text-editor/editor";
+import { useAddCourseBlock } from "./mutations/use-add-course-block";
+import { useBatchUpdateCourseBlocks } from "./mutations/use-batch-update-course-blocks";
+import { useDeleteCourseBlock } from "./mutations/use-delete-course-block";
+import { useUpdateCourseBlock } from "./mutations/use-update-course-block";
+import { createEditor } from "./rich-text-editor/editor";
 import Toolbar from "./rich-text-editor/rich-text-format-bar";
-import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
 import EmailBuilderRealtimeListener from "@/components/listeners/email-builder/realtime-listener";
-
-// Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
-type DatabaseBlockType =
-  | "cards"
-  | "button"
-  | "text"
-  | "divider"
-  | "video"
-  | "file-download"
-  | "image"
-  | "spacer"
-  | "list"
-  | "author";
-
-// Interface for order updates
-interface OrderUpdate {
-  id: number;
-  order: number;
-}
-
-// Interface for content updates
-interface ContentUpdate {
-  id: number;
-  type: DatabaseBlockType;
-  value: any;
-}
+import { DatabaseBlockType, OrderUpdate, ContentUpdate } from "./dnd-types";
+import { useCourseWithBlocks } from "@/hooks/use-course-with-blocks";
 
 export default function CourseDndProvider({
   organizationId,
@@ -97,14 +72,14 @@ export default function CourseDndProvider({
   const router = useRouter();
   const isMobile = useIsMobile();
   const [showMobileWarning, setShowMobileWarning] = useState(true);
-  const emailId = params.emailId
-    ? parseInt(params.emailId as string, 10)
+  const courseId = params.courseId
+    ? parseInt(params.courseId as string, 10)
     : undefined;
-  const { data: emailData } = useEmailWithBlocks(emailId);
-  const addEmailBlock = useAddEmailBlock();
-  const deleteEmailBlock = useDeleteEmailBlock();
-  const updateEmailBlock = useUpdateEmailBlock();
-  const batchUpdateEmailBlocks = useBatchUpdateEmailBlocks();
+  const { data: courseData } = useCourseWithBlocks(courseId);
+  const addCourseBlock = useAddCourseBlock();
+  const deleteCourseBlock = useDeleteCourseBlock();
+  const updateCourseBlock = useUpdateCourseBlock();
+  const batchUpdateCourseBlocks = useBatchUpdateCourseBlocks();
   const queryClient = useQueryClient();
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const [isSaving, setIsSaving] = useState(false);
@@ -131,7 +106,7 @@ export default function CourseDndProvider({
 
   // Initialize blocks and styles
   const initialBlocks =
-    (emailData?.blocks?.map((block) => ({
+    (courseData?.blocks?.map((block) => ({
       id: block.id.toString(),
       type: block.type as BlockType["type"],
       order: block.order || 0,
@@ -139,18 +114,17 @@ export default function CourseDndProvider({
     })) as BlockType[]) || [];
 
   // Use type assertion to avoid TypeScript errors
-  const email = emailData?.email as any;
-  const emailStyle = email?.style || {};
+  const course = courseData?.course as any;
 
   const initialStyles: EmailStyles = {
-    bgColor: emailStyle.blocks_bg_color || "#f4f4f5",
-    isInset: emailStyle.is_inset || false,
-    emailBgColor: emailStyle.bg_color || "#ffffff",
-    linkColor: emailStyle.link_color || "#0000ff",
-    defaultTextColor: emailStyle.default_text_color || "#000000",
-    defaultFont: emailStyle.default_font || "Inter",
-    isRounded: emailStyle.is_rounded ?? true,
-    accentTextColor: emailStyle.accent_text_color || "#666666",
+    bgColor: "#f4f4f5",
+    isInset: false,
+    emailBgColor: "#ffffff",
+    linkColor: "#0000ff",
+    defaultTextColor: "#000000",
+    defaultFont: "Inter",
+    isRounded: true,
+    accentTextColor: "#666666",
   };
 
   const {
@@ -174,7 +148,7 @@ export default function CourseDndProvider({
   // Helper function to update block orders in the database
   const updateBlockOrdersInDatabase = useCallback(
     (blocksToUpdate: BlockType[]) => {
-      if (!emailId) return;
+      if (!courseId) return;
 
       const orderUpdates = blocksToUpdate
         .map((block, index) => {
@@ -192,13 +166,13 @@ export default function CourseDndProvider({
 
       // Only update blocks that already exist in the database (have numeric IDs)
       if (orderUpdates.length > 0) {
-        batchUpdateEmailBlocks.mutate({
-          emailId,
+        batchUpdateCourseBlocks.mutate({
+          courseId,
           orderUpdates,
         });
       }
     },
-    [emailId, batchUpdateEmailBlocks],
+    [courseId, batchUpdateCourseBlocks],
   );
 
   // Create a ref to track the latest blocks for debounced history updates
@@ -212,12 +186,12 @@ export default function CourseDndProvider({
   // Create a debounced version of updateEmailBlock for database updates
   const debouncedDatabaseUpdate = useCallback(
     debounce((blockId: number, value: any) => {
-      updateEmailBlock.mutate({
+      updateCourseBlock.mutate({
         blockId,
         value,
       });
     }, 1000),
-    [updateEmailBlock],
+    [updateCourseBlock],
   );
 
   // Update handleTextContentChange to check the isUndoRedoOperation flag
@@ -249,7 +223,7 @@ export default function CourseDndProvider({
     updateBlocksHistory(sortedBlocks);
 
     // Update in database if we have an emailId and the block exists in the database
-    if (emailId && !isNaN(parseInt(blockId, 10))) {
+    if (courseId && !isNaN(parseInt(blockId, 10))) {
       const dbBlockId = parseInt(blockId, 10);
       const blockToUpdate = blocks.find((block) => block.id === blockId);
       const existingData = (blockToUpdate?.data as any) || {};
@@ -310,7 +284,7 @@ export default function CourseDndProvider({
         }
 
         // Update order in database for all affected blocks
-        if (emailId) {
+        if (courseId) {
           updateBlockOrdersInDatabase(reorderedBlocks);
         }
       }
@@ -482,12 +456,12 @@ export default function CourseDndProvider({
     updateBlocksHistory(newBlocks);
 
     // Add the block to the database if we have an emailId
-    if (emailId) {
+    if (courseId) {
       // First update the UI optimistically
       // Then add to database
-      addEmailBlock.mutate(
+      addCourseBlock.mutate(
         {
-          emailId,
+          courseId,
           type: blockType,
           value: blockData,
           order: newBlockOrder,
@@ -620,11 +594,11 @@ export default function CourseDndProvider({
     }
 
     // Delete from database if we have an emailId and the block exists in the database
-    if (emailId && blockToDelete) {
+    if (courseId && blockToDelete) {
       if (!isNaN(parseInt(blockToDelete.id, 10))) {
         // It's a numeric ID, delete directly
         const blockId = parseInt(blockToDelete.id, 10);
-        deleteEmailBlock.mutate(
+        deleteCourseBlock.mutate(
           { blockId },
           {
             onSuccess: () => {
@@ -640,8 +614,10 @@ export default function CourseDndProvider({
               updateBlockOrdersInDatabase(reorderedBlocks);
 
               // Invalidate the query to refresh the data
-              if (emailId) {
-                queryClient.invalidateQueries({ queryKey: ["email", emailId] });
+              if (courseId) {
+                queryClient.invalidateQueries({
+                  queryKey: ["course", courseId],
+                });
               }
             },
             onError: () => {
@@ -655,11 +631,11 @@ export default function CourseDndProvider({
             },
           },
         );
-      } else if (emailData && emailData.blocks) {
+      } else if (courseData && courseData.blocks) {
         // It's a UUID, we need to find the corresponding database ID
 
         // Try to find a matching block in the database by comparing properties
-        const matchingDbBlock = emailData.blocks.find((dbBlock) => {
+        const matchingDbBlock = courseData.blocks.find((dbBlock) => {
           // Match by type and order
           return (
             dbBlock.type === blockToDelete.type &&
@@ -673,7 +649,7 @@ export default function CourseDndProvider({
             matchingDbBlock.id.toString(),
           );
 
-          deleteEmailBlock.mutate(
+          deleteCourseBlock.mutate(
             { blockId: matchingDbBlock.id },
             {
               onSuccess: () => {
@@ -689,9 +665,9 @@ export default function CourseDndProvider({
                 updateBlockOrdersInDatabase(reorderedBlocks);
 
                 // Invalidate the query to refresh the data
-                if (emailId) {
+                if (courseId) {
                   queryClient.invalidateQueries({
-                    queryKey: ["email", emailId],
+                    queryKey: ["course", courseId],
                   });
                 }
               },
@@ -789,7 +765,7 @@ export default function CourseDndProvider({
         updateBlocksHistory(newBlocks);
 
         // Add the duplicated block to the database if we have an emailId
-        if (emailId) {
+        if (courseId) {
           // Create a default value if data is undefined based on block type
           let blockValue: BlockData;
           if (!updatedBlock.data) {
@@ -873,9 +849,9 @@ export default function CourseDndProvider({
             blockValue = updatedBlock.data;
           }
 
-          addEmailBlock.mutate(
+          addCourseBlock.mutate(
             {
-              emailId,
+              courseId,
               type: updatedBlock.type,
               value: blockValue,
               order: insertIndex,
@@ -975,7 +951,7 @@ export default function CourseDndProvider({
       updateBlocksHistory(sortedBlocks);
 
       // For database updates, debounce the operation
-      if (emailId) {
+      if (courseId) {
         if (databaseUpdateTimerRef.current) {
           clearTimeout(databaseUpdateTimerRef.current);
         }
@@ -984,7 +960,7 @@ export default function CourseDndProvider({
           if (!isNaN(parseInt(updatedBlock.id, 10))) {
             // Update existing block - include the order in the update
             const dbBlockId = parseInt(updatedBlock.id, 10);
-            updateEmailBlock.mutate({
+            updateCourseBlock.mutate({
               blockId: dbBlockId,
               value: updatedBlock.data,
               type: updatedBlock.type,
@@ -995,11 +971,11 @@ export default function CourseDndProvider({
       }
     },
     [
-      emailId,
+      courseId,
       blocks,
       updateBlocksHistory,
-      updateEmailBlock,
-      addEmailBlock,
+      updateCourseBlock,
+      addCourseBlock,
       setSelectedBlockId,
       updateBlockOrdersInDatabase,
     ],
@@ -1082,7 +1058,7 @@ export default function CourseDndProvider({
 
   // Handle save button click
   const handleSave = useCallback(async () => {
-    if (!emailId) return;
+    if (!courseId) return;
 
     // Set saving state to true
     setIsSaving(true);
@@ -1101,8 +1077,8 @@ export default function CourseDndProvider({
       for (const block of blocksWithUUID) {
         try {
           // Keep the block in the UI with its current UUID
-          const result = await addEmailBlock.mutateAsync({
-            emailId,
+          const result = await addCourseBlock.mutateAsync({
+            courseId,
             type: block.type,
             value: block.data || ({} as BlockData),
             order: block.order,
@@ -1152,30 +1128,30 @@ export default function CourseDndProvider({
 
       // 4. Send batch updates if there are any
       if (orderUpdates.length > 0 || contentUpdates.length > 0) {
-        await batchUpdateEmailBlocks.mutateAsync({
-          emailId,
+        await batchUpdateCourseBlocks.mutateAsync({
+          courseId,
           orderUpdates,
           contentUpdates,
         });
       }
 
-      // Refresh the email data to get the latest block IDs
-      queryClient.invalidateQueries({ queryKey: ["email", emailId] });
+      // Refresh the course data to get the latest block IDs
+      queryClient.invalidateQueries({ queryKey: ["course", courseId] });
 
       // Navigate to the emails page with the emailId
-      router.push(`/emails/${emailId}`);
+      router.push(`/courses/${courseId}`);
 
       // Note: We don't set isSaving to false here because we want the button
       // to remain in loading state during navigation
     } catch (error) {
-      console.error("Error saving email:", error);
+      console.error("Error saving course:", error);
       // Set saving state to false if there's an error
       setIsSaving(false);
     }
   }, [
-    emailId,
-    batchUpdateEmailBlocks,
-    addEmailBlock,
+    courseId,
+    batchUpdateCourseBlocks,
+    addCourseBlock,
     blocks,
     queryClient,
     router,
@@ -1203,7 +1179,7 @@ export default function CourseDndProvider({
 
   // Function to ensure all database blocks are visible in the UI
   const ensureBlocksVisibility = useCallback(() => {
-    if (!emailData || !emailData.blocks || !blocks) return;
+    if (!courseData || !courseData.blocks || !blocks) return;
 
     const uiBlockIds = blocks.map((block) => {
       // Convert numeric string IDs to numbers for comparison
@@ -1242,7 +1218,7 @@ export default function CourseDndProvider({
     }
 
     // Check for missing blocks (in DB but not in UI)
-    const missingBlocks = emailData.blocks.filter((dbBlock) => {
+    const missingBlocks = courseData.blocks.filter((dbBlock) => {
       const blockIdStr = dbBlock.id.toString();
       const isInUI =
         uiBlockIds.includes(dbBlock.id) ||
@@ -1280,23 +1256,23 @@ export default function CourseDndProvider({
 
       updateBlocksHistory(sortedBlocks);
     }
-  }, [emailData, blocks, updateBlocksHistory, blocksBeingDeleted]);
+  }, [courseData, blocks, updateBlocksHistory, blocksBeingDeleted]);
 
-  // Call ensureBlocksVisibility when emailData changes
+  // Call ensureBlocksVisibility when courseData changes
   useEffect(() => {
-    if (emailData) {
+    if (courseData) {
       // Only ensure visibility if we're not in the middle of deleting blocks
       if (blocksBeingDeleted.size === 0) {
         ensureBlocksVisibility();
       }
     }
-  }, [emailData, ensureBlocksVisibility, blocksBeingDeleted]);
+  }, [courseData, ensureBlocksVisibility, blocksBeingDeleted]);
 
   // Also call ensureBlocksVisibility after blocks are updated
   useEffect(() => {
     // Use a longer delay to allow server operations to complete
     const timer = setTimeout(() => {
-      if (emailData && blocks) {
+      if (courseData && blocks) {
         // Only ensure visibility if we're not in the middle of deleting blocks
         if (blocksBeingDeleted.size === 0) {
           ensureBlocksVisibility();
@@ -1305,7 +1281,7 @@ export default function CourseDndProvider({
     }, 1000); // Longer delay to allow server operations to complete
 
     return () => clearTimeout(timer);
-  }, [blocks, ensureBlocksVisibility, emailData, blocksBeingDeleted]);
+  }, [blocks, ensureBlocksVisibility, courseData, blocksBeingDeleted]);
 
   // Filter out blocks that are being deleted from the UI
   const filteredBlocks = blocks.filter((block) => {
@@ -1364,7 +1340,7 @@ export default function CourseDndProvider({
             ? (block.data as any).content
             : "";
 
-        // Always use the default font and color from email settings
+        // Always use the default font and color from course settings
         const newEditor = createEditor(
           initialContent,
           initialStyles.defaultFont,
@@ -1503,7 +1479,7 @@ export default function CourseDndProvider({
   // Create a debounced function for server updates during undo/redo
   const debouncedServerUpdate = useCallback(
     debounce((currentBlocks: BlockType[], previousBlocks: BlockType[]) => {
-      if (!emailId) return;
+      if (!courseId) return;
 
       // 1. Find blocks that were in previousBlocks but not in currentBlocks (deleted blocks)
       const deletedBlocks = previousBlocks.filter(
@@ -1533,7 +1509,7 @@ export default function CourseDndProvider({
       deletedBlocks.forEach((block) => {
         if (!isNaN(parseInt(block.id, 10))) {
           const blockId = parseInt(block.id, 10);
-          deleteEmailBlock.mutate({ blockId });
+          deleteCourseBlock.mutate({ blockId });
         }
       });
 
@@ -1556,9 +1532,9 @@ export default function CourseDndProvider({
         if (!hasNumericId || wasDeleted) {
           // For blocks with UUID IDs, add them normally
           // For blocks with numeric IDs that were deleted, recreate them
-          addEmailBlock.mutate(
+          addCourseBlock.mutate(
             {
-              emailId,
+              courseId,
               type: block.type,
               value: block.data || ({} as BlockData),
               order: block.order,
@@ -1599,7 +1575,9 @@ export default function CourseDndProvider({
                 }
 
                 // Invalidate the query to refresh the data
-                queryClient.invalidateQueries({ queryKey: ["email", emailId] });
+                queryClient.invalidateQueries({
+                  queryKey: ["course", courseId],
+                });
               },
             },
           );
@@ -1610,7 +1588,7 @@ export default function CourseDndProvider({
       updatedBlocks.forEach((block) => {
         if (!isNaN(parseInt(block.id, 10))) {
           const blockId = parseInt(block.id, 10);
-          updateEmailBlock.mutate({
+          updateCourseBlock.mutate({
             blockId,
             type: block.type,
             value: block.data,
@@ -1641,20 +1619,20 @@ export default function CourseDndProvider({
               update !== null,
           );
 
-        if (orderUpdates.length > 0 && emailId) {
-          batchUpdateEmailBlocks.mutate({
-            emailId,
+        if (orderUpdates.length > 0 && courseId) {
+          batchUpdateCourseBlocks.mutate({
+            courseId,
             orderUpdates,
           });
         }
       }, 1000); // Wait a bit to ensure all block creations have completed
     }, 500),
     [
-      emailId,
-      addEmailBlock,
-      deleteEmailBlock,
-      updateEmailBlock,
-      batchUpdateEmailBlocks,
+      courseId,
+      addCourseBlock,
+      deleteCourseBlock,
+      updateCourseBlock,
+      batchUpdateCourseBlocks,
       queryClient,
       updateBlocksHistory,
     ],
@@ -2026,8 +2004,8 @@ export default function CourseDndProvider({
           </DialogHeader>
           <div className="py-4">
             <p>
-              You are currently using the email editor on a mobile device. While
-              we support mobile editing, it is still in beta and you may
+              You are currently using the course editor on a mobile device.
+              While we support mobile editing, it is still in beta and you may
               encounter some limitations.
             </p>
             <p className="mt-2">
@@ -2051,10 +2029,10 @@ export default function CourseDndProvider({
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbLink
-                  href={`/emails/${emailId}`}
+                  href={`/courses/${courseId}`}
                   className="truncate"
                 >
-                  {(emailData?.email as any)?.subject || "Email Subject"}
+                  {courseData?.course?.title || "Course Title"}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
@@ -2113,7 +2091,6 @@ export default function CourseDndProvider({
               <EmailPreview />
             </DialogContent>
           </Dialog>
-          <SendTestEmail />
           <Button variant="default" onClick={handleSave} disabled={isSaving}>
             <span className="hidden md:block">
               {isSaving ? (
@@ -2161,7 +2138,7 @@ export default function CourseDndProvider({
             onBlockUpdate={handleBlockUpdate}
             activeForm={activeForm}
             setActiveForm={setActiveForm}
-            emailId={emailId}
+            courseId={courseId}
             onlineUsers={onlineUsers}
             organizationId={organizationId}
           />

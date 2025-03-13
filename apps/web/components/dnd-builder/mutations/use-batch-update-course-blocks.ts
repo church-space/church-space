@@ -32,28 +32,28 @@ interface ContentUpdate {
   linked_file?: string | null;
 }
 
-interface BatchUpdateEmailBlocksParams {
-  emailId: number;
+interface BatchUpdateCourseBlocksParams {
+  courseId: number;
   orderUpdates?: OrderUpdate[];
   contentUpdates?: ContentUpdate[];
 }
 
-export function useBatchUpdateEmailBlocks() {
+export function useBatchUpdateCourseBlocks() {
   const queryClient = useQueryClient();
   const supabase = createClient();
 
   return useMutation({
     mutationFn: async ({
-      emailId,
+      courseId,
       orderUpdates = [],
       contentUpdates = [],
-    }: BatchUpdateEmailBlocksParams) => {
+    }: BatchUpdateCourseBlocksParams) => {
       const updatePromises = [];
 
       // Process order updates (simple and fast)
       if (orderUpdates.length > 0) {
         const orderPromises = orderUpdates.map(({ id, order }) => {
-          return supabase.from("email_blocks").update({ order }).eq("id", id);
+          return supabase.from("course_blocks").update({ order }).eq("id", id);
         });
 
         updatePromises.push(...orderPromises);
@@ -62,7 +62,7 @@ export function useBatchUpdateEmailBlocks() {
       // Process content updates (more complex)
       if (contentUpdates.length > 0) {
         const contentPromises = contentUpdates.map(({ id, ...updates }) => {
-          return supabase.from("email_blocks").update(updates).eq("id", id);
+          return supabase.from("course_blocks").update(updates).eq("id", id);
         });
 
         updatePromises.push(...contentPromises);
@@ -78,12 +78,12 @@ export function useBatchUpdateEmailBlocks() {
         throw new Error(`Failed to update ${errors.length} blocks`);
       }
 
-      return { success: true, emailId, orderUpdates, contentUpdates };
+      return { success: true, courseId, orderUpdates, contentUpdates };
     },
     onSuccess: (data) => {
       // Instead of invalidating the query, update the cache directly
-      if (data && data.emailId) {
-        queryClient.setQueryData(["email", data.emailId], (oldData: any) => {
+      if (data && data.courseId) {
+        queryClient.setQueryData(["course", data.courseId], (oldData: any) => {
           if (!oldData) return oldData;
 
           const updatedBlocks = [...oldData.blocks];

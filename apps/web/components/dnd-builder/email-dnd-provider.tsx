@@ -62,32 +62,7 @@ import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
 import EmailBuilderRealtimeListener from "@/components/listeners/email-builder/realtime-listener";
 import { useUpdateEmailFooter } from "./mutations/use-update-email-footer";
-
-// Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
-type DatabaseBlockType =
-  | "cards"
-  | "button"
-  | "text"
-  | "divider"
-  | "video"
-  | "file-download"
-  | "image"
-  | "spacer"
-  | "list"
-  | "author";
-
-// Interface for order updates
-interface OrderUpdate {
-  id: number;
-  order: number;
-}
-
-// Interface for content updates
-interface ContentUpdate {
-  id: number;
-  type: DatabaseBlockType;
-  value: any;
-}
+import { DatabaseBlockType, OrderUpdate, ContentUpdate } from "./dnd-types";
 
 export default function EmailDndProvider({
   organizationId,
