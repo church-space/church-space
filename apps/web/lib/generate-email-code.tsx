@@ -54,18 +54,30 @@ const CustomText: React.FC<{
   const sanitizedContent = content
     .replace(/class="[^"]*"/g, "")
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
-    .replace(
-      /<h1/g,
-      '<h1 style="margin: 1em 0 0.2em 0; font-weight: 600; font-size: 2rem; line-height: 1"',
-    )
-    .replace(
-      /<h2/g,
-      '<h2 style="margin: 1em 0 0.2em 0; font-weight: 700; font-size: 1.5rem; line-height: 1.3"',
-    )
-    .replace(
-      /<h3/g,
-      '<h3 style="margin: 1em 0 0.2em 0; font-weight: 600; font-size: 1.25rem; line-height: 1.3"',
-    )
+    .replace(/<h1(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      const baseStyle =
+        "margin: 1em 0 0.2em 0; font-weight: 600; font-size: 2rem; line-height: 1";
+      if (existingStyle) {
+        return `<h1 style="${existingStyle}; ${baseStyle}"`;
+      }
+      return `<h1 style="${baseStyle}"`;
+    })
+    .replace(/<h2(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      const baseStyle =
+        "margin: 1em 0 0.2em 0; font-weight: 700; font-size: 1.5rem; line-height: 1.3";
+      if (existingStyle) {
+        return `<h2 style="${existingStyle}; ${baseStyle}"`;
+      }
+      return `<h2 style="${baseStyle}"`;
+    })
+    .replace(/<h3(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      const baseStyle =
+        "margin: 1em 0 0.2em 0; font-weight: 600; font-size: 1.25rem; line-height: 1.3";
+      if (existingStyle) {
+        return `<h3 style="${existingStyle}; ${baseStyle}"`;
+      }
+      return `<h3 style="${baseStyle}"`;
+    })
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
@@ -86,36 +98,7 @@ const CustomText: React.FC<{
     // Handle empty paragraphs for line breaks
     .replace(/<p style="[^"]*"><\/p>/g, '<div style="height: 1.6em"></div>')
     // Add font size to list items
-    .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"')
-    // Add font size to spans, but don't override font size for spans inside headings
-    .replace(
-      /<(h[1-6])([^>]*)>([\s\S]*?)<\/\1>/g,
-      (fullHeading, tag, attributes, headingContent) => {
-        // Process the heading content to preserve spans without adding font-size
-        const processedContent = headingContent.replace(
-          /<span(?: style="([^"]*)")?/g,
-          (match: string, existingStyle?: string) => {
-            if (existingStyle) {
-              return `<span style="${existingStyle}"`;
-            }
-            return `<span`;
-          },
-        );
-
-        return `<${tag}${attributes}>${processedContent}</${tag}>`;
-      },
-    )
-    // Then process remaining spans (those not in headings) to add font-size
-    .replace(
-      /<span(?: style="([^"]*)")?/g,
-      (match: string, existingStyle?: string) => {
-        const baseStyle = "font-size: 16px";
-        if (existingStyle) {
-          return `<span style="${existingStyle}; ${baseStyle}"`;
-        }
-        return `<span style="${baseStyle}"`;
-      },
-    );
+    .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"');
 
   return (
     <div
@@ -234,6 +217,10 @@ const CustomImage: React.FC<{
   const ImageComponent = (
     <Img src={imageUrl} alt="Email content" width="100%" style={imageStyle} />
   );
+
+  if (image === "") {
+    return null;
+  }
 
   return (
     <div style={containerStyle}>
@@ -723,14 +710,14 @@ const CustomAuthor: React.FC<{
                           style={{
                             width: "40px",
                             height: "40px",
-                            backgroundColor: "#e2e8f0",
+                            backgroundColor: "#d4d4d8",
                             borderRadius: "50%",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: finalTextColor,
+                            color: "#000000",
                             fontFamily: defaultFont || "sans-serif",
-                            fontSize: "18px",
+                            fontSize: "15px",
                             fontWeight: "500",
                           }}
                         >

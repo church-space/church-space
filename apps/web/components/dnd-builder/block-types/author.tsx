@@ -78,7 +78,9 @@ export default function AuthorBlock({
           {avatarUrl ? (
             <AvatarImage src={avatarUrl} className="object-cover" />
           ) : null}
-          <AvatarFallback delayMs={0}>{name[0]}</AvatarFallback>
+          <AvatarFallback className="bg-zinc-300 text-black" delayMs={0}>
+            {name[0]}
+          </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
           <p
