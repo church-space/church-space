@@ -322,6 +322,7 @@ export type Database = {
       }
       emails: {
         Row: {
+          category_id: number | null
           created_at: string
           from_email: string | null
           from_name: string | null
@@ -339,6 +340,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          category_id?: number | null
           created_at?: string
           from_email?: string | null
           from_name?: string | null
@@ -356,6 +358,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          category_id?: number | null
           created_at?: string
           from_email?: string | null
           from_name?: string | null
@@ -373,6 +376,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "emails_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "email_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "emails_list_id_fkey"
             columns: ["list_id"]
