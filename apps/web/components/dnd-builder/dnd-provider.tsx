@@ -61,6 +61,7 @@ import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
+import EmailBuilderRealtimeListener from "@/components/listeners/email-builder/realtime-listener";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -129,7 +130,7 @@ export default function DndProvider({
       },
     }),
   );
-  // const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
+  const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
 
   // Initialize blocks and styles
   const initialBlocks =
@@ -2441,7 +2442,7 @@ export default function DndProvider({
             onFooterChange={handleFooterChange}
             linkColor={styles.linkColor}
             onLinkColorChange={handleLinkColorChange}
-            // onlineUsers={onlineUsers}
+            onlineUsers={onlineUsers}
             accentTextColor={styles.accentTextColor}
             onAccentTextColorChange={handleAccentTextColorChange}
             organizationId={organizationId}
@@ -2494,6 +2495,7 @@ export default function DndProvider({
         </div>
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
+      <EmailBuilderRealtimeListener onOnlineUsersChange={setOnlineUsers} />
     </div>
   );
 }

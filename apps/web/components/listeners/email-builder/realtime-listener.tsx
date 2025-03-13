@@ -2,7 +2,7 @@
 import { createClient } from "@church-space/supabase/client";
 import { useUser } from "@/stores/use-user";
 import { useEffect, useState } from "react";
-import { getDbUser } from "@church-space/supabase/cached-queries/platform";
+import { getDbUserQuery } from "@church-space/supabase/queries/all/get-db-user";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { useParams } from "next/navigation";
 
@@ -44,7 +44,7 @@ export default function EmailBuilderRealtimeListener({
         // When a new user joins, fetch their details if we don't have them
         if (key !== user.id) {
           try {
-            const response = await getDbUser(key);
+            const response = await getDbUserQuery(supabase, key);
 
             // Update the presence with user details
             if (response?.userDetails) {
