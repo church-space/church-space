@@ -437,11 +437,7 @@ const CustomCards: React.FC<{
         )}
       </div>
     )}
-    <table
-      style={{ width: "100%", rowGap: "56px" }}
-      cellPadding="0"
-      cellSpacing="0"
-    >
+    <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
       {cards
         .reduce((rows, card, index) => {
           if (index % 2 === 0) {
@@ -452,7 +448,12 @@ const CustomCards: React.FC<{
           return rows;
         }, [] as any[])
         .map((row, rowIndex) => (
-          <tr key={rowIndex}>
+          <tr
+            key={rowIndex}
+            style={{
+              ...(rowIndex > 0 ? { verticalAlign: "top" } : {}),
+            }}
+          >
             {row.map((card: any, colIndex: number) => {
               const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${card.image}`;
               return (
@@ -461,6 +462,7 @@ const CustomCards: React.FC<{
                   style={{
                     width: "50%",
                     verticalAlign: "top",
+                    ...(rowIndex > 0 ? { paddingTop: "56px" } : {}),
                   }}
                 >
                   <div style={{ maxWidth: "100%" }}>
