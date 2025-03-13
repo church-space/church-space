@@ -12,16 +12,19 @@ export type Database = {
       domains: {
         Row: {
           created_at: string
+          domain: string
           id: number
           organization_id: string
         }
         Insert: {
           created_at?: string
+          domain: string
           id?: number
           organization_id: string
         }
         Update: {
           created_at?: string
+          domain?: string
           id?: number
           organization_id?: string
         }
@@ -949,6 +952,8 @@ export type Database = {
         | "complained"
         | "bounced"
         | "opened"
+        | "pending"
+        | "did-not-send"
       email_statuses: "draft" | "sent" | "sending" | "scheduled" | "failed"
       email_types: "standard" | "template"
       pco_sync_types: "lists" | "emails"
