@@ -39,7 +39,7 @@ export function NavMain({
                 <span>{item.title}</span>
               </a>
             </SidebarMenuButton>
-            {item.submenu && item.isActive && (
+            {item.submenu && (
               <SidebarMenuSub>
                 {item.submenu?.map((submenuItem) => (
                   <SidebarMenuItem key={submenuItem.title}>

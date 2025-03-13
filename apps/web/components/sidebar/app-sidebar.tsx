@@ -37,11 +37,29 @@ const data = {
       title: "Emails",
       url: "/emails",
       icon: Mail,
-    },
-    {
-      title: "Automations",
-      url: "/automations",
-      icon: Waypoints,
+      submenu: [
+        {
+          title: "All Emails",
+          url: "/emails",
+          icon: Mail,
+        },
+        {
+          title: "Email Templates",
+          url: "/email-templates",
+          icon: Mail,
+        },
+
+        {
+          title: "Automations",
+          url: "/automations",
+          icon: Mail,
+        },
+        {
+          title: "Email Categories",
+          url: "/email-categories",
+          icon: Mail,
+        },
+      ],
     },
     {
       title: "Links",
