@@ -36,7 +36,7 @@ export default function ConnectToPcoButton() {
   return (
     <div className="flex flex-col gap-2">
       <Button
-        className="w-full px-4 py-2"
+        className="w-full bg-foreground px-4 py-2"
         onClick={handleConnect}
         disabled={isLoading}
       >
