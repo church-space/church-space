@@ -12,11 +12,13 @@ import { DateTimePicker } from "@church-space/ui/date-time-picker";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
-import { Eye } from "lucide-react";
+import { Ellipsis, Eye } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@church-space/ui/cn";
@@ -53,6 +55,12 @@ import { format } from "date-fns";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@church-space/ui/dropdown-menu";
 
 function SaveButtons() {
   return (
@@ -99,6 +107,8 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categoryValue, setCategoryValue] = useState("");
 
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
   // Subject validation functions
   // Subject validation functions
   const wordCount = subject.trim().split(/\s+/).filter(Boolean).length;
@@ -118,10 +128,42 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
 
   return (
     <>
+      <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-5">
+        {subject ? (
+          <div className="text-2xl font-bold">{subject}</div>
+        ) : (
+          <div className="text-2xl font-bold text-muted-foreground">
+            Subject
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <Link href={`/emails/${emailId}/editor`}>
+            <Button variant="outline" size="sm">
+              Edit Design
+            </Button>
+          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="p-2">
+                <Ellipsis />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  setDeleteOpen(true);
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
       <Accordion
         type="single"
         collapsible
-        className="mx-auto w-full max-w-3xl space-y-4 px-4"
+        className="mx-auto w-full max-w-3xl space-y-4 px-4 py-4"
       >
         <AccordionItem value="to">
           <AccordionTrigger className="text-md font-semibold">
@@ -519,6 +561,21 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
           </div>
         </div>
       </Accordion>
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Email</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Are you sure you want to delete this email? This action cannot be
+            undone.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="outline">Cancel</Button>
+            <Button variant="destructive">Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

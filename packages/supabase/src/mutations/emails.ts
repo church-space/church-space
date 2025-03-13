@@ -427,3 +427,15 @@ export async function applyEmailTemplate(
   console.log("Template application completed successfully");
   return { success: true, emailId };
 }
+
+export async function updateEmail(
+  supabase: Client,
+  emailId: number,
+  email: Database["public"]["Tables"]["emails"]["Row"]
+) {
+  const { data, error } = await supabase
+    .from("emails")
+    .update(email)
+    .eq("id", emailId)
+    .select();
+}
