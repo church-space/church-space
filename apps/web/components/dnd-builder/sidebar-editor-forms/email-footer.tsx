@@ -26,7 +26,6 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import ColorPicker from "../color-picker";
 import FileUpload from "../file-upload";
-import { useUpdateEmailFooter } from "../mutations/use-update-email-footer";
 import { Separator } from "@church-space/ui/separator";
 
 interface Link {
@@ -53,8 +52,6 @@ export default function EmailFooterForm({
 }: EmailFooterFormProps) {
   const { organizationId } = useUser();
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
-  const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const updateEmailFooter = useUpdateEmailFooter();
 
   // Local state with default values
   const [localState, setLocalState] = useState({
@@ -107,47 +104,24 @@ export default function EmailFooterForm({
     // Update local state immediately for responsive UI
     setLocalState(newState);
 
-    // Trigger immediate UI update through prop
+    // Trigger UI update and server update through prop
     if (onFooterChange) {
       onFooterChange(newState);
     }
-
-    // Debounce the database update
-    if (updateTimerRef.current) {
-      clearTimeout(updateTimerRef.current);
-    }
-
-    // Set a new timer for database updates
-    updateTimerRef.current = setTimeout(() => {
-      if (emailId && organizationId) {
-        updateEmailFooter.mutate({
-          emailId,
-          organizationId,
-          updates: newState,
-        });
-      }
-    }, 500); // 500ms debounce
   };
 
   const addLink = () => {
     if (localState.links.length < 5) {
       const newLinks = [...localState.links, { icon: "", url: "" }];
+      const newState = { ...localState, links: newLinks };
 
-      // Update local state and server
-      setLocalState((prev) => {
-        const newState = { ...prev, links: newLinks };
+      // Update local state
+      setLocalState(newState);
 
-        // Update server
-        if (emailId && organizationId) {
-          updateEmailFooter.mutate({
-            emailId,
-            organizationId,
-            updates: newState,
-          });
-        }
-
-        return newState;
-      });
+      // Trigger UI update and server update through prop
+      if (onFooterChange) {
+        onFooterChange(newState);
+      }
     }
   };
 
@@ -202,21 +176,15 @@ export default function EmailFooterForm({
 
         // Only update if valid
         if (isValid) {
-          // Update local state and server
-          setLocalState((prev) => {
-            const newState = { ...prev, links: newLinks };
+          const newState = { ...localState, links: newLinks };
 
-            // Update server
-            if (emailId && organizationId) {
-              updateEmailFooter.mutate({
-                emailId,
-                organizationId,
-                updates: newState,
-              });
-            }
+          // Update local state
+          setLocalState(newState);
 
-            return newState;
-          });
+          // Trigger UI update and server update through prop
+          if (onFooterChange) {
+            onFooterChange(newState);
+          }
         }
       }, 500);
 
@@ -231,21 +199,15 @@ export default function EmailFooterForm({
         setLinkErrors((prev) => ({ ...prev, [index]: null }));
       }
 
-      // Update local state and server
-      setLocalState((prev) => {
-        const newState = { ...prev, links: newLinks };
+      const newState = { ...localState, links: newLinks };
 
-        // Update server
-        if (emailId && organizationId) {
-          updateEmailFooter.mutate({
-            emailId,
-            organizationId,
-            updates: newState,
-          });
-        }
+      // Update local state
+      setLocalState(newState);
 
-        return newState;
-      });
+      // Trigger UI update and server update through prop
+      if (onFooterChange) {
+        onFooterChange(newState);
+      }
     }
   };
 
@@ -263,21 +225,11 @@ export default function EmailFooterForm({
       const isValid = validateLink(link.url, link.icon, index);
 
       if (isValid) {
-        // Update local state and server
-        setLocalState((prev) => {
-          const newState = { ...prev };
-
-          // Update server
-          if (emailId && organizationId) {
-            updateEmailFooter.mutate({
-              emailId,
-              organizationId,
-              updates: newState,
-            });
-          }
-
-          return newState;
-        });
+        // No need to create a new state object since we're not changing anything
+        // Just trigger the server update through the prop
+        if (onFooterChange) {
+          onFooterChange(localState);
+        }
       }
     }
   };
@@ -287,21 +239,15 @@ export default function EmailFooterForm({
       (_: Link, i: number) => i !== index,
     );
 
-    // Update local state and server
-    setLocalState((prev) => {
-      const newState = { ...prev, links: newLinks };
+    const newState = { ...localState, links: newLinks };
 
-      // Update server
-      if (emailId && organizationId) {
-        updateEmailFooter.mutate({
-          emailId,
-          organizationId,
-          updates: newState,
-        });
-      }
+    // Update local state
+    setLocalState(newState);
 
-      return newState;
-    });
+    // Trigger UI update and server update through prop
+    if (onFooterChange) {
+      onFooterChange(newState);
+    }
 
     // Clean up any errors or timers for this index
     setLinkErrors((prev) => {
@@ -317,39 +263,27 @@ export default function EmailFooterForm({
   };
 
   const handleUploadComplete = (path: string) => {
-    // Update local state and server
-    setLocalState((prev) => {
-      const newState = { ...prev, logo: path };
+    const newState = { ...localState, logo: path };
 
-      // Update server
-      if (emailId && organizationId) {
-        updateEmailFooter.mutate({
-          emailId,
-          organizationId,
-          updates: newState,
-        });
-      }
+    // Update local state
+    setLocalState(newState);
 
-      return newState;
-    });
+    // Trigger UI update and server update through prop
+    if (onFooterChange) {
+      onFooterChange(newState);
+    }
   };
 
   const handleLogoRemove = () => {
-    // Update local state and server
-    setLocalState((prev) => {
-      const newState = { ...prev, logo: "" };
+    const newState = { ...localState, logo: "" };
 
-      // Update server
-      if (emailId && organizationId) {
-        updateEmailFooter.mutate({
-          emailId,
-          organizationId,
-          updates: newState,
-        });
-      }
+    // Update local state
+    setLocalState(newState);
 
-      return newState;
-    });
+    // Trigger UI update and server update through prop
+    if (onFooterChange) {
+      onFooterChange(newState);
+    }
   };
 
   // Cleanup timers on unmount

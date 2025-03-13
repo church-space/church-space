@@ -17,6 +17,7 @@ export interface EmailStyles {
 export interface HistoryState {
   blocks: Block[];
   styles: EmailStyles;
+  footer: any; // Make footer required in history state
 }
 
 export function useBlockStateManager(
@@ -31,11 +32,13 @@ export function useBlockStateManager(
     isRounded: true,
     linkColor: "#0000ff",
   },
+  initialFooter: any = null, // Add initialFooter parameter
 ) {
   // State for current values
   const [currentState, setCurrentState] = useState({
     blocks: initialBlocks,
     styles: initialStyles,
+    footer: initialFooter, // Add footer to current state
   });
 
   // Add state for undo/redo availability to trigger re-renders
@@ -44,7 +47,7 @@ export function useBlockStateManager(
 
   // History management
   const historyRef = useRef<HistoryState[]>([
-    { blocks: initialBlocks, styles: initialStyles },
+    { blocks: initialBlocks, styles: initialStyles, footer: initialFooter }, // Add footer to initial history state
   ]);
   const currentIndexRef = useRef<number>(0);
   const maxHistoryLength = 50;
@@ -120,6 +123,7 @@ export function useBlockStateManager(
       const newState = {
         blocks: sortedBlocks,
         styles: currentState.styles,
+        footer: currentState.footer,
       };
 
       setCurrentState(newState);
@@ -127,7 +131,7 @@ export function useBlockStateManager(
       // Add to history with batching
       batchHistoryUpdate(newState);
     },
-    [currentState.styles, batchHistoryUpdate],
+    [currentState.styles, batchHistoryUpdate, currentState.footer],
   );
 
   // Update styles immediately for UI
@@ -139,6 +143,24 @@ export function useBlockStateManager(
           ...currentState.styles,
           ...newStyles,
         },
+        footer: currentState.footer,
+      };
+
+      setCurrentState(newState);
+
+      // Add to history with batching
+      batchHistoryUpdate(newState);
+    },
+    [currentState, batchHistoryUpdate],
+  );
+
+  // Update footer immediately for UI
+  const updateFooterHistory = useCallback(
+    (newFooter: any) => {
+      const newState = {
+        blocks: currentState.blocks,
+        styles: currentState.styles,
+        footer: newFooter,
       };
 
       setCurrentState(newState);
@@ -210,9 +232,11 @@ export function useBlockStateManager(
     // Current state for UI
     blocks: currentState.blocks,
     styles: currentState.styles,
+    footer: currentState.footer,
     // Update functions
     updateBlocksHistory,
     updateStylesHistory,
+    updateFooterHistory,
     // History functions
     undo,
     redo,

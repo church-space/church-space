@@ -158,7 +158,7 @@ export default function DndBuilderCanvas({
       }
       onClick={() => {
         onBlockSelect(null);
-        if (activeForm !== "default" && activeForm !== "email-style") {
+        if (activeForm !== "default") {
           setActiveForm("default");
         }
       }}

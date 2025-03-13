@@ -61,6 +61,7 @@ import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
 import EmailBuilderRealtimeListener from "@/components/listeners/email-builder/realtime-listener";
+import { useUpdateEmailFooter } from "./mutations/use-update-email-footer";
 
 // Define the database-compatible block types to match what's in use-batch-update-email-blocks.ts
 type DatabaseBlockType =
@@ -130,6 +131,7 @@ export default function DndProvider({
     }),
   );
   const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
+  const updateEmailFooter = useUpdateEmailFooter();
 
   // Initialize blocks and styles
   const initialBlocks =
@@ -160,12 +162,18 @@ export default function DndProvider({
     styles,
     updateBlocksHistory,
     updateStylesHistory,
+    updateFooterHistory,
     undo,
     redo,
     canUndo,
     canRedo,
     setCurrentState,
-  } = useBlockStateManager(initialBlocks, initialStyles);
+    footer,
+  } = useBlockStateManager(
+    initialBlocks,
+    initialStyles,
+    emailData?.footer || null,
+  );
 
   // Create a debounced function for style updates to reduce API calls
   const debouncedStyleUpdate = useCallback(
@@ -178,6 +186,21 @@ export default function DndProvider({
       }
     }, 500),
     [emailId, updateEmailStyle],
+  );
+
+  // Function to update footer on the server
+  const updateFooterOnServer = useCallback(
+    (footerData: any) => {
+      if (!emailId || !organizationId || !footerData) return;
+
+      // Use the updateEmailFooter mutation directly
+      updateEmailFooter.mutate({
+        emailId,
+        organizationId,
+        updates: footerData,
+      });
+    },
+    [emailId, organizationId, updateEmailFooter],
   );
 
   // Function to update styles on the server based on EmailStyles object
@@ -1414,21 +1437,13 @@ export default function DndProvider({
     }
   }, [blocksBeingDeleted]);
 
-  const [footerState, setFooterState] = useState<any>(null);
-
-  // Update footerState when emailData changes
-  useEffect(() => {
-    if (emailData?.footer) {
-      setFooterState(emailData.footer);
-    }
-  }, [emailData?.footer]);
-
   // Handle footer changes locally before sending to server
   const handleFooterChange = (updatedFooter: any) => {
-    // Update local state immediately for responsive UI
-    setFooterState(updatedFooter);
+    // Add to history system - this will update the UI state
+    updateFooterHistory(updatedFooter);
 
-    // The actual server update is handled in the EmailFooterForm component
+    // Update the server
+    updateFooterOnServer(updatedFooter);
   };
 
   // Fix handleBgColorChange to include history update
@@ -1989,6 +2004,7 @@ export default function DndProvider({
     // Store the current blocks before the undo operation
     const blocksBeforeUndo = [...blocks];
     const stylesBeforeUndo = { ...styles };
+    const footerBeforeUndo = footer;
 
     // Perform the undo operation
     const previousState = undo();
@@ -2043,6 +2059,7 @@ export default function DndProvider({
           setCurrentState({
             blocks: previousState.blocks,
             styles: previousState.styles,
+            footer: previousState.footer,
           });
         }
       }
@@ -2069,6 +2086,14 @@ export default function DndProvider({
         JSON.stringify(stylesBeforeUndo)
       ) {
         updateStylesOnServer(previousState.styles);
+      }
+
+      // Check if footer has changed and update on server if needed
+      if (
+        JSON.stringify(previousState.footer) !==
+        JSON.stringify(footerBeforeUndo)
+      ) {
+        updateFooterOnServer(previousState.footer);
       }
 
       // Update editor content for text blocks
@@ -2125,6 +2150,7 @@ export default function DndProvider({
     styles,
     debouncedServerUpdate,
     updateStylesOnServer,
+    updateFooterOnServer,
     editors,
     setEditors,
     setBlocksBeingDeleted,
@@ -2139,6 +2165,7 @@ export default function DndProvider({
     // Store the current blocks before the redo operation
     const blocksBeforeRedo = [...blocks];
     const stylesBeforeRedo = { ...styles };
+    const footerBeforeRedo = footer;
 
     // Perform the redo operation
     const nextState = redo();
@@ -2190,6 +2217,7 @@ export default function DndProvider({
           setCurrentState({
             blocks: nextState.blocks,
             styles: nextState.styles,
+            footer: nextState.footer,
           });
         }
       }
@@ -2215,6 +2243,13 @@ export default function DndProvider({
         JSON.stringify(nextState.styles) !== JSON.stringify(stylesBeforeRedo)
       ) {
         updateStylesOnServer(nextState.styles);
+      }
+
+      // Check if footer has changed and update on server if needed
+      if (
+        JSON.stringify(nextState.footer) !== JSON.stringify(footerBeforeRedo)
+      ) {
+        updateFooterOnServer(nextState.footer);
       }
 
       // Update editor content for text blocks
@@ -2285,6 +2320,7 @@ export default function DndProvider({
     styles,
     debouncedServerUpdate,
     updateStylesOnServer,
+    updateFooterOnServer,
     editors,
     setEditors,
     styles.defaultFont,
@@ -2514,7 +2550,7 @@ export default function DndProvider({
             activeForm={activeForm}
             setActiveForm={setActiveForm}
             emailId={emailId}
-            footerData={footerState || emailData?.footer || null}
+            footerData={footer}
             onFooterChange={handleFooterChange}
             linkColor={styles.linkColor}
             onLinkColorChange={handleLinkColorChange}
@@ -2559,7 +2595,7 @@ export default function DndProvider({
                 onTextContentChange={handleTextContentChange}
                 setActiveForm={setActiveForm}
                 activeForm={activeForm}
-                footerData={footerState || emailData?.footer || null}
+                footerData={footer}
                 defaultFont={styles.defaultFont}
                 defaultTextColor={styles.defaultTextColor}
                 linkColor={styles.linkColor}
