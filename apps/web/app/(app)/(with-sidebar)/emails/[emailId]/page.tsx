@@ -15,7 +15,7 @@ import PreSendPage from "./pre-send-page";
 import PostSendPage from "./post-send-page";
 import SendingPage from "./sending-page";
 import { redirect } from "next/navigation";
-
+import TempSendNowButton from "./temp-send-now-button";
 type Params = Promise<{ emailId: string }>;
 
 export default async function Page(props: { params: Params }) {
@@ -59,7 +59,7 @@ export default async function Page(props: { params: Params }) {
         </div>
         <div className="flex items-center gap-2 px-4">
           <Button variant="outline">Send Test</Button>
-          <Button variant="default">Send/Schedule</Button>
+          <TempSendNowButton />
         </div>
       </header>
       {email.data.status === "sending" && <SendingPage />}

@@ -26,17 +26,14 @@ import {
 import { useToast } from "@church-space/ui/use-toast";
 import { createEmailTemplateAction } from "@/actions/create-email-template";
 import { applyEmailTemplateAction } from "@/actions/apply-email-template";
-import { useRouter } from "next/navigation";
 
 interface EmailTemplateFormProps {
   emailId: number;
-  onSelectTemplate?: (templateId: string) => void;
   organizationId: string;
 }
 
 export default function EmailTemplateForm({
   emailId,
-  onSelectTemplate,
   organizationId,
 }: EmailTemplateFormProps) {
   const [search, setSearch] = useState("");
@@ -55,7 +52,6 @@ export default function EmailTemplateForm({
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   // Properly implement debouncing with useEffect
   useEffect(() => {

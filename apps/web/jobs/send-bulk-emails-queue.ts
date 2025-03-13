@@ -1,8 +1,8 @@
 import { task, queue, wait } from "@trigger.dev/sdk/v3";
 import { Resend } from "resend";
 import { createClient } from "@church-space/supabase/job";
-import { generateEmailCode } from "@/lib/generate-email-code";
-import { render } from "@react-email/render";
+//import { generateEmailCode } from "@/lib/generate-email-code"; // No longer needed here
+//import { render } from "@react-email/render"; // No longer needed here
 import { SignJWT } from "jose";
 import { Section, BlockType, BlockData } from "@/types/blocks";
 
@@ -143,32 +143,56 @@ export const sendBulkEmails = task({
       };
 
       // Generate email code
-      const emailCode = generateEmailCode(
-        sections,
-        style,
-        typedEmailData.footer,
-      );
-      const baseHtmlContent = await render(emailCode);
+      //const emailCode = generateEmailCode(
+      //  sections,
+      //  style,
+      //  typedEmailData.footer,
+      //);
+      //const baseHtmlContent = await render(emailCode);
 
-      // Add additional email client compatibility headers
-      const baseEnhancedHtmlContent = baseHtmlContent
-        .replace(
-          "<html",
-          '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
-        )
-        .replace(
-          "<head>",
-          `<head>
-          <meta name="color-scheme" content="only">
-          <!--[if gte mso 9]>
-          <xml>
-            <o:OfficeDocumentSettings>
-              <o:AllowPNG/>
-              <o:PixelsPerInch>96</o:PixelsPerInch>
-            </o:OfficeDocumentSettings>
-          </xml>
-          <![endif]-->`,
+      // Make API request to render email
+      const renderResponse = await fetch(
+        "https://churchspace.co/api/emails/render",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sections: sections,
+            style: style,
+            footer: typedEmailData.footer,
+          }),
+        },
+      );
+
+      if (!renderResponse.ok) {
+        throw new Error(
+          `Failed to render email: ${renderResponse.status} ${renderResponse.statusText}`,
         );
+      }
+
+      const { html: baseEnhancedHtmlContent } = await renderResponse.json();
+
+      // Add additional email client compatibility headers // MOVED TO API ENDPOINT
+      //const baseEnhancedHtmlContent = baseHtmlContent
+      //  .replace(
+      //    "<html",
+      //    '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
+      //  )
+      //  .replace(
+      //    "<head>",
+      //    `<head>
+      //    <meta name="color-scheme" content="only">
+      //    <!--[if gte mso 9]>
+      //    <xml>
+      //      <o:OfficeDocumentSettings>
+      //        <o:AllowPNG/>
+      //        <o:PixelsPerInch>96</o:PixelsPerInch>
+      //      </o:OfficeDocumentSettings>
+      //    </xml>
+      //    <![endif]-->`,
+      //  );
 
       // Process recipients in batches of 100
       const peopleEmailIds = Object.keys(recipients);

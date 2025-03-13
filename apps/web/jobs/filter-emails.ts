@@ -41,11 +41,34 @@ export const filterEmailRecipients = task({
         throw new Error("Email must have both list_id and category_id");
       }
 
-      // Step 3: Get all members of the list
+      // Step 3: Get the PCO list ID from our lists table
+      const { data: pcoList, error: pcoListError } = await supabase
+        .from("pco_lists")
+        .select("pco_list_id")
+        .eq("id", emailData.list_id)
+        .eq("organization_id", emailData.organization_id)
+        .single();
+
+      if (pcoListError || !pcoList) {
+        // Update email status to failed
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", emailId);
+
+        throw new Error(
+          `Failed to fetch PCO list data: ${pcoListError?.message || "List not found"}`,
+        );
+      }
+
+      // Step 4: Get all members of the list
       const { data: listMembers, error: listMembersError } = await supabase
         .from("pco_list_members")
         .select("pco_person_id")
-        .eq("pco_list_id", emailData.list_id.toString())
+        .eq("pco_list_id", pcoList.pco_list_id)
         .eq("organization_id", emailData.organization_id);
 
       if (listMembersError) {
@@ -70,7 +93,7 @@ export const filterEmailRecipients = task({
       // Extract person IDs from list members
       const personIds = listMembers.map((member) => member.pco_person_id);
 
-      // Step 4: Get all emails for these people that are subscribed
+      // Step 5: Get all emails for these people that are subscribed
       const { data: peopleEmails, error: peopleEmailsError } = await supabase
         .from("people_emails")
         .select("id, email, pco_person_id")
@@ -97,7 +120,7 @@ export const filterEmailRecipients = task({
         throw new Error("No subscribed emails found for people in the list");
       }
 
-      // Step 5: Get all email addresses that have unsubscribed from this category
+      // Step 6: Get all email addresses that have unsubscribed from this category
       const { data: categoryUnsubscribes, error: unsubscribesError } =
         await supabase
           .from("email_category_unsubscribes")
@@ -118,7 +141,7 @@ export const filterEmailRecipients = task({
         ) || [],
       );
 
-      // Step 6: Filter out unsubscribed emails
+      // Step 7: Filter out unsubscribed emails
       const filteredEmails = peopleEmails.filter(
         (emailRecord) =>
           !unsubscribedEmails.has(emailRecord.email.toLowerCase()),
@@ -137,13 +160,13 @@ export const filterEmailRecipients = task({
         throw new Error("All recipients have unsubscribed from this category");
       }
 
-      // Step 7: Format recipients for the bulk email queue
+      // Step 8: Format recipients for the bulk email queue
       const recipients: Record<string, string> = {};
       filteredEmails.forEach((email) => {
         recipients[email.id.toString()] = email.email;
       });
 
-      // Step 8: Update email status to sending
+      // Step 9: Update email status to sending
       await supabase
         .from("emails")
         .update({
@@ -152,7 +175,7 @@ export const filterEmailRecipients = task({
         })
         .eq("id", emailId);
 
-      // Step 9: Send to bulk email queue
+      // Step 10: Send to bulk email queue
       const result = await sendBulkEmails.trigger({
         emailId,
         recipients,

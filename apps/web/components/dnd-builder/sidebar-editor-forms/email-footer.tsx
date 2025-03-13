@@ -38,14 +38,12 @@ const urlSchema = z.string().url("Please enter a valid URL");
 const emailSchema = z.string().email("Please enter a valid email address");
 
 interface EmailFooterFormProps {
-  emailId?: number;
   footerData?: any;
   emailInset: boolean;
   onFooterChange?: (data: any) => void;
 }
 
 export default function EmailFooterForm({
-  emailId,
   footerData,
   emailInset,
   onFooterChange,
