@@ -7,7 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
-import { Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { debounce } from "lodash";
 import AssetBrowserModal from "../asset-browser";
@@ -25,6 +25,8 @@ import {
 } from "@church-space/ui/dialog";
 import { useToast } from "@church-space/ui/use-toast";
 import { createEmailTemplateAction } from "@/actions/create-email-template";
+import { applyEmailTemplateAction } from "@/actions/apply-email-template";
+import { useRouter } from "next/navigation";
 
 interface EmailTemplateFormProps {
   emailId: number;
@@ -41,7 +43,10 @@ export default function EmailTemplateForm({
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [templateName, setTemplateName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isApplying, setIsApplying] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const supabaseClient = createClient();
   const { ref: loadMoreRef, inView: loadMoreInView } = useInView();
   const { ref: componentRef, inView: componentInView } = useInView({
@@ -50,6 +55,7 @@ export default function EmailTemplateForm({
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   // Properly implement debouncing with useEffect
   useEffect(() => {
@@ -197,6 +203,105 @@ export default function EmailTemplateForm({
     }
   };
 
+  const handleApplyTemplate = async () => {
+    if (!selectedTemplate) {
+      toast({
+        title: "Error",
+        description: "No template selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsApplying(true);
+    try {
+      console.log("Applying template:", {
+        target_email_id: emailId,
+        template_email_id: selectedTemplate.id,
+      });
+
+      const result = await applyEmailTemplateAction({
+        target_email_id: emailId,
+        template_email_id: selectedTemplate.id,
+      });
+
+      console.log("Template apply result:", JSON.stringify(result, null, 2));
+
+      // The response is nested, so we need to check both levels
+      if (result && result.data && result.data.success) {
+        console.log("Template applied successfully:", result.data);
+
+        // Close the dialog
+        setConfirmDialogOpen(false);
+        setSelectedTemplate(null);
+
+        // Show a success message
+        toast({
+          title: "Success",
+          description:
+            "Email template applied successfully. Refreshing page...",
+        });
+
+        // Refresh the page to get fresh data
+        // First invalidate the query cache
+        try {
+          await queryClient.invalidateQueries({
+            queryKey: ["email", emailId],
+          });
+
+          // Add a small delay before reloading to allow the toast to be seen
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } catch (refreshError) {
+          console.error("Error refreshing data:", refreshError);
+          // Force reload even if invalidation fails
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
+      } else {
+        // Log the full result object to see what's happening
+        console.error("Error applying template - full result:", result);
+
+        // Try to extract the error message
+        let errorMessage = "Failed to apply template";
+
+        // Type the result as any to access potential error property
+        const resultObj = result as any;
+        if (resultObj && typeof resultObj.error === "string") {
+          errorMessage = resultObj.error;
+        }
+
+        console.error("Error applying template:", errorMessage);
+
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Exception applying template:", error);
+
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? `Error: ${error.message}`
+            : "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
+  const handleTemplateSelect = (template: any) => {
+    setSelectedTemplate(template);
+    setConfirmDialogOpen(true);
+  };
+
   return (
     <div className="flex flex-col gap-5 px-1" ref={componentRef}>
       <div className="flex flex-col gap-1">
@@ -282,39 +387,20 @@ export default function EmailTemplateForm({
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {templates.map((template) => (
-              <Dialog key={template.id}>
-                <DialogTrigger asChild>
-                  <Card
-                    className="cursor-pointer transition-colors hover:border-primary"
-                    onClick={() => onSelectTemplate?.(template.id.toString())}
-                  >
-                    <CardContent className="flex flex-col gap-2 p-3">
-                      <h3 className="text-sm font-medium">
-                        {template.subject || "Untitled Template"}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {template.subject || "No description"}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{template.subject}</DialogTitle>
-                  </DialogHeader>
-                  <DialogDescription>
-                    Are you sure you want to apply this template?{" "}
-                    <span className="font-bold">
-                      This will overwrite any content you have in the current
-                      email.
-                    </span>
-                  </DialogDescription>
-                  <DialogFooter>
-                    <Button variant="ghost">Cancel</Button>
-                    <Button>Apply</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              <Card
+                key={template.id}
+                className="cursor-pointer transition-colors hover:border-primary"
+                onClick={() => handleTemplateSelect(template)}
+              >
+                <CardContent className="flex flex-col gap-2 p-3">
+                  <h3 className="text-sm font-medium">
+                    {template.subject || "Untitled Template"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {template.subject || "No description"}
+                  </p>
+                </CardContent>
+              </Card>
             ))}
 
             {/* Intersection observer target for infinite scrolling */}
@@ -326,6 +412,42 @@ export default function EmailTemplateForm({
           </div>
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedTemplate?.subject || "Apply Template"}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Are you sure you want to apply this template?{" "}
+            <span className="font-bold">
+              This will overwrite any content you have in the current email.
+            </span>
+          </DialogDescription>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDialogOpen(false)}
+              disabled={isApplying}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleApplyTemplate} disabled={isApplying}>
+              {isApplying ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Applying...
+                </>
+              ) : (
+                "Apply"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -252,3 +252,178 @@ export async function createEmailTemplate(
   console.log("Template creation completed successfully");
   return newEmail;
 }
+
+export async function applyEmailTemplate(
+  supabase: Client,
+  emailId: number,
+  templateEmailId: number
+) {
+  console.log("applyEmailTemplate called with:", {
+    emailId,
+    templateEmailId,
+  });
+
+  // Get the template email with its footer and blocks
+  console.log("Fetching template email with ID:", templateEmailId);
+  const { data: templateEmail, error: templateError } =
+    await getEmailWithFooterAndBlocksQuery(supabase, templateEmailId);
+
+  if (templateError) {
+    console.error("Error fetching template email:", templateError);
+    throw templateError;
+  }
+
+  if (!templateEmail) {
+    console.error("Template email not found");
+    throw new Error("Template email not found");
+  }
+
+  // Get the target email to update
+  console.log("Fetching target email with ID:", emailId);
+  const { data: targetEmail, error: targetError } = await supabase
+    .from("emails")
+    .select("*")
+    .eq("id", emailId)
+    .single();
+
+  if (targetError) {
+    console.error("Error fetching target email:", targetError);
+    throw targetError;
+  }
+
+  // Update the target email style to match the template
+  console.log("Updating target email style");
+  const { error: updateStyleError } = await supabase
+    .from("emails")
+    .update({ style: templateEmail.style })
+    .eq("id", emailId);
+
+  if (updateStyleError) {
+    console.error("Error updating email style:", updateStyleError);
+    throw updateStyleError;
+  }
+
+  // Delete all existing blocks from the target email
+  console.log("Deleting existing blocks from target email");
+  const { error: deleteBlocksError } = await supabase
+    .from("email_blocks")
+    .delete()
+    .eq("email_id", emailId);
+
+  if (deleteBlocksError) {
+    console.error("Error deleting existing blocks:", deleteBlocksError);
+    throw deleteBlocksError;
+  }
+
+  // Copy the template blocks to the target email
+  if (
+    templateEmail.email_blocks &&
+    Array.isArray(templateEmail.email_blocks) &&
+    templateEmail.email_blocks.length > 0
+  ) {
+    console.log("Copying blocks, count:", templateEmail.email_blocks.length);
+    try {
+      const blocksToInsert = templateEmail.email_blocks.map((block) => ({
+        type: block.type,
+        value: block.value,
+        email_id: emailId,
+        linked_file: block.linked_file,
+        order: block.order,
+      }));
+
+      const { error: blocksError } = await supabase
+        .from("email_blocks")
+        .insert(blocksToInsert);
+
+      if (blocksError) {
+        console.error("Error inserting blocks:", blocksError);
+        throw new Error(`Error inserting blocks: ${blocksError.message}`);
+      }
+      console.log("Blocks copied successfully");
+    } catch (error) {
+      console.error("Error copying blocks:", error);
+      throw error;
+    }
+  } else {
+    console.log("No blocks found in template email");
+  }
+
+  // Handle the footer
+  // First, check if the template has a footer
+  const templateFooter =
+    templateEmail.email_footers &&
+    Array.isArray(templateEmail.email_footers) &&
+    templateEmail.email_footers.length > 0
+      ? templateEmail.email_footers[0]
+      : null;
+
+  if (templateFooter) {
+    console.log("Template footer found, updating target email footer");
+
+    // Check if the target email already has a footer
+    const { data: existingFooter, error: checkFooterError } = await supabase
+      .from("email_footers")
+      .select("id")
+      .eq("email_id", emailId)
+      .maybeSingle();
+
+    if (checkFooterError) {
+      console.error("Error checking for existing footer:", checkFooterError);
+      throw checkFooterError;
+    }
+
+    // Prepare footer data without id and created_at
+    const footerData = {
+      type: templateFooter.type,
+      name: templateFooter.name,
+      subtitle: templateFooter.subtitle,
+      logo: templateFooter.logo,
+      links: templateFooter.links,
+      bg_color: templateFooter.bg_color,
+      text_color: templateFooter.text_color,
+      organization_id: targetEmail.organization_id,
+      template_title: templateFooter.template_title,
+      address: templateFooter.address,
+      reason: templateFooter.reason,
+      copyright_name: templateFooter.copyright_name,
+      socials_style: templateFooter.socials_style,
+      socials_color: templateFooter.socials_color,
+      socials_icon_color: templateFooter.socials_icon_color,
+      secondary_text_color: templateFooter.secondary_text_color,
+    };
+
+    if (existingFooter) {
+      // Update existing footer
+      console.log("Updating existing footer");
+      const { error: updateFooterError } = await supabase
+        .from("email_footers")
+        .update(footerData)
+        .eq("id", existingFooter.id);
+
+      if (updateFooterError) {
+        console.error("Error updating footer:", updateFooterError);
+        throw updateFooterError;
+      }
+    } else {
+      // Create new footer
+      console.log("Creating new footer");
+      const { error: createFooterError } = await supabase
+        .from("email_footers")
+        .insert({
+          ...footerData,
+          email_id: emailId,
+        });
+
+      if (createFooterError) {
+        console.error("Error creating footer:", createFooterError);
+        throw createFooterError;
+      }
+    }
+    console.log("Footer updated successfully");
+  } else {
+    console.log("No footer found in template email");
+  }
+
+  console.log("Template application completed successfully");
+  return { success: true, emailId };
+}
