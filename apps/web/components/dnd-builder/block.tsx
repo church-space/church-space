@@ -13,6 +13,8 @@ import ListBlock from "./block-types/list";
 import TextBlock from "./block-types/text";
 import VideoBlock from "./block-types/video";
 import { Avatar, AvatarImage, AvatarFallback } from "@church-space/ui/avatar";
+import QuizBlock from "./block-types/quiz";
+import AudioBlock from "./block-types/audio";
 
 interface BlockProps {
   type: string;
@@ -158,6 +160,10 @@ export default function Block({
             defaultTextColor={defaultTextColor}
           />
         );
+      case "audio":
+        return <AudioBlock />;
+      case "quiz":
+        return <QuizBlock />;
       default:
         return null;
     }
