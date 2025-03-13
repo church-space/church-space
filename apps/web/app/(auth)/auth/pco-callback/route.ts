@@ -13,13 +13,13 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error("PCO OAuth error:", error);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=${error}`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=${error}`,
       );
     }
 
     if (!code) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=no_code`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=no_code`,
       );
     }
 
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
           client_secret: process.env.PCO_SECRET,
           redirect_uri: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/pco-callback`,
         }),
-      }
+      },
     );
 
     const tokenData = await tokenResponse.json();
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     if (!tokenResponse.ok) {
       console.error("PCO token error:", tokenData);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=token_error`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=token_error`,
       );
     }
 
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
         headers: {
           Authorization: `Bearer ${tokenData.access_token}`,
         },
-      }
+      },
     );
 
     const checkExistingConnectionData = await checkExistingConnection.json();
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       const firstName = connectedPerson.attributes.first_name;
       const lastName = connectedPerson.attributes.last_name;
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/pco-existing-connection?connectedByFirstName=${firstName}&connectedByLastName=${lastName}`
+        `${process.env.NEXT_PUBLIC_SITE_URL}/pco-existing-connection?connectedByFirstName=${firstName}&connectedByLastName=${lastName}`,
       );
     }
 
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
         headers: {
           Authorization: `Bearer ${tokenData.access_token}`,
         },
-      }
+      },
     );
 
     const pcoUserData = await pcoUserResponse.json();
@@ -91,14 +91,14 @@ export async function GET(request: NextRequest) {
         headers: {
           Authorization: `Bearer ${tokenData.access_token}`,
         },
-      }
+      },
     );
 
     const pcoOrganizationData = await pcoOrganizationResponse.json();
 
     if (pcoUserData.data.attributes.people_permissions !== "Manager") {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/permissions-error`
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/permissions-error`,
       );
     }
 
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=auth_error`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=auth_error`,
       );
     }
 
@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
     if (upsertOrganizationError) {
       console.error("Supabase error:", upsertOrganizationError);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=organization_db_error`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=organization_db_error`,
       );
     }
 
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
           .eq("id", organization[0].id);
       }
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=${errorType}`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=${errorType}`,
       );
     };
 
@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
     if (insertOrganizationMembershipError) {
       return handleError(
         insertOrganizationMembershipError,
-        "organization_membership_db_error"
+        "organization_membership_db_error",
       );
     }
 
@@ -235,19 +235,19 @@ export async function GET(request: NextRequest) {
               type: "Subscription",
               attributes: {
                 name: event,
-                url: `https://church-space.app/api/pco/webhook/${organization[0].id}`,
+                url: `https://churchspace.co/api/pco/webhook/${organization[0].id}`,
                 active: true,
               },
             },
           }),
-        }
+        },
       );
 
       if (!createWebhookResponse.ok) {
         console.error(`Failed to create PCO webhook for ${event}`);
         return handleError(
           new Error(`Failed to create PCO webhook for ${event}`),
-          "webhook_creation_error"
+          "webhook_creation_error",
         );
       }
 
@@ -268,7 +268,7 @@ export async function GET(request: NextRequest) {
       if (webhookError) {
         console.error(
           `Failed to create webhook record for ${event}:`,
-          webhookError
+          webhookError,
         );
         // Delete the PCO webhook we just created
         await fetch(
@@ -278,7 +278,7 @@ export async function GET(request: NextRequest) {
             headers: {
               Authorization: `Bearer ${tokenData.access_token}`,
             },
-          }
+          },
         );
         return handleError(webhookError, "webhook_db_error");
       }
@@ -295,12 +295,12 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/home?pco_connection_success=true`
+      `${process.env.NEXT_PUBLIC_SITE_URL}/home?pco_connection_success=true`,
     );
   } catch (error) {
     console.error("PCO callback error:", error);
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?pco_connection_error=unknown`
+      `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?pco_connection_error=unknown`,
     );
   }
 }
