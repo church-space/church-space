@@ -440,10 +440,23 @@ export default function DndProvider({
       if (overIndex !== -1) {
         const rect = over.rect as DOMRect;
         const mouseY = active.rect.current.translated.top;
-        const threshold = rect.top + rect.height / 2;
 
-        // Insert before or after the target block based on mouse position
-        newBlockOrder = mouseY < threshold ? overIndex : overIndex + 1;
+        // For large blocks, use a more nuanced approach to determine insertion position
+        // Calculate the relative position within the target block (0-1 range)
+        const relativePosition = (mouseY - rect.top) / rect.height;
+
+        // Use a threshold that adapts based on the active block's height
+        // For taller blocks, we want to make it easier to insert above a block
+        const activeHeight = active.rect.current.translated.height || 0;
+        const heightRatio = Math.min(1, activeHeight / rect.height);
+
+        // Adjust threshold based on height ratio - taller blocks get a higher threshold
+        // This makes it easier to insert a tall block above a smaller one
+        const threshold = 0.5 + heightRatio * 0.2;
+
+        // Insert before or after the target block based on adjusted threshold
+        newBlockOrder =
+          relativePosition < threshold ? overIndex : overIndex + 1;
       } else {
         // Fallback to end of list
         newBlockOrder = blocks.length;
@@ -1674,13 +1687,7 @@ export default function DndProvider({
     const { active, droppableContainers, droppableRects, pointerCoordinates } =
       args;
 
-    // If the active item is not from sidebar (existing block being moved)
-    if (!active.data.current?.fromSidebar) {
-      // Use standard collision detection for existing blocks
-      return closestCenter(args);
-    }
-
-    // For new blocks from sidebar
+    // If no pointer coordinates, return empty result
     if (!pointerCoordinates) return [];
 
     // Get the canvas container
@@ -1711,48 +1718,79 @@ export default function DndProvider({
       return (
         container.id === "canvas" ||
         (blocks.some((block) => block.id === container.id) &&
-          rect.top >= canvasRect.top &&
-          rect.bottom <= canvasRect.bottom &&
           rect.left >= canvasRect.left &&
           rect.right <= canvasRect.right)
       );
     });
 
-    // For each container, calculate its center point and distance to pointer
-    const distances = filtered.map((container) => {
-      const rect = droppableRects.get(container.id);
-      if (!rect) return { container, distance: Infinity };
+    // Get the active block's height (if it's an existing block)
+    let activeBlockHeight = 0;
+    if (!active.data.current?.fromSidebar) {
+      const activeBlock = blocks.find((block) => block.id === active.id);
+      if (activeBlock) {
+        const activeRect = droppableRects.get(active.id);
+        if (activeRect) {
+          activeBlockHeight = activeRect.height;
+        }
+      }
+    }
 
-      // For blocks, use the y-position of the pointer relative to the block's center
-      // to determine if we should consider it as a target
-      const centerY = rect.top + rect.height / 2;
+    // For each container, calculate its position relative to the pointer
+    const positions = filtered.map((container) => {
+      const rect = droppableRects.get(container.id);
+      if (!rect) return { container, distance: Infinity, position: "none" };
+
       const pointerY = pointerCoordinates.y;
 
-      // Create a "virtual" target zone that extends halfway into the blocks above and below
-      const virtualZoneTop = rect.top - rect.height / 2;
-      const virtualZoneBottom = rect.bottom + rect.height / 2;
+      // Calculate the extended target zones based on block height
+      // For larger blocks, we need larger target zones
+      const extensionFactor = Math.max(1, activeBlockHeight / 100); // Scale based on active block height
+      const virtualZoneTop = rect.top - rect.height * 0.5 * extensionFactor;
+      const virtualZoneBottom =
+        rect.bottom + rect.height * 0.5 * extensionFactor;
 
-      // If pointer is within this extended zone, consider this block as a potential target
-      const isInVerticalRange =
-        pointerY >= virtualZoneTop && pointerY <= virtualZoneBottom;
+      // Determine if pointer is above, within, or below the block
+      let position = "none";
+      let distance = Infinity;
 
-      // Calculate distance from pointer to center of block
-      const distance = Math.sqrt(
-        Math.pow(rect.left + rect.width / 2 - pointerCoordinates.x, 2) +
-          Math.pow(centerY - pointerCoordinates.y, 2),
-      );
+      // If pointer is above the block but within the extended top zone
+      if (pointerY >= virtualZoneTop && pointerY < rect.top) {
+        position = "top";
+        distance = Math.abs(pointerY - rect.top);
+      }
+      // If pointer is within the block
+      else if (pointerY >= rect.top && pointerY <= rect.bottom) {
+        position = "within";
+        // For within, calculate distance to center
+        const centerY = rect.top + rect.height / 2;
+        distance = Math.abs(pointerY - centerY);
+      }
+      // If pointer is below the block but within the extended bottom zone
+      else if (pointerY > rect.bottom && pointerY <= virtualZoneBottom) {
+        position = "bottom";
+        distance = Math.abs(pointerY - rect.bottom);
+      }
+
+      // Calculate horizontal distance component
+      const centerX = rect.left + rect.width / 2;
+      const horizontalDistance = Math.abs(pointerCoordinates.x - centerX);
+
+      // Combine vertical and horizontal distances, with more weight on vertical
+      const combinedDistance =
+        position !== "none" ? distance * 3 + horizontalDistance : Infinity;
 
       return {
         container,
-        distance: isInVerticalRange ? distance : Infinity,
+        distance: combinedDistance,
+        position,
       };
     });
 
-    // Sort by distance and get the closest container
-    distances.sort((a, b) => a.distance - b.distance);
+    // Sort by distance
+    positions.sort((a, b) => a.distance - b.distance);
 
     // Return the closest container if it's within a reasonable distance
-    const closest = distances[0];
+    const closest = positions[0];
     if (closest && closest.distance !== Infinity) {
       return [{ id: closest.container.id }];
     }

@@ -81,6 +81,22 @@ export default function DndBuilderCanvas({
     heightRef.current = 0;
   }
 
+  // Calculate the height for the insertion indicator
+  const getInsertionIndicatorHeight = () => {
+    // For blocks from sidebar, use a default height
+    if (isFromSidebar) {
+      return 80; // Default height for new blocks (h-20 = 5rem = 80px)
+    }
+
+    // For existing blocks, use their actual height if available
+    if (active && heightRef.current) {
+      // Use a minimum height to ensure visibility
+      return Math.max(40, heightRef.current * 0.6);
+    }
+
+    return 80; // Default fallback
+  };
+
   const getInsertionIndex = () => {
     if (!over || !active || !isFromSidebar) return -1;
 
@@ -102,6 +118,7 @@ export default function DndBuilderCanvas({
   };
 
   const insertionIndex = isDragging ? getInsertionIndex() : -1;
+  const insertionIndicatorHeight = getInsertionIndicatorHeight();
 
   const renderBlock = (block: BlockType, isRounded: boolean) => {
     return (
@@ -193,7 +210,8 @@ export default function DndBuilderCanvas({
               <React.Fragment key={block.id}>
                 {isDragging && isFromSidebar && insertionIndex === index && (
                   <motion.div
-                    className="mx-auto h-20 w-full max-w-2xl rounded-md border border-dashed border-blue-500 bg-blue-500/10"
+                    className="mx-auto w-full max-w-2xl rounded-md border border-dashed border-blue-500 bg-blue-500/10"
+                    style={{ height: `${insertionIndicatorHeight}px` }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.2 }}
@@ -223,7 +241,8 @@ export default function DndBuilderCanvas({
               isFromSidebar &&
               insertionIndex === blocks.length && (
                 <motion.div
-                  className="mx-auto h-20 w-full max-w-2xl rounded-md border border-dashed border-blue-500 bg-blue-500/10"
+                  className="mx-auto w-full max-w-2xl rounded-md border border-dashed border-blue-500 bg-blue-500/10"
+                  style={{ height: `${insertionIndicatorHeight}px` }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2 }}

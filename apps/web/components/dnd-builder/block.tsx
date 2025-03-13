@@ -180,6 +180,7 @@ export default function Block({
       )}
       onClick={(e) => onSelect?.(e)}
       data-block-id={id}
+      data-block-type={type}
     >
       {hasEditor && (
         <div className="absolute -right-[17px] top-1/2 -translate-y-1/2">

@@ -15,10 +15,19 @@ import {
 import { Label } from "@church-space/ui/label";
 import { XIcon, LoaderIcon } from "@church-space/ui/icons";
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useFileUpload } from "./use-file-upload";
 import AssetBrowserModal from "./asset-browser";
 import { CloudUpload } from "@church-space/ui/icons";
+
+// Add a debounce utility function
+const debounce = <T extends (...args: any[]) => any>(fn: T, ms = 300) => {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args: Parameters<T>) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), ms);
+  };
+};
 
 interface FileUploadProps {
   organizationId: string;
@@ -43,13 +52,64 @@ const FileUpload = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSelectingFile, setIsSelectingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const lastClickTime = useRef<number>(0);
   const { uploadFile, deleteFile } = useFileUpload(organizationId, bucket);
 
   // Update filePath when initialFilePath changes
   useEffect(() => {
     setFilePath(initialFilePath);
   }, [initialFilePath]);
+
+  // Create a separate file input outside the dialog
+  useEffect(() => {
+    // Create a new file input element
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = type === "image" ? "image/*" : "*/*";
+    fileInput.style.display = "none";
+
+    // Add event listener for file selection
+    fileInput.addEventListener("change", async (e) => {
+      const target = e.target as HTMLInputElement;
+      const selectedFile = target.files?.[0];
+
+      if (selectedFile && selectedFile.size <= 50 * 1024 * 1024) {
+        try {
+          setIsUploading(true);
+          const path = await uploadFile(selectedFile);
+          setFile(selectedFile);
+          setFilePath(path || "");
+          setIsModalOpen(false);
+          onUploadComplete?.(path || "");
+        } catch (error) {
+          console.error("Upload failed:", error);
+          alert("Failed to upload file. Please try again.");
+        } finally {
+          setIsUploading(false);
+          setIsSelectingFile(false);
+        }
+      } else if (selectedFile) {
+        alert("File size exceeds 50MB limit.");
+      }
+
+      // Reset the input value
+      fileInput.value = "";
+      setIsSelectingFile(false);
+    });
+
+    // Store reference to the file input
+    fileInputRef.current = fileInput;
+
+    // Append to body
+    document.body.appendChild(fileInput);
+
+    // Clean up on unmount
+    return () => {
+      document.body.removeChild(fileInput);
+    };
+  }, [type, uploadFile, onUploadComplete]);
 
   const handleUpload = async (selectedFile: File) => {
     try {
@@ -64,39 +124,45 @@ const FileUpload = ({
       alert("Failed to upload file. Please try again.");
     } finally {
       setIsUploading(false);
+      setIsSelectingFile(false);
     }
   };
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile && selectedFile.size <= 50 * 1024 * 1024) {
-      try {
-        await handleUpload(selectedFile);
-      } catch (error) {
-        console.error("File selection error:", error);
-        // Reset the input value to ensure it can be selected again
-        if (event.target) {
-          event.target.value = "";
-        }
+  // Debounced click handler to prevent multiple clicks
+  const handleClickUpload = useCallback(
+    debounce(() => {
+      // Prevent multiple file dialogs from opening
+      if (isUploading || isSelectingFile) return;
+
+      // Prevent rapid clicks
+      const now = Date.now();
+      if (now - lastClickTime.current < 1000) return;
+      lastClickTime.current = now;
+
+      // Set flag to indicate we're in the process of selecting a file
+      setIsSelectingFile(true);
+
+      // Click the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.click();
       }
-    } else if (selectedFile) {
-      alert("File size exceeds 50MB limit.");
-      // Reset the input value to ensure it can be selected again
-      if (event.target) {
-        event.target.value = "";
-      }
-    }
-  };
+    }, 300),
+    [isUploading, isSelectingFile],
+  );
 
   const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+
+    // Prevent handling if already uploading or selecting
+    if (isUploading || isSelectingFile) return;
+
+    setIsSelectingFile(true);
     const droppedFile = event.dataTransfer.files[0];
     if (droppedFile && droppedFile.size <= 50 * 1024 * 1024) {
       await handleUpload(droppedFile);
     } else {
       alert("File size exceeds 50MB limit.");
+      setIsSelectingFile(false);
     }
   };
 
@@ -157,14 +223,6 @@ const FileUpload = ({
     return null; // Return null when there's no file
   };
 
-  const handleClickUpload = () => {
-    // Ensure the input is reset before clicking
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-      fileInputRef.current.click();
-    }
-  };
-
   const handleAssetSelect = (asset: { imageUrl: string; path: string }) => {
     // Use the path directly if available, otherwise extract from imageUrl
     const path =
@@ -194,7 +252,15 @@ const FileUpload = ({
             bucket={bucket}
           />
         )}
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <Dialog
+          open={isModalOpen}
+          onOpenChange={(open) => {
+            setIsModalOpen(open);
+            if (!open) {
+              setIsSelectingFile(false);
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button
               className={cn(
@@ -234,15 +300,6 @@ const FileUpload = ({
                 <Label htmlFor="fileInput" className="cursor-pointer">
                   Drop your file here or click to select
                 </Label>
-                <input
-                  id="fileInput"
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  accept={type === "image" ? "image/*" : "*/*"}
-                  key={`file-input-${isUploading ? "uploading" : "ready"}`}
-                />
               </div>
               {isUploading && (
                 <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm">
