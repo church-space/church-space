@@ -40,6 +40,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
+import { addDomainAction } from "@/actions/add-domain";
+import type { ActionResponse } from "@/types/action";
 
 // Domain validation schema
 const domainSchema = z.string().refine(
@@ -118,29 +120,63 @@ const CustomAccordionTrigger = React.forwardRef<
 ));
 CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
 
-export default function DomainManagement() {
+export default function DomainManagement({
+  organizationId,
+  initialDomains = [],
+}: {
+  organizationId: string;
+  initialDomains?: any[];
+}) {
   const [newDomain, setNewDomain] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
   const [copiedCell, setCopiedCell] = useState<string | null>(null);
-  const [primaryDomain, setPrimaryDomain] = useState<string>("example.com");
-  const [domains, setDomains] = useState<Domain[]>([
-    {
-      name: "example.com",
-      records: getSampleRecords(), // All verified for the first domain
-      isRefreshing: false,
-    },
-    {
-      name: "myproject.dev",
-      records: getSampleRecords(), // Some pending/failed for the second domain
-      isRefreshing: false,
-    },
-  ]);
+
+  // Transform server fetched domains to the component's format or use defaults
+  const [domains, setDomains] = useState<Domain[]>(() => {
+    if (initialDomains && initialDomains.length > 0) {
+      // Sort domains with newest first
+      const sortedDomains = [...initialDomains].sort((a, b) => {
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        return dateB.getTime() - dateA.getTime();
+      });
+
+      return sortedDomains.map((domain) => ({
+        name: domain.domain,
+        records: domain.dns_records
+          ? JSON.parse(domain.dns_records)
+          : getSampleRecords(),
+        isRefreshing: false,
+      }));
+    }
+    return [
+      {
+        name: "example.com",
+        records: getSampleRecords(),
+        isRefreshing: false,
+      },
+      {
+        name: "myproject.dev",
+        records: getSampleRecords(),
+        isRefreshing: false,
+      },
+    ];
+  });
+
+  // Use the primary domain from the fetched domains or the first one
+  const [primaryDomain, setPrimaryDomain] = useState<string>(() => {
+    if (initialDomains && initialDomains.length > 0) {
+      const primary = initialDomains.find((d) => d.is_primary);
+      return primary ? primary.domain : initialDomains[0].domain;
+    }
+    return "example.com";
+  });
 
   const [confirmPrimaryDomain, setConfirmPrimaryDomain] = useState<
     string | null
   >(null);
 
-  const handleAddDomain = (e: React.FormEvent) => {
+  const handleAddDomain = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDomain) return;
 
@@ -155,15 +191,77 @@ export default function DomainManagement() {
         return;
       }
 
-      // Add new domain with sample records
-      setDomains([
-        ...domains,
+      // Show a loading toast
+      const loadingToast = toast({
+        title: "Adding domain...",
+        description: "Please wait while we set up your domain.",
+      });
+
+      // Call server action to add domain
+      const response = await addDomainAction({
+        organization_id: organizationId,
+        domain: newDomain,
+        is_primary: domains.length === 0, // Set as primary if it's the first domain
+      });
+
+      // Use any type to safely handle different response formats
+      const result = response as any;
+      console.log("Server action response:", result);
+
+      // Check if response is successful
+      const isSuccess =
+        result &&
+        (result.success === true ||
+          (result.data && !result.error) ||
+          (result.data && result.status === 201));
+
+      if (!isSuccess) {
+        // Handle error
+        const errorMessage =
+          result?.error ||
+          (typeof result === "object" && "message" in result
+            ? result.message
+            : null) ||
+          "Failed to add domain. Please try again.";
+
+        setValidationError(errorMessage);
+        toast({
+          title: "Error adding domain",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // If we got here, assume success
+      const domainData = result.data || result;
+
+      // Extract records safely
+      let dnsRecordsRaw = null;
+      if (domainData && typeof domainData === "object") {
+        dnsRecordsRaw =
+          "dns_records" in domainData ? domainData.dns_records : null;
+      }
+
+      // Parse DNS records or use sample records
+      const dnsRecords = dnsRecordsRaw
+        ? JSON.parse(dnsRecordsRaw)
+        : getSampleRecords();
+
+      // Add the domain to the local state
+      setDomains((prevDomains) => [
         {
           name: newDomain,
-          records: getSampleRecords(),
+          records: dnsRecords,
           isRefreshing: false,
         },
+        ...prevDomains,
       ]);
+
+      // Set as primary if it's the first one
+      if (domains.length === 0) {
+        setPrimaryDomain(newDomain);
+      }
 
       toast({
         title: "Domain added",
@@ -171,11 +269,23 @@ export default function DomainManagement() {
       });
 
       setNewDomain("");
+
+      // No page refresh needed - domain is already added to UI
+      // window.location.reload();
     } catch (error) {
       if (error instanceof z.ZodError) {
         setValidationError(error.errors[0].message);
       } else {
-        setValidationError("Invalid domain name");
+        console.error("Error adding domain:", error);
+        setValidationError(
+          typeof error === "string" ? error : "Invalid domain name",
+        );
+        toast({
+          title: "Error adding domain",
+          description:
+            "There was a problem adding your domain. Please try again.",
+          variant: "destructive",
+        });
       }
     }
   };

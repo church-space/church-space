@@ -13,8 +13,12 @@ import DomainManagement from "@/components/domains/domain-managament";
 import { getCachedDomains } from "@church-space/supabase/queries/cached/domains";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { unstable_noStore } from "next/cache";
 
 export default async function Page() {
+  // Disable caching for this page
+  unstable_noStore();
+
   const cookieStore = await cookies();
   const organizationId = cookieStore.get("organizationId")?.value;
 
@@ -24,7 +28,8 @@ export default async function Page() {
 
   const domains = await getCachedDomains(organizationId);
 
-  console.log(domains);
+  console.log("Domains fetched for organization:", organizationId);
+  console.log("Domains data:", domains?.data || []);
 
   return (
     <>
@@ -50,7 +55,10 @@ export default async function Page() {
         <p className="text-sm text-muted-foreground">
           Manage your domains and DNS records.
         </p>
-        <DomainManagement />
+        <DomainManagement
+          organizationId={organizationId}
+          initialDomains={domains?.data || []}
+        />
       </div>
     </>
   );
