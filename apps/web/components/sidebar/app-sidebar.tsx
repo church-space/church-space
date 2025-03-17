@@ -78,11 +78,11 @@ const data = {
         },
       ],
     },
-    {
-      title: "Courses",
-      url: "/courses",
-      icon: Link,
-    },
+    // {
+    //   title: "Courses",
+    //   url: "/courses",
+    //   icon: Link,
+    // },
     // {
     //   title: "Content",
     //   url: "/content",

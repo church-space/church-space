@@ -83,6 +83,19 @@
   }
 }
 
+@layer components {
+  .dot-pattern {
+    background-image: radial-gradient(circle, #f0f0f0 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
+  }
+
+  .dark .dot-pattern {
+    background-color: #000000;
+    background-image: radial-gradient(circle, #181818 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
+  }
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

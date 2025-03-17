@@ -42,7 +42,8 @@
     "./auto-size-textarea": "./src/auto-size-textarea.tsx",
     "./calendar": "./src/calendar.tsx",
     "./date-time-picker": "./src/date-time-picker.tsx",
-    "./command": "./src/command.tsx"
+    "./command": "./src/command.tsx",
+    "./alert-dialog": "./src/alert-dialog.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -66,6 +67,7 @@
   "dependencies": {
     "@hookform/resolvers": "^4.1.0",
     "@radix-ui/react-accordion": "^1.2.3",
+    "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-avatar": "^1.1.3",
     "@radix-ui/react-checkbox": "^1.1.4",
     "@radix-ui/react-collapsible": "^1.1.3",

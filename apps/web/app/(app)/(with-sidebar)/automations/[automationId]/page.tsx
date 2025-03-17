@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
+import AutomationBuilder from "@/components/automation-builder/automation-builder";
 
 export default function Page() {
   return (
@@ -34,7 +35,9 @@ export default function Page() {
           </Breadcrumb>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">Page</div>
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <AutomationBuilder />
+      </div>
     </>
   );
 }
