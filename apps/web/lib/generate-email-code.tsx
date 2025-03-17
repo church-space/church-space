@@ -1005,11 +1005,20 @@ const CustomFooter: React.FC<{
             </div>
           )}
 
-          <div style={{ fontSize: "12px", lineHeight: "1.5" }}>
+          <div
+            style={{
+              fontSize: "12px",
+              lineHeight: "1.5",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <span>
               © {new Date().getFullYear()} {copyright_name}
             </span>
-            <br />
+            <span style={{ margin: "0 8px" }}>|</span>
             <a
               href="#"
               style={{
