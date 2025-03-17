@@ -843,7 +843,17 @@ const CustomFooter: React.FC<{
   isInset?: boolean;
   isRounded?: boolean;
   linkColor?: string;
-}> = ({ footerData, defaultFont, emailBgColor, isInset, isRounded }) => {
+  unsubscribeUrl?: string;
+  managePreferencesUrl?: string;
+}> = ({
+  footerData,
+  defaultFont,
+  emailBgColor,
+  isInset,
+  isRounded,
+  unsubscribeUrl,
+  managePreferencesUrl,
+}) => {
   if (!footerData) return null;
 
   const {
@@ -1020,7 +1030,7 @@ const CustomFooter: React.FC<{
             </span>
             <span style={{ margin: "0 8px" }}>|</span>
             <a
-              href="#"
+              href={managePreferencesUrl || "#"}
               style={{
                 color: secondary_text_color,
                 textDecoration: "underline",
@@ -1030,7 +1040,7 @@ const CustomFooter: React.FC<{
             </a>
             <span style={{ margin: "0 8px" }}>|</span>
             <a
-              href="#"
+              href={unsubscribeUrl || "#"}
               style={{
                 color: secondary_text_color,
                 textDecoration: "underline",
@@ -1050,6 +1060,8 @@ export function generateEmailCode(
   sections: Section[],
   style: EmailStyle,
   footerData?: any,
+  unsubscribeUrl?: string,
+  managePreferencesUrl?: string,
 ): React.ReactElement {
   const {
     bgColor = "#ffffff",
@@ -1197,6 +1209,8 @@ export function generateEmailCode(
           emailBgColor={emailBgColor}
           isInset={isInset}
           isRounded={isRounded}
+          unsubscribeUrl={unsubscribeUrl}
+          managePreferencesUrl={managePreferencesUrl}
         />
       </Body>
     </Html>

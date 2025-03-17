@@ -4,10 +4,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { sections, style, footer } = await req.json();
+    const { sections, style, footer, unsubscribeUrl, managePreferencesUrl } =
+      await req.json();
 
     // Generate email code
-    const emailCode = generateEmailCode(sections, style, footer);
+    const emailCode = generateEmailCode(
+      sections,
+      style,
+      footer,
+      unsubscribeUrl,
+      managePreferencesUrl,
+    );
     const htmlContent = await render(emailCode);
 
     // Add additional email client compatibility headers

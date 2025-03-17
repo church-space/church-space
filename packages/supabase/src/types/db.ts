@@ -45,13 +45,6 @@ export type Database = {
             referencedRelation: "courses"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "course_blocks_email_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
         ]
       }
       courses: {
@@ -86,20 +79,26 @@ export type Database = {
       domains: {
         Row: {
           created_at: string
+          dns_records: Json | null
           domain: string
           id: number
+          is_primary: boolean | null
           organization_id: string
         }
         Insert: {
           created_at?: string
+          dns_records?: Json | null
           domain: string
           id?: number
+          is_primary?: boolean | null
           organization_id: string
         }
         Update: {
           created_at?: string
+          dns_records?: Json | null
           domain?: string
           id?: number
+          is_primary?: boolean | null
           organization_id?: string
         }
         Relationships: [
@@ -406,7 +405,7 @@ export type Database = {
           reply_to: string | null
           scheduled_for: string | null
           sent_at: string | null
-          status: Database["public"]["Enums"]["email_statuses"] | null
+          status: Database["public"]["Enums"]["email_statuses"]
           style: Json | null
           subject: string | null
           trigger_dev_schduled_id: string | null
@@ -424,7 +423,7 @@ export type Database = {
           reply_to?: string | null
           scheduled_for?: string | null
           sent_at?: string | null
-          status?: Database["public"]["Enums"]["email_statuses"] | null
+          status?: Database["public"]["Enums"]["email_statuses"]
           style?: Json | null
           subject?: string | null
           trigger_dev_schduled_id?: string | null
@@ -442,7 +441,7 @@ export type Database = {
           reply_to?: string | null
           scheduled_for?: string | null
           sent_at?: string | null
-          status?: Database["public"]["Enums"]["email_statuses"] | null
+          status?: Database["public"]["Enums"]["email_statuses"]
           style?: Json | null
           subject?: string | null
           trigger_dev_schduled_id?: string | null

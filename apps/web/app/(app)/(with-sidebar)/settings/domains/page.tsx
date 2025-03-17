@@ -10,8 +10,22 @@ import {
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import DomainManagement from "@/components/domains/domain-managament";
+import { getCachedDomains } from "@church-space/supabase/queries/cached/domains";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function Page() {
+export default async function Page() {
+  const cookieStore = await cookies();
+  const organizationId = cookieStore.get("organizationId")?.value;
+
+  if (!organizationId) {
+    redirect("/onboarding");
+  }
+
+  const domains = await getCachedDomains(organizationId);
+
+  console.log(domains);
+
   return (
     <>
       <header className="flex h-12 shrink-0 items-center gap-2">

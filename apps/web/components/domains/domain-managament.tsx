@@ -302,71 +302,6 @@ export default function DomainManagement() {
               </div>
             </CustomAccordionTrigger>
             <AccordionContent>
-              <div className="mb-4 flex items-center gap-2">
-                {/* Primary domain toggle button */}
-                {primaryDomain !== domain.name && (
-                  <Dialog
-                    open={confirmPrimaryDomain === domain.name}
-                    onOpenChange={(open) => {
-                      if (!open) setConfirmPrimaryDomain(null);
-                    }}
-                  >
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                        onClick={() => setConfirmPrimaryDomain(domain.name)}
-                      >
-                        <Star className="mr-1 h-3.5 w-3.5" />
-                        Set as Primary
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Set as Primary Domain</DialogTitle>
-                        <DialogDescription>
-                          Are you sure you want to set {domain.name} as your
-                          primary domain? This will be used as the default
-                          domain for your project.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter>
-                        <Button
-                          variant="outline"
-                          onClick={() => setConfirmPrimaryDomain(null)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            if (confirmPrimaryDomain) {
-                              setPrimary(confirmPrimaryDomain);
-                              setConfirmPrimaryDomain(null);
-                            }
-                          }}
-                        >
-                          Confirm
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-
-                {/* Refresh status button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => refreshStatus(domainIndex)}
-                  disabled={domain.isRefreshing}
-                >
-                  <RefreshCw
-                    className={`mr-2 h-4 w-4 ${domain.isRefreshing ? "animate-spin" : ""}`}
-                  />
-                  {domain.isRefreshing ? "Refreshing..." : "Refresh Status"}
-                </Button>
-              </div>
-
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>
@@ -500,6 +435,91 @@ export default function DomainManagement() {
               <div className="mt-2 text-sm text-muted-foreground">
                 Click on any cell to copy its value. DNS records can take up to
                 24 hours to fully propagate. [^1]
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {/* Primary domain toggle button */}
+                  {primaryDomain !== domain.name && (
+                    <Dialog
+                      open={confirmPrimaryDomain === domain.name}
+                      onOpenChange={(open) => {
+                        if (!open) setConfirmPrimaryDomain(null);
+                      }}
+                    >
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
+                          onClick={() => setConfirmPrimaryDomain(domain.name)}
+                        >
+                          <Star className="mr-1 h-3.5 w-3.5" />
+                          Set as Primary
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Set as Primary Domain</DialogTitle>
+                          <DialogDescription>
+                            Are you sure you want to set {domain.name} as your
+                            primary domain? This will be used as the default
+                            domain for your project.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            onClick={() => setConfirmPrimaryDomain(null)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              if (confirmPrimaryDomain) {
+                                setPrimary(confirmPrimaryDomain);
+                                setConfirmPrimaryDomain(null);
+                              }
+                            }}
+                          >
+                            Confirm
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+
+                  {/* Refresh status button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refreshStatus(domainIndex)}
+                    disabled={domain.isRefreshing}
+                  >
+                    <RefreshCw
+                      className={`mr-2 h-4 w-4 ${domain.isRefreshing ? "animate-spin" : ""}`}
+                    />
+                    {domain.isRefreshing ? "Refreshing..." : "Refresh Status"}
+                  </Button>
+                </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="destructive">
+                      Delete
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Delete Domain</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete this domain?
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button variant="outline">Cancel</Button>
+                      <Button variant="destructive">Delete</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </AccordionContent>
           </AccordionItem>

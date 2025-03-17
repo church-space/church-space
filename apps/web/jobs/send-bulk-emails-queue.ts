@@ -143,14 +143,6 @@ export const sendBulkEmails = task({
         linkColor: emailStyle.link_color || "#0000ff",
       };
 
-      // Generate email code
-      //const emailCode = generateEmailCode(
-      //  sections,
-      //  style,
-      //  typedEmailData.footer,
-      //);
-      //const baseHtmlContent = await render(emailCode);
-
       // Make API request to render email
       const renderResponse = await fetch(
         "https://churchspace.co/api/emails/render",
@@ -174,26 +166,6 @@ export const sendBulkEmails = task({
       }
 
       const { html: baseEnhancedHtmlContent } = await renderResponse.json();
-
-      // Add additional email client compatibility headers // MOVED TO API ENDPOINT
-      //const baseEnhancedHtmlContent = baseHtmlContent
-      //  .replace(
-      //    "<html",
-      //    '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
-      //  )
-      //  .replace(
-      //    "<head>",
-      //    `<head>
-      //    <meta name="color-scheme" content="only">
-      //    <!--[if gte mso 9]>
-      //    <xml>
-      //      <o:OfficeDocumentSettings>
-      //        <o:AllowPNG/>
-      //        <o:PixelsPerInch>96</o:PixelsPerInch>
-      //      </o:OfficeDocumentSettings>
-      //    </xml>
-      //    <![endif]-->`,
-      //  );
 
       // Process recipients in batches of 100
       const peopleEmailIds = Object.keys(recipients);
@@ -226,7 +198,7 @@ export const sendBulkEmails = task({
             // Store token for later use
             batchTokens[peopleEmailId] = unsubscribeToken;
 
-            // Add unsubscribe and manage preferences links to the HTML content
+            // Generate unsubscribe and manage preferences URLs
             const unsubscribeUrl = `https://churchspaceemail.com/unsubscribe?tk=${unsubscribeToken}`;
             const managePreferencesUrl = `https://churchspaceemail.com/manage?tk=${unsubscribeToken}`;
 
