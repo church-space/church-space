@@ -236,23 +236,54 @@ export default function DomainManagement({
       // If we got here, assume success
       const domainData = result.data || result;
 
-      // Extract records safely
-      let dnsRecordsRaw = null;
-      if (domainData && typeof domainData === "object") {
-        dnsRecordsRaw =
-          "dns_records" in domainData ? domainData.dns_records : null;
+      // Get the records from the response if they exist
+      let resendRecords = [];
+      if (domainData.records) {
+        // Use the Resend records directly
+        resendRecords = domainData.records;
+      } else if (
+        domainData &&
+        typeof domainData === "object" &&
+        "dns_records" in domainData
+      ) {
+        // Or parse them if they're in dns_records as a string
+        resendRecords = JSON.parse(domainData.dns_records);
       }
 
-      // Parse DNS records or use sample records
-      const dnsRecords = dnsRecordsRaw
-        ? JSON.parse(dnsRecordsRaw)
-        : getSampleRecords();
+      // Check if we have any records returned
+      console.log("Records from Resend:", resendRecords);
 
-      // Add the domain to the local state
+      // Ensure all records have the correct status field - should be "not_started" initially
+      const recordsWithStatus = resendRecords.map((record: any) => ({
+        ...record,
+        status: record.status || "not_started", // Ensure status exists
+      }));
+
+      // Check if _dmarc record exists, if not, add it
+      const hasDmarc = recordsWithStatus.some(
+        (record: any) => record.name === "_dmarc" && record.type === "TXT",
+      );
+
+      // Final set of records to use for optimistic UI update
+      const finalRecords = hasDmarc
+        ? recordsWithStatus
+        : [
+            ...recordsWithStatus,
+            {
+              type: "TXT",
+              name: "_dmarc",
+              value: "v=DMARC1; p=none;",
+              ttl: "Auto",
+              status: "not_started",
+              priority: null,
+            },
+          ];
+
+      // Add the domain to the local state with real data
       setDomains((prevDomains) => [
         {
           name: newDomain,
-          records: dnsRecords,
+          records: finalRecords,
           isRefreshing: false,
         },
         ...prevDomains,
@@ -352,6 +383,15 @@ export default function DomainManagement({
             className="border-yellow-300 bg-yellow-100 text-yellow-800"
           >
             Pending
+          </Badge>
+        );
+      case "not_started":
+        return (
+          <Badge
+            variant="outline"
+            className="border-blue-300 bg-blue-100 text-blue-800"
+          >
+            Not Verified
           </Badge>
         );
       case "failed":

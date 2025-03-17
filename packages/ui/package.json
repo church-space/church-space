@@ -43,7 +43,8 @@
     "./calendar": "./src/calendar.tsx",
     "./date-time-picker": "./src/date-time-picker.tsx",
     "./command": "./src/command.tsx",
-    "./alert-dialog": "./src/alert-dialog.tsx"
+    "./alert-dialog": "./src/alert-dialog.tsx",
+    "./chart": "./src/chart.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -95,6 +96,7 @@
     "react-day-picker": "9.6.1",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
+    "recharts": "^2.15.1",
     "zod": "^3.24.2"
   }
 }
