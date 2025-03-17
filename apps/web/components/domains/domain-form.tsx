@@ -37,27 +37,29 @@ export default function DomainManagementForm() {
 
   // Sample DNS records - in a real app, these would be fetched from an API
   const mxRecords = [
-    { priority: 10, value: "mx1.vercel-smtp.com", ttl: 3600 },
-    { priority: 20, value: "mx2.vercel-smtp.com", ttl: 3600 },
+    {
+      priority: 10,
+      name: "send",
+      value: "feedback-smtp.us-east-1.amazonses.com",
+      ttl: "Auto",
+    },
   ];
 
   const txtRecords = [
     {
-      name: "verification",
-      value: "vercel-domain-verification=abc123def456",
-      ttl: 3600,
-    },
-    { name: "spf", value: "v=spf1 include:_spf.vercel.com ~all", ttl: 3600 },
-    {
-      name: "dkim",
-      value:
-        "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCrLHiExVd55zd/IQ/J",
-      ttl: 3600,
+      name: "send",
+      value: "v=spf1 include:amazonses.com ~all",
+      ttl: "Auto",
     },
     {
-      name: "dmarc",
-      value: "v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com",
-      ttl: 3600,
+      name: "resend._domainkey",
+      value: "TBD",
+      ttl: "Auto",
+    },
+    {
+      name: "_dmarc",
+      value: "v=DMARC1; p=none;",
+      ttl: "Auto",
     },
   ];
 

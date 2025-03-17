@@ -55,55 +55,38 @@ const domainSchema = z.string().refine(
 );
 
 // Sample DNS records for a domain
-const getSampleRecords = (domain: string, allVerified = false) => [
+const getSampleRecords = () => [
   {
     type: "MX",
-    name: "@",
-    value: "mx1.vercel-smtp.com",
     priority: 10,
-    ttl: 3600,
-    status: "verified",
-  },
-  {
-    type: "MX",
-    name: "@",
-    value: "mx2.vercel-smtp.com",
-    priority: 20,
-    ttl: 3600,
+    name: "send",
+    value: "feedback-smtp.us-east-1.amazonses.com",
+    ttl: "Auto",
     status: "verified",
   },
   {
     type: "TXT",
-    name: "@",
-    value: `v=spf1 include:_spf.${domain} ~all`,
-    priority: null,
-    ttl: 3600,
+    name: "send",
+    value: "v=spf1 include:amazonses.com ~all",
+    ttl: "Auto",
     status: "verified",
+    priority: null,
   },
   {
     type: "TXT",
-    name: "verification",
-    value: `vercel-domain-verification=${Math.random().toString(36).substring(2, 15)}`,
+    name: "resend._domainkey",
+    value: "TBD",
+    ttl: "Auto",
+    status: "verified",
     priority: null,
-    ttl: 3600,
-    status: allVerified ? "verified" : "pending",
   },
   {
     type: "TXT",
-    name: "dkim",
-    value:
-      "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCrLHiExVd55zd/IQ/J",
-    priority: null,
-    ttl: 3600,
-    status: allVerified ? "verified" : "failed",
-  },
-  {
-    type: "A",
-    name: "@",
-    value: "76.76.21.21",
-    priority: null,
-    ttl: 3600,
+    name: "_dmarc",
+    value: "v=DMARC1; p=none;",
+    ttl: "Auto",
     status: "verified",
+    priority: null,
   },
 ];
 
@@ -114,7 +97,7 @@ type Domain = {
     name: string;
     value: string;
     priority: number | null;
-    ttl: number;
+    ttl: string;
     status: string;
   }[];
   isRefreshing: boolean;
@@ -143,12 +126,12 @@ export default function DomainManagement() {
   const [domains, setDomains] = useState<Domain[]>([
     {
       name: "example.com",
-      records: getSampleRecords("example.com", true), // All verified for the first domain
+      records: getSampleRecords(), // All verified for the first domain
       isRefreshing: false,
     },
     {
       name: "myproject.dev",
-      records: getSampleRecords("myproject.dev"), // Some pending/failed for the second domain
+      records: getSampleRecords(), // Some pending/failed for the second domain
       isRefreshing: false,
     },
   ]);
@@ -177,7 +160,7 @@ export default function DomainManagement() {
         ...domains,
         {
           name: newDomain,
-          records: getSampleRecords(newDomain),
+          records: getSampleRecords(),
           isRefreshing: false,
         },
       ]);
