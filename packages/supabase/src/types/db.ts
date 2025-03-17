@@ -84,6 +84,7 @@ export type Database = {
           id: number
           is_primary: boolean | null
           organization_id: string
+          resend_domain_id: string | null
         }
         Insert: {
           created_at?: string
@@ -92,6 +93,7 @@ export type Database = {
           id?: number
           is_primary?: boolean | null
           organization_id: string
+          resend_domain_id?: string | null
         }
         Update: {
           created_at?: string
@@ -100,6 +102,7 @@ export type Database = {
           id?: number
           is_primary?: boolean | null
           organization_id?: string
+          resend_domain_id?: string | null
         }
         Relationships: [
           {
