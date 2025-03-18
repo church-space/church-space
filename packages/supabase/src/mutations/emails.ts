@@ -439,3 +439,17 @@ export async function updateEmail(
     .eq("id", emailId)
     .select();
 }
+
+export async function unsubscribeEmail(supabase: Client, emailId: number) {
+  const { data, error } = await supabase
+    .from("people_emails")
+    .update({ status: "unsubscribed" })
+    .eq("id", emailId)
+    .select();
+
+  if (error) {
+    console.error("Error unsubscribing email:", error);
+    throw error;
+  }
+  return data;
+}

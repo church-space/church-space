@@ -1,4 +1,4 @@
-import type { Client, Database } from "../types";
+import type { Client } from "../types";
 import { getUserQuery } from "../queries/all/get-user";
 import { revalidateTag } from "next/cache";
 

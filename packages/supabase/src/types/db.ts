@@ -352,32 +352,26 @@ export type Database = {
         Row: {
           created_at: string
           email_address: string | null
-          email_id: number
-          id: number
+          email_id: number | null
           people_email_id: number | null
-          resend_email_id: string | null
+          resend_email_id: string
           status: Database["public"]["Enums"]["email_delivery_status"] | null
-          unsubscribe_token: string | null
         }
         Insert: {
           created_at?: string
           email_address?: string | null
-          email_id: number
-          id?: number
+          email_id?: number | null
           people_email_id?: number | null
-          resend_email_id?: string | null
+          resend_email_id: string
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
-          unsubscribe_token?: string | null
         }
         Update: {
           created_at?: string
           email_address?: string | null
-          email_id?: number
-          id?: number
+          email_id?: number | null
           people_email_id?: number | null
-          resend_email_id?: string | null
+          resend_email_id?: string
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
-          unsubscribe_token?: string | null
         }
         Relationships: [
           {
