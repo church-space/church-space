@@ -1,54 +1,59 @@
-import { NextResponse } from "next/server";
-import Stripe from "stripe";
-import { createClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+import stripe from "@/lib/stripe";
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@church-space/supabase/server";
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-02-24.acacia",
-});
+export async function POST(request: NextRequest) {
+  const { priceId, userId, organizationId } = await request.json();
 
-export async function POST(req: Request) {
+  if (!userId || !organizationId || !priceId) {
+    return NextResponse.json(
+      { error: "User ID, Organization ID, and Price ID are required" },
+      { status: 400 },
+    );
+  }
+
+  const supabase = await createClient();
+
   try {
-    // Get request data
-    const { priceId, organizationId, userId } = await req.json();
+    // Check if customer already exists in Supabase
+    const { data: existingCustomerData, error: customerQueryError } =
+      await supabase
+        .from("stripe_customers")
+        .select("stripe_customer_id")
+        .eq("user_id", userId)
+        .single();
 
-    if (!priceId || !organizationId || !userId) {
+    if (customerQueryError && customerQueryError.code !== "PGRST116") {
+      console.error(
+        "Error fetching customer from database:",
+        customerQueryError,
+      );
       return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
+        { error: "Error fetching customer data" },
+        { status: 500 },
       );
     }
 
-    // Initialize Supabase client
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    );
+    let customerId = existingCustomerData?.stripe_customer_id;
+    let stripeCustomerExists = false;
 
-    // Check if customer already exists
-    const { data: customerData } = await supabase
-      .from("stripe_customers")
-      .select("stripe_customer_id")
-      .eq("user_id", userId)
-      .single();
+    // If we have a customer ID, verify it exists in Stripe
+    if (customerId) {
+      try {
+        const stripeCustomer = await stripe.customers.retrieve(customerId);
+        stripeCustomerExists = !stripeCustomer.deleted;
+      } catch (err) {
+        // Customer not found in Stripe or other error
+        console.log("Customer not found in Stripe or deleted:", err);
+        stripeCustomerExists = false;
+      }
+    }
 
-    let customerId = customerData?.stripe_customer_id;
-
-    // If no customer exists, create one
-    if (!customerId) {
-      // Get user email
-      const { data: userData } = await supabase
-        .from("users")
-        .select("email")
-        .eq("id", userId)
-        .single();
-
-      const email = userData?.email;
-
-      // Create new Stripe customer
+    // Create new customer if needed
+    if (!customerId || !stripeCustomerExists) {
+      // Create customer in Stripe
+      console.log("Creating new Stripe customer for userId:", userId);
       const customer = await stripe.customers.create({
-        email,
         metadata: {
           userId,
           organizationId,
@@ -57,21 +62,41 @@ export async function POST(req: Request) {
 
       customerId = customer.id;
 
-      // Store customer in database
-      await supabase.from("stripe_customers").upsert(
-        {
+      // If we had a previous customer ID but it doesn't exist in Stripe,
+      // update the record, otherwise create a new one
+      if (existingCustomerData?.stripe_customer_id) {
+        await supabase
+          .from("stripe_customers")
+          .update({
+            stripe_customer_id: customerId,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", userId);
+      } else {
+        // Store the new customer in the database
+        await supabase.from("stripe_customers").insert({
           user_id: userId,
           stripe_customer_id: customerId,
-          email,
+          created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      );
+        });
+      }
     }
 
-    // Create checkout session
-    const checkoutSession = await stripe.checkout.sessions.create({
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+    console.log("Creating checkout session with:", {
+      customerId,
+      priceId,
+      organizationId,
+      userId,
+      siteUrl: baseUrl,
+    });
+
+    // Create checkout session with the customer ID
+    const session = await stripe.checkout.sessions.create({
       customer: customerId,
+      client_reference_id: organizationId,
       payment_method_types: ["card"],
       line_items: [
         {
@@ -80,20 +105,32 @@ export async function POST(req: Request) {
         },
       ],
       mode: "subscription",
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/settings`,
+      success_url: `${baseUrl}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/dashboard?canceled=true`,
       metadata: {
         organizationId,
         userId,
       },
     });
 
-    return NextResponse.json({ url: checkoutSession.url });
-  } catch (error) {
-    console.error("Error creating checkout session:", error);
+    console.log("Checkout session created:", {
+      sessionId: session.id,
+      url: session.url,
+    });
 
+    if (!session.url) {
+      console.error("Session created but no URL returned:", session);
+      return NextResponse.json(
+        { error: "No checkout URL returned from Stripe" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    console.error("Stripe checkout error:", err);
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: (err as Error).message },
       { status: 500 },
     );
   }

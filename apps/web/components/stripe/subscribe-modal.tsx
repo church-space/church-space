@@ -21,9 +21,9 @@ import {
 
 // Map of subscription plan values to their Stripe price IDs
 const PRICE_ID_MAP: Record<string, string> = {
-  "250": "",
+  "250": "price_1R44O5JPD51CqUc4qBh2XY7z",
   "5000": "price_1R44BeJPD51CqUc4w3O6kphP",
-  "10000": "price_1R44DFJPD51CqUc4t3YdSRig",
+  "10000": "price_1R44D4JPD51CqUc45uoKQS77",
   "20000": "price_1R44GGJPD51CqUc4gzUUGwcF",
   "35000": "price_1R44GHJPD51CqUc4nx2vss1X",
   "50000": "price_1R44GJJPD51CqUc4waaNBK2W",
@@ -43,15 +43,24 @@ export default function SubscribeModal({
 }) {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubscribe = async () => {
     if (!selectedPlan || !PRICE_ID_MAP[selectedPlan]) {
+      setError("Please select a valid plan");
       return;
     }
 
     setIsLoading(true);
+    setError(null);
 
     try {
+      console.log("Requesting checkout session with:", {
+        priceId: PRICE_ID_MAP[selectedPlan],
+        organizationId,
+        userId,
+      });
+
       const response = await fetch("/api/stripe/create-checkout", {
         method: "POST",
         headers: {
@@ -64,15 +73,28 @@ export default function SubscribeModal({
         }),
       });
 
+      // Log the raw response before parsing
+      console.log("Raw response status:", response.status, response.statusText);
+
       const data = await response.json();
 
+      console.log("Checkout response data:", data);
+
       if (data.url) {
+        console.log("Redirecting to:", data.url);
         window.location.href = data.url;
+      } else if (data.error) {
+        setError(`Error: ${data.error}`);
+        setIsLoading(false);
       } else {
-        throw new Error("No checkout URL returned");
+        setError(
+          "No checkout URL returned. Please try again or contact support.",
+        );
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Error creating checkout session:", error);
+      setError("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }
   };
@@ -105,6 +127,7 @@ export default function SubscribeModal({
             <SelectItem value="250000">250,000</SelectItem>
           </SelectContent>
         </Select>
+        {error && <div className="mt-2 text-sm text-red-500">{error}</div>}
         <DialogFooter>
           <Button
             type="button"
