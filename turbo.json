@@ -17,7 +17,9 @@
         "RESEND_API_KEY",
         "STRIPE_WEBHOOK_SECRET",
         "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
-        "STRIPE_SECRET_KEY"
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET_TESTING",
+        "RESEND_WEBHOOK_SECRET"
       ],
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],

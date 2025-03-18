@@ -937,35 +937,262 @@ export type Database = {
           },
         ]
       }
-      plans: {
+      stripe_customers: {
         Row: {
-          created_at: string
-          id: number
+          created_at: string | null
+          email: string | null
+          stripe_customer_id: string
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          created_at?: string
-          id?: number
+          created_at?: string | null
+          email?: string | null
+          stripe_customer_id: string
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
-          created_at?: string
-          id?: number
+          created_at?: string | null
+          email?: string | null
+          stripe_customer_id?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
-      subscriptions: {
+      stripe_payments: {
         Row: {
-          created_at: string
+          amount: number | null
+          created_at: string | null
+          currency: string | null
           id: number
+          organization_id: string | null
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_invoice_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
         }
         Insert: {
-          created_at?: string
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
           id?: number
+          organization_id?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
         }
         Update: {
-          created_at?: string
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
           id?: number
+          organization_id?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_payments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stripe_payments_stripe_customer_id_fkey"
+            columns: ["stripe_customer_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_customers"
+            referencedColumns: ["stripe_customer_id"]
+          },
+          {
+            foreignKeyName: "stripe_payments_stripe_price_id_fkey"
+            columns: ["stripe_price_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_prices"
+            referencedColumns: ["stripe_price_id"]
+          },
+          {
+            foreignKeyName: "stripe_payments_stripe_subscription_id_fkey"
+            columns: ["stripe_subscription_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_subscriptions"
+            referencedColumns: ["stripe_subscription_id"]
+          },
+        ]
+      }
+      stripe_prices: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          currency: string
+          id: number
+          interval: string | null
+          interval_count: number | null
+          metadata: Json | null
+          stripe_price_id: string
+          stripe_product_id: string | null
+          type: string
+          unit_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          currency: string
+          id?: number
+          interval?: string | null
+          interval_count?: number | null
+          metadata?: Json | null
+          stripe_price_id: string
+          stripe_product_id?: string | null
+          type: string
+          unit_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          currency?: string
+          id?: number
+          interval?: string | null
+          interval_count?: number | null
+          metadata?: Json | null
+          stripe_price_id?: string
+          stripe_product_id?: string | null
+          type?: string
+          unit_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_prices_stripe_product_id_fkey"
+            columns: ["stripe_product_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_products"
+            referencedColumns: ["stripe_product_id"]
+          },
+        ]
+      }
+      stripe_products: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          id: number
+          metadata: Json | null
+          name: string
+          stripe_product_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          metadata?: Json | null
+          name: string
+          stripe_product_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          metadata?: Json | null
+          name?: string
+          stripe_product_id?: string
+          updated_at?: string | null
         }
         Relationships: []
+      }
+      stripe_subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: number
+          organization_id: string | null
+          payment_method_brand: string | null
+          payment_method_last4: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          trial_start: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: number
+          organization_id?: string | null
+          payment_method_brand?: string | null
+          payment_method_last4?: string | null
+          status: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: number
+          organization_id?: string | null
+          payment_method_brand?: string | null
+          payment_method_last4?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_subscriptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stripe_subscriptions_stripe_customer_id_fkey"
+            columns: ["stripe_customer_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_customers"
+            referencedColumns: ["stripe_customer_id"]
+          },
+          {
+            foreignKeyName: "stripe_subscriptions_stripe_price_id_fkey"
+            columns: ["stripe_price_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_prices"
+            referencedColumns: ["stripe_price_id"]
+          },
+        ]
       }
       users: {
         Row: {

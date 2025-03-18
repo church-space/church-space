@@ -41,6 +41,7 @@
     "./mutations/emails": "./src/mutations/emails.ts",
     "./queries/all/get-email-with-footer-and-blocks": "./src/queries/all/get-email-with-footer-and-blocks.ts",
     "./mutations/domains": "./src/mutations/domains.ts",
-    "./queries/cached/domains": "./src/queries/cached/domains.ts"
+    "./queries/cached/domains": "./src/queries/cached/domains.ts",
+    "./mutations/stripe": "./src/mutations/stripe.ts"
   }
 }
