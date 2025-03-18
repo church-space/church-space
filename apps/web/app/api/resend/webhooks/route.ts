@@ -2,7 +2,7 @@ import {
   insertEmailLinkClicked,
   upsertEmailRecipient,
 } from "@church-space/supabase/mutations/resend";
-import { createClient } from "@church-space/supabase/server";
+import { createClient } from "@church-space/supabase/job";
 import { NextRequest, NextResponse } from "next/server";
 import { Webhook } from "svix";
 

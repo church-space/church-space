@@ -82,7 +82,7 @@ export async function upsertSubscription(
 }
 
 // Payment mutations
-export async function insertPayment(
+export async function upsertPayment(
   supabase: Client,
   {
     organizationId,
@@ -106,15 +106,18 @@ export async function insertPayment(
     status: string;
   }
 ) {
-  return supabase.from("stripe_payments").insert({
-    organization_id: organizationId,
-    stripe_customer_id: stripeCustomerId,
-    stripe_subscription_id: subscriptionId,
-    stripe_payment_intent_id: paymentIntentId,
-    stripe_invoice_id: invoiceId,
-    stripe_price_id: priceId,
-    amount,
-    currency,
-    status,
-  });
+  return supabase.from("stripe_payments").upsert(
+    {
+      organization_id: organizationId,
+      stripe_customer_id: stripeCustomerId,
+      stripe_subscription_id: subscriptionId,
+      stripe_payment_intent_id: paymentIntentId,
+      stripe_invoice_id: invoiceId,
+      stripe_price_id: priceId,
+      amount,
+      currency,
+      status,
+    },
+    { onConflict: "stripe_payment_intent_id" }
+  );
 }
