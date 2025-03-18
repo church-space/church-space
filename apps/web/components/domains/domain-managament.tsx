@@ -3,7 +3,15 @@
 import React from "react";
 
 import { useState } from "react";
-import { Check, Plus, RefreshCw, Copy, Star, ShieldCheck } from "lucide-react";
+import {
+  Check,
+  Plus,
+  RefreshCw,
+  Copy,
+  Star,
+  ShieldCheck,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
@@ -129,6 +137,7 @@ export default function DomainManagement({
   const [newDomain, setNewDomain] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
   const [copiedCell, setCopiedCell] = useState<string | null>(null);
+  const [isAddingDomain, setIsAddingDomain] = useState(false);
 
   // Transform server fetched domains to the component's format or use defaults
   const [domains, setDomains] = useState<Domain[]>(() => {
@@ -190,6 +199,9 @@ export default function DomainManagement({
         return;
       }
 
+      // Set loading state
+      setIsAddingDomain(true);
+
       // Call server action to add domain
       const response = await addDomainAction({
         organization_id: organizationId,
@@ -223,6 +235,7 @@ export default function DomainManagement({
           description: errorMessage,
           variant: "destructive",
         });
+        setIsAddingDomain(false);
         return;
       }
 
@@ -240,28 +253,40 @@ export default function DomainManagement({
         "dns_records" in domainData
       ) {
         // Or parse them if they're in dns_records as a string
-        resendRecords = JSON.parse(domainData.dns_records);
+        try {
+          const parsedRecords = JSON.parse(domainData.dns_records);
+          resendRecords = Array.isArray(parsedRecords) ? parsedRecords : [];
+        } catch (err) {
+          console.error("Error parsing DNS records:", err);
+          resendRecords = [];
+        }
       }
 
-      // Check if we have any records returned
       console.log("Records from Resend:", resendRecords);
 
-      // Ensure all records have the correct status field - should be "not_started" initially
-      const recordsWithStatus = resendRecords.map((record: any) => ({
-        ...record,
-        status: record.status || "not_started", // Ensure status exists
-      }));
+      // Transform records to match our format
+      const formattedRecords = resendRecords.map((record: any) => {
+        // Extract all needed fields, handle different property naming conventions
+        return {
+          type: record.type || "TXT",
+          name: record.name || "",
+          value: record.value || "",
+          priority: record.priority !== undefined ? record.priority : null,
+          ttl: record.ttl || "Auto",
+          status: record.status || "not_started",
+        };
+      });
 
       // Check if _dmarc record exists, if not, add it
-      const hasDmarc = recordsWithStatus.some(
+      const hasDmarc = formattedRecords.some(
         (record: any) => record.name === "_dmarc" && record.type === "TXT",
       );
 
       // Final set of records to use for optimistic UI update
       const finalRecords = hasDmarc
-        ? recordsWithStatus
+        ? formattedRecords
         : [
-            ...recordsWithStatus,
+            ...formattedRecords,
             {
               type: "TXT",
               name: "_dmarc",
@@ -293,6 +318,7 @@ export default function DomainManagement({
       });
 
       setNewDomain("");
+      setIsAddingDomain(false);
 
       // No page refresh needed - domain is already added to UI
       // window.location.reload();
@@ -311,6 +337,7 @@ export default function DomainManagement({
           variant: "destructive",
         });
       }
+      setIsAddingDomain(false);
     }
   };
 
@@ -684,14 +711,24 @@ export default function DomainManagement({
                     setValidationError(null);
                   }}
                   className={validationError ? "border-red-500" : ""}
+                  disabled={isAddingDomain}
                 />
                 {validationError && (
                   <p className="mt-1 text-xs text-red-500">{validationError}</p>
                 )}
               </div>
-              <Button type="submit">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Domain
+              <Button type="submit" disabled={isAddingDomain}>
+                {isAddingDomain ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Domain
+                  </>
+                )}
               </Button>
             </div>
           </div>

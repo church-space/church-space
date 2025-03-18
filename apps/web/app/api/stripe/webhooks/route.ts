@@ -151,6 +151,12 @@ async function handleCheckoutSessionCompleted(
   const { organizationId, userId } = session.metadata || {};
   const customerId = session.customer as string;
 
+  console.log("Checkout session completed", {
+    organizationId,
+    userId,
+    customerId,
+  });
+
   if (!customerId) {
     console.error("No customer ID in checkout session");
     return;
