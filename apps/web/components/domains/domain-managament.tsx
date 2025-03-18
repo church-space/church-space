@@ -41,7 +41,6 @@ import {
   DialogTrigger,
 } from "@church-space/ui/dialog";
 import { addDomainAction } from "@/actions/add-domain";
-import type { ActionResponse } from "@/types/action";
 
 // Domain validation schema
 const domainSchema = z.string().refine(
@@ -190,12 +189,6 @@ export default function DomainManagement({
         setValidationError("This domain is already added");
         return;
       }
-
-      // Show a loading toast
-      const loadingToast = toast({
-        title: "Adding domain...",
-        description: "Please wait while we set up your domain.",
-      });
 
       // Call server action to add domain
       const response = await addDomainAction({
@@ -701,10 +694,6 @@ export default function DomainManagement({
                 Add Domain
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              To manage DNS records, your domain needs to use Vercel's
-              nameservers. [^2]
-            </p>
           </div>
         </form>
       </div>

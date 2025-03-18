@@ -160,15 +160,6 @@ const getAvailableDays = (year: number, month: number) => {
   return Array.from({ length: lastDay }, (_, i) => i + 1);
 };
 
-// Format date for display
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-};
-
 export default function Page() {
   const [linkData, setLinkData] = useState<LinkData>({
     url: "https://example.com",
@@ -754,15 +745,15 @@ export default function Page() {
             </div>
           </div>
         </div>
-
-        <div className="mb-4 flex items-center justify-between">
+        <Separator className="my-12" />
+        <div className="mb-4 mt-12 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Your QR Codes</h2>
           <Button onClick={() => setIsAddingQRCode(true)}>
             <Plus className="mr-2 h-4 w-4" /> Add QR Code
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {linkData.qrCodes.map((qrCode, index) => (
             <Card key={qrCode.id} className="overflow-hidden">
               <CardHeader className="pb-2">

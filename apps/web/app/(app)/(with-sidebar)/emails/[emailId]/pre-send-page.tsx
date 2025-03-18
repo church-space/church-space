@@ -120,10 +120,10 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categoryValue, setCategoryValue] = useState("");
 
-  const [toHasChanges, setToHasChanges] = useState(false);
-  const [fromHasChanges, setFromHasChanges] = useState(false);
-  const [subjectHasChanges, setSubjectHasChanges] = useState(false);
-  const [scheduleHasChanges, setScheduleHasChanges] = useState(false);
+  const [toHasChanges] = useState(false);
+  const [fromHasChanges] = useState(false);
+  const [subjectHasChanges] = useState(false);
+  const [scheduleHasChanges] = useState(false);
 
   const [toIsSaving, setToIsSaving] = useState(false);
   const [fromIsSaving, setFromIsSaving] = useState(false);

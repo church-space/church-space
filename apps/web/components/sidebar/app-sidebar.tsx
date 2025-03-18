@@ -7,7 +7,6 @@ import {
   Mail,
   Settings2,
   User,
-  Waypoints,
   QrCode,
   List,
 } from "lucide-react";

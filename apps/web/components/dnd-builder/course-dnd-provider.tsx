@@ -115,6 +115,8 @@ export default function CourseDndProvider({
   // Use type assertion to avoid TypeScript errors
   const course = courseData?.course as any;
 
+  console.log(course);
+
   const initialStyles: EmailStyles = {
     bgColor: "#f4f4f5",
     isInset: false,

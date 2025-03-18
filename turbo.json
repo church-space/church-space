@@ -14,7 +14,10 @@
         "NEXT_PUBLIC_PCO_CLIENT_ID",
         "PCO_SECRET",
         "TRIGGER_SECRET_KEY",
-        "RESEND_API_KEY"
+        "RESEND_API_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+        "STRIPE_SECRET_KEY"
       ],
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],

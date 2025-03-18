@@ -283,7 +283,7 @@ export default function AutomationBuilder() {
           // Update the display value
           updatedConfig.value = `${updatedConfig.duration} ${updatedConfig.unit.charAt(0).toUpperCase() + updatedConfig.unit.slice(1)}`;
           if (updatedConfig.duration === 1) {
-            updatedConfig.value = updatedConfig.value.slice(0, -1); // Remove plural 's'
+            updatedConfig.value = updatedConfig.value.slice(0, -1);
           }
 
           return { ...action, config: updatedConfig };
@@ -373,7 +373,8 @@ export default function AutomationBuilder() {
             <div className="space-y-4">
               <p>Hello [Customer Name],</p>
               <p>
-                Welcome to our platform! We're excited to have you on board.
+                Welcome to our platform! We&apos;re excited to have you on
+                board.
               </p>
               <p>Here are a few things you can do to get started:</p>
               <ul className="list-disc space-y-1 pl-5">
@@ -400,12 +401,12 @@ export default function AutomationBuilder() {
             <div className="space-y-4">
               <p>Hello [Customer Name],</p>
               <p>
-                We noticed you've been using our platform for a week now. How
-                has your experience been so far?
+                We noticed you&apos;ve been using our platform for a week now.
+                How has your experience been so far?
               </p>
               <p>
-                We'd love to hear your feedback and help you get the most out of
-                our services.
+                We&apos;d love to hear your feedback and help you get the most
+                out of our services.
               </p>
               <p>
                 Feel free to reply to this email with any questions or
@@ -425,7 +426,7 @@ export default function AutomationBuilder() {
           content: (
             <div className="space-y-4">
               <p>Hello [Customer Name],</p>
-              <p>Here's what's new this month:</p>
+              <p>Here&apos;s what&apos;s new this month:</p>
               <ul className="list-disc space-y-1 pl-5">
                 <li>New feature: Advanced reporting</li>
                 <li>Improved user interface</li>
