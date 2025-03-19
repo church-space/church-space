@@ -9,64 +9,58 @@ import Link from "next/link";
 
 const links = [
   {
-    group: "Product",
+    group: "Features",
     items: [
       {
-        title: "Features",
-        href: "#",
+        title: "Email",
+        href: "/features/email",
       },
       {
-        title: "Solution",
-        href: "#",
+        title: "QR Codes",
+        href: "/features/qr",
       },
       {
-        title: "Customers",
-        href: "#",
+        title: "Link Lists",
+        href: "/features/link-lists",
       },
       {
-        title: "Pricing",
-        href: "#",
-      },
-      {
-        title: "Help",
-        href: "#",
-      },
-      {
-        title: "About",
-        href: "#",
+        title: "PCO Integration",
+        href: "/features/pco",
       },
     ],
   },
   {
-    group: "Solution",
+    group: "Resources",
     items: [
       {
-        title: "Startup",
-        href: "#",
+        title: "Support",
+        href: "/support",
       },
       {
-        title: "Freelancers",
-        href: "#",
+        title: "Pricing",
+        href: "/pricing",
       },
       {
-        title: "Organizations",
-        href: "#",
+        title: "Getting Started",
+        href: "/getting-started",
+      },
+    ],
+  },
+
+  {
+    group: "Legal",
+    items: [
+      {
+        title: "Terms of Service",
+        href: "/policies/terms",
       },
       {
-        title: "Students",
-        href: "#",
+        title: "Privacy Policy",
+        href: "/policies/privacy",
       },
       {
-        title: "Collaboration",
-        href: "#",
-      },
-      {
-        title: "Design",
-        href: "#",
-      },
-      {
-        title: "Management",
-        href: "#",
+        title: "All Policies",
+        href: "/policies",
       },
     ],
   },
@@ -75,48 +69,11 @@ const links = [
     items: [
       {
         title: "About",
-        href: "#",
-      },
-      {
-        title: "Careers",
-        href: "#",
-      },
-      {
-        title: "Blog",
-        href: "#",
-      },
-      {
-        title: "Press",
-        href: "#",
+        href: "/about",
       },
       {
         title: "Contact",
-        href: "#",
-      },
-      {
-        title: "Help",
-        href: "#",
-      },
-    ],
-  },
-  {
-    group: "Legal",
-    items: [
-      {
-        title: "Licence",
-        href: "#",
-      },
-      {
-        title: "Privacy",
-        href: "#",
-      },
-      {
-        title: "Cookies",
-        href: "#",
-      },
-      {
-        title: "Security",
-        href: "#",
+        href: "mailto:hello@churchspace.co?subject=Question%20about%20Church%20Space&body=NAME%3A%20%0ACHURCH%3A%20%0A%0AQUESTION%3A%20%0A",
       },
     ],
   },
