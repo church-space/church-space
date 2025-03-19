@@ -431,7 +431,7 @@ export async function applyEmailTemplate(
 export async function updateEmail(
   supabase: Client,
   emailId: number,
-  email: Database["public"]["Tables"]["emails"]["Row"]
+  email: Database["public"]["Tables"]["emails"]["Update"]
 ) {
   const { data, error } = await supabase
     .from("emails")
