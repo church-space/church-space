@@ -152,16 +152,7 @@ export const addDomainAction = authActionClient
         };
       }
 
-      console.log("Adding domain to database...");
       try {
-        console.log("addDomain params:", {
-          organizationId: parsedInput.parsedInput.organization_id,
-          domain: parsedInput.parsedInput.domain,
-          isPrimary: parsedInput.parsedInput.is_primary,
-          resendDomainId: resendDomainData.id,
-          recordsCount: resendDomainData.records?.length,
-        });
-
         const result = await addDomain(
           supabase,
           parsedInput.parsedInput.organization_id,
@@ -192,6 +183,27 @@ export const addDomainAction = authActionClient
           };
         }
 
+        // Format the Resend records for direct use in the client
+        const formattedRecords = Array.isArray(resendDomainData.records)
+          ? resendDomainData.records.map((record) => {
+              console.log("Processing Resend record:", record);
+              return {
+                type: record.type || "TXT",
+                name: record.name || "",
+                value: record.value || "",
+                priority: record.priority || null,
+                ttl: record.ttl || "Auto",
+                status: record.status || "not_started",
+              };
+            })
+          : [];
+
+        console.log(
+          "Formatted Resend records:",
+          JSON.stringify(formattedRecords, null, 2),
+        );
+        console.log("Number of records:", formattedRecords.length);
+
         // Revalidate the domains query tag
         console.log("Domain added successfully, revalidating...");
         try {
@@ -206,7 +218,11 @@ export const addDomainAction = authActionClient
         console.log("Domain addition complete:", result.data);
         return {
           success: true,
-          data: result.data[0], // Return the first item from the array
+          data: {
+            ...result.data[0],
+            records: formattedRecords, // Send formatted records
+            resend_response: resendDomainData, // Include the raw Resend response for debugging
+          },
         };
       } catch (addError) {
         console.error("Error in addDomain:", addError);

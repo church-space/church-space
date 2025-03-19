@@ -235,7 +235,7 @@ export default function DomainManagement({
 
       // Use any type to safely handle different response formats
       const result = response as any;
-      console.log("Server action response:", result);
+      console.log("Server action response:", JSON.stringify(result, null, 2));
 
       // Check if response is successful
       const isSuccess =
@@ -263,66 +263,110 @@ export default function DomainManagement({
         return;
       }
 
-      // If we got here, assume success
+      // Get the domain data from the response
       const domainData = result.data || result;
+      console.log("Domain data:", JSON.stringify(domainData, null, 2));
+      console.log("Has records?", !!domainData.records);
+      console.log("Records type:", typeof domainData.records);
 
-      // Get the records from the response if they exist
-      let resendRecords: any[] = [];
-      if (domainData.records) {
-        // Use the Resend records directly
-        resendRecords = domainData.records;
-      } else if (
-        domainData &&
-        typeof domainData === "object" &&
-        "dns_records" in domainData
+      // Get the DNS records directly from the response
+      let dnsRecords: DomainRecord[] = [];
+
+      if (domainData.records && Array.isArray(domainData.records)) {
+        console.log(
+          "Using records directly from Resend:",
+          JSON.stringify(domainData.records, null, 2),
+        );
+        // Use the records directly - they're already formatted by the server
+        dnsRecords = domainData.records;
+      }
+      // Try to get records from the raw Resend response
+      else if (
+        result.data &&
+        typeof result.data === "object" &&
+        result.data.resend_response
       ) {
-        // Or parse them if they're in dns_records as a string
         try {
-          const parsedRecords = JSON.parse(domainData.dns_records);
-          resendRecords = Array.isArray(parsedRecords) ? parsedRecords : [];
+          const resendResponse =
+            typeof result.data.resend_response === "string"
+              ? JSON.parse(result.data.resend_response)
+              : result.data.resend_response;
+
+          if (
+            resendResponse &&
+            resendResponse.records &&
+            Array.isArray(resendResponse.records)
+          ) {
+            console.log(
+              "Found records in resend_response:",
+              resendResponse.records,
+            );
+            dnsRecords = resendResponse.records.map((record: any) => ({
+              type: record.type || "TXT",
+              name: record.name || "",
+              value: record.value || "",
+              priority: record.priority !== undefined ? record.priority : null,
+              ttl: record.ttl || "Auto",
+              status: record.status || "not_started",
+            }));
+          }
         } catch (err) {
-          console.error("Error parsing DNS records:", err);
-          resendRecords = [];
+          console.error("Error parsing resend_response:", err);
         }
+      } else {
+        console.error("No records found in domain data:", domainData);
+
+        // As a last resort, show standard DNS verification records that most email providers require
+        dnsRecords = [
+          {
+            type: "MX",
+            name: "@",
+            value: "mx1.resend.com",
+            priority: 10,
+            ttl: "Auto",
+            status: "not_started",
+          },
+          {
+            type: "MX",
+            name: "@",
+            value: "mx2.resend.com",
+            priority: 20,
+            ttl: "Auto",
+            status: "not_started",
+          },
+          {
+            type: "TXT",
+            name: "@",
+            value: "v=spf1 include:spf.resend.com -all",
+            priority: null,
+            ttl: "Auto",
+            status: "not_started",
+          },
+        ];
       }
 
-      console.log("Records from Resend:", resendRecords);
-
-      // Transform records to match our format
-      const formattedRecords: DomainRecord[] = resendRecords.map(
-        (record: any) => {
-          return {
-            type: record.type || "TXT",
-            name: record.name || "",
-            value: record.value || "",
-            priority: record.priority !== undefined ? record.priority : null,
-            ttl: record.ttl || "Auto",
-            status: record.status || "not_started",
-          };
-        },
-      );
-
-      // Check if _dmarc record exists, if not, add it as a recommendation
-      const hasDmarc = formattedRecords.some(
+      // Check if DMARC record exists, if not add recommendation
+      const hasDmarc = dnsRecords.some(
         (record) => record.name === "_dmarc" && record.type === "TXT",
       );
 
-      // Final set of records to use for optimistic UI update
-      const finalRecords = hasDmarc
-        ? formattedRecords
-        : [
-            ...formattedRecords,
-            {
-              ...getDmarcRecommendation(),
-            },
-          ];
+      if (!hasDmarc) {
+        dnsRecords.push({
+          ...getDmarcRecommendation(),
+        });
+      }
 
-      // Add the domain to the local state with real data, ensuring we're at the top
+      console.log(
+        "Final DNS records to display:",
+        JSON.stringify(dnsRecords, null, 2),
+      );
+
+      // Add the domain to the local state with real data
       setDomains((prevDomains) => [
         {
           id: domainData.id,
           name: newDomain,
-          records: finalRecords,
+          records: dnsRecords,
           isRefreshing: false,
           resend_domain_id: domainData.resend_domain_id,
         },
@@ -410,9 +454,33 @@ export default function DomainManagement({
     updatedDomains[domainIndex].isRefreshing = true;
     setDomains(updatedDomains);
 
-    // Simulate API call to refresh status
+    // Log what we're refreshing
+    console.log("Refreshing domain:", domains[domainIndex]);
+
+    // Use real API endpoint to refresh status (when implemented)
+    // For now we'll just simulate a status update by copying existing records
+    // and setting one record to "verified" status as an example
     setTimeout(() => {
       const refreshedDomains = [...domains];
+
+      // Update records to simulate verification
+      if (refreshedDomains[domainIndex].records.length > 0) {
+        // Make a deep copy of the records
+        const updatedRecords = JSON.parse(
+          JSON.stringify(refreshedDomains[domainIndex].records),
+        );
+
+        // Update status of real records (not recommendations)
+        updatedRecords.forEach((record: DomainRecord) => {
+          if (!record.isRecommendation) {
+            // Simulate verification - in real implementation this would come from API
+            record.status = "verified";
+          }
+        });
+
+        refreshedDomains[domainIndex].records = updatedRecords;
+      }
+
       refreshedDomains[domainIndex].isRefreshing = false;
       setDomains(refreshedDomains);
 

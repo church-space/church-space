@@ -5,7 +5,13 @@ export default function Hero() {
     <section className="overflow-hidden py-16 md:py-32">
       <div className="mx-auto max-w-7xl space-y-4 px-6">
         <div className="text-5xl font-bold">
-          <TextAnimate animation="blurIn" by="character" once duration={0.1}>
+          <TextAnimate
+            animation="blurIn"
+            by="character"
+            once
+            duration={0.1}
+            className="text-balance break-words"
+          >
             Free your ministry from app overload.
           </TextAnimate>
         </div>
