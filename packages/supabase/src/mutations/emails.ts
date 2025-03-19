@@ -438,6 +438,12 @@ export async function updateEmail(
     .update(email)
     .eq("id", emailId)
     .select();
+
+  if (error) {
+    console.error("Error updating email:", error);
+    throw error;
+  }
+  return { data, error };
 }
 
 export async function unsubscribeEmail(supabase: Client, emailId: number) {

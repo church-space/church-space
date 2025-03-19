@@ -263,128 +263,54 @@ export default function DomainManagement({
         return;
       }
 
-      // Get the domain data from the response
-      const domainData = result.data || result;
-      console.log("Domain data:", JSON.stringify(domainData, null, 2));
-      console.log("Has records?", !!domainData.records);
-      console.log("Records type:", typeof domainData.records);
+      try {
+        // Extract data from response
+        const domainData = result.data.data;
 
-      // Get the DNS records directly from the response
-      let dnsRecords: DomainRecord[] = [];
+        console.log("Domain data from server action:", domainData);
 
-      if (domainData.records && Array.isArray(domainData.records)) {
-        console.log(
-          "Using records directly from Resend:",
-          JSON.stringify(domainData.records, null, 2),
-        );
-        // Use the records directly - they're already formatted by the server
-        dnsRecords = domainData.records;
-      }
-      // Try to get records from the raw Resend response
-      else if (
-        result.data &&
-        typeof result.data === "object" &&
-        result.data.resend_response
-      ) {
-        try {
-          const resendResponse =
-            typeof result.data.resend_response === "string"
-              ? JSON.parse(result.data.resend_response)
-              : result.data.resend_response;
+        // Add the domain to the local state with ALL records from the response
+        setDomains((prevDomains) => [
+          {
+            id: domainData.id,
+            name: newDomain,
+            records: [
+              ...domainData.records, // Add all records from the response first
+              // Then add DMARC recommendation if it doesn't exist
+              ...(!domainData.records.some(
+                (r: any) => r.name === "_dmarc" && r.type === "TXT",
+              )
+                ? [getDmarcRecommendation()]
+                : []),
+            ],
+            isRefreshing: false,
+            resend_domain_id: domainData.resend_domain_id,
+          },
+          ...prevDomains,
+        ]);
 
-          if (
-            resendResponse &&
-            resendResponse.records &&
-            Array.isArray(resendResponse.records)
-          ) {
-            console.log(
-              "Found records in resend_response:",
-              resendResponse.records,
-            );
-            dnsRecords = resendResponse.records.map((record: any) => ({
-              type: record.type || "TXT",
-              name: record.name || "",
-              value: record.value || "",
-              priority: record.priority !== undefined ? record.priority : null,
-              ttl: record.ttl || "Auto",
-              status: record.status || "not_started",
-            }));
-          }
-        } catch (err) {
-          console.error("Error parsing resend_response:", err);
+        // Set as primary if it's the first one
+        if (domains.length === 0) {
+          setPrimaryDomain(newDomain);
         }
-      } else {
-        console.error("No records found in domain data:", domainData);
 
-        // As a last resort, show standard DNS verification records that most email providers require
-        dnsRecords = [
-          {
-            type: "MX",
-            name: "@",
-            value: "mx1.resend.com",
-            priority: 10,
-            ttl: "Auto",
-            status: "not_started",
-          },
-          {
-            type: "MX",
-            name: "@",
-            value: "mx2.resend.com",
-            priority: 20,
-            ttl: "Auto",
-            status: "not_started",
-          },
-          {
-            type: "TXT",
-            name: "@",
-            value: "v=spf1 include:spf.resend.com -all",
-            priority: null,
-            ttl: "Auto",
-            status: "not_started",
-          },
-        ];
-      }
-
-      // Check if DMARC record exists, if not add recommendation
-      const hasDmarc = dnsRecords.some(
-        (record) => record.name === "_dmarc" && record.type === "TXT",
-      );
-
-      if (!hasDmarc) {
-        dnsRecords.push({
-          ...getDmarcRecommendation(),
+        toast({
+          title: "Domain added",
+          description: `${newDomain} has been added to your account.`,
         });
+
+        setNewDomain("");
+        setIsAddingDomain(false);
+      } catch (error) {
+        console.error("Error processing domain response:", error);
+        toast({
+          title: "Error processing domain data",
+          description:
+            "The domain was added but there was an error displaying DNS records.",
+          variant: "destructive",
+        });
+        setIsAddingDomain(false);
       }
-
-      console.log(
-        "Final DNS records to display:",
-        JSON.stringify(dnsRecords, null, 2),
-      );
-
-      // Add the domain to the local state with real data
-      setDomains((prevDomains) => [
-        {
-          id: domainData.id,
-          name: newDomain,
-          records: dnsRecords,
-          isRefreshing: false,
-          resend_domain_id: domainData.resend_domain_id,
-        },
-        ...prevDomains,
-      ]);
-
-      // Set as primary if it's the first one
-      if (domains.length === 0) {
-        setPrimaryDomain(newDomain);
-      }
-
-      toast({
-        title: "Domain added",
-        description: `${newDomain} has been added to your account.`,
-      });
-
-      setNewDomain("");
-      setIsAddingDomain(false);
     } catch (error) {
       if (error instanceof z.ZodError) {
         setValidationError(error.errors[0].message);
@@ -825,6 +751,13 @@ export default function DomainManagement({
                         Are you sure you want to delete this domain?
                       </DialogDescription>
                     </DialogHeader>
+                    <div className="flex flex-col gap-2">
+                      <Label>
+                        Please type the domain name to confirm deletion:
+                        <span className="text-red-500">{domain.name}</span>
+                      </Label>
+                      <Input />
+                    </div>
                     <DialogFooter>
                       <Button variant="outline">Cancel</Button>
                       <Button

@@ -183,26 +183,64 @@ export const addDomainAction = authActionClient
           };
         }
 
+        // Log the raw data before formatting
+        console.log(
+          "Raw result.data[0]:",
+          JSON.stringify(result.data[0], null, 2),
+        );
+
         // Format the Resend records for direct use in the client
         const formattedRecords = Array.isArray(resendDomainData.records)
           ? resendDomainData.records.map((record) => {
-              console.log("Processing Resend record:", record);
+              console.log("Processing record:", record);
               return {
+                // Extract only the fields we need in the exact format the client expects
                 type: record.type || "TXT",
                 name: record.name || "",
                 value: record.value || "",
-                priority: record.priority || null,
+                priority:
+                  typeof record.priority !== "undefined"
+                    ? record.priority
+                    : null,
                 ttl: record.ttl || "Auto",
                 status: record.status || "not_started",
               };
             })
           : [];
 
+        // If no records were found or formatting failed, create standard records
+        if (
+          formattedRecords.length === 0 &&
+          resendDomainData.records &&
+          resendDomainData.records.length > 0
+        ) {
+          console.error(
+            "Failed to format records, using direct approach with original data",
+          );
+          // Try a direct approach with original data
+          for (const record of resendDomainData.records) {
+            formattedRecords.push({
+              type: String(record.type || "TXT"),
+              name: String(record.name || ""),
+              value: String(record.value || ""),
+              priority: record.priority ? Number(record.priority) : null,
+              ttl: String(record.ttl || "Auto"),
+              status: String(record.status || "not_started"),
+            });
+          }
+        }
+
         console.log(
-          "Formatted Resend records:",
+          "Final formatted records:",
           JSON.stringify(formattedRecords, null, 2),
         );
         console.log("Number of records:", formattedRecords.length);
+
+        if (formattedRecords.length === 0) {
+          console.error(
+            "⚠️ WARNING: No DNS records found to return to client!",
+          );
+        }
 
         // Revalidate the domains query tag
         console.log("Domain added successfully, revalidating...");
@@ -215,14 +253,24 @@ export const addDomainAction = authActionClient
           // Continue even if revalidation fails
         }
 
-        console.log("Domain addition complete:", result.data);
+        // Create a simple response object with all required fields in the right format
+        const responseData = {
+          id: result.data[0].id,
+          domain: parsedInput.parsedInput.domain,
+          created_at: result.data[0].created_at,
+          records: formattedRecords,
+          resend_domain_id: resendDomainData.id,
+        };
+
+        console.log("Response structure:", Object.keys(responseData));
+        console.log(
+          "Final response data:",
+          JSON.stringify(responseData, null, 2),
+        );
+
         return {
           success: true,
-          data: {
-            ...result.data[0],
-            records: formattedRecords, // Send formatted records
-            resend_response: resendDomainData, // Include the raw Resend response for debugging
-          },
+          data: responseData,
         };
       } catch (addError) {
         console.error("Error in addDomain:", addError);
