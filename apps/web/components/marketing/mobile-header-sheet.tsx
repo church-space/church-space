@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@church-space/ui/button";
 import { Menu } from "lucide-react";
 import Link from "next/link";
@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@church-space/ui/popover";
+
 export default function MobileHeaderSheet() {
   return (
     <Popover>

@@ -1,6 +1,5 @@
 import { Button } from "@church-space/ui/button";
 import React from "react";
-import { Menu } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
