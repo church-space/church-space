@@ -11,6 +11,7 @@ import {
   Star,
   ShieldCheck,
   Loader2,
+  Info,
 } from "lucide-react";
 import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
@@ -49,6 +50,7 @@ import {
   DialogTrigger,
 } from "@church-space/ui/dialog";
 import { addDomainAction } from "@/actions/add-domain";
+import { deleteDomainAction } from "@/actions/delete-domain";
 
 // Domain validation schema
 const domainSchema = z.string().refine(
@@ -63,53 +65,33 @@ const domainSchema = z.string().refine(
   },
 );
 
-// Sample DNS records for a domain
-const getSampleRecords = () => [
-  {
-    type: "MX",
-    priority: 10,
-    name: "send",
-    value: "feedback-smtp.us-east-1.amazonses.com",
-    ttl: "Auto",
-    status: "verified",
-  },
-  {
-    type: "TXT",
-    name: "send",
-    value: "v=spf1 include:amazonses.com ~all",
-    ttl: "Auto",
-    status: "verified",
-    priority: null,
-  },
-  {
-    type: "TXT",
-    name: "resend._domainkey",
-    value: "TBD",
-    ttl: "Auto",
-    status: "verified",
-    priority: null,
-  },
-  {
-    type: "TXT",
-    name: "_dmarc",
-    value: "v=DMARC1; p=none;",
-    ttl: "Auto",
-    status: "verified",
-    priority: null,
-  },
-];
+// DMARC record recommendation
+const getDmarcRecommendation = () => ({
+  type: "TXT",
+  name: "_dmarc",
+  value: "v=DMARC1; p=none;",
+  ttl: "Auto",
+  priority: null,
+  isRecommendation: true,
+});
+
+// Type definitions
+type DomainRecord = {
+  type: string;
+  name: string;
+  value: string;
+  priority: number | null;
+  ttl: string;
+  status?: string;
+  isRecommendation?: boolean;
+};
 
 type Domain = {
+  id: number;
   name: string;
-  records: {
-    type: string;
-    name: string;
-    value: string;
-    priority: number | null;
-    ttl: string;
-    status: string;
-  }[];
+  records: DomainRecord[];
   isRefreshing: boolean;
+  resend_domain_id: string | null;
 };
 
 // Custom AccordionTrigger that only underlines the domain name
@@ -138,8 +120,9 @@ export default function DomainManagement({
   const [validationError, setValidationError] = useState<string | null>(null);
   const [copiedCell, setCopiedCell] = useState<string | null>(null);
   const [isAddingDomain, setIsAddingDomain] = useState(false);
+  const [deletingDomainId, setDeletingDomainId] = useState<number | null>(null);
 
-  // Transform server fetched domains to the component's format or use defaults
+  // Transform server fetched domains to the component's format
   const [domains, setDomains] = useState<Domain[]>(() => {
     if (initialDomains && initialDomains.length > 0) {
       // Sort domains with newest first
@@ -149,26 +132,68 @@ export default function DomainManagement({
         return dateB.getTime() - dateA.getTime();
       });
 
-      return sortedDomains.map((domain) => ({
-        name: domain.domain,
-        records: domain.dns_records
-          ? JSON.parse(domain.dns_records)
-          : getSampleRecords(),
-        isRefreshing: false,
-      }));
+      return sortedDomains.map((domain) => {
+        let records: DomainRecord[] = [];
+
+        // Parse DNS records from database
+        if (domain.dns_records) {
+          try {
+            const parsedRecords = JSON.parse(domain.dns_records);
+            if (Array.isArray(parsedRecords)) {
+              records = parsedRecords.map((record: any) => ({
+                type: record.type || "TXT",
+                name: record.name || "",
+                value: record.value || "",
+                priority:
+                  record.priority !== undefined ? record.priority : null,
+                ttl: record.ttl || "Auto",
+                status: record.status || "not_started",
+              }));
+
+              // Check if DMARC record exists, if not, add recommendation
+              const hasDmarc = records.some(
+                (r) => r.name === "_dmarc" && r.type === "TXT",
+              );
+
+              if (!hasDmarc) {
+                // Add DMARC as a recommendation
+                records.push({
+                  ...getDmarcRecommendation(),
+                });
+              }
+            }
+          } catch (err) {
+            console.error(
+              "Error parsing DNS records for domain:",
+              domain.domain,
+              err,
+            );
+            // Only show DMARC recommendation
+            records = [
+              {
+                ...getDmarcRecommendation(),
+              },
+            ];
+          }
+        } else {
+          // Only show DMARC recommendation
+          records = [
+            {
+              ...getDmarcRecommendation(),
+            },
+          ];
+        }
+
+        return {
+          id: domain.id,
+          name: domain.domain,
+          records: records,
+          isRefreshing: false,
+          resend_domain_id: domain.resend_domain_id,
+        };
+      });
     }
-    return [
-      {
-        name: "example.com",
-        records: getSampleRecords(),
-        isRefreshing: false,
-      },
-      {
-        name: "myproject.dev",
-        records: getSampleRecords(),
-        isRefreshing: false,
-      },
-    ];
+    return []; // Return empty array instead of sample domains
   });
 
   // Use the primary domain from the fetched domains or the first one
@@ -177,12 +202,11 @@ export default function DomainManagement({
       const primary = initialDomains.find((d) => d.is_primary);
       return primary ? primary.domain : initialDomains[0].domain;
     }
-    return "example.com";
+    return "";
   });
 
-  const [confirmPrimaryDomain, setConfirmPrimaryDomain] = useState<
-    string | null
-  >(null);
+  const [confirmPrimaryDomain, setConfirmPrimaryDomain] =
+    useState<Domain | null>(null);
 
   const handleAddDomain = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,7 +267,7 @@ export default function DomainManagement({
       const domainData = result.data || result;
 
       // Get the records from the response if they exist
-      let resendRecords = [];
+      let resendRecords: any[] = [];
       if (domainData.records) {
         // Use the Resend records directly
         resendRecords = domainData.records;
@@ -265,21 +289,22 @@ export default function DomainManagement({
       console.log("Records from Resend:", resendRecords);
 
       // Transform records to match our format
-      const formattedRecords = resendRecords.map((record: any) => {
-        // Extract all needed fields, handle different property naming conventions
-        return {
-          type: record.type || "TXT",
-          name: record.name || "",
-          value: record.value || "",
-          priority: record.priority !== undefined ? record.priority : null,
-          ttl: record.ttl || "Auto",
-          status: record.status || "not_started",
-        };
-      });
+      const formattedRecords: DomainRecord[] = resendRecords.map(
+        (record: any) => {
+          return {
+            type: record.type || "TXT",
+            name: record.name || "",
+            value: record.value || "",
+            priority: record.priority !== undefined ? record.priority : null,
+            ttl: record.ttl || "Auto",
+            status: record.status || "not_started",
+          };
+        },
+      );
 
-      // Check if _dmarc record exists, if not, add it
+      // Check if _dmarc record exists, if not, add it as a recommendation
       const hasDmarc = formattedRecords.some(
-        (record: any) => record.name === "_dmarc" && record.type === "TXT",
+        (record) => record.name === "_dmarc" && record.type === "TXT",
       );
 
       // Final set of records to use for optimistic UI update
@@ -288,21 +313,18 @@ export default function DomainManagement({
         : [
             ...formattedRecords,
             {
-              type: "TXT",
-              name: "_dmarc",
-              value: "v=DMARC1; p=none;",
-              ttl: "Auto",
-              status: "not_started",
-              priority: null,
+              ...getDmarcRecommendation(),
             },
           ];
 
-      // Add the domain to the local state with real data
+      // Add the domain to the local state with real data, ensuring we're at the top
       setDomains((prevDomains) => [
         {
+          id: domainData.id,
           name: newDomain,
           records: finalRecords,
           isRefreshing: false,
+          resend_domain_id: domainData.resend_domain_id,
         },
         ...prevDomains,
       ]);
@@ -319,9 +341,6 @@ export default function DomainManagement({
 
       setNewDomain("");
       setIsAddingDomain(false);
-
-      // No page refresh needed - domain is already added to UI
-      // window.location.reload();
     } catch (error) {
       if (error instanceof z.ZodError) {
         setValidationError(error.errors[0].message);
@@ -338,6 +357,37 @@ export default function DomainManagement({
         });
       }
       setIsAddingDomain(false);
+    }
+  };
+
+  const handleDeleteDomain = async (domain: Domain) => {
+    try {
+      setDeletingDomainId(domain.id);
+      await deleteDomainAction({
+        organization_id: organizationId,
+        domain_id: domain.id,
+        resend_domain_id: domain.resend_domain_id || "",
+      });
+
+      // Optimistically remove the domain from the UI
+      setDomains((prevDomains) =>
+        prevDomains.filter((d) => d.id !== domain.id),
+      );
+
+      toast({
+        title: "Domain deleted",
+        description: `${domain.name} has been deleted successfully.`,
+      });
+    } catch (error) {
+      console.error("Error deleting domain:", error);
+      toast({
+        title: "Error deleting domain",
+        description:
+          "There was a problem deleting your domain. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingDomainId(null);
     }
   };
 
@@ -373,22 +423,45 @@ export default function DomainManagement({
     }, 1500);
   };
 
-  const setPrimary = (domainName: string) => {
-    if (primaryDomain === domainName) return;
+  const setPrimary = (domain: Domain) => {
+    if (primaryDomain === domain.name) return;
 
-    setPrimaryDomain(domainName);
+    setPrimaryDomain(domain.name);
 
     toast({
       title: "Primary domain updated",
-      description: `${domainName} is now your primary domain.`,
+      description: `${domain.name} is now your primary domain.`,
     });
   };
 
-  const areAllRecordsVerified = (records: Domain["records"]) => {
-    return records.every((record) => record.status === "verified");
+  const areAllRecordsVerified = (records: DomainRecord[]) => {
+    // Only check non-recommendation records for verification
+    const verifiableRecords = records.filter(
+      (record) => !record.isRecommendation,
+    );
+    return (
+      verifiableRecords.length > 0 &&
+      verifiableRecords.every((record) => record.status === "verified")
+    );
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (record: DomainRecord) => {
+    // If it's a recommendation, show info badge instead
+    if (record.isRecommendation) {
+      return (
+        <Badge
+          variant="outline"
+          className="border-blue-300 bg-blue-100 text-blue-800"
+        >
+          <Info className="mr-1 h-3 w-3" />
+          Recommended
+        </Badge>
+      );
+    }
+
+    // Otherwise show verification status based on status property
+    const status = record.status || "unknown";
+
     switch (status) {
       case "verified":
         return (
@@ -596,7 +669,7 @@ export default function DomainManagement({
                             </div>
                           )}
                         </TableCell>
-                        <TableCell>{getStatusBadge(record.status)}</TableCell>
+                        <TableCell>{getStatusBadge(record)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -604,14 +677,14 @@ export default function DomainManagement({
               </div>
               <div className="mt-2 text-sm text-muted-foreground">
                 Click on any cell to copy its value. DNS records can take up to
-                24 hours to fully propagate. [^1]
+                24 hours to fully propagate.
               </div>
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {/* Primary domain toggle button */}
                   {primaryDomain !== domain.name && (
                     <Dialog
-                      open={confirmPrimaryDomain === domain.name}
+                      open={confirmPrimaryDomain?.name === domain.name}
                       onOpenChange={(open) => {
                         if (!open) setConfirmPrimaryDomain(null);
                       }}
@@ -621,7 +694,7 @@ export default function DomainManagement({
                           variant="outline"
                           size="sm"
                           className="text-xs"
-                          onClick={() => setConfirmPrimaryDomain(domain.name)}
+                          onClick={() => setConfirmPrimaryDomain(domain)}
                         >
                           <Star className="mr-1 h-3.5 w-3.5" />
                           Set as Primary
@@ -686,7 +759,20 @@ export default function DomainManagement({
                     </DialogHeader>
                     <DialogFooter>
                       <Button variant="outline">Cancel</Button>
-                      <Button variant="destructive">Delete</Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleDeleteDomain(domain)}
+                        disabled={deletingDomainId === domain.id}
+                      >
+                        {deletingDomainId === domain.id ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Deleting...
+                          </>
+                        ) : (
+                          "Delete"
+                        )}
+                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>

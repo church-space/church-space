@@ -6,12 +6,17 @@ import { deleteDomain } from "@church-space/supabase/mutations/domains";
 import { z } from "zod";
 import type { ActionResponse } from "@/types/action";
 import { revalidateTag } from "next/cache";
+import { Resend } from "resend";
+
+// Initialize Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const deleteDomainAction = authActionClient
   .schema(
     z.object({
       organization_id: z.string(),
       domain_id: z.number(),
+      resend_domain_id: z.string(),
     }),
   )
   .metadata({
@@ -22,11 +27,25 @@ export const deleteDomainAction = authActionClient
       console.log("Starting domain deletion with:", {
         organization_id: parsedInput.parsedInput.organization_id,
         domain_id: parsedInput.parsedInput.domain_id,
+        resend_domain_id: parsedInput.parsedInput.resend_domain_id,
       });
+
+      // First, delete the domain from Resend if we have a resend_domain_id
+      if (parsedInput.parsedInput.resend_domain_id) {
+        console.log("Deleting domain from Resend...");
+        try {
+          await resend.domains.remove(parsedInput.parsedInput.resend_domain_id);
+          console.log("Domain deleted from Resend successfully");
+        } catch (resendError) {
+          console.error("Error deleting domain from Resend:", resendError);
+          // Continue with database deletion even if Resend deletion fails
+          console.log("Continuing with database deletion despite Resend error");
+        }
+      }
 
       const supabase = await createClient();
 
-      console.log("Deleting domain...");
+      console.log("Deleting domain from database...");
       try {
         const result = await deleteDomain(
           supabase,

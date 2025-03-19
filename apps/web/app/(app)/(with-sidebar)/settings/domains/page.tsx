@@ -10,26 +10,22 @@ import {
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import DomainManagement from "@/components/domains/domain-managament";
-import { getCachedDomains } from "@church-space/supabase/queries/cached/domains";
+import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { unstable_noStore } from "next/cache";
+import { createClient } from "@church-space/supabase/server";
 
 export default async function Page() {
-  // Disable caching for this page
-  unstable_noStore();
-
   const cookieStore = await cookies();
   const organizationId = cookieStore.get("organizationId")?.value;
+
+  const supabase = await createClient();
 
   if (!organizationId) {
     redirect("/onboarding");
   }
 
-  const domains = await getCachedDomains(organizationId);
-
-  console.log("Domains fetched for organization:", organizationId);
-  console.log("Domains data:", domains?.data || []);
+  const domains = await getDomainsQuery(supabase, organizationId);
 
   return (
     <>

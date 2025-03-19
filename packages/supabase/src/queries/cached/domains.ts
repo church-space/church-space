@@ -15,7 +15,7 @@ export const getCachedDomains = async (organizationId: string) => {
     },
     [`domains_${organizationId}`],
     {
-      revalidate: 3600,
+      revalidate: 1,
     }
   )();
 
