@@ -72,6 +72,10 @@ const links = [
         href: "/about",
       },
       {
+        title: "Roadmap",
+        href: "/roadmap",
+      },
+      {
         title: "Contact",
         href: "mailto:hello@churchspace.co?subject=Question%20about%20Church%20Space&body=NAME%3A%20%0ACHURCH%3A%20%0A%0AQUESTION%3A%20%0A",
       },
@@ -84,7 +88,7 @@ export default function Footer() {
     <footer className="border-b bg-white pt-20 dark:bg-transparent">
       <div className="mx-auto max-w-5xl px-6">
         <div className="grid gap-12 md:grid-cols-5">
-          <div className="flex items-start justify-center md:col-span-2 md:justify-start">
+          <div className="flex items-start md:col-span-2">
             <Link
               href="/"
               aria-label="go home"

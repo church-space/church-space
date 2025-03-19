@@ -18,7 +18,7 @@ export default function MobileHeaderSheet() {
       </PopoverTrigger>
       <PopoverContent
         animationsOn={false}
-        className="mt-2.5 h-[calc(100vh-4rem)] w-screen overflow-y-auto rounded-none bg-background/80 p-4 backdrop-blur-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 md:hidden"
+        className="mt-2.5 h-[calc(100vh-4rem)] w-screen overflow-y-auto rounded-none border-none bg-background/80 p-4 backdrop-blur-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 md:hidden"
       >
         <div className="flex flex-col gap-3 p-4 text-lg font-semibold">
           <span className="text-sm text-muted-foreground">Features</span>
