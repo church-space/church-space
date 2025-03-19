@@ -1,4 +1,3 @@
-import { Button } from "@church-space/ui/button";
 import React from "react";
 import {
   NavigationMenu,
@@ -23,6 +22,7 @@ import {
 import PCOlogo from "@/public/pco-logo.png";
 import Image from "next/image";
 import MobileHeaderSheet from "./mobile-header-sheet";
+import HeaderButtons from "./header-buttons";
 
 export default function Header() {
   return (
@@ -124,19 +124,7 @@ export default function Header() {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex items-center gap-2">
-          <Link href="/login" legacyBehavior passHref>
-            <Button
-              variant="ghost"
-              className="h-8 rounded-lg px-3 py-0 text-muted-foreground"
-            >
-              Log in
-            </Button>
-          </Link>
-          <Link href="/signup" legacyBehavior passHref>
-            <Button className="h-8 rounded-lg bg-foreground/90 px-3 py-0 hover:bg-foreground">
-              Sign up
-            </Button>
-          </Link>
+          <HeaderButtons />
           <MobileHeaderSheet />
         </div>
       </div>
