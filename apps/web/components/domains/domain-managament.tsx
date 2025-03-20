@@ -405,7 +405,6 @@ export default function DomainManagement({
     }, 2000);
   };
 
-  // Use type assertion and ignore TypeScript errors for Resend API integration
   const refreshStatus = async (domainIndex: number) => {
     const domain = domains[domainIndex];
     const domainId = domain.id;
@@ -432,72 +431,95 @@ export default function DomainManagement({
         throw new Error("No Resend domain ID found for this domain");
       }
 
-      // Call the verify domain action and use type assertion to bypass TypeScript
-      // @ts-ignore - The action returns a complex type that we'll handle manually
-      const result = await verifyDomainAction({
+      // Call the verify domain action
+      const response = await verifyDomainAction({
         domain_id: domainId,
         resend_domain_id: domain.resend_domain_id,
       });
 
-      // Type assertion to access the nested properties
-      // @ts-ignore - Using any to bypass type checking for the response structure
-      if (result.success === false) {
-        // @ts-ignore - Using any to access error property
-        throw new Error(result.error || "Failed to verify domain");
+      // Cast to any to handle the response structure
+      const result = response as any;
+
+      if (!result || result.success === false) {
+        throw new Error(result?.error || "Failed to verify domain");
       }
+
+      // Extract domain data from the response
+      const domainData = result.data?.data.domain;
+      const resendData = result.data?.data.resendData;
+
+      console.log("Domain verification response:", {
+        domain: domainData,
+        resendData: resendData,
+      });
 
       // Update the domain records in the local state
       const updatedDomains = [...domains];
 
-      // Extract the updated records from the response using type assertions
-      // @ts-ignore - Using any to access nested properties
-      const updatedRecords = result.data?.resendData?.records;
-
-      if (updatedRecords && Array.isArray(updatedRecords)) {
+      // First try to use resendData if it's available
+      if (resendData?.records && Array.isArray(resendData.records)) {
         // Map the Resend records to our DomainRecord format
-        const formattedRecords = updatedRecords.map((record: any) => {
-          // Ensure we're preserving the status exactly as returned from the API
-          const status =
-            record.status !== undefined ? record.status : "not_started";
-          console.log(
-            `Record ${record.name}: API status = ${record.status}, mapped status = ${status}`,
-          );
-
-          return {
-            type: record.type || "TXT",
-            name: record.name || "",
-            value: record.value || "",
-            priority: record.priority !== undefined ? record.priority : null,
-            ttl: record.ttl || "Auto",
-            status, // Use the preserved status
-          };
-        });
-
-        console.log(
-          "Original records from API:",
-          JSON.stringify(updatedRecords, null, 2),
-        );
-        console.log(
-          "Formatted records for UI:",
-          JSON.stringify(formattedRecords, null, 2),
-        );
+        const formattedRecords = resendData.records.map((record: any) => ({
+          type: record.type || "TXT",
+          name: record.name || "",
+          value: record.value || "",
+          priority: record.priority !== undefined ? record.priority : null,
+          ttl: record.ttl || "Auto",
+          status: record.status || "not_started",
+        }));
 
         // Check if DMARC record exists, if not, add recommendation
         const hasDmarc = formattedRecords.some(
-          (r) => r.name === "_dmarc" && r.type === "TXT",
+          (record: DomainRecord) =>
+            record.name === "_dmarc" && record.type === "TXT",
         );
 
         if (!hasDmarc) {
           // Add DMARC as a recommendation with required status property
           formattedRecords.push({
             ...getDmarcRecommendation(),
-            status: "not_started", // Adding the required status property
+            status: "not_started",
           });
         }
 
         // Update the domain's records
         updatedDomains[domainIndex].records = formattedRecords;
         setDomains(updatedDomains);
+      }
+      // Fall back to domain.dns_records if resendData is not available
+      else if (domainData?.dns_records) {
+        try {
+          const parsedRecords = JSON.parse(domainData.dns_records);
+          if (Array.isArray(parsedRecords)) {
+            const formattedRecords = parsedRecords.map((record: any) => ({
+              type: record.type || "TXT",
+              name: record.name || "",
+              value: record.value || "",
+              priority: record.priority !== undefined ? record.priority : null,
+              ttl: record.ttl || "Auto",
+              status: record.status || "not_started",
+            }));
+
+            // Check if DMARC record exists, if not, add recommendation
+            const hasDmarc = formattedRecords.some(
+              (record: DomainRecord) =>
+                record.name === "_dmarc" && record.type === "TXT",
+            );
+
+            if (!hasDmarc) {
+              formattedRecords.push({
+                ...getDmarcRecommendation(),
+                status: "not_started",
+              });
+            }
+
+            // Update the domain's records
+            updatedDomains[domainIndex].records = formattedRecords;
+            setDomains(updatedDomains);
+          }
+        } catch (parseError) {
+          console.error("Error parsing DNS records:", parseError);
+        }
       }
 
       toast({
@@ -551,9 +573,8 @@ export default function DomainManagement({
       return (
         <Badge
           variant="outline"
-          className="border-blue-300 bg-blue-100 text-blue-800"
+          className="border bg-muted text-muted-foreground"
         >
-          <Info className="mr-1 h-3 w-3" />
           Recommended
         </Badge>
       );
