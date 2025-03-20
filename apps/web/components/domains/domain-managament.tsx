@@ -201,6 +201,10 @@ export default function DomainManagement({
     return []; // Return empty array instead of sample domains
   });
 
+  // Domain limit constant
+  const MAX_DOMAINS = 5;
+  const isMaxDomainsReached = domains.length >= MAX_DOMAINS;
+
   // Use the primary domain from the fetched domains or the first one
   const [primaryDomain, setPrimaryDomain] = useState<string>(() => {
     if (initialDomains && initialDomains.length > 0) {
@@ -923,34 +927,66 @@ export default function DomainManagement({
             <Label htmlFor="domain">Add New Domain</Label>
             <div className="flex gap-2">
               <div className="flex-1">
-                <Input
-                  id="domain"
-                  placeholder="example.com"
-                  value={newDomain}
-                  onChange={(e) => {
-                    setNewDomain(e.target.value);
-                    setValidationError(null);
-                  }}
-                  className={validationError ? "border-red-500" : ""}
-                  disabled={isAddingDomain}
-                />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Input
+                        id="domain"
+                        placeholder="example.com"
+                        value={newDomain}
+                        onChange={(e) => {
+                          setNewDomain(e.target.value);
+                          setValidationError(null);
+                        }}
+                        className={validationError ? "border-red-500" : ""}
+                        disabled={isAddingDomain || isMaxDomainsReached}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  {isMaxDomainsReached && (
+                    <TooltipContent side="top">
+                      <p>
+                        You can only have a maximum of 5 domains per
+                        organization.
+                      </p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+
                 {validationError && (
                   <p className="mt-1 text-xs text-red-500">{validationError}</p>
                 )}
               </div>
-              <Button type="submit" disabled={isAddingDomain}>
-                {isAddingDomain ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Domain
-                  </>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Button
+                      type="submit"
+                      disabled={isAddingDomain || isMaxDomainsReached}
+                    >
+                      {isAddingDomain ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Domain
+                        </>
+                      )}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {isMaxDomainsReached && (
+                  <TooltipContent side="top">
+                    <p>
+                      You can only have a maximum of 5 domains per organization.
+                    </p>
+                  </TooltipContent>
                 )}
-              </Button>
+              </Tooltip>
             </div>
           </div>
         </form>
