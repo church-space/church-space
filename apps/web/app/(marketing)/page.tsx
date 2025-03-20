@@ -1,25 +1,18 @@
 import React from "react";
 import Hero from "@/components/marketing/hero";
+import LinksSection from "@/components/marketing/sections/links";
+import PcoAndAutomationsSection from "@/components/marketing/sections/pco-automations";
+import EmailsSection from "@/components/marketing/sections/emails";
+
 export default function Page() {
   return (
     <div className="flex min-h-screen flex-col">
       <Hero />
-      problem + solution
-      <br />
-      <br />
-      <br />
-      <br />
-      Emails
-      <br />
-      <br />
-      <br />
-      <br />
-      PCO
-      <br />
-      <br />
-      <br />
-      <br />
-      Links + QR Codes
+      <div className="mx-auto w-full max-w-7xl space-y-16 py-12">
+        <EmailsSection />
+        <PcoAndAutomationsSection />
+        <LinksSection />
+      </div>
     </div>
   );
 }

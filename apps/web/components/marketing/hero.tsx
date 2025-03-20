@@ -8,8 +8,8 @@ import {
 
 export default function Hero() {
   return (
-    <section className="space-y-14 overflow-hidden py-16 md:py-32">
-      <div className="mx-auto mb-12 max-w-7xl space-y-6 px-6">
+    <section className="overflow-hidden py-16 md:py-32">
+      <div className="mx-auto mb-28 max-w-7xl space-y-6 px-6">
         <h1 className="mx-auto max-w-2xl text-center text-4xl font-bold sm:text-6xl md:text-7xl">
           Church Comms
           <br />
@@ -26,7 +26,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-center gap-4">
+      <div className="flex flex-col justify-center gap-6">
         <div className="mx-auto flex items-center justify-center gap-4">
           <Button size="sm" variant="outline">
             <MailFilled />
@@ -45,8 +45,8 @@ export default function Hero() {
             QR Codes
           </Button>
         </div>
-        <div className="relative mx-auto aspect-video w-full max-w-7xl rounded-t-xl bg-card outline outline-[3px] outline-muted">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background backdrop-blur-sm" />
+        <div className="relative mx-auto aspect-video w-full max-w-7xl rounded-xl bg-card outline outline-[3px] outline-muted">
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-transparent via-transparent to-background backdrop-blur-sm" />
         </div>
       </div>
     </section>
