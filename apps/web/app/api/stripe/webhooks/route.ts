@@ -40,61 +40,85 @@ const allowedEvents: Stripe.Event.Type[] = [
 
 export async function POST(request: NextRequest) {
   console.log("Stripe webhook received");
-  const rawBody = await request.text();
-  const signature = request.headers.get("stripe-signature");
-
-  if (!signature) {
-    console.error("Missing Stripe signature");
-    return NextResponse.json(
-      { error: "Missing Stripe signature" },
-      { status: 400 },
-    );
-  }
-
-  console.log(
-    "Webhook request received with signature:",
-    signature.substring(0, 20) + "...",
-  );
-
-  let event: Stripe.Event;
 
   try {
-    // Verify the event came from Stripe
-    console.log("Attempting to verify Stripe signature");
-    event = stripe.webhooks.constructEvent(
-      rawBody,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!,
+    // Log all headers for debugging
+    console.log(
+      "Request headers:",
+      Object.fromEntries(request.headers.entries()),
     );
-    console.log("Webhook signature verified successfully");
-  } catch (err) {
-    console.error(
-      `Webhook signature verification failed: ${(err as Error).message}`,
+
+    // Get the raw request body as a string
+    const rawBody = await request.text();
+    console.log("Raw body length:", rawBody.length);
+
+    const signature = request.headers.get("stripe-signature");
+
+    if (!signature) {
+      console.error("Missing Stripe signature");
+      return NextResponse.json(
+        { error: "Missing Stripe signature" },
+        { status: 400 },
+      );
+    }
+
+    console.log(
+      "Webhook request received with signature:",
+      signature.substring(0, 20) + "...",
     );
-    // Log the first few characters of the raw body for debugging
-    console.error("Raw body starts with:", rawBody.substring(0, 50) + "...");
-    return NextResponse.json(
-      { error: `Webhook Error: ${(err as Error).message}` },
-      { status: 400 },
-    );
-  }
 
-  // Skip processing if the event isn't one we're tracking
-  if (!allowedEvents.includes(event.type)) {
-    return NextResponse.json({ received: true });
-  }
+    let event: Stripe.Event;
 
-  try {
-    const supabase = await createClient();
+    try {
+      // Verify the event came from Stripe
+      console.log("Attempting to verify Stripe signature");
+      event = stripe.webhooks.constructEvent(
+        rawBody,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET!,
+      );
+      console.log("Webhook signature verified successfully");
+    } catch (err) {
+      console.error(
+        `Webhook signature verification failed: ${(err as Error).message}`,
+      );
+      // Log the first few characters of the raw body for debugging
+      console.error("Raw body starts with:", rawBody.substring(0, 50) + "...");
+      console.error(
+        "Raw body ends with:",
+        rawBody.substring(rawBody.length - 50) + "...",
+      );
+      return NextResponse.json(
+        { error: `Webhook Error: ${(err as Error).message}` },
+        { status: 400 },
+      );
+    }
 
-    // Process the event
-    await processEvent(event, supabase);
+    // Skip processing if the event isn't one we're tracking
+    if (!allowedEvents.includes(event.type)) {
+      return NextResponse.json({ received: true });
+    }
 
-    return NextResponse.json({ received: true });
+    try {
+      const supabase = await createClient();
+
+      // Process the event
+      await processEvent(event, supabase);
+
+      return NextResponse.json({ received: true });
+    } catch (error) {
+      console.error(`Error processing webhook: ${(error as Error).message}`);
+      return NextResponse.json(
+        { error: `Webhook processing error: ${(error as Error).message}` },
+        { status: 500 },
+      );
+    }
   } catch (error) {
-    console.error(`Error processing webhook: ${(error as Error).message}`);
+    console.error(
+      `Error handling webhook request: ${(error as Error).message}`,
+    );
     return NextResponse.json(
-      { error: `Webhook processing error: ${(error as Error).message}` },
+      { error: `Webhook handling error: ${(error as Error).message}` },
       { status: 500 },
     );
   }

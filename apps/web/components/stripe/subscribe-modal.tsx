@@ -31,7 +31,7 @@ const PRICE_ID_MAP: Record<string, string> = {
   "100000": "price_1R44GMJPD51CqUc48dPj9tCw",
   "150000": "price_1R44HgJPD51CqUc4uhFo7Rlf",
   "200000": "price_1R44HfJPD51CqUc4yODcbAXh",
-  "250000": "price_1R44O4JPD51CqUc4EV7y9zru",
+  "250000": "price_1R44IMJPD51CqUc4IZJRIzyB",
 };
 
 export default function SubscribeModal({
