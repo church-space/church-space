@@ -5,8 +5,14 @@ import {
   Qrcode,
   Waypoints,
 } from "@church-space/ui/icons";
+import { createClient } from "@church-space/supabase/server";
 
-export default function Hero() {
+export default async function Hero() {
+  const supabase = await createClient();
+
+  const { data: session } = await supabase.auth.getSession();
+
+  const isLoggedIn = session?.session !== null;
   return (
     <section className="overflow-hidden py-16 md:py-32">
       <div className="mx-auto mb-28 max-w-7xl space-y-6 px-6">
@@ -21,8 +27,14 @@ export default function Hero() {
           your people with craft and ease.
         </div>
         <div className="mx-auto flex items-center justify-center gap-4">
-          <Button>Get Started</Button>
-          <Button variant="outline">Learn More</Button>
+          {!isLoggedIn ? (
+            <>
+              <Button>Get Started</Button>
+              <Button variant="outline">Learn More</Button>
+            </>
+          ) : (
+            <Button>Go to Dashboard</Button>
+          )}
         </div>
       </div>
 

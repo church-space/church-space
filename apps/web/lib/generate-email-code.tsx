@@ -96,21 +96,26 @@ const CustomText: React.FC<{
       return `<a style="${baseStyle}"`;
     })
     // Handle empty paragraphs for line breaks
-    .replace(/<p style="[^"]*"><\/p>/g, '<div style="height: 1.6em"></div>')
+    .replace(
+      /<p style="[^"]*"><\/p>/g,
+      '<table width="100%" cellpadding="0" cellspacing="0"><tr><td height="1.6em"></td></tr></table>',
+    )
     // Add font size to list items
     .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"');
 
   return (
-    <div
-      style={{
-        fontFamily: font || defaultFont || "sans-serif",
-        color: textColor || defaultTextColor || "#000000",
-        maxWidth: "100%",
-        margin: "0",
-        fontSize: "16px",
-      }}
-      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-    />
+    <table cellPadding="0" cellSpacing="0" border={0} width="100%">
+      <tr>
+        <td
+          style={{
+            fontFamily: font || defaultFont || "sans-serif",
+            color: textColor || defaultTextColor || "#000000",
+            fontSize: "16px",
+          }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+        />
+      </tr>
+    </table>
   );
 };
 
@@ -202,36 +207,42 @@ const CustomImage: React.FC<{
   isRounded?: boolean;
 }> = ({ image, size, link, centered, isRounded }) => {
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${image}`;
-  const containerStyle = {
-    width: `${size}%`,
-    margin: centered ? "0 auto" : "0",
-    textAlign: centered ? ("center" as const) : ("left" as const),
-  };
+
+  if (image === "") {
+    return null;
+  }
 
   const imageStyle = {
     maxWidth: "100%",
     height: "auto",
     borderRadius: isRounded ? "6px" : "0",
+    display: "block",
   };
 
   const ImageComponent = (
     <Img src={imageUrl} alt="Email content" width="100%" style={imageStyle} />
   );
 
-  if (image === "") {
-    return null;
-  }
-
   return (
-    <div style={containerStyle}>
-      {link ? (
-        <a href={link} target="_blank" style={{ textDecoration: "none" }}>
-          {ImageComponent}
-        </a>
-      ) : (
-        ImageComponent
-      )}
-    </div>
+    <table
+      width="100%"
+      cellPadding="0"
+      cellSpacing="0"
+      border={0}
+      align={centered ? "center" : "left"}
+    >
+      <tr>
+        <td width={`${size}%`} align={centered ? "center" : "left"}>
+          {link ? (
+            <a href={link} target="_blank" style={{ textDecoration: "none" }}>
+              {ImageComponent}
+            </a>
+          ) : (
+            ImageComponent
+          )}
+        </td>
+      </tr>
+    </table>
   );
 };
 
@@ -323,59 +334,69 @@ const CustomVideo: React.FC<{
     ? `https://i3.ytimg.com/vi/${videoId}/maxresdefault.jpg`
     : "";
 
-  const containerStyle = {
-    width: `${size}%`,
-    margin: centered ? "0 auto" : "0",
-    position: "relative" as const,
-  };
-
   if (!videoId) {
     return null;
   }
 
   return (
-    <div style={containerStyle}>
-      <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-        <tr>
-          <td>
-            <a
-              href={url}
-              target="_blank"
-              style={{
-                display: "block",
-                position: "relative" as const,
-                textDecoration: "none",
-              }}
-            >
-              <Img
-                src={thumbnailUrl}
-                alt="Video thumbnail"
-                width="100%"
-                style={{
-                  display: "block",
-                  borderRadius: isRounded ? "6px" : "0",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute" as const,
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <YoutubeFilled
-                  width={`${size ? Math.max(48, Math.min(96, (96 * size) / 100)) : 68}px`}
-                  height={`${size ? Math.max(34, Math.min(68, (68 * size) / 100)) : 48}px`}
-                  fill="#FF0000"
-                  secondaryfill="#FFFFFF"
-                />
-              </div>
-            </a>
-          </td>
-        </tr>
-      </table>
-    </div>
+    <table
+      width="100%"
+      cellPadding="0"
+      cellSpacing="0"
+      border={0}
+      align={centered ? "center" : "left"}
+    >
+      <tr>
+        <td width={`${size}%`} align={centered ? "center" : "left"}>
+          <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
+            <tr>
+              <td style={{ position: "relative" }}>
+                <a
+                  href={url}
+                  target="_blank"
+                  style={{
+                    display: "block",
+                    textDecoration: "none",
+                  }}
+                >
+                  <Img
+                    src={thumbnailUrl}
+                    alt="Video thumbnail"
+                    width="100%"
+                    style={{
+                      display: "block",
+                      borderRadius: isRounded ? "6px" : "0",
+                    }}
+                  />
+                  <table
+                    cellPadding="0"
+                    cellSpacing="0"
+                    border={0}
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  >
+                    <tr>
+                      <td>
+                        <YoutubeFilled
+                          width={`${size ? Math.max(48, Math.min(96, (96 * size) / 100)) : 68}px`}
+                          height={`${size ? Math.max(34, Math.min(68, (68 * size) / 100)) : 48}px`}
+                          fill="#FF0000"
+                          secondaryfill="#FFFFFF"
+                        />
+                      </td>
+                    </tr>
+                  </table>
+                </a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   );
 };
 
@@ -407,145 +428,190 @@ const CustomCards: React.FC<{
   defaultFont,
   isRounded,
 }) => (
-  <div style={{ paddingTop: "12px" }}>
+  <table
+    width="100%"
+    cellPadding="0"
+    cellSpacing="0"
+    border={0}
+    style={{ paddingTop: "12px" }}
+  >
     {(title || subtitle) && (
-      <div style={{ marginBottom: "20px" }}>
-        {title && (
-          <div
-            style={{
-              fontFamily: defaultFont || "sans-serif",
-              fontSize: "30px",
-              fontWeight: "bold",
-              color: textColor,
-              marginBottom: "8px",
-            }}
-          >
-            {title}
-          </div>
-        )}
-        {subtitle && (
-          <div
-            style={{
-              fontFamily: defaultFont || "sans-serif",
-              fontSize: "16px",
-              color: textColor,
-              fontWeight: "300",
-            }}
-          >
-            {subtitle}
-          </div>
-        )}
-      </div>
-    )}
-    <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-      {cards
-        .reduce((rows, card, index) => {
-          if (index % 2 === 0) {
-            rows.push([card]);
-          } else {
-            rows[rows.length - 1].push(card);
-          }
-          return rows;
-        }, [] as any[])
-        .map((row, rowIndex) => (
-          <tr
-            key={rowIndex}
-            style={{
-              ...(rowIndex > 0 ? { verticalAlign: "top" } : {}),
-            }}
-          >
-            {row.map((card: any, colIndex: number) => {
-              const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${card.image}`;
-              return (
+      <tr>
+        <td style={{ paddingBottom: "20px" }}>
+          <table width="100%" cellPadding="0" cellSpacing="0" border={0}>
+            {title && (
+              <tr>
                 <td
-                  key={colIndex}
                   style={{
-                    width: "50%",
-                    verticalAlign: "top",
-                    ...(rowIndex > 0 ? { paddingTop: "56px" } : {}),
+                    fontFamily: defaultFont || "sans-serif",
+                    fontSize: "30px",
+                    fontWeight: "bold",
+                    color: textColor,
+                    paddingBottom: "8px",
                   }}
                 >
-                  <div style={{ maxWidth: "100%" }}>
-                    {card.image && (
-                      <Img
-                        src={imageUrl}
-                        alt={card.title}
-                        width="100%"
-                        height="192"
-                        style={{
-                          objectFit: "cover",
-                          borderRadius: isRounded ? "6px" : "0",
-                          marginBottom: "16px",
-                        }}
-                      />
-                    )}
-                    <div style={{ padding: "0 4px" }}>
-                      <div
-                        style={{
-                          fontFamily: defaultFont || "sans-serif",
-                          fontSize: "14px",
-                          fontWeight: "500",
-                          color: labelColor,
-                          marginBottom: "4px",
-                        }}
-                      >
-                        {card.label}
-                      </div>
-                      <div
-                        style={{
-                          fontFamily: defaultFont || "sans-serif",
-                          fontSize: "18px",
-                          fontWeight: "bold",
-                          color: textColor,
-                          marginBottom: "4px",
-                        }}
-                      >
-                        {card.title}
-                      </div>
-                      <div
-                        style={{
-                          fontFamily: defaultFont || "sans-serif",
-                          fontSize: "14px",
-                          color: textColor,
-                          opacity: 0.8,
-                          marginBottom: "16px",
-                        }}
-                      >
-                        {card.description}
-                      </div>
-                      {card.buttonText && (
-                        <a
-                          href={card.buttonLink}
-                          target="_blank"
-                          style={{
-                            backgroundColor: buttonColor,
-                            borderRadius: isRounded ? "6px" : "0",
-                            color: buttonTextColor,
-                            display: "block",
-                            fontFamily: defaultFont || "sans-serif",
-                            fontSize: "14px",
-                            fontWeight: "500",
-                            padding: "8px 16px",
-                            textDecoration: "none",
-                            textAlign: "center",
-                            textWrap: "balance",
-                            boxSizing: "border-box",
-                            width: "100%",
-                          }}
-                        >
-                          {card.buttonText}
-                        </a>
-                      )}
-                    </div>
-                  </div>
+                  {title}
                 </td>
-              );
-            })}
-            {row.length === 1 && <td style={{ width: "50%" }}></td>}
-          </tr>
-        ))}
-    </table>
-  </div>
+              </tr>
+            )}
+            {subtitle && (
+              <tr>
+                <td
+                  style={{
+                    fontFamily: defaultFont || "sans-serif",
+                    fontSize: "16px",
+                    color: textColor,
+                    fontWeight: "300",
+                  }}
+                >
+                  {subtitle}
+                </td>
+              </tr>
+            )}
+          </table>
+        </td>
+      </tr>
+    )}
+    <tr>
+      <td>
+        <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
+          {cards
+            .reduce((rows, card, index) => {
+              if (index % 2 === 0) {
+                rows.push([card]);
+              } else {
+                rows[rows.length - 1].push(card);
+              }
+              return rows;
+            }, [] as any[])
+            .map((row, rowIndex) => (
+              <tr
+                key={rowIndex}
+                style={{
+                  ...(rowIndex > 0 ? { verticalAlign: "top" } : {}),
+                }}
+              >
+                {row.map((card: any, colIndex: number) => {
+                  const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${card.image}`;
+                  return (
+                    <td
+                      key={colIndex}
+                      style={{
+                        width: "50%",
+                        verticalAlign: "top",
+                        ...(rowIndex > 0 ? { paddingTop: "56px" } : {}),
+                      }}
+                    >
+                      <table
+                        width="100%"
+                        cellPadding="0"
+                        cellSpacing="0"
+                        border={0}
+                      >
+                        {card.image && (
+                          <tr>
+                            <td style={{ paddingBottom: "16px" }}>
+                              <Img
+                                src={imageUrl}
+                                alt={card.title}
+                                width="100%"
+                                height="192"
+                                style={{
+                                  display: "block",
+                                  objectFit: "cover",
+                                  borderRadius: isRounded ? "6px" : "0",
+                                }}
+                              />
+                            </td>
+                          </tr>
+                        )}
+                        <tr>
+                          <td style={{ padding: "0 4px" }}>
+                            <table
+                              width="100%"
+                              cellPadding="0"
+                              cellSpacing="0"
+                              border={0}
+                            >
+                              <tr>
+                                <td
+                                  style={{
+                                    fontFamily: defaultFont || "sans-serif",
+                                    fontSize: "14px",
+                                    fontWeight: "500",
+                                    color: labelColor,
+                                    paddingBottom: "4px",
+                                  }}
+                                >
+                                  {card.label}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td
+                                  style={{
+                                    fontFamily: defaultFont || "sans-serif",
+                                    fontSize: "18px",
+                                    fontWeight: "bold",
+                                    color: textColor,
+                                    paddingBottom: "4px",
+                                  }}
+                                >
+                                  {card.title}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td
+                                  style={{
+                                    fontFamily: defaultFont || "sans-serif",
+                                    fontSize: "14px",
+                                    color: textColor,
+                                    opacity: 0.8,
+                                    paddingBottom: "16px",
+                                  }}
+                                >
+                                  {card.description}
+                                </td>
+                              </tr>
+                              {card.buttonText && (
+                                <tr>
+                                  <td>
+                                    <a
+                                      href={card.buttonLink}
+                                      target="_blank"
+                                      style={{
+                                        backgroundColor: buttonColor,
+                                        borderRadius: isRounded ? "6px" : "0",
+                                        color: buttonTextColor,
+                                        display: "block",
+                                        fontFamily: defaultFont || "sans-serif",
+                                        fontSize: "14px",
+                                        fontWeight: "500",
+                                        padding: "8px 16px",
+                                        textDecoration: "none",
+                                        textAlign: "center",
+                                        boxSizing: "border-box",
+                                        width: "100%",
+                                      }}
+                                    >
+                                      {card.buttonText}
+                                    </a>
+                                  </td>
+                                </tr>
+                              )}
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  );
+                })}
+                {row.length === 1 && <td style={{ width: "50%" }}></td>}
+              </tr>
+            ))}
+        </table>
+      </td>
+    </tr>
+  </table>
 );
 
 const CustomList: React.FC<{
@@ -570,104 +636,155 @@ const CustomList: React.FC<{
   defaultFont,
   defaultTextColor,
 }) => (
-  <div style={{ padding: "10px 0", paddingRight: "12px" }}>
-    <div style={{ marginBottom: "4px" }}>
-      <div
-        style={{
-          fontFamily: defaultFont || "sans-serif",
-          fontSize: "1.5rem",
-          fontWeight: "800",
-          color: defaultTextColor || textColor,
-          lineHeight: "1.5",
-        }}
-      >
-        {title}
-      </div>
-      <div
-        style={{
-          fontFamily: defaultFont || "sans-serif",
-          fontSize: "1rem",
-          color: defaultTextColor || textColor,
-          opacity: 0.8,
-          lineHeight: "1.5",
-        }}
-      >
-        {subtitle}
-      </div>
-    </div>
-    <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-      {items.map((item, index) => (
-        <tr key={index}>
-          <td
-            style={{
-              padding: bulletType === "number" ? "10px 0" : "8px 0",
-              verticalAlign: "top",
-            }}
-          >
-            <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-              <tr>
-                <td
-                  style={{
-                    width: bulletType === "number" ? "48px" : "24px",
-                    verticalAlign: "top",
-                  }}
+  <table
+    width="100%"
+    cellPadding="0"
+    cellSpacing="0"
+    border={0}
+    style={{ padding: "10px 0" }}
+  >
+    <tr>
+      <td style={{ paddingBottom: "12px" }}>
+        <table width="100%" cellPadding="0" cellSpacing="0" border={0}>
+          {title && (
+            <tr>
+              <td
+                style={{
+                  fontFamily: defaultFont || "sans-serif",
+                  fontSize: "1.5rem",
+                  fontWeight: "800",
+                  color: defaultTextColor || textColor,
+                  lineHeight: "1.5",
+                }}
+              >
+                {title}
+              </td>
+            </tr>
+          )}
+          {subtitle && (
+            <tr>
+              <td
+                style={{
+                  fontFamily: defaultFont || "sans-serif",
+                  fontSize: "1rem",
+                  color: defaultTextColor || textColor,
+                  opacity: 0.8,
+                  lineHeight: "1.5",
+                }}
+              >
+                {subtitle}
+              </td>
+            </tr>
+          )}
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
+          {items.map((item, index) => (
+            <tr key={index}>
+              <td
+                style={{
+                  padding: bulletType === "number" ? "10px 0" : "8px 0",
+                  verticalAlign: "top",
+                }}
+              >
+                <table
+                  style={{ width: "100%" }}
+                  cellPadding="0"
+                  cellSpacing="0"
                 >
-                  <div
-                    style={{
-                      width: bulletType === "number" ? "32px" : "24px",
-                      height: bulletType === "number" ? "32px" : "21px",
-                      backgroundColor:
-                        bulletType === "number" ? bulletColor : "transparent",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color:
-                        bulletType === "number" ? "#FFFFFF" : defaultTextColor,
-                      fontFamily: defaultFont || "sans-serif",
-                      fontSize: bulletType === "number" ? "18px" : "36px",
-                      fontWeight: "500",
-                      paddingTop:
-                        bulletType !== "number" && !item.description
-                          ? "3px"
-                          : "0px",
-                    }}
-                  >
-                    {bulletType === "number" ? index + 1 : "•"}
-                  </div>
-                </td>
-                <td>
-                  <div
-                    style={{
-                      fontFamily: defaultFont || "sans-serif",
-                      fontSize: "18px",
-                      fontWeight: "600",
-                      color: defaultTextColor || textColor,
-                      marginBottom: "4px",
-                      marginTop: item.description ? "0px" : "3px",
-                    }}
-                  >
-                    {item.title}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: defaultFont || "sans-serif",
-                      fontSize: "14px",
-                      color: defaultTextColor || textColor,
-                      opacity: 0.8,
-                      lineHeight: "1.5",
-                    }}
-                  >
-                    {item.description}
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      ))}
-    </table>
-  </div>
+                  <tr>
+                    <td
+                      style={{
+                        width: bulletType === "number" ? "48px" : "24px",
+                        verticalAlign: "top",
+                      }}
+                    >
+                      <table
+                        cellPadding="0"
+                        cellSpacing="0"
+                        border={0}
+                        width={bulletType === "number" ? "32px" : "24px"}
+                        style={{
+                          backgroundColor:
+                            bulletType === "number"
+                              ? bulletColor
+                              : "transparent",
+                          borderRadius: "50%",
+                          height: bulletType === "number" ? "32px" : "21px",
+                        }}
+                        align="center"
+                      >
+                        <tr>
+                          <td
+                            align="center"
+                            valign="middle"
+                            style={{
+                              color:
+                                bulletType === "number"
+                                  ? "#FFFFFF"
+                                  : defaultTextColor,
+                              fontFamily: defaultFont || "sans-serif",
+                              fontSize:
+                                bulletType === "number" ? "18px" : "36px",
+                              fontWeight: "500",
+                              height: bulletType === "number" ? "32px" : "21px",
+                              lineHeight: "1",
+                            }}
+                          >
+                            {bulletType === "number" ? index + 1 : "•"}
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td>
+                      <table
+                        width="100%"
+                        cellPadding="0"
+                        cellSpacing="0"
+                        border={0}
+                      >
+                        <tr>
+                          <td
+                            style={{
+                              fontFamily: defaultFont || "sans-serif",
+                              fontSize: "18px",
+                              fontWeight: "600",
+                              color: defaultTextColor || textColor,
+                              paddingBottom: item.description ? "4px" : "0",
+                            }}
+                          >
+                            {item.title}
+                          </td>
+                        </tr>
+                        {item.description && (
+                          <tr>
+                            <td
+                              style={{
+                                fontFamily: defaultFont || "sans-serif",
+                                fontSize: "14px",
+                                color: defaultTextColor || textColor,
+                                opacity: 0.8,
+                                lineHeight: "1.5",
+                              }}
+                            >
+                              {item.description}
+                            </td>
+                          </tr>
+                        )}
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          ))}
+        </table>
+      </td>
+    </tr>
+  </table>
 );
 
 const socialIcons = {
@@ -876,182 +993,279 @@ const CustomFooter: React.FC<{
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${logo}`
     : "";
 
-  const containerStyle = {
-    backgroundColor: !isInset ? bg_color : emailBgColor,
-    padding: "40px 0 32px",
-    width: "100%",
-    textAlign: "center" as const,
-    marginTop: "-1px",
-    borderTop: "none",
-  };
-
-  const contentStyle = {
-    maxWidth: "600px",
-    margin: "0 auto",
-    fontFamily: defaultFont,
-  };
-
   return (
-    <div style={containerStyle}>
-      <div style={contentStyle}>
-        {logoUrl && (
-          <Img
-            src={logoUrl}
-            alt="Logo"
-            width="112"
-            height="112"
+    <table
+      width="100%"
+      cellPadding="0"
+      cellSpacing="0"
+      border={0}
+      bgcolor={!isInset ? bg_color : emailBgColor}
+      style={{
+        width: "100%",
+        textAlign: "center",
+        marginTop: "-1px",
+      }}
+    >
+      <tr>
+        <td align="center" style={{ padding: "40px 0 32px" }}>
+          <table
+            cellPadding="0"
+            cellSpacing="0"
+            border={0}
+            width="100%"
             style={{
-              margin: "0 auto 16px",
-              objectFit: "contain",
-              borderRadius: isRounded ? "6px" : "0",
-            }}
-          />
-        )}
-
-        {name && (
-          <div
-            style={{
-              fontSize: "18px",
-              fontWeight: "600",
-              color: text_color,
-              marginBottom: "8px",
-            }}
-          >
-            {name}
-          </div>
-        )}
-
-        {subtitle && (
-          <div
-            style={{
-              fontSize: "14px",
-              color: secondary_text_color,
-              maxWidth: "384px",
-              margin: "0 auto 16px",
-              lineHeight: "1.4",
+              maxWidth: "672px",
+              margin: "0 auto",
+              fontFamily: defaultFont,
             }}
           >
-            {subtitle}
-          </div>
-        )}
+            <tr>
+              <td align="center">
+                {logoUrl && (
+                  <table cellPadding="0" cellSpacing="0" border={0}>
+                    <tr>
+                      <td align="center" style={{ paddingBottom: "16px" }}>
+                        <Img
+                          src={logoUrl}
+                          alt="Logo"
+                          width="112"
+                          height="112"
+                          style={{
+                            objectFit: "contain",
+                            borderRadius: isRounded ? "6px" : "0",
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  </table>
+                )}
 
-        {links.length > 0 && (
-          <div style={{ marginBottom: "24px" }}>
-            {links.map((link: any, index: number) => {
-              const Icon = socialIcons[link.icon as keyof typeof socialIcons];
-              if (!Icon) return null;
+                {name && (
+                  <table
+                    cellPadding="0"
+                    cellSpacing="0"
+                    border={0}
+                    width="100%"
+                  >
+                    <tr>
+                      <td
+                        align="center"
+                        style={{
+                          fontSize: "18px",
+                          fontWeight: "600",
+                          color: text_color,
+                          paddingBottom: "8px",
+                        }}
+                      >
+                        {name}
+                      </td>
+                    </tr>
+                  </table>
+                )}
 
-              // Add mailto: prefix for mail icon links
-              const href =
-                link.icon === "mail" && !link.url.startsWith("mailto:")
-                  ? `mailto:${link.url}`
-                  : link.url;
+                {subtitle && (
+                  <table
+                    cellPadding="0"
+                    cellSpacing="0"
+                    border={0}
+                    width="100%"
+                  >
+                    <tr>
+                      <td
+                        align="center"
+                        style={{
+                          fontSize: "14px",
+                          color: secondary_text_color,
+                          maxWidth: "384px",
+                          margin: "0 auto 16px",
+                          lineHeight: "1.4",
+                        }}
+                      >
+                        {subtitle}
+                      </td>
+                    </tr>
+                  </table>
+                )}
 
-              return (
-                <a
-                  key={index}
-                  href={href}
-                  style={{
-                    display: "inline-block",
-                    margin: "0 4px",
-                    padding: "8px",
-                    backgroundColor:
-                      socials_style === "filled"
-                        ? socials_color
-                        : "transparent",
-                    border:
-                      socials_style === "outline"
-                        ? `1px solid ${socials_color}`
-                        : "none",
-                    borderRadius: "50%",
-                    lineHeight: 0,
-                  }}
+                {links.length > 0 && (
+                  <table
+                    cellPadding="0"
+                    cellSpacing="0"
+                    border={0}
+                    width="100%"
+                    style={{ paddingBottom: "24px" }}
+                  >
+                    <tr>
+                      <td align="center">
+                        {links.map((link: any, index: number) => {
+                          const Icon =
+                            socialIcons[link.icon as keyof typeof socialIcons];
+                          if (!Icon) return null;
+
+                          // Add mailto: prefix for mail icon links
+                          const href =
+                            link.icon === "mail" &&
+                            !link.url.startsWith("mailto:")
+                              ? `mailto:${link.url}`
+                              : link.url;
+
+                          return (
+                            <a
+                              key={index}
+                              href={href}
+                              style={{
+                                display: "inline-block",
+                                margin: "0 4px",
+                                padding: "8px",
+                                backgroundColor:
+                                  socials_style === "filled"
+                                    ? socials_color
+                                    : "transparent",
+                                border:
+                                  socials_style === "outline"
+                                    ? `1px solid ${socials_color}`
+                                    : "none",
+                                borderRadius: "50%",
+                                lineHeight: 0,
+                              }}
+                            >
+                              <Icon
+                                width="18px"
+                                height="18px"
+                                fill={
+                                  socials_style === "filled"
+                                    ? socials_icon_color
+                                    : socials_color
+                                }
+                              />
+                            </a>
+                          );
+                        })}
+                      </td>
+                    </tr>
+                  </table>
+                )}
+
+                <table
+                  cellPadding="0"
+                  cellSpacing="0"
+                  border={0}
+                  width="100%"
+                  style={{ paddingTop: "24px", paddingBottom: "24px" }}
                 >
-                  <Icon
-                    width="18px"
-                    height="18px"
-                    fill={
-                      socials_style === "filled"
-                        ? socials_icon_color
-                        : socials_color
-                    }
-                  />
-                </a>
-              );
-            })}
-          </div>
-        )}
+                  <tr>
+                    <td
+                      style={{
+                        height: "1px",
+                        lineHeight: "1px",
+                        fontSize: "1px",
+                        backgroundColor: secondary_text_color,
+                      }}
+                    >
+                      &nbsp;
+                    </td>
+                  </tr>
+                </table>
 
-        <Hr
-          style={{
-            borderTop: `1px solid ${secondary_text_color}`,
-            margin: "24px 0",
-            width: "100%",
-          }}
-        />
+                <table cellPadding="0" cellSpacing="0" border={0} width="100%">
+                  <tr>
+                    <td align="center" style={{ color: secondary_text_color }}>
+                      {address && (
+                        <table
+                          cellPadding="0"
+                          cellSpacing="0"
+                          border={0}
+                          width="100%"
+                        >
+                          <tr>
+                            <td
+                              align="center"
+                              style={{
+                                fontSize: "12px",
+                                paddingBottom: "8px",
+                                lineHeight: "1.2",
+                              }}
+                            >
+                              {address}
+                            </td>
+                          </tr>
+                        </table>
+                      )}
 
-        <div style={{ color: secondary_text_color }}>
-          {address && (
-            <div
-              style={{
-                fontSize: "12px",
-                marginBottom: "8px",
-                lineHeight: "1.2",
-              }}
-            >
-              {address}
-            </div>
-          )}
+                      {reason && (
+                        <table
+                          cellPadding="0"
+                          cellSpacing="0"
+                          border={0}
+                          width="100%"
+                        >
+                          <tr>
+                            <td
+                              align="center"
+                              style={{
+                                fontSize: "12px",
+                                paddingBottom: "8px",
+                                lineHeight: "1.2",
+                              }}
+                            >
+                              {reason}
+                            </td>
+                          </tr>
+                        </table>
+                      )}
 
-          {reason && (
-            <div
-              style={{
-                fontSize: "12px",
-                marginBottom: "8px",
-                lineHeight: "1.2",
-              }}
-            >
-              {reason}
-            </div>
-          )}
-
-          <div
-            style={{
-              fontSize: "12px",
-              lineHeight: "1.5",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <span>
-              © {new Date().getFullYear()} {copyright_name}
-            </span>
-            <span style={{ margin: "0 8px" }}>|</span>
-            <a
-              href={managePreferencesUrl || "#"}
-              style={{
-                color: secondary_text_color,
-                textDecoration: "underline",
-              }}
-            >
-              Update your preferences
-            </a>
-            <span style={{ margin: "0 8px" }}>|</span>
-            <a
-              href={unsubscribeUrl || "#"}
-              style={{
-                color: secondary_text_color,
-                textDecoration: "underline",
-              }}
-            >
-              Unsubscribe
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+                      <table
+                        cellPadding="0"
+                        cellSpacing="0"
+                        border={0}
+                        width="100%"
+                      >
+                        <tr>
+                          <td
+                            align="center"
+                            style={{
+                              fontSize: "12px",
+                              lineHeight: "1.5",
+                              padding: "0 10px",
+                            }}
+                          >
+                            <span>
+                              © {new Date().getFullYear()} {copyright_name}
+                            </span>
+                            <span style={{ margin: "0 8px" }}>|</span>
+                            <a
+                              href={managePreferencesUrl || "#"}
+                              style={{
+                                color: secondary_text_color,
+                                textDecoration: "underline",
+                                whiteSpace: "nowrap",
+                                display: "inline-block",
+                              }}
+                            >
+                              Update your preferences
+                            </a>
+                            <span style={{ margin: "0 8px" }}>|</span>
+                            <a
+                              href={unsubscribeUrl || "#"}
+                              style={{
+                                color: secondary_text_color,
+                                textDecoration: "underline",
+                              }}
+                            >
+                              Unsubscribe
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   );
 };
 
@@ -1073,136 +1287,489 @@ export function generateEmailCode(
     linkColor = "#0000ff",
   } = style;
 
-  const containerStyle = {
-    backgroundColor: isInset ? emailBgColor : bgColor,
-    padding: isInset ? "10px" : "0",
-    margin: "0",
-  };
-
-  const contentStyle = {
-    backgroundColor: isInset ? bgColor : undefined,
-    padding: isInset ? "5px 20px" : "5px 0",
-    borderRadius: isInset && isRounded ? "12px" : undefined,
-    maxWidth: "672px",
-    margin: "0 auto",
-    boxShadow: isInset
-      ? "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
-      : undefined,
-  };
-
   return (
     <Html>
       <Head>
         <title>Email Preview</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       <Body style={{ margin: 0, padding: 0 }}>
-        <div style={containerStyle}>
-          <Container style={contentStyle}>
-            {sections.map((section, sectionIndex) => (
-              <EmailSection key={sectionIndex}>
-                {section.blocks.map((block, blockIndex) => {
-                  const blockStyle = { margin: "20px 0" };
-                  const Component = (() => {
-                    switch (block.type) {
-                      case "text":
-                        const textData = block.data as TextBlockData;
-                        return (
-                          <div style={blockStyle}>
-                            <CustomText
-                              content={textData?.content || ""}
-                              font={textData?.font}
-                              textColor={textData?.textColor}
-                              defaultFont={defaultFont}
-                              defaultTextColor={defaultTextColor}
-                              linkColor={linkColor}
-                            />
-                          </div>
-                        );
-                      case "button":
-                        return (
-                          <div style={blockStyle}>
-                            <CustomButton
-                              {...(block.data as ButtonBlockData)}
-                              isRounded={isRounded}
-                              defaultFont={defaultFont}
-                            />
-                          </div>
-                        );
-                      case "divider":
-                        return (
-                          <div style={blockStyle}>
-                            <CustomDivider {...(block.data as any)} />
-                          </div>
-                        );
-                      case "image":
-                        return (
-                          <div style={blockStyle}>
-                            <CustomImage
-                              {...(block.data as any)}
-                              isRounded={isRounded}
-                            />
-                          </div>
-                        );
-                      case "file-download":
-                        return (
-                          <div style={blockStyle}>
-                            <CustomFileDownload
-                              {...(block.data as any)}
-                              defaultFont={defaultFont}
-                              isRounded={isRounded}
-                            />
-                          </div>
-                        );
-                      case "video":
-                        return (
-                          <div style={blockStyle}>
-                            <CustomVideo
-                              {...(block.data as any)}
-                              isRounded={isRounded}
-                            />
-                          </div>
-                        );
-                      case "cards":
-                        return (
-                          <div style={blockStyle}>
-                            <CustomCards
-                              {...(block.data as any)}
-                              defaultFont={defaultFont}
-                              isRounded={isRounded}
-                              textColor={defaultTextColor}
-                            />
-                          </div>
-                        );
-                      case "list":
-                        return (
-                          <div style={blockStyle}>
-                            <CustomList
-                              {...(block.data as any)}
-                              defaultFont={defaultFont}
-                              defaultTextColor={defaultTextColor}
-                            />
-                          </div>
-                        );
-                      case "author":
-                        return (
-                          <div style={blockStyle}>
-                            <CustomAuthor
-                              {...(block.data as any)}
-                              defaultFont={defaultFont}
-                              defaultTextColor={defaultTextColor}
-                            />
-                          </div>
-                        );
-                      default:
-                        return null;
-                    }
-                  })();
-                  return <div key={blockIndex}>{Component}</div>;
-                })}
-              </EmailSection>
-            ))}
-          </Container>
-        </div>
+        <table
+          width="100%"
+          cellPadding="0"
+          cellSpacing="0"
+          border={0}
+          bgcolor={isInset ? emailBgColor : bgColor}
+          style={{ width: "100%" }}
+        >
+          <tr>
+            <td align="center" style={{ padding: isInset ? "10px" : "0" }}>
+              {/* If inset, we need an inner table with a different background color */}
+              {isInset ? (
+                <table
+                  cellPadding="0"
+                  cellSpacing="0"
+                  border={0}
+                  width="100%"
+                  align="center"
+                  style={{
+                    maxWidth: "672px",
+                    width: "100%",
+                    backgroundColor: bgColor,
+                    borderRadius: isRounded ? "12px" : "0",
+                    borderCollapse: "separate",
+                  }}
+                >
+                  <tr>
+                    <td style={{ padding: "0px" }}>
+                      <Container style={{ padding: 0 }}>
+                        {sections.map((section, sectionIndex) => (
+                          <EmailSection key={`section-inset-${sectionIndex}`}>
+                            {section.blocks.map((block, blockIndex) => {
+                              const blockStyle = { margin: "8px 0" };
+                              const Component = (() => {
+                                switch (block.type) {
+                                  case "text":
+                                    const textData =
+                                      block.data as TextBlockData;
+                                    return (
+                                      <table
+                                        key={`block-inset-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomText
+                                              content={textData?.content || ""}
+                                              font={textData?.font}
+                                              textColor={textData?.textColor}
+                                              defaultFont={defaultFont}
+                                              defaultTextColor={
+                                                defaultTextColor
+                                              }
+                                              linkColor={linkColor}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "button":
+                                    return (
+                                      <table
+                                        key={`button-inset-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomButton
+                                              {...(block.data as ButtonBlockData)}
+                                              isRounded={isRounded}
+                                              defaultFont={defaultFont}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "divider":
+                                    return (
+                                      <table
+                                        key={`divider-inset-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomDivider
+                                              {...(block.data as any)}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "image":
+                                    return (
+                                      <table
+                                        key={`image-inset-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomImage
+                                              {...(block.data as any)}
+                                              isRounded={isRounded}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "file-download":
+                                    return (
+                                      <table
+                                        key={`file-inset-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomFileDownload
+                                              {...(block.data as any)}
+                                              defaultFont={defaultFont}
+                                              isRounded={isRounded}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "video":
+                                    return (
+                                      <table
+                                        key={`video-inset-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomVideo
+                                              {...(block.data as any)}
+                                              isRounded={isRounded}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "cards":
+                                    return (
+                                      <table
+                                        key={`cards-inset-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomCards
+                                              {...(block.data as any)}
+                                              defaultFont={defaultFont}
+                                              isRounded={isRounded}
+                                              textColor={defaultTextColor}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "list":
+                                    return (
+                                      <table
+                                        key={`list-inset-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomList
+                                              {...(block.data as any)}
+                                              defaultFont={defaultFont}
+                                              defaultTextColor={
+                                                defaultTextColor
+                                              }
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "author":
+                                    return (
+                                      <table
+                                        key={`author-inset-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomAuthor
+                                              {...(block.data as any)}
+                                              defaultFont={defaultFont}
+                                              defaultTextColor={
+                                                defaultTextColor
+                                              }
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  default:
+                                    return null;
+                                }
+                              })();
+                              return Component;
+                            })}
+                          </EmailSection>
+                        ))}
+                      </Container>
+                    </td>
+                  </tr>
+                </table>
+              ) : (
+                /* Not inset, simpler structure */
+                <table
+                  cellPadding="0"
+                  cellSpacing="0"
+                  border={0}
+                  width="100%"
+                  align="center"
+                  style={{ maxWidth: "672px", width: "100%" }}
+                >
+                  <tr>
+                    <td style={{ padding: "0px 0" }}>
+                      <Container style={{ padding: 0 }}>
+                        {sections.map((section, sectionIndex) => (
+                          <EmailSection key={`section-${sectionIndex}`}>
+                            {section.blocks.map((block, blockIndex) => {
+                              const blockStyle = { margin: "8px 0" };
+                              const Component = (() => {
+                                switch (block.type) {
+                                  case "text":
+                                    const textData =
+                                      block.data as TextBlockData;
+                                    return (
+                                      <table
+                                        key={`block-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomText
+                                              content={textData?.content || ""}
+                                              font={textData?.font}
+                                              textColor={textData?.textColor}
+                                              defaultFont={defaultFont}
+                                              defaultTextColor={
+                                                defaultTextColor
+                                              }
+                                              linkColor={linkColor}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "button":
+                                    return (
+                                      <table
+                                        key={`button-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomButton
+                                              {...(block.data as ButtonBlockData)}
+                                              isRounded={isRounded}
+                                              defaultFont={defaultFont}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "divider":
+                                    return (
+                                      <table
+                                        key={`divider-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomDivider
+                                              {...(block.data as any)}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "image":
+                                    return (
+                                      <table
+                                        key={`image-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomImage
+                                              {...(block.data as any)}
+                                              isRounded={isRounded}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "file-download":
+                                    return (
+                                      <table
+                                        key={`file-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomFileDownload
+                                              {...(block.data as any)}
+                                              defaultFont={defaultFont}
+                                              isRounded={isRounded}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "video":
+                                    return (
+                                      <table
+                                        key={`video-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomVideo
+                                              {...(block.data as any)}
+                                              isRounded={isRounded}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "cards":
+                                    return (
+                                      <table
+                                        key={`cards-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomCards
+                                              {...(block.data as any)}
+                                              defaultFont={defaultFont}
+                                              isRounded={isRounded}
+                                              textColor={defaultTextColor}
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "list":
+                                    return (
+                                      <table
+                                        key={`list-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomList
+                                              {...(block.data as any)}
+                                              defaultFont={defaultFont}
+                                              defaultTextColor={
+                                                defaultTextColor
+                                              }
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  case "author":
+                                    return (
+                                      <table
+                                        key={`author-${sectionIndex}-${blockIndex}`}
+                                        width="100%"
+                                        cellPadding="0"
+                                        cellSpacing="0"
+                                        border={0}
+                                        style={blockStyle}
+                                      >
+                                        <tr>
+                                          <td>
+                                            <CustomAuthor
+                                              {...(block.data as any)}
+                                              defaultFont={defaultFont}
+                                              defaultTextColor={
+                                                defaultTextColor
+                                              }
+                                            />
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    );
+                                  default:
+                                    return null;
+                                }
+                              })();
+                              return Component;
+                            })}
+                          </EmailSection>
+                        ))}
+                      </Container>
+                    </td>
+                  </tr>
+                </table>
+              )}
+            </td>
+          </tr>
+        </table>
         <CustomFooter
           footerData={footerData}
           defaultFont={defaultFont}
