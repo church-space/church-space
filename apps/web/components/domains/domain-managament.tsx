@@ -201,7 +201,7 @@ export default function DomainManagement({
           records: records,
           isRefreshing: false,
           resend_domain_id: domain.resend_domain_id,
-          isPrimary: !!domain.is_primary, // Ensure proper boolean conversion
+          isPrimary: domain.is_primary === true, // Ensure proper boolean conversion
         };
       });
     }
@@ -212,10 +212,10 @@ export default function DomainManagement({
   const MAX_DOMAINS = 5;
   const isMaxDomainsReached = domains.length >= MAX_DOMAINS;
 
-  // Use the primary domain from the fetched domains or the first one
+  // Use the primary domain from the fetched domains
   const [primaryDomain, setPrimaryDomain] = useState<string>(() => {
     if (initialDomains && initialDomains.length > 0) {
-      const primary = initialDomains.find((d) => d.is_primary);
+      const primary = initialDomains.find((d) => d.is_primary === true);
       return primary ? primary.domain : initialDomains[0].domain;
     }
     return "";
@@ -563,6 +563,7 @@ export default function DomainManagement({
 
     try {
       setIsSettingPrimary(true);
+
       // Call the updateDomainsAction to update the domain as primary
       const response = await updateDomainsAction({
         domain_id: domain.id,
@@ -571,27 +572,43 @@ export default function DomainManagement({
         },
       });
 
-      // Check if response exists and has success property
-      if (response && "success" in response && response.success) {
+      console.log("Set primary response:", response);
+
+      // Cast response to ActionResponse type to access expected properties
+      const typedResponse = response as ActionResponse;
+
+      // Since response structure might vary, check for both patterns
+      // We consider it successful if:
+      // 1. It has success:true OR
+      // 2. It has data and no error
+      const isSuccess =
+        (typedResponse && typedResponse.success === true) ||
+        (typedResponse && typedResponse.data && !typedResponse.error);
+
+      if (isSuccess) {
+        console.log(`Setting ${domain.name} as primary`);
+
         // Update the primaryDomain state
         setPrimaryDomain(domain.name);
 
-        // Force refresh the domains list to reflect changes
-        setDomains((prevDomains) =>
-          prevDomains.map((d) => ({
+        // Update all domains to reflect the new primary status
+        setDomains((prevDomains) => {
+          console.log("Updating domains primary status");
+          return prevDomains.map((d) => ({
             ...d,
             isPrimary: d.id === domain.id,
-          })),
-        );
+          }));
+        });
 
         toast({
           title: "Primary domain updated",
           description: `${domain.name} is now your primary domain.`,
         });
       } else {
+        console.error("Failed to set primary domain:", response);
         const errorMessage =
-          response && "error" in response && typeof response.error === "string"
-            ? response.error
+          typedResponse && typeof typedResponse.error === "string"
+            ? typedResponse.error
             : "Failed to set primary domain";
         toast({
           title: "Error updating primary domain",
@@ -895,11 +912,7 @@ export default function DomainManagement({
                             Cancel
                           </Button>
                           <Button
-                            onClick={() => {
-                              if (confirmPrimaryDomain) {
-                                setPrimary(confirmPrimaryDomain);
-                              }
-                            }}
+                            onClick={() => setPrimary(domain)}
                             disabled={isSettingPrimary}
                           >
                             {isSettingPrimary ? (
