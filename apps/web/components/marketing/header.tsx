@@ -30,10 +30,13 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-16 w-full shrink-0 items-center gap-2 border-b bg-background/80 backdrop-blur-lg">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-6">
-        <div className="flex items-center gap-1 text-nowrap font-semibold leading-none tracking-tighter sm:text-lg">
+        <Link
+          href="/"
+          className="flex items-center gap-1 text-nowrap font-semibold leading-none tracking-tighter sm:text-lg"
+        >
           <ChurchSpaceWhite height={"26"} width={"26"} />
           Church Space
-        </div>
+        </Link>
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem className="hidden sm:block">

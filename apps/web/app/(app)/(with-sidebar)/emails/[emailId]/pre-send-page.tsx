@@ -109,8 +109,8 @@ const frameworks = [
   },
 ];
 
-export default function PreSendPage({ emailId }: { emailId: number }) {
-  console.log(emailId);
+export default function PreSendPage({ email }: { email: any }) {
+  console.log(email);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const [sendDate, setSendDate] = useState<Date | null>(null);
   const [isScheduled, setIsScheduled] = useState("schedule");
@@ -160,7 +160,7 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
           </div>
         )}
         <div className="flex items-center gap-2">
-          <Link href={`/emails/${emailId}/editor`}>
+          <Link href={`/emails/${email.id}/editor`}>
             <Button variant="outline" size="sm">
               Edit Design
             </Button>
@@ -560,7 +560,7 @@ export default function PreSendPage({ emailId }: { emailId: number }) {
         </AccordionItem>
         <div className="flex flex-1 items-center justify-between rounded-xl border bg-card py-4 pl-6 pr-5 text-left font-medium transition-all hover:bg-accent/50">
           <Link
-            href={`/emails/${emailId}/editor`}
+            href={`/emails/${email.id}/editor`}
             className="group/link flex w-full items-center gap-3"
           >
             <span className="text-muted-foreground">

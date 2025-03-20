@@ -65,7 +65,7 @@ export default async function Page(props: { params: Params }) {
       {email.data.status === "sending" && <SendingPage />}
       {email.data.status === "sent" && <PostSendPage />}
       {(email.data.status === "draft" || email.data.status === "scheduled") && (
-        <PreSendPage emailId={emailId} />
+        <PreSendPage email={email.data} />
       )}
     </>
   );
