@@ -139,11 +139,8 @@ export default function PreSendPage({ email }: { email: any }) {
     email.scheduled_for ? "schedule" : "send-now",
   );
 
-  // List and category
-  const [listOpen, setListOpen] = useState(false);
-  const [listValue, setListValue] = useState(email.list_id || "");
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [categoryValue, setCategoryValue] = useState(email.category_id || "");
+  const [audienceOpen, setAudienceOpen] = useState(false);
+  const [audienceValue, setAudienceValue] = useState(email.audience_id || "");
 
   // Track changes
   const [toHasChanges, setToHasChanges] = useState(false);
@@ -161,11 +158,8 @@ export default function PreSendPage({ email }: { email: any }) {
 
   // Track changes for each section
   useEffect(() => {
-    setToHasChanges(
-      listValue !== (email.list_id || "") ||
-        categoryValue !== (email.category_id || ""),
-    );
-  }, [listValue, categoryValue, email.list_id, email.category_id]);
+    setToHasChanges(audienceValue !== (email.audience_id || ""));
+  }, [audienceValue, email.list_id, email.audience_id]);
 
   useEffect(() => {
     setFromHasChanges(
@@ -256,7 +250,7 @@ export default function PreSendPage({ email }: { email: any }) {
             <div className="flex items-center gap-3">
               <span
                 className={
-                  email.list_id && email.category_id
+                  email.list_id && email.audience_id
                     ? "text-green-400"
                     : "text-muted-foreground"
                 }
@@ -266,87 +260,27 @@ export default function PreSendPage({ email }: { email: any }) {
               <div className="flex flex-col">
                 <span>To</span>
                 <span className="text-sm font-normal text-muted-foreground">
-                  {listValue ? `List: ${listValue}` : "No list selected"}
-                  {listValue && categoryValue ? ", " : ""}
-                  {categoryValue ? `Category: ${categoryValue}` : ""}
+                  {audienceValue ? `${audienceValue}` : ""}
                 </span>
               </div>
             </div>
           </AccordionTrigger>
           <AccordionContent className="space-y-4">
             <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">Planning Center List</Label>
-              <Popover open={listOpen} onOpenChange={setListOpen}>
+              <Label className="ml-0.5">Audience</Label>
+              <Popover open={audienceOpen} onOpenChange={setAudienceOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     role="combobox"
-                    aria-expanded={listOpen}
+                    aria-expanded={audienceOpen}
                     className="w-full justify-between"
                   >
-                    {listValue
+                    {audienceValue
                       ? frameworks.find(
-                          (framework) => framework.value === listValue,
-                        )?.label || listValue
-                      : "Select list..."}
-                    <ChevronsUpDown className="opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Command>
-                    <CommandInput
-                      placeholder="Search lists..."
-                      className="h-9"
-                    />
-                    <CommandList>
-                      <CommandEmpty>No list found.</CommandEmpty>
-                      <CommandGroup>
-                        {frameworks.map((framework) => (
-                          <CommandItem
-                            key={framework.value}
-                            value={framework.value}
-                            onSelect={(currentValue) => {
-                              setListValue(
-                                currentValue === listValue ? "" : currentValue,
-                              );
-                              setListOpen(false);
-                            }}
-                          >
-                            {framework.label}
-                            <Check
-                              className={cn(
-                                "ml-auto",
-                                listValue === framework.value
-                                  ? "opacity-100"
-                                  : "opacity-0",
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <span className="text-xs text-muted-foreground">
-                This is the Planning Center list that will receive this email.
-              </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">Church Space Category</Label>
-              <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={categoryOpen}
-                    className="w-full justify-between"
-                  >
-                    {categoryValue
-                      ? frameworks.find(
-                          (framework) => framework.value === categoryValue,
-                        )?.label || categoryValue
-                      : "Select category..."}
+                          (framework) => framework.value === audienceValue,
+                        )?.label || audienceValue
+                      : "Select audience..."}
                     <ChevronsUpDown className="opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -357,26 +291,26 @@ export default function PreSendPage({ email }: { email: any }) {
                       className="h-9"
                     />
                     <CommandList>
-                      <CommandEmpty>No category found.</CommandEmpty>
+                      <CommandEmpty>No audience found.</CommandEmpty>
                       <CommandGroup>
                         {frameworks.map((framework) => (
                           <CommandItem
                             key={framework.value}
                             value={framework.value}
                             onSelect={(currentValue) => {
-                              setCategoryValue(
-                                currentValue === categoryValue
+                              setAudienceValue(
+                                currentValue === audienceValue
                                   ? ""
                                   : currentValue,
                               );
-                              setCategoryOpen(false);
+                              setAudienceOpen(false);
                             }}
                           >
                             {framework.label}
                             <Check
                               className={cn(
                                 "ml-auto",
-                                categoryValue === framework.value
+                                audienceValue === framework.value
                                   ? "opacity-100"
                                   : "opacity-0",
                               )}
@@ -389,9 +323,8 @@ export default function PreSendPage({ email }: { email: any }) {
                 </PopoverContent>
               </Popover>
               <span className="text-xs text-muted-foreground">
-                This is the Church Space email category. Categories group the
-                types of emails that people can subscribe to and unsubscribe
-                from.
+                Audiences group the types of emails that people can subscribe to
+                and unsubscribe from.
               </span>
             </div>
             <SaveButtons
