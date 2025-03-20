@@ -1,4 +1,3 @@
-import { TextAnimate } from "@church-space/ui/text-annimate";
 import { Button } from "@church-space/ui/button";
 import {
   LinkIcon,

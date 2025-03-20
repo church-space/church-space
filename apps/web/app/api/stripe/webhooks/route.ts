@@ -12,6 +12,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
 });
 
+// This ensures the raw body is available for signature verification
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 // List of events we want to handle
 const allowedEvents: Stripe.Event.Type[] = [
   "checkout.session.completed",
@@ -35,7 +39,8 @@ const allowedEvents: Stripe.Event.Type[] = [
 ];
 
 export async function POST(request: NextRequest) {
-  const body = await request.text();
+  console.log("Stripe webhook received");
+  const rawBody = await request.text();
   const signature = request.headers.get("stripe-signature");
 
   if (!signature) {
@@ -46,19 +51,28 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  console.log(
+    "Webhook request received with signature:",
+    signature.substring(0, 20) + "...",
+  );
+
   let event: Stripe.Event;
 
   try {
     // Verify the event came from Stripe
+    console.log("Attempting to verify Stripe signature");
     event = stripe.webhooks.constructEvent(
-      body,
+      rawBody,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!,
     );
+    console.log("Webhook signature verified successfully");
   } catch (err) {
     console.error(
       `Webhook signature verification failed: ${(err as Error).message}`,
     );
+    // Log the first few characters of the raw body for debugging
+    console.error("Raw body starts with:", rawBody.substring(0, 50) + "...");
     return NextResponse.json(
       { error: `Webhook Error: ${(err as Error).message}` },
       { status: 400 },

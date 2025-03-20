@@ -11,7 +11,6 @@ import {
   Star,
   ShieldCheck,
   Loader2,
-  Info,
 } from "lucide-react";
 import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
@@ -126,9 +125,7 @@ export default function DomainManagement({
   const [isAddingDomain, setIsAddingDomain] = useState(false);
   const [deletingDomainId, setDeletingDomainId] = useState<number | null>(null);
   const [deleteConfirmInput, setDeleteConfirmInput] = useState<string>("");
-  const [confirmDeleteDomainId, setConfirmDeleteDomainId] = useState<
-    number | null
-  >(null);
+
   const [refreshingDomains, setRefreshingDomains] = useState<
     Record<number, { isRefreshing: boolean; cooldown: number }>
   >({});
@@ -952,10 +949,8 @@ export default function DomainManagement({
                 <Dialog
                   onOpenChange={(open) => {
                     if (open) {
-                      setConfirmDeleteDomainId(domain.id);
                       setDeleteConfirmInput("");
                     } else {
-                      setConfirmDeleteDomainId(null);
                       setDeleteConfirmInput("");
                     }
                   }}

@@ -12,6 +12,7 @@ import {
 import SubscribeModal from "@/components/stripe/subscribe-modal";
 import { cookies } from "next/headers";
 import { createClient } from "@church-space/supabase/server";
+import SettingsSettings from "@/components/settings/settings-settings";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -50,6 +51,42 @@ export default async function Page() {
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         organization (PCO Connection), billing, profile, domains
         <SubscribeModal organizationId={organizationId} userId={user.id} />
+        <SettingsSettings
+          title="Plan and Billing"
+          description="Manage your plan and billing information"
+          sections={[
+            {
+              title: "Email Plan",
+              description: "Manage your plan",
+              actionType: "select",
+              actionLabel: "Change Plan",
+              selectOptions: [
+                { label: "Basic", value: "basic" },
+                { label: "Pro", value: "pro" },
+                { label: "Enterprise", value: "enterprise" },
+              ],
+            },
+            {
+              title: "Links Plan",
+              description: "Manage your links plan",
+              actionType: "select",
+              actionLabel: "Change Plan",
+              selectOptions: [
+                { label: "Basic", value: "basic" },
+                { label: "Pro", value: "pro" },
+                { label: "Enterprise", value: "enterprise" },
+              ],
+            },
+            {
+              title: "Billing",
+              description: "Manage your billing information",
+              actionType: "button",
+              actionLabel: "Change Plan",
+              buttonLink:
+                "https://billing.stripe.com/p/login/test_28o4ic2eJ4zw8F2144",
+            },
+          ]}
+        />
       </div>
     </>
   );

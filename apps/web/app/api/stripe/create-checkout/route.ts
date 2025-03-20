@@ -105,8 +105,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: "subscription",
-      success_url: `${baseUrl}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/dashboard?canceled=true`,
+      success_url: `${baseUrl}/settings?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/settings?canceled=true`,
       metadata: {
         organizationId,
         userId,
