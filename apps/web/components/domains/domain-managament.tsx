@@ -123,6 +123,10 @@ export default function DomainManagement({
   const [copiedCell, setCopiedCell] = useState<string | null>(null);
   const [isAddingDomain, setIsAddingDomain] = useState(false);
   const [deletingDomainId, setDeletingDomainId] = useState<number | null>(null);
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState<string>("");
+  const [confirmDeleteDomainId, setConfirmDeleteDomainId] = useState<
+    number | null
+  >(null);
   const [refreshingDomains, setRefreshingDomains] = useState<
     Record<number, { isRefreshing: boolean; cooldown: number }>
   >({});
@@ -876,7 +880,17 @@ export default function DomainManagement({
                         : "Refresh Status"}
                   </Button>
                 </div>
-                <Dialog>
+                <Dialog
+                  onOpenChange={(open) => {
+                    if (open) {
+                      setConfirmDeleteDomainId(domain.id);
+                      setDeleteConfirmInput("");
+                    } else {
+                      setConfirmDeleteDomainId(null);
+                      setDeleteConfirmInput("");
+                    }
+                  }}
+                >
                   <DialogTrigger asChild>
                     <Button size="sm" variant="destructive">
                       Delete
@@ -886,22 +900,36 @@ export default function DomainManagement({
                     <DialogHeader>
                       <DialogTitle>Delete Domain</DialogTitle>
                       <DialogDescription>
-                        Are you sure you want to delete this domain?
+                        To delete this domain, please type the domain in the
+                        input below to confirm.{" "}
+                        <b>This action cannot be undone.</b>
                       </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-2">
-                      <Label>
-                        Please type the domain name to confirm deletion:
-                        <span className="text-red-500">{domain.name}</span>
-                      </Label>
-                      <Input />
+                      <div className="rounded-md border bg-card p-4 px-5 text-sm font-semibold text-foreground">
+                        {domain.name}
+                      </div>
+                      <Input
+                        className="mt-2"
+                        value={deleteConfirmInput}
+                        placeholder={domain.name}
+                        onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                      />
                     </div>
                     <DialogFooter>
-                      <Button variant="outline">Cancel</Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setDeleteConfirmInput("")}
+                      >
+                        Cancel
+                      </Button>
                       <Button
                         variant="destructive"
                         onClick={() => handleDeleteDomain(domain)}
-                        disabled={deletingDomainId === domain.id}
+                        disabled={
+                          deletingDomainId === domain.id ||
+                          deleteConfirmInput !== domain.name
+                        }
                       >
                         {deletingDomainId === domain.id ? (
                           <>
