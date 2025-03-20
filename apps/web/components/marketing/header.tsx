@@ -18,12 +18,14 @@ import {
   CircleInfo,
   Waypoints,
   ChurchSpaceWhite,
+  Map,
 } from "@church-space/ui/icons";
 import PCOlogo from "@/public/pco-logo.png";
 import Image from "next/image";
 import MobileHeaderSheet from "./mobile-header-sheet";
 import HeaderButtons from "./header-buttons";
-
+import { Separator } from "@church-space/ui/separator";
+import { Label } from "@church-space/ui/label";
 export default function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-16 w-full shrink-0 items-center gap-2 border-b bg-background/80 backdrop-blur-lg">
@@ -48,11 +50,18 @@ export default function Header() {
                     Send beautifully crafted emails to your people
                   </ListItem>
                   <ListItem
+                    href="/features/automations"
+                    title="Automations"
+                    icon={<Waypoints />}
+                  >
+                    Automate your communications with powerful automation tools
+                  </ListItem>
+                  <ListItem
                     href="/features/qr"
                     title="QR Codes"
                     icon={<Qrcode />}
                   >
-                    Manage, track, and update QR codes
+                    Manage, track, and update your QR codes
                   </ListItem>
                   <ListItem
                     href="/features/links"
@@ -61,10 +70,15 @@ export default function Header() {
                   >
                     Collect and share important links and resources
                   </ListItem>
+                  <Separator className="col-span-2 my-0.5" />
+                  <Label className="col-span-2 ml-1 text-sm font-semibold text-muted-foreground">
+                    Integrations
+                  </Label>
                   <ListItem
                     href="/integrations"
                     title="Planning Center"
                     className="bg-blue-500/10"
+                    listItemClassName="col-span-2"
                     icon={
                       <Image
                         src={PCOlogo}
@@ -75,7 +89,7 @@ export default function Header() {
                       />
                     }
                   >
-                    Keep data in sync with our PCO integration
+                    Sync your data from Planning Center
                   </ListItem>
                 </ul>
               </NavigationMenuContent>
@@ -92,7 +106,7 @@ export default function Header() {
                   <ListItem
                     href="/getting-started"
                     title="Getting Started"
-                    icon={<Waypoints />}
+                    icon={<Map />}
                   >
                     Learn how to make the switch and get started.
                   </ListItem>
@@ -136,10 +150,11 @@ const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a"> & {
     icon: React.ReactNode;
+    listItemClassName?: string;
   }
->(({ className, title, children, icon, ...props }, ref) => {
+>(({ className, title, children, icon, listItemClassName, ...props }, ref) => {
   return (
-    <li>
+    <li className={cn(listItemClassName)}>
       <NavigationMenuLink asChild>
         <a
           ref={ref}

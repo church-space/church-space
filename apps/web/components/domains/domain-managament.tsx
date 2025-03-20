@@ -53,6 +53,7 @@ import { addDomainAction } from "@/actions/add-domain";
 import { deleteDomainAction } from "@/actions/delete-domain";
 import { verifyDomainAction } from "@/actions/verify-domain";
 import type { ActionResponse } from "@/types/action";
+import { updateDomainsAction } from "@/actions/update-domains";
 
 // Domain validation schema
 const domainSchema = z.string().refine(
@@ -94,6 +95,7 @@ type Domain = {
   records: DomainRecord[];
   isRefreshing: boolean;
   resend_domain_id: string | null;
+  isPrimary?: boolean;
 };
 
 // Custom AccordionTrigger that only underlines the domain name
@@ -199,6 +201,7 @@ export default function DomainManagement({
           records: records,
           isRefreshing: false,
           resend_domain_id: domain.resend_domain_id,
+          isPrimary: !!domain.is_primary, // Ensure proper boolean conversion
         };
       });
     }
@@ -220,6 +223,7 @@ export default function DomainManagement({
 
   const [confirmPrimaryDomain, setConfirmPrimaryDomain] =
     useState<Domain | null>(null);
+  const [isSettingPrimary, setIsSettingPrimary] = useState(false);
 
   // Effect to count down the cooldown timers
   useEffect(() => {
@@ -323,6 +327,7 @@ export default function DomainManagement({
             ],
             isRefreshing: false,
             resend_domain_id: domainData.resend_domain_id,
+            isPrimary: !!domainData.is_primary || prevDomains.length === 0,
           },
           ...prevDomains,
         ]);
@@ -553,15 +558,58 @@ export default function DomainManagement({
     }
   };
 
-  const setPrimary = (domain: Domain) => {
+  const setPrimary = async (domain: Domain) => {
     if (primaryDomain === domain.name) return;
 
-    setPrimaryDomain(domain.name);
+    try {
+      setIsSettingPrimary(true);
+      // Call the updateDomainsAction to update the domain as primary
+      const response = await updateDomainsAction({
+        domain_id: domain.id,
+        domain_data: {
+          is_primary: true,
+        },
+      });
 
-    toast({
-      title: "Primary domain updated",
-      description: `${domain.name} is now your primary domain.`,
-    });
+      // Check if response exists and has success property
+      if (response && "success" in response && response.success) {
+        // Update the primaryDomain state
+        setPrimaryDomain(domain.name);
+
+        // Force refresh the domains list to reflect changes
+        setDomains((prevDomains) =>
+          prevDomains.map((d) => ({
+            ...d,
+            isPrimary: d.id === domain.id,
+          })),
+        );
+
+        toast({
+          title: "Primary domain updated",
+          description: `${domain.name} is now your primary domain.`,
+        });
+      } else {
+        const errorMessage =
+          response && "error" in response && typeof response.error === "string"
+            ? response.error
+            : "Failed to set primary domain";
+        toast({
+          title: "Error updating primary domain",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error setting primary domain:", error);
+      toast({
+        title: "Error updating primary domain",
+        description: "Failed to set primary domain. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSettingPrimary(false);
+      setConfirmPrimaryDomain(null);
+    }
   };
 
   const areAllRecordsVerified = (records: DomainRecord[]) => {
@@ -633,7 +681,7 @@ export default function DomainManagement({
                 <span className="group-hover:underline">{domain.name}</span>
 
                 {/* Primary domain indicator */}
-                {primaryDomain === domain.name && (
+                {domain.isPrimary && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -811,7 +859,7 @@ export default function DomainManagement({
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {/* Primary domain toggle button */}
-                  {primaryDomain !== domain.name && (
+                  {!domain.isPrimary && (
                     <Dialog
                       open={confirmPrimaryDomain?.name === domain.name}
                       onOpenChange={(open) => {
@@ -835,13 +883,14 @@ export default function DomainManagement({
                           <DialogDescription>
                             Are you sure you want to set {domain.name} as your
                             primary domain? This will be used as the default
-                            domain for your project.
+                            domain for your church.
                           </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
                           <Button
                             variant="outline"
                             onClick={() => setConfirmPrimaryDomain(null)}
+                            disabled={isSettingPrimary}
                           >
                             Cancel
                           </Button>
@@ -849,11 +898,18 @@ export default function DomainManagement({
                             onClick={() => {
                               if (confirmPrimaryDomain) {
                                 setPrimary(confirmPrimaryDomain);
-                                setConfirmPrimaryDomain(null);
                               }
                             }}
+                            disabled={isSettingPrimary}
                           >
-                            Confirm
+                            {isSettingPrimary ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Setting...
+                              </>
+                            ) : (
+                              "Confirm"
+                            )}
                           </Button>
                         </DialogFooter>
                       </DialogContent>
@@ -876,8 +932,8 @@ export default function DomainManagement({
                     {refreshingDomains[domain.id]?.isRefreshing
                       ? "Refreshing..."
                       : refreshingDomains[domain.id]?.cooldown > 0
-                        ? `Refresh (${refreshingDomains[domain.id].cooldown}s)`
-                        : "Refresh Status"}
+                        ? `Please wait ${refreshingDomains[domain.id].cooldown} seconds`
+                        : "Refresh"}
                   </Button>
                 </div>
                 <Dialog

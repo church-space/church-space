@@ -7,6 +7,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@church-space/ui/popover";
+import {
+  MailFilled,
+  Qrcode,
+  Waypoints,
+  LinkIcon,
+  CreditCard,
+  LifeRing,
+  Map,
+  CircleInfo,
+  Megaphone,
+} from "@church-space/ui/icons";
+import PCOlogo from "@/public/pco-logo.png";
+import Image from "next/image";
 
 export default function MobileHeaderSheet() {
   return (
@@ -23,27 +36,47 @@ export default function MobileHeaderSheet() {
         <div className="flex flex-col gap-3 p-4 text-lg font-semibold">
           <span className="text-sm text-muted-foreground">Features</span>
           <Link
-            className="transition-colors hover:text-muted-foreground"
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/features/email"
           >
+            <MailFilled />
             Email
           </Link>
           <Link
-            className="transition-colors hover:text-muted-foreground"
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/features/qr"
           >
+            <Qrcode />
             QR Codes
           </Link>
           <Link
-            className="transition-colors hover:text-muted-foreground"
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/features/links"
           >
+            <LinkIcon />
             Link Lists
           </Link>
           <Link
-            className="transition-colors hover:text-muted-foreground"
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
+            href="/features/automations"
+          >
+            <Waypoints />
+            Automations
+          </Link>
+        </div>
+        <div className="flex flex-col gap-3 p-4 text-lg font-semibold">
+          <span className="text-sm text-muted-foreground">Integrations</span>
+          <Link
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/integrations"
           >
+            <Image
+              src={PCOlogo}
+              alt="PCO Logo"
+              height={16}
+              width={16}
+              className="mr-1"
+            />
             Planning Center
           </Link>
         </div>
@@ -51,33 +84,38 @@ export default function MobileHeaderSheet() {
           <span className="text-sm text-muted-foreground">More</span>
 
           <Link
-            className="transition-colors hover:text-muted-foreground"
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/pricing"
           >
+            <CreditCard />
             Pricing
           </Link>
           <Link
-            className="transition-colors hover:text-muted-foreground"
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/support"
           >
+            <LifeRing />
             Support
           </Link>
           <Link
-            className="transition-colors hover:text-muted-foreground"
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/getting-started"
           >
+            <Map />
             Getting Started
           </Link>
           <Link
-            className="transition-colors hover:text-muted-foreground"
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/about"
           >
+            <CircleInfo />
             About
           </Link>
           <Link
-            className="transition-colors hover:text-muted-foreground"
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="mailto:hello@churchspace.co?subject=Question%20about%20Church%20Space&body=NAME%3A%20%0ACHURCH%3A%20%0A%0AQUESTION%3A%20%0A"
           >
+            <Megaphone />
             Contact
           </Link>
         </div>

@@ -57,6 +57,54 @@ export const updateDomainsAction = authActionClient
         };
       }
 
+      // Handle primary domain logic
+      if (parsedInput.parsedInput.domain_data.is_primary === true) {
+        console.log(
+          "Setting domain as primary, first unsetting old primary domain",
+        );
+
+        // Get the organization ID
+        const organizationId = existingDomain.organization_id;
+
+        // Find current primary domain
+        const { data: currentPrimaryDomain, error: primaryCheckError } =
+          await supabase
+            .from("domains")
+            .select("id")
+            .eq("organization_id", organizationId)
+            .eq("is_primary", true)
+            .maybeSingle();
+
+        if (primaryCheckError) {
+          console.error(
+            "Error checking current primary domain:",
+            primaryCheckError,
+          );
+          // Continue anyway, not a critical error
+        }
+
+        // If found a different primary domain, unset it
+        if (
+          currentPrimaryDomain &&
+          currentPrimaryDomain.id !== parsedInput.parsedInput.domain_id
+        ) {
+          console.log("Unsetting old primary domain:", currentPrimaryDomain.id);
+          const unsetResult = await updateDomain(
+            supabase,
+            currentPrimaryDomain.id,
+            { is_primary: false },
+          );
+
+          if (unsetResult.error) {
+            console.error(
+              "Error unsetting old primary domain:",
+              unsetResult.error,
+            );
+            // Continue anyway, we'll try to set the new primary
+          }
+        }
+      }
+
       console.log("Domain found, updating...");
 
       try {
