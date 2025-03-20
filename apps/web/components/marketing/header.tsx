@@ -17,8 +17,8 @@ import {
   LifeRing,
   CircleInfo,
   Waypoints,
-  ChurchSpaceWhite,
   Map,
+  ChurchSpaceBlack,
 } from "@church-space/ui/icons";
 import PCOlogo from "@/public/pco-logo.png";
 import Image from "next/image";
@@ -32,9 +32,9 @@ export default function Header() {
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-6">
         <Link
           href="/"
-          className="flex items-center gap-1 text-nowrap font-semibold leading-none tracking-tighter sm:text-lg"
+          className="flex items-center gap-1 text-nowrap font-semibold leading-none tracking-tighter text-foreground sm:text-lg"
         >
-          <ChurchSpaceWhite height={"26"} width={"26"} />
+          <ChurchSpaceBlack fill="currentColor" height={"26"} width={"26"} />
           Church Space
         </Link>
         <NavigationMenu>
