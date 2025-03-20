@@ -8,7 +8,7 @@ import {
 import Stripe from "stripe";
 
 // Initialize Stripe with the secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_TESTING_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
 });
 
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       event = stripe.webhooks.constructEvent(
         rawBody,
         signature,
-        process.env.STRIPE_WEBHOOK_SECRET!,
+        process.env.STRIPE_WEBHOOK_SECRET_TESTING!,
       );
       console.log("Webhook signature verified successfully");
     } catch (err) {
