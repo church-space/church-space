@@ -74,6 +74,21 @@ export const addDomainAction = authActionClient
             : (responseAny.data as ResendDomainResponse);
 
           console.log("Parsed Resend domain data:", resendDomainData);
+
+          // Enable click tracking and open tracking after domain creation
+          console.log("Enabling click tracking and open tracking...");
+          try {
+            const updateResponse = await resend.domains.update({
+              id: resendDomainData.id,
+              openTracking: true,
+              clickTracking: true,
+            });
+
+            console.log("Domain tracking settings updated:", updateResponse);
+          } catch (trackingError) {
+            console.error("Error enabling tracking features:", trackingError);
+            // Continue even if tracking settings fail - this is not critical
+          }
         } else {
           console.error(
             "Invalid Resend API response structure:",

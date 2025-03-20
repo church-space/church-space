@@ -21,6 +21,10 @@ export default function Hero() {
           </TextAnimate>
         </div>
       </div>
+
+      <div className="relative mx-auto aspect-video w-full max-w-7xl rounded-t-xl bg-card outline outline-[3px] outline-muted">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background backdrop-blur-sm" />
+      </div>
     </section>
   );
 }
