@@ -16,6 +16,7 @@ import PostSendPage from "./post-send-page";
 import SendingPage from "./sending-page";
 import { redirect } from "next/navigation";
 import TempSendNowButton from "./temp-send-now-button";
+
 type Params = Promise<{ emailId: string }>;
 
 export default async function Page(props: { params: Params }) {

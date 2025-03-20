@@ -54,7 +54,7 @@ import {
 import { format } from "date-fns";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useQueryState } from "nuqs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -110,21 +110,48 @@ const frameworks = [
 ];
 
 export default function PreSendPage({ email }: { email: any }) {
-  console.log(email);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
-  const [sendDate, setSendDate] = useState<Date | null>(null);
-  const [isScheduled, setIsScheduled] = useState("schedule");
-  const [subject, setSubject] = useState("");
+
+  // Initialize state from email data
+  const [subject, setSubject] = useState(email.subject || "");
+  const [previewText, setPreviewText] = useState(email.preview_text || "");
+
+  // From details
+  const [fromEmail, setFromEmail] = useState(
+    email.from_email?.split("@")[0] || "",
+  );
+  const [fromDomain, setFromDomain] = useState(
+    email.from_email?.split("@")[1] || "",
+  );
+  const [fromName, setFromName] = useState(email.from_name || "");
+  const [replyToEmail, setReplyToEmail] = useState(
+    email.reply_to?.split("@")[0] || "",
+  );
+  const [replyToDomain, setReplyToDomain] = useState(
+    email.reply_to?.split("@")[1] || "",
+  );
+
+  // Schedule details
+  const [sendDate, setSendDate] = useState<Date | null>(
+    email.scheduled_for ? new Date(email.scheduled_for) : null,
+  );
+  const [isScheduled, setIsScheduled] = useState(
+    email.scheduled_for ? "schedule" : "send-now",
+  );
+
+  // List and category
   const [listOpen, setListOpen] = useState(false);
-  const [listValue, setListValue] = useState("");
+  const [listValue, setListValue] = useState(email.list_id || "");
   const [categoryOpen, setCategoryOpen] = useState(false);
-  const [categoryValue, setCategoryValue] = useState("");
+  const [categoryValue, setCategoryValue] = useState(email.category_id || "");
 
-  const [toHasChanges] = useState(false);
-  const [fromHasChanges] = useState(false);
-  const [subjectHasChanges] = useState(false);
-  const [scheduleHasChanges] = useState(false);
+  // Track changes
+  const [toHasChanges, setToHasChanges] = useState(false);
+  const [fromHasChanges, setFromHasChanges] = useState(false);
+  const [subjectHasChanges, setSubjectHasChanges] = useState(false);
+  const [scheduleHasChanges, setScheduleHasChanges] = useState(false);
 
+  // Track saving states
   const [toIsSaving, setToIsSaving] = useState(false);
   const [fromIsSaving, setFromIsSaving] = useState(false);
   const [subjectIsSaving, setSubjectIsSaving] = useState(false);
@@ -132,7 +159,43 @@ export default function PreSendPage({ email }: { email: any }) {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  // Subject validation functions
+  // Track changes for each section
+  useEffect(() => {
+    setToHasChanges(
+      listValue !== (email.list_id || "") ||
+        categoryValue !== (email.category_id || ""),
+    );
+  }, [listValue, categoryValue, email.list_id, email.category_id]);
+
+  useEffect(() => {
+    setFromHasChanges(
+      fromEmail !== (email.from_email?.split("@")[0] || "") ||
+        fromDomain !== (email.from_email?.split("@")[1] || "") ||
+        fromName !== (email.from_name || "") ||
+        replyToEmail !== (email.reply_to?.split("@")[0] || "") ||
+        replyToDomain !== (email.reply_to?.split("@")[1] || ""),
+    );
+  }, [fromEmail, fromDomain, fromName, replyToEmail, replyToDomain, email]);
+
+  useEffect(() => {
+    setSubjectHasChanges(
+      subject !== (email.subject || "") ||
+        previewText !== (email.preview_text || ""),
+    );
+  }, [subject, previewText, email.subject, email.preview_text]);
+
+  useEffect(() => {
+    const originalScheduledDate = email.scheduled_for
+      ? new Date(email.scheduled_for)
+      : null;
+    const originalIsScheduled = email.scheduled_for ? "schedule" : "send-now";
+
+    setScheduleHasChanges(
+      isScheduled !== originalIsScheduled ||
+        sendDate?.getTime() !== originalScheduledDate?.getTime(),
+    );
+  }, [sendDate, isScheduled, email.scheduled_for]);
+
   // Subject validation functions
   const wordCount = subject.trim().split(/\s+/).filter(Boolean).length;
   const charCount = subject.length;
@@ -191,16 +254,21 @@ export default function PreSendPage({ email }: { email: any }) {
         <AccordionItem value="to">
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              {/* <span className="text-green-400">
-                <Done height={"24"} width={"24"} />
-              </span> */}
-              <span className="text-muted-foreground">
+              <span
+                className={
+                  email.list_id && email.category_id
+                    ? "text-green-400"
+                    : "text-muted-foreground"
+                }
+              >
                 <Backlog height={"24"} width={"24"} />
               </span>
               <div className="flex flex-col">
                 <span>To</span>
                 <span className="text-sm font-normal text-muted-foreground">
-                  Yes. It adheres to the WAI-ARIA design pattern.
+                  {listValue ? `List: ${listValue}` : "No list selected"}
+                  {listValue && categoryValue ? ", " : ""}
+                  {categoryValue ? `Category: ${categoryValue}` : ""}
                 </span>
               </div>
             </div>
@@ -219,19 +287,19 @@ export default function PreSendPage({ email }: { email: any }) {
                     {listValue
                       ? frameworks.find(
                           (framework) => framework.value === listValue,
-                        )?.label
-                      : "Select framework..."}
+                        )?.label || listValue
+                      : "Select list..."}
                     <ChevronsUpDown className="opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                   <Command>
                     <CommandInput
-                      placeholder="Search framework..."
+                      placeholder="Search lists..."
                       className="h-9"
                     />
                     <CommandList>
-                      <CommandEmpty>No framework found.</CommandEmpty>
+                      <CommandEmpty>No list found.</CommandEmpty>
                       <CommandGroup>
                         {frameworks.map((framework) => (
                           <CommandItem
@@ -277,19 +345,19 @@ export default function PreSendPage({ email }: { email: any }) {
                     {categoryValue
                       ? frameworks.find(
                           (framework) => framework.value === categoryValue,
-                        )?.label
-                      : "Select framework..."}
+                        )?.label || categoryValue
+                      : "Select category..."}
                     <ChevronsUpDown className="opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                   <Command>
                     <CommandInput
-                      placeholder="Search framework..."
+                      placeholder="Search categories..."
                       className="h-9"
                     />
                     <CommandList>
-                      <CommandEmpty>No framework found.</CommandEmpty>
+                      <CommandEmpty>No category found.</CommandEmpty>
                       <CommandGroup>
                         {frameworks.map((framework) => (
                           <CommandItem
@@ -336,16 +404,23 @@ export default function PreSendPage({ email }: { email: any }) {
         <AccordionItem value="from">
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              {/* <span className="text-green-400">
-                <Done height={"24"} width={"24"} />
-              </span> */}
-              <span className="text-muted-foreground">
+              <span
+                className={
+                  email.from_email && email.from_name
+                    ? "text-green-400"
+                    : "text-muted-foreground"
+                }
+              >
                 <Backlog height={"24"} width={"24"} />
               </span>
               <div className="flex flex-col">
                 <span>From</span>
                 <span className="text-sm font-normal text-muted-foreground">
-                  Yes. It adheres to the WAI-ARIA design pattern.
+                  {fromName
+                    ? `${fromName} <${fromEmail}@${fromDomain}>`
+                    : fromEmail && fromDomain
+                      ? `${fromEmail}@${fromDomain}`
+                      : "No sender information"}
                 </span>
               </div>
             </div>
@@ -354,37 +429,49 @@ export default function PreSendPage({ email }: { email: any }) {
             <div className="flex flex-col gap-2">
               <Label className="ml-0.5">From Email</Label>
               <div className="flex items-center gap-2">
-                <Input placeholder="Enter from" />
+                <Input
+                  placeholder="Enter from"
+                  value={fromEmail}
+                  onChange={(e) => setFromEmail(e.target.value)}
+                />
                 <span className="mb-1 leading-none">@</span>
-                <Select>
+                <Select value={fromDomain} onValueChange={setFromDomain}>
                   <SelectTrigger>
-                    <SelectValue placeholder="example.com" />
+                    <SelectValue placeholder={fromDomain || "example.com"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">@domain.com</SelectItem>
-                    <SelectItem value="2">@domain2.com</SelectItem>
-                    <SelectItem value="3">@domain3.com</SelectItem>
+                    <SelectItem value="domain.com">domain.com</SelectItem>
+                    <SelectItem value="domain2.com">domain2.com</SelectItem>
+                    <SelectItem value="domain3.com">domain3.com</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="flex flex-col gap-2">
               <Label className="ml-0.5">From Name</Label>
-              <Input placeholder="Name" />
+              <Input
+                placeholder="Name"
+                value={fromName}
+                onChange={(e) => setFromName(e.target.value)}
+              />
             </div>
             <div className="flex flex-col gap-2">
               <Label className="ml-0.5">Reply To</Label>
               <div className="flex items-center gap-2">
-                <Input placeholder="Enter from" />
+                <Input
+                  placeholder="Enter reply to"
+                  value={replyToEmail}
+                  onChange={(e) => setReplyToEmail(e.target.value)}
+                />
                 <span className="mb-1 leading-none">@</span>
-                <Select>
+                <Select value={replyToDomain} onValueChange={setReplyToDomain}>
                   <SelectTrigger>
-                    <SelectValue placeholder="example.com" />
+                    <SelectValue placeholder={replyToDomain || "example.com"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">@domain.com</SelectItem>
-                    <SelectItem value="2">@domain2.com</SelectItem>
-                    <SelectItem value="3">@domain3.com</SelectItem>
+                    <SelectItem value="domain.com">domain.com</SelectItem>
+                    <SelectItem value="domain2.com">domain2.com</SelectItem>
+                    <SelectItem value="domain3.com">domain3.com</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -399,16 +486,15 @@ export default function PreSendPage({ email }: { email: any }) {
         <AccordionItem value="subject">
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              {/* <span className="text-green-400">
-                <Done height={"24"} width={"24"} />
-              </span> */}
-              <span className="text-muted-foreground">
+              <span
+                className={subject ? "text-green-400" : "text-muted-foreground"}
+              >
                 <Backlog height={"24"} width={"24"} />
               </span>
               <div className="flex flex-col">
                 <span>Subject</span>
                 <span className="text-sm font-normal text-muted-foreground">
-                  Yes. It adheres to the WAI-ARIA design pattern.
+                  {subject || "No subject set"}
                 </span>
               </div>
             </div>
@@ -468,7 +554,11 @@ export default function PreSendPage({ email }: { email: any }) {
             </div>
             <div className="flex flex-col gap-2">
               <Label className="ml-0.5">Preview Text</Label>
-              <Input placeholder="Enter preview text" />
+              <Input
+                placeholder="Enter preview text"
+                value={previewText}
+                onChange={(e) => setPreviewText(e.target.value)}
+              />
               <span className="ml-0.5 text-xs text-muted-foreground">
                 Preview text shows below the subject line in an email inbox.
               </span>
@@ -483,10 +573,13 @@ export default function PreSendPage({ email }: { email: any }) {
         <AccordionItem value="schedule">
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              {/* <span className="text-green-400">
-                <Done height={"24"} width={"24"} />
-              </span> */}
-              <span className="text-muted-foreground">
+              <span
+                className={
+                  email.scheduled_for || isScheduled === "send-now"
+                    ? "text-green-400"
+                    : "text-muted-foreground"
+                }
+              >
                 <Backlog height={"24"} width={"24"} />
               </span>
               <div className="flex flex-col">
@@ -569,7 +662,9 @@ export default function PreSendPage({ email }: { email: any }) {
             <div className="flex flex-col">
               <span className="text-md font-semibold">Content</span>
               <span className="text-sm font-normal text-muted-foreground">
-                Yes. It adheres to the WAI-ARIA design pattern.
+                {email.html_content
+                  ? "Email content created"
+                  : "No content created yet"}
               </span>
             </div>
           </Link>
@@ -613,7 +708,9 @@ export default function PreSendPage({ email }: { email: any }) {
             undone.
           </DialogDescription>
           <DialogFooter>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
             <Button variant="destructive">Delete</Button>
           </DialogFooter>
         </DialogContent>
