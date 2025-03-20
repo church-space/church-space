@@ -61,6 +61,31 @@ export const deleteDomainAction = authActionClient
           };
         }
 
+        // Check if there's only one domain left for this organization
+        console.log("Checking if there's only one domain left...");
+        const { data: remainingDomains, error: fetchError } = await supabase
+          .from("domains")
+          .select("id")
+          .eq("organization_id", parsedInput.parsedInput.organization_id);
+
+        if (fetchError) {
+          console.error("Error fetching remaining domains:", fetchError);
+        } else if (remainingDomains && remainingDomains.length === 1) {
+          console.log("Only one domain left, setting it as primary...");
+          // Set the remaining domain as primary
+          const { error: updateError } = await supabase
+            .from("domains")
+            .update({ is_primary: true })
+            .eq("id", remainingDomains[0].id)
+            .eq("organization_id", parsedInput.parsedInput.organization_id);
+
+          if (updateError) {
+            console.error("Error setting domain as primary:", updateError);
+          } else {
+            console.log("Domain set as primary successfully");
+          }
+        }
+
         // Revalidate the domains query tag
         console.log("Domain deleted successfully, revalidating...");
         try {
