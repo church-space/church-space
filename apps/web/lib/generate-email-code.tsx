@@ -98,7 +98,7 @@ const CustomText: React.FC<{
     // Handle empty paragraphs for line breaks
     .replace(
       /<p style="[^"]*"><\/p>/g,
-      '<table width="100%" cellpadding="0" cellspacing="0"><tr><td height="1.6em"></td></tr></table>',
+      '<br style="display: block; margin: 0.8em 0;" />',
     )
     // Add font size to list items
     .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"');
