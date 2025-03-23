@@ -103,6 +103,16 @@ const CustomText: React.FC<{
     // Add font size to list items
     .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"');
 
+  // Now add a style tag to handle the first-child rule similar to the CSS
+  const processedContent = `
+    <style>
+      h1:first-child, h2:first-child, h3:first-child {
+        margin-top: 0.2em !important;
+      }
+    </style>
+    ${sanitizedContent}
+  `;
+
   return (
     <table cellPadding="0" cellSpacing="0" border={0} width="100%">
       <tr>
@@ -112,7 +122,7 @@ const CustomText: React.FC<{
             color: textColor || defaultTextColor || "#000000",
             fontSize: "16px",
           }}
-          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+          dangerouslySetInnerHTML={{ __html: processedContent }}
         />
       </tr>
     </table>
