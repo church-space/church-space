@@ -17,23 +17,29 @@ interface SettingsSection {
   action?: () => void;
   selectValue?: string;
   buttonLink?: string;
+  buttonAction?: () => void;
 }
 
 interface SettingsSectionProps {
   title: string;
-  description: string;
+  description?: string;
+  descriptionObject?: React.ReactNode;
   sections: SettingsSection[];
 }
 
 export default function SettingsSettings({
   title,
   description,
+  descriptionObject,
   sections,
 }: SettingsSectionProps) {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col">
       <h2 className="pl-1 text-lg font-bold">{title}</h2>
-      <p className="pl-1 text-sm text-muted-foreground">{description}</p>
+      {description && (
+        <p className="pl-1 text-sm text-muted-foreground">{description}</p>
+      )}
+      {descriptionObject && descriptionObject}
       <div className="mt-3 flex w-full flex-col rounded-lg border">
         {sections.map((section, index) => (
           <div
@@ -52,13 +58,15 @@ export default function SettingsSettings({
             <div className="flex flex-col">
               {section.actionType === "button" && (
                 <Link href={section.buttonLink || ""}>
-                  <Button>{section.actionLabel}</Button>
+                  <Button onClick={section.buttonAction}>
+                    {section.actionLabel}
+                  </Button>
                 </Link>
               )}
               {section.actionType === "select" && (
                 <Select value={section.selectValue}>
                   <SelectTrigger>{section.actionLabel}</SelectTrigger>
-                  <SelectContent>
+                  <SelectContent align="end">
                     {section.selectOptions?.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}

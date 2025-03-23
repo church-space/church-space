@@ -686,8 +686,8 @@ export default function DomainManagement({
   };
 
   return (
-    <div className="mx-auto w-full py-6">
-      <Accordion type="single" defaultValue="domain-0" className="space-y-4">
+    <div className="mx-auto w-full py-3">
+      <Accordion type="single" defaultValue="" className="space-y-4">
         {domains.map((domain, domainIndex) => (
           <AccordionItem key={domain.name} value={`domain-${domainIndex}`}>
             <CustomAccordionTrigger className="font-medium hover:no-underline">
@@ -1013,10 +1013,12 @@ export default function DomainManagement({
         ))}
       </Accordion>
 
-      <div className="mt-4 border-t pt-4">
+      <div className="mt-4">
         <form onSubmit={handleAddDomain} className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="domain">Add New Domain</Label>
+            <Label htmlFor="domain" className="ml-1">
+              Add New Domain
+            </Label>
             <div className="flex gap-2">
               <div className="flex-1">
                 <Tooltip>
