@@ -1,7 +1,5 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
-
 import { cn } from "@church-space/ui/cn";
 import {
   SidebarGroup,
@@ -16,12 +14,12 @@ export function NavMain({
   items: {
     title: string;
     url: string;
-    icon: LucideIcon;
+    icon: React.ElementType;
     isActive?: boolean;
     submenu?: {
       title: string;
       url: string;
-      icon: LucideIcon;
+      icon: React.ElementType;
     }[];
   }[];
 }) {

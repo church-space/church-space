@@ -1,13 +1,6 @@
-import { Button } from "@church-space/ui/button";
 import { cn } from "@church-space/ui/cn";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@church-space/ui/select";
 import React from "react";
-import Link from "next/link";
+
 interface SettingsSection {
   title: string;
   description: string;
@@ -27,58 +20,133 @@ interface SettingsSectionProps {
   sections: SettingsSection[];
 }
 
-export default function SettingsSettings({
-  title,
-  description,
-  descriptionObject,
-  sections,
-}: SettingsSectionProps) {
-  return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col">
-      <h2 className="pl-1 text-lg font-bold">{title}</h2>
-      {description && (
-        <p className="pl-1 text-sm text-muted-foreground">{description}</p>
-      )}
-      {descriptionObject && descriptionObject}
-      <div className="mt-3 flex w-full flex-col rounded-lg border">
-        {sections.map((section, index) => (
-          <div
-            className={cn(
-              "flex w-full justify-between p-4",
-              index != 0 && "border-t",
-            )}
-            key={section.title}
-          >
-            <div className="flex flex-col">
-              <h3 className="text-sm font-medium">{section.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                {section.description}
-              </p>
-            </div>
-            <div className="flex flex-col">
-              {section.actionType === "button" && (
-                <Link href={section.buttonLink || ""}>
-                  <Button onClick={section.buttonAction}>
-                    {section.actionLabel}
-                  </Button>
-                </Link>
-              )}
-              {section.actionType === "select" && (
-                <Select value={section.selectValue}>
-                  <SelectTrigger>{section.actionLabel}</SelectTrigger>
-                  <SelectContent align="end">
-                    {section.selectOptions?.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+// Main wrapper component
+const SettingsSection = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("mx-auto flex w-full max-w-5xl flex-col", className)}
+    {...props}
+  />
+));
+SettingsSection.displayName = "SettingsSection";
+
+// Header component that contains title and description
+const SettingsHeader = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn("flex flex-col", className)} {...props} />
+);
+SettingsHeader.displayName = "SettingsHeader";
+
+// Title component
+const SettingsTitle = React.forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h2
+    ref={ref}
+    className={cn("pl-1 text-lg font-bold", className)}
+    {...props}
+  />
+));
+SettingsTitle.displayName = "SettingsTitle";
+
+// Description as text component
+const SettingsDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn("pl-1 text-sm text-muted-foreground", className)}
+    {...props}
+  />
+));
+SettingsDescription.displayName = "SettingsDescription";
+
+// Content wrapper component
+const SettingsContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("mt-3 flex w-full flex-col rounded-lg border", className)}
+    {...props}
+  />
+));
+SettingsContent.displayName = "SettingsContent";
+
+// Row component
+interface SettingsRowProps extends React.HTMLAttributes<HTMLDivElement> {
+  isFirstRow?: boolean;
 }
+
+const SettingsRow = React.forwardRef<HTMLDivElement, SettingsRowProps>(
+  ({ className, isFirstRow = false, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        "flex w-full flex-col items-start justify-between gap-2 p-4 md:flex-row md:items-center",
+        !isFirstRow && "border-t",
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
+SettingsRow.displayName = "SettingsRow";
+
+// Row title component
+const SettingsRowTitle = React.forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h3 ref={ref} className={cn("text-sm font-medium", className)} {...props} />
+));
+SettingsRowTitle.displayName = "SettingsRowTitle";
+
+// Row description component
+const SettingsRowDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+));
+SettingsRowDescription.displayName = "SettingsRowDescription";
+
+// Row action wrapper
+const SettingsRowAction = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "flex w-full flex-col items-end md:w-auto md:max-w-xs md:flex-1",
+      className,
+    )}
+    {...props}
+  />
+));
+SettingsRowAction.displayName = "SettingsRowAction";
+
+export {
+  SettingsSection,
+  SettingsHeader,
+  SettingsTitle,
+  SettingsDescription,
+  SettingsContent,
+  SettingsRow,
+  SettingsRowTitle,
+  SettingsRowDescription,
+  SettingsRowAction,
+};
