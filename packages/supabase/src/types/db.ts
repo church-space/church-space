@@ -726,6 +726,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          default_email: string | null
           id: string
           name: string
           pco_org_id: string | null
@@ -733,6 +734,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          default_email?: string | null
           id?: string
           name: string
           pco_org_id?: string | null
@@ -740,6 +742,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          default_email?: string | null
           id?: string
           name?: string
           pco_org_id?: string | null

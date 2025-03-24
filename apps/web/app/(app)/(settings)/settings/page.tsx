@@ -157,7 +157,9 @@ export default async function Page() {
               <SettingsRowAction>
                 <DeleteAccount
                   userId={userDetails?.id || ""}
+                  userEmail={userDetails?.email || ""}
                   orgRole={user.organizationMembership?.role || ""}
+                  organizationId={organizationId}
                 />
               </SettingsRowAction>
             </SettingsRow>

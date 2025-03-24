@@ -20,3 +20,7 @@ export async function updateUser(
     })
     .eq("id", userId);
 }
+
+export async function deleteUser(supabase: Client, userId: string) {
+  return supabase.auth.admin.deleteUser(userId);
+}

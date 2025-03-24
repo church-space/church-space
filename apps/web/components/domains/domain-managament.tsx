@@ -689,7 +689,11 @@ export default function DomainManagement({
     <div className="mx-auto w-full py-3">
       <Accordion type="single" defaultValue="" className="space-y-4">
         {domains.map((domain, domainIndex) => (
-          <AccordionItem key={domain.name} value={`domain-${domainIndex}`}>
+          <AccordionItem
+            defaultValue={domain.isPrimary ? "domain-0" : undefined}
+            key={domain.name}
+            value={`domain-${domainIndex}`}
+          >
             <CustomAccordionTrigger className="font-medium hover:no-underline">
               <div className="flex items-center gap-2">
                 <span className="group-hover:underline">{domain.name}</span>
@@ -1008,6 +1012,15 @@ export default function DomainManagement({
                   </DialogContent>
                 </Dialog>
               </div>
+              {refreshingDomains[domain.id]?.cooldown > 0 &&
+                !areAllRecordsVerified(domain.records) && (
+                  <div className="mt-2 rounded-md border border-yellow-300 bg-yellow-100 p-4 text-xs text-muted-foreground">
+                    <p>
+                      <b>Note:</b> It may take a few minutes or hours for the
+                      domain to be fully verified.
+                    </p>
+                  </div>
+                )}
             </AccordionContent>
           </AccordionItem>
         ))}
