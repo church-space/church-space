@@ -1,29 +1,15 @@
-import React from "react";
-import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Separator } from "@church-space/ui/separator";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@church-space/ui/breadcrumb";
-import { cookies } from "next/headers";
-import { createClient } from "@church-space/supabase/server";
-import {
-  SettingsSection,
-  SettingsHeader,
-  SettingsTitle,
   SettingsContent,
+  SettingsHeader,
   SettingsRow,
-  SettingsRowTitle,
-  SettingsRowDescription,
   SettingsRowAction,
+  SettingsRowDescription,
+  SettingsRowTitle,
+  SettingsSection,
+  SettingsTitle,
 } from "@/components/settings/settings-settings";
-import { Button } from "@church-space/ui/button";
-import { Input } from "@church-space/ui/input";
-import { Label } from "@church-space/ui/label";
-import { Switch } from "@church-space/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
+import { ThemeSelector } from "@/components/settings/theme-selector";
+import { createClient } from "@church-space/supabase/server";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,15 +21,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@church-space/ui/alert-dialog";
-import { ThemeSelector } from "@/components/settings/theme-selector";
+import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@church-space/ui/breadcrumb";
+import { Button } from "@church-space/ui/button";
+import { Input } from "@church-space/ui/input";
+import { Separator } from "@church-space/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { cookies } from "next/headers";
+import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
+import ProfileUploadModal from "@/components/image-cropper/image-cropper";
 
 export default async function Page() {
   const cookieStore = await cookies();
   const organizationId = cookieStore.get("organizationId")?.value;
-  const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
 
-  const user = userData.user;
+  const supabase = await createClient();
+  const user = await getUserWithDetailsQuery(supabase);
 
   if (!user) {
     return <div>Not logged in</div>;
@@ -51,6 +49,19 @@ export default async function Page() {
   if (!organizationId) {
     return <div>No organization selected</div>;
   }
+
+  const userDetails = (
+    user.userDetails as {
+      avatar_url: string | null;
+      created_at: string;
+      email: string;
+      first_name: string | null;
+      id: string;
+      last_name: string | null;
+    }[]
+  )?.[0];
+
+  console.log(userDetails);
 
   return (
     <>
@@ -78,12 +89,12 @@ export default async function Page() {
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage
-                    src={user.user_metadata?.avatar_url || ""}
-                    alt={user.email || ""}
+                    src={userDetails?.avatar_url || ""}
+                    alt={userDetails?.email || ""}
                   />
                   <AvatarFallback>
-                    {user.user_metadata?.first_name?.[0] || ""}
-                    {user.user_metadata?.last_name?.[0] || ""}
+                    {userDetails?.first_name?.[0] || ""}
+                    {userDetails?.last_name?.[0] || ""}
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -94,16 +105,14 @@ export default async function Page() {
                 </div>
               </div>
               <SettingsRowAction>
-                <Button variant="outline" className="w-fit">
-                  Change
-                </Button>
+                <ProfileUploadModal />
               </SettingsRowAction>
             </SettingsRow>
             <SettingsRow>
               <SettingsRowTitle>First Name</SettingsRowTitle>
               <SettingsRowAction>
                 <Input
-                  defaultValue={user.user_metadata?.first_name || ""}
+                  defaultValue={userDetails?.first_name || ""}
                   placeholder="Enter your first name"
                   className="w-full"
                 />
@@ -113,7 +122,7 @@ export default async function Page() {
               <SettingsRowTitle>Last Name</SettingsRowTitle>
               <SettingsRowAction>
                 <Input
-                  defaultValue={user.user_metadata?.last_name || ""}
+                  defaultValue={userDetails?.last_name || ""}
                   placeholder="Enter your last name"
                   className="w-full"
                 />
@@ -123,7 +132,7 @@ export default async function Page() {
               <SettingsRowTitle>Email</SettingsRowTitle>
               <SettingsRowAction>
                 <Input
-                  defaultValue={user.email || ""}
+                  defaultValue={userDetails?.email || ""}
                   placeholder="Enter your email"
                   type="email"
                 />
@@ -147,17 +156,6 @@ export default async function Page() {
               </div>
               <SettingsRowAction>
                 <ThemeSelector />
-              </SettingsRowAction>
-            </SettingsRow>
-            <SettingsRow>
-              <div>
-                <SettingsRowTitle>Project Update Emails</SettingsRowTitle>
-                <SettingsRowDescription>
-                  Receive email updates about your projects
-                </SettingsRowDescription>
-              </div>
-              <SettingsRowAction>
-                <Switch />
               </SettingsRowAction>
             </SettingsRow>
           </SettingsContent>
