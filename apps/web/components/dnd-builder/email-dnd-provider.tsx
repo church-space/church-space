@@ -64,7 +64,6 @@ import EmailBuilderRealtimeListener from "@/components/listeners/email-builder/r
 import { useUpdateEmailFooter } from "./mutations/use-update-email-footer";
 import { DatabaseBlockType, OrderUpdate, ContentUpdate } from "./dnd-types";
 import NewEmailModal from "./new-email-modal";
-import { z } from "zod";
 
 export default function EmailDndProvider({
   organizationId,

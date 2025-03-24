@@ -10,7 +10,6 @@ import {
   SettingsTitle,
 } from "@/components/settings/settings-settings";
 import SubscribeModal from "@/components/stripe/subscribe-modal";
-import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
 import { createClient } from "@church-space/supabase/server";
 import {
   Breadcrumb,

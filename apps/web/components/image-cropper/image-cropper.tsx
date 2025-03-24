@@ -2,22 +2,21 @@
 
 import type React from "react";
 
-import { useState, useCallback, useRef } from "react";
 import { Button } from "@church-space/ui/button";
+import { cn } from "@church-space/ui/cn";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from "@church-space/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
-import { User, Upload, ImageIcon } from "lucide-react";
+import { ImageIcon, Upload } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import Cropper from "react-easy-crop";
 import { getCroppedImg } from "./utils";
-import { cn } from "@church-space/ui/cn";
 
 export default function ProfileUploadModal() {
   const [open, setOpen] = useState(false);
@@ -29,6 +28,8 @@ export default function ProfileUploadModal() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  console.log(croppedImage);
 
   const validateAndProcessFile = (file: File) => {
     // Check file size - 50MB maximum

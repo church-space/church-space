@@ -6,6 +6,13 @@ import { columns, type Email } from "./columns";
 import { useQueryState } from "nuqs";
 import { Button } from "@church-space/ui/button";
 import { getEmailFilterConfig, type EmailStatus } from "./filters";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@church-space/ui/dialog";
+import NewEmail from "../../forms/new-email";
 
 interface EmailsTableProps {
   data: Email[];
@@ -23,6 +30,7 @@ interface EmailsTableProps {
     hasNextPage: boolean;
     count: number;
   }>;
+  organizationId: string;
 }
 
 export default function EmailsTable({
@@ -31,12 +39,14 @@ export default function EmailsTable({
   loadMore: initialLoadMore,
   hasNextPage: initialHasNextPage,
   searchEmails,
+  organizationId,
 }: EmailsTableProps) {
   const [search, setSearch] = useQueryState("search");
   const [status, setStatus] = useQueryState("status");
   const [data, setData] = useState(initialData);
   const [hasNextPage, setHasNextPage] = useState(initialHasNextPage);
   const [count, setCount] = useState(0);
+  const [isNewEmailOpen, setIsNewEmailOpen] = useState(false);
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -94,7 +104,7 @@ export default function EmailsTable({
           <span className="font-normal text-muted-foreground">{count}</span>{" "}
           Emails
         </h1>
-        <Button>New Email</Button>
+        <Button onClick={() => setIsNewEmailOpen(true)}>New Email</Button>
       </div>
       <DataTable
         columns={columns}
@@ -112,6 +122,15 @@ export default function EmailsTable({
           status: status ?? undefined,
         }}
       />
+
+      <Dialog open={isNewEmailOpen} onOpenChange={setIsNewEmailOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Email</DialogTitle>
+          </DialogHeader>
+          <NewEmail organizationId={organizationId} />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

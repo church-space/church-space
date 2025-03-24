@@ -14,6 +14,8 @@ import {
   getCachedEmailsCount,
 } from "@church-space/supabase/queries/cached/emails";
 import EmailsTable from "@/components/tables/emails/table";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const ITEMS_PER_PAGE = 25;
 
@@ -49,6 +51,13 @@ type PageProps = {
 };
 
 export default async function Page({ searchParams }: PageProps) {
+  const cookiesStore = await cookies();
+  const organizationId = cookiesStore.get("organizationId")?.value;
+
+  if (!organizationId) {
+    redirect("/onboarding");
+  }
+
   const searchParamsValue = await searchParams;
   const search =
     typeof searchParamsValue.search === "string"
@@ -116,6 +125,7 @@ export default async function Page({ searchParams }: PageProps) {
           loadMore={loadMore}
           hasNextPage={hasNextPage}
           searchEmails={searchEmails}
+          organizationId={organizationId}
         />
       </div>
     </>

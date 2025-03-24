@@ -54,6 +54,13 @@ export default function DeleteAccount({
       if (orgData?.name) {
         setOrgName(orgData.name);
       }
+      if (orgError) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch organization name",
+        });
+      }
 
       // Check if user is only owner
       if (orgRole === "owner") {
@@ -61,6 +68,13 @@ export default function DeleteAccount({
           await getOrgOwnersQuery(supabase, organizationId);
         if (ownersData) {
           setIsOnlyOwner(ownersData.length === 1);
+        }
+        if (ownersError) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to fetch organization owners",
+          });
         }
       }
     };
