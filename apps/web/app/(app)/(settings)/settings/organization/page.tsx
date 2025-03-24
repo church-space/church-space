@@ -4,15 +4,11 @@ import { Separator } from "@church-space/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-import SubscribeModal from "@/components/stripe/subscribe-modal";
 import { cookies } from "next/headers";
 import { createClient } from "@church-space/supabase/server";
-import DomainManagement from "@/components/domains/domain-managament";
 import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
 import {
   SettingsSection,
@@ -26,14 +22,27 @@ import {
   SettingsRowAction,
 } from "@/components/settings/settings-settings";
 import { Button } from "@church-space/ui/button";
-import Link from "next/link";
+import { Input } from "@church-space/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
 import {
   Select,
-  SelectValue,
   SelectContent,
-  SelectTrigger,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@church-space/ui/select";
+import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@church-space/ui/alert-dialog";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -51,20 +60,7 @@ export default async function Page() {
   }
 
   const domains = await getDomainsQuery(supabase, organizationId);
-
-  const selectOptions = [
-    { label: "Free - 250 Emails Per Month", value: "250" },
-    { label: "$8 - 5,000 Emails Per Month", value: "5000" },
-    { label: "$16 - 10,000 Emails Per Month", value: "10000" },
-    { label: "$32 - 20,000 Emails Per Month", value: "20000" },
-    { label: "$56 - 35,000 Emails Per Month", value: "35000" },
-    { label: "$80 - 50,000 Emails Per Month", value: "50000" },
-    { label: "$120 - 75,000 Emails Per Month", value: "75000" },
-    { label: "$160 - 100,000 Emails Per Month", value: "100000" },
-    { label: "$240 - 150,000 Emails Per Month", value: "150000" },
-    { label: "$320 - 200,000 Emails Per Month", value: "200000" },
-    { label: "$400 - 250,000 Emails Per Month", value: "250000" },
-  ];
+  const domainsList = domains.data || [];
 
   return (
     <>
@@ -92,36 +88,159 @@ export default async function Page() {
 
           <SettingsContent>
             <SettingsRow isFirstRow>
-              <div className="flex items-center gap-2">
-                <SettingsRowTitle>Organization Name</SettingsRowTitle>
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src="/org-avatar.png" alt="Organization" />
+                  <AvatarFallback>ORG</AvatarFallback>
+                </Avatar>
+                <div>
+                  <SettingsRowTitle>Organization Name</SettingsRowTitle>
+                  <SettingsRowDescription>
+                    Change your organization name
+                  </SettingsRowDescription>
+                </div>
               </div>
               <SettingsRowAction>
-                {/* You can place your action elements here */}
-                <Button>Configure</Button>
+                <Input
+                  defaultValue="Church Space"
+                  placeholder="Enter organization name"
+                  className="w-full"
+                />
               </SettingsRowAction>
             </SettingsRow>
             <SettingsRow>
               <div>
                 <SettingsRowTitle>Primary Email</SettingsRowTitle>
                 <SettingsRowDescription>
-                  Connected on 23/03/2025 by John Doe
+                  Set the primary email for your organization
                 </SettingsRowDescription>
               </div>
               <SettingsRowAction>
-                {/* You can place your action elements here */}
-                <Button>Configure</Button>
+                <div className="flex gap-2">
+                  <Input
+                    defaultValue="contact"
+                    placeholder="Enter email prefix"
+                    className="w-full"
+                  />
+                  <span className="flex items-center">@</span>
+                  <Select defaultValue={domainsList[0]?.domain || ""}>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Select domain" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {domainsList.map((domain) => (
+                        <SelectItem key={domain.id} value={domain.domain}>
+                          {domain.domain}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </SettingsRowAction>
             </SettingsRow>
-            <SettingsRow>
+          </SettingsContent>
+        </SettingsSection>
+
+        <SettingsSection>
+          <SettingsHeader>
+            <SettingsTitle>Integrations</SettingsTitle>
+            <SettingsDescription>
+              Connect your organization with external services
+            </SettingsDescription>
+          </SettingsHeader>
+
+          <SettingsContent>
+            <SettingsRow isFirstRow>
               <div>
-                <SettingsRowTitle>Planning Center Connection</SettingsRowTitle>
+                <SettingsRowTitle>Planning Center</SettingsRowTitle>
                 <SettingsRowDescription>
-                  Connected on 23/03/2025 by John Doe
+                  Connect your Planning Center account to sync data
                 </SettingsRowDescription>
               </div>
               <SettingsRowAction>
-                {/* You can place your action elements here */}
-                <Button>Configure</Button>
+                <ConnectToPcoButton />
+              </SettingsRowAction>
+            </SettingsRow>
+          </SettingsContent>
+        </SettingsSection>
+
+        <SettingsSection>
+          <SettingsHeader>
+            <SettingsTitle>Members</SettingsTitle>
+            <SettingsDescription>
+              Manage organization members and their roles
+            </SettingsDescription>
+          </SettingsHeader>
+
+          <SettingsContent>
+            <div className="flex justify-end pb-4">
+              <Button>Invite Member</Button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="flex items-center gap-4">
+                  <Avatar>
+                    <AvatarImage src="/user-avatar.png" alt="User" />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium">John Doe</div>
+                    <div className="text-sm text-muted-foreground">
+                      john@example.com
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-sm text-muted-foreground">Admin</div>
+                  <div className="text-sm text-muted-foreground">
+                    Added Mar 23, 2024
+                  </div>
+                </div>
+              </div>
+            </div>
+          </SettingsContent>
+        </SettingsSection>
+
+        <SettingsSection>
+          <SettingsHeader>
+            <SettingsTitle>Danger Zone</SettingsTitle>
+            <SettingsDescription>
+              Irreversible and destructive actions
+            </SettingsDescription>
+          </SettingsHeader>
+
+          <SettingsContent>
+            <SettingsRow isFirstRow>
+              <div>
+                <SettingsRowTitle>Delete Organization</SettingsRowTitle>
+                <SettingsRowDescription>
+                  Permanently delete your organization and all associated data
+                </SettingsRowDescription>
+              </div>
+              <SettingsRowAction>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">Delete Organization</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete your organization and remove all associated data
+                        from our servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Delete Organization
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </SettingsRowAction>
             </SettingsRow>
           </SettingsContent>
