@@ -1,6 +1,6 @@
-import React from "react";
-import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Separator } from "@church-space/ui/separator";
+import DomainManagement from "@/components/domains/domain-managament";
+import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
+import { createClient } from "@church-space/supabase/server";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,31 +9,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-import SubscribeModal from "@/components/stripe/subscribe-modal";
+import { Separator } from "@church-space/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
-import { createClient } from "@church-space/supabase/server";
-import DomainManagement from "@/components/domains/domain-managament";
-import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
-import {
-  SettingsSection,
-  SettingsHeader,
-  SettingsTitle,
-  SettingsDescription,
-  SettingsContent,
-  SettingsRow,
-  SettingsRowTitle,
-  SettingsRowDescription,
-  SettingsRowAction,
-} from "@/components/settings/settings-settings";
-import { Button } from "@church-space/ui/button";
-import Link from "next/link";
-import {
-  Select,
-  SelectValue,
-  SelectContent,
-  SelectTrigger,
-  SelectItem,
-} from "@church-space/ui/select";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -51,20 +29,6 @@ export default async function Page() {
   }
 
   const domains = await getDomainsQuery(supabase, organizationId);
-
-  const selectOptions = [
-    { label: "Free - 250 Emails Per Month", value: "250" },
-    { label: "$8 - 5,000 Emails Per Month", value: "5000" },
-    { label: "$16 - 10,000 Emails Per Month", value: "10000" },
-    { label: "$32 - 20,000 Emails Per Month", value: "20000" },
-    { label: "$56 - 35,000 Emails Per Month", value: "35000" },
-    { label: "$80 - 50,000 Emails Per Month", value: "50000" },
-    { label: "$120 - 75,000 Emails Per Month", value: "75000" },
-    { label: "$160 - 100,000 Emails Per Month", value: "100000" },
-    { label: "$240 - 150,000 Emails Per Month", value: "150000" },
-    { label: "$320 - 200,000 Emails Per Month", value: "200000" },
-    { label: "$400 - 250,000 Emails Per Month", value: "250000" },
-  ];
 
   return (
     <>

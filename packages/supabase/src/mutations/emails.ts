@@ -459,3 +459,34 @@ export async function unsubscribeEmail(supabase: Client, emailId: number) {
   }
   return data;
 }
+
+export async function createEmail(
+  supabase: Client,
+  email: Database["public"]["Tables"]["emails"]["Insert"],
+  organizationId: string
+) {
+  const { data, error } = await supabase
+    .from("emails")
+    .insert({ ...email, organization_id: organizationId })
+    .select();
+
+  if (error) {
+    console.error("Error creating email:", error);
+    throw error;
+  }
+
+  const { data: footer, error: footerError } = await supabase
+    .from("email_footers")
+    .insert({
+      email_id: data[0].id,
+      type: "standard",
+      organization_id: organizationId,
+    });
+
+  if (footerError) {
+    console.error("Error creating footer:", footerError);
+    throw footerError;
+  }
+
+  return { data, error, footer };
+}

@@ -13,13 +13,6 @@ interface SettingsSection {
   buttonAction?: () => void;
 }
 
-interface SettingsSectionProps {
-  title: string;
-  description?: string;
-  descriptionObject?: React.ReactNode;
-  sections: SettingsSection[];
-}
-
 // Main wrapper component
 const SettingsSection = React.forwardRef<
   HTMLDivElement,

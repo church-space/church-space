@@ -63,6 +63,8 @@ import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
 import EmailBuilderRealtimeListener from "@/components/listeners/email-builder/realtime-listener";
 import { useUpdateEmailFooter } from "./mutations/use-update-email-footer";
 import { DatabaseBlockType, OrderUpdate, ContentUpdate } from "./dnd-types";
+import NewEmailModal from "./new-email-modal";
+import { z } from "zod";
 
 export default function EmailDndProvider({
   organizationId,
@@ -2584,6 +2586,7 @@ export default function EmailDndProvider({
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
       <EmailBuilderRealtimeListener onOnlineUsersChange={setOnlineUsers} />
+      <NewEmailModal />
     </div>
   );
 }

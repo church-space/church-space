@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   SettingsRow,
   SettingsRowTitle,
@@ -9,7 +9,6 @@ import {
 import { Input } from "@church-space/ui/input";
 import { updateUserAction } from "@/actions/update-user";
 import { useDebounce } from "@/hooks/use-debounce";
-import type { ActionResponse } from "@/types/action";
 
 export default function SettingsUserName({
   initialFirstName,

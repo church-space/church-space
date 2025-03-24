@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  CircleUser,
   CreditCard,
   Globe,
   Organization,

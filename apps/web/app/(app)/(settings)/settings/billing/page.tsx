@@ -1,6 +1,17 @@
-import React from "react";
-import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Separator } from "@church-space/ui/separator";
+import {
+  SettingsContent,
+  SettingsDescription,
+  SettingsHeader,
+  SettingsRow,
+  SettingsRowAction,
+  SettingsRowDescription,
+  SettingsRowTitle,
+  SettingsSection,
+  SettingsTitle,
+} from "@/components/settings/settings-settings";
+import SubscribeModal from "@/components/stripe/subscribe-modal";
+import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
+import { createClient } from "@church-space/supabase/server";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,31 +20,18 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-import SubscribeModal from "@/components/stripe/subscribe-modal";
-import { cookies } from "next/headers";
-import { createClient } from "@church-space/supabase/server";
-import DomainManagement from "@/components/domains/domain-managament";
-import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
-import {
-  SettingsSection,
-  SettingsHeader,
-  SettingsTitle,
-  SettingsDescription,
-  SettingsContent,
-  SettingsRow,
-  SettingsRowTitle,
-  SettingsRowDescription,
-  SettingsRowAction,
-} from "@/components/settings/settings-settings";
 import { Button } from "@church-space/ui/button";
-import Link from "next/link";
 import {
   Select,
-  SelectValue,
   SelectContent,
-  SelectTrigger,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@church-space/ui/select";
+import { Separator } from "@church-space/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { cookies } from "next/headers";
+import Link from "next/link";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -49,8 +47,6 @@ export default async function Page() {
   if (!organizationId) {
     return <div>No organization selected</div>;
   }
-
-  const domains = await getDomainsQuery(supabase, organizationId);
 
   const selectOptions = [
     { label: "Free - 250 Emails Per Month", value: "250" },

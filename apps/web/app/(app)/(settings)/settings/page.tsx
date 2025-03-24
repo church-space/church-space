@@ -14,17 +14,6 @@ import SettingsUserName from "@/components/settings/settings-user-name";
 import { ThemeSelector } from "@/components/settings/theme-selector";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
 import { createClient } from "@church-space/supabase/server";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@church-space/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
 import {
   Breadcrumb,
@@ -32,7 +21,6 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@church-space/ui/breadcrumb";
-import { Button } from "@church-space/ui/button";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";

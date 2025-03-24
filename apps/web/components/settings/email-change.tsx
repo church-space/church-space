@@ -37,6 +37,7 @@ export default function EmailChange({ email }: { email: string }) {
     try {
       emailChangeSchema.parse({ email: newEmail });
     } catch (error) {
+      console.error(error);
       toast({
         title: "Please enter a valid email address",
         variant: "destructive",
@@ -70,6 +71,7 @@ export default function EmailChange({ email }: { email: string }) {
       setOpen(false);
       setNewEmail("");
     } catch (error) {
+      console.error(error);
       toast({
         title: "An error occurred while updating your email",
         variant: "destructive",
