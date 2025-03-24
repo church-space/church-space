@@ -1,3 +1,5 @@
+import DeleteAccount from "@/components/settings/delete-account";
+import EmailChange from "@/components/settings/email-change";
 import {
   SettingsContent,
   SettingsHeader,
@@ -8,7 +10,9 @@ import {
   SettingsSection,
   SettingsTitle,
 } from "@/components/settings/settings-settings";
+import SettingsUserName from "@/components/settings/settings-user-name";
 import { ThemeSelector } from "@/components/settings/theme-selector";
+import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
 import { createClient } from "@church-space/supabase/server";
 import {
   AlertDialog,
@@ -29,12 +33,9 @@ import {
   BreadcrumbPage,
 } from "@church-space/ui/breadcrumb";
 import { Button } from "@church-space/ui/button";
-import { Input } from "@church-space/ui/input";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
-import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
-import ProfileUploadModal from "@/components/image-cropper/image-cropper";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -100,42 +101,21 @@ export default async function Page() {
                 <div>
                   <SettingsRowTitle>Profile Picture</SettingsRowTitle>
                   <SettingsRowDescription>
-                    Upload a new profile picture
+                    Your profile picture is synced from your Planning Center
+                    account. To change it, please update it in PCO.
                   </SettingsRowDescription>
                 </div>
               </div>
-              <SettingsRowAction>
-                <ProfileUploadModal />
-              </SettingsRowAction>
             </SettingsRow>
-            <SettingsRow>
-              <SettingsRowTitle>First Name</SettingsRowTitle>
-              <SettingsRowAction>
-                <Input
-                  defaultValue={userDetails?.first_name || ""}
-                  placeholder="Enter your first name"
-                  className="w-full"
-                />
-              </SettingsRowAction>
-            </SettingsRow>
-            <SettingsRow>
-              <SettingsRowTitle>Last Name</SettingsRowTitle>
-              <SettingsRowAction>
-                <Input
-                  defaultValue={userDetails?.last_name || ""}
-                  placeholder="Enter your last name"
-                  className="w-full"
-                />
-              </SettingsRowAction>
-            </SettingsRow>
+            <SettingsUserName
+              initialFirstName={userDetails?.first_name || ""}
+              initialLastName={userDetails?.last_name || ""}
+              userId={userDetails?.id || ""}
+            />
             <SettingsRow>
               <SettingsRowTitle>Email</SettingsRowTitle>
               <SettingsRowAction>
-                <Input
-                  defaultValue={userDetails?.email || ""}
-                  placeholder="Enter your email"
-                  type="email"
-                />
+                <EmailChange email={userDetails?.email || ""} />
               </SettingsRowAction>
             </SettingsRow>
           </SettingsContent>
@@ -175,29 +155,10 @@ export default async function Page() {
                 </SettingsRowDescription>
               </div>
               <SettingsRowAction>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive">Delete Account</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete your account and remove all your data from our
-                        servers.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Delete Account
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <DeleteAccount
+                  userId={userDetails?.id || ""}
+                  orgRole={user.organizationMembership?.role || ""}
+                />
               </SettingsRowAction>
             </SettingsRow>
           </SettingsContent>

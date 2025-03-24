@@ -44,6 +44,8 @@
     "./queries/cached/domains": "./src/queries/cached/domains.ts",
     "./queries/all/get-domains": "./src/queries/all/get-domains.ts",
     "./mutations/stripe": "./src/mutations/stripe.ts",
-    "./mutations/resend": "./src/mutations/resend.ts"
+    "./mutations/resend": "./src/mutations/resend.ts",
+    "./mutations/user": "./src/mutations/user.ts",
+    "./queries/all/get-org-owners": "./src/queries/all/get-org-owners.ts"
   }
 }

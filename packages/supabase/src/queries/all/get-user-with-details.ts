@@ -24,7 +24,7 @@ export async function getUserWithDetailsQuery(supabase: Client) {
   const { data: organizationMembership, error: organizationMembershipError } =
     await supabase
       .from("organization_memberships")
-      .select("organization_id")
+      .select("organization_id, role")
       .eq("user_id", data.user.id)
       .single();
 

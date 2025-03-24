@@ -514,23 +514,195 @@ export type Database = {
           },
         ]
       }
+      link_list_link_clicks: {
+        Row: {
+          created_at: string
+          id: number
+          link_id: number | null
+          link_list_id: number
+          socail_link_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          link_id?: number | null
+          link_list_id: number
+          socail_link_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          link_id?: number | null
+          link_list_id?: number
+          socail_link_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_list_link_clicks_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "link_list_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "link_list_link_clicks_link_list_id_fkey"
+            columns: ["link_list_id"]
+            isOneToOne: false
+            referencedRelation: "link_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "link_list_link_clicks_socail_link_id_fkey"
+            columns: ["socail_link_id"]
+            isOneToOne: false
+            referencedRelation: "link_list_socials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      link_list_links: {
+        Row: {
+          created_at: string
+          id: number
+          link_list_id: number
+          order: number | null
+          text: string | null
+          type: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          link_list_id: number
+          order?: number | null
+          text?: string | null
+          type?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          link_list_id?: number
+          order?: number | null
+          text?: string | null
+          type?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_list_links_link_list_id_fkey"
+            columns: ["link_list_id"]
+            isOneToOne: false
+            referencedRelation: "link_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      link_list_socials: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: number
+          link_list: number
+          order: number | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: number
+          link_list: number
+          order?: number | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: number
+          link_list?: number
+          order?: number | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_list_socials_link_list_fkey"
+            columns: ["link_list"]
+            isOneToOne: false
+            referencedRelation: "link_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      link_lists: {
+        Row: {
+          bg_image: string | null
+          created_at: string
+          description: string | null
+          id: number
+          logo_asset: string | null
+          name: string | null
+          organization_id: string
+          primary_button: Json | null
+          style: Json | null
+          title: string | null
+          visibility: string | null
+        }
+        Insert: {
+          bg_image?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          logo_asset?: string | null
+          name?: string | null
+          organization_id: string
+          primary_button?: Json | null
+          style?: Json | null
+          title?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          bg_image?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          logo_asset?: string | null
+          name?: string | null
+          organization_id?: string
+          primary_button?: Json | null
+          style?: Json | null
+          title?: string | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_lists_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_memberships: {
         Row: {
           created_at: string
           id: number
           organization_id: string
+          role: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: number
           organization_id: string
+          role?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           id?: number
           organization_id?: string
+          role?: string | null
           user_id?: string
         }
         Relationships: [
@@ -937,6 +1109,102 @@ export type Database = {
           },
         ]
       }
+      qr_code_clicks: {
+        Row: {
+          created_at: string
+          id: number
+          qr_code_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          qr_code_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          qr_code_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_code_clicks_qr_code_id_fkey"
+            columns: ["qr_code_id"]
+            isOneToOne: false
+            referencedRelation: "qr_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qr_codes: {
+        Row: {
+          created_at: string
+          id: string
+          linked_asset: string | null
+          qr_link_id: number
+          style: Json | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          linked_asset?: string | null
+          qr_link_id: number
+          style?: Json | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          linked_asset?: string | null
+          qr_link_id?: number
+          style?: Json | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_codes_qr_link_id_fkey"
+            columns: ["qr_link_id"]
+            isOneToOne: false
+            referencedRelation: "qr_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qr_links: {
+        Row: {
+          created_at: string
+          id: number
+          organization_id: string
+          status: string | null
+          title: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          organization_id: string
+          status?: string | null
+          title?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          organization_id?: string
+          status?: string | null
+          title?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_links_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stripe_customers: {
         Row: {
           created_at: string | null
@@ -1036,42 +1304,45 @@ export type Database = {
         Row: {
           active: boolean | null
           created_at: string | null
-          currency: string
+          currency: string | null
           id: number
           interval: string | null
           interval_count: number | null
+          is_test_mode: boolean | null
           metadata: Json | null
           stripe_price_id: string
           stripe_product_id: string | null
-          type: string
+          type: string | null
           unit_amount: number | null
           updated_at: string | null
         }
         Insert: {
           active?: boolean | null
           created_at?: string | null
-          currency: string
+          currency?: string | null
           id?: number
           interval?: string | null
           interval_count?: number | null
+          is_test_mode?: boolean | null
           metadata?: Json | null
           stripe_price_id: string
           stripe_product_id?: string | null
-          type: string
+          type?: string | null
           unit_amount?: number | null
           updated_at?: string | null
         }
         Update: {
           active?: boolean | null
           created_at?: string | null
-          currency?: string
+          currency?: string | null
           id?: number
           interval?: string | null
           interval_count?: number | null
+          is_test_mode?: boolean | null
           metadata?: Json | null
           stripe_price_id?: string
           stripe_product_id?: string | null
-          type?: string
+          type?: string | null
           unit_amount?: number | null
           updated_at?: string | null
         }
@@ -1091,6 +1362,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: number
+          is_test_mode: boolean | null
           metadata: Json | null
           name: string
           stripe_product_id: string
@@ -1101,6 +1373,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: number
+          is_test_mode?: boolean | null
           metadata?: Json | null
           name: string
           stripe_product_id: string
@@ -1111,6 +1384,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: number
+          is_test_mode?: boolean | null
           metadata?: Json | null
           name?: string
           stripe_product_id?: string
@@ -1174,7 +1448,7 @@ export type Database = {
           {
             foreignKeyName: "stripe_subscriptions_organization_id_fkey"
             columns: ["organization_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
