@@ -16,6 +16,7 @@ import PostSendPage from "./post-send-page";
 import SendingPage from "./sending-page";
 import { redirect } from "next/navigation";
 import TempSendNowButton from "./temp-send-now-button";
+import SendTestEmail from "@/components/dnd-builder/send-test-email";
 
 type Params = Promise<{ emailId: string }>;
 
@@ -59,7 +60,8 @@ export default async function Page(props: { params: Params }) {
           </Breadcrumb>
         </div>
         <div className="flex items-center gap-2 px-4">
-          <Button variant="outline">Send Test</Button>
+          {email.data.status === "draft" ||
+            (email.data.status === "scheduled" && <SendTestEmail />)}
           <TempSendNowButton />
         </div>
       </header>

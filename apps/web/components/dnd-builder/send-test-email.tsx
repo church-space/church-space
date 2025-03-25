@@ -1,7 +1,9 @@
+"use client";
 import { Button } from "@church-space/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -162,7 +164,7 @@ export default function SendTestEmail() {
             {
               from: fromEmail,
               to: [email],
-              subject: emailData.email.subject || "Test Email",
+              subject: "TEST: " + emailData.email.subject || "Test Email",
               html: enhancedHtmlContent,
             },
           ],
@@ -201,7 +203,12 @@ export default function SendTestEmail() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Send Test Email</DialogTitle>
+          <DialogDescription>
+            Input the emails you would like to send a test to, seperated by a
+            comma.
+          </DialogDescription>
         </DialogHeader>
+
         <Input
           type="email"
           placeholder="Email"
