@@ -13,12 +13,7 @@ import EmailsTable from "@/components/tables/emails/table";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-type PageProps = {
-  params: Promise<Record<string, never>>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
-
-export default async function Page({ searchParams }: PageProps) {
+export default async function Page() {
   const cookiesStore = await cookies();
   const organizationId = cookiesStore.get("organizationId")?.value;
 
