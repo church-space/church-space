@@ -16,10 +16,41 @@ export const syncPcoLists = task({
 
     if (pcoError || !pcoConnection) {
       throw new Error(
-        `No PCO connection found for org ${payload.organization_id}`
+        `No PCO connection found for org ${payload.organization_id}`,
       );
     }
 
+    // First sync list categories
+    const categoriesResponse = await fetch(
+      "https://api.planningcenteronline.com/people/v2/list_categories",
+      {
+        headers: {
+          Authorization: `Bearer ${pcoConnection.access_token}`,
+        },
+      },
+    );
+
+    if (!categoriesResponse.ok) {
+      throw new Error(
+        `PCO API error fetching categories: ${categoriesResponse.status} ${categoriesResponse.statusText}`,
+      );
+    }
+
+    const categoriesData = await categoriesResponse.json();
+
+    // Process each category
+    for (const category of categoriesData.data) {
+      await supabase.from("pco_list_categories").upsert(
+        {
+          organization_id: payload.organization_id,
+          pco_name: category.attributes.name,
+          pco_id: category.id,
+        },
+        { onConflict: "pco_id" },
+      );
+    }
+
+    // Now proceed with syncing lists
     let nextUrl =
       "https://api.planningcenteronline.com/people/v2/lists?include=category";
     let processedCount = 0;
@@ -37,7 +68,7 @@ export const syncPcoLists = task({
 
       if (!response.ok) {
         throw new Error(
-          `PCO API error: ${response.status} ${response.statusText}`
+          `PCO API error: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -67,7 +98,7 @@ export const syncPcoLists = task({
               pco_total_people: totalPeople,
               pco_list_category_id: categoryId,
             },
-            { onConflict: "pco_list_id" }
+            { onConflict: "pco_list_id" },
           );
 
           // Fetch and process list results (members)
@@ -84,10 +115,10 @@ export const syncPcoLists = task({
 
             if (!listResultsResponse.ok) {
               console.error(
-                `PCO API error fetching list results: ${listResultsResponse.status} ${listResultsResponse.statusText}`
+                `PCO API error fetching list results: ${listResultsResponse.status} ${listResultsResponse.statusText}`,
               ); // More specific error log
               throw new Error(
-                `PCO API error fetching list results: ${listResultsResponse.status} ${listResultsResponse.statusText}`
+                `PCO API error fetching list results: ${listResultsResponse.status} ${listResultsResponse.statusText}`,
               );
             }
 

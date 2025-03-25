@@ -152,100 +152,6 @@ export type Database = {
           },
         ]
       }
-      email_categories: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: number
-          name: string
-          organization_id: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: number
-          name: string
-          organization_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: number
-          name?: string
-          organization_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "email_categories_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      email_category_unsubscribes: {
-        Row: {
-          category_id: number | null
-          created_at: string
-          email_address: string
-          id: number
-          organization_id: string
-          person_id: number | null
-          reason: string | null
-          unsub_email_id: number | null
-        }
-        Insert: {
-          category_id?: number | null
-          created_at?: string
-          email_address: string
-          id?: number
-          organization_id: string
-          person_id?: number | null
-          reason?: string | null
-          unsub_email_id?: number | null
-        }
-        Update: {
-          category_id?: number | null
-          created_at?: string
-          email_address?: string
-          id?: number
-          organization_id?: string
-          person_id?: number | null
-          reason?: string | null
-          unsub_email_id?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "people_email_unsubscribes_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "email_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "people_email_unsubscribes_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "people_email_unsubscribes_person_id_fkey"
-            columns: ["person_id"]
-            isOneToOne: false
-            referencedRelation: "people"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "people_email_unsubscribes_unsub_email_id_fkey"
-            columns: ["unsub_email_id"]
-            isOneToOne: false
-            referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       email_footers: {
         Row: {
           address: string | null
@@ -348,6 +254,68 @@ export type Database = {
         }
         Relationships: []
       }
+      email_list_category_unsubscribes: {
+        Row: {
+          created_at: string
+          email_address: string
+          id: number
+          organization_id: string
+          pco_list_category: number
+          person_id: number | null
+          reason: string | null
+          unsub_email_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          email_address: string
+          id?: number
+          organization_id: string
+          pco_list_category: number
+          person_id?: number | null
+          reason?: string | null
+          unsub_email_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          email_address?: string
+          id?: number
+          organization_id?: string
+          pco_list_category?: number
+          person_id?: number | null
+          reason?: string | null
+          unsub_email_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_list_category_unsubscribes_pco_list_category_fkey"
+            columns: ["pco_list_category"]
+            isOneToOne: false
+            referencedRelation: "pco_list_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_email_unsubscribes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_email_unsubscribes_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_email_unsubscribes_unsub_email_id_fkey"
+            columns: ["unsub_email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_recipients: {
         Row: {
           created_at: string
@@ -398,7 +366,6 @@ export type Database = {
       }
       emails: {
         Row: {
-          category_id: number | null
           created_at: string
           from_email: string | null
           from_name: string | null
@@ -416,7 +383,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          category_id?: number | null
           created_at?: string
           from_email?: string | null
           from_name?: string | null
@@ -434,7 +400,6 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          category_id?: number | null
           created_at?: string
           from_email?: string | null
           from_name?: string | null
@@ -452,13 +417,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "emails_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "email_categories"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "emails_list_id_fkey"
             columns: ["list_id"]
@@ -811,6 +769,38 @@ export type Database = {
           },
         ]
       }
+      pco_list_categories: {
+        Row: {
+          created_at: string
+          id: number
+          organization_id: string
+          pco_id: string | null
+          pco_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          organization_id: string
+          pco_id?: string | null
+          pco_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          organization_id?: string
+          pco_id?: string | null
+          pco_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pco_list_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pco_list_members: {
         Row: {
           created_at: string
@@ -881,6 +871,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pco_lists_pco_list_category_id_fkey"
+            columns: ["pco_list_category_id"]
+            isOneToOne: false
+            referencedRelation: "pco_list_categories"
+            referencedColumns: ["pco_id"]
           },
         ]
       }

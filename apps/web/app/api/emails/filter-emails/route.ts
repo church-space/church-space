@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const { data: emailData, error: emailError } = await supabase
       .from("emails")
-      .select("status, scheduled_for, list_id, category_id")
+      .select("status, scheduled_for, audience_id")
       .eq("id", body.emailId)
       .single();
 
@@ -43,8 +43,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if email has both list_id and category_id
-    if (!emailData.list_id || !emailData.category_id) {
+    // Check if email has audience_id
+    if (!emailData.list_id) {
       // Update email status to failed
       await supabase
         .from("emails")
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
         .eq("id", body.emailId);
 
       return NextResponse.json(
-        { error: "Email must have both list_id and category_id" },
+        { error: "Email must have an audience_id" },
         { status: 400 },
       );
     }

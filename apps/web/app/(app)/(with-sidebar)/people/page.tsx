@@ -35,7 +35,7 @@ async function searchPeople(searchTerm: string, emailStatus?: string) {
       const firstEmail = person.people_emails?.[0];
       return (
         firstEmail?.status === "subscribed" &&
-        person.email_category_unsubscribes?.length > 0
+        person.email_list_category_unsubscribes?.length > 0
       );
     });
   }
@@ -91,7 +91,7 @@ export default async function Page({ searchParams }: PageProps) {
       const firstEmail = person.people_emails?.[0];
       return (
         firstEmail?.status === "subscribed" &&
-        person.email_category_unsubscribes?.length > 0
+        person.email_list_category_unsubscribes?.length > 0
       );
     });
   }

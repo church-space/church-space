@@ -161,19 +161,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Create the default "General" email category
-    const { error: emailCategoryError } = await supabase
-      .from("email_categories")
-      .insert({
-        name: "General",
-        description: "For general church-wide emails.",
-        organization_id: organization[0].id,
-      });
-
-    if (emailCategoryError) {
-      return handleError(emailCategoryError, "email_category_db_error");
-    }
-
     const { error: updateUserError } = await supabase
       .from("users")
       .update({

@@ -41,7 +41,7 @@ export async function getPeopleCount(
     params.unsubscribedCategories.length > 0
   ) {
     query = query.in(
-      "email_category_unsubscribes.category_id",
+      "email_list_category_unsubscribes.pco_list_category",
       params.unsubscribedCategories
     );
   }
@@ -74,14 +74,15 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
         pco_person_id,
         organization_id
       ),
-      email_category_unsubscribes(
+      email_list_category_unsubscribes(
         id,
         email_address,
         reason,
-        category_id,
-        email_categories(
+        pco_list_category,
+        pco_list_categories(
           id,
-          name
+          pco_name, 
+          pco_id
         )
       )
     `
@@ -106,7 +107,7 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
     params.unsubscribedCategories.length > 0
   ) {
     query = query.in(
-      "email_category_unsubscribes.category_id",
+      "email_list_category_unsubscribes.pco_list_category",
       params.unsubscribedCategories
     );
   }

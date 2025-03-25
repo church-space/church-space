@@ -26,7 +26,7 @@ export type Person = {
     pco_person_id: string;
     organization_id: string;
   }>;
-  email_category_unsubscribes: Array<any>;
+  email_list_category_unsubscribes: Array<any>;
 };
 
 export const columns: ColumnDef<Person>[] = [
@@ -77,9 +77,9 @@ export const columns: ColumnDef<Person>[] = [
               </SheetTitle>
             </SheetHeader>
             <div className="space-y-4">
-              {person.email_category_unsubscribes.map((unsubscribe) => (
+              {person.email_list_category_unsubscribes.map((unsubscribe) => (
                 <div key={unsubscribe.id}>
-                  {unsubscribe.email_categories.name}
+                  {unsubscribe.pco_list_categories.pco_name}
                 </div>
               ))}
             </div>
@@ -118,7 +118,7 @@ export const columns: ColumnDef<Person>[] = [
       // If subscribed but has unsubscribe categories, mark as partially subscribed
       if (
         firstEmail.status === "subscribed" &&
-        row.email_category_unsubscribes?.length > 0
+        row.email_list_category_unsubscribes?.length > 0
       ) {
         return "partially subscribed";
       }

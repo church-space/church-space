@@ -17,7 +17,6 @@ export const updateEmailAction = authActionClient
           created_at: z.string(),
           from_email: z.string().nullable(),
           from_name: z.string().nullable(),
-          list_id: z.number().nullable(),
           organization_id: z.string(),
           reply_to: z.string().nullable(),
           scheduled_for: z.string().nullable(),
@@ -28,7 +27,7 @@ export const updateEmailAction = authActionClient
           trigger_dev_schduled_id: z.string().nullable(),
           type: z.enum(["standard", "template"]),
           updated_at: z.string().nullable(),
-          category_id: z.number().nullable(),
+          list_id: z.number().nullable(),
         })
         .partial(),
     }),

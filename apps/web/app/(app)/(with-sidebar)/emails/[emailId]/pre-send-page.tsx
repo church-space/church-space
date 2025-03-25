@@ -21,23 +21,17 @@ import {
 import { Ellipsis, Eye } from "lucide-react";
 import Link from "next/link";
 
+import ListSelector from "@/components/id-pages/emails/list-selector";
 import { cn } from "@church-space/ui/cn";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@church-space/ui/command";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@church-space/ui/dropdown-menu";
 import { Backlog } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@church-space/ui/popover";
 import {
   Select,
   SelectContent,
@@ -52,15 +46,8 @@ import {
   TabsTrigger,
 } from "@church-space/ui/tabs";
 import { format } from "date-fns";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@church-space/ui/dropdown-menu";
 
 function SaveButtons(props: {
   isSaving: boolean;
@@ -85,29 +72,6 @@ function SaveButtons(props: {
     </div>
   );
 }
-
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
 
 export default function PreSendPage({ email }: { email: any }) {
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
@@ -267,64 +231,17 @@ export default function PreSendPage({ email }: { email: any }) {
           </AccordionTrigger>
           <AccordionContent className="space-y-4">
             <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">Audience</Label>
-              <Popover open={audienceOpen} onOpenChange={setAudienceOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={audienceOpen}
-                    className="w-full justify-between"
-                  >
-                    {audienceValue
-                      ? frameworks.find(
-                          (framework) => framework.value === audienceValue,
-                        )?.label || audienceValue
-                      : "Select audience..."}
-                    <ChevronsUpDown className="opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Command>
-                    <CommandInput
-                      placeholder="Search categories..."
-                      className="h-9"
-                    />
-                    <CommandList>
-                      <CommandEmpty>No audience found.</CommandEmpty>
-                      <CommandGroup>
-                        {frameworks.map((framework) => (
-                          <CommandItem
-                            key={framework.value}
-                            value={framework.value}
-                            onSelect={(currentValue) => {
-                              setAudienceValue(
-                                currentValue === audienceValue
-                                  ? ""
-                                  : currentValue,
-                              );
-                              setAudienceOpen(false);
-                            }}
-                          >
-                            {framework.label}
-                            <Check
-                              className={cn(
-                                "ml-auto",
-                                audienceValue === framework.value
-                                  ? "opacity-100"
-                                  : "opacity-0",
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <Label className="ml-0.5">List</Label>
+              <ListSelector
+                value={audienceValue}
+                onChange={setAudienceValue}
+                organizationId={email.organization_id}
+              />
               <span className="text-xs text-muted-foreground">
-                Audiences group the types of emails that people can subscribe to
-                and unsubscribe from.
+                Select the list from PCO that you would like to send this email
+                to. If they are unsubscribed from the PCO List Cateogry, the
+                person will not recieve the email. Learn more about how
+                unsubscribes work here.
               </span>
             </div>
             <SaveButtons

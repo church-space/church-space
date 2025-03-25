@@ -47,6 +47,7 @@
     "./mutations/resend": "./src/mutations/resend.ts",
     "./mutations/user": "./src/mutations/user.ts",
     "./queries/all/get-org-owners": "./src/queries/all/get-org-owners.ts",
-    "./queries/all/get-org-name": "./src/queries/all/get-org-name.ts"
+    "./queries/all/get-org-name": "./src/queries/all/get-org-name.ts",
+    "./queries/all/get-pco-lists": "./src/queries/all/get-pco-lists.ts"
   }
 }

@@ -17,7 +17,7 @@ export const filterEmailRecipients = task({
       // Step 1: Get the email details
       const { data: emailData, error: emailError } = await supabase
         .from("emails")
-        .select("*, organization_id, list_id, category_id, status")
+        .select("*, organization_id, audience_id, status")
         .eq("id", emailId)
         .single();
 
@@ -27,8 +27,8 @@ export const filterEmailRecipients = task({
         );
       }
 
-      // Step 2: Validate that the email has both list_id and category_id
-      if (!emailData.list_id || !emailData.category_id) {
+      // Step 2: Validate that the email has audience_id
+      if (!emailData.audience_id) {
         // Update email status to failed
         await supabase
           .from("emails")
@@ -38,14 +38,14 @@ export const filterEmailRecipients = task({
           })
           .eq("id", emailId);
 
-        throw new Error("Email must have both list_id and category_id");
+        throw new Error("Email must have an audience_id");
       }
 
       // Step 3: Get the PCO list ID from our lists table
       const { data: pcoList, error: pcoListError } = await supabase
-        .from("pco_lists")
+        .from("email_audiences")
         .select("pco_list_id")
-        .eq("id", emailData.list_id)
+        .eq("id", emailData.audience_id)
         .eq("organization_id", emailData.organization_id)
         .single();
 
@@ -120,23 +120,23 @@ export const filterEmailRecipients = task({
         throw new Error("No subscribed emails found for people in the list");
       }
 
-      // Step 6: Get all email addresses that have unsubscribed from this category
-      const { data: categoryUnsubscribes, error: unsubscribesError } =
+      // Step 6: Get all email addresses that have unsubscribed from this audience
+      const { data: audienceUnsubscribes, error: unsubscribesError } =
         await supabase
-          .from("email_category_unsubscribes")
+          .from("email_audience_unsubscribes")
           .select("email_address")
-          .eq("category_id", emailData.category_id)
+          .eq("audience_id", emailData.audience_id)
           .eq("organization_id", emailData.organization_id);
 
       if (unsubscribesError) {
         throw new Error(
-          `Failed to fetch category unsubscribes: ${unsubscribesError.message}`,
+          `Failed to fetch audience unsubscribes: ${unsubscribesError.message}`,
         );
       }
 
       // Create a set of unsubscribed email addresses for faster lookup
       const unsubscribedEmails = new Set(
-        categoryUnsubscribes?.map((unsub) =>
+        audienceUnsubscribes?.map((unsub) =>
           unsub.email_address.toLowerCase(),
         ) || [],
       );
@@ -157,7 +157,7 @@ export const filterEmailRecipients = task({
           })
           .eq("id", emailId);
 
-        throw new Error("All recipients have unsubscribed from this category");
+        throw new Error("All recipients have unsubscribed from this audience");
       }
 
       // Step 8: Format recipients for the bulk email queue

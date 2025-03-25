@@ -95,7 +95,6 @@ export async function POST(
 
       if (webhookName === "people.v2.events.list.destroyed") {
         // Delete the list
-
         const { error: deleteError } = await supabase
           .from("pco_lists")
           .delete()
@@ -110,7 +109,124 @@ export async function POST(
           );
         }
       } else {
-        // Upsert the list (insert or update)
+        // For created/updated, fetch the list with category first
+        const { data: pcoConnection, error: pcoError } = await supabase
+          .from("pco_connections")
+          .select("*")
+          .eq("organization_id", organizationId)
+          .single();
+
+        if (pcoError || !pcoConnection) {
+          console.error("No PCO connection found for org", organizationId);
+          return NextResponse.json(
+            { received: false, error: "No PCO connection found" },
+            { status: 500 },
+          );
+        }
+
+        // Fetch the list with its category
+        const response = await fetch(
+          `https://api.planningcenteronline.com/people/v2/lists/${listId}?include=category`,
+          {
+            headers: {
+              Authorization: `Bearer ${pcoConnection.access_token}`,
+            },
+          },
+        );
+
+        if (!response.ok) {
+          console.error("Error fetching list from PCO:", response.statusText);
+          return NextResponse.json(
+            { received: false, error: "Failed to fetch list from PCO" },
+            { status: 500 },
+          );
+        }
+
+        const pcoListData = await response.json();
+        let categoryId = null;
+
+        // Handle category if present in the list data
+        if (pcoListData.included?.length > 0) {
+          const category = pcoListData.included.find(
+            (item: any) => item.type === "Category",
+          );
+          if (category) {
+            categoryId = category.id;
+
+            // First check if we already have this category
+            const { data: existingCategory, error: categoryCheckError } =
+              await supabase
+                .from("pco_list_categories")
+                .select("id")
+                .eq("pco_id", category.id)
+                .eq("organization_id", organizationId)
+                .single();
+
+            if (categoryCheckError && categoryCheckError.code !== "PGRST116") {
+              // PGRST116 is "not found" error
+              console.error("Error checking category:", categoryCheckError);
+              return NextResponse.json(
+                { received: false, error: "Failed to check category" },
+                { status: 500 },
+              );
+            }
+
+            // If category doesn't exist, fetch all categories and sync them
+            if (!existingCategory) {
+              const categoriesResponse = await fetch(
+                "https://api.planningcenteronline.com/people/v2/list_categories",
+                {
+                  headers: {
+                    Authorization: `Bearer ${pcoConnection.access_token}`,
+                  },
+                },
+              );
+
+              if (!categoriesResponse.ok) {
+                console.error(
+                  "Error fetching categories from PCO:",
+                  categoriesResponse.statusText,
+                );
+                return NextResponse.json(
+                  {
+                    received: false,
+                    error: "Failed to fetch categories from PCO",
+                  },
+                  { status: 500 },
+                );
+              }
+
+              const categoriesData = await categoriesResponse.json();
+
+              // Upsert all categories
+              for (const cat of categoriesData.data) {
+                const { error: categoryUpsertError } = await supabase
+                  .from("pco_list_categories")
+                  .upsert(
+                    {
+                      organization_id: organizationId,
+                      pco_id: cat.id,
+                      pco_name: cat.attributes.name,
+                    },
+                    {
+                      onConflict: "pco_id",
+                    },
+                  );
+
+                if (categoryUpsertError) {
+                  console.error(
+                    "Error upserting category:",
+                    categoryUpsertError,
+                  );
+                  // Continue with other categories even if one fails
+                  continue;
+                }
+              }
+            }
+          }
+        }
+
+        // Upsert the list with category reference
         const { error: upsertError } = await supabase.from("pco_lists").upsert(
           {
             organization_id: organizationId,
@@ -118,6 +234,7 @@ export async function POST(
             pco_list_description: listDescription,
             pco_last_refreshed_at: lastRefreshedAt,
             pco_total_people: totalPeople,
+            pco_list_category_id: categoryId,
           },
           {
             onConflict: "pco_list_id",
