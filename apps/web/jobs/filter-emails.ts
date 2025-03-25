@@ -17,7 +17,7 @@ export const filterEmailRecipients = task({
       // Step 1: Get the email details
       const { data: emailData, error: emailError } = await supabase
         .from("emails")
-        .select("*, organization_id, audience_id, status")
+        .select("*, organization_id, list_id, status")
         .eq("id", emailId)
         .single();
 
@@ -27,8 +27,8 @@ export const filterEmailRecipients = task({
         );
       }
 
-      // Step 2: Validate that the email has audience_id
-      if (!emailData.audience_id) {
+      // Step 2: Validate that the email has list_id
+      if (!emailData.list_id) {
         // Update email status to failed
         await supabase
           .from("emails")
@@ -38,14 +38,14 @@ export const filterEmailRecipients = task({
           })
           .eq("id", emailId);
 
-        throw new Error("Email must have an audience_id");
+        throw new Error("Email must have a list_id");
       }
 
       // Step 3: Get the PCO list ID from our lists table
       const { data: pcoList, error: pcoListError } = await supabase
-        .from("email_audiences")
-        .select("pco_list_id")
-        .eq("id", emailData.audience_id)
+        .from("pco_lists")
+        .select("pco_list_id, pco_list_category_id")
+        .eq("id", emailData.list_id)
         .eq("organization_id", emailData.organization_id)
         .single();
 
@@ -61,6 +61,23 @@ export const filterEmailRecipients = task({
 
         throw new Error(
           `Failed to fetch PCO list data: ${pcoListError?.message || "List not found"}`,
+        );
+      }
+
+      if (!pcoList.pco_list_category_id) {
+        throw new Error("List does not have a category");
+      }
+
+      const { data: pcoListCategory, error: pcoListCategoryError } =
+        await supabase
+          .from("pco_list_categories")
+          .select("id")
+          .eq("pco_id", pcoList.pco_list_category_id)
+          .single();
+
+      if (pcoListCategoryError) {
+        throw new Error(
+          `Failed to fetch PCO list category data: ${pcoListCategoryError.message}`,
         );
       }
 
@@ -121,11 +138,11 @@ export const filterEmailRecipients = task({
       }
 
       // Step 6: Get all email addresses that have unsubscribed from this audience
-      const { data: audienceUnsubscribes, error: unsubscribesError } =
+      const { data: listCategoryUnsubscribes, error: unsubscribesError } =
         await supabase
-          .from("email_audience_unsubscribes")
+          .from("email_list_category_unsubscribes")
           .select("email_address")
-          .eq("audience_id", emailData.audience_id)
+          .eq("pco_list_category", pcoListCategory.id)
           .eq("organization_id", emailData.organization_id);
 
       if (unsubscribesError) {
@@ -136,7 +153,7 @@ export const filterEmailRecipients = task({
 
       // Create a set of unsubscribed email addresses for faster lookup
       const unsubscribedEmails = new Set(
-        audienceUnsubscribes?.map((unsub) =>
+        listCategoryUnsubscribes?.map((unsub) =>
           unsub.email_address.toLowerCase(),
         ) || [],
       );
@@ -157,7 +174,9 @@ export const filterEmailRecipients = task({
           })
           .eq("id", emailId);
 
-        throw new Error("All recipients have unsubscribed from this audience");
+        throw new Error(
+          "All recipients have unsubscribed from this list category",
+        );
       }
 
       // Step 8: Format recipients for the bulk email queue
