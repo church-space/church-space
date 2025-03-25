@@ -32,11 +32,9 @@ export async function getPeopleCount(
   if (params?.searchTerm) {
     const searchTerm = `%${params.searchTerm}%`;
     query = query.or(
-      `first_name.ilike.${searchTerm},` +
-        `last_name.ilike.${searchTerm},` +
-        `concat(first_name, ' ', last_name).ilike.${searchTerm},` +
-        `people_emails.email.ilike.${searchTerm}`
+      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm}`
     );
+    query = query.filter("people_emails.email", "ilike", searchTerm);
   }
 
   if (
@@ -101,11 +99,9 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
   if (params?.searchTerm) {
     const searchTerm = `%${params.searchTerm}%`;
     query = query.or(
-      `first_name.ilike.${searchTerm},` +
-        `last_name.ilike.${searchTerm},` +
-        `concat(first_name, ' ', last_name).ilike.${searchTerm},` +
-        `people_emails.email.ilike.${searchTerm}`
+      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm}`
     );
+    query = query.filter("people_emails.email", "ilike", searchTerm);
   }
 
   if (
