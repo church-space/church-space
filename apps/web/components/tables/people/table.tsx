@@ -49,7 +49,7 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
         columns={columns}
         data={people}
         pageSize={25}
-        loadMore={async ({ from, to }) => {
+        loadMore={async () => {
           await fetchNextPage();
           return { data: [] }; // Data will be handled by React Query
         }}
