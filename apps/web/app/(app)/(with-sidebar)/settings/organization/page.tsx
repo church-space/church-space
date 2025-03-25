@@ -1,37 +1,17 @@
-import React from "react";
-import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Separator } from "@church-space/ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@church-space/ui/breadcrumb";
-import { cookies } from "next/headers";
-import { createClient } from "@church-space/supabase/server";
-import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
-import {
-  SettingsSection,
-  SettingsHeader,
-  SettingsTitle,
-  SettingsDescription,
-  SettingsContent,
-  SettingsRow,
-  SettingsRowTitle,
-  SettingsRowDescription,
-  SettingsRowAction,
-} from "@/components/settings/settings-settings";
-import { Button } from "@church-space/ui/button";
-import { Input } from "@church-space/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@church-space/ui/select";
 import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
+import {
+  SettingsContent,
+  SettingsDescription,
+  SettingsHeader,
+  SettingsRow,
+  SettingsRowAction,
+  SettingsRowDescription,
+  SettingsRowTitle,
+  SettingsSection,
+  SettingsTitle,
+} from "@/components/settings/settings-settings";
+import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
+import { createClient } from "@church-space/supabase/server";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +23,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@church-space/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
+import { Badge } from "@church-space/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@church-space/ui/breadcrumb";
+import { Button } from "@church-space/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@church-space/ui/dropdown-menu";
+import { Input } from "@church-space/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@church-space/ui/select";
+import { Separator } from "@church-space/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { EllipsisVertical } from "lucide-react";
+import { cookies } from "next/headers";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -165,36 +172,49 @@ export default async function Page() {
         </SettingsSection>
 
         <SettingsSection>
-          <SettingsHeader>
-            <SettingsTitle>Members</SettingsTitle>
-            <SettingsDescription>
-              Manage organization members and their roles
-            </SettingsDescription>
+          <SettingsHeader className="flex w-full flex-row items-center justify-between">
+            <div className="flex flex-col">
+              <SettingsTitle>Members</SettingsTitle>
+              <SettingsDescription>
+                Manage the people in your organization.
+              </SettingsDescription>
+            </div>
+            <Button>Invite Member</Button>
           </SettingsHeader>
 
           <SettingsContent>
-            <div className="flex justify-end pb-4">
-              <Button>Invite Member</Button>
-            </div>
             <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="flex items-center justify-between rounded-lg p-4">
                 <div className="flex items-center gap-4">
                   <Avatar>
                     <AvatarImage src="/user-avatar.png" alt="User" />
                     <AvatarFallback>JD</AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium">John Doe</div>
+                    <div className="flex items-center gap-2">
+                      <div className="font-medium">John Doe</div>
+                      <Badge className="w-fit text-xs">Owner</Badge>
+                    </div>
                     <div className="text-sm text-muted-foreground">
                       john@example.com
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-sm text-muted-foreground">Admin</div>
+                <div className="flex items-center gap-1">
                   <div className="text-sm text-muted-foreground">
                     Added Mar 23, 2024
                   </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <EllipsisVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>Make Owner</DropdownMenuItem>
+                      <DropdownMenuItem>Remove</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </div>

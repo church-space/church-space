@@ -80,8 +80,7 @@ export default async function Page() {
           </Breadcrumb>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-16 p-4 pt-0">
-        <SubscribeModal organizationId={organizationId} userId={user.id} />
+      <div className="flex flex-1 flex-col gap-16 p-4 pt-8">
         <SettingsSection>
           <SettingsHeader>
             <SettingsTitle>Billing</SettingsTitle>
@@ -128,6 +127,9 @@ export default async function Page() {
             </SettingsRow>
           </SettingsContent>
         </SettingsSection>
+        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col pt-0">
+          <SubscribeModal organizationId={organizationId} userId={user.id} />
+        </div>
       </div>
     </>
   );

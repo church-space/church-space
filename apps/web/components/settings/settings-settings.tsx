@@ -42,7 +42,7 @@ const SettingsTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h2
     ref={ref}
-    className={cn("pl-1 text-lg font-bold", className)}
+    className={cn("pl-1 text-2xl font-bold", className)}
     {...props}
   />
 ));
@@ -55,7 +55,7 @@ const SettingsDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("pl-1 text-sm text-muted-foreground", className)}
+    className={cn("mb-4 pl-1 text-sm text-muted-foreground", className)}
     {...props}
   />
 ));
