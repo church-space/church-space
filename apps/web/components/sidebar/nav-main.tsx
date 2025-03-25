@@ -21,7 +21,6 @@ export function NavMain({
     submenu?: {
       title: string;
       url: string;
-      icon: React.ElementType;
     }[];
   }[];
 }) {
@@ -29,23 +28,35 @@ export function NavMain({
     <SidebarGroup>
       <SidebarMenu>
         {items.map((item) => (
-          <SidebarMenuItem
-            className={cn(item.isActive && "bg-sidebar-accent")}
-            key={item.title}
-          >
-            <SidebarMenuButton asChild tooltip={item.title}>
+          <SidebarMenuItem key={item.title}>
+            <SidebarMenuButton
+              asChild
+              tooltip={item.title}
+              className={cn(
+                "rounded-lg text-muted-foreground hover:text-foreground",
+                item.isActive &&
+                  "border border-muted-foreground/10 bg-muted text-foreground shadow-sm",
+                !item.isActive && "hover:bg-transparent",
+              )}
+            >
               <Link href={item.url} prefetch={true}>
                 <item.icon />
                 <span>{item.title}</span>
               </Link>
             </SidebarMenuButton>
-            {item.submenu && (
-              <SidebarMenuSub>
+            {item.submenu && item.isActive && (
+              <SidebarMenuSub className="gap-0">
                 {item.submenu?.map((submenuItem) => (
                   <SidebarMenuItem key={submenuItem.title}>
-                    <SidebarMenuButton asChild tooltip={submenuItem.title}>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={submenuItem.title}
+                      className={cn(
+                        "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
+                        item.isActive && "text-foreground",
+                      )}
+                    >
                       <a href={submenuItem.url}>
-                        <submenuItem.icon />
                         <span>{submenuItem.title}</span>
                       </a>
                     </SidebarMenuButton>
