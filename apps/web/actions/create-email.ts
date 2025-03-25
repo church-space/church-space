@@ -53,7 +53,7 @@ export const createEmailAction = authActionClient
 
       // Revalidate the emailTemplates query tag
       try {
-        revalidateTag("emailTemplates");
+        revalidateTag(`emails_${parsedInput.parsedInput.organization_id}`);
       } catch (revalidateError) {
         console.error("Error revalidating tag:", revalidateError);
         // Continue even if revalidation fails

@@ -53,22 +53,10 @@ export const getCachedEmails = async (params?: QueryParams) => {
   const organizationId = user.organizationMembership.organization_id;
   const cacheKey = `emails_${organizationId}_${JSON.stringify(params || {})}`;
 
-  const response = await unstable_cache(
+  return unstable_cache(
     async () => {
       const response = await getEmailsQuery(supabase, organizationId, params);
       if (!response.data) return null;
-      return response;
-    },
-    [cacheKey],
-    {
-      revalidate: 1,
-    }
-  )();
-
-  if (!response) return null;
-
-  return unstable_cache(
-    async () => {
       return response;
     },
     [cacheKey],
@@ -100,7 +88,7 @@ export const getCachedEmailsCount = async (
     },
     [cacheKey],
     {
-      tags: [`emails_count_${organizationId}`],
+      tags: [`emails_${organizationId}`],
       revalidate: 3600,
     }
   )();

@@ -56,8 +56,6 @@ export default function NewEmail({
       }
     } catch (error) {
       console.error("Failed to create email:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
