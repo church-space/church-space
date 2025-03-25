@@ -324,7 +324,7 @@ export default function DataTable<TData>({
       <div
         ref={containerRef}
         className="overflow-auto"
-        style={{ maxHeight: "calc(100vh - 300px)" }}
+        style={{ maxHeight: "calc(100vh - 255px)" }}
       >
         <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
           <TableHeader className="backdrop-blur-xs sticky top-0 z-10 bg-background/90">

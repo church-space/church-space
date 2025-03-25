@@ -9,6 +9,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@church-space/ui/sheet";
+import { Label } from "@church-space/ui/label";
+import { Button } from "@church-space/ui/button";
+import Link from "next/link";
+import { ExternalLinkIcon } from "lucide-react";
 
 export type Person = {
   id: number;
@@ -71,12 +75,26 @@ export const columns: ColumnDef<Person>[] = [
             )}
           </SheetTrigger>
           <SheetContent>
-            <SheetHeader>
+            <SheetHeader className="flex flex-row justify-between gap-2">
               <SheetTitle>
                 {person.first_name} {person.last_name}
               </SheetTitle>
+              <Link
+                href={`https://people.planningcenteronline.com/people/AC${person.pco_id}`}
+                target="_blank"
+              >
+                <Button variant="outline">View in PCO</Button>
+              </Link>
             </SheetHeader>
             <div className="space-y-4">
+              <div className="flex flex-col">
+                <Label>Status</Label>
+                <div className="text-sm text-muted-foreground">
+                  {person.email_list_category_unsubscribes.length > 0
+                    ? "Partially Subscribed"
+                    : person.people_emails[0].status}
+                </div>
+              </div>
               {person.email_list_category_unsubscribes.map((unsubscribe) => (
                 <div key={unsubscribe.id}>
                   {unsubscribe.pco_list_categories.pco_name}
@@ -100,9 +118,6 @@ export const columns: ColumnDef<Person>[] = [
           {emails.map((email) => (
             <div key={email.id} className="text-sm">
               {email.email}
-              <span className="ml-1 text-xs text-muted-foreground">
-                ({email.status})
-              </span>
             </div>
           ))}
         </div>
@@ -110,6 +125,7 @@ export const columns: ColumnDef<Person>[] = [
     },
   },
   {
+    header: "Status",
     id: "emailStatus",
     accessorFn: (row) => {
       const firstEmail = row.people_emails?.[0];
@@ -132,10 +148,23 @@ export const columns: ColumnDef<Person>[] = [
     },
   },
   {
-    header: "PCO ID",
+    header: "View in PCO",
     accessorKey: "pco_id",
     meta: {
       filterVariant: "text",
+    },
+    cell: ({ row }) => {
+      const person = row.original;
+      return (
+        <Link
+          href={`https://people.planningcenteronline.com/people/AC${person.pco_id}`}
+          target="_blank"
+        >
+          <Button variant="outline" size="icon">
+            <ExternalLinkIcon className="h-4 w-4" />
+          </Button>
+        </Link>
+      );
     },
   },
 ];
