@@ -19,6 +19,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getPcoListsQuery } from "@church-space/supabase/queries/all/get-pco-lists";
 import { createClient } from "@church-space/supabase/client";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export default function ListSelector({
   value,
@@ -29,57 +30,78 @@ export default function ListSelector({
   onChange: (value: string) => void;
   organizationId: string;
 }) {
-  const [audienceOpen, setAudienceOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const debouncedSearch = useDebounce(searchInput, 300);
   const supabase = createClient();
 
-  const { data: pcoLists } = useQuery({
-    queryKey: ["pcoLists"],
-    queryFn: () => getPcoListsQuery(supabase, organizationId),
+  const { data: pcoLists, isLoading } = useQuery({
+    queryKey: ["pcoLists", debouncedSearch],
+    queryFn: () => getPcoListsQuery(supabase, organizationId, debouncedSearch),
   });
 
+  const lists = pcoLists?.data || [];
+  const selectedList = lists.find((list) => list.id.toString() === value);
+
   return (
-    <Popover open={audienceOpen} onOpenChange={setAudienceOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
-          aria-expanded={audienceOpen}
+          aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? pcoLists?.data?.find((list) => list.id.toString() === value)
-                ?.pco_list_description || value
-            : "Select a list..."}
+          {selectedList?.pco_list_description || "Select a list..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-        <Command>
-          <CommandInput placeholder="Search lists..." className="h-9" />
+      <PopoverContent
+        className="w-[--radix-popover-trigger-width] p-0"
+        align="start"
+      >
+        <Command shouldFilter={false}>
+          <CommandInput
+            placeholder="Search lists..."
+            className="h-9"
+            value={searchInput}
+            onValueChange={setSearchInput}
+          />
           <CommandList>
-            <CommandEmpty>No list found.</CommandEmpty>
-            <CommandGroup>
-              {pcoLists?.data?.map((list) => (
-                <CommandItem
-                  key={list.id}
-                  value={list.id.toString()}
-                  onSelect={() => {
-                    onChange(list.id.toString());
-                    setAudienceOpen(false);
-                  }}
-                >
-                  {list.pco_list_description}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value === list.id.toString()
-                        ? "opacity-100"
-                        : "opacity-0",
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            <CommandEmpty className="py-6 text-center text-sm">
+              {isLoading ? "Loading..." : "No list found."}
+            </CommandEmpty>
+            {lists.length > 0 && (
+              <CommandGroup>
+                {lists.map((list) => (
+                  <CommandItem
+                    key={list.id}
+                    value={list.pco_list_description}
+                    onSelect={(currentValue) => {
+                      onChange(list.id.toString());
+                      setOpen(false);
+                    }}
+                  >
+                    <div className="flex flex-col">
+                      <span>{list.pco_list_description}</span>
+                      {list.pco_list_categories?.pco_name && (
+                        <span className="text-xs text-muted-foreground">
+                          {list.pco_list_categories.pco_name}
+                        </span>
+                      )}
+                    </div>
+                    <Check
+                      className={cn(
+                        "ml-auto",
+                        value === list.id.toString()
+                          ? "opacity-100"
+                          : "opacity-0",
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

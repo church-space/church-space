@@ -684,18 +684,6 @@ export default function AutomationBuilder() {
                             <SelectValue placeholder="Select trigger type" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="form-submitted">
-                              Form submitted
-                            </SelectItem>
-                            <SelectItem value="contact-added">
-                              Contact added
-                            </SelectItem>
-                            <SelectItem value="added-to-workflow">
-                              Added to workflow
-                            </SelectItem>
-                            <SelectItem value="added-to-workflow-step">
-                              Added to workflow step
-                            </SelectItem>
                             <SelectItem value="added-to-list">
                               Added to list
                             </SelectItem>
