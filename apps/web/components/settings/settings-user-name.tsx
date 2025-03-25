@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SettingsRow,
   SettingsRowTitle,
@@ -22,9 +22,16 @@ export default function SettingsUserName({
   const [error, setError] = useState<string | null>(null);
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const debouncedUpdate = useDebounce(
     async (firstName: string, lastName: string) => {
+      if (!isMounted) return;
+
       try {
         setError(null);
         const result = await updateUserAction({
@@ -68,13 +75,17 @@ export default function SettingsUserName({
   const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFirstName = e.target.value;
     setFirstName(newFirstName);
-    debouncedUpdate(newFirstName, lastName);
+    if (isMounted) {
+      debouncedUpdate(newFirstName, lastName);
+    }
   };
 
   const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newLastName = e.target.value;
     setLastName(newLastName);
-    debouncedUpdate(firstName, newLastName);
+    if (isMounted) {
+      debouncedUpdate(firstName, newLastName);
+    }
   };
 
   return (

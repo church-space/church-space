@@ -9,9 +9,6 @@ import {
   User,
   QrCode,
   List,
-  Settings,
-  CreditCard,
-  Globe,
 } from "lucide-react";
 import * as React from "react";
 
@@ -26,7 +23,6 @@ import {
 } from "@church-space/ui/sidebar";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
-import { Organization } from "@church-space/ui/icons";
 
 const data = {
   navMain: [
@@ -34,7 +30,6 @@ const data = {
       title: "Home",
       url: "/home",
       icon: Home,
-      isActive: true,
     },
     {
       title: "Emails",
@@ -42,21 +37,20 @@ const data = {
       icon: Mail,
       submenu: [
         {
-          title: "All Emails",
+          title: "Emails",
           url: "/emails",
         },
         {
-          title: "Email Templates",
-          url: "/email-templates",
+          title: "Templates",
+          url: "/emails/templates",
         },
-
         {
           title: "Automations",
-          url: "/automations",
+          url: "/emails/automations",
         },
         {
-          title: "Email Categories",
-          url: "/email-categories",
+          title: "Lists and Categories",
+          url: "/emails/categories",
         },
       ],
     },
@@ -77,21 +71,6 @@ const data = {
         },
       ],
     },
-    // {
-    //   title: "Courses",
-    //   url: "/courses",
-    //   icon: Link,
-    // },
-    // {
-    //   title: "Content",
-    //   url: "/content",
-    //   icon: BookOpen,
-    // },
-    // {
-    //   title: "Forms",
-    //   url: "/forms",
-    //   icon: Clipboard,
-    // },
 
     {
       title: "People",
