@@ -1,6 +1,5 @@
 "use client";
 
-import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Sheet,
@@ -13,6 +12,7 @@ import { Label } from "@church-space/ui/label";
 import { Button } from "@church-space/ui/button";
 import Link from "next/link";
 import { ExternalLinkIcon } from "lucide-react";
+import { Badge } from "@church-space/ui/badge";
 
 export type Person = {
   id: number;
@@ -35,27 +35,6 @@ export type Person = {
 
 export const columns: ColumnDef<Person>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-  },
-  {
     header: "Name",
     id: "name",
     accessorFn: (row) =>
@@ -64,7 +43,7 @@ export const columns: ColumnDef<Person>[] = [
       const person = row.original;
       return (
         <Sheet>
-          <SheetTrigger>
+          <SheetTrigger className="px-2">
             <div className="font-medium hover:underline">
               {person.first_name} {person.last_name}
             </div>
@@ -75,7 +54,7 @@ export const columns: ColumnDef<Person>[] = [
             )}
           </SheetTrigger>
           <SheetContent>
-            <SheetHeader className="flex flex-row justify-between gap-2">
+            <SheetHeader className="flex flex-row items-center justify-between gap-2">
               <SheetTitle>
                 {person.first_name} {person.last_name}
               </SheetTitle>
@@ -86,14 +65,14 @@ export const columns: ColumnDef<Person>[] = [
                 <Button variant="outline">View in PCO</Button>
               </Link>
             </SheetHeader>
-            <div className="space-y-4">
-              <div className="flex flex-col">
+            <div className="mt-8 space-y-4">
+              <div className="flex flex-col gap-1">
                 <Label>Status</Label>
-                <div className="text-sm text-muted-foreground">
+                <Badge className="w-fit capitalize">
                   {person.email_list_category_unsubscribes.length > 0
                     ? "Partially Subscribed"
-                    : person.people_emails[0].status}
-                </div>
+                    : person.people_emails?.[0]?.status || "No status"}
+                </Badge>
               </div>
               {person.email_list_category_unsubscribes.map((unsubscribe) => (
                 <div key={unsubscribe.id}>
@@ -127,19 +106,26 @@ export const columns: ColumnDef<Person>[] = [
   {
     header: "Status",
     id: "emailStatus",
-    accessorFn: (row) => {
-      const firstEmail = row.people_emails?.[0];
+    cell: ({ row }) => {
+      const firstEmail = row.original.people_emails?.[0];
       if (!firstEmail) return undefined;
 
       // If subscribed but has unsubscribe categories, mark as partially subscribed
       if (
         firstEmail.status === "subscribed" &&
-        row.email_list_category_unsubscribes?.length > 0
+        row.original.email_list_category_unsubscribes?.length > 0
       ) {
-        return "partially subscribed";
+        return <Badge className="w-fit capitalize">Partially Subscribed</Badge>;
       }
 
-      return firstEmail.status;
+      return (
+        <Badge
+          variant={firstEmail.status === "subscribed" ? "success" : "outline"}
+          className="w-fit capitalize"
+        >
+          {firstEmail.status}
+        </Badge>
+      );
     },
     enableHiding: true,
     // This column is hidden by default and only used for filtering

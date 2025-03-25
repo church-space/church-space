@@ -89,6 +89,14 @@ export const syncPcoEmails = task({
 
             const emailAddress = email.attributes.address;
 
+            const pcoBlocked = email.attributes.blocked;
+
+            let status = "subscribed";
+
+            if (pcoBlocked) {
+              status = "pco_blocked";
+            }
+
             // Insert into people_emails table
             const { error: emailError } = await supabase
               .from("people_emails")
@@ -97,6 +105,7 @@ export const syncPcoEmails = task({
                 pco_person_id: person.id,
                 pco_email_id: email.id,
                 email: emailAddress,
+                status: status as "unsubscribed" | "pco_blocked" | "subscribed",
               });
 
             if (emailError) {
