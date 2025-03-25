@@ -21,6 +21,7 @@ import {
 import { Ellipsis, Eye } from "lucide-react";
 import Link from "next/link";
 
+import DomainSelector from "@/components/id-pages/emails/domain-selector";
 import ListSelector from "@/components/id-pages/emails/list-selector";
 import { cn } from "@church-space/ui/cn";
 import {
@@ -32,13 +33,6 @@ import {
 import { Backlog } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@church-space/ui/select";
 import {
   Tabs,
   TabsContent,
@@ -78,7 +72,6 @@ export default function PreSendPage({ email }: { email: any }) {
 
   // Initialize state from email data
   const [subject, setSubject] = useState(email.subject || "");
-  const [previewText, setPreviewText] = useState(email.preview_text || "");
 
   // From details
   const [fromEmail, setFromEmail] = useState(
@@ -135,11 +128,8 @@ export default function PreSendPage({ email }: { email: any }) {
   }, [fromEmail, fromDomain, fromName, replyToEmail, replyToDomain, email]);
 
   useEffect(() => {
-    setSubjectHasChanges(
-      subject !== (email.subject || "") ||
-        previewText !== (email.preview_text || ""),
-    );
-  }, [subject, previewText, email.subject, email.preview_text]);
+    setSubjectHasChanges(subject !== (email.subject || ""));
+  }, [subject, email.subject]);
 
   useEffect(() => {
     const originalScheduledDate = email.scheduled_for
@@ -284,16 +274,11 @@ export default function PreSendPage({ email }: { email: any }) {
                   onChange={(e) => setFromEmail(e.target.value)}
                 />
                 <span className="mb-1 leading-none">@</span>
-                <Select value={fromDomain} onValueChange={setFromDomain}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={fromDomain || "example.com"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="domain.com">domain.com</SelectItem>
-                    <SelectItem value="domain2.com">domain2.com</SelectItem>
-                    <SelectItem value="domain3.com">domain3.com</SelectItem>
-                  </SelectContent>
-                </Select>
+                <DomainSelector
+                  organizationId={email.organization_id}
+                  onChange={(value) => setFromDomain(value)}
+                  value={fromDomain}
+                />
               </div>
             </div>
             <div className="flex flex-col gap-2">
@@ -313,16 +298,11 @@ export default function PreSendPage({ email }: { email: any }) {
                   onChange={(e) => setReplyToEmail(e.target.value)}
                 />
                 <span className="mb-1 leading-none">@</span>
-                <Select value={replyToDomain} onValueChange={setReplyToDomain}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={replyToDomain || "example.com"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="domain.com">domain.com</SelectItem>
-                    <SelectItem value="domain2.com">domain2.com</SelectItem>
-                    <SelectItem value="domain3.com">domain3.com</SelectItem>
-                  </SelectContent>
-                </Select>
+                <DomainSelector
+                  organizationId={email.organization_id}
+                  onChange={(value) => setReplyToDomain(value)}
+                  value={replyToDomain}
+                />
               </div>
             </div>
             <SaveButtons
@@ -401,17 +381,7 @@ export default function PreSendPage({ email }: { email: any }) {
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">Preview Text</Label>
-              <Input
-                placeholder="Enter preview text"
-                value={previewText}
-                onChange={(e) => setPreviewText(e.target.value)}
-              />
-              <span className="ml-0.5 text-xs text-muted-foreground">
-                Preview text shows below the subject line in an email inbox.
-              </span>
-            </div>
+
             <SaveButtons
               isSaving={subjectIsSaving}
               hasChanges={subjectHasChanges}
