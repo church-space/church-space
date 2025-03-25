@@ -60,14 +60,14 @@ const data = {
       icon: Link,
       submenu: [
         {
+          title: "Link Lists",
+          url: "/links",
+          icon: List,
+        },
+        {
           title: "QR Codes",
           url: "/qr-codes",
           icon: QrCode,
-        },
-        {
-          title: "Link Lists",
-          url: "/link-lists",
-          icon: List,
         },
       ],
     },

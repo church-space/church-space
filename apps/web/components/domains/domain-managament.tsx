@@ -741,99 +741,33 @@ export default function DomainManagement({
             </CustomAccordionTrigger>
             <AccordionContent>
               <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Value</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>TTL</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {domain.records.map((record, recordIndex) => (
-                      <TableRow key={`${domain.name}-record-${recordIndex}`}>
-                        <TableCell
-                          className="group relative cursor-pointer font-medium"
-                          onClick={() =>
-                            copyToClipboard(
-                              record.type,
-                              `${domain.name}-type-${recordIndex}`,
-                            )
-                          }
-                        >
-                          <span>{record.type}</span>
-                          {copiedCell ===
-                          `${domain.name}-type-${recordIndex}` ? (
-                            <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2">
-                              <Check className="h-3.5 w-3.5 text-green-500" />
-                            </div>
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2 opacity-0 transition-opacity group-hover:opacity-100">
-                              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell
-                          className="group relative cursor-pointer hover:bg-muted/50"
-                          onClick={() =>
-                            copyToClipboard(
-                              record.name,
-                              `${domain.name}-name-${recordIndex}`,
-                            )
-                          }
-                        >
-                          <span>{record.name}</span>
-                          {copiedCell ===
-                          `${domain.name}-name-${recordIndex}` ? (
-                            <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2">
-                              <Check className="h-3.5 w-3.5 text-green-500" />
-                            </div>
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2 opacity-0 transition-opacity group-hover:opacity-100">
-                              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell
-                          className="group relative max-w-[200px] cursor-pointer truncate font-mono text-sm hover:bg-muted/50"
-                          onClick={() =>
-                            copyToClipboard(
-                              record.value,
-                              `${domain.name}-value-${recordIndex}`,
-                            )
-                          }
-                        >
-                          <span>{record.value}</span>
-                          {copiedCell ===
-                          `${domain.name}-value-${recordIndex}` ? (
-                            <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2">
-                              <Check className="h-3.5 w-3.5 text-green-500" />
-                            </div>
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2 opacity-0 transition-opacity group-hover:opacity-100">
-                              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell
-                          className="group relative cursor-pointer hover:bg-muted/50"
-                          onClick={() =>
-                            record.priority !== null &&
-                            copyToClipboard(
-                              record.priority.toString(),
-                              `${domain.name}-priority-${recordIndex}`,
-                            )
-                          }
-                        >
-                          <span>
-                            {record.priority !== null ? record.priority : "-"}
-                          </span>
-                          {record.priority !== null &&
-                            (copiedCell ===
-                            `${domain.name}-priority-${recordIndex}` ? (
+                <div className="max-h-[400px] overflow-y-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Value</TableHead>
+                        <TableHead>Priority</TableHead>
+                        <TableHead>TTL</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {domain.records.map((record, recordIndex) => (
+                        <TableRow key={`${domain.name}-record-${recordIndex}`}>
+                          <TableCell
+                            className="group relative cursor-pointer font-medium"
+                            onClick={() =>
+                              copyToClipboard(
+                                record.type,
+                                `${domain.name}-type-${recordIndex}`,
+                              )
+                            }
+                          >
+                            <span>{record.type}</span>
+                            {copiedCell ===
+                            `${domain.name}-type-${recordIndex}` ? (
                               <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2">
                                 <Check className="h-3.5 w-3.5 text-green-500" />
                               </div>
@@ -841,34 +775,102 @@ export default function DomainManagement({
                               <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2 opacity-0 transition-opacity group-hover:opacity-100">
                                 <Copy className="h-3.5 w-3.5 text-muted-foreground" />
                               </div>
-                            ))}
-                        </TableCell>
-                        <TableCell
-                          className="group relative cursor-pointer hover:bg-muted/50"
-                          onClick={() =>
-                            copyToClipboard(
-                              record.ttl.toString(),
-                              `${domain.name}-ttl-${recordIndex}`,
-                            )
-                          }
-                        >
-                          <span>{record.ttl}</span>
-                          {copiedCell ===
-                          `${domain.name}-ttl-${recordIndex}` ? (
-                            <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2">
-                              <Check className="h-3.5 w-3.5 text-green-500" />
-                            </div>
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2 opacity-0 transition-opacity group-hover:opacity-100">
-                              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>{getStatusBadge(record)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                            )}
+                          </TableCell>
+                          <TableCell
+                            className="group relative cursor-pointer hover:bg-muted/50"
+                            onClick={() =>
+                              copyToClipboard(
+                                record.name,
+                                `${domain.name}-name-${recordIndex}`,
+                              )
+                            }
+                          >
+                            <span>{record.name}</span>
+                            {copiedCell ===
+                            `${domain.name}-name-${recordIndex}` ? (
+                              <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2">
+                                <Check className="h-3.5 w-3.5 text-green-500" />
+                              </div>
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2 opacity-0 transition-opacity group-hover:opacity-100">
+                                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell
+                            className="group relative max-w-[200px] cursor-pointer truncate font-mono text-sm hover:bg-muted/50"
+                            onClick={() =>
+                              copyToClipboard(
+                                record.value,
+                                `${domain.name}-value-${recordIndex}`,
+                              )
+                            }
+                          >
+                            <span>{record.value}</span>
+                            {copiedCell ===
+                            `${domain.name}-value-${recordIndex}` ? (
+                              <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2">
+                                <Check className="h-3.5 w-3.5 text-green-500" />
+                              </div>
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2 opacity-0 transition-opacity group-hover:opacity-100">
+                                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell
+                            className="group relative cursor-pointer hover:bg-muted/50"
+                            onClick={() =>
+                              record.priority !== null &&
+                              copyToClipboard(
+                                record.priority.toString(),
+                                `${domain.name}-priority-${recordIndex}`,
+                              )
+                            }
+                          >
+                            <span>
+                              {record.priority !== null ? record.priority : "-"}
+                            </span>
+                            {record.priority !== null &&
+                              (copiedCell ===
+                              `${domain.name}-priority-${recordIndex}` ? (
+                                <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2">
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                </div>
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2 opacity-0 transition-opacity group-hover:opacity-100">
+                                  <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                                </div>
+                              ))}
+                          </TableCell>
+                          <TableCell
+                            className="group relative cursor-pointer hover:bg-muted/50"
+                            onClick={() =>
+                              copyToClipboard(
+                                record.ttl.toString(),
+                                `${domain.name}-ttl-${recordIndex}`,
+                              )
+                            }
+                          >
+                            <span>{record.ttl}</span>
+                            {copiedCell ===
+                            `${domain.name}-ttl-${recordIndex}` ? (
+                              <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2">
+                                <Check className="h-3.5 w-3.5 text-green-500" />
+                              </div>
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-end bg-muted/20 pr-2 opacity-0 transition-opacity group-hover:opacity-100">
+                                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>{getStatusBadge(record)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
               <div className="mt-2 text-sm text-muted-foreground">
                 Click on any cell to copy its value. DNS records can take up to
