@@ -1,93 +1,43 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback } from "react";
 import DataTable from "../data-table";
-import { columns, type Person } from "./columns";
+import { columns } from "./columns";
 import { useQueryState } from "nuqs";
 import { getPeopleFilterConfig, type EmailStatus } from "./filters";
+import { usePeople } from "@/hooks/use-people";
 
 interface PeopleTableProps {
-  data: Person[];
-  pageSize?: number;
-  loadMore?: (params: {
-    from: number;
-    to: number;
-  }) => Promise<{ data: Person[] }>;
-  hasNextPage?: boolean;
-  searchPeople: (
-    searchTerm: string,
-    emailStatus?: string,
-  ) => Promise<{
-    data: Person[];
-    hasNextPage: boolean;
-    count: number;
-  }>;
+  organizationId: string;
 }
 
-export default function PeopleTable({
-  data: initialData,
-  pageSize,
-  loadMore: initialLoadMore,
-  hasNextPage: initialHasNextPage,
-  searchPeople,
-}: PeopleTableProps) {
+export default function PeopleTable({ organizationId }: PeopleTableProps) {
   const [search, setSearch] = useQueryState("search");
   const [emailStatus, setEmailStatus] = useQueryState("emailStatus");
-  const [data, setData] = useState(initialData);
-  const [hasNextPage, setHasNextPage] = useState(initialHasNextPage);
-  const [count, setCount] = useState(0);
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = usePeople(
+    organizationId,
+    search ?? undefined,
+    emailStatus ?? undefined,
+  );
 
   const handleSearch = useCallback(
     async (value: string | null) => {
       await setSearch(value);
-      const result = await searchPeople(value ?? "", emailStatus ?? undefined);
-      setData(result.data);
-      setHasNextPage(result.hasNextPage);
-      setCount(result.count);
     },
-    [searchPeople, setSearch, emailStatus],
+    [setSearch],
   );
 
   const handleEmailStatusChange = useCallback(
     async (value: EmailStatus) => {
       await setEmailStatus(value === "all" ? null : value);
-      const result = await searchPeople(
-        search ?? "",
-        value === "all" ? undefined : value,
-      );
-      setData(result.data);
-      setHasNextPage(result.hasNextPage);
-      setCount(result.count);
     },
-    [searchPeople, setEmailStatus, search],
+    [setEmailStatus],
   );
 
-  // Initial load
-  useEffect(() => {
-    let isCurrent = true;
-
-    async function fetchData() {
-      try {
-        const result = await searchPeople(
-          search ?? "",
-          emailStatus ?? undefined,
-        );
-        if (isCurrent) {
-          setData(result.data);
-          setHasNextPage(result.hasNextPage);
-          setCount(result.count);
-        }
-      } catch (e) {
-        console.error("Error fetching data:", e);
-      }
-    }
-
-    fetchData();
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [search, emailStatus, searchPeople]);
+  // Flatten all pages of data
+  const people = data?.pages.flatMap((page) => page.data) ?? [];
+  const count = data?.pages[0]?.count ?? 0;
 
   return (
     <>
@@ -97,9 +47,12 @@ export default function PeopleTable({
       </h1>
       <DataTable
         columns={columns}
-        data={data}
-        pageSize={pageSize}
-        loadMore={initialLoadMore}
+        data={people}
+        pageSize={25}
+        loadMore={async ({ from, to }) => {
+          await fetchNextPage();
+          return { data: [] }; // Data will be handled by React Query
+        }}
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
@@ -109,6 +62,11 @@ export default function PeopleTable({
         }}
         initialFilters={{
           emailStatus: emailStatus ?? undefined,
+        }}
+        onLoadingStateChange={(loading) => {
+          if (loading && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
         }}
       />
     </>

@@ -5,6 +5,18 @@ import {
 } from "@church-space/supabase/queries/cached/people";
 import PeopleTable from "@/components/tables/people/table";
 import { convertEmailStatusToQueryParams } from "@/components/tables/people/filters";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@church-space/ui/breadcrumb";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { Separator } from "@church-space/ui/separator";
 
 const ITEMS_PER_PAGE = 25;
 
@@ -62,84 +74,35 @@ type PageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function Page({ searchParams }: PageProps) {
-  const searchParamsValue = await searchParams;
-  const search =
-    typeof searchParamsValue.search === "string"
-      ? searchParamsValue.search
-      : "";
-  const emailStatus =
-    typeof searchParamsValue.emailStatus === "string"
-      ? searchParamsValue.emailStatus
-      : undefined;
+export default async function Page() {
+  const cookiesStore = await cookies();
+  const organizationId = cookiesStore.get("organizationId")?.value;
 
-  // Convert UI emailStatus to database query parameters
-  const emailStatusParams = convertEmailStatusToQueryParams(emailStatus);
-
-  // Get initial data
-  const result = await getCachedPeopleWithEmails({
-    start: 0,
-    end: ITEMS_PER_PAGE - 1,
-    searchTerm: search,
-    ...(emailStatusParams ? { emailStatus: emailStatusParams } : {}),
-  });
-
-  // If we're filtering by "partially subscribed", we need to filter the results
-  let filteredData = result?.data ?? [];
-  if (emailStatus === "partially subscribed") {
-    filteredData = filteredData.filter((person) => {
-      const firstEmail = person.people_emails?.[0];
-      return (
-        firstEmail?.status === "subscribed" &&
-        person.email_list_category_unsubscribes?.length > 0
-      );
-    });
+  if (!organizationId) {
+    redirect("/onboarding");
   }
-
-  // Get total count
-  const countResult = await getCachedPeopleCount({
-    searchTerm: search,
-    ...(emailStatusParams ? { emailStatus: emailStatusParams } : {}),
-  });
-
-  const count =
-    emailStatus === "partially subscribed"
-      ? filteredData.length
-      : (countResult?.count ?? 0);
-
-  async function loadMore({ from, to }: { from: number; to: number }) {
-    "use server";
-
-    // For "partially subscribed", we can't use pagination
-    if (emailStatus === "partially subscribed") {
-      return { data: [] };
-    }
-
-    const result = await getCachedPeopleWithEmails({
-      start: from,
-      end: to,
-      searchTerm: search,
-      ...(emailStatusParams ? { emailStatus: emailStatusParams } : {}),
-    });
-
-    return { data: result?.data ?? [] };
-  }
-
-  const hasNextPage =
-    emailStatus === "partially subscribed"
-      ? false // No pagination for filtered results
-      : count > ITEMS_PER_PAGE;
 
   return (
     <>
+      <header className="flex h-12 shrink-0 items-center gap-2">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/">Hillsong Church Online</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem>
+                <BreadcrumbPage>People</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </header>
       <div className="p-6">
-        <PeopleTable
-          data={filteredData}
-          pageSize={ITEMS_PER_PAGE}
-          loadMore={loadMore}
-          hasNextPage={hasNextPage}
-          searchPeople={searchPeople}
-        />
+        <PeopleTable organizationId={organizationId} />
       </div>
     </>
   );
