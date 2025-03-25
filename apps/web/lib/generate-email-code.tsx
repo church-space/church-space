@@ -1097,7 +1097,7 @@ const CustomFooter: React.FC<{
                   </table>
                 )}
 
-                {links.length > 0 && (
+                {links && links.length > 0 && (
                   <table
                     cellPadding="0"
                     cellSpacing="0"

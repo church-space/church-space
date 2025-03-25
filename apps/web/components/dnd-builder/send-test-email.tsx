@@ -9,17 +9,26 @@ import {
 } from "@church-space/ui/dialog";
 import { Input } from "@church-space/ui/input";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { generateEmailCode } from "@/lib/generate-email-code";
 import { render } from "@react-email/render";
 import { toast } from "@church-space/ui/use-toast";
 import { Section, BlockData, BlockType, EmailStyle } from "@/types/blocks";
+import { createClient } from "@church-space/supabase/client";
+
+interface OrganizationData {
+  default_email: string;
+  domains: {
+    domain: string;
+  } | null;
+}
 
 export default function SendTestEmail() {
   const [email, setEmail] = useState("");
   const [isSending, setIsSending] = useState(false);
   const params = useParams();
+  const router = useRouter();
   const emailId = params.emailId
     ? parseInt(params.emailId as string, 10)
     : undefined;
@@ -46,6 +55,52 @@ export default function SendTestEmail() {
 
     try {
       setIsSending(true);
+
+      // Get organization's default email and domain
+      const supabase = createClient();
+      const { data: orgData, error: orgError } = await supabase
+        .from("organizations")
+        .select(
+          `
+          default_email,
+          domains!organizations_default_email_domain_fkey (
+            domain
+          )
+        `,
+        )
+        .eq("id", emailData.email.organization_id)
+        .single<OrganizationData>();
+
+      if (orgError) {
+        throw new Error("Failed to fetch organization data");
+      }
+
+      if (!orgData?.default_email || !orgData.domains?.domain) {
+        toast({
+          title: "Error",
+          description: (
+            <div>
+              No default email or domain set for your organization.{" "}
+              <a
+                href="/settings/organization"
+                className="text-primary hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push("/settings/organization");
+                }}
+              >
+                Set it up here
+              </a>
+              .
+            </div>
+          ),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Combine default email with domain
+      const fromEmail = `${orgData.default_email}@${orgData.domains.domain}`;
 
       // Convert blocks to sections format
       const sections: Section[] = [
@@ -105,7 +160,7 @@ export default function SendTestEmail() {
         body: JSON.stringify({
           emails: [
             {
-              from: "thomas@trivo.app",
+              from: fromEmail,
               to: [email],
               subject: emailData.email.subject || "Test Email",
               html: enhancedHtmlContent,
