@@ -17,6 +17,14 @@ jobs:
         with:
           node-version: "20.x"
 
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.14.2
+
       - name: Install dependencies
         run: pnpm install
 
@@ -24,4 +32,5 @@ jobs:
         env:
           TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
         run: |
-          npx trigger.dev@latest deploy
+          npx trigger.dev@3.3.17 deploy
+        working-directory: apps/web
