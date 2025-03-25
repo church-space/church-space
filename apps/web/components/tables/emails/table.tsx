@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import DataTable from "../data-table";
 import { columns, type Email } from "./columns";
 import { useQueryState } from "nuqs";
@@ -13,89 +13,37 @@ import {
   DialogTitle,
 } from "@church-space/ui/dialog";
 import NewEmail from "../../forms/new-email";
+import { useEmails } from "@/hooks/use-emails";
 
 interface EmailsTableProps {
-  data: Email[];
-  pageSize?: number;
-  loadMore?: (params: {
-    from: number;
-    to: number;
-  }) => Promise<{ data: Email[] }>;
-  hasNextPage?: boolean;
-  searchEmails: (
-    searchTerm: string,
-    status?: string,
-  ) => Promise<{
-    data: Email[];
-    hasNextPage: boolean;
-    count: number;
-  }>;
   organizationId: string;
 }
 
-export default function EmailsTable({
-  data: initialData,
-  pageSize,
-  loadMore: initialLoadMore,
-  hasNextPage: initialHasNextPage,
-  searchEmails,
-  organizationId,
-}: EmailsTableProps) {
+export default function EmailsTable({ organizationId }: EmailsTableProps) {
   const [search, setSearch] = useQueryState("search");
   const [status, setStatus] = useQueryState("status");
-  const [data, setData] = useState(initialData);
-  const [hasNextPage, setHasNextPage] = useState(initialHasNextPage);
-  const [count, setCount] = useState(0);
   const [isNewEmailOpen, setIsNewEmailOpen] = useState(false);
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useEmails(organizationId, search ?? undefined, status ?? undefined);
 
   const handleSearch = useCallback(
     async (value: string | null) => {
       await setSearch(value);
-      const result = await searchEmails(value ?? "", status ?? undefined);
-      setData(result.data);
-      setHasNextPage(result.hasNextPage);
-      setCount(result.count);
     },
-    [searchEmails, setSearch, status],
+    [setSearch],
   );
 
   const handleStatusChange = useCallback(
     async (value: EmailStatus) => {
       await setStatus(value === "all" ? null : value);
-      const result = await searchEmails(
-        search ?? "",
-        value === "all" ? undefined : value,
-      );
-      setData(result.data);
-      setHasNextPage(result.hasNextPage);
-      setCount(result.count);
     },
-    [searchEmails, setStatus, search],
+    [setStatus],
   );
 
-  // Initial load
-  useEffect(() => {
-    let isCurrent = true;
-
-    async function fetchData() {
-      try {
-        const result = await searchEmails(search ?? "", status ?? undefined);
-        if (isCurrent) {
-          setData(result.data);
-          setHasNextPage(result.hasNextPage);
-          setCount(result.count);
-        }
-      } catch (e) {
-        console.error("Error fetching data:", e);
-      }
-    }
-
-    fetchData();
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [search, status, searchEmails]);
+  // Flatten all pages of data
+  const emails = data?.pages.flatMap((page) => page.data) ?? [];
+  const count = data?.pages[0]?.count ?? 0;
 
   return (
     <>
@@ -108,9 +56,13 @@ export default function EmailsTable({
       </div>
       <DataTable
         columns={columns}
-        data={data}
-        pageSize={pageSize}
-        loadMore={initialLoadMore}
+        data={emails}
+        pageSize={25}
+        loadMore={async ({ from, to }) => {
+          const page = Math.floor(from / 25);
+          await fetchNextPage();
+          return { data: [] }; // Data will be handled by React Query
+        }}
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
@@ -120,6 +72,11 @@ export default function EmailsTable({
         }}
         initialFilters={{
           status: status ?? undefined,
+        }}
+        onLoadingStateChange={(loading) => {
+          if (loading && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
         }}
       />
 
