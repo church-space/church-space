@@ -30,6 +30,7 @@ interface OrganizationData {
 export default function SendTestEmail() {
   const [emailInput, setEmailInput] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const params = useParams();
   const router = useRouter();
   const emailId = params.emailId
@@ -90,6 +91,13 @@ export default function SendTestEmail() {
 
     try {
       setIsSending(true);
+      setIsOpen(false); // Close the modal immediately
+
+      // Show loading toast
+      const loadingToast = toast({
+        title: "Sending Test Email",
+        description: "Please wait while we send your test email...",
+      });
 
       // Get organization's default email and domain
       const supabase = createClient();
@@ -210,6 +218,8 @@ export default function SendTestEmail() {
         throw new Error(errorData.error || "Failed to send test email");
       }
 
+      // Dismiss loading toast and show success
+      loadingToast.dismiss();
       toast({
         title: "Success",
         description: "Test email sent successfully",
@@ -229,7 +239,7 @@ export default function SendTestEmail() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="hidden md:block">
           Send Test
