@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import DataTable from "../data-table";
-import { columns, type Email } from "./columns";
+import { columns } from "./columns";
 import { useQueryState } from "nuqs";
 import { Button } from "@church-space/ui/button";
 import { getEmailFilterConfig, type EmailStatus } from "./filters";
@@ -24,8 +24,11 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
   const [status, setStatus] = useQueryState("status");
   const [isNewEmailOpen, setIsNewEmailOpen] = useState(false);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useEmails(organizationId, search ?? undefined, status ?? undefined);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useEmails(
+    organizationId,
+    search ?? undefined,
+    status ?? undefined,
+  );
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -58,8 +61,7 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
         columns={columns}
         data={emails}
         pageSize={25}
-        loadMore={async ({ from, to }) => {
-          const page = Math.floor(from / 25);
+        loadMore={async () => {
           await fetchNextPage();
           return { data: [] }; // Data will be handled by React Query
         }}
