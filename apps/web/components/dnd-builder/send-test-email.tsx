@@ -18,6 +18,7 @@ import { render } from "@react-email/render";
 import { toast } from "@church-space/ui/use-toast";
 import { Section, BlockData, BlockType, EmailStyle } from "@/types/blocks";
 import { createClient } from "@church-space/supabase/client";
+import { z } from "zod";
 
 interface OrganizationData {
   default_email: string;
@@ -27,7 +28,7 @@ interface OrganizationData {
 }
 
 export default function SendTestEmail() {
-  const [email, setEmail] = useState("");
+  const [emailInput, setEmailInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const params = useParams();
   const router = useRouter();
@@ -36,11 +37,43 @@ export default function SendTestEmail() {
     : undefined;
   const { data: emailData } = useEmailWithBlocks(emailId);
 
+  const validateEmails = (emails: string[]) => {
+    const emailSchema = z.string().email();
+    const emailArraySchema = z.array(emailSchema).min(1).max(5);
+
+    try {
+      emailArraySchema.parse(emails);
+      return null;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        if (firstError.code === "too_small") {
+          return "Please enter at least one email address";
+        }
+        if (firstError.code === "too_big") {
+          return "You can only send to up to 5 email addresses";
+        }
+        if (firstError.code === "invalid_string") {
+          return `Invalid email address: ${firstError.path.join(".")}`;
+        }
+        return "Please enter valid email addresses";
+      }
+      return "An error occurred while validating emails";
+    }
+  };
+
   const handleSendTestEmail = async () => {
-    if (!email) {
+    // Split by comma and clean up each email
+    const emails = emailInput
+      .split(",")
+      .map((email) => email.trim())
+      .filter((email) => email.length > 0);
+
+    const validationError = validateEmails(emails);
+    if (validationError) {
       toast({
         title: "Error",
-        description: "Please enter an email address",
+        description: validationError,
         variant: "destructive",
       });
       return;
@@ -163,9 +196,10 @@ export default function SendTestEmail() {
           emails: [
             {
               from: fromEmail,
-              to: [email],
+              to: emails,
               subject: "TEST: " + emailData.email.subject || "Test Email",
               html: enhancedHtmlContent,
+              text: "This is a test email sent from Church Space.",
             },
           ],
         }),
@@ -180,6 +214,7 @@ export default function SendTestEmail() {
         title: "Success",
         description: "Test email sent successfully",
       });
+      setEmailInput("");
     } catch (error) {
       console.error("Error sending test email:", error);
       toast({
@@ -204,16 +239,21 @@ export default function SendTestEmail() {
         <DialogHeader>
           <DialogTitle>Send Test Email</DialogTitle>
           <DialogDescription>
-            Input the emails you would like to send a test to, seperated by a
-            comma.
+            Enter up to 5 email addresses separated by commas.
           </DialogDescription>
         </DialogHeader>
 
         <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="Email addresses (comma-separated)"
+          value={emailInput}
+          onChange={(e) => setEmailInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSendTestEmail();
+            }
+          }}
         />
         <DialogFooter>
           <Button onClick={handleSendTestEmail} disabled={isSending}>
