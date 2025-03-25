@@ -1,4 +1,3 @@
-import { SupportSidebar } from "@/components/sidebar/support-sidebar";
 import { SidebarInset, SidebarProvider } from "@church-space/ui/sidebar";
 
 interface ProtectedLayoutProps {
@@ -10,7 +9,6 @@ export default async function ProtectedLayout({
 }: ProtectedLayoutProps) {
   return (
     <SidebarProvider>
-      <SupportSidebar />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );
