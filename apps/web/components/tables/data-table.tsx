@@ -77,6 +77,7 @@ interface DataTableProps<TData> {
   initialFilters?: {
     [key: string]: string | undefined;
   };
+  isLoading?: boolean;
 }
 
 export default function DataTable<TData>({
@@ -91,6 +92,7 @@ export default function DataTable<TData>({
   filterConfig,
   onFilterChange,
   initialFilters,
+  isLoading: externalIsLoading,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState(searchQuery);
@@ -98,6 +100,7 @@ export default function DataTable<TData>({
   const [isLoading, setIsLoading] = useState(false);
   const [hasMorePages, setHasMorePages] = useState(initialHasNextPage);
   const containerRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Initialize column filters from initialFilters prop
   useEffect(() => {
@@ -124,9 +127,17 @@ export default function DataTable<TData>({
     [onSearch],
   );
 
+  // Update data when initialData changes
   useEffect(() => {
     setData(initialData);
   }, [initialData]);
+
+  // Update loading state from external source
+  useEffect(() => {
+    if (externalIsLoading !== undefined) {
+      setIsLoading(externalIsLoading);
+    }
+  }, [externalIsLoading]);
 
   useEffect(() => {
     setGlobalFilter(searchQuery);
@@ -152,38 +163,45 @@ export default function DataTable<TData>({
     };
   }, [debouncedSearch]);
 
-  const handleScroll = useCallback(async () => {
-    if (!containerRef.current || !loadMore || !hasMorePages || isLoading)
-      return;
+  const setupObserver = useCallback(() => {
+    if (!containerRef.current || !loadMore || !hasMorePages) return;
+
+    // Disconnect previous observer if it exists
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
 
     const sentinel = containerRef.current.querySelector(".sentinel");
     if (!sentinel) return;
 
-    const observer = new IntersectionObserver(
-      async (entries) => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
         const [entry] = entries;
-        if (entry.isIntersecting) {
-          setIsLoading(true);
-          onLoadingStateChange?.(true);
+        if (entry.isIntersecting && !isLoading && hasMorePages) {
+          const loadNextPage = async () => {
+            setIsLoading(true);
+            onLoadingStateChange?.(true);
 
-          try {
-            const from = data.length;
-            const to = from + pageSize - 1;
-            const result = await loadMore({ from, to });
+            try {
+              const from = data.length;
+              const to = from + pageSize - 1;
+              const result = await loadMore({ from, to });
 
-            // If no more data is returned, we've reached the end
-            if (!result.data.length) {
+              if (!result.data.length) {
+                setHasMorePages(false);
+              } else {
+                setData((prevData) => [...prevData, ...result.data]);
+              }
+            } catch (error) {
+              console.error("Error loading more data:", error);
               setHasMorePages(false);
-            } else {
-              setData((prevData) => [...prevData, ...result.data]);
+            } finally {
+              setIsLoading(false);
+              onLoadingStateChange?.(false);
             }
-          } catch (error) {
-            console.error("Error loading more data:", error);
-            setHasMorePages(false); // Also set hasMorePages to false on error
-          } finally {
-            setIsLoading(false);
-            onLoadingStateChange?.(false);
-          }
+          };
+
+          void loadNextPage();
         }
       },
       {
@@ -192,8 +210,7 @@ export default function DataTable<TData>({
       },
     );
 
-    observer.observe(sentinel);
-    return () => observer.disconnect();
+    observerRef.current.observe(sentinel);
   }, [
     data.length,
     hasMorePages,
@@ -203,9 +220,15 @@ export default function DataTable<TData>({
     pageSize,
   ]);
 
+  // Setup observer when component mounts or when dependencies change
   useEffect(() => {
-    handleScroll();
-  }, [handleScroll]);
+    setupObserver();
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [setupObserver]);
 
   const table = useReactTable({
     data,

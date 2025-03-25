@@ -50,8 +50,10 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
         data={people}
         pageSize={25}
         loadMore={async () => {
-          await fetchNextPage();
-          return { data: [] }; // Data will be handled by React Query
+          const result = await fetchNextPage();
+          return {
+            data: result.data?.pages[result.data.pages.length - 1]?.data ?? [],
+          };
         }}
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
@@ -63,11 +65,7 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
         initialFilters={{
           emailStatus: emailStatus ?? undefined,
         }}
-        onLoadingStateChange={(loading) => {
-          if (loading && hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-          }
-        }}
+        isLoading={isFetchingNextPage}
       />
     </>
   );

@@ -62,8 +62,10 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
         data={emails}
         pageSize={25}
         loadMore={async () => {
-          await fetchNextPage();
-          return { data: [] }; // Data will be handled by React Query
+          const result = await fetchNextPage();
+          return {
+            data: result.data?.pages[result.data.pages.length - 1]?.data ?? [],
+          };
         }}
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
@@ -75,11 +77,7 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
         initialFilters={{
           status: status ?? undefined,
         }}
-        onLoadingStateChange={(loading) => {
-          if (loading && hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-          }
-        }}
+        isLoading={isFetchingNextPage}
       />
 
       <Dialog open={isNewEmailOpen} onOpenChange={setIsNewEmailOpen}>
