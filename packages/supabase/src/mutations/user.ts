@@ -18,7 +18,8 @@ export async function updateUser(
       first_name: firstName,
       last_name: lastName,
     })
-    .eq("id", userId);
+    .eq("id", userId)
+    .select();
 }
 
 export async function deleteUser(supabase: Client, userId: string) {

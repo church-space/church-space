@@ -28,16 +28,27 @@ export default function SettingsUserName({
     setIsMounted(true);
   }, []);
 
-  const debouncedUpdate = useDebounce(
-    async (firstName: string, lastName: string) => {
-      if (!isMounted) return;
+  const debouncedFirstName = useDebounce(firstName, 500);
+  const debouncedLastName = useDebounce(lastName, 500);
 
+  useEffect(() => {
+    if (!isMounted) return;
+
+    // Don't update if the values are the same as initial values
+    if (
+      debouncedFirstName === initialFirstName &&
+      debouncedLastName === initialLastName
+    ) {
+      return;
+    }
+
+    const updateUser = async () => {
       try {
         setError(null);
         const result = await updateUserAction({
           userId,
-          firstName,
-          lastName,
+          firstName: debouncedFirstName,
+          lastName: debouncedLastName,
         });
 
         if (!result) {
@@ -68,24 +79,26 @@ export default function SettingsUserName({
         setFirstName(initialFirstName);
         setLastName(initialLastName);
       }
-    },
-    500,
-  );
+    };
+
+    updateUser();
+  }, [
+    debouncedFirstName,
+    debouncedLastName,
+    userId,
+    initialFirstName,
+    initialLastName,
+    isMounted,
+  ]);
 
   const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFirstName = e.target.value;
     setFirstName(newFirstName);
-    if (isMounted) {
-      debouncedUpdate(newFirstName, lastName);
-    }
   };
 
   const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newLastName = e.target.value;
     setLastName(newLastName);
-    if (isMounted) {
-      debouncedUpdate(firstName, newLastName);
-    }
   };
 
   return (

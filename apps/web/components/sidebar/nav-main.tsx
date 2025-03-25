@@ -70,13 +70,16 @@ export function NavMain({
                         className={cn(
                           "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
                           // For "All Emails", also active if we're on a dynamic route under /emails
-                          (pathname === submenuItem.url ||
-                            pathname.startsWith(submenuItem.url + "/") ||
-                            (submenuItem.url === "/emails" &&
-                              pathname.startsWith("/emails/") &&
-                              !pathname.startsWith("/emails/templates") &&
-                              !pathname.startsWith("/emails/automations") &&
-                              !pathname.startsWith("/emails/categories"))) &&
+                          // For Settings, only exact matches
+                          (item.title === "Settings"
+                            ? pathname === submenuItem.url
+                            : pathname === submenuItem.url ||
+                              pathname.startsWith(submenuItem.url + "/") ||
+                              (submenuItem.url === "/emails" &&
+                                pathname.startsWith("/emails/") &&
+                                !pathname.startsWith("/emails/templates") &&
+                                !pathname.startsWith("/emails/automations") &&
+                                !pathname.startsWith("/emails/categories"))) &&
                             "text-foreground",
                         )}
                       >
