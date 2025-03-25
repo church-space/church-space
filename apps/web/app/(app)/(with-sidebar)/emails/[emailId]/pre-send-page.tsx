@@ -103,7 +103,6 @@ export default function PreSendPage({ email }: { email: any }) {
     email.scheduled_for ? "schedule" : "send-now",
   );
 
-  const [audienceOpen, setAudienceOpen] = useState(false);
   const [audienceValue, setAudienceValue] = useState(email.audience_id || "");
 
   // Track changes

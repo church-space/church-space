@@ -15,8 +15,6 @@ import {
 } from "@church-space/ui/form";
 import { Input } from "@church-space/ui/input";
 import { createEmailAction } from "@/actions/create-email";
-import type { ActionResponse } from "@/types/action";
-import type { EmailResponse } from "@/actions/create-email";
 import { useState } from "react";
 
 const formSchema = z.object({

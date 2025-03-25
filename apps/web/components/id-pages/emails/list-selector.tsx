@@ -77,7 +77,7 @@ export default function ListSelector({
                   <CommandItem
                     key={list.id}
                     value={list.pco_list_description}
-                    onSelect={(currentValue) => {
+                    onSelect={() => {
                       onChange(list.id.toString());
                       setOpen(false);
                     }}
