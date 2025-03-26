@@ -1,6 +1,6 @@
 import { Client } from "../../types";
 
-export async function getPcoListsQuery(
+export async function getPublicPcoListsQuery(
   supabase: Client,
   organizationId: string,
   search?: string
@@ -8,7 +8,8 @@ export async function getPcoListsQuery(
   let query = supabase
     .from("pco_lists")
     .select("*, pco_list_categories!left(pco_name)")
-    .eq("organization_id", organizationId);
+    .eq("organization_id", organizationId)
+    .eq("pco_list_categories.pco_name", "public");
 
   if (search && search.trim() !== "") {
     query = query.ilike("pco_list_description", `%${search.trim()}%`);

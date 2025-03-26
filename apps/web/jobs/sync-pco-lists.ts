@@ -45,7 +45,6 @@ export const syncPcoLists = task({
           organization_id: payload.organization_id,
           pco_name: category.attributes.name,
           pco_id: category.id,
-          is_public: false,
         },
         { onConflict: "pco_id" },
       );

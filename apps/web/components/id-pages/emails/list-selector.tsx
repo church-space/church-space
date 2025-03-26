@@ -18,7 +18,7 @@ import { ChevronsUpDown } from "lucide-react";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  getPcoListsQuery,
+  getPublicPcoListsQuery,
   getPcoListQuery,
 } from "@church-space/supabase/queries/all/get-pco-lists";
 import { createClient } from "@church-space/supabase/client";
@@ -40,7 +40,8 @@ export default function ListSelector({
 
   const { data: pcoLists, isLoading } = useQuery({
     queryKey: ["pcoLists", debouncedSearch],
-    queryFn: () => getPcoListsQuery(supabase, organizationId, debouncedSearch),
+    queryFn: () =>
+      getPublicPcoListsQuery(supabase, organizationId, debouncedSearch),
   });
 
   // Fetch the selected list if value is provided
