@@ -123,12 +123,6 @@ export default function PreSendPage({ email }: { email: any }) {
     enabled: !!fromDomain,
   });
 
-  const { data: replyToDomainData } = useQuery({
-    queryKey: ["domain", replyToDomain],
-    queryFn: () => getDomainQuery(supabase, parseInt(replyToDomain || "0")),
-    enabled: !!replyToDomain,
-  });
-
   // Add validation functions
   const isValidEmailLocalPart = (email: string) => {
     // Allow empty value or only letters, numbers, periods, hyphens, and underscores
