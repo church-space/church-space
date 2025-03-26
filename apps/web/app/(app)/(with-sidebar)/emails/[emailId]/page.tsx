@@ -22,8 +22,6 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@church-space/supabase/client";
 import { useParams } from "next/navigation";
 
-type Params = Promise<{ emailId: string }>;
-
 export default function Page() {
   const params = useParams();
   const emailId = parseInt(params.emailId as string, 10);
@@ -72,6 +70,7 @@ export default function Page() {
       {(email.data.status === "draft" || email.data.status === "scheduled") && (
         <PreSendPage email={email.data} />
       )}
+      {isLoading && <div>Loading...</div>}
     </>
   );
 }

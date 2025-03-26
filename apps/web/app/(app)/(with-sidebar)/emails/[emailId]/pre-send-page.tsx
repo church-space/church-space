@@ -45,13 +45,15 @@ import { useEffect, useState } from "react";
 import { useToast } from "@church-space/ui/use-toast";
 import { updateEmail } from "@church-space/supabase/mutations/emails";
 import { createClient } from "@church-space/supabase/client";
+import { useMutation } from "@tanstack/react-query";
 
 function SaveButtons(props: {
   isSaving: boolean;
   hasChanges: boolean;
   setIsSaving: (isSaving: boolean) => void;
+  onSave: () => void;
 }) {
-  const { isSaving, hasChanges, setIsSaving } = props;
+  const { isSaving, hasChanges, setIsSaving, onSave } = props;
 
   return (
     <div className="mt-4 flex w-full items-center justify-end gap-2 border-t pt-4">
@@ -63,6 +65,7 @@ function SaveButtons(props: {
         disabled={isSaving || !hasChanges}
         onClick={() => {
           setIsSaving(true);
+          onSave();
         }}
       >
         {isSaving ? "Saving..." : "Save"}
@@ -119,6 +122,26 @@ export default function PreSendPage({ email }: { email: any }) {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  // Setup the update email mutation using TanStack Query
+  const updateEmailMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await updateEmail(supabase, email.id, data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Email updated",
+        description: "Your changes have been saved.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to save changes: " + (error as Error).message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Track changes for each section
   useEffect(() => {
     setToHasChanges(listId !== (email.list_id || ""));
@@ -149,6 +172,67 @@ export default function PreSendPage({ email }: { email: any }) {
         sendDate?.getTime() !== originalScheduledDate?.getTime(),
     );
   }, [sendDate, isScheduled, email.scheduled_for]);
+
+  // Save functions for each section
+  const saveToSection = async () => {
+    try {
+      await updateEmailMutation.mutateAsync({
+        list_id: listId,
+      });
+      setToIsSaving(false);
+    } catch (error) {
+      console.error("Error saving To section:", error);
+      setToIsSaving(false);
+    }
+  };
+
+  const saveFromSection = async () => {
+    try {
+      const from_email =
+        fromEmail && fromDomain ? `${fromEmail}@${fromDomain}` : null;
+      const reply_to =
+        replyToEmail && replyToDomain
+          ? `${replyToEmail}@${replyToDomain}`
+          : null;
+
+      await updateEmailMutation.mutateAsync({
+        from_email,
+        from_name: fromName,
+        reply_to,
+      });
+      setFromIsSaving(false);
+    } catch (error) {
+      console.error("Error saving From section:", error);
+      setFromIsSaving(false);
+    }
+  };
+
+  const saveSubjectSection = async () => {
+    try {
+      await updateEmailMutation.mutateAsync({
+        subject,
+      });
+      setSubjectIsSaving(false);
+    } catch (error) {
+      console.error("Error saving Subject section:", error);
+      setSubjectIsSaving(false);
+    }
+  };
+
+  const saveScheduleSection = async () => {
+    try {
+      const scheduled_for =
+        isScheduled === "schedule" ? sendDate?.toISOString() : null;
+
+      await updateEmailMutation.mutateAsync({
+        scheduled_for,
+      });
+      setScheduleIsSaving(false);
+    } catch (error) {
+      console.error("Error saving Schedule section:", error);
+      setScheduleIsSaving(false);
+    }
+  };
 
   // Subject validation functions
   const wordCount = subject.trim().split(/\s+/).filter(Boolean).length;
@@ -244,6 +328,7 @@ export default function PreSendPage({ email }: { email: any }) {
               isSaving={toIsSaving}
               hasChanges={toHasChanges}
               setIsSaving={setToIsSaving}
+              onSave={saveToSection}
             />
           </AccordionContent>
         </AccordionItem>
@@ -316,6 +401,7 @@ export default function PreSendPage({ email }: { email: any }) {
               isSaving={fromIsSaving}
               hasChanges={fromHasChanges}
               setIsSaving={setFromIsSaving}
+              onSave={saveFromSection}
             />
           </AccordionContent>
         </AccordionItem>
@@ -393,6 +479,7 @@ export default function PreSendPage({ email }: { email: any }) {
               isSaving={subjectIsSaving}
               hasChanges={subjectHasChanges}
               setIsSaving={setSubjectIsSaving}
+              onSave={saveSubjectSection}
             />
           </AccordionContent>
         </AccordionItem>
@@ -474,6 +561,7 @@ export default function PreSendPage({ email }: { email: any }) {
               isSaving={scheduleIsSaving}
               hasChanges={scheduleHasChanges}
               setIsSaving={setScheduleIsSaving}
+              onSave={saveScheduleSection}
             />
           </AccordionContent>
         </AccordionItem>
