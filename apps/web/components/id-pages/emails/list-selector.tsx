@@ -17,7 +17,10 @@ import { cn } from "@church-space/ui/cn";
 import { ChevronsUpDown } from "lucide-react";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getPcoListsQuery } from "@church-space/supabase/queries/all/get-pco-lists";
+import {
+  getPcoListsQuery,
+  getPcoListQuery,
+} from "@church-space/supabase/queries/all/get-pco-lists";
 import { createClient } from "@church-space/supabase/client";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -40,8 +43,17 @@ export default function ListSelector({
     queryFn: () => getPcoListsQuery(supabase, organizationId, debouncedSearch),
   });
 
+  // Fetch the selected list if value is provided
+  const { data: selectedListData } = useQuery({
+    queryKey: ["pcoList", value],
+    queryFn: () => getPcoListQuery(supabase, parseInt(value)),
+    enabled: !!value, // Only run this query if value exists
+  });
+
   const lists = pcoLists?.data || [];
-  const selectedList = lists.find((list) => list.id.toString() === value);
+  const selectedList =
+    selectedListData?.data?.[0] ||
+    lists.find((list) => list.id.toString() === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

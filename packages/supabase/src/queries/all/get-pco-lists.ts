@@ -32,3 +32,11 @@ export async function getPcoListsQuery(
 
   return { data, error };
 }
+
+export async function getPcoListQuery(supabase: Client, listId: number) {
+  let query = supabase.from("pco_lists").select("*").eq("id", listId);
+
+  const { data, error } = await query;
+
+  return { data, error };
+}
