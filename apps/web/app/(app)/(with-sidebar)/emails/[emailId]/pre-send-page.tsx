@@ -84,18 +84,14 @@ export default function PreSendPage({ email }: { email: any }) {
   const [subject, setSubject] = useState(email.subject || "");
 
   // From details
-  const [fromEmail, setFromEmail] = useState(
-    email.from_email?.split("@")[0] || "",
-  );
+  const [fromEmail, setFromEmail] = useState(email.from_email || "");
   const [fromDomain, setFromDomain] = useState(
-    email.from_email?.split("@")[1] || "",
+    email.from_email_domain?.toString() || "",
   );
   const [fromName, setFromName] = useState(email.from_name || "");
-  const [replyToEmail, setReplyToEmail] = useState(
-    email.reply_to?.split("@")[0] || "",
-  );
+  const [replyToEmail, setReplyToEmail] = useState(email.reply_to || "");
   const [replyToDomain, setReplyToDomain] = useState(
-    email.reply_to?.split("@")[1] || "",
+    email.reply_to_domain?.toString() || "",
   );
 
   // Schedule details
@@ -149,11 +145,11 @@ export default function PreSendPage({ email }: { email: any }) {
 
   useEffect(() => {
     setFromHasChanges(
-      fromEmail !== (email.from_email?.split("@")[0] || "") ||
-        fromDomain !== (email.from_email?.split("@")[1] || "") ||
+      fromEmail !== (email.from_email || "") ||
+        fromDomain !== (email.from_email_domain?.toString() || "") ||
         fromName !== (email.from_name || "") ||
-        replyToEmail !== (email.reply_to?.split("@")[0] || "") ||
-        replyToDomain !== (email.reply_to?.split("@")[1] || ""),
+        replyToEmail !== (email.reply_to || "") ||
+        replyToDomain !== (email.reply_to_domain?.toString() || ""),
     );
   }, [fromEmail, fromDomain, fromName, replyToEmail, replyToDomain, email]);
 
@@ -188,17 +184,17 @@ export default function PreSendPage({ email }: { email: any }) {
 
   const saveFromSection = async () => {
     try {
-      const from_email =
-        fromEmail && fromDomain ? `${fromEmail}@${fromDomain}` : null;
-      const reply_to =
-        replyToEmail && replyToDomain
-          ? `${replyToEmail}@${replyToDomain}`
-          : null;
+      const from_email = fromEmail || null;
+      const from_email_domain = fromDomain ? parseInt(fromDomain) : null;
+      const reply_to = replyToEmail || null;
+      const reply_to_domain = replyToDomain ? parseInt(replyToDomain) : null;
 
       await updateEmailMutation.mutateAsync({
         from_email,
+        from_email_domain,
         from_name: fromName,
         reply_to,
+        reply_to_domain,
       });
       setFromIsSaving(false);
     } catch (error) {
