@@ -107,6 +107,27 @@ export default function PreSendPage({ email }: { email: any }) {
     email.reply_to_domain?.toString() || "",
   );
 
+  // Add validation functions
+  const isValidEmailLocalPart = (email: string) => {
+    // Allow empty value or only letters, numbers, periods, hyphens, and underscores
+    // No spaces or special characters
+    return email === "" || /^[a-zA-Z0-9._-]*$/.test(email);
+  };
+
+  const handleFromEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (isValidEmailLocalPart(value)) {
+      setFromEmail(value);
+    }
+  };
+
+  const handleReplyToEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (isValidEmailLocalPart(value)) {
+      setReplyToEmail(value);
+    }
+  };
+
   // Schedule details
   const [sendDate, setSendDate] = useState<Date | null>(
     email.scheduled_for ? new Date(email.scheduled_for) : null,
@@ -205,9 +226,31 @@ export default function PreSendPage({ email }: { email: any }) {
 
   const saveFromSection = async () => {
     try {
-      const from_email = fromEmail || null;
+      // Validate email length if provided
+      if (fromEmail && fromEmail.length < 2) {
+        toast({
+          title: "Invalid email",
+          description: "Email must be at least 2 characters long.",
+          variant: "destructive",
+        });
+        setFromIsSaving(false);
+        return;
+      }
+
+      if (replyToEmail && replyToEmail.length < 2) {
+        toast({
+          title: "Invalid email",
+          description: "Reply-to email must be at least 2 characters long.",
+          variant: "destructive",
+        });
+        setFromIsSaving(false);
+        return;
+      }
+
+      // Convert empty strings to null
+      const from_email = fromEmail === "" ? null : fromEmail;
       const from_email_domain = fromDomain ? parseInt(fromDomain) : null;
-      const reply_to = replyToEmail || null;
+      const reply_to = replyToEmail === "" ? null : replyToEmail;
       const reply_to_domain = replyToDomain ? parseInt(replyToDomain) : null;
 
       await updateEmailMutation.mutateAsync({
@@ -535,7 +578,7 @@ export default function PreSendPage({ email }: { email: any }) {
                 <Input
                   placeholder="Enter from"
                   value={fromEmail}
-                  onChange={(e) => setFromEmail(e.target.value)}
+                  onChange={handleFromEmailChange}
                 />
                 <span className="mb-1 leading-none">@</span>
                 <DomainSelector
@@ -559,7 +602,7 @@ export default function PreSendPage({ email }: { email: any }) {
                 <Input
                   placeholder="Enter reply to"
                   value={replyToEmail}
-                  onChange={(e) => setReplyToEmail(e.target.value)}
+                  onChange={handleReplyToEmailChange}
                 />
                 <span className="mb-1 leading-none">@</span>
                 <DomainSelector
