@@ -813,7 +813,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: number
-          is_public: boolean
+          is_public?: boolean
           organization_id: string
           pco_id?: string | null
           pco_name: string
