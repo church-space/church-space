@@ -2,7 +2,6 @@
 
 import {
   Command,
-  Home,
   Link,
   Mail,
   Settings2,
