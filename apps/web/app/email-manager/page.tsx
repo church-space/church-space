@@ -3,13 +3,19 @@ import Manage from "./manage";
 import Unsubscribe from "./unsubscribe";
 import { jwtVerify } from "jose";
 
+type SearchParams = Promise<{
+  type?: string;
+  tk?: string;
+}>;
+
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: SearchParams;
 }) {
-  const type = searchParams.type as string | undefined;
-  const tk = searchParams.tk as string | undefined;
+  const params = await searchParams;
+  const type = params.type;
+  const tk = params.tk;
 
   let emailId: number | null = null;
   let peopleEmailId: number | null = null;

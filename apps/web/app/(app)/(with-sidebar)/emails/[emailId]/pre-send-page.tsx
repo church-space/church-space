@@ -103,7 +103,7 @@ export default function PreSendPage({ email }: { email: any }) {
     email.scheduled_for ? "schedule" : "send-now",
   );
 
-  const [audienceValue, setAudienceValue] = useState(email.audience_id || "");
+  const [listId, setListId] = useState(email.list_id || "");
 
   // Track changes
   const [toHasChanges, setToHasChanges] = useState(false);
@@ -121,8 +121,8 @@ export default function PreSendPage({ email }: { email: any }) {
 
   // Track changes for each section
   useEffect(() => {
-    setToHasChanges(audienceValue !== (email.audience_id || ""));
-  }, [audienceValue, email.list_id, email.audience_id]);
+    setToHasChanges(listId !== (email.list_id || ""));
+  }, [listId, email.list_id]);
 
   useEffect(() => {
     setFromHasChanges(
@@ -220,7 +220,7 @@ export default function PreSendPage({ email }: { email: any }) {
               <div className="flex flex-col">
                 <span>To</span>
                 <span className="text-sm font-normal text-muted-foreground">
-                  {audienceValue ? `${audienceValue}` : ""}
+                  {listId ? `${listId}` : ""}
                 </span>
               </div>
             </div>
@@ -229,8 +229,8 @@ export default function PreSendPage({ email }: { email: any }) {
             <div className="flex flex-col gap-2">
               <Label className="ml-0.5">List</Label>
               <ListSelector
-                value={audienceValue}
-                onChange={setAudienceValue}
+                value={listId}
+                onChange={setListId}
                 organizationId={email.organization_id}
               />
               <span className="text-xs text-muted-foreground">
