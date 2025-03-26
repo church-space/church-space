@@ -20,6 +20,7 @@ import {
 } from "@church-space/ui/dialog";
 import { Ellipsis, Eye } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import DomainSelector from "@/components/id-pages/emails/domain-selector";
 import ListSelector from "@/components/id-pages/emails/list-selector";
@@ -52,12 +53,18 @@ function SaveButtons(props: {
   hasChanges: boolean;
   setIsSaving: (isSaving: boolean) => void;
   onSave: () => void;
+  onCancel: () => void;
 }) {
-  const { isSaving, hasChanges, setIsSaving, onSave } = props;
+  const { isSaving, hasChanges, setIsSaving, onSave, onCancel } = props;
 
   return (
     <div className="mt-4 flex w-full items-center justify-end gap-2 border-t pt-4">
-      <Button variant="outline" size="sm" disabled={isSaving}>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={isSaving}
+        onClick={onCancel}
+      >
         Cancel
       </Button>
       <Button
@@ -77,6 +84,12 @@ function SaveButtons(props: {
 export default function PreSendPage({ email }: { email: any }) {
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const { toast } = useToast();
+  const [activeAccordion, setActiveAccordion] = useState<string | null>("to");
+  const router = useRouter();
+
+  // Track which accordion is attempting to be closed with unsaved changes
+  const [accordionWithPreventedClose, setAccordionWithPreventedClose] =
+    useState<string | null>(null);
 
   const supabase = createClient();
 
@@ -176,10 +189,18 @@ export default function PreSendPage({ email }: { email: any }) {
         list_id: listId,
       });
       setToIsSaving(false);
+      setToHasChanges(false);
     } catch (error) {
       console.error("Error saving To section:", error);
       setToIsSaving(false);
     }
+  };
+
+  // Cancel/reset functions for each section
+  const resetToSection = () => {
+    setListId(email.list_id || "");
+    setToHasChanges(false);
+    setToIsSaving(false);
   };
 
   const saveFromSection = async () => {
@@ -197,10 +218,22 @@ export default function PreSendPage({ email }: { email: any }) {
         reply_to_domain,
       });
       setFromIsSaving(false);
+      setFromHasChanges(false);
     } catch (error) {
       console.error("Error saving From section:", error);
       setFromIsSaving(false);
     }
+  };
+
+  // Cancel/reset functions for each section
+  const resetFromSection = () => {
+    setFromEmail(email.from_email || "");
+    setFromDomain(email.from_email_domain?.toString() || "");
+    setFromName(email.from_name || "");
+    setReplyToEmail(email.reply_to || "");
+    setReplyToDomain(email.reply_to_domain?.toString() || "");
+    setFromHasChanges(false);
+    setFromIsSaving(false);
   };
 
   const saveSubjectSection = async () => {
@@ -209,10 +242,18 @@ export default function PreSendPage({ email }: { email: any }) {
         subject,
       });
       setSubjectIsSaving(false);
+      setSubjectHasChanges(false);
     } catch (error) {
       console.error("Error saving Subject section:", error);
       setSubjectIsSaving(false);
     }
+  };
+
+  // Cancel/reset functions for each section
+  const resetSubjectSection = () => {
+    setSubject(email.subject || "");
+    setSubjectHasChanges(false);
+    setSubjectIsSaving(false);
   };
 
   const saveScheduleSection = async () => {
@@ -244,10 +285,19 @@ export default function PreSendPage({ email }: { email: any }) {
         scheduled_for,
       });
       setScheduleIsSaving(false);
+      setScheduleHasChanges(false);
     } catch (error) {
       console.error("Error saving Schedule section:", error);
       setScheduleIsSaving(false);
     }
+  };
+
+  // Cancel/reset functions for each section
+  const resetScheduleSection = () => {
+    setSendDate(email.scheduled_for ? new Date(email.scheduled_for) : null);
+    setIsScheduled(email.scheduled_for ? "schedule" : "send-now");
+    setScheduleHasChanges(false);
+    setScheduleIsSaving(false);
   };
 
   // Subject validation functions
@@ -266,6 +316,97 @@ export default function PreSendPage({ email }: { email: any }) {
   const hasWarnings =
     tooManyWords || tooManyChars || tooManyEmojis || tooManyPunctuations;
 
+  // Prevent closing accordion when there are unsaved changes
+  const handleAccordionChange = (value: string) => {
+    // Reset the prevented close state
+    setAccordionWithPreventedClose(null);
+
+    // If trying to close the current section
+    if (value === "" || value !== activeAccordion) {
+      // Check if current section has unsaved changes
+      if (
+        (activeAccordion === "to" && toHasChanges) ||
+        (activeAccordion === "from" && fromHasChanges) ||
+        (activeAccordion === "subject" && subjectHasChanges) ||
+        (activeAccordion === "schedule" && scheduleHasChanges)
+      ) {
+        // Mark this accordion as having prevented close
+        setAccordionWithPreventedClose(activeAccordion);
+        // Don't update the accordion state
+        return;
+      }
+    }
+    // Otherwise, update to the new value
+    setActiveAccordion(value);
+  };
+
+  // Add window beforeunload event listener to catch navigation attempts
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (
+        toHasChanges ||
+        fromHasChanges ||
+        subjectHasChanges ||
+        scheduleHasChanges
+      ) {
+        // Standard way to show a confirmation dialog before leaving
+        e.preventDefault();
+        // This message might not be displayed in modern browsers, but the dialog will still appear
+        e.returnValue =
+          "You have unsaved changes. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [toHasChanges, fromHasChanges, subjectHasChanges, scheduleHasChanges]);
+
+  // Function to check if there are any unsaved changes
+  const hasUnsavedChanges = () => {
+    return (
+      toHasChanges || fromHasChanges || subjectHasChanges || scheduleHasChanges
+    );
+  };
+
+  // Handle protected navigation - returns true if navigation should proceed
+  const handleProtectedNavigation = (e?: React.MouseEvent) => {
+    if (hasUnsavedChanges()) {
+      if (e) e.preventDefault();
+
+      // Show confirmation dialog
+      const confirmed = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave?",
+      );
+      return confirmed;
+    }
+    return true;
+  };
+
+  // Custom link component that checks for unsaved changes
+  const ProtectedLink = ({
+    href,
+    children,
+    className,
+  }: {
+    href: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => {
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (!handleProtectedNavigation(e)) return;
+      router.push(href);
+    };
+
+    return (
+      <a href={href} onClick={handleClick} className={className}>
+        {children}
+      </a>
+    );
+  };
+
   return (
     <>
       <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-5">
@@ -277,11 +418,11 @@ export default function PreSendPage({ email }: { email: any }) {
           </div>
         )}
         <div className="flex items-center gap-2">
-          <Link href={`/emails/${email.id}/editor`}>
+          <ProtectedLink href={`/emails/${email.id}/editor`}>
             <Button variant="outline" size="sm">
               Edit Design
             </Button>
-          </Link>
+          </ProtectedLink>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="p-2">
@@ -304,8 +445,16 @@ export default function PreSendPage({ email }: { email: any }) {
         type="single"
         collapsible
         className="mx-auto w-full max-w-3xl space-y-4 px-4 py-4"
+        value={activeAccordion || undefined}
+        onValueChange={handleAccordionChange}
       >
-        <AccordionItem value="to">
+        <AccordionItem
+          value="to"
+          className={cn(
+            accordionWithPreventedClose === "to" &&
+              "rounded-lg ring-2 ring-destructive",
+          )}
+        >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
               <span
@@ -345,10 +494,17 @@ export default function PreSendPage({ email }: { email: any }) {
               hasChanges={toHasChanges}
               setIsSaving={setToIsSaving}
               onSave={saveToSection}
+              onCancel={resetToSection}
             />
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem value="from">
+        <AccordionItem
+          value="from"
+          className={cn(
+            accordionWithPreventedClose === "from" &&
+              "rounded-lg ring-2 ring-destructive",
+          )}
+        >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
               <span
@@ -418,10 +574,17 @@ export default function PreSendPage({ email }: { email: any }) {
               hasChanges={fromHasChanges}
               setIsSaving={setFromIsSaving}
               onSave={saveFromSection}
+              onCancel={resetFromSection}
             />
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem value="subject">
+        <AccordionItem
+          value="subject"
+          className={cn(
+            accordionWithPreventedClose === "subject" &&
+              "rounded-lg ring-2 ring-destructive",
+          )}
+        >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
               <span
@@ -496,10 +659,17 @@ export default function PreSendPage({ email }: { email: any }) {
               hasChanges={subjectHasChanges}
               setIsSaving={setSubjectIsSaving}
               onSave={saveSubjectSection}
+              onCancel={resetSubjectSection}
             />
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem value="schedule">
+        <AccordionItem
+          value="schedule"
+          className={cn(
+            accordionWithPreventedClose === "schedule" &&
+              "rounded-lg ring-2 ring-destructive",
+          )}
+        >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
               <span
@@ -588,11 +758,12 @@ export default function PreSendPage({ email }: { email: any }) {
               hasChanges={scheduleHasChanges}
               setIsSaving={setScheduleIsSaving}
               onSave={saveScheduleSection}
+              onCancel={resetScheduleSection}
             />
           </AccordionContent>
         </AccordionItem>
         <div className="flex flex-1 items-center justify-between rounded-xl border bg-card py-4 pl-6 pr-5 text-left font-medium transition-all hover:bg-accent/50">
-          <Link
+          <ProtectedLink
             href={`/emails/${email.id}/editor`}
             className="group/link flex w-full items-center gap-3"
           >
@@ -607,7 +778,7 @@ export default function PreSendPage({ email }: { email: any }) {
                   : "No content created yet"}
               </span>
             </div>
-          </Link>
+          </ProtectedLink>
           <div className="flex items-center gap-3">
             <Dialog
               open={previewOpen === "true"}
