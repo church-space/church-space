@@ -199,8 +199,8 @@ export const sendBulkEmails = task({
             batchTokens[peopleEmailId] = unsubscribeToken;
 
             // Generate unsubscribe and manage preferences URLs
-            const unsubscribeUrl = `https://churchspaceemail.com/unsubscribe?tk=${unsubscribeToken}`;
-            const managePreferencesUrl = `https://churchspaceemail.com/manage?tk=${unsubscribeToken}`;
+            const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;
+            const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
 
             // Insert the links before the closing body tag
             let personalizedHtml = baseEnhancedHtmlContent;
