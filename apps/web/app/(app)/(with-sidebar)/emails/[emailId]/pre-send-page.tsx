@@ -221,6 +221,26 @@ export default function PreSendPage({ email }: { email: any }) {
 
   const saveScheduleSection = async () => {
     try {
+      // Validate that the time is at least 10 minutes in the future if scheduled
+      if (isScheduled === "schedule" && sendDate) {
+        const now = new Date();
+        const minValidTime = new Date(now);
+        minValidTime.setMinutes(now.getMinutes() + 10);
+
+        if (sendDate.getTime() < minValidTime.getTime()) {
+          toast({
+            title: "Invalid schedule time",
+            description:
+              sendDate.getTime() < now.getTime()
+                ? "Schedule time cannot be in the past."
+                : "Schedule time must be at least 10 minutes in the future.",
+            variant: "destructive",
+          });
+          setScheduleIsSaving(false);
+          return;
+        }
+      }
+
       const scheduled_for =
         isScheduled === "schedule" ? sendDate?.toISOString() : null;
 
@@ -527,6 +547,7 @@ export default function PreSendPage({ email }: { email: any }) {
                   <DateTimePicker
                     placeholder="Select a date and time"
                     disabledPast
+                    minFutureMinutes={10}
                     granularity="minute"
                     yearRange={1}
                     hourCycle={12}
@@ -534,6 +555,15 @@ export default function PreSendPage({ email }: { email: any }) {
                       if (date) {
                         setSendDate(date);
                       }
+                    }}
+                    onInvalidTime={(date, reason) => {
+                      // Still set the date, but validation will prevent saving
+                      setSendDate(date);
+                      toast({
+                        title: "Invalid time",
+                        description: reason,
+                        variant: "destructive",
+                      });
                     }}
                     value={sendDate ?? undefined}
                   />

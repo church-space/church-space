@@ -594,6 +594,18 @@ interface TimePickerProps {
    * Default is 'second'.
    * */
   granularity?: Granularity;
+  /**
+   * Prevents selecting past times on the current day
+   */
+  disabledPast?: boolean;
+  /**
+   * Called when a time is selected that is in the past or less than minFutureMinutes in the future
+   */
+  onInvalidTime?: (date: Date, reason: string) => void;
+  /**
+   * Minimum minutes in the future required for a valid time (only used if disabledPast is true)
+   */
+  minFutureMinutes?: number;
 }
 
 interface TimePickerRef {
@@ -603,7 +615,18 @@ interface TimePickerRef {
 }
 
 const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
-  ({ date, onChange, hourCycle = 24, granularity = "second" }, ref) => {
+  (
+    {
+      date,
+      onChange,
+      hourCycle = 24,
+      granularity = "second",
+      disabledPast = false,
+      onInvalidTime,
+      minFutureMinutes = 0,
+    },
+    ref
+  ) => {
     const minuteRef = React.useRef<HTMLInputElement>(null);
     const hourRef = React.useRef<HTMLInputElement>(null);
     const secondRef = React.useRef<HTMLInputElement>(null);
@@ -622,6 +645,46 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
       }),
       [minuteRef, hourRef, secondRef]
     );
+
+    // Function to check if the selected time is valid with respect to current time
+    const handleTimeChange = (newDate?: Date) => {
+      if (!newDate) {
+        onChange?.(newDate);
+        return;
+      }
+
+      // Always call onChange with the entered date
+      onChange?.(newDate);
+
+      // Only validate the time if disabledPast is true
+      if (disabledPast) {
+        const now = new Date();
+
+        // Only validate if it's today
+        const isToday =
+          newDate.getDate() === now.getDate() &&
+          newDate.getMonth() === now.getMonth() &&
+          newDate.getFullYear() === now.getFullYear();
+
+        if (isToday) {
+          // Calculate minimum valid time (now + minFutureMinutes)
+          const minValidTime = new Date(now);
+          minValidTime.setMinutes(now.getMinutes() + minFutureMinutes);
+
+          if (newDate.getTime() < minValidTime.getTime()) {
+            // Time is invalid - either in the past or not far enough in the future
+            const reason =
+              newDate.getTime() < now.getTime()
+                ? "Time cannot be in the past"
+                : `Time must be at least ${minFutureMinutes} minutes in the future`;
+
+            // Notify about invalid time but don't modify the date
+            onInvalidTime?.(newDate, reason);
+          }
+        }
+      }
+    };
+
     return (
       <div className="flex items-center justify-center gap-2">
         <label htmlFor="datetime-picker-hour-input" className="cursor-pointer">
@@ -631,7 +694,7 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
           picker={hourCycle === 24 ? "hours" : "12hours"}
           date={date}
           id="datetime-picker-hour-input"
-          onDateChange={onChange}
+          onDateChange={handleTimeChange}
           ref={hourRef}
           period={period}
           onRightFocus={() => minuteRef?.current?.focus()}
@@ -642,7 +705,7 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
             <TimePickerInput
               picker="minutes"
               date={date}
-              onDateChange={onChange}
+              onDateChange={handleTimeChange}
               ref={minuteRef}
               onLeftFocus={() => hourRef?.current?.focus()}
               onRightFocus={() => secondRef?.current?.focus()}
@@ -655,7 +718,7 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
             <TimePickerInput
               picker="seconds"
               date={date}
-              onDateChange={onChange}
+              onDateChange={handleTimeChange}
               ref={secondRef}
               onLeftFocus={() => minuteRef?.current?.focus()}
               onRightFocus={() => periodRef?.current?.focus()}
@@ -669,7 +732,7 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
               setPeriod={setPeriod}
               date={date}
               onDateChange={(date) => {
-                onChange?.(date);
+                handleTimeChange(date);
                 if (date && date?.getHours() >= 12) {
                   setPeriod("PM");
                 } else {
@@ -723,6 +786,14 @@ type DateTimePickerProps = {
    * Disable past dates.
    **/
   disabledPast?: boolean;
+  /**
+   * Minimum minutes in the future required for a valid time (only used if disabledPast is true)
+   */
+  minFutureMinutes?: number;
+  /**
+   * Called when a time is selected that is in the past or less than minFutureMinutes in the future
+   */
+  onInvalidTime?: (date: Date, reason: string) => void;
 } & Pick<
   CalendarProps,
   "locale" | "weekStartsOn" | "showWeekNumber" | "showOutsideDays"
@@ -751,6 +822,8 @@ const DateTimePicker = React.forwardRef<
       placeholder = "Pick a date",
       className,
       disabledPast = false,
+      minFutureMinutes = 0,
+      onInvalidTime,
       ...props
     },
     ref
@@ -760,7 +833,10 @@ const DateTimePicker = React.forwardRef<
     const [displayDate, setDisplayDate] = React.useState<Date | undefined>(
       value ?? undefined
     );
+    const [error, setError] = React.useState<string | null>(null);
+
     onMonthChange ||= onChange;
+
     /**
      * carry over the current time when a user clicks a new day
      * instead of resetting to 00:00
@@ -797,6 +873,35 @@ const DateTimePicker = React.forwardRef<
       if (!newDay) {
         return;
       }
+
+      // No automatic adjustment; just validate if needed
+      if (disabledPast) {
+        const now = new Date();
+        const isToday =
+          newDay.getDate() === now.getDate() &&
+          newDay.getMonth() === now.getMonth() &&
+          newDay.getFullYear() === now.getFullYear();
+
+        // If today, validate against minFutureMinutes
+        if (isToday) {
+          const minValidTime = new Date(now);
+          minValidTime.setMinutes(now.getMinutes() + minFutureMinutes);
+
+          if (newDay.getTime() < minValidTime.getTime()) {
+            const reason =
+              newDay.getTime() < now.getTime()
+                ? "Time cannot be in the past"
+                : `Time must be at least ${minFutureMinutes} minutes in the future`;
+
+            // Set error but don't modify the date
+            setError(reason);
+            onInvalidTime?.(newDay, reason);
+          } else {
+            setError(null);
+          }
+        }
+      }
+
       onChange?.(newDay);
       setMonth(newDay);
       setDisplayDate(newDay);
@@ -839,6 +944,7 @@ const DateTimePicker = React.forwardRef<
             className={cn(
               "w-full justify-start text-left font-normal",
               !displayDate && "text-muted-foreground",
+              error && "border-red-500",
               className
             )}
             ref={buttonRef}
@@ -884,16 +990,57 @@ const DateTimePicker = React.forwardRef<
             <div className="border-t border-border p-3">
               <TimePicker
                 onChange={(value) => {
+                  if (!value) {
+                    onChange?.(value);
+                    setDisplayDate(value);
+                    return;
+                  }
+
+                  // Update display without automatic adjustment
                   onChange?.(value);
                   setDisplayDate(value);
-                  if (value) {
-                    setMonth(value);
+                  setMonth(value);
+
+                  // Validate time if needed
+                  if (disabledPast) {
+                    const now = new Date();
+                    const isToday =
+                      value.getDate() === now.getDate() &&
+                      value.getMonth() === now.getMonth() &&
+                      value.getFullYear() === now.getFullYear();
+
+                    if (isToday) {
+                      const minValidTime = new Date(now);
+                      minValidTime.setMinutes(
+                        now.getMinutes() + minFutureMinutes
+                      );
+
+                      if (value.getTime() < minValidTime.getTime()) {
+                        const reason =
+                          value.getTime() < now.getTime()
+                            ? "Time cannot be in the past"
+                            : `Time must be at least ${minFutureMinutes} minutes in the future`;
+
+                        setError(reason);
+                        onInvalidTime?.(value, reason);
+                      } else {
+                        setError(null);
+                      }
+                    }
                   }
                 }}
                 date={month}
                 hourCycle={hourCycle}
                 granularity={granularity}
+                disabledPast={disabledPast}
+                minFutureMinutes={minFutureMinutes}
+                onInvalidTime={onInvalidTime}
               />
+              {error && (
+                <div className="mt-2 text-sm font-medium text-red-500">
+                  {error}
+                </div>
+              )}
             </div>
           )}
         </PopoverContent>
