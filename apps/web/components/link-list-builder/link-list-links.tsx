@@ -1,13 +1,13 @@
 import React from "react";
 
-interface Link {
+export interface LinkListLink {
   icon: string;
   url: string;
   text: string;
 }
 
 interface LinkListLinksProps {
-  links: Link[];
+  links: LinkListLink[];
   buttonColor: string;
   buttonTextColor: string;
 }

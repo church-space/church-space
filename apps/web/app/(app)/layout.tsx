@@ -38,7 +38,7 @@ export default async function ProtectedLayout({
       const headersList = await headers();
       const currentPath = headersList.get("x-pathname");
       const returnPath =
-        currentPath || headersList.get("x-invoke-path") || "/home";
+        currentPath || headersList.get("x-invoke-path") || "/emails";
 
       return redirect(
         `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`,

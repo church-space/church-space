@@ -27,11 +27,6 @@ import { NavUser } from "./nav-user";
 const data = {
   navMain: [
     {
-      title: "Home",
-      url: "/home",
-      icon: Home,
-    },
-    {
       title: "Emails",
       url: "/emails",
       icon: Mail,

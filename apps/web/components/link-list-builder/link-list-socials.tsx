@@ -27,7 +27,7 @@ export const socialIcons = {
   threads: Threads,
 };
 
-interface Link {
+export interface SocialLink {
   icon: keyof typeof socialIcons;
   url: string;
   text?: string;
@@ -37,7 +37,7 @@ interface LinkListSocialsProps {
   style: "outline" | "filled" | "icon-only";
   color: string;
   iconColor: string;
-  links: Link[];
+  links: SocialLink[];
 }
 
 export default function LinkListSocials({

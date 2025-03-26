@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   if (!user.pcoConnection) {
     return NextResponse.redirect(
-      new URL("/settings#pco-connection", request.url)
+      new URL("/settings#pco-connection", request.url),
     );
   }
   if (!user.organizationMembership) {
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
   if (!pcoConnection) {
     return NextResponse.redirect(
-      new URL("/settings#pco-connection", request.url)
+      new URL("/settings#pco-connection", request.url),
     );
   }
 
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         client_secret: process.env.PCO_SECRET!,
         refresh_token: pcoConnection.refresh_token,
       }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       clientSecret: process.env.PCO_SECRET ? "present" : "missing",
     });
     return NextResponse.redirect(
-      new URL("/settings#pco-connection", request.url)
+      new URL("/settings#pco-connection", request.url),
     );
   }
 
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
       headers: {
         Authorization: `Bearer ${data.access_token}`,
       },
-    }
+    },
   );
 
   const pcoUserData = await pcoUserResponse.json();
@@ -104,18 +104,18 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/pco-no-permissions`
+      `${process.env.NEXT_PUBLIC_SITE_URL}/pco-no-permissions`,
     );
   }
 
   // Redirect back to the original URL
   const returnUrl = request.nextUrl.searchParams.get("return_to");
   const finalReturnUrl =
-    returnUrl && returnUrl !== "/home"
+    returnUrl && returnUrl !== "/emails"
       ? returnUrl
       : request.headers
           .get("referer")
-          ?.replace(request.headers.get("origin") || "", "") || "/home";
+          ?.replace(request.headers.get("origin") || "", "") || "/emails";
 
   return NextResponse.redirect(new URL(finalReturnUrl, request.url));
 }

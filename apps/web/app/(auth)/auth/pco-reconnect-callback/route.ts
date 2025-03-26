@@ -10,13 +10,13 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error("PCO OAuth error:", error);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=${error}`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=${error}`,
       );
     }
 
     if (!code) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=no_code`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=no_code`,
       );
     }
 
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
           client_secret: process.env.PCO_SECRET,
           redirect_uri: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/pco-reconnect-callback`,
         }),
-      }
+      },
     );
 
     const tokenData = await tokenResponse.json();
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     if (!tokenResponse.ok) {
       console.error("PCO token error:", tokenData);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=token_error`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=token_error`,
       );
     }
 
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         headers: {
           Authorization: `Bearer ${tokenData.access_token}`,
         },
-      }
+      },
     );
 
     const pcoUserData = await pcoUserResponse.json();
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       pcoUserData.data.attributes.people_permissions !== "Manager"
     ) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/permissions-error`
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/permissions-error`,
       );
     }
 
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=auth_error`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=auth_error`,
       );
     }
 
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
 
     if (!userDetails || !userDetails[0].organization_id) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=user_details_error`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=user_details_error`,
       );
     }
 
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       .eq("organization_id", userDetails[0].organization_id)
       .eq(
         "pco_organization_id",
-        pcoUserData.data.relationships.organization.data.id
+        pcoUserData.data.relationships.organization.data.id,
       );
 
     if (deleteOldConnectionError) {
@@ -123,17 +123,17 @@ export async function GET(request: NextRequest) {
     if (upsertError) {
       console.error("Supabase error:", upsertError);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_connection_db_error`
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_connection_db_error`,
       );
     }
 
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/home?pco_connection_success=true`
+      `${process.env.NEXT_PUBLIC_SITE_URL}/emails?pco_connection_success=true`,
     );
   } catch (error) {
     console.error("PCO callback error:", error);
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?pco_connection_error=unknown`
+      `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?pco_connection_error=unknown`,
     );
   }
 }

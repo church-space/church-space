@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@church-space/ui/button";
+import Link from "next/link";
 
 interface LinkListHeaderProps {
   headerBgColor: string;
@@ -56,16 +57,17 @@ export default function LinkListHeader({
           "This is a longer subtitle for a list. Now I'm making it even longer."}
       </div>
       {headerButtonText && (
-        <Button
-          className="mt-8 h-10 rounded-full"
-          style={{
-            backgroundColor: headerButtonColor,
-            color: headerButtonTextColor,
-          }}
-          onClick={() => window.open(headerButtonLink, "_blank")}
-        >
-          {headerButtonText}
-        </Button>
+        <Link href={headerButtonLink} target="_blank">
+          <Button
+            className="mt-8 h-10 rounded-full"
+            style={{
+              backgroundColor: headerButtonColor,
+              color: headerButtonTextColor,
+            }}
+          >
+            {headerButtonText}
+          </Button>
+        </Link>
       )}
     </div>
   );
