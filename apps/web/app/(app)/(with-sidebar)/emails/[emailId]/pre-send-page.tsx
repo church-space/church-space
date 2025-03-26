@@ -46,7 +46,9 @@ import { useEffect, useState } from "react";
 import { useToast } from "@church-space/ui/use-toast";
 import { updateEmail } from "@church-space/supabase/mutations/emails";
 import { createClient } from "@church-space/supabase/client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
+import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
 
 function SaveButtons(props: {
   isSaving: boolean;
@@ -95,6 +97,7 @@ export default function PreSendPage({ email }: { email: any }) {
 
   // Initialize state from email data
   const [subject, setSubject] = useState(email.subject || "");
+  const [listId, setListId] = useState(email.list_id || "");
 
   // From details
   const [fromEmail, setFromEmail] = useState(email.from_email || "");
@@ -106,6 +109,25 @@ export default function PreSendPage({ email }: { email: any }) {
   const [replyToDomain, setReplyToDomain] = useState(
     email.reply_to_domain?.toString() || "",
   );
+
+  // Fetch list and domain data
+  const { data: listData } = useQuery({
+    queryKey: ["pcoList", listId],
+    queryFn: () => getPcoListQuery(supabase, parseInt(listId || "0")),
+    enabled: !!listId,
+  });
+
+  const { data: fromDomainData } = useQuery({
+    queryKey: ["domain", fromDomain],
+    queryFn: () => getDomainQuery(supabase, parseInt(fromDomain || "0")),
+    enabled: !!fromDomain,
+  });
+
+  const { data: replyToDomainData } = useQuery({
+    queryKey: ["domain", replyToDomain],
+    queryFn: () => getDomainQuery(supabase, parseInt(replyToDomain || "0")),
+    enabled: !!replyToDomain,
+  });
 
   // Add validation functions
   const isValidEmailLocalPart = (email: string) => {
@@ -135,8 +157,6 @@ export default function PreSendPage({ email }: { email: any }) {
   const [isScheduled, setIsScheduled] = useState(
     email.scheduled_for ? "schedule" : "send-now",
   );
-
-  const [listId, setListId] = useState(email.list_id || "");
 
   // Track changes
   const [toHasChanges, setToHasChanges] = useState(false);
@@ -512,7 +532,9 @@ export default function PreSendPage({ email }: { email: any }) {
               <div className="flex flex-col">
                 <span>To</span>
                 <span className="text-sm font-normal text-muted-foreground">
-                  {listId ? `${listId}` : ""}
+                  {listId
+                    ? `${listData?.data?.[0]?.pco_list_description || "Loading..."}`
+                    : ""}
                 </span>
               </div>
             </div>
@@ -563,9 +585,9 @@ export default function PreSendPage({ email }: { email: any }) {
                 <span>From</span>
                 <span className="text-sm font-normal text-muted-foreground">
                   {fromName
-                    ? `${fromName} <${fromEmail}@${fromDomain}>`
+                    ? `${fromName} <${fromEmail}@${fromDomainData?.data?.[0]?.domain || ""}>`
                     : fromEmail && fromDomain
-                      ? `${fromEmail}@${fromDomain}`
+                      ? `${fromEmail}@${fromDomainData?.data?.[0]?.domain || ""}`
                       : "No sender information"}
                 </span>
               </div>
