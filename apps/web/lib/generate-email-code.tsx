@@ -1161,7 +1161,9 @@ const CustomFooter: React.FC<{
                   cellSpacing="0"
                   border={0}
                   width="100%"
-                  style={{ paddingTop: "24px", paddingBottom: "24px" }}
+                  style={{
+                    padding: isInset ? "24px 24px" : "24px 0px",
+                  }}
                 >
                   <tr>
                     <td
@@ -1332,7 +1334,9 @@ export function generateEmailCode(
                 >
                   <tr>
                     <td style={{ padding: "0px" }}>
-                      <Container style={{ padding: 0 }}>
+                      <Container
+                        style={{ padding: "15px 0px", maxWidth: "620px" }}
+                      >
                         {sections.map((section, sectionIndex) => (
                           <EmailSection key={`section-inset-${sectionIndex}`}>
                             {section.blocks.map((block, blockIndex) => {

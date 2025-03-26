@@ -124,7 +124,7 @@ export default function EmailDndProvider({
 
   const initialStyles: EmailStyles = {
     bgColor: emailStyle.blocks_bg_color || "#f4f4f5",
-    isInset: emailStyle.is_inset || false,
+    isInset: emailStyle.is_inset || true,
     emailBgColor: emailStyle.bg_color || "#ffffff",
     linkColor: emailStyle.link_color || "#0000ff",
     defaultTextColor: emailStyle.default_text_color || "#000000",
