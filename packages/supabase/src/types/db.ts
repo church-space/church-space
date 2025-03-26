@@ -368,11 +368,13 @@ export type Database = {
         Row: {
           created_at: string
           from_email: string | null
+          from_email_domain: number | null
           from_name: string | null
           id: number
           list_id: number | null
           organization_id: string
           reply_to: string | null
+          reply_to_domain: number | null
           scheduled_for: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["email_statuses"]
@@ -385,11 +387,13 @@ export type Database = {
         Insert: {
           created_at?: string
           from_email?: string | null
+          from_email_domain?: number | null
           from_name?: string | null
           id?: number
           list_id?: number | null
           organization_id: string
           reply_to?: string | null
+          reply_to_domain?: number | null
           scheduled_for?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_statuses"]
@@ -402,11 +406,13 @@ export type Database = {
         Update: {
           created_at?: string
           from_email?: string | null
+          from_email_domain?: number | null
           from_name?: string | null
           id?: number
           list_id?: number | null
           organization_id?: string
           reply_to?: string | null
+          reply_to_domain?: number | null
           scheduled_for?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_statuses"]
@@ -417,6 +423,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "emails_from_email_domain_fkey"
+            columns: ["from_email_domain"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "emails_list_id_fkey"
             columns: ["list_id"]
@@ -429,6 +442,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emails_reply_to_domain_fkey"
+            columns: ["reply_to_domain"]
+            isOneToOne: false
+            referencedRelation: "domains"
             referencedColumns: ["id"]
           },
         ]
@@ -685,6 +705,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           default_email: string | null
+          default_email_domain: number | null
           id: string
           name: string
           pco_org_id: string | null
@@ -693,6 +714,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           default_email?: string | null
+          default_email_domain?: number | null
           id?: string
           name: string
           pco_org_id?: string | null
@@ -701,6 +723,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           default_email?: string | null
+          default_email_domain?: number | null
           id?: string
           name?: string
           pco_org_id?: string | null
@@ -711,6 +734,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organizations_default_email_domain_fkey"
+            columns: ["default_email_domain"]
+            isOneToOne: false
+            referencedRelation: "domains"
             referencedColumns: ["id"]
           },
         ]
@@ -772,21 +802,27 @@ export type Database = {
       pco_list_categories: {
         Row: {
           created_at: string
+          description: string | null
           id: number
+          is_public: boolean
           organization_id: string
           pco_id: string | null
           pco_name: string
         }
         Insert: {
           created_at?: string
+          description?: string | null
           id?: number
+          is_public: boolean
           organization_id: string
           pco_id?: string | null
           pco_name: string
         }
         Update: {
           created_at?: string
+          description?: string | null
           id?: number
+          is_public?: boolean
           organization_id?: string
           pco_id?: string | null
           pco_name?: string

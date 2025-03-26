@@ -43,16 +43,16 @@ import { format } from "date-fns";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { useToast } from "@church-space/ui/use-toast";
-import { updateEmailAction } from "@/actions/update-email";
-import type { ActionResponse } from "@/types/action";
+import { updateEmail } from "@church-space/supabase/mutations/emails";
+import { createClient } from "@church-space/supabase/client";
 
 function SaveButtons(props: {
   isSaving: boolean;
   hasChanges: boolean;
   setIsSaving: (isSaving: boolean) => void;
-  onSave: () => Promise<void>;
 }) {
-  const { isSaving, hasChanges, setIsSaving, onSave } = props;
+  const { isSaving, hasChanges, setIsSaving } = props;
+
   return (
     <div className="mt-4 flex w-full items-center justify-end gap-2 border-t pt-4">
       <Button variant="outline" size="sm" disabled={isSaving}>
@@ -61,10 +61,8 @@ function SaveButtons(props: {
       <Button
         size="sm"
         disabled={isSaving || !hasChanges}
-        onClick={async () => {
+        onClick={() => {
           setIsSaving(true);
-          await onSave();
-          setIsSaving(false);
         }}
       >
         {isSaving ? "Saving..." : "Save"}
@@ -76,6 +74,8 @@ function SaveButtons(props: {
 export default function PreSendPage({ email }: { email: any }) {
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const { toast } = useToast();
+
+  const supabase = createClient();
 
   // Initialize state from email data
   const [subject, setSubject] = useState(email.subject || "");
@@ -166,174 +166,6 @@ export default function PreSendPage({ email }: { email: any }) {
   const hasWarnings =
     tooManyWords || tooManyChars || tooManyEmojis || tooManyPunctuations;
 
-  // Validation function for email addresses
-  const validateEmailAddress = (address: string, domain: string) => {
-    // Remove any spaces
-    const cleanAddress = address.replace(/\s/g, "");
-    const cleanDomain = domain.replace(/\s/g, "");
-
-    // Check for valid email characters
-    const emailRegex = /^[a-zA-Z0-9._%+-]+$/;
-    const domainRegex =
-      /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
-
-    if (!emailRegex.test(cleanAddress)) {
-      return {
-        isValid: false,
-        error: "Email address contains invalid characters",
-      };
-    }
-
-    if (!domainRegex.test(cleanDomain)) {
-      return {
-        isValid: false,
-        error: "Domain contains invalid characters",
-      };
-    }
-
-    return {
-      isValid: true,
-      cleanAddress,
-      cleanDomain,
-    };
-  };
-
-  // Save handlers
-  const handleToSave = async () => {
-    try {
-      const result = (await updateEmailAction({
-        email_id: email.id,
-        email_data: {
-          list_id: audienceValue,
-          organization_id: email.organization_id,
-        },
-      })) as ActionResponse;
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to update recipients");
-      }
-
-      toast({
-        title: "Recipients updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Failed to update recipients",
-        description:
-          error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleFromSave = async () => {
-    try {
-      // Validate email addresses
-      const fromValidation = validateEmailAddress(fromEmail, fromDomain);
-      if (!fromValidation.isValid) {
-        toast({
-          title: "Invalid from email address",
-          description: fromValidation.error,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const replyToValidation = validateEmailAddress(
-        replyToEmail,
-        replyToDomain,
-      );
-      if (!replyToValidation.isValid) {
-        toast({
-          title: "Invalid reply-to email address",
-          description: replyToValidation.error,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const result = (await updateEmailAction({
-        email_id: email.id,
-        email_data: {
-          from_email: `${fromValidation.cleanAddress}@${fromValidation.cleanDomain}`,
-          from_name: fromName,
-          reply_to: `${replyToValidation.cleanAddress}@${replyToValidation.cleanDomain}`,
-          organization_id: email.organization_id,
-        },
-      })) as ActionResponse;
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to update sender information");
-      }
-
-      toast({
-        title: "Sender information updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Failed to update sender information",
-        description:
-          error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSubjectSave = async () => {
-    try {
-      const result = (await updateEmailAction({
-        email_id: email.id,
-        email_data: {
-          subject,
-          organization_id: email.organization_id,
-        },
-      })) as ActionResponse;
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to update subject");
-      }
-
-      toast({
-        title: "Subject updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Failed to update subject",
-        description:
-          error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleScheduleSave = async () => {
-    try {
-      const result = (await updateEmailAction({
-        email_id: email.id,
-        email_data: {
-          scheduled_for:
-            isScheduled === "schedule" ? sendDate?.toISOString() : null,
-          organization_id: email.organization_id,
-        },
-      })) as ActionResponse;
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to update schedule");
-      }
-
-      toast({
-        title: "Schedule updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Failed to update schedule",
-        description:
-          error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <>
       <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-5">
@@ -412,7 +244,6 @@ export default function PreSendPage({ email }: { email: any }) {
               isSaving={toIsSaving}
               hasChanges={toHasChanges}
               setIsSaving={setToIsSaving}
-              onSave={handleToSave}
             />
           </AccordionContent>
         </AccordionItem>
@@ -485,7 +316,6 @@ export default function PreSendPage({ email }: { email: any }) {
               isSaving={fromIsSaving}
               hasChanges={fromHasChanges}
               setIsSaving={setFromIsSaving}
-              onSave={handleFromSave}
             />
           </AccordionContent>
         </AccordionItem>
@@ -563,7 +393,6 @@ export default function PreSendPage({ email }: { email: any }) {
               isSaving={subjectIsSaving}
               hasChanges={subjectHasChanges}
               setIsSaving={setSubjectIsSaving}
-              onSave={handleSubjectSave}
             />
           </AccordionContent>
         </AccordionItem>
@@ -645,7 +474,6 @@ export default function PreSendPage({ email }: { email: any }) {
               isSaving={scheduleIsSaving}
               hasChanges={scheduleHasChanges}
               setIsSaving={setScheduleIsSaving}
-              onSave={handleScheduleSave}
             />
           </AccordionContent>
         </AccordionItem>

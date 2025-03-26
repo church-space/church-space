@@ -53,6 +53,7 @@ export const columns: ColumnDef<Email>[] = [
         <Link
           href={`/emails/${email.id}`}
           className="font-medium hover:underline"
+          prefetch={true}
         >
           {email.subject || "No Subject"}
         </Link>

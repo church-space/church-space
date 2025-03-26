@@ -1,4 +1,5 @@
-import { getCachedEmail } from "@church-space/supabase/queries/cached/emails";
+"use client";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,23 +8,31 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
+
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { cookies } from "next/headers";
 import PreSendPage from "./pre-send-page";
 import PostSendPage from "./post-send-page";
 import SendingPage from "./sending-page";
 import { redirect } from "next/navigation";
 import TempSendNowButton from "./temp-send-now-button";
 import SendTestEmail from "@/components/dnd-builder/send-test-email";
+import { getEmailQuery } from "@church-space/supabase/queries/all/get-email";
+import { useQuery } from "@tanstack/react-query";
+import { createClient } from "@church-space/supabase/client";
+import { useParams } from "next/navigation";
 
 type Params = Promise<{ emailId: string }>;
 
-export default async function Page(props: { params: Params }) {
-  const params = await props.params;
-  const emailId = parseInt(params.emailId, 10);
+export default function Page() {
+  const params = useParams();
+  const emailId = parseInt(params.emailId as string, 10);
+  const supabase = createClient();
 
-  const email = await getCachedEmail(emailId);
+  const { data: email, isLoading } = useQuery({
+    queryKey: ["email", emailId],
+    queryFn: () => getEmailQuery(supabase, emailId),
+  });
 
   if (!email || !email.data) {
     return <div>Email not found</div>;
@@ -32,12 +41,6 @@ export default async function Page(props: { params: Params }) {
   if (email.data.type === "template") {
     redirect(`/emails/${emailId}/editor`);
   }
-
-  // Get organizationId from cookies
-  const cookieStore = await cookies();
-  const organizationId = cookieStore.get("organizationId")?.value;
-
-  console.log(organizationId);
 
   return (
     <>
