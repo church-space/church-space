@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@church-space/ui/dialog";
 import { Ellipsis, Eye } from "lucide-react";
-import Link from "next/link";
+import { CircleDashed, CircleCheck } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
 
 import DomainSelector from "@/components/id-pages/emails/domain-selector";
@@ -520,15 +520,11 @@ export default function PreSendPage({ email }: { email: any }) {
         >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              <span
-                className={
-                  email.list_id && email.audience_id
-                    ? "text-green-400"
-                    : "text-muted-foreground"
-                }
-              >
-                <Backlog height={"24"} width={"24"} />
-              </span>
+              {email.list_id ? (
+                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+              ) : (
+                <CircleDashed height={"24"} width={"24"} />
+              )}
               <div className="flex flex-col">
                 <span>To</span>
                 <span className="text-sm font-normal text-muted-foreground">
@@ -572,15 +568,13 @@ export default function PreSendPage({ email }: { email: any }) {
         >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              <span
-                className={
-                  email.from_email && email.from_name
-                    ? "text-green-400"
-                    : "text-muted-foreground"
-                }
-              >
-                <Backlog height={"24"} width={"24"} />
-              </span>
+              {email.from_name &&
+              email.from_email &&
+              email.from_email_domain ? (
+                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+              ) : (
+                <CircleDashed height={"24"} width={"24"} />
+              )}
               <div className="flex flex-col">
                 <span>From</span>
                 <span className="text-sm font-normal text-muted-foreground">
@@ -652,11 +646,11 @@ export default function PreSendPage({ email }: { email: any }) {
         >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              <span
-                className={subject ? "text-green-400" : "text-muted-foreground"}
-              >
-                <Backlog height={"24"} width={"24"} />
-              </span>
+              {email.subject ? (
+                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+              ) : (
+                <CircleDashed height={"24"} width={"24"} />
+              )}
               <div className="flex flex-col">
                 <span>Subject</span>
                 <span className="text-sm font-normal text-muted-foreground">
@@ -737,15 +731,11 @@ export default function PreSendPage({ email }: { email: any }) {
         >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              <span
-                className={
-                  email.scheduled_for || isScheduled === "send-now"
-                    ? "text-green-400"
-                    : "text-muted-foreground"
-                }
-              >
-                <Backlog height={"24"} width={"24"} />
-              </span>
+              {email.scheduled_for ? (
+                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+              ) : (
+                <CircleDashed height={"24"} width={"24"} />
+              )}
               <div className="flex flex-col">
                 <span>Schedule</span>
                 <span className="text-sm font-normal text-muted-foreground">
