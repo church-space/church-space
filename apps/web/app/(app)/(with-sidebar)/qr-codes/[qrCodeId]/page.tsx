@@ -564,6 +564,7 @@ export default function Page() {
     try {
       const { error } = await updateQRCode(supabase, editingQRCode.id, {
         title: editingQRCode.name,
+        linked_asset: editingQRCode.logoImage,
         style: {
           bgColor: editingQRCode.bgColor,
           qrColor: editingQRCode.qrColor,
