@@ -453,7 +453,10 @@ export default function Page() {
       if (downloadCanvas) {
         const url = downloadCanvas.toDataURL("image/png", 1.0);
         const downloadLink = document.createElement("a");
-        downloadLink.download = `${qrCode.name.replace(/\s+/g, "-")}.png`;
+        // Create filename using both link name and QR code name
+        const linkName = linkData.name.replace(/\s+/g, "-").toLowerCase();
+        const qrCodeName = qrCode.name.replace(/\s+/g, "-").toLowerCase();
+        downloadLink.download = `${linkName}-${qrCodeName}.png`;
         downloadLink.href = url;
         downloadLink.click();
       }
