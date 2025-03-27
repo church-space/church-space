@@ -54,7 +54,7 @@ import {
 import { getQRLinkQuery } from "@church-space/supabase/queries/all/get-qr-code";
 import { createClient } from "@church-space/supabase/client";
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createQRCode,
   deleteQRCode,
@@ -206,6 +206,8 @@ export default function Page() {
       return data;
     },
   });
+
+  const queryClient = useQueryClient();
 
   const [linkData, setLinkData] = useState<LinkData>({
     url: "",
@@ -553,11 +555,16 @@ export default function Page() {
 
       if (error) throw error;
 
+      // Update local state
       setLinkData((prev) => ({
         ...prev,
         name: editedLinkName,
         url: editedLinkUrl,
       }));
+
+      // Invalidate and refetch the query
+      await queryClient.invalidateQueries({ queryKey: ["qr-link", qrLinkId] });
+
       setIsEditingLink(false);
     } catch (error) {
       console.error("Error updating QR link:", error);
