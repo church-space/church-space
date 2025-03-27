@@ -31,7 +31,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@church-space/ui/dropdown-menu";
-import { Backlog } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
@@ -1045,7 +1044,8 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                 )}
                 <div className="rounded-md border bg-muted p-3 text-sm text-muted-foreground">
                   The email will not be offically scheduled until you hit the
-                  "Schedule" button in the top right corner of this page.
+                  &quot;Schedule&quot; button in the top right corner of this
+                  page.
                 </div>
               </TabsContent>
               <TabsContent

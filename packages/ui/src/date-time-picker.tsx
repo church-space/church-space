@@ -671,8 +671,8 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
           const minValidTime = new Date(now);
           minValidTime.setMinutes(now.getMinutes() + minFutureMinutes);
 
+          // Only show error if the time is actually invalid
           if (newDate.getTime() < minValidTime.getTime()) {
-            // Time is invalid - either in the past or not far enough in the future
             const reason =
               newDate.getTime() < now.getTime()
                 ? "Time cannot be in the past"

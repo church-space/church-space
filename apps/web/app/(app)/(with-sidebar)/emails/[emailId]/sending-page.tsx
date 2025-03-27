@@ -11,14 +11,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-import { Button } from "@church-space/ui/button";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@church-space/ui/dialog";
 
 function FloatingPaths({ position }: { position: number }) {
   const paths = Array.from({ length: 36 }, (_, i) => ({
