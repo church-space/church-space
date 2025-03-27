@@ -1075,10 +1075,6 @@ export default function Page() {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="edit-bg-color">Background Color</Label>
                     <div className="flex items-center gap-2">
-                      <div
-                        className="h-6 w-6 rounded border"
-                        style={{ backgroundColor: editingQRCode.bgColor }}
-                      />
                       <Input
                         id="edit-bg-color"
                         type="color"
@@ -1115,10 +1111,6 @@ export default function Page() {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="edit-qr-color">QR Code Color</Label>
                     <div className="flex items-center gap-2">
-                      <div
-                        className="h-6 w-6 rounded border"
-                        style={{ backgroundColor: editingQRCode.qrColor }}
-                      />
                       <Input
                         id="edit-qr-color"
                         type="color"
