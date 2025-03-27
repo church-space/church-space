@@ -8,15 +8,12 @@ const ratelimit = new Ratelimit({
   redis: RedisClient,
 });
 
-type RouteParams = {
-  qrCodeId: string;
-};
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: RouteParams },
-) {
+export async function GET(request: NextRequest) {
   try {
+    const url = new URL(request.url);
+    const pathParts = url.pathname.split("/");
+    const qrCodeId = pathParts[pathParts.length - 1];
+
     const supabase = await createClient();
 
     // Get the QR code and its associated link
@@ -30,7 +27,7 @@ export async function GET(
         )
       `,
       )
-      .eq("id", params.qrCodeId)
+      .eq("id", qrCodeId)
       .single();
 
     if (qrError || !qrCode || !qrCode.qr_links?.url) {
@@ -47,7 +44,7 @@ export async function GET(
 
     const { error: clickError } = await supabase.from("qr_code_clicks").insert([
       {
-        qr_code_id: params.qrCodeId,
+        qr_code_id: qrCodeId,
       },
     ]);
 
