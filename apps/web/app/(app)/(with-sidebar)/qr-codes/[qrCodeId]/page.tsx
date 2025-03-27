@@ -421,7 +421,7 @@ export default function Page() {
     }
   };
 
-  const downloadQRCode = (index: number) => {
+  const downloadQRCode = async (index: number) => {
     const qrCode = linkData.qrCodes[index];
     if (!qrCode) return;
 
@@ -431,36 +431,48 @@ export default function Page() {
     downloadContainer.style.left = "-9999px";
     document.body.appendChild(downloadContainer);
 
-    // Add the high-res QR code directly to the DOM
-    const qrCodeElement = (
-      <QRCode
-        value={`churchspace.co/qr/${qrCode.id}`}
-        size={960}
-        bgColor={
-          qrCode.isTransparent ? "rgba(255, 255, 255, 0)" : qrCode.bgColor
+    try {
+      // If there's a logo, preload it with CORS headers
+      let logoImageUrl = undefined;
+      if (qrCode.logoImage) {
+        const logoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${qrCode.logoImage}`;
+        try {
+          const response = await fetch(logoUrl);
+          const blob = await response.blob();
+          logoImageUrl = URL.createObjectURL(blob);
+        } catch (error) {
+          console.error("Error loading logo:", error);
+          // If logo loading fails, we'll proceed without it
         }
-        fgColor={qrCode.qrColor}
-        qrStyle={qrCode.isRounded ? "fluid" : "squares"}
-        eyeRadius={qrCode.isRounded ? 64 : 0}
-        logoImage={
-          qrCode.logoImage
-            ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${qrCode.logoImage}`
-            : undefined
-        }
-        logoWidth={qrCode.logoSize * 8}
-        logoHeight={qrCode.logoSize * 8}
-        removeQrCodeBehindLogo={true}
-        ecLevel="M"
-      />
-    );
+      }
 
-    // Render the QR code
-    downloadContainer.innerHTML = "";
-    const root = createRoot(downloadContainer);
-    root.render(qrCodeElement);
+      // Add the high-res QR code directly to the DOM
+      const qrCodeElement = (
+        <QRCode
+          value={`churchspace.co/qr/${qrCode.id}`}
+          size={960}
+          bgColor={
+            qrCode.isTransparent ? "rgba(255, 255, 255, 0)" : qrCode.bgColor
+          }
+          fgColor={qrCode.qrColor}
+          qrStyle={qrCode.isRounded ? "fluid" : "squares"}
+          eyeRadius={qrCode.isRounded ? 64 : 0}
+          logoImage={logoImageUrl}
+          logoWidth={qrCode.logoSize * 8}
+          logoHeight={qrCode.logoSize * 8}
+          removeQrCodeBehindLogo={true}
+          ecLevel="M"
+        />
+      );
 
-    // Wait a moment for the QR code to render
-    setTimeout(() => {
+      // Render the QR code
+      downloadContainer.innerHTML = "";
+      const root = createRoot(downloadContainer);
+      root.render(qrCodeElement);
+
+      // Wait a moment for the QR code to render
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const downloadCanvas = downloadContainer.querySelector("canvas");
       if (downloadCanvas) {
         const url = downloadCanvas.toDataURL("image/png", 1.0);
@@ -476,7 +488,47 @@ export default function Page() {
       // Cleanup
       root.unmount();
       document.body.removeChild(downloadContainer);
-    }, 100);
+      if (logoImageUrl) {
+        URL.revokeObjectURL(logoImageUrl);
+      }
+    } catch (error) {
+      console.error("Error downloading QR code:", error);
+      // If the download fails, we'll try to download without the logo
+      const qrCodeWithoutLogo = (
+        <QRCode
+          value={`churchspace.co/qr/${qrCode.id}`}
+          size={960}
+          bgColor={
+            qrCode.isTransparent ? "rgba(255, 255, 255, 0)" : qrCode.bgColor
+          }
+          fgColor={qrCode.qrColor}
+          qrStyle={qrCode.isRounded ? "fluid" : "squares"}
+          eyeRadius={qrCode.isRounded ? 64 : 0}
+          removeQrCodeBehindLogo={true}
+          ecLevel="M"
+        />
+      );
+
+      const root = createRoot(downloadContainer);
+      root.render(qrCodeWithoutLogo);
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const fallbackCanvas = downloadContainer.querySelector("canvas");
+      if (fallbackCanvas) {
+        const fallbackUrl = fallbackCanvas.toDataURL("image/png", 1.0);
+        const fallbackLink = document.createElement("a");
+        const linkName = linkData.name.replace(/\s+/g, "-").toLowerCase();
+        const qrCodeName = qrCode.name.replace(/\s+/g, "-").toLowerCase();
+        fallbackLink.download = `${linkName}-${qrCodeName}-no-logo.png`;
+        fallbackLink.href = fallbackUrl;
+        fallbackLink.click();
+      }
+
+      // Cleanup
+      root.unmount();
+      document.body.removeChild(downloadContainer);
+    }
   };
 
   const addNewQRCode = async () => {
