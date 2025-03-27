@@ -1068,8 +1068,8 @@ export default function Page() {
                         ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${qrCode.logoImage}`
                         : undefined
                     }
-                    logoWidth={qrCode.logoSize * 1.2}
-                    logoHeight={qrCode.logoSize * 1.2}
+                    logoWidth={Math.round(qrCode.logoSize * (120 / 180))}
+                    logoHeight={Math.round(qrCode.logoSize * (120 / 180))}
                     removeQrCodeBehindLogo={true}
                     ecLevel="M"
                   />
@@ -1244,7 +1244,7 @@ export default function Page() {
                         id="edit-logo-size"
                         type="range"
                         min={20}
-                        max={80}
+                        max={55}
                         value={editingQRCode.logoSize}
                         onChange={(e) =>
                           setEditingQRCode({
