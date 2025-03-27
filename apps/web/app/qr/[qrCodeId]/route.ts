@@ -35,7 +35,7 @@ export async function GET(
 
     // Record the click
     const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
-    const { success, remaining } = await ratelimit.limit(`${ip}-qr-click`);
+    const { success } = await ratelimit.limit(`${ip}-qr-click`);
 
     if (!success) {
       return new NextResponse("Too many requests", { status: 429 });
