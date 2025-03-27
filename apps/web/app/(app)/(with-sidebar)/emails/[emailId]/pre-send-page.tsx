@@ -859,6 +859,21 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                     hourCycle={12}
                     onChange={(date) => {
                       if (date) {
+                        // Validate that the date is not more than a year in the future
+                        const now = new Date();
+                        const oneYearFromNow = new Date();
+                        oneYearFromNow.setFullYear(now.getFullYear() + 1);
+
+                        if (date > oneYearFromNow) {
+                          toast({
+                            title: "Invalid schedule time",
+                            description:
+                              "Email cannot be scheduled more than a year in the future.",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+
                         setSendDate(date);
                       }
                     }}

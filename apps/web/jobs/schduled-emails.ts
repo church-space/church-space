@@ -106,6 +106,7 @@ export const scheduleEmail = task({
         .update({
           trigger_dev_schduled_id: ctx.run.id,
           updated_at: new Date().toISOString(),
+          status: "scheduled",
         })
         .eq("id", emailId);
 
