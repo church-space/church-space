@@ -69,6 +69,7 @@ import {
 } from "@church-space/ui/dropdown-menu";
 import { DropdownMenuTrigger } from "@church-space/ui/dropdown-menu";
 import { Trash } from "@church-space/ui/icons";
+import { createRoot } from "react-dom/client";
 
 // Types
 type QRCodeData = {
@@ -413,14 +414,54 @@ export default function Page() {
   };
 
   const downloadQRCode = (index: number) => {
-    const canvas = document.querySelectorAll("canvas")[index];
-    if (!canvas) return;
+    const qrCode = linkData.qrCodes[index];
+    if (!qrCode) return;
 
-    const url = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.download = `${linkData.qrCodes[index].name.replace(/\s+/g, "-")}.png`;
-    link.href = url;
-    link.click();
+    // Create a hidden container
+    const downloadContainer = document.createElement("div");
+    downloadContainer.style.position = "absolute";
+    downloadContainer.style.left = "-9999px";
+    document.body.appendChild(downloadContainer);
+
+    // Add the high-res QR code directly to the DOM
+    const qrCodeElement = (
+      <QRCode
+        value={`churchspace.co/qr/${qrCode.id}`}
+        size={960}
+        bgColor={
+          qrCode.isTransparent ? "rgba(255, 255, 255, 0)" : qrCode.bgColor
+        }
+        fgColor={qrCode.qrColor}
+        qrStyle="squares"
+        eyeRadius={qrCode.isRounded ? 64 : 0}
+        logoImage={qrCode.logoImage || undefined}
+        logoWidth={qrCode.logoSize * 8}
+        logoHeight={qrCode.logoSize * 8}
+        removeQrCodeBehindLogo={true}
+        ecLevel="Q"
+      />
+    );
+
+    // Render the QR code
+    downloadContainer.innerHTML = "";
+    const root = createRoot(downloadContainer);
+    root.render(qrCodeElement);
+
+    // Wait a moment for the QR code to render
+    setTimeout(() => {
+      const downloadCanvas = downloadContainer.querySelector("canvas");
+      if (downloadCanvas) {
+        const url = downloadCanvas.toDataURL("image/png", 1.0);
+        const downloadLink = document.createElement("a");
+        downloadLink.download = `${qrCode.name.replace(/\s+/g, "-")}.png`;
+        downloadLink.href = url;
+        downloadLink.click();
+      }
+
+      // Cleanup
+      root.unmount();
+      document.body.removeChild(downloadContainer);
+    }, 100);
   };
 
   const addNewQRCode = async () => {
@@ -947,7 +988,7 @@ export default function Page() {
                 >
                   <QRCode
                     value={`churchspace.co/qr/${qrCode.id}`}
-                    size={100}
+                    size={120}
                     bgColor={
                       qrCode.isTransparent
                         ? "rgba(255, 255, 255, 0)"
@@ -955,10 +996,10 @@ export default function Page() {
                     }
                     fgColor={qrCode.qrColor}
                     qrStyle="squares"
-                    eyeRadius={qrCode.isRounded ? 10 : 0}
+                    eyeRadius={qrCode.isRounded ? 8 : 0}
                     logoImage={qrCode.logoImage || undefined}
-                    logoWidth={qrCode.logoSize}
-                    logoHeight={qrCode.logoSize}
+                    logoWidth={qrCode.logoSize * 1.2}
+                    logoHeight={qrCode.logoSize * 1.2}
                     removeQrCodeBehindLogo={true}
                     ecLevel="Q"
                   />
