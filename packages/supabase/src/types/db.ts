@@ -806,7 +806,7 @@ export type Database = {
           id: number
           is_public: boolean
           organization_id: string
-          pco_id: string | null
+          pco_id: string
           pco_name: string
         }
         Insert: {
@@ -815,7 +815,7 @@ export type Database = {
           id?: number
           is_public?: boolean
           organization_id: string
-          pco_id?: string | null
+          pco_id: string
           pco_name: string
         }
         Update: {
@@ -824,7 +824,7 @@ export type Database = {
           id?: number
           is_public?: boolean
           organization_id?: string
-          pco_id?: string | null
+          pco_id?: string
           pco_name?: string
         }
         Relationships: [
@@ -1210,25 +1210,25 @@ export type Database = {
         Row: {
           created_at: string
           id: number
+          name: string | null
           organization_id: string
           status: string | null
-          title: string | null
           url: string | null
         }
         Insert: {
           created_at?: string
           id?: number
+          name?: string | null
           organization_id: string
           status?: string | null
-          title?: string | null
           url?: string | null
         }
         Update: {
           created_at?: string
           id?: number
+          name?: string | null
           organization_id?: string
           status?: string | null
-          title?: string | null
           url?: string | null
         }
         Relationships: [

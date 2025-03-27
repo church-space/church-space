@@ -187,9 +187,14 @@ export default function Page() {
   const [isDeletingLink, setIsDeletingLink] = useState(false);
 
   const handleDeleteLink = async () => {
-    const { data, error } = await deleteQRLink(supabase, qrLinkId);
-    if (error) throw error;
-    if (!data) throw new Error("QR link not found");
+    try {
+      const { error } = await deleteQRLink(supabase, qrLinkId);
+      if (error) throw error;
+      // You might want to add navigation back to the QR codes list here
+    } catch (error) {
+      console.error("Error deleting QR link:", error);
+      // You might want to show an error toast here
+    }
   };
 
   const { data: qrLinkData, isLoading } = useQuery({
@@ -471,38 +476,93 @@ export default function Page() {
     }
   };
 
-  const deleteQRCode = (index: number) => {
+  const handleDeleteQRCode = async (qrCodeId: string) => {
     if (linkData.qrCodes.length <= 1) return; // Don't delete the last QR code
 
-    const updatedQRCodes = [...linkData.qrCodes];
-    updatedQRCodes.splice(index, 1);
+    try {
+      const { error } = await deleteQRCode(supabase, qrCodeId);
+      if (error) throw error;
 
-    setLinkData((prev) => ({
-      ...prev,
-      qrCodes: updatedQRCodes,
-    }));
-
-    if (selectedQRCodeIndex >= updatedQRCodes.length) {
-      setSelectedQRCodeIndex(updatedQRCodes.length - 1);
-    }
-  };
-
-  const saveQRCodeChanges = () => {
-    if (!editingQRCode) return;
-
-    const updatedQRCodes = [...linkData.qrCodes];
-    const index = updatedQRCodes.findIndex((qr) => qr.id === editingQRCode.id);
-
-    if (index !== -1) {
-      updatedQRCodes[index] = editingQRCode;
-
+      const updatedQRCodes = linkData.qrCodes.filter(
+        (qr) => qr.id !== qrCodeId,
+      );
       setLinkData((prev) => ({
         ...prev,
         qrCodes: updatedQRCodes,
       }));
-    }
 
-    setEditingQRCode(null);
+      if (editingQRCode?.id === qrCodeId) {
+        setEditingQRCode(null);
+      }
+    } catch (error) {
+      console.error("Error deleting QR code:", error);
+      // You might want to show an error toast here
+    }
+  };
+
+  const saveQRCodeChanges = async () => {
+    if (!editingQRCode) return;
+
+    try {
+      const { error } = await updateQRCode(supabase, editingQRCode.id, {
+        title: editingQRCode.name,
+        style: {
+          bgColor: editingQRCode.bgColor,
+          qrColor: editingQRCode.qrColor,
+          isRounded: editingQRCode.isRounded,
+          isTransparent: editingQRCode.isTransparent,
+          logoSize: editingQRCode.logoSize,
+        },
+      });
+
+      if (error) throw error;
+
+      // Update local state
+      const updatedQRCodes = [...linkData.qrCodes];
+      const index = updatedQRCodes.findIndex(
+        (qr) => qr.id === editingQRCode.id,
+      );
+
+      if (index !== -1) {
+        updatedQRCodes[index] = editingQRCode;
+
+        setLinkData((prev) => ({
+          ...prev,
+          qrCodes: updatedQRCodes,
+        }));
+      }
+
+      setEditingQRCode(null);
+    } catch (error) {
+      console.error("Error updating QR code:", error);
+      // You might want to show an error toast here
+    }
+  };
+
+  const saveEditedLink = async () => {
+    try {
+      const { error } = await updateQRLink(
+        supabase,
+        {
+          id: qrLinkId,
+          name: editedLinkName,
+          url: editedLinkUrl,
+        },
+        qrLinkId,
+      );
+
+      if (error) throw error;
+
+      setLinkData((prev) => ({
+        ...prev,
+        name: editedLinkName,
+        url: editedLinkUrl,
+      }));
+      setIsEditingLink(false);
+    } catch (error) {
+      console.error("Error updating QR link:", error);
+      // You might want to show an error toast here
+    }
   };
 
   // Handle date filter changes
@@ -542,15 +602,6 @@ export default function Page() {
     setEditedLinkName(linkData.name);
     setEditedLinkUrl(linkData.url);
     setIsEditingLink(true);
-  };
-
-  const saveEditedLink = () => {
-    setLinkData((prev) => ({
-      ...prev,
-      name: editedLinkName,
-      url: editedLinkUrl,
-    }));
-    setIsEditingLink(false);
   };
 
   const cancelEditingLink = () => {
@@ -863,29 +914,19 @@ export default function Page() {
 
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {linkData.qrCodes.map((qrCode, index) => (
-            <Card key={qrCode.id} className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between py-2">
-                <CardTitle className="text-lg">{qrCode.name}</CardTitle>
-                <div className="flex items-center justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setEditingQRCode({ ...qrCode })}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  {linkData.qrCodes.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteQRCode(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="flex flex-col justify-center gap-2 pb-4 pt-2">
+            <Card key={qrCode.id} className="overflow-hidden p-0">
+              <Button
+                variant="ghost"
+                className="group h-12 w-full items-center justify-between"
+                onClick={() => setEditingQRCode({ ...qrCode })}
+              >
+                <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 p-0">
+                  <CardTitle className="text-lg">{qrCode.name}</CardTitle>
+
+                  <Edit className="h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+                </CardHeader>
+              </Button>
+              <CardContent className="flex flex-col justify-center gap-2 pb-4 pt-0">
                 <div
                   onClick={() => downloadQRCode(index)}
                   className="group relative mx-auto cursor-pointer transition-transform hover:scale-105"
@@ -1152,14 +1193,23 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-2 pt-4">
+                <div className="flex justify-between space-x-2 pt-4">
                   <Button
-                    variant="outline"
-                    onClick={() => setEditingQRCode(null)}
+                    variant="ghost"
+                    className="h-7 w-7 p-0"
+                    onClick={() => handleDeleteQRCode(editingQRCode.id)}
                   >
-                    Cancel
+                    <Trash />
                   </Button>
-                  <Button onClick={saveQRCodeChanges}>Save Changes</Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setEditingQRCode(null)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={saveQRCodeChanges}>Save Changes</Button>
+                  </div>
                 </div>
               </div>
             )}

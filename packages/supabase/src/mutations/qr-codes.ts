@@ -35,11 +35,13 @@ export async function updateQRCode(
 
 export async function updateQRLink(
   supabase: Client,
-  qrLink: Database["public"]["Tables"]["qr_links"]["Update"]
+  qrLink: Database["public"]["Tables"]["qr_links"]["Update"],
+  qrLinkId: number
 ) {
   const { data, error } = await supabase
     .from("qr_links")
     .update(qrLink)
+    .eq("id", qrLinkId)
     .select();
   return { data, error };
 }
@@ -59,6 +61,7 @@ export async function deleteQRLink(supabase: Client, qrLinkId: number) {
   const { data, error } = await supabase
     .from("qr_links")
     .delete()
-    .eq("id", qrLinkId);
+    .eq("id", qrLinkId)
+    .select();
   return { data, error };
 }
