@@ -27,8 +27,10 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@church-space/ui/dialog";
 import {
   BarChart,
@@ -40,7 +42,7 @@ import {
   ResponsiveContainer,
   CustomTooltip,
 } from "@church-space/ui/chart";
-import { Download, Plus, Trash2, Edit } from "lucide-react";
+import { Download, Plus, Trash2, Edit, Ellipsis } from "lucide-react";
 import { Upload } from "lucide-react";
 import {
   Select,
@@ -53,7 +55,20 @@ import { getQRLinkQuery } from "@church-space/supabase/queries/all/get-qr-code";
 import { createClient } from "@church-space/supabase/client";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { createQRCode } from "@church-space/supabase/mutations/qr-codes";
+import {
+  createQRCode,
+  deleteQRCode,
+  updateQRCode,
+  updateQRLink,
+  deleteQRLink,
+} from "@church-space/supabase/mutations/qr-codes";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@church-space/ui/dropdown-menu";
+import { DropdownMenuTrigger } from "@church-space/ui/dropdown-menu";
+import { Trash } from "@church-space/ui/icons";
 
 // Types
 type QRCodeData = {
@@ -168,6 +183,14 @@ export default function Page() {
   const params = useParams();
   const supabase = createClient();
   const qrLinkId = Number(params.qrCodeId);
+
+  const [isDeletingLink, setIsDeletingLink] = useState(false);
+
+  const handleDeleteLink = async () => {
+    const { data, error } = await deleteQRLink(supabase, qrLinkId);
+    if (error) throw error;
+    if (!data) throw new Error("QR link not found");
+  };
 
   const { data: qrLinkData, isLoading } = useQuery({
     queryKey: ["qr-link", qrLinkId],
@@ -589,7 +612,7 @@ export default function Page() {
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
         <div className="flex flex-col space-y-6">
           {/* Link Information Section */}
-          <div className="border-b pb-4">
+          <div className="flex w-full justify-between gap-4 border-b pb-4">
             {isEditingLink ? (
               // Edit mode
               <div className="space-y-4">
@@ -637,6 +660,48 @@ export default function Page() {
                 </p>
               </div>
             )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Ellipsis className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <Dialog open={isDeletingLink} onOpenChange={setIsDeletingLink}>
+                  <DialogTrigger
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsDeletingLink(true);
+                    }}
+                    asChild
+                  >
+                    <DropdownMenuItem className="!hover:text-destructive cursor-pointer">
+                      <Trash /> Delete
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Delete Link</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete this link? This action
+                        cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsDeletingLink(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button variant="destructive" onClick={handleDeleteLink}>
+                        Delete
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Analytics Section */}
