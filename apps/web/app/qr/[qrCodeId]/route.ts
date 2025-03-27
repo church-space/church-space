@@ -1,21 +1,17 @@
 import { createClient } from "@church-space/supabase/server";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { client as RedisClient } from "@church-space/kv";
 import { Ratelimit } from "@upstash/ratelimit";
-import { NextRequest } from "next/server";
 
 const ratelimit = new Ratelimit({
   limiter: Ratelimit.fixedWindow(2, "10s"),
   redis: RedisClient,
 });
 
-type Props = {
-  params: {
-    qrCodeId: string;
-  };
-};
-
-export async function GET(request: NextRequest, props: Props) {
+export async function GET(
+  request: NextRequest,
+  context: { params: { qrCodeId: string } },
+) {
   try {
     const supabase = await createClient();
 
@@ -30,7 +26,7 @@ export async function GET(request: NextRequest, props: Props) {
         )
       `,
       )
-      .eq("id", props.params.qrCodeId)
+      .eq("id", context.params.qrCodeId)
       .single();
 
     if (qrError || !qrCode || !qrCode.qr_links?.url) {
@@ -47,7 +43,7 @@ export async function GET(request: NextRequest, props: Props) {
 
     const { error: clickError } = await supabase.from("qr_code_clicks").insert([
       {
-        qr_code_id: props.params.qrCodeId,
+        qr_code_id: context.params.qrCodeId,
       },
     ]);
 
