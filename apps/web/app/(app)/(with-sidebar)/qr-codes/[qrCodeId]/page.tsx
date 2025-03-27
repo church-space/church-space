@@ -42,8 +42,7 @@ import {
   ResponsiveContainer,
   CustomTooltip,
 } from "@church-space/ui/chart";
-import { Download, Plus, Trash2, Edit, Ellipsis } from "lucide-react";
-import { Upload } from "lucide-react";
+import { Download, Plus, Edit, Ellipsis } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -72,7 +71,6 @@ import { Trash } from "@church-space/ui/icons";
 import { createRoot } from "react-dom/client";
 import { useUser } from "@/stores/use-user";
 import FileUpload from "@/components/dnd-builder/file-upload";
-import AssetBrowserModal from "@/components/dnd-builder/asset-browser";
 
 // Types
 type QRCodeData = {
@@ -227,7 +225,6 @@ export default function Page() {
     day: null,
   });
 
-  const [selectedQRCodeIndex, setSelectedQRCodeIndex] = useState(0);
   const [editingQRCode, setEditingQRCode] = useState<QRCodeData | null>(null);
   const [isAddingQRCode, setIsAddingQRCode] = useState(false);
   const [newQRCodeName, setNewQRCodeName] = useState("");
@@ -408,15 +405,6 @@ export default function Page() {
       setEditingQRCode({
         ...editingQRCode,
         logoImage: path,
-      });
-    }
-  };
-
-  const handleAssetSelect = (asset: { imageUrl: string; path: string }) => {
-    if (editingQRCode) {
-      setEditingQRCode({
-        ...editingQRCode,
-        logoImage: asset.path,
       });
     }
   };
@@ -1033,13 +1021,13 @@ export default function Page() {
             <Card key={qrCode.id} className="overflow-hidden p-0">
               <Button
                 variant="ghost"
-                className="group h-12 w-full items-center justify-between"
+                className="h-12 w-full items-center justify-between"
                 onClick={() => setEditingQRCode({ ...qrCode })}
               >
                 <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 p-0">
                   <CardTitle className="text-lg">{qrCode.name}</CardTitle>
 
-                  <Edit className="h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+                  <Edit className="h-4 w-4" />
                 </CardHeader>
               </Button>
               <CardContent className="flex flex-col justify-center gap-2 pb-4 pt-0">
