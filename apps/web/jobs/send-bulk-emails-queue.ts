@@ -1,4 +1,4 @@
-import { task, queue, wait } from "@trigger.dev/sdk/v3";
+import { task, queue } from "@trigger.dev/sdk/v3";
 import { Resend } from "resend";
 import { createClient } from "@church-space/supabase/job";
 //import { generateEmailCode } from "@/lib/generate-email-code"; // No longer needed here
