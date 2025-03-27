@@ -163,30 +163,6 @@ export const sendBulkEmails = task({
         linkColor: emailStyle.link_color || "#0000ff",
       };
 
-      // Make API request to render email
-      const renderResponse = await fetch(
-        "https://churchspace.co/api/emails/render",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            sections: sections,
-            style: style,
-            footer: typedEmailData.footer,
-          }),
-        },
-      );
-
-      if (!renderResponse.ok) {
-        throw new Error(
-          `Failed to render email: ${renderResponse.status} ${renderResponse.statusText}`,
-        );
-      }
-
-      const { html: baseEnhancedHtmlContent } = await renderResponse.json();
-
       // Process recipients in batches of 100
       const peopleEmailIds = Object.keys(recipients);
       const batches = [];
@@ -222,20 +198,31 @@ export const sendBulkEmails = task({
             const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;
             const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
 
-            // Insert the links before the closing body tag
-            let personalizedHtml = baseEnhancedHtmlContent;
+            // Make API request to render email with personalized URLs
+            const renderResponse = await fetch(
+              "https://churchspace.co/api/emails/render",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  sections: sections,
+                  style: style,
+                  footer: typedEmailData.footer,
+                  unsubscribeUrl,
+                  managePreferencesUrl,
+                }),
+              },
+            );
 
-            // Only add if not already in the content (to avoid duplicates)
-            if (!personalizedHtml.includes("Unsubscribe</a>")) {
-              personalizedHtml = personalizedHtml.replace(
-                "</body>",
-                `<div style="text-align: center; font-size: 12px; color: #666; margin-top: 20px; font-family: sans-serif;">
-                  <a href="${unsubscribeUrl}" style="color: #666; text-decoration: underline;">Unsubscribe</a>
-                  <span style="margin: 0 8px">|</span>
-                  <a href="${managePreferencesUrl}" style="color: #666; text-decoration: underline;">Manage Preferences</a>
-                </div></body>`,
+            if (!renderResponse.ok) {
+              throw new Error(
+                `Failed to render email: ${renderResponse.status} ${renderResponse.statusText}`,
               );
             }
+
+            const { html: personalizedHtml } = await renderResponse.json();
 
             // Add to batch
             emailBatch.push({
