@@ -432,13 +432,13 @@ export default function Page() {
           qrCode.isTransparent ? "rgba(255, 255, 255, 0)" : qrCode.bgColor
         }
         fgColor={qrCode.qrColor}
-        qrStyle="squares"
+        qrStyle={qrCode.isRounded ? "fluid" : "squares"}
         eyeRadius={qrCode.isRounded ? 64 : 0}
         logoImage={qrCode.logoImage || undefined}
         logoWidth={qrCode.logoSize * 8}
         logoHeight={qrCode.logoSize * 8}
         removeQrCodeBehindLogo={true}
-        ecLevel="Q"
+        ecLevel="M"
       />
     );
 
@@ -979,8 +979,6 @@ export default function Page() {
                   onClick={() => downloadQRCode(index)}
                   className="group relative mx-auto cursor-pointer transition-transform hover:scale-105"
                   style={{
-                    padding: "8px",
-                    borderRadius: qrCode.isRounded ? "12px" : "0",
                     backgroundColor: qrCode.isTransparent
                       ? "transparent"
                       : qrCode.bgColor,
@@ -995,13 +993,13 @@ export default function Page() {
                         : qrCode.bgColor
                     }
                     fgColor={qrCode.qrColor}
-                    qrStyle="squares"
+                    qrStyle={qrCode.isRounded ? "fluid" : "squares"}
                     eyeRadius={qrCode.isRounded ? 8 : 0}
                     logoImage={qrCode.logoImage || undefined}
                     logoWidth={qrCode.logoSize * 1.2}
                     logoHeight={qrCode.logoSize * 1.2}
                     removeQrCodeBehindLogo={true}
-                    ecLevel="Q"
+                    ecLevel="M"
                   />
                   <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
                     <Download className="h-8 w-8 text-white" />
@@ -1213,8 +1211,6 @@ export default function Page() {
                   <div
                     className="mx-auto"
                     style={{
-                      padding: "8px",
-                      borderRadius: editingQRCode.isRounded ? "12px" : "0",
                       backgroundColor: editingQRCode.isTransparent
                         ? "transparent"
                         : editingQRCode.bgColor,
@@ -1230,13 +1226,13 @@ export default function Page() {
                           : editingQRCode.bgColor
                       }
                       fgColor={editingQRCode.qrColor}
-                      qrStyle="squares"
-                      eyeRadius={editingQRCode.isRounded ? 10 : 0}
+                      qrStyle={editingQRCode.isRounded ? "fluid" : "squares"}
+                      eyeRadius={editingQRCode.isRounded ? 8 : 0}
                       logoImage={editingQRCode.logoImage || undefined}
                       logoWidth={editingQRCode.logoSize}
                       logoHeight={editingQRCode.logoSize}
                       removeQrCodeBehindLogo={true}
-                      ecLevel="Q"
+                      ecLevel="M"
                     />
                   </div>
                 </div>
