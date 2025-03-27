@@ -9,10 +9,13 @@ const ratelimit = new Ratelimit({
   redis: RedisClient,
 });
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { qrCodeId: string } },
-) {
+type Props = {
+  params: {
+    qrCodeId: string;
+  };
+};
+
+export async function GET(request: NextRequest, props: Props) {
   try {
     const supabase = await createClient();
 
@@ -27,7 +30,7 @@ export async function GET(
         )
       `,
       )
-      .eq("id", params.qrCodeId)
+      .eq("id", props.params.qrCodeId)
       .single();
 
     if (qrError || !qrCode || !qrCode.qr_links?.url) {
@@ -44,7 +47,7 @@ export async function GET(
 
     const { error: clickError } = await supabase.from("qr_code_clicks").insert([
       {
-        qr_code_id: params.qrCodeId,
+        qr_code_id: props.params.qrCodeId,
       },
     ]);
 
