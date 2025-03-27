@@ -1,8 +1,6 @@
 import { task, queue, wait } from "@trigger.dev/sdk/v3";
 import { Resend } from "resend";
 import { createClient } from "@church-space/supabase/job";
-//import { generateEmailCode } from "@/lib/generate-email-code"; // No longer needed here
-//import { render } from "@react-email/render"; // No longer needed here
 import { SignJWT } from "jose";
 import { Section, BlockType, BlockData } from "@/types/blocks";
 

@@ -50,10 +50,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-// import { getQRLinkQuery } from "@church-space/supabase/queries/all/get-qr-code";
-// import { createClient } from "@church-space/supabase/client";
-// import { useParams } from "next/navigation";
-// import { useQuery } from "@tanstack/react-query";
+import { getQRLinkQuery } from "@church-space/supabase/queries/all/get-qr-code";
+import { createClient } from "@church-space/supabase/client";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 // Types
 type QRCodeData = {
