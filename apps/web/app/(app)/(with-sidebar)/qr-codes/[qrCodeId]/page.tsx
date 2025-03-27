@@ -70,6 +70,9 @@ import {
 import { DropdownMenuTrigger } from "@church-space/ui/dropdown-menu";
 import { Trash } from "@church-space/ui/icons";
 import { createRoot } from "react-dom/client";
+import { useUser } from "@/stores/use-user";
+import FileUpload from "@/components/dnd-builder/file-upload";
+import AssetBrowserModal from "@/components/dnd-builder/asset-browser";
 
 // Types
 type QRCodeData = {
@@ -184,6 +187,7 @@ export default function Page() {
   const params = useParams();
   const supabase = createClient();
   const qrLinkId = Number(params.qrCodeId);
+  const { organizationId } = useUser();
 
   const [isDeletingLink, setIsDeletingLink] = useState(false);
 
@@ -399,17 +403,21 @@ export default function Page() {
     return <div>Loading...</div>;
   }
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && editingQRCode) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setEditingQRCode({
-          ...editingQRCode,
-          logoImage: event.target?.result as string,
-        });
-      };
-      reader.readAsDataURL(file);
+  const handleLogoUpload = async (path: string) => {
+    if (editingQRCode) {
+      setEditingQRCode({
+        ...editingQRCode,
+        logoImage: path,
+      });
+    }
+  };
+
+  const handleAssetSelect = (asset: { imageUrl: string; path: string }) => {
+    if (editingQRCode) {
+      setEditingQRCode({
+        ...editingQRCode,
+        logoImage: asset.path,
+      });
     }
   };
 
@@ -1144,35 +1152,22 @@ export default function Page() {
                 <div className="space-y-2">
                   <Label htmlFor="edit-logo-upload">Upload Logo</Label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      id="edit-logo-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
-                      className="hidden"
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() =>
-                        document.getElementById("edit-logo-upload")?.click()
-                      }
-                      className="w-full"
-                    >
-                      <Upload className="mr-2 h-4 w-4" /> Choose Logo
-                    </Button>
-                    {editingQRCode.logoImage && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() =>
-                          setEditingQRCode({
-                            ...editingQRCode,
-                            logoImage: null,
-                          })
-                        }
-                      >
-                        Remove
-                      </Button>
+                    {organizationId && (
+                      <>
+                        <FileUpload
+                          organizationId={organizationId}
+                          onUploadComplete={handleLogoUpload}
+                          type="image"
+                          initialFilePath={editingQRCode.logoImage || ""}
+                          onRemove={() => {
+                            setEditingQRCode({
+                              ...editingQRCode,
+                              logoImage: null,
+                            });
+                          }}
+                          bucket="link_list_assets"
+                        />
+                      </>
                     )}
                   </div>
 
@@ -1223,7 +1218,11 @@ export default function Page() {
                       fgColor={editingQRCode.qrColor}
                       qrStyle={editingQRCode.isRounded ? "fluid" : "squares"}
                       eyeRadius={editingQRCode.isRounded ? 8 : 0}
-                      logoImage={editingQRCode.logoImage || undefined}
+                      logoImage={
+                        editingQRCode.logoImage
+                          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link_list_assets/${editingQRCode.logoImage}`
+                          : undefined
+                      }
                       logoWidth={editingQRCode.logoSize}
                       logoHeight={editingQRCode.logoSize}
                       removeQrCodeBehindLogo={true}
