@@ -25,7 +25,10 @@ export default function PostSendPage({ email }: { email: any }) {
               <BreadcrumbSeparator className="hidden md:block" />
 
               <BreadcrumbItem>
-                <BreadcrumbPage>{email.data.subject}</BreadcrumbPage>
+                <BreadcrumbPage>
+                  {email.data.subject && email.data.subject}
+                  {!email.data.subject && "(No Subject)"}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
