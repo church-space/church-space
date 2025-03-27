@@ -180,44 +180,36 @@ export default function Page() {
   });
 
   const [linkData, setLinkData] = useState<LinkData>({
-    url: "https://example.com",
-    name: "My Website",
-    qrCodes: [
-      {
-        id: uuidv4(),
-        name: "Main QR Code",
-        bgColor: "#FFFFFF",
-        qrColor: "#000000",
-        isRounded: false,
-        isTransparent: false,
-        logoImage: null,
-        logoSize: 50,
-        clicks: [],
-      },
-      {
-        id: uuidv4(),
-        name: "Flyer QR Code",
-        bgColor: "#FFFFFF",
-        qrColor: "#FF6384",
-        isRounded: true,
-        isTransparent: false,
-        logoImage: null,
-        logoSize: 50,
-        clicks: [],
-      },
-      {
-        id: uuidv4(),
-        name: "Business Card",
-        bgColor: "#FFFFFF",
-        qrColor: "#36A2EB",
-        isRounded: false,
-        isTransparent: false,
-        logoImage: null,
-        logoSize: 50,
-        clicks: [],
-      },
-    ],
+    url: "",
+    name: "",
+    qrCodes: [],
   });
+
+  // Map the database data to our component state
+  useEffect(() => {
+    if (qrLinkData) {
+      const mappedQRCodes = qrLinkData.qr_codes.map((qrCode) => {
+        const style = qrCode.style || {};
+        return {
+          id: qrCode.id,
+          name: qrCode.title || "Untitled QR Code",
+          bgColor: style.bgColor || "#FFFFFF",
+          qrColor: style.qrColor || "#000000",
+          isRounded: style.isRounded || false,
+          isTransparent: style.isTransparent || false,
+          logoImage: qrCode.linked_asset || null,
+          logoSize: style.logoSize || 50,
+          clicks: [], // Keep the mock clicks data for now
+        };
+      });
+
+      setLinkData({
+        url: qrLinkData.url || "",
+        name: qrLinkData.name || "Untitled Link",
+        qrCodes: mappedQRCodes,
+      });
+    }
+  }, [qrLinkData]);
 
   const currentYear = new Date().getFullYear();
   const [dateFilter, setDateFilter] = useState<DateFilter>({
@@ -561,7 +553,7 @@ export default function Page() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl flex-1 px-4 py-10">
+      <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
         <div className="flex flex-col space-y-6">
           {/* Link Information Section */}
           <div className="border-b pb-4">
@@ -774,8 +766,26 @@ export default function Page() {
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {linkData.qrCodes.map((qrCode, index) => (
             <Card key={qrCode.id} className="overflow-hidden">
-              <CardHeader className="pb-2">
+              <CardHeader className="flex flex-row items-center justify-between py-2">
                 <CardTitle className="text-lg">{qrCode.name}</CardTitle>
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEditingQRCode({ ...qrCode })}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  {linkData.qrCodes.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deleteQRCode(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="flex flex-col justify-center gap-2 pb-4 pt-2">
                 <div
@@ -809,24 +819,6 @@ export default function Page() {
                   <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
                     <Download className="h-8 w-8 text-white" />
                   </div>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setEditingQRCode({ ...qrCode })}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  {linkData.qrCodes.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteQRCode(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
               </CardContent>
             </Card>
