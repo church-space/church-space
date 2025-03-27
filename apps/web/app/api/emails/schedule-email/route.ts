@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     if (
       emailData.status === "sent" ||
       emailData.status === "sending" ||
-      emailData.status === "draft" ||
+      emailData.status === "scheduled" ||
       emailData.status === "failed" ||
       emailData.status === null
     ) {
@@ -71,15 +71,14 @@ export async function POST(request: Request) {
     }
 
     // Update email status to scheduled if it's not already
-    if (emailData.status !== "scheduled") {
-      await supabase
-        .from("emails")
-        .update({
-          status: "scheduled",
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", body.emailId);
-    }
+
+    await supabase
+      .from("emails")
+      .update({
+        status: "scheduled",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", body.emailId);
 
     // Trigger the email scheduling job
     const result = await scheduleEmail.trigger({

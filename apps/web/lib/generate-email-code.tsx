@@ -1335,7 +1335,10 @@ export function generateEmailCode(
                   <tr>
                     <td style={{ padding: "0px" }}>
                       <Container
-                        style={{ padding: "15px 0px", maxWidth: "620px" }}
+                        style={{
+                          padding: "0px 0px",
+                          maxWidth: "620px",
+                        }}
                       >
                         {sections.map((section, sectionIndex) => (
                           <EmailSection key={`section-inset-${sectionIndex}`}>
