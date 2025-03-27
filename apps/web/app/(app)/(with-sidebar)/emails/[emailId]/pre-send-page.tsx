@@ -618,8 +618,81 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline">Cancel</Button>
-                <Button>
+                <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    try {
+                      if (email.scheduled_for) {
+                        // Schedule the email
+                        const response = await fetch(
+                          "/api/emails/schedule-email",
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                              emailId: email.id,
+                            }),
+                          },
+                        );
+
+                        if (!response.ok) {
+                          const error = await response.json();
+                          throw new Error(
+                            error.error || "Failed to schedule email",
+                          );
+                        }
+
+                        toast({
+                          title: "Email scheduled",
+                          description: `Email will be sent at ${format(
+                            new Date(email.scheduled_for),
+                            "MMMM d, yyyy h:mm a",
+                          )}`,
+                        });
+                      } else {
+                        // Send the email immediately
+                        const response = await fetch(
+                          "/api/emails/filter-emails",
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                              emailId: email.id,
+                            }),
+                          },
+                        );
+
+                        if (!response.ok) {
+                          const error = await response.json();
+                          throw new Error(
+                            error.error || "Failed to send email",
+                          );
+                        }
+
+                        toast({
+                          title: "Email sending started",
+                          description:
+                            "Your email is being sent to recipients.",
+                        });
+                      }
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description:
+                          error instanceof Error
+                            ? error.message
+                            : "Failed to process email",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                >
                   {email.scheduled_for ? "Schedule Email" : "Send Email"}
                 </Button>
               </DialogFooter>
