@@ -316,6 +316,17 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
 
   const saveScheduleSection = async () => {
     try {
+      // Validate that a date and time are selected when scheduling
+      if (isScheduled === "schedule" && !sendDate) {
+        toast({
+          title: "Invalid schedule time",
+          description: "Please select a date and time to schedule the email.",
+          variant: "destructive",
+        });
+        setScheduleIsSaving(false);
+        return;
+      }
+
       // Validate that the time is at least 10 minutes in the future if scheduled
       if (isScheduled === "schedule" && sendDate) {
         const now = new Date();
