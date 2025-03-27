@@ -60,6 +60,7 @@ import {
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import SendTestEmail from "@/components/dnd-builder/send-test-email";
+import { getEmailBlockCountQuery } from "@church-space/supabase/queries/all/get-email";
 
 function SaveButtons(props: {
   isSaving: boolean;
@@ -135,6 +136,14 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
     enabled: !!fromDomain,
   });
 
+  // Add email block count query
+  const { data: blockCountData } = useQuery({
+    queryKey: ["emailBlockCount", email.id],
+    queryFn: () => getEmailBlockCountQuery(supabase, email.id),
+  });
+
+  const emailBlockCount = blockCountData?.count || 0;
+
   // Add validation functions
   const isValidEmailLocalPart = (email: string) => {
     // Allow empty value or only letters, numbers, periods, hyphens, and underscores
@@ -177,6 +186,18 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
   const [scheduleIsSaving, setScheduleIsSaving] = useState(false);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+  // Function to check if all required steps are completed
+  const isAllStepsCompleted = () => {
+    return (
+      email.list_id &&
+      email.from_name &&
+      email.from_email &&
+      email.from_email_domain &&
+      email.subject &&
+      emailBlockCount > 0
+    );
+  };
 
   // Setup the update email mutation using TanStack Query
   const updateEmailMutation = useMutation({
@@ -538,20 +559,70 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button>{email.scheduled_for ? "Schedule" : "Send Now"}</Button>
+              <Button disabled={!isAllStepsCompleted()}>
+                {email.scheduled_for ? "Schedule" : "Send Now"}
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Continue</DialogTitle>
+                <DialogTitle>
+                  Confirm {email.scheduled_for ? "Schedule" : "Send"}
+                </DialogTitle>
+                <DialogDescription>
+                  Please review the email details before{" "}
+                  {email.scheduled_for ? "scheduling" : "sending"}.
+                </DialogDescription>
               </DialogHeader>
-              {email.subject ? (
-                <div className="text-2xl font-bold">{email.subject}</div>
-              ) : (
-                <div className="text-2xl font-bold text-muted-foreground">
-                  Subject
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium">To</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {listData?.data?.[0]?.pco_list_description || "Loading..."}
+                  </p>
                 </div>
-              )}
-              {email.subject}
+                <div className="space-y-2">
+                  <h4 className="font-medium">From</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {fromName} &lt;{fromEmail}@
+                    {fromDomainData?.data?.[0]?.domain || ""}&gt;
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-medium">Subject</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {email.subject}
+                  </p>
+                </div>
+                {email.scheduled_for && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Schedule Time</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {format(
+                        new Date(email.scheduled_for),
+                        "MMMM d, yyyy h:mm a",
+                      )}{" "}
+                      in {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                    </p>
+                  </div>
+                )}
+                <div className="rounded-md border bg-muted p-3 text-sm text-muted-foreground">
+                  <div className="flex flex-col gap-2">
+                    <h4 className="font-medium">Preview</h4>
+                    <EmailPreview />
+                    <div className="flex flex-col gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {emailBlockCount} blocks
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline">Cancel</Button>
+                <Button>
+                  {email.scheduled_for ? "Schedule Email" : "Send Email"}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
@@ -927,13 +998,17 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
             className="group/link flex w-full items-center gap-3"
           >
             <span className="text-muted-foreground">
-              <Backlog height={"24"} width={"24"} />
+              {emailBlockCount > 0 ? (
+                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+              ) : (
+                <CircleDashed height={"24"} width={"24"} />
+              )}
             </span>
             <div className="flex flex-col">
               <span className="text-md font-semibold">Content</span>
               <span className="text-sm font-normal text-muted-foreground">
-                {email.html_content
-                  ? "Email content created"
+                {emailBlockCount > 0
+                  ? `${emailBlockCount} block${emailBlockCount === 1 ? "" : "s"}`
                   : "No content created yet"}
               </span>
             </div>

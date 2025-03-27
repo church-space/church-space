@@ -9,3 +9,17 @@ export async function getEmailQuery(supabase: Client, emailId: number) {
 
   return { data, error };
 }
+
+export async function getEmailBlockCountQuery(
+  supabase: Client,
+  emailId: number
+) {
+  const { data, error } = await supabase
+    .from("email_blocks")
+    .select("*")
+    .eq("email_id", emailId);
+
+  const count = data?.length;
+
+  return { count, error };
+}
