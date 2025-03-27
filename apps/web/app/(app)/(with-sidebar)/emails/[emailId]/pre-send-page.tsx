@@ -237,6 +237,11 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
       });
       setToIsSaving(false);
       setToHasChanges(false);
+      // Update local email state
+      setEmail((prev: typeof initialEmail) => ({
+        ...prev,
+        list_id: listId,
+      }));
     } catch (error) {
       console.error("Error saving To section:", error);
       setToIsSaving(false);
@@ -288,6 +293,15 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
       });
       setFromIsSaving(false);
       setFromHasChanges(false);
+      // Update local email state
+      setEmail((prev: typeof initialEmail) => ({
+        ...prev,
+        from_email,
+        from_email_domain,
+        from_name: fromName,
+        reply_to,
+        reply_to_domain,
+      }));
     } catch (error) {
       console.error("Error saving From section:", error);
       setFromIsSaving(false);
@@ -312,6 +326,11 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
       });
       setSubjectIsSaving(false);
       setSubjectHasChanges(false);
+      // Update local email state
+      setEmail((prev: typeof initialEmail) => ({
+        ...prev,
+        subject,
+      }));
     } catch (error) {
       console.error("Error saving Subject section:", error);
       setSubjectIsSaving(false);
@@ -361,18 +380,17 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
       const scheduled_for =
         isScheduled === "schedule" ? sendDate?.toISOString() : null;
 
-      const result = await updateEmailMutation.mutateAsync({
+      await updateEmailMutation.mutateAsync({
         scheduled_for,
       });
 
-      // Update the local email state with the new data
-      setEmail((prev: typeof initialEmail) => ({
-        ...prev,
-        scheduled_for: scheduled_for,
-      }));
-
       setScheduleIsSaving(false);
       setScheduleHasChanges(false);
+      // Update local email state
+      setEmail((prev: typeof initialEmail) => ({
+        ...prev,
+        scheduled_for,
+      }));
     } catch (error) {
       console.error("Error saving Schedule section:", error);
       setScheduleIsSaving(false);

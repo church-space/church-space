@@ -26,6 +26,8 @@ interface EmailData {
   id: number;
   subject: string | null;
   from_email: string | null;
+  from_name: string | null;
+  reply_to: string | null;
   status: string | null;
   scheduled_for: string | null;
   organization_id: string;
@@ -67,7 +69,15 @@ export const sendBulkEmails = task({
       // Get email data with blocks and footer
       const { data: emailData, error: emailError } = await supabase
         .from("emails")
-        .select("*, blocks:email_blocks(*), footer:email_footers(*)")
+        .select(
+          `
+          *,
+          blocks:email_blocks(*),
+          footer:email_footers(*),
+          from_domain:domains!emails_from_email_domain_fkey(*),
+          reply_to_domain:domains!emails_reply_to_domain_fkey(*)
+        `,
+        )
         .eq("id", emailId)
         .single();
 
@@ -77,7 +87,10 @@ export const sendBulkEmails = task({
         );
       }
 
-      const typedEmailData = emailData as unknown as EmailData;
+      const typedEmailData = emailData as unknown as EmailData & {
+        from_domain: { domain: string } | null;
+        reply_to_domain: { domain: string } | null;
+      };
 
       // Verify email status is not SENT or DRAFT
       if (
@@ -98,12 +111,19 @@ export const sendBulkEmails = task({
         }
       }
 
-      // Verify sender domain
-      if (!typedEmailData.from_email) {
-        throw new Error("No sender email address specified");
+      // Build from and reply-to addresses
+      if (!typedEmailData.from_email || !typedEmailData.from_domain?.domain) {
+        throw new Error("Missing from email or domain information");
       }
 
-      const senderDomain = typedEmailData.from_email.split("@")[1];
+      const fromAddress = `${typedEmailData.from_email}@${typedEmailData.from_domain.domain}`;
+      const replyToAddress =
+        typedEmailData.reply_to && typedEmailData.reply_to_domain?.domain
+          ? `${typedEmailData.reply_to}@${typedEmailData.reply_to_domain.domain}`
+          : undefined;
+
+      // Verify sender domain
+      const senderDomain = typedEmailData.from_domain.domain;
 
       // Check if domain is verified for this organization
       const { data: domainData, error: domainError } = await supabase
@@ -219,7 +239,8 @@ export const sendBulkEmails = task({
 
             // Add to batch
             emailBatch.push({
-              from: typedEmailData.from_email,
+              from: `${typedEmailData.from_name || typedEmailData.from_email} <${fromAddress}>`,
+              reply_to: replyToAddress,
               to: emailAddress,
               subject: typedEmailData.subject || "No Subject",
               html: personalizedHtml,

@@ -27,6 +27,38 @@ export const filterEmailRecipients = task({
         );
       }
 
+      // Validate required email fields
+      if (
+        !emailData.from_email ||
+        !emailData.from_name ||
+        !emailData.from_email_domain
+      ) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", emailId);
+
+        throw new Error(
+          "Email must have a from_email, from_name, and from_email_domain",
+        );
+      }
+
+      // Validate subject
+      if (!emailData.subject) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", emailId);
+
+        throw new Error("Email must have a subject");
+      }
+
       // Step 2: Validate that the email has list_id
       if (!emailData.list_id) {
         // Update email status to failed
@@ -39,6 +71,29 @@ export const filterEmailRecipients = task({
           .eq("id", emailId);
 
         throw new Error("Email must have a list_id");
+      }
+
+      // Validate list ownership
+      const { data: listData, error: listOwnershipError } = await supabase
+        .from("pco_lists")
+        .select("organization_id")
+        .eq("id", emailData.list_id)
+        .single();
+
+      if (
+        listOwnershipError ||
+        !listData ||
+        listData.organization_id !== emailData.organization_id
+      ) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", emailId);
+
+        throw new Error("List does not belong to the email's organization");
       }
 
       // Step 3: Get the PCO list ID from our lists table
