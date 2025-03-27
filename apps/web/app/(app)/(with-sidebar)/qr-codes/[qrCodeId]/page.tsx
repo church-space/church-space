@@ -50,10 +50,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-// import { getQRLinkQuery } from "@church-space/supabase/queries/all/get-qr-code";
-// import { createClient } from "@church-space/supabase/client";
-// import { useParams } from "next/navigation";
-// import { useQuery } from "@tanstack/react-query";
+import { getQRLinkQuery } from "@church-space/supabase/queries/all/get-qr-code";
+import { createClient } from "@church-space/supabase/client";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 // Types
 type QRCodeData = {
@@ -165,6 +165,20 @@ const getAvailableDays = (year: number, month: number) => {
 };
 
 export default function Page() {
+  const params = useParams();
+  const supabase = createClient();
+  const qrLinkId = Number(params.qrCodeId);
+
+  const { data: qrLinkData, isLoading } = useQuery({
+    queryKey: ["qr-link", qrLinkId],
+    queryFn: async () => {
+      const { data, error } = await getQRLinkQuery(supabase, qrLinkId);
+      if (error) throw error;
+      if (!data) throw new Error("QR link not found");
+      return data;
+    },
+  });
+
   const [linkData, setLinkData] = useState<LinkData>({
     url: "https://example.com",
     name: "My Website",
@@ -538,7 +552,9 @@ export default function Page() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>{linkData.name}</BreadcrumbPage>
+                <BreadcrumbPage>
+                  {qrLinkData?.name || "Loading..."}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -587,11 +603,13 @@ export default function Page() {
               <div className="group cursor-pointer" onClick={startEditingLink}>
                 <div className="flex items-center">
                   <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
-                    {linkData.name}
+                    {qrLinkData?.name || "Loading..."}
                   </h2>
                   <Edit className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
-                <p className="mt-1 text-muted-foreground">{linkData.url}</p>
+                <p className="mt-1 text-muted-foreground">
+                  {qrLinkData?.url || "Loading..."}
+                </p>
               </div>
             )}
           </div>
