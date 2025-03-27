@@ -83,7 +83,8 @@ function SaveButtons(props: {
   );
 }
 
-export default function PreSendPage({ email }: { email: any }) {
+export default function PreSendPage({ email: initialEmail }: { email: any }) {
+  const [email, setEmail] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const { toast } = useToast();
   const [activeAccordion, setActiveAccordion] = useState<string | null>("to");
@@ -338,9 +339,16 @@ export default function PreSendPage({ email }: { email: any }) {
       const scheduled_for =
         isScheduled === "schedule" ? sendDate?.toISOString() : null;
 
-      await updateEmailMutation.mutateAsync({
+      const result = await updateEmailMutation.mutateAsync({
         scheduled_for,
       });
+
+      // Update the local email state with the new data
+      setEmail((prev: typeof initialEmail) => ({
+        ...prev,
+        scheduled_for: scheduled_for,
+      }));
+
       setScheduleIsSaving(false);
       setScheduleHasChanges(false);
     } catch (error) {
@@ -726,11 +734,7 @@ export default function PreSendPage({ email }: { email: any }) {
         >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              {email.scheduled_for ? (
-                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
-              ) : (
-                <CircleDashed height={"24"} width={"24"} />
-              )}
+              <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
               <div className="flex flex-col">
                 <span>Send Time</span>
                 <span className="text-sm font-normal text-muted-foreground">
@@ -746,6 +750,10 @@ export default function PreSendPage({ email }: { email: any }) {
               defaultValue=""
               onValueChange={(value) => {
                 setIsScheduled(value);
+                if (value === "send-now") {
+                  setSendDate(null);
+                  setScheduleHasChanges(true);
+                }
               }}
               value={isScheduled}
             >

@@ -21,6 +21,7 @@ import { getEmailQuery } from "@church-space/supabase/queries/all/get-email";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@church-space/supabase/client";
 import { useParams } from "next/navigation";
+import { Button } from "@church-space/ui/button";
 
 export default function Page() {
   const params = useParams();
@@ -60,9 +61,12 @@ export default function Page() {
           </Breadcrumb>
         </div>
         <div className="flex items-center gap-2 px-4">
-          {email.data.status === "draft" ||
-            (email.data.status === "scheduled" && <SendTestEmail />)}
-          <TempSendNowButton />
+          {email.data.status === "draft" && <SendTestEmail />}
+          {email.data.status === "draft" && (
+            <Button>
+              {email.data.scheduled_for ? "Schedule" : "Send Now"}
+            </Button>
+          )}
         </div>
       </header>
       {email.data.status === "sending" && <SendingPage />}
