@@ -49,6 +49,17 @@ import { createClient } from "@church-space/supabase/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
 import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { Separator } from "@church-space/ui/separator";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@church-space/ui/breadcrumb";
+import SendTestEmail from "@/components/dnd-builder/send-test-email";
 
 function SaveButtons(props: {
   isSaving: boolean;
@@ -485,6 +496,48 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
 
   return (
     <>
+      <header className="flex h-12 shrink-0 items-center justify-between gap-2">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+
+              <BreadcrumbItem>
+                <BreadcrumbPage>
+                  {email.subject || "Untitled Email"}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div className="flex items-center gap-2 px-4">
+          <SendTestEmail />
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>{email.scheduled_for ? "Schedule" : "Send Now"}</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Continue</DialogTitle>
+              </DialogHeader>
+              {email.subject ? (
+                <div className="text-2xl font-bold">{email.subject}</div>
+              ) : (
+                <div className="text-2xl font-bold text-muted-foreground">
+                  Subject
+                </div>
+              )}
+              {email.subject}
+            </DialogContent>
+          </Dialog>
+        </div>
+      </header>
       <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-5">
         {subject ? (
           <div className="text-2xl font-bold">{subject}</div>
