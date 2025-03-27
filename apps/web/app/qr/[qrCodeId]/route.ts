@@ -4,13 +4,13 @@ import { client as RedisClient } from "@church-space/kv";
 import { Ratelimit } from "@upstash/ratelimit";
 
 const ratelimit = new Ratelimit({
-  limiter: Ratelimit.fixedWindow(1, "10s"),
+  limiter: Ratelimit.fixedWindow(2, "10s"),
   redis: RedisClient,
 });
 
 export async function GET(
   request: Request,
-  { params }: { params: { qrCodeId: string } },
+  context: { params: { qrCodeId: string } },
 ) {
   try {
     const supabase = await createClient();
@@ -26,7 +26,7 @@ export async function GET(
         )
       `,
       )
-      .eq("id", params.qrCodeId)
+      .eq("id", context.params.qrCodeId)
       .single();
 
     if (qrError || !qrCode || !qrCode.qr_links?.url) {
@@ -43,7 +43,7 @@ export async function GET(
 
     const { error: clickError } = await supabase.from("qr_code_clicks").insert([
       {
-        qr_code_id: params.qrCodeId,
+        qr_code_id: context.params.qrCodeId,
       },
     ]);
 
