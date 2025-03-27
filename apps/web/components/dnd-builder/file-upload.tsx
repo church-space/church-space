@@ -35,7 +35,7 @@ interface FileUploadProps {
   type?: "image" | "any";
   initialFilePath?: string;
   onRemove?: () => void;
-  bucket?: "email_assets" | "link_list_assets";
+  bucket?: "email_assets" | "link-assets";
 }
 
 const FileUpload = ({

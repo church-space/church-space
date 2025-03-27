@@ -62,12 +62,12 @@ export async function fetchLinkListAssets({
 
   try {
     const sanitizedOrgId = organizationId.replace(/\s+/g, "");
-    const path = `unsent/${sanitizedOrgId}`;
+    const path = `${sanitizedOrgId}`;
 
     // Get the total count using the RPC function
     const { data: countData, error: countError } = await supabase.rpc(
       "count_direct_storage_items",
-      { bucket_name: "link_list_assets", folder_path: `${path}/` },
+      { bucket_name: "link-assets", folder_path: `${path}/` },
     );
 
     console.log("countData", countData);
@@ -84,7 +84,7 @@ export async function fetchLinkListAssets({
 
     // Fetch only the files for the current page
     const { data: files, error: filesError } = await supabase.storage
-      .from("link_list_assets")
+      .from("link-assets")
       .list(path, {
         limit: itemsPerPage,
         offset: offset,
@@ -131,7 +131,7 @@ export async function fetchLinkListAssets({
 
         // Get the public URL
         const { data: publicUrlData } = await supabase.storage
-          .from("link_list_assets")
+          .from("link-assets")
           .getPublicUrl(filePath);
 
         // Extract the original filename without timestamp

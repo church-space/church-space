@@ -442,7 +442,11 @@ export default function Page() {
         fgColor={qrCode.qrColor}
         qrStyle={qrCode.isRounded ? "fluid" : "squares"}
         eyeRadius={qrCode.isRounded ? 64 : 0}
-        logoImage={qrCode.logoImage || undefined}
+        logoImage={
+          qrCode.logoImage
+            ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${qrCode.logoImage}`
+            : undefined
+        }
         logoWidth={qrCode.logoSize * 8}
         logoHeight={qrCode.logoSize * 8}
         removeQrCodeBehindLogo={true}
@@ -1006,7 +1010,11 @@ export default function Page() {
                     fgColor={qrCode.qrColor}
                     qrStyle={qrCode.isRounded ? "fluid" : "squares"}
                     eyeRadius={qrCode.isRounded ? 8 : 0}
-                    logoImage={qrCode.logoImage || undefined}
+                    logoImage={
+                      qrCode.logoImage
+                        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${qrCode.logoImage}`
+                        : undefined
+                    }
                     logoWidth={qrCode.logoSize * 1.2}
                     logoHeight={qrCode.logoSize * 1.2}
                     removeQrCodeBehindLogo={true}
@@ -1165,7 +1173,7 @@ export default function Page() {
                               logoImage: null,
                             });
                           }}
-                          bucket="link_list_assets"
+                          bucket="link-assets"
                         />
                       </>
                     )}
@@ -1220,7 +1228,7 @@ export default function Page() {
                       eyeRadius={editingQRCode.isRounded ? 8 : 0}
                       logoImage={
                         editingQRCode.logoImage
-                          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link_list_assets/${editingQRCode.logoImage}`
+                          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${editingQRCode.logoImage}`
                           : undefined
                       }
                       logoWidth={editingQRCode.logoSize}
