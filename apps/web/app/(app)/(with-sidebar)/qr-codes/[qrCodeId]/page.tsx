@@ -50,6 +50,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
+// import { getQRLinkQuery } from "@church-space/supabase/queries/all/get-qr-code";
+// import { createClient } from "@church-space/supabase/client";
+// import { useParams } from "next/navigation";
+// import { useQuery } from "@tanstack/react-query";
 
 // Types
 type QRCodeData = {
@@ -530,15 +534,11 @@ export default function Page() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">Hillsong Church Online</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/links">Links</BreadcrumbLink>
+                <BreadcrumbLink href="/qr-codes">QR Codes</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Link ID</BreadcrumbPage>
+                <BreadcrumbPage>{linkData.name}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

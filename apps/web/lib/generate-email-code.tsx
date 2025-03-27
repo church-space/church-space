@@ -1246,7 +1246,7 @@ const CustomFooter: React.FC<{
                             </span>
                             <span style={{ margin: "0 8px" }}>|</span>
                             <a
-                              href={managePreferencesUrl || "#"}
+                              href={managePreferencesUrl}
                               style={{
                                 color: secondary_text_color,
                                 textDecoration: "underline",
@@ -1258,7 +1258,7 @@ const CustomFooter: React.FC<{
                             </a>
                             <span style={{ margin: "0 8px" }}>|</span>
                             <a
-                              href={unsubscribeUrl || "#"}
+                              href={unsubscribeUrl}
                               style={{
                                 color: secondary_text_color,
                                 textDecoration: "underline",

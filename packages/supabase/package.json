@@ -50,6 +50,7 @@
     "./queries/all/get-org-name": "./src/queries/all/get-org-name.ts",
     "./queries/all/get-pco-lists": "./src/queries/all/get-pco-lists.ts",
     "./queries/all/get-emails": "./src/queries/all/get-emails.ts",
-    "./queries/all/get-email": "./src/queries/all/get-email.ts"
+    "./queries/all/get-email": "./src/queries/all/get-email.ts",
+    "./queries/all/get-qr-code": "./src/queries/all/get-qr-code.ts"
   }
 }
