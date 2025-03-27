@@ -659,7 +659,8 @@ export default function PreSendPage({ email }: { email: any }) {
               <Input
                 placeholder="Enter subject"
                 value={subject}
-                onChange={(e) => setSubject(e.target.value)}
+                maxLength={60}
+                onChange={(e) => setSubject(e.target.value.slice(0, 60))}
               />
               {subject && (
                 <div
@@ -700,7 +701,7 @@ export default function PreSendPage({ email }: { email: any }) {
                     </span>
                   )}
                   <span className="text-xs text-muted-foreground">
-                    {wordCount} words | {charCount} characters | {emojiCount}{" "}
+                    {wordCount} words | {charCount}/60 characters | {emojiCount}{" "}
                     emojis | {punctuationCount} punctuation marks
                   </span>
                 </div>
@@ -731,11 +732,11 @@ export default function PreSendPage({ email }: { email: any }) {
                 <CircleDashed height={"24"} width={"24"} />
               )}
               <div className="flex flex-col">
-                <span>Schedule</span>
+                <span>Send Time</span>
                 <span className="text-sm font-normal text-muted-foreground">
                   {isScheduled === "schedule"
                     ? `Schedule for ${format(sendDate ?? new Date(), "MMMM d, yyyy h:mm a")} in ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`
-                    : "Send this email immediately."}
+                    : "Send this email by clicking the send button in the top right corner of this page."}
                 </span>
               </div>
             </div>
@@ -793,6 +794,10 @@ export default function PreSendPage({ email }: { email: any }) {
                     time.
                   </div>
                 )}
+                <div className="rounded-md border bg-muted p-3 text-sm text-muted-foreground">
+                  The email will not be offically scheduled until you hit the
+                  "Schedule" button in the top right corner of this page.
+                </div>
               </TabsContent>
               <TabsContent
                 value="send-now"
