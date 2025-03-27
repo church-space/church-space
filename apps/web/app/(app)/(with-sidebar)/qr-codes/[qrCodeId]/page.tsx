@@ -42,7 +42,6 @@ import {
 } from "@church-space/ui/chart";
 import { Download, Plus, Trash2, Edit } from "lucide-react";
 import { Upload } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
 import {
   Select,
   SelectContent,
@@ -54,6 +53,7 @@ import { getQRLinkQuery } from "@church-space/supabase/queries/all/get-qr-code";
 import { createClient } from "@church-space/supabase/client";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { createQRCode } from "@church-space/supabase/mutations/qr-codes";
 
 // Types
 type QRCodeData = {
@@ -185,32 +185,6 @@ export default function Page() {
     qrCodes: [],
   });
 
-  // Map the database data to our component state
-  useEffect(() => {
-    if (qrLinkData) {
-      const mappedQRCodes = qrLinkData.qr_codes.map((qrCode) => {
-        const style = qrCode.style || {};
-        return {
-          id: qrCode.id,
-          name: qrCode.title || "Untitled QR Code",
-          bgColor: style.bgColor || "#FFFFFF",
-          qrColor: style.qrColor || "#000000",
-          isRounded: style.isRounded || false,
-          isTransparent: style.isTransparent || false,
-          logoImage: qrCode.linked_asset || null,
-          logoSize: style.logoSize || 50,
-          clicks: [], // Keep the mock clicks data for now
-        };
-      });
-
-      setLinkData({
-        url: qrLinkData.url || "",
-        name: qrLinkData.name || "Untitled Link",
-        qrCodes: mappedQRCodes,
-      });
-    }
-  }, [qrLinkData]);
-
   const currentYear = new Date().getFullYear();
   const [dateFilter, setDateFilter] = useState<DateFilter>({
     year: currentYear,
@@ -223,56 +197,9 @@ export default function Page() {
   const [isAddingQRCode, setIsAddingQRCode] = useState(false);
   const [newQRCodeName, setNewQRCodeName] = useState("");
   const [chartData, setChartData] = useState<any[]>([]);
-
-  // Add a new state to track if we're in edit mode for the link information
   const [isEditingLink, setIsEditingLink] = useState(false);
-  // Add states to temporarily store edits before saving
   const [editedLinkName, setEditedLinkName] = useState(linkData.name);
   const [editedLinkUrl, setEditedLinkUrl] = useState(linkData.url);
-
-  // Generate mock data for chart based on date filters
-  useEffect(() => {
-    let startDate: Date;
-    let endDate: Date;
-
-    if (dateFilter.day !== null && dateFilter.month !== null) {
-      // Day view - show hours in a single day
-      startDate = new Date(
-        dateFilter.year,
-        dateFilter.month - 1,
-        dateFilter.day,
-      );
-      endDate = new Date(dateFilter.year, dateFilter.month - 1, dateFilter.day);
-    } else if (dateFilter.month !== null) {
-      // Month view - show days in a month
-      startDate = new Date(dateFilter.year, dateFilter.month - 1, 1);
-      endDate = new Date(dateFilter.year, dateFilter.month, 0); // Last day of month
-    } else {
-      // Year view - show months in a year
-      startDate = new Date(dateFilter.year, 0, 1);
-      endDate = new Date(dateFilter.year, 11, 31);
-    }
-
-    const mockClicksData = generateMockClicks(
-      startDate,
-      endDate,
-      linkData.qrCodes.length,
-    );
-
-    // Update each QR code with mock clicks
-    const updatedQRCodes = linkData.qrCodes.map((qrCode, index) => ({
-      ...qrCode,
-      clicks: mockClicksData[index] || [],
-    }));
-
-    setLinkData((prev) => ({
-      ...prev,
-      qrCodes: updatedQRCodes,
-    }));
-
-    // Process data for chart
-    processChartData(updatedQRCodes, dateFilter);
-  }, [dateFilter, linkData.qrCodes.length]);
 
   const processChartData = (qrCodes: QRCodeData[], filter: DateFilter) => {
     const data: any[] = [];
@@ -367,6 +294,80 @@ export default function Page() {
     setChartData(data);
   };
 
+  // Map the database data to our component state
+  useEffect(() => {
+    if (qrLinkData) {
+      const mappedQRCodes = qrLinkData.qr_codes.map((qrCode) => {
+        const style = qrCode.style || {};
+        return {
+          id: qrCode.id,
+          name: qrCode.title || "Untitled QR Code",
+          bgColor: style.bgColor || "#FFFFFF",
+          qrColor: style.qrColor || "#000000",
+          isRounded: style.isRounded || false,
+          isTransparent: style.isTransparent || false,
+          logoImage: qrCode.linked_asset || null,
+          logoSize: style.logoSize || 50,
+          clicks: [], // Keep the mock clicks data for now
+        };
+      });
+
+      setLinkData({
+        url: qrLinkData.url || "",
+        name: qrLinkData.name || "Untitled Link",
+        qrCodes: mappedQRCodes,
+      });
+    }
+  }, [qrLinkData]);
+
+  // Generate mock data for chart based on date filters
+  useEffect(() => {
+    let startDate: Date;
+    let endDate: Date;
+
+    if (dateFilter.day !== null && dateFilter.month !== null) {
+      // Day view - show hours in a single day
+      startDate = new Date(
+        dateFilter.year,
+        dateFilter.month - 1,
+        dateFilter.day,
+      );
+      endDate = new Date(dateFilter.year, dateFilter.month - 1, dateFilter.day);
+    } else if (dateFilter.month !== null) {
+      // Month view - show days in a month
+      startDate = new Date(dateFilter.year, dateFilter.month - 1, 1);
+      endDate = new Date(dateFilter.year, dateFilter.month, 0); // Last day of month
+    } else {
+      // Year view - show months in a year
+      startDate = new Date(dateFilter.year, 0, 1);
+      endDate = new Date(dateFilter.year, 11, 31);
+    }
+
+    const mockClicksData = generateMockClicks(
+      startDate,
+      endDate,
+      linkData.qrCodes.length,
+    );
+
+    // Update each QR code with mock clicks
+    const updatedQRCodes = linkData.qrCodes.map((qrCode, index) => ({
+      ...qrCode,
+      clicks: mockClicksData[index] || [],
+    }));
+
+    setLinkData((prev) => ({
+      ...prev,
+      qrCodes: updatedQRCodes,
+    }));
+
+    // Process data for chart
+    processChartData(updatedQRCodes, dateFilter);
+  }, [dateFilter, linkData.qrCodes.length]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && editingQRCode) {
@@ -392,28 +393,59 @@ export default function Page() {
     link.click();
   };
 
-  const addNewQRCode = () => {
+  const addNewQRCode = async () => {
     if (!newQRCodeName.trim()) return;
 
-    const newQRCode: QRCodeData = {
-      id: uuidv4(),
-      name: newQRCodeName,
-      bgColor: "#FFFFFF",
-      qrColor: "#000000",
-      isRounded: false,
-      isTransparent: false,
-      logoImage: null,
-      logoSize: 50,
-      clicks: [],
-    };
+    try {
+      const { data, error } = await createQRCode(supabase, {
+        title: newQRCodeName,
+        qr_link_id: qrLinkId,
+        style: {
+          bgColor: "#FFFFFF",
+          qrColor: "#000000",
+          isRounded: false,
+          isTransparent: false,
+          logoSize: 50,
+        },
+      });
 
-    setLinkData((prev) => ({
-      ...prev,
-      qrCodes: [...prev.qrCodes, newQRCode],
-    }));
+      if (error) throw error;
+      if (!data || data.length === 0)
+        throw new Error("No data returned from QR code creation");
 
-    setNewQRCodeName("");
-    setIsAddingQRCode(false);
+      const createdQRCode = data[0];
+      const style = createdQRCode.style as {
+        bgColor?: string;
+        qrColor?: string;
+        isRounded?: boolean;
+        isTransparent?: boolean;
+        logoSize?: number;
+      } | null;
+
+      // Update local state with the new QR code
+      const newQRCode: QRCodeData = {
+        id: createdQRCode.id,
+        name: createdQRCode.title || "Untitled QR Code",
+        bgColor: style?.bgColor || "#FFFFFF",
+        qrColor: style?.qrColor || "#000000",
+        isRounded: style?.isRounded || false,
+        isTransparent: style?.isTransparent || false,
+        logoImage: createdQRCode.linked_asset || null,
+        logoSize: style?.logoSize || 50,
+        clicks: [],
+      };
+
+      setLinkData((prev) => ({
+        ...prev,
+        qrCodes: [...prev.qrCodes, newQRCode],
+      }));
+
+      setNewQRCodeName("");
+      setIsAddingQRCode(false);
+    } catch (error) {
+      console.error("Error creating QR code:", error);
+      // You might want to show an error toast here
+    }
   };
 
   const deleteQRCode = (index: number) => {
@@ -531,6 +563,7 @@ export default function Page() {
       });
     }
   };
+
   return (
     <>
       <header className="flex h-12 shrink-0 items-center gap-2">
