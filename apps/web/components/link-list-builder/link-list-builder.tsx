@@ -6,6 +6,10 @@ import LinkListHeader from "./link-list-header";
 import LinkListSocials from "./link-list-socials";
 import LinkListLinks from "./link-list-links";
 import { socialIcons } from "./link-list-socials";
+import { getLinkListQuery } from "@church-space/supabase/queries/all/get-link-list";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { createClient } from "@church-space/supabase/client";
 
 export interface Link {
   icon: string;
@@ -19,6 +23,21 @@ export interface SocialLink {
 }
 
 export default function LinkListBuilder() {
+  const params = useParams();
+  const linkListId = params.linkListId as unknown as number;
+  const supabase = createClient();
+
+  if (!linkListId) {
+    return <div>No link list ID</div>;
+  }
+
+  const { data: linkList, isLoading } = useQuery({
+    queryKey: ["linkList", linkListId],
+    queryFn: () => getLinkListQuery(supabase, linkListId),
+  });
+
+  console.log(linkList);
+
   const [links, setLinks] = useState<Link[]>([
     { icon: "link", url: "https://www.google.com", text: "Google" },
   ]);

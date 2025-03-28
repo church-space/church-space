@@ -51,7 +51,7 @@ export function NavMain({
                 className={cn(
                   "rounded-lg text-muted-foreground hover:text-foreground",
                   isActive &&
-                    "border border-muted-foreground/10 bg-muted text-foreground shadow-sm",
+                    "border border-muted-foreground/20 bg-background text-foreground shadow-sm",
                   !isActive && "hover:bg-transparent",
                 )}
               >
