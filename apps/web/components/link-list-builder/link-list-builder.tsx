@@ -97,11 +97,10 @@ export default function LinkListBuilder() {
     useState<string>("");
   const [headerImage, setHeaderImage] = useState<string>("");
   const [logoImage, setLogoImage] = useState<string>("");
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // Update state when data loads
   useEffect(() => {
-    if (linkList?.data && !isInitialized) {
+    if (linkList?.data) {
       // Update links
       const dbLinks =
         linkList.data.link_list_links?.map((link) => ({
@@ -146,10 +145,8 @@ export default function LinkListBuilder() {
       setHeaderName(linkList.data.name || "");
       setHeaderImage(linkList.data.bg_image || "");
       setLogoImage(linkList.data.logo_asset || "");
-
-      setIsInitialized(true);
     }
-  }, [linkList?.data, style, primaryButton, isInitialized]);
+  }, [linkList?.data, style, primaryButton]);
 
   // URL validation schema
   const urlSchema = z.string().superRefine((url, ctx) => {
