@@ -1,27 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
-import LinkListBuilderSidebar from "./sidebar";
-import LinkListHeader from "./link-list-header";
-import LinkListSocials from "./link-list-socials";
-import LinkListLinks from "./link-list-links";
-import { socialIcons } from "./link-list-socials";
-import { getLinkListQuery } from "@church-space/supabase/queries/all/get-link-list";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useDebounceCallback } from "@/hooks/use-debounce";
 import { createClient } from "@church-space/supabase/client";
 import {
+  createLinkListLink,
+  deleteLinkListLink,
   updateLinkList,
   updateLinkListLink,
-  updateLinkListSocial,
-  createLinkListLink,
-  createLinkListSocial,
-  deleteLinkListLink,
-  deleteLinkListSocial,
 } from "@church-space/supabase/mutations/link-lists";
+import { getLinkListQuery } from "@church-space/supabase/queries/all/get-link-list";
 import { useToast } from "@church-space/ui/use-toast";
-import { useDebounce, useDebounceCallback } from "@/hooks/use-debounce";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { z } from "zod";
+import LinkListHeader from "./link-list-header";
+import LinkListLinks from "./link-list-links";
+import LinkListSocials, { socialIcons } from "./link-list-socials";
+import LinkListBuilderSidebar from "./sidebar";
 
 export interface Link {
   icon: string;
@@ -71,78 +67,87 @@ export default function LinkListBuilder() {
 
   // Parse initial data from database
   const style = linkList?.data?.style as Style | null;
-
   const primaryButton = linkList?.data?.primary_button as PrimaryButton | null;
 
   // State management with database integration
-  const [links, setLinks] = useState<Link[]>(
-    linkList?.data?.link_list_links?.map((link) => ({
-      icon: link.type || "link",
-      url: link.url || "",
-      text: link.text || "",
-    })) || [{ icon: "link", url: "https://www.google.com", text: "Google" }],
-  );
-
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(
-    linkList?.data?.link_list_socials?.map((social) => ({
-      icon: (social.icon as keyof typeof socialIcons) || "link",
-      url: social.url || "",
-    })) || [],
-  );
-
-  const [bgColor, setBgColor] = useState<string>(
-    style?.backgroundColor || "#f5f500",
-  );
-  const [buttonColor, setButtonColor] = useState<string>(
-    style?.buttonColor || "#ffffff",
-  );
-  const [buttonTextColor, setButtonTextColor] = useState<string>(
-    style?.buttonTextColor || "#000000",
-  );
+  const [links, setLinks] = useState<Link[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [bgColor, setBgColor] = useState<string>("#f5f500");
+  const [buttonColor, setButtonColor] = useState<string>("#ffffff");
+  const [buttonTextColor, setButtonTextColor] = useState<string>("#000000");
   const [socialsStyle, setSocialsStyle] = useState<
     "outline" | "filled" | "icon-only"
-  >(style?.socialsStyle || "filled");
-  const [socialsColor, setSocialsColor] = useState<string>(
-    style?.socialsColor || "",
-  );
-  const [socialsIconColor, setSocialsIconColor] = useState<string>(
-    style?.socialsIconColor || "",
-  );
-  const [headerBgColor, setHeaderBgColor] = useState<string>(
-    style?.headerBgColor || "",
-  );
-  const [headerTextColor, setHeaderTextColor] = useState<string>(
-    style?.headerTextColor || "",
-  );
+  >("filled");
+  const [socialsColor, setSocialsColor] = useState<string>("");
+  const [socialsIconColor, setSocialsIconColor] = useState<string>("");
+  const [headerBgColor, setHeaderBgColor] = useState<string>("");
+  const [headerTextColor, setHeaderTextColor] = useState<string>("");
   const [headerSecondaryTextColor, setHeaderSecondaryTextColor] =
-    useState<string>(style?.headerSecondaryTextColor || "");
-  const [headerTitle, setHeaderTitle] = useState<string>(
-    linkList?.data?.title || "",
-  );
-  const [headerDescription, setHeaderDescription] = useState<string>(
-    linkList?.data?.description || "",
-  );
-  const [headerName, setHeaderName] = useState<string>(
-    linkList?.data?.name || "",
-  );
-  const [headerButtonText, setHeaderButtonText] = useState<string>(
-    primaryButton?.text || "",
-  );
-  const [headerButtonLink, setHeaderButtonLink] = useState<string>(
-    primaryButton?.url || "",
-  );
-  const [headerButtonColor, setHeaderButtonColor] = useState<string>(
-    primaryButton?.color || "",
-  );
-  const [headerButtonTextColor, setHeaderButtonTextColor] = useState<string>(
-    primaryButton?.textColor || "",
-  );
-  const [headerImage, setHeaderImage] = useState<string>(
-    linkList?.data?.bg_image || "",
-  );
-  const [logoImage, setLogoImage] = useState<string>(
-    linkList?.data?.logo_asset || "",
-  );
+    useState<string>("");
+  const [headerTitle, setHeaderTitle] = useState<string>("");
+  const [headerDescription, setHeaderDescription] = useState<string>("");
+  const [headerName, setHeaderName] = useState<string>("");
+  const [headerButtonText, setHeaderButtonText] = useState<string>("");
+  const [headerButtonLink, setHeaderButtonLink] = useState<string>("");
+  const [headerButtonColor, setHeaderButtonColor] = useState<string>("");
+  const [headerButtonTextColor, setHeaderButtonTextColor] =
+    useState<string>("");
+  const [headerImage, setHeaderImage] = useState<string>("");
+  const [logoImage, setLogoImage] = useState<string>("");
+
+  // Update state when data loads
+  useEffect(() => {
+    if (linkList?.data) {
+      // Update links
+      const dbLinks =
+        linkList.data.link_list_links?.map((link) => ({
+          icon: link.type || "link",
+          url: link.url || "",
+          text: link.text || "",
+        })) || [];
+      setLinks(
+        dbLinks.length > 0
+          ? dbLinks
+          : [{ icon: "link", url: "https://www.google.com", text: "Google" }],
+      );
+
+      // Update social links
+      const dbSocialLinks =
+        linkList.data.link_list_socials?.map((social) => ({
+          icon: (social.icon as keyof typeof socialIcons) || "link",
+          url: social.url || "",
+        })) || [];
+      setSocialLinks(dbSocialLinks);
+
+      // Update style-related states
+      if (style) {
+        setBgColor(style.backgroundColor || "#f5f500");
+        setButtonColor(style.buttonColor || "#ffffff");
+        setButtonTextColor(style.buttonTextColor || "#000000");
+        setSocialsStyle(style.socialsStyle || "filled");
+        setSocialsColor(style.socialsColor || "");
+        setSocialsIconColor(style.socialsIconColor || "");
+        setHeaderBgColor(style.headerBgColor || "");
+        setHeaderTextColor(style.headerTextColor || "");
+        setHeaderSecondaryTextColor(style.headerSecondaryTextColor || "");
+      }
+
+      // Update primary button states
+      if (primaryButton) {
+        setHeaderButtonText(primaryButton.text || "");
+        setHeaderButtonLink(primaryButton.url || "");
+        setHeaderButtonColor(primaryButton.color || "");
+        setHeaderButtonTextColor(primaryButton.textColor || "");
+      }
+
+      // Update text and image states
+      setHeaderTitle(linkList.data.title || "");
+      setHeaderDescription(linkList.data.description || "");
+      setHeaderName(linkList.data.name || "");
+      setHeaderImage(linkList.data.bg_image || "");
+      setLogoImage(linkList.data.logo_asset || "");
+    }
+  }, [linkList?.data, style, primaryButton]);
 
   // URL validation schema
   const urlSchema = z.string().superRefine((url, ctx) => {

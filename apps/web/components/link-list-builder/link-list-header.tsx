@@ -59,7 +59,7 @@ export default function LinkListHeader({
       {headerButtonText && (
         <Link href={headerButtonLink} target="_blank">
           <Button
-            className="mt-8 h-10 rounded-full"
+            className="mt-8 h-10 w-full rounded-full"
             style={{
               backgroundColor: headerButtonColor,
               color: headerButtonTextColor,
