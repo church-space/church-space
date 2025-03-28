@@ -53,6 +53,7 @@
     "./queries/all/get-email": "./src/queries/all/get-email.ts",
     "./queries/all/get-qr-code": "./src/queries/all/get-qr-code.ts",
     "./mutations/qr-codes": "./src/mutations/qr-codes.ts",
-    "./queries/all/get-link-list": "./src/queries/all/get-link-list.ts"
+    "./queries/all/get-link-list": "./src/queries/all/get-link-list.ts",
+    "./mutations/link-lists": "./src/mutations/link-lists.ts"
   }
 }
