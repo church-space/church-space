@@ -97,10 +97,11 @@ export default function LinkListBuilder() {
     useState<string>("");
   const [headerImage, setHeaderImage] = useState<string>("");
   const [logoImage, setLogoImage] = useState<string>("");
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Update state when data loads
   useEffect(() => {
-    if (linkList?.data) {
+    if (linkList?.data && !isInitialized) {
       // Update links
       const dbLinks =
         linkList.data.link_list_links?.map((link) => ({
@@ -108,11 +109,7 @@ export default function LinkListBuilder() {
           url: link.url || "",
           text: link.text || "",
         })) || [];
-      setLinks(
-        dbLinks.length > 0
-          ? dbLinks
-          : [{ icon: "link", url: "https://www.google.com", text: "Google" }],
-      );
+      setLinks(dbLinks.length > 0 ? dbLinks : []);
 
       // Update social links
       const dbSocialLinks =
@@ -149,8 +146,10 @@ export default function LinkListBuilder() {
       setHeaderName(linkList.data.name || "");
       setHeaderImage(linkList.data.bg_image || "");
       setLogoImage(linkList.data.logo_asset || "");
+
+      setIsInitialized(true);
     }
-  }, [linkList?.data, style, primaryButton]);
+  }, [linkList?.data, style, primaryButton, isInitialized]);
 
   // URL validation schema
   const urlSchema = z.string().superRefine((url, ctx) => {
@@ -264,6 +263,9 @@ export default function LinkListBuilder() {
       if (error) throw error;
       return result;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["linkList", linkListId] });
+    },
     onError: (error) => {
       if (error instanceof Error && error.message !== "No rows found") {
         toast({
@@ -281,6 +283,9 @@ export default function LinkListBuilder() {
       const { data: result, error } = await deleteLinkListLink(supabase, id);
       if (error) throw error;
       return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["linkList", linkListId] });
     },
     onError: (error) => {
       if (error instanceof Error && error.message !== "No rows found") {
@@ -308,6 +313,9 @@ export default function LinkListBuilder() {
       if (error) throw error;
       return result;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["linkList", linkListId] });
+    },
     onError: (error) => {
       if (error instanceof Error && error.message !== "No rows found") {
         toast({
@@ -334,6 +342,9 @@ export default function LinkListBuilder() {
       if (error) throw error;
       return result;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["linkList", linkListId] });
+    },
     onError: (error) => {
       if (error instanceof Error && error.message !== "No rows found") {
         toast({
@@ -352,6 +363,9 @@ export default function LinkListBuilder() {
       if (error) throw error;
       return result;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["linkList", linkListId] });
+    },
     onError: (error) => {
       if (error instanceof Error && error.message !== "No rows found") {
         toast({
@@ -366,67 +380,119 @@ export default function LinkListBuilder() {
 
   // Debounced update functions
   const debouncedUpdateStyle = useDebounceCallback((style: any) => {
+    if (!style) return;
     updateLinkListMutation.mutate({ style });
   }, 1000);
 
   const debouncedUpdatePrimaryButton = useDebounceCallback(
     (primary_button: any) => {
+      if (!primary_button) return;
       updateLinkListMutation.mutate({ primary_button });
     },
     1000,
   );
 
   const debouncedUpdateText = useDebounceCallback((updates: any) => {
+    if (!updates) return;
     updateLinkListMutation.mutate(updates);
   }, 1000);
 
   // Update handlers
   const handleStyleUpdate = (newStyle: any) => {
+    if (!newStyle) return;
     debouncedUpdateStyle(newStyle);
   };
 
   const handlePrimaryButtonUpdate = (newButton: any) => {
+    if (!newButton) return;
     debouncedUpdatePrimaryButton(newButton);
   };
 
   const handleTextUpdate = (updates: any) => {
+    if (!updates) return;
     debouncedUpdateText(updates);
   };
 
-  const handleLinkUpdate = (index: number, link: Link) => {
-    const existingLink = linkList?.data?.link_list_links?.[index];
-    if (existingLink) {
-      updateLinkMutation.mutate({ link, id: Number(existingLink.id) });
-    } else {
-      createLinkMutation.mutate(link);
-    }
-  };
+  const handleSetLinks = (newLinks: Link[]) => {
+    // Immediately update UI state for optimistic updates
+    setLinks(newLinks);
 
-  const handleLinkDelete = (index: number) => {
-    const existingLink = linkList?.data?.link_list_links?.[index];
-    if (existingLink) {
-      deleteLinkMutation.mutate(Number(existingLink.id));
-    }
-  };
+    // Get existing links from the database
+    const existingLinks = linkList?.data?.link_list_links || [];
 
-  const handleSocialLinksUpdate = (newSocialLinks: SocialLink[]) => {
-    setSocialLinks(newSocialLinks);
-    // Update each social link
-    newSocialLinks.forEach((social, index) => {
-      const existingSocial = linkList?.data?.link_list_socials?.[index];
-      if (existingSocial) {
-        updateSocialMutation.mutate({ social, id: Number(existingSocial.id) });
-      } else {
-        createSocialMutation.mutate(social);
+    // For each new link in the updated list
+    newLinks.forEach((link, index) => {
+      const existingLink = existingLinks[index];
+
+      // If there's an existing link at this position
+      if (existingLink) {
+        // Update it if it changed
+        if (
+          existingLink.type !== link.icon ||
+          existingLink.url !== link.url ||
+          existingLink.text !== link.text
+        ) {
+          updateLinkMutation.mutate({
+            link,
+            id: Number(existingLink.id),
+          });
+        }
       }
+      // If this is a new link, create it in the database
+      else {
+        // Create new link even with empty values to maintain structure
+        createLinkMutation.mutate({
+          icon: link.icon,
+          url: link.url || "",
+          text: link.text || "",
+        });
+      }
+    });
+
+    // If links were removed, delete them from the database
+    existingLinks.slice(newLinks.length).forEach((link) => {
+      deleteLinkMutation.mutate(Number(link.id));
     });
   };
 
-  const handleSocialLinkDelete = (index: number) => {
-    const existingSocial = linkList?.data?.link_list_socials?.[index];
-    if (existingSocial) {
-      deleteSocialMutation.mutate(Number(existingSocial.id));
-    }
+  const handleSocialLinksUpdate = (newSocialLinks: SocialLink[]) => {
+    // Immediately update UI state for optimistic updates
+    setSocialLinks(newSocialLinks);
+
+    // Get existing social links from the database
+    const existingSocials = linkList?.data?.link_list_socials || [];
+
+    // For each new social in the updated list
+    newSocialLinks.forEach((social, index) => {
+      const existingSocial = existingSocials[index];
+
+      // If there's an existing social at this position
+      if (existingSocial) {
+        // Update it if it changed
+        if (
+          existingSocial.icon !== social.icon ||
+          existingSocial.url !== social.url
+        ) {
+          updateSocialMutation.mutate({
+            social,
+            id: Number(existingSocial.id),
+          });
+        }
+      }
+      // If this is a new social, create it in the database
+      else {
+        // Create new social even with empty values to maintain structure
+        createSocialMutation.mutate({
+          icon: social.icon,
+          url: social.url || "",
+        });
+      }
+    });
+
+    // If socials were removed, delete them from the database
+    existingSocials.slice(newSocialLinks.length).forEach((social) => {
+      deleteSocialMutation.mutate(Number(social.id));
+    });
   };
 
   return (
@@ -523,13 +589,7 @@ export default function LinkListBuilder() {
             textColor: color,
           });
         }}
-        setLinks={(newLinks) => {
-          setLinks(newLinks);
-          // Update each link
-          newLinks.forEach((link, index) => {
-            handleLinkUpdate(index, link);
-          });
-        }}
+        setLinks={handleSetLinks}
         setHeaderImage={(image) => {
           setHeaderImage(image);
           handleTextUpdate({ bg_image: image });

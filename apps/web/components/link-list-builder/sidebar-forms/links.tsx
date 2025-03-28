@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { z } from "zod";
 import { Link } from "../link-list-builder";
 
@@ -43,6 +43,13 @@ export default function LinksForm({
   const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
   // Debounce timers for link validation
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  // Local links state for UI rendering
+  const [localLinks, setLocalLinks] = useState(links);
+
+  // Sync local links with props when props change
+  useEffect(() => {
+    setLocalLinks(links);
+  }, [links]);
 
   // URL validation schema using Zod
   const urlSchema = z.string().superRefine((url, ctx) => {
@@ -125,20 +132,18 @@ export default function LinksForm({
     }
   };
 
-  const addLink = () => {
-    if (links.length < 50) {
-      const newLinks = [...links, { icon: "", url: "", text: "" }];
-      setLinks(newLinks);
-    }
-  };
-
+  // Handle field updates with optimistic UI and debounced server updates
   const updateLink = (index: number, field: keyof Link, value: string) => {
-    const newLinks = [...links];
+    // Create updated links array
+    const newLinks = [...localLinks];
     newLinks[index] = { ...newLinks[index], [field]: value };
 
-    // If updating the URL field
+    // Update local state immediately for responsive UI
+    setLocalLinks(newLinks);
+
+    // For URL field, validate immediately but debounce server update
     if (field === "url") {
-      // Mark as typing
+      // Mark this link as being typed
       setTypingLinks((prev) => ({ ...prev, [index]: true }));
 
       // Clear any existing timer
@@ -146,57 +151,94 @@ export default function LinksForm({
         clearTimeout(linkTimersRef.current[index]);
       }
 
-      // Set a new timer to validate after typing stops
+      // Set a new timer to update parent state after typing stops
       linkTimersRef.current[index] = setTimeout(() => {
+        // Clear typing flag
         setTypingLinks((prev) => ({ ...prev, [index]: false }));
 
-        // Validate based on the icon type
+        // Validate the URL/email value
         const isValid = validateLink(value, newLinks[index].icon, index);
 
-        // Only update if valid
+        // If valid or empty, update parent state
         if (isValid) {
+          // Update parent state (triggers server update)
           setLinks(newLinks);
         }
-      }, 800); // 800ms debounce
-
-      // Update local state immediately for responsive UI
-      setLinks(newLinks);
+      }, 800);
     } else {
-      // For icon and text changes, update immediately
-      setLinks(newLinks);
+      // For non-URL fields, still debounce but don't need validation
+      if (linkTimersRef.current[index]) {
+        clearTimeout(linkTimersRef.current[index]);
+      }
+
+      linkTimersRef.current[index] = setTimeout(() => {
+        // Update parent state (triggers server update)
+        setLinks(newLinks);
+      }, 400);
     }
+
+    // Always update the parent state immediately for optimistic UI
+    // This allows the UI to update instantly while server updates are debounced
+    setLinks(newLinks);
   };
 
+  // Handle input blur events for URL/email fields
   const handleLinkBlur = (index: number) => {
-    // When input loses focus, clear typing state and validate
+    // If this link was being typed
     if (typingLinks[index]) {
+      // Clear typing state
       setTypingLinks((prev) => ({ ...prev, [index]: false }));
 
+      // Clear any pending timer
       if (linkTimersRef.current[index]) {
         clearTimeout(linkTimersRef.current[index]);
         linkTimersRef.current[index] = null;
       }
 
-      const link = links[index];
+      // Validate and update immediately on blur
+      const link = localLinks[index];
       const isValid = validateLink(link.url, link.icon, index);
 
+      // Update parent state if valid
       if (isValid) {
-        setLinks(links);
+        setLinks(localLinks);
       }
     }
   };
 
+  // Add a new empty link
+  const addLink = () => {
+    if (localLinks.length < 50) {
+      // Create new links array with added empty link
+      const newLinks = [...localLinks, { icon: "link", url: "", text: "" }];
+
+      // Update local state for immediate UI feedback
+      setLocalLinks(newLinks);
+
+      // Update parent state (triggers server update)
+      setLinks(newLinks);
+    }
+  };
+
+  // Remove a link at specified index
   const removeLink = (index: number) => {
-    const newLinks = links.filter((_, i) => i !== index);
+    // Create new links array without the removed link
+    const newLinks = localLinks.filter((_, i) => i !== index);
+
+    // Update local state for immediate UI feedback
+    setLocalLinks(newLinks);
+
+    // Update parent state (triggers server update)
     setLinks(newLinks);
 
-    // Clean up any errors or timers for this index
+    // Clean up associated state
     setLinkErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[index];
       return newErrors;
     });
 
+    // Clear any pending timer
     if (linkTimersRef.current[index]) {
       clearTimeout(linkTimersRef.current[index]);
       delete linkTimersRef.current[index];
@@ -225,13 +267,13 @@ export default function LinksForm({
           <Button
             variant="outline"
             onClick={addLink}
-            disabled={links.length >= 50}
+            disabled={localLinks.length >= 50}
           >
             Add Link
           </Button>
         </div>
         <div className="flex flex-col gap-6">
-          {links.map((link, index) => (
+          {localLinks.map((link, index) => (
             <div
               key={index}
               className="grid grid-cols-3 items-center gap-x-2 gap-y-2"

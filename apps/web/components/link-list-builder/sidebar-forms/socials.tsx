@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@church-space/ui/button";
 import { Label } from "@church-space/ui/label";
 import {
@@ -21,7 +21,6 @@ import {
   Linkedin,
 } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
-import { useState } from "react";
 import { z } from "zod";
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import { SocialLink } from "../link-list-builder";
@@ -60,6 +59,13 @@ export default function SocialsForm({
   const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
   // Debounce timers for link validation
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  // Local state for social links
+  const [localSocialLinks, setLocalSocialLinks] = useState(socialLinks);
+
+  // Sync local social links with props when props change
+  useEffect(() => {
+    setLocalSocialLinks(socialLinks);
+  }, [socialLinks]);
 
   const handleChange = (key: keyof LocalState, value: any) => {
     if (key === "socials_style") {
@@ -148,27 +154,39 @@ export default function SocialsForm({
     }
   };
 
+  // Add a new empty social link
   const addLink = () => {
-    if (socialLinks.length < 5) {
+    if (localSocialLinks.length < 5) {
+      // Create new social links array with added empty link
       const newLinks = [
-        ...socialLinks,
+        ...localSocialLinks,
         { icon: "link" as keyof typeof socialIcons, url: "" },
       ];
+
+      // Update local state for immediate UI feedback
+      setLocalSocialLinks(newLinks);
+
+      // Update parent state (triggers server update)
       setSocialLinks(newLinks);
     }
   };
 
+  // Handle field updates with optimistic UI and debounced server updates
   const updateLink = (
     index: number,
     field: keyof SocialLink,
     value: string,
   ) => {
-    const newLinks = [...socialLinks];
+    // Create updated social links array
+    const newLinks = [...localSocialLinks];
     newLinks[index] = { ...newLinks[index], [field]: value };
 
-    // If updating the URL field
+    // Update local state immediately for responsive UI
+    setLocalSocialLinks(newLinks);
+
+    // For URL field, validate immediately but debounce server update
     if (field === "url") {
-      // Mark as typing
+      // Mark this link as being typed
       setTypingLinks((prev) => ({ ...prev, [index]: true }));
 
       // Clear any existing timer
@@ -176,57 +194,80 @@ export default function SocialsForm({
         clearTimeout(linkTimersRef.current[index]);
       }
 
-      // Set a new timer to validate after typing stops
+      // Set a new timer to update parent state after typing stops
       linkTimersRef.current[index] = setTimeout(() => {
+        // Clear typing flag
         setTypingLinks((prev) => ({ ...prev, [index]: false }));
 
-        // Validate based on the icon type
+        // Validate the URL/email value
         const isValid = validateLink(value, newLinks[index].icon, index);
 
-        // Only update if valid
+        // If valid or empty, update parent state
         if (isValid) {
+          // Update parent state (triggers server update)
           setSocialLinks(newLinks);
         }
-      }, 800); // 800ms debounce
-
-      // Update local state immediately for responsive UI
-      setSocialLinks(newLinks);
+      }, 800);
     } else {
-      // For icon changes, update immediately
-      setSocialLinks(newLinks);
+      // For non-URL fields, still debounce but don't need validation
+      if (linkTimersRef.current[index]) {
+        clearTimeout(linkTimersRef.current[index]);
+      }
+
+      linkTimersRef.current[index] = setTimeout(() => {
+        // Update parent state (triggers server update)
+        setSocialLinks(newLinks);
+      }, 400);
     }
+
+    // Always update the parent state immediately for optimistic UI
+    // This allows the UI to update instantly while server updates are debounced
+    setSocialLinks(newLinks);
   };
 
+  // Handle input blur events for URL/email fields
   const handleLinkBlur = (index: number) => {
-    // When input loses focus, clear typing state and validate
+    // If this link was being typed
     if (typingLinks[index]) {
+      // Clear typing state
       setTypingLinks((prev) => ({ ...prev, [index]: false }));
 
+      // Clear any pending timer
       if (linkTimersRef.current[index]) {
         clearTimeout(linkTimersRef.current[index]);
         linkTimersRef.current[index] = null;
       }
 
-      const link = socialLinks[index];
+      // Validate and update immediately on blur
+      const link = localSocialLinks[index];
       const isValid = validateLink(link.url, link.icon, index);
 
+      // Update parent state if valid
       if (isValid) {
-        setSocialLinks(socialLinks);
+        setSocialLinks(localSocialLinks);
       }
     }
   };
 
+  // Remove a social link at specified index
   const removeLink = (index: number) => {
-    const newLinks = socialLinks.filter((_, i) => i !== index);
+    // Create new social links array without the removed link
+    const newLinks = localSocialLinks.filter((_, i) => i !== index);
+
+    // Update local state for immediate UI feedback
+    setLocalSocialLinks(newLinks);
+
+    // Update parent state (triggers server update)
     setSocialLinks(newLinks);
 
-    // Clean up any errors or timers for this index
+    // Clean up associated state
     setLinkErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[index];
       return newErrors;
     });
 
+    // Clear any pending timer
     if (linkTimersRef.current[index]) {
       clearTimeout(linkTimersRef.current[index]);
       delete linkTimersRef.current[index];
@@ -250,12 +291,15 @@ export default function SocialsForm({
             <SelectItem value="icon-only">Icon Only</SelectItem>
           </SelectContent>
         </Select>
-
-        <Label className="font-medium">Background Color</Label>
-        <ColorPicker
-          value={socialsColor}
-          onChange={(color) => setSocialsColor(color)}
-        />
+        {socialsStyle === "filled" && (
+          <>
+            <Label className="font-medium">Background Color</Label>
+            <ColorPicker
+              value={socialsColor}
+              onChange={(color) => setSocialsColor(color)}
+            />
+          </>
+        )}
         <Label className="font-medium">Icon Color</Label>
         <ColorPicker
           value={socialsIconColor}
@@ -268,13 +312,13 @@ export default function SocialsForm({
           <Button
             variant="outline"
             onClick={addLink}
-            disabled={socialLinks.length >= 5}
+            disabled={localSocialLinks.length >= 5}
           >
             Add Link
           </Button>
         </div>
 
-        {socialLinks.map((link, index) => (
+        {localSocialLinks.map((link, index) => (
           <div
             key={index}
             className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
