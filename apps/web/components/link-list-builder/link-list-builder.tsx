@@ -7,6 +7,9 @@ import {
   deleteLinkListLink,
   updateLinkList,
   updateLinkListLink,
+  updateLinkListSocial,
+  createLinkListSocial,
+  deleteLinkListSocial,
 } from "@church-space/supabase/mutations/link-lists";
 import { getLinkListQuery } from "@church-space/supabase/queries/all/get-link-list";
 import { useToast } from "@church-space/ui/use-toast";
@@ -291,6 +294,76 @@ export default function LinkListBuilder() {
     },
   });
 
+  // Social link mutations
+  const updateSocialMutation = useMutation({
+    mutationFn: async ({ social, id }: { social: SocialLink; id: number }) => {
+      const { data: result, error } = await updateLinkListSocial(
+        supabase,
+        {
+          icon: social.icon,
+          url: social.url,
+        },
+        id,
+      );
+      if (error) throw error;
+      return result;
+    },
+    onError: (error) => {
+      if (error instanceof Error && error.message !== "No rows found") {
+        toast({
+          title: "Error",
+          description: "Failed to update social link. Please try again.",
+          variant: "destructive",
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ["linkList", linkListId] });
+    },
+  });
+
+  const createSocialMutation = useMutation({
+    mutationFn: async (social: SocialLink) => {
+      const { data: result, error } = await createLinkListSocial(
+        supabase,
+        {
+          link_list: linkListId,
+          icon: social.icon,
+          url: social.url,
+        },
+        linkListId,
+      );
+      if (error) throw error;
+      return result;
+    },
+    onError: (error) => {
+      if (error instanceof Error && error.message !== "No rows found") {
+        toast({
+          title: "Error",
+          description: "Failed to create social link. Please try again.",
+          variant: "destructive",
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ["linkList", linkListId] });
+    },
+  });
+
+  const deleteSocialMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const { data: result, error } = await deleteLinkListSocial(supabase, id);
+      if (error) throw error;
+      return result;
+    },
+    onError: (error) => {
+      if (error instanceof Error && error.message !== "No rows found") {
+        toast({
+          title: "Error",
+          description: "Failed to delete social link. Please try again.",
+          variant: "destructive",
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ["linkList", linkListId] });
+    },
+  });
+
   // Debounced update functions
   const debouncedUpdateStyle = useDebounceCallback((style: any) => {
     updateLinkListMutation.mutate({ style });
@@ -333,6 +406,26 @@ export default function LinkListBuilder() {
     const existingLink = linkList?.data?.link_list_links?.[index];
     if (existingLink) {
       deleteLinkMutation.mutate(Number(existingLink.id));
+    }
+  };
+
+  const handleSocialLinksUpdate = (newSocialLinks: SocialLink[]) => {
+    setSocialLinks(newSocialLinks);
+    // Update each social link
+    newSocialLinks.forEach((social, index) => {
+      const existingSocial = linkList?.data?.link_list_socials?.[index];
+      if (existingSocial) {
+        updateSocialMutation.mutate({ social, id: Number(existingSocial.id) });
+      } else {
+        createSocialMutation.mutate(social);
+      }
+    });
+  };
+
+  const handleSocialLinkDelete = (index: number) => {
+    const existingSocial = linkList?.data?.link_list_socials?.[index];
+    if (existingSocial) {
+      deleteSocialMutation.mutate(Number(existingSocial.id));
     }
   };
 
@@ -383,7 +476,7 @@ export default function LinkListBuilder() {
           setSocialsIconColor(color);
           handleStyleUpdate({ ...(style || {}), socialsIconColor: color });
         }}
-        setSocialLinks={setSocialLinks}
+        setSocialLinks={handleSocialLinksUpdate}
         setHeaderBgColor={(color) => {
           setHeaderBgColor(color);
           handleStyleUpdate({ ...(style || {}), headerBgColor: color });
