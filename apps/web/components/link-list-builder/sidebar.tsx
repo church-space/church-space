@@ -13,6 +13,8 @@ import LinksForm from "./sidebar-forms/links";
 import SocialsForm from "./sidebar-forms/socials";
 import { Button } from "@church-space/ui/button";
 import { Link, SocialLink } from "./link-list-builder";
+import { Input } from "@church-space/ui/input";
+import { Label } from "@church-space/ui/label";
 
 interface LinkListBuilderSidebarProps {
   className?: string;
@@ -263,6 +265,28 @@ export default function LinkListBuilderSidebar({
                   Links
                 </div>
                 <ChevronRight />
+              </div>
+              <div className="mt-4 flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label>Name</Label>
+                  <Input
+                    placeholder="Link List Name"
+                    className="bg-background"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>URL</Label>
+                  <div className="shadow-xs flex rounded-md">
+                    <span className="-z-10 inline-flex items-center rounded-s-md border border-input bg-transparent px-3 text-xs text-muted-foreground">
+                      churchspace.co/links/
+                    </span>
+                    <Input
+                      className="-ms-px rounded-s-none bg-background shadow-none"
+                      placeholder="ex: your-church"
+                      type="text"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>

@@ -1,7 +1,13 @@
 import ColorPicker from "@/components/dnd-builder/color-picker";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@church-space/ui/accordion";
 import { Button } from "@church-space/ui/button";
-import { LinkIcon, MailFilled, XIcon } from "@church-space/ui/icons";
-import { GripVertical } from "lucide-react";
+import { cn } from "@church-space/ui/cn";
+import { LinkIcon, MailFilled } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
@@ -11,28 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import { useRef, useState, useEffect } from "react";
-import { z } from "zod";
-import { Link } from "../link-list-builder";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@church-space/ui/tooltip";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@church-space/ui/accordion";
-import {
-  DndContext,
   closestCenter,
+  DndContext,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -41,8 +33,10 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { cn } from "@church-space/ui/cn";
-import React from "react";
+import { GripVertical } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { z } from "zod";
+import { Link } from "../link-list-builder";
 
 // Override accordion trigger styles for this component
 const CustomAccordionTrigger = React.forwardRef<

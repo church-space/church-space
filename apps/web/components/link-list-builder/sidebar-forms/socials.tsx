@@ -1,5 +1,25 @@
-import React, { useRef, useState, useEffect } from "react";
+import ColorPicker from "@/components/dnd-builder/color-picker";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@church-space/ui/accordion";
 import { Button } from "@church-space/ui/button";
+import { cn } from "@church-space/ui/cn";
+import {
+  Bluesky,
+  Facebook,
+  Instagram,
+  Linkedin,
+  LinkIcon,
+  MailFilled,
+  Threads,
+  TikTok,
+  XTwitter,
+  Youtube,
+} from "@church-space/ui/icons";
+import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
   Select,
@@ -9,40 +29,13 @@ import {
   SelectValue,
 } from "@church-space/ui/select";
 import {
-  MailFilled,
-  LinkIcon,
-  Facebook,
-  Youtube,
-  Instagram,
-  TikTok,
-  XTwitter,
-  Threads,
-  Bluesky,
-  Linkedin,
-  XIcon,
-} from "@church-space/ui/icons";
-import { GripVertical } from "lucide-react";
-import { Input } from "@church-space/ui/input";
-import { z } from "zod";
-import ColorPicker from "@/components/dnd-builder/color-picker";
-import { SocialLink } from "../link-list-builder";
-import { TooltipContent } from "@church-space/ui/tooltip";
-import { socialIcons } from "../link-list-socials";
-import { Tooltip, TooltipTrigger } from "@church-space/ui/tooltip";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@church-space/ui/accordion";
-import {
-  DndContext,
   closestCenter,
+  DndContext,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -51,7 +44,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { cn } from "@church-space/ui/cn";
+import { GripVertical } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { z } from "zod";
+import { SocialLink } from "../link-list-builder";
+import { socialIcons } from "../link-list-socials";
 
 // Override accordion trigger styles for this component
 const CustomAccordionTrigger = React.forwardRef<
