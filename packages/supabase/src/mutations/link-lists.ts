@@ -13,6 +13,49 @@ export async function updateLinkList(
   linkList: Database["public"]["Tables"]["link_lists"]["Update"],
   linkListId: number
 ) {
+  // Apply defaults to style if it exists
+  if (linkList.style) {
+    const defaultStyle = {
+      backgroundColor: "#ffffff",
+      buttonColor: "#000000",
+      buttonTextColor: "#ffffff",
+      socialsStyle: "filled",
+      socialsColor: "#f7f7f7",
+      socialsIconColor: "#000000",
+      headerBgColor: "#f7f7f7",
+      headerBlur: false,
+      headerTextColor: "#000000",
+      headerSecondaryTextColor: "#454545",
+    };
+
+    // Merge defaults with existing style, only using defaults for undefined values
+    linkList.style = {
+      ...defaultStyle,
+      ...Object.fromEntries(
+        Object.entries(linkList.style).filter(([_, v]) => v !== undefined)
+      ),
+    };
+  }
+
+  // Apply defaults to primary_button if it exists
+  if (linkList.primary_button) {
+    const defaultPrimaryButton = {
+      text: "Plan your visit",
+      color: "#000000",
+      textColor: "#ffffff",
+    };
+
+    // Merge defaults with existing primary_button, only using defaults for undefined values
+    linkList.primary_button = {
+      ...defaultPrimaryButton,
+      ...Object.fromEntries(
+        Object.entries(linkList.primary_button).filter(
+          ([_, v]) => v !== undefined
+        )
+      ),
+    };
+  }
+
   const { data, error } = await supabase
     .from("link_lists")
     .update(linkList)

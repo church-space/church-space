@@ -346,26 +346,46 @@ export default function LinkListBuilder() {
         })) || [];
       setSocialLinks(dbSocialLinks);
 
-      // Update style-related states
+      // Update style-related states with defaults
       if (style) {
-        setBgColor(style.backgroundColor || "#f5f500");
-        setButtonColor(style.buttonColor || "#ffffff");
-        setButtonTextColor(style.buttonTextColor || "#000000");
+        setBgColor(style.backgroundColor || "#ffffff");
+        setButtonColor(style.buttonColor || "#000000");
+        setButtonTextColor(style.buttonTextColor || "#ffffff");
         setSocialsStyle(style.socialsStyle || "filled");
-        setSocialsColor(style.socialsColor || "");
-        setSocialsIconColor(style.socialsIconColor || "");
-        setHeaderBgColor(style.headerBgColor || "");
+        setSocialsColor(style.socialsColor || "#f7f7f7");
+        setSocialsIconColor(style.socialsIconColor || "#000000");
+        setHeaderBgColor(style.headerBgColor || "#f7f7f7");
         setHeaderBlur(style.headerBlur || false);
-        setHeaderTextColor(style.headerTextColor || "");
-        setHeaderSecondaryTextColor(style.headerSecondaryTextColor || "");
+        setHeaderTextColor(style.headerTextColor || "#000000");
+        setHeaderSecondaryTextColor(
+          style.headerSecondaryTextColor || "#454545",
+        );
+      } else {
+        // Set default values if no style object exists
+        setBgColor("#ffffff");
+        setButtonColor("#000000");
+        setButtonTextColor("#ffffff");
+        setSocialsStyle("filled");
+        setSocialsColor("#f7f7f7");
+        setSocialsIconColor("#000000");
+        setHeaderBgColor("#f7f7f7");
+        setHeaderBlur(false);
+        setHeaderTextColor("#000000");
+        setHeaderSecondaryTextColor("#454545");
       }
 
-      // Update primary button states
+      // Update primary button states with defaults
       if (primaryButton) {
-        setHeaderButtonText(primaryButton.text || "");
+        setHeaderButtonText(primaryButton.text || "Plan your visit");
         setHeaderButtonLink(primaryButton.url || "");
-        setHeaderButtonColor(primaryButton.color || "");
-        setHeaderButtonTextColor(primaryButton.textColor || "");
+        setHeaderButtonColor(primaryButton.color || "#000000");
+        setHeaderButtonTextColor(primaryButton.textColor || "#ffffff");
+      } else {
+        // Set default values if no primary button exists
+        setHeaderButtonText("Plan your visit");
+        setHeaderButtonLink("");
+        setHeaderButtonColor("#000000");
+        setHeaderButtonTextColor("#ffffff");
       }
 
       // Update text and image states
