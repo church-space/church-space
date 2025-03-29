@@ -84,6 +84,7 @@ import { createRoot } from "react-dom/client";
 import { useUser } from "@/stores/use-user";
 import FileUpload from "@/components/dnd-builder/file-upload";
 import { LoaderIcon } from "lucide-react";
+import { z } from "zod";
 
 // Types
 type QRCodeData = {
@@ -146,6 +147,24 @@ const getAvailableDays = (year: number, month: number) => {
   const lastDay = new Date(year, month, 0).getDate();
   return Array.from({ length: lastDay }, (_, i) => i + 1);
 };
+
+// Update the linkSchema to be more strict with URLs
+const linkSchema = z.object({
+  name: z.string().min(1, "Title is required"),
+  url: z
+    .string()
+    .min(1, "URL is required")
+    .url("Please enter a valid URL")
+    .refine((url) => {
+      try {
+        const parsed = new URL(url);
+        // URL must not contain spaces
+        return !url.includes(" ");
+      } catch {
+        return false;
+      }
+    }, "URL cannot contain spaces or invalid characters"),
+});
 
 export default function Page() {
   const params = useParams();
@@ -221,6 +240,11 @@ export default function Page() {
   const [isEditingLink, setIsEditingLink] = useState(false);
   const [editedLinkName, setEditedLinkName] = useState(linkData.name);
   const [editedLinkUrl, setEditedLinkUrl] = useState(linkData.url);
+
+  const [linkErrors, setLinkErrors] = useState<{
+    name?: string;
+    url?: string;
+  }>({});
 
   // Map the database data to our component state
   useEffect(() => {
@@ -605,6 +629,24 @@ export default function Page() {
 
   const saveEditedLink = async () => {
     try {
+      // Reset errors
+      setLinkErrors({});
+
+      // Validate the input
+      const result = linkSchema.safeParse({
+        name: editedLinkName,
+        url: editedLinkUrl,
+      });
+
+      if (!result.success) {
+        const formattedErrors = result.error.format();
+        setLinkErrors({
+          name: formattedErrors.name?._errors[0],
+          url: formattedErrors.url?._errors[0],
+        });
+        return;
+      }
+
       const { error } = await updateQRLink(
         supabase,
         {
@@ -615,7 +657,17 @@ export default function Page() {
         qrLinkId,
       );
 
-      if (error) throw error;
+      if (error) {
+        // Handle database-level URL validation error
+        if (error.code === "23514") {
+          setLinkErrors({
+            ...linkErrors,
+            url: "Please enter a valid URL without spaces or special characters",
+          });
+          return;
+        }
+        throw error;
+      }
 
       // Update local state
       setLinkData((prev) => ({
@@ -630,7 +682,11 @@ export default function Page() {
       setIsEditingLink(false);
     } catch (error) {
       console.error("Error updating QR link:", error);
-      // You might want to show an error toast here
+      // Show a generic error message
+      setLinkErrors({
+        ...linkErrors,
+        url: "An error occurred while saving the URL",
+      });
     }
   };
 
@@ -887,7 +943,13 @@ export default function Page() {
                     onChange={(e) => setEditedLinkName(e.target.value)}
                     placeholder="Enter a name for this link"
                     autoFocus
+                    className={linkErrors.name ? "border-destructive" : ""}
                   />
+                  {linkErrors.name && (
+                    <p className="mt-1 text-sm text-destructive">
+                      {linkErrors.name}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="edit-link-url" className="mb-2 block">
@@ -898,7 +960,13 @@ export default function Page() {
                     value={editedLinkUrl}
                     onChange={(e) => setEditedLinkUrl(e.target.value)}
                     placeholder="Enter the destination URL"
+                    className={linkErrors.url ? "border-destructive" : ""}
                   />
+                  {linkErrors.url && (
+                    <p className="mt-1 text-sm text-destructive">
+                      {linkErrors.url}
+                    </p>
+                  )}
                 </div>
                 <div className="flex justify-end space-x-2 pt-2">
                   <Button variant="outline" onClick={cancelEditingLink}>
