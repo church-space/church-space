@@ -10,8 +10,6 @@ import {
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import LinkListBuilder from "@/components/link-list-builder/link-list-builder";
-import { Button } from "@church-space/ui/button";
-import Link from "next/link";
 
 export default function Page() {
   return (
