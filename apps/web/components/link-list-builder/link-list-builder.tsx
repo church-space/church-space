@@ -53,46 +53,6 @@ interface PrimaryButton {
   textColor: string;
 }
 
-// URL validation schema
-const urlSchema = z.string().superRefine((url, ctx) => {
-  if (url === "") return;
-  if (url.trim() !== url) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "URL cannot contain spaces",
-    });
-    return;
-  }
-  const urlPattern =
-    /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
-  if (!urlPattern.test(url)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message:
-        "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
-    });
-  }
-});
-
-// Email validation schema
-const emailSchema = z.string().superRefine((email, ctx) => {
-  if (email === "") return;
-  if (email.trim() !== email) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Email cannot contain spaces",
-    });
-    return;
-  }
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailPattern.test(email)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Please enter a valid email address",
-    });
-  }
-});
-
 export default function LinkListBuilder() {
   const params = useParams();
   const linkListId = params.linkListId as unknown as number;

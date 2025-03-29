@@ -9,7 +9,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-import AutomationBuilder from "@/components/automation-builder/automation-builder";
 
 export default function Page() {
   return (
