@@ -32,11 +32,13 @@ export interface Link {
   type: string;
   url: string;
   text: string;
+  order: number;
 }
 export interface SocialLink {
   icon: keyof typeof socialIcons;
   url: string;
   text?: string;
+  order: number;
 }
 
 interface Style {
@@ -335,6 +337,7 @@ export default function LinkListBuilder() {
           type: link.type || "website",
           url: link.url || "",
           text: link.text || "",
+          order: link.order || 0,
         })) || [];
       setLinks(dbLinks.length > 0 ? dbLinks : []);
 
@@ -343,6 +346,7 @@ export default function LinkListBuilder() {
         linkList.data.link_list_socials?.map((social) => ({
           icon: (social.icon as keyof typeof socialIcons) || "link",
           url: social.url || "",
+          order: social.order || 0,
         })) || [];
       setSocialLinks(dbSocialLinks);
 
@@ -456,6 +460,7 @@ export default function LinkListBuilder() {
             type: link.type,
             url: link.url || "",
             text: link.text || "",
+            order: link.order || 0,
           });
         }
       });
@@ -503,6 +508,7 @@ export default function LinkListBuilder() {
           createSocialMutation.mutate({
             icon: social.icon,
             url: social.url || "",
+            order: social.order || 0,
           });
         }
       });

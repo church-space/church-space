@@ -31,6 +31,7 @@ export interface SocialLink {
   icon: keyof typeof socialIcons;
   url: string;
   text?: string;
+  order: number;
 }
 
 interface LinkListSocialsProps {

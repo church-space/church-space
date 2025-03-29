@@ -3,8 +3,7 @@
 import { Link, List, Mail, QrCode, Settings2, User } from "lucide-react";
 import * as React from "react";
 
-import { Button } from "@church-space/ui/button";
-import { ChurchSpaceBlack, CircleQuestion } from "@church-space/ui/icons";
+import { ChurchSpaceBlack } from "@church-space/ui/icons";
 import {
   Sidebar,
   SidebarContent,

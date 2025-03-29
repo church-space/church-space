@@ -5,6 +5,7 @@ export interface LinkListLink {
   type: string;
   url: string;
   text: string;
+  order: number;
 }
 
 interface LinkListLinksProps {
