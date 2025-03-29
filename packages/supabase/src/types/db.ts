@@ -621,8 +621,10 @@ export type Database = {
           name: string | null
           organization_id: string
           primary_button: Json | null
+          private_name: string | null
           style: Json | null
           title: string | null
+          url_slug: string | null
           visibility: string | null
         }
         Insert: {
@@ -634,8 +636,10 @@ export type Database = {
           name?: string | null
           organization_id: string
           primary_button?: Json | null
+          private_name?: string | null
           style?: Json | null
           title?: string | null
+          url_slug?: string | null
           visibility?: string | null
         }
         Update: {
@@ -647,8 +651,10 @@ export type Database = {
           name?: string | null
           organization_id?: string
           primary_button?: Json | null
+          private_name?: string | null
           style?: Json | null
           title?: string | null
+          url_slug?: string | null
           visibility?: string | null
         }
         Relationships: [
