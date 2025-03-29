@@ -97,6 +97,7 @@ export default function LinkListBuilder() {
   const [urlSlug, setUrlSlug] = useState<string>("");
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const [privateName, setPrivateName] = useState<string>("");
+  const [urlSlugError, setUrlSlugError] = useState<string | null>(null);
 
   // Use a ref to track the latest complete style object
   const latestStyleRef = useRef<Style>({
@@ -355,7 +356,19 @@ export default function LinkListBuilder() {
 
   const debouncedUpdateText = useDebounceCallback((updates: any) => {
     if (!updates) return;
-    updateLinkListMutation.mutate(updates);
+    if (updates.url_slug) {
+      setUrlSlugError(null); // Clear any existing error
+    }
+    updateLinkListMutation.mutate(updates, {
+      onError: (error: any) => {
+        if (
+          error?.message?.includes("duplicate key value") &&
+          updates.url_slug
+        ) {
+          setUrlSlugError("This URL is already taken. Please choose another.");
+        }
+      },
+    });
   }, 1000);
 
   // Update state when data loads
@@ -644,6 +657,7 @@ export default function LinkListBuilder() {
               headerImage={headerImage}
               logoImage={logoImage}
               headerBlur={headerBlur}
+              urlSlugErrorProp={urlSlugError}
               setBgColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setBgColor(color);
@@ -828,6 +842,7 @@ export default function LinkListBuilder() {
           headerImage={headerImage}
           logoImage={logoImage}
           headerBlur={headerBlur}
+          urlSlugErrorProp={urlSlugError}
           setBgColor={(color) => {
             // Immediately update UI state for responsive feedback
             setBgColor(color);
