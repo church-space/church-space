@@ -42,12 +42,25 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@church-space/ui/cn";
+import React from "react";
+
+// Override accordion trigger styles for this component
+const CustomAccordionTrigger = React.forwardRef<
+  React.ElementRef<typeof AccordionTrigger>,
+  React.ComponentPropsWithoutRef<typeof AccordionTrigger>
+>((props, ref) => (
+  <AccordionTrigger
+    ref={ref}
+    className={cn("flex w-full pr-1", props.className)}
+    {...props}
+  />
+));
+CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
 
 // Create a sortable accordion item component
 function SortableAccordionItem({
   link,
   index,
-  openLink,
   typingLinks,
   linkErrors,
   updateLink,
@@ -56,7 +69,6 @@ function SortableAccordionItem({
 }: {
   link: Link;
   index: number;
-  openLink: string | undefined;
   typingLinks: Record<number, boolean>;
   linkErrors: Record<number, string | null>;
   updateLink: (index: number, field: keyof Link, value: string) => void;
@@ -87,11 +99,11 @@ function SortableAccordionItem({
       value={index.toString()}
       style={style}
       className={cn(
-        "rounded-md border",
+        "w-full overflow-hidden rounded-md border",
         isDragging ? "border-dashed bg-accent opacity-50" : "",
       )}
     >
-      <div className="flex items-center">
+      <div className="flex w-full items-center">
         <div
           className="flex cursor-grab touch-none items-center justify-center px-2 py-2"
           {...attributes}
@@ -99,9 +111,9 @@ function SortableAccordionItem({
         >
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
-        <AccordionTrigger className="flex-1">
+        <CustomAccordionTrigger className="flex-1">
           {link.text ? link.text : `Link ${index + 1}`}
-        </AccordionTrigger>
+        </CustomAccordionTrigger>
       </div>
       <AccordionContent>
         <div className="grid grid-cols-3 items-center gap-x-2 gap-y-2 py-1 pr-1">
@@ -551,14 +563,13 @@ export default function LinksForm({
               collapsible
               value={openLink}
               onValueChange={setOpenLink}
-              className="space-y-2"
+              className="w-full space-y-2"
             >
               {localLinks.map((link, index) => (
                 <SortableAccordionItem
                   key={index}
                   link={link}
                   index={index}
-                  openLink={openLink}
                   typingLinks={typingLinks}
                   linkErrors={linkErrors}
                   updateLink={updateLink}

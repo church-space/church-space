@@ -53,11 +53,23 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@church-space/ui/cn";
 
+// Override accordion trigger styles for this component
+const CustomAccordionTrigger = React.forwardRef<
+  React.ElementRef<typeof AccordionTrigger>,
+  React.ComponentPropsWithoutRef<typeof AccordionTrigger>
+>((props, ref) => (
+  <AccordionTrigger
+    ref={ref}
+    className={cn("flex w-full pr-1", props.className)}
+    {...props}
+  />
+));
+CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
+
 // Create a sortable accordion item component for socials
 function SortableSocialItem({
   link,
   index,
-  openSocial,
   typingLinks,
   linkErrors,
   updateLink,
@@ -67,7 +79,6 @@ function SortableSocialItem({
 }: {
   link: SocialLink;
   index: number;
-  openSocial: string | undefined;
   typingLinks: Record<number, boolean>;
   linkErrors: Record<number, string | null>;
   updateLink: (index: number, field: keyof SocialLink, value: string) => void;
@@ -99,11 +110,11 @@ function SortableSocialItem({
       value={index.toString()}
       style={style}
       className={cn(
-        "rounded-md border",
+        "w-full overflow-hidden rounded-md border",
         isDragging ? "border-dashed bg-accent opacity-50" : "",
       )}
     >
-      <div className="flex items-center">
+      <div className="flex w-full items-center">
         <div
           className="flex cursor-grab touch-none items-center justify-center px-2 py-2"
           {...attributes}
@@ -111,9 +122,9 @@ function SortableSocialItem({
         >
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
-        <AccordionTrigger className="flex-1">
+        <CustomAccordionTrigger className="flex-1">
           {getSocialDisplayName(link.icon)}
-        </AccordionTrigger>
+        </CustomAccordionTrigger>
       </div>
       <AccordionContent>
         <div className="grid grid-cols-3 items-center gap-x-2 gap-y-2 py-1 pr-1">
@@ -654,14 +665,13 @@ export default function SocialsForm({
               collapsible
               value={openSocial}
               onValueChange={setOpenSocial}
-              className="space-y-2"
+              className="w-full space-y-2"
             >
               {localSocialLinks.map((link, index) => (
                 <SortableSocialItem
                   key={index}
                   link={link}
                   index={index}
-                  openSocial={openSocial}
                   typingLinks={typingLinks}
                   linkErrors={linkErrors}
                   updateLink={updateLink}
