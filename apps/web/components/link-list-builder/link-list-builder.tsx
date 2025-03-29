@@ -53,25 +53,52 @@ interface PrimaryButton {
   textColor: string;
 }
 
+// URL validation schema
+const urlSchema = z.string().superRefine((url, ctx) => {
+  if (url === "") return;
+  if (url.trim() !== url) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "URL cannot contain spaces",
+    });
+    return;
+  }
+  const urlPattern =
+    /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
+  if (!urlPattern.test(url)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
+    });
+  }
+});
+
+// Email validation schema
+const emailSchema = z.string().superRefine((email, ctx) => {
+  if (email === "") return;
+  if (email.trim() !== email) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Email cannot contain spaces",
+    });
+    return;
+  }
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Please enter a valid email address",
+    });
+  }
+});
+
 export default function LinkListBuilder() {
   const params = useParams();
   const linkListId = params.linkListId as unknown as number;
   const supabase = createClient();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-
-  if (!linkListId) {
-    return <div>No link list ID</div>;
-  }
-
-  const { data: linkList, isLoading } = useQuery({
-    queryKey: ["linkList", linkListId],
-    queryFn: () => getLinkListQuery(supabase, linkListId),
-  });
-
-  // Parse initial data from database
-  const style = linkList?.data?.style as Style | null;
-  const primaryButton = linkList?.data?.primary_button as PrimaryButton | null;
 
   // State management with database integration
   const [links, setLinks] = useState<Link[]>([]);
@@ -99,95 +126,16 @@ export default function LinkListBuilder() {
   const [headerImage, setHeaderImage] = useState<string>("");
   const [logoImage, setLogoImage] = useState<string>("");
 
-  // Update state when data loads
-  useEffect(() => {
-    if (linkList?.data) {
-      // Update links
-      const dbLinks =
-        linkList.data.link_list_links?.map((link) => ({
-          type: link.type || "website",
-          url: link.url || "",
-          text: link.text || "",
-        })) || [];
-      setLinks(dbLinks.length > 0 ? dbLinks : []);
-
-      // Update social links
-      const dbSocialLinks =
-        linkList.data.link_list_socials?.map((social) => ({
-          icon: (social.icon as keyof typeof socialIcons) || "link",
-          url: social.url || "",
-        })) || [];
-      setSocialLinks(dbSocialLinks);
-
-      // Update style-related states
-      if (style) {
-        setBgColor(style.backgroundColor || "#f5f500");
-        setButtonColor(style.buttonColor || "#ffffff");
-        setButtonTextColor(style.buttonTextColor || "#000000");
-        setSocialsStyle(style.socialsStyle || "filled");
-        setSocialsColor(style.socialsColor || "");
-        setSocialsIconColor(style.socialsIconColor || "");
-        setHeaderBgColor(style.headerBgColor || "");
-        setHeaderTextColor(style.headerTextColor || "");
-        setHeaderSecondaryTextColor(style.headerSecondaryTextColor || "");
-      }
-
-      // Update primary button states
-      if (primaryButton) {
-        setHeaderButtonText(primaryButton.text || "");
-        setHeaderButtonLink(primaryButton.url || "");
-        setHeaderButtonColor(primaryButton.color || "");
-        setHeaderButtonTextColor(primaryButton.textColor || "");
-      }
-
-      // Update text and image states
-      setHeaderTitle(linkList.data.title || "");
-      setHeaderDescription(linkList.data.description || "");
-      setHeaderName(linkList.data.name || "");
-      setHeaderImage(linkList.data.bg_image || "");
-      setLogoImage(linkList.data.logo_asset || "");
-    }
-  }, [linkList?.data, style, primaryButton]);
-
-  // URL validation schema
-  const urlSchema = z.string().superRefine((url, ctx) => {
-    if (url === "") return;
-    if (url.trim() !== url) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "URL cannot contain spaces",
-      });
-      return;
-    }
-    const urlPattern =
-      /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
-    if (!urlPattern.test(url)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
-      });
-    }
+  // Query hook
+  const { data: linkList, isLoading } = useQuery({
+    queryKey: ["linkList", linkListId],
+    queryFn: () => getLinkListQuery(supabase, linkListId),
+    enabled: !!linkListId,
   });
 
-  // Email validation schema
-  const emailSchema = z.string().superRefine((email, ctx) => {
-    if (email === "") return;
-    if (email.trim() !== email) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Email cannot contain spaces",
-      });
-      return;
-    }
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please enter a valid email address",
-      });
-    }
-  });
+  // Parse initial data from database
+  const style = linkList?.data?.style as Style | null;
+  const primaryButton = linkList?.data?.primary_button as PrimaryButton | null;
 
   // Mutations
   const updateLinkListMutation = useMutation({
@@ -410,6 +358,56 @@ export default function LinkListBuilder() {
     updateLinkListMutation.mutate(updates);
   }, 1000);
 
+  // Update state when data loads
+  useEffect(() => {
+    if (linkList?.data) {
+      // Update links
+      const dbLinks =
+        linkList.data.link_list_links?.map((link) => ({
+          type: link.type || "website",
+          url: link.url || "",
+          text: link.text || "",
+        })) || [];
+      setLinks(dbLinks.length > 0 ? dbLinks : []);
+
+      // Update social links
+      const dbSocialLinks =
+        linkList.data.link_list_socials?.map((social) => ({
+          icon: (social.icon as keyof typeof socialIcons) || "link",
+          url: social.url || "",
+        })) || [];
+      setSocialLinks(dbSocialLinks);
+
+      // Update style-related states
+      if (style) {
+        setBgColor(style.backgroundColor || "#f5f500");
+        setButtonColor(style.buttonColor || "#ffffff");
+        setButtonTextColor(style.buttonTextColor || "#000000");
+        setSocialsStyle(style.socialsStyle || "filled");
+        setSocialsColor(style.socialsColor || "");
+        setSocialsIconColor(style.socialsIconColor || "");
+        setHeaderBgColor(style.headerBgColor || "");
+        setHeaderTextColor(style.headerTextColor || "");
+        setHeaderSecondaryTextColor(style.headerSecondaryTextColor || "");
+      }
+
+      // Update primary button states
+      if (primaryButton) {
+        setHeaderButtonText(primaryButton.text || "");
+        setHeaderButtonLink(primaryButton.url || "");
+        setHeaderButtonColor(primaryButton.color || "");
+        setHeaderButtonTextColor(primaryButton.textColor || "");
+      }
+
+      // Update text and image states
+      setHeaderTitle(linkList.data.title || "");
+      setHeaderDescription(linkList.data.description || "");
+      setHeaderName(linkList.data.name || "");
+      setHeaderImage(linkList.data.bg_image || "");
+      setLogoImage(linkList.data.logo_asset || "");
+    }
+  }, [linkList?.data, style, primaryButton]);
+
   // Update handlers
   const handleStyleUpdate = (newStyle: any) => {
     if (!newStyle) return;
@@ -509,6 +507,11 @@ export default function LinkListBuilder() {
       deleteSocialMutation.mutate(Number(social.id));
     });
   };
+
+  // Early return for no linkListId, but now all hooks are declared above
+  if (!linkListId) {
+    return <div>No link list ID</div>;
+  }
 
   return (
     <div className="relative flex p-2 pt-0 md:gap-4 md:p-4 md:pt-0">
