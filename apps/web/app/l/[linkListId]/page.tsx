@@ -28,17 +28,17 @@ export default function LinkListPage() {
     {
       text: "Link 1",
       url: "/link1",
-      icon: "facebook",
+      type: "facebook",
     },
     {
       text: "Link 2",
       url: "/link2",
-      icon: "twitter",
+      type: "twitter",
     },
     {
       text: "Link 3",
       url: "/link3",
-      icon: "instagram",
+      type: "instagram",
     },
   ];
   const buttonColor = "#ffffff";
