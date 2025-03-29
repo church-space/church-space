@@ -43,6 +43,7 @@ import {
   CustomTooltip,
 } from "@church-space/ui/chart";
 import { Download, Plus, Edit, Ellipsis } from "lucide-react";
+import { Badge } from "@church-space/ui/badge";
 import {
   Select,
   SelectContent,
@@ -64,6 +65,7 @@ import {
   updateQRCode,
   updateQRLink,
   deleteQRLink,
+  updateQRLinkStatus,
 } from "@church-space/supabase/mutations/qr-codes";
 import {
   DropdownMenu,
@@ -71,7 +73,13 @@ import {
   DropdownMenuItem,
 } from "@church-space/ui/dropdown-menu";
 import { DropdownMenuTrigger } from "@church-space/ui/dropdown-menu";
-import { ChevronRight, ChevronLeft, Trash } from "@church-space/ui/icons";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Trash,
+  DisableLink,
+  LinkIcon,
+} from "@church-space/ui/icons";
 import { createRoot } from "react-dom/client";
 import { useUser } from "@/stores/use-user";
 import FileUpload from "@/components/dnd-builder/file-upload";
@@ -143,8 +151,10 @@ export default function Page() {
   const supabase = createClient();
   const qrLinkId = Number(params.qrCodeId);
   const { organizationId } = useUser();
+  const queryClient = useQueryClient();
 
   const [isDeletingLink, setIsDeletingLink] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
 
@@ -194,8 +204,6 @@ export default function Page() {
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     refetchOnWindowFocus: false,
   });
-
-  const queryClient = useQueryClient();
 
   const [linkData, setLinkData] = useState<LinkData>({
     url: "",
@@ -809,6 +817,31 @@ export default function Page() {
     }
   };
 
+  const handleStatusToggle = async () => {
+    if (!qrLinkData) return;
+
+    try {
+      setIsUpdatingStatus(true);
+      const newStatus = qrLinkData.status === "active" ? "inactive" : "active";
+
+      const { error } = await updateQRLinkStatus(supabase, qrLinkId, newStatus);
+      if (error) throw error;
+
+      // Update the cache with the new status
+      queryClient.setQueryData(["qr-link", qrLinkId], {
+        ...qrLinkData,
+        status: newStatus,
+      });
+
+      // Invalidate the query to refetch fresh data
+      await queryClient.invalidateQueries({ queryKey: ["qr-link", qrLinkId] });
+    } catch (error) {
+      console.error("Error updating link status:", error);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
   return (
     <>
       <header className="flex h-12 shrink-0 items-center gap-2">
@@ -875,9 +908,14 @@ export default function Page() {
                 onClick={startEditingLink}
               >
                 <div className="flex items-center">
-                  <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
-                    {qrLinkData?.name || "Loading..."}
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
+                      {qrLinkData?.name || "Loading..."}
+                    </h2>
+                    {qrLinkData?.status === "inactive" && (
+                      <Badge variant="outline">Disabled</Badge>
+                    )}
+                  </div>
                   <Edit className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
                 <p className="mt-1 text-muted-foreground">
@@ -892,6 +930,21 @@ export default function Page() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={handleStatusToggle}
+                  disabled={isUpdatingStatus}
+                  className="cursor-pointer"
+                >
+                  {qrLinkData?.status === "active" ? (
+                    <>
+                      <DisableLink /> Disable
+                    </>
+                  ) : (
+                    <>
+                      <LinkIcon /> Enable
+                    </>
+                  )}
+                </DropdownMenuItem>
                 <Dialog open={isDeletingLink} onOpenChange={setIsDeletingLink}>
                   <DialogTrigger
                     onClick={(e) => {

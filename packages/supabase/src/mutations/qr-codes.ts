@@ -65,3 +65,16 @@ export async function deleteQRLink(supabase: Client, qrLinkId: number) {
     .select();
   return { data, error };
 }
+
+export async function updateQRLinkStatus(
+  supabase: Client,
+  qrLinkId: number,
+  status: "active" | "inactive"
+) {
+  const { data, error } = await supabase
+    .from("qr_links")
+    .update({ status })
+    .eq("id", qrLinkId)
+    .select();
+  return { data, error };
+}
