@@ -122,6 +122,20 @@ export default function LinkListBuilderSidebar({
 
   const exitX = isSmallScreen ? 800 : 400;
 
+  const springConfig = isSmallScreen
+    ? {
+        type: "spring",
+        stiffness: 200,
+        damping: 25,
+        mass: 1,
+      }
+    : {
+        type: "spring",
+        stiffness: 200,
+        damping: 20,
+        mass: 0.8,
+      };
+
   return (
     <div
       className={cn(
@@ -136,12 +150,7 @@ export default function LinkListBuilderSidebar({
             initial={{ x: hasMounted ? exitX : 0 }}
             animate={{ x: 0 }}
             exit={{ x: exitX }}
-            transition={{
-              type: "spring",
-              stiffness: 200,
-              damping: 20,
-              mass: 0.8,
-            }}
+            transition={springConfig}
             className="absolute inset-0 bg-sidebar p-4"
           >
             <div className="mb-4 flex items-center gap-2">
@@ -215,12 +224,7 @@ export default function LinkListBuilderSidebar({
             initial={{ x: hasMounted ? -exitX : 0 }}
             animate={{ x: 0 }}
             exit={{ x: -exitX }}
-            transition={{
-              type: "spring",
-              stiffness: 200,
-              damping: 20,
-              mass: 0.8,
-            }}
+            transition={springConfig}
           >
             <div className="flex flex-col gap-4">
               <div className="text-lg font-medium">Editor</div>
