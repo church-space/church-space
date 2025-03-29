@@ -735,6 +735,80 @@ export default function Page() {
     }
   };
 
+  const handleNavigateBack = () => {
+    if (dateFilter.day !== null) {
+      // In day view, go back one day
+      const prevDay = new Date(
+        dateFilter.year,
+        dateFilter.month! - 1,
+        dateFilter.day - 1,
+      );
+      setDateFilter({
+        year: prevDay.getFullYear(),
+        month: prevDay.getMonth() + 1,
+        day: prevDay.getDate(),
+      });
+    } else if (dateFilter.month !== null) {
+      // In month view, go back one month
+      const prevMonth = new Date(dateFilter.year, dateFilter.month - 2, 1);
+      setDateFilter({
+        year: prevMonth.getFullYear(),
+        month: prevMonth.getMonth() + 1,
+        day: null,
+      });
+    } else {
+      // In year view, go back one year
+      setDateFilter({
+        year: dateFilter.year - 1,
+        month: null,
+        day: null,
+      });
+    }
+  };
+
+  const handleNavigateForward = () => {
+    const currentDate = new Date();
+
+    if (dateFilter.day !== null) {
+      // In day view, go forward one day
+      const nextDay = new Date(
+        dateFilter.year,
+        dateFilter.month! - 1,
+        dateFilter.day + 1,
+      );
+      // Don't go beyond current date
+      if (nextDay <= currentDate) {
+        setDateFilter({
+          year: nextDay.getFullYear(),
+          month: nextDay.getMonth() + 1,
+          day: nextDay.getDate(),
+        });
+      }
+    } else if (dateFilter.month !== null) {
+      // In month view, go forward one month
+      const nextMonth = new Date(dateFilter.year, dateFilter.month, 1);
+      // Don't go beyond current date
+      if (nextMonth <= currentDate) {
+        setDateFilter({
+          year: nextMonth.getFullYear(),
+          month: nextMonth.getMonth() + 1,
+          day: null,
+        });
+      }
+    } else {
+      // In year view, go forward one year
+      const nextYear = dateFilter.year + 1;
+      // Don't go beyond current year
+      if (nextYear <= currentDate.getFullYear()) {
+        setDateFilter({
+          year: nextYear,
+          month: null,
+          day: null,
+        });
+      }
+    }
+  };
+
   return (
     <>
       <header className="flex h-12 shrink-0 items-center gap-2">
@@ -886,7 +960,11 @@ export default function Page() {
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <Button variant="outline" size="icon">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleNavigateBack}
+                >
                   <ChevronLeft />
                 </Button>
                 <div className="flex items-center gap-2">
@@ -952,7 +1030,11 @@ export default function Page() {
                     </Select>
                   </div>
                 )}
-                <Button variant="outline" size="icon">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleNavigateForward}
+                >
                   <ChevronRight />
                 </Button>
               </div>
