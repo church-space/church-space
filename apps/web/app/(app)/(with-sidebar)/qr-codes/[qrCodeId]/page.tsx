@@ -400,8 +400,8 @@ export default function Page() {
           qrStyle={qrCode.isRounded ? "fluid" : "squares"}
           eyeRadius={qrCode.isRounded ? 64 : 0}
           logoImage={logoImageUrl}
-          logoWidth={qrCode.logoSize * 8}
-          logoHeight={qrCode.logoSize * 8}
+          logoWidth={Math.round(qrCode.logoSize * (960 / 180))}
+          logoHeight={Math.round(qrCode.logoSize * (960 / 180))}
           removeQrCodeBehindLogo={true}
           ecLevel="Q"
         />
@@ -439,13 +439,13 @@ export default function Page() {
       const qrCodeWithoutLogo = (
         <QRCode
           value={`churchspace.co/qr/${qrCode.id}`}
-          size={960}
+          size={120}
           bgColor={
             qrCode.isTransparent ? "rgba(255, 255, 255, 0)" : qrCode.bgColor
           }
           fgColor={qrCode.qrColor}
           qrStyle={qrCode.isRounded ? "fluid" : "squares"}
-          eyeRadius={qrCode.isRounded ? 64 : 0}
+          eyeRadius={qrCode.isRounded ? 8 : 0}
           removeQrCodeBehindLogo={true}
           ecLevel="Q"
         />
@@ -1302,7 +1302,7 @@ export default function Page() {
                         id="edit-logo-size"
                         type="range"
                         min={20}
-                        max={55}
+                        max={65}
                         value={editingQRCode.logoSize}
                         onChange={(e) =>
                           setEditingQRCode({
@@ -1328,7 +1328,7 @@ export default function Page() {
                   >
                     <QRCode
                       value={`churchspace.co/qr/${editingQRCode.id}`}
-                      size={180}
+                      size={120}
                       bgColor={
                         editingQRCode.isTransparent
                           ? "rgba(255, 255, 255, 0)"
@@ -1342,8 +1342,12 @@ export default function Page() {
                           ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${editingQRCode.logoImage}`
                           : undefined
                       }
-                      logoWidth={editingQRCode.logoSize}
-                      logoHeight={editingQRCode.logoSize}
+                      logoWidth={Math.round(
+                        editingQRCode.logoSize * (120 / 180),
+                      )}
+                      logoHeight={Math.round(
+                        editingQRCode.logoSize * (120 / 180),
+                      )}
                       removeQrCodeBehindLogo={true}
                       ecLevel="Q"
                     />
