@@ -18,6 +18,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@church-space/ui/accordion";
 
 interface LinksFormProps {
   links: Link[];
@@ -50,6 +56,8 @@ export default function LinksForm({
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
   // Local links state for UI rendering
   const [localLinks, setLocalLinks] = useState(links);
+  // Accordion open state
+  const [openLink, setOpenLink] = useState<string | undefined>(undefined);
 
   // Debounced color update handlers
   const colorUpdateTimerRef = useRef<Record<string, NodeJS.Timeout | null>>({});
@@ -328,77 +336,91 @@ export default function LinksForm({
             Add Link
           </Button>
         </div>
-        <div className="flex flex-col gap-6">
+        <Accordion
+          type="single"
+          collapsible
+          value={openLink}
+          onValueChange={setOpenLink}
+          className="space-y-2"
+        >
           {localLinks.map((link, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
-            >
-              <Label>Type</Label>
-              <div className="col-span-2 flex">
-                <Select
-                  value={link.type}
-                  onValueChange={(value) => updateLink(index, "type", value)}
-                >
-                  <SelectTrigger className="rounded-r-none">
-                    <SelectValue placeholder="type" />
-                  </SelectTrigger>
-                  <SelectContent className="min-w-20">
-                    <SelectItem value="website">
-                      <div className="flex flex-row gap-2">
-                        <LinkIcon height={"20"} width={"20"} /> Website
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="mail">
-                      <div className="flex flex-row gap-2">
-                        <MailFilled height={"20"} width={"20"} /> Email
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      onClick={() => removeLink(index)}
-                      size="icon"
-                      className="rounded-l-none border-l-0"
+            <AccordionItem key={index} value={index.toString()}>
+              <AccordionTrigger>
+                {link.text ? link.text : `Link ${index + 1}`}
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-3 items-center gap-x-2 gap-y-2 py-1 pr-1">
+                  <Label>Type</Label>
+                  <div className="col-span-2 flex">
+                    <Select
+                      value={link.type}
+                      onValueChange={(value) =>
+                        updateLink(index, "type", value)
+                      }
                     >
-                      <XIcon height={"20"} width={"20"} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Remove Link</TooltipContent>
-                </Tooltip>
-              </div>
-              <Label>Text</Label>
-              <Input
-                className="col-span-2"
-                value={link.text}
-                onChange={(e) => updateLink(index, "text", e.target.value)}
-                placeholder="Link text"
-              />
-              <Label>{link.type === "mail" ? "Email" : "URL"}</Label>
-              <div className="col-span-2 flex flex-col gap-1">
-                <Input
-                  className={
-                    linkErrors[index] && !typingLinks[index]
-                      ? "border-red-500"
-                      : ""
-                  }
-                  value={link.url}
-                  onChange={(e) => updateLink(index, "url", e.target.value)}
-                  onBlur={() => handleLinkBlur(index)}
-                  placeholder={
-                    link.type === "mail" ? "email@example.com" : "https://"
-                  }
-                />
-                {linkErrors[index] && !typingLinks[index] && (
-                  <p className="text-xs text-red-500">{linkErrors[index]}</p>
-                )}
-              </div>
-            </div>
+                      <SelectTrigger className="rounded-r-none">
+                        <SelectValue placeholder="type" />
+                      </SelectTrigger>
+                      <SelectContent className="min-w-20">
+                        <SelectItem value="website">
+                          <div className="flex flex-row gap-2">
+                            <LinkIcon height={"20"} width={"20"} /> Website
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="mail">
+                          <div className="flex flex-row gap-2">
+                            <MailFilled height={"20"} width={"20"} /> Email
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          onClick={() => removeLink(index)}
+                          size="icon"
+                          className="rounded-l-none border-l-0"
+                        >
+                          <XIcon height={"20"} width={"20"} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Remove Link</TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Label>Text</Label>
+                  <Input
+                    className="col-span-2"
+                    value={link.text}
+                    onChange={(e) => updateLink(index, "text", e.target.value)}
+                    placeholder="Link text"
+                  />
+                  <Label>{link.type === "mail" ? "Email" : "URL"}</Label>
+                  <div className="col-span-2 flex flex-col gap-1">
+                    <Input
+                      className={
+                        linkErrors[index] && !typingLinks[index]
+                          ? "border-red-500"
+                          : ""
+                      }
+                      value={link.url}
+                      onChange={(e) => updateLink(index, "url", e.target.value)}
+                      onBlur={() => handleLinkBlur(index)}
+                      placeholder={
+                        link.type === "mail" ? "email@example.com" : "https://"
+                      }
+                    />
+                    {linkErrors[index] && !typingLinks[index] && (
+                      <p className="text-xs text-red-500">
+                        {linkErrors[index]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </div>
+        </Accordion>
       </div>
     </div>
   );
