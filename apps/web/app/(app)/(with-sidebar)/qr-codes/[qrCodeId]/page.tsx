@@ -625,27 +625,66 @@ export default function Page() {
     });
   };
 
-  const handleMonthChange = (month: string | null) => {
-    if (month === null) {
+  // Add a function to check if a data point has any clicks
+  const hasClicks = (data: any) => {
+    if (!data) return false;
+    return linkData.qrCodes.some((qrCode) => data[qrCode.name] > 0);
+  };
+
+  // Update the handleChartClick function
+  const handleChartClick = async (data: any) => {
+    if (!data || !hasClicks(data)) return;
+
+    // If we're in year view and a month is clicked
+    if (dateFilter.month === null) {
       setDateFilter({
-        ...dateFilter,
+        year: dateFilter.year,
+        month: data.month,
+        day: null,
+      });
+    }
+    // If we're in month view and a day is clicked
+    else if (dateFilter.day === null && data.day) {
+      setDateFilter({
+        year: dateFilter.year,
+        month: dateFilter.month,
+        day: data.day,
+      });
+    }
+    // If we're in day view, do nothing on click
+  };
+
+  // Update the handleMonthChange function
+  const handleMonthChange = (value: string | null) => {
+    if (value === "all") {
+      setDateFilter({
+        year: dateFilter.year,
         month: null,
         day: null,
       });
     } else {
       setDateFilter({
-        ...dateFilter,
-        month: Number.parseInt(month),
+        year: dateFilter.year,
+        month: Number.parseInt(value!),
         day: null,
       });
     }
   };
 
-  const handleDayChange = (day: string | null) => {
-    setDateFilter({
-      ...dateFilter,
-      day: day === null ? null : Number.parseInt(day),
-    });
+  // Update the handleDayChange function
+  const handleDayChange = (value: string | null) => {
+    if (value === "all") {
+      setDateFilter({
+        year: dateFilter.year,
+        month: dateFilter.month,
+        day: null,
+      });
+    } else {
+      setDateFilter({
+        ...dateFilter,
+        day: Number.parseInt(value!),
+      });
+    }
   };
 
   // Add functions to handle editing link information
@@ -657,40 +696,6 @@ export default function Page() {
 
   const cancelEditingLink = () => {
     setIsEditingLink(false);
-  };
-
-  // Add a function to handle chart bar clicks
-  const handleChartClick = async (data: any) => {
-    if (!data) return;
-
-    // If we're in year view and a month is clicked
-    if (dateFilter.month === null) {
-      // Zooming in to month view - no need to refetch since we have the data
-      setDateFilter({
-        year: dateFilter.year,
-        month: data.month,
-        day: null,
-      });
-    }
-    // If we're in month view and a day is clicked
-    else if (dateFilter.day === null && data.day) {
-      // Zooming in to day view - no need to refetch since we have the data
-      setDateFilter({
-        year: dateFilter.year,
-        month: dateFilter.month,
-        day: data.day,
-      });
-    }
-    // If we're in day view, zoom out to month view
-    else if (dateFilter.day !== null) {
-      // Zooming out to month view - need to refetch to get all days in the month
-      await refetch();
-      setDateFilter({
-        year: dateFilter.year,
-        month: dateFilter.month,
-        day: null,
-      });
-    }
   };
 
   // Update the back button handler
@@ -893,8 +898,8 @@ export default function Page() {
 
                 <div className="flex items-center gap-2">
                   <Select
-                    value={dateFilter.month?.toString() || ""}
-                    onValueChange={(value) => handleMonthChange(value || null)}
+                    value={dateFilter.month?.toString() || "all"}
+                    onValueChange={handleMonthChange}
                   >
                     <SelectTrigger id="month-filter" className="w-[120px]">
                       <SelectValue placeholder="All Months" />
@@ -916,8 +921,8 @@ export default function Page() {
                 {dateFilter.month !== null && (
                   <div className="flex items-center gap-2">
                     <Select
-                      value={dateFilter.day?.toString() || ""}
-                      onValueChange={(value) => handleDayChange(value || null)}
+                      value={dateFilter.day?.toString() || "all"}
+                      onValueChange={handleDayChange}
                     >
                       <SelectTrigger id="day-filter" className="w-[100px]">
                         <SelectValue placeholder="All Days" />
