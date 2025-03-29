@@ -71,29 +71,43 @@ export default function LinkListBuilder() {
   // State management with database integration
   const [links, setLinks] = useState<Link[]>([]);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-  const [bgColor, setBgColor] = useState<string>("#f5f500");
-  const [buttonColor, setButtonColor] = useState<string>("#ffffff");
-  const [buttonTextColor, setButtonTextColor] = useState<string>("#000000");
+  const [bgColor, setBgColor] = useState<string>("#ffffff");
+  const [buttonColor, setButtonColor] = useState<string>("#000000");
+  const [buttonTextColor, setButtonTextColor] = useState<string>("#ffffff");
   const [socialsStyle, setSocialsStyle] = useState<
     "outline" | "filled" | "icon-only"
   >("filled");
-  const [socialsColor, setSocialsColor] = useState<string>("");
-  const [socialsIconColor, setSocialsIconColor] = useState<string>("");
-  const [headerBgColor, setHeaderBgColor] = useState<string>("");
+  const [socialsColor, setSocialsColor] = useState<string>("#000000");
+  const [socialsIconColor, setSocialsIconColor] = useState<string>("#f7f7f7");
+  const [headerBgColor, setHeaderBgColor] = useState<string>("#f7f7f7");
   const [headerBlur, setHeaderBlur] = useState<boolean>(false);
-  const [headerTextColor, setHeaderTextColor] = useState<string>("");
+  const [headerTextColor, setHeaderTextColor] = useState<string>("#000000");
   const [headerSecondaryTextColor, setHeaderSecondaryTextColor] =
-    useState<string>("");
+    useState<string>("#454545");
   const [headerTitle, setHeaderTitle] = useState<string>("");
   const [headerDescription, setHeaderDescription] = useState<string>("");
   const [headerName, setHeaderName] = useState<string>("");
   const [headerButtonText, setHeaderButtonText] = useState<string>("");
   const [headerButtonLink, setHeaderButtonLink] = useState<string>("");
-  const [headerButtonColor, setHeaderButtonColor] = useState<string>("");
+  const [headerButtonColor, setHeaderButtonColor] = useState<string>("#000000");
   const [headerButtonTextColor, setHeaderButtonTextColor] =
-    useState<string>("");
+    useState<string>("#ffffff");
   const [headerImage, setHeaderImage] = useState<string>("");
   const [logoImage, setLogoImage] = useState<string>("");
+
+  // Use a ref to track the latest complete style object
+  const latestStyleRef = useRef<Style>({
+    backgroundColor: "#ffffff",
+    buttonColor: "#000000",
+    buttonTextColor: "#ffffff",
+    socialsStyle: "filled",
+    socialsColor: "#f7f7f7",
+    socialsIconColor: "#000000",
+    headerBgColor: "#f7f7f7",
+    headerTextColor: "#000000",
+    headerSecondaryTextColor: "#454545",
+    headerBlur: false,
+  });
 
   // Query hook
   const { data: linkList, isLoading } = useQuery({
@@ -298,25 +312,13 @@ export default function LinkListBuilder() {
   });
 
   // Debounced update functions
-  const debouncedUpdateStyle = useDebounceCallback((style: any) => {
-    if (!style) return;
+  const debouncedUpdateStyle = useDebounceCallback((partialStyle: any) => {
+    if (!partialStyle) return;
 
-    // Ensure we're saving the complete style object with all style properties
-    const updatedStyle = {
-      backgroundColor: bgColor,
-      buttonColor: buttonColor,
-      buttonTextColor: buttonTextColor,
-      socialsStyle: socialsStyle,
-      socialsColor: socialsColor,
-      socialsIconColor: socialsIconColor,
-      headerBgColor: headerBgColor,
-      headerTextColor: headerTextColor,
-      headerSecondaryTextColor: headerSecondaryTextColor,
-      headerBlur: headerBlur,
-      ...style,
-    };
-
-    updateLinkListMutation.mutate({ style: updatedStyle });
+    // Use the callback pattern to ensure we're using the most current state values
+    updateLinkListMutation.mutate({
+      style: partialStyle,
+    });
   }, 1000);
 
   const debouncedUpdatePrimaryButton = useDebounceCallback(
@@ -374,44 +376,41 @@ export default function LinkListBuilder() {
 
       // Update style-related states with defaults
       if (style) {
-        setBgColor(style.backgroundColor || "#ffffff");
-        setButtonColor(style.buttonColor || "#000000");
-        setButtonTextColor(style.buttonTextColor || "#ffffff");
-        setSocialsStyle(style.socialsStyle || "filled");
-        setSocialsColor(style.socialsColor || "#f7f7f7");
-        setSocialsIconColor(style.socialsIconColor || "#000000");
-        setHeaderBgColor(style.headerBgColor || "#f7f7f7");
-        setHeaderBlur(style.headerBlur || false);
-        setHeaderTextColor(style.headerTextColor || "#000000");
+        // Initialize latestStyleRef with database values
+        latestStyleRef.current = {
+          backgroundColor: style.backgroundColor ?? "#ffffff",
+          buttonColor: style.buttonColor ?? "#000000",
+          buttonTextColor: style.buttonTextColor ?? "#ffffff",
+          socialsStyle: style.socialsStyle ?? "filled",
+          socialsColor: style.socialsColor ?? "#f7f7f7",
+          socialsIconColor: style.socialsIconColor ?? "#000000",
+          headerBgColor: style.headerBgColor ?? "#f7f7f7",
+          headerBlur: style.headerBlur ?? false,
+          headerTextColor: style.headerTextColor ?? "#000000",
+          headerSecondaryTextColor: style.headerSecondaryTextColor ?? "#454545",
+        };
+
+        // Set individual state values for UI components
+        setBgColor(style.backgroundColor ?? "#ffffff");
+        setButtonColor(style.buttonColor ?? "#000000");
+        setButtonTextColor(style.buttonTextColor ?? "#ffffff");
+        setSocialsStyle(style.socialsStyle ?? "filled");
+        setSocialsColor(style.socialsColor ?? "#f7f7f7");
+        setSocialsIconColor(style.socialsIconColor ?? "#000000");
+        setHeaderBgColor(style.headerBgColor ?? "#f7f7f7");
+        setHeaderBlur(style.headerBlur ?? false);
+        setHeaderTextColor(style.headerTextColor ?? "#000000");
         setHeaderSecondaryTextColor(
-          style.headerSecondaryTextColor || "#454545",
+          style.headerSecondaryTextColor ?? "#454545",
         );
-      } else {
-        // Set default values if no style object exists
-        setBgColor("#ffffff");
-        setButtonColor("#000000");
-        setButtonTextColor("#ffffff");
-        setSocialsStyle("filled");
-        setSocialsColor("#f7f7f7");
-        setSocialsIconColor("#000000");
-        setHeaderBgColor("#f7f7f7");
-        setHeaderBlur(false);
-        setHeaderTextColor("#000000");
-        setHeaderSecondaryTextColor("#454545");
       }
 
       // Update primary button states with defaults
       if (primaryButton) {
         setHeaderButtonText(primaryButton.text ?? "");
         setHeaderButtonLink(primaryButton.url ?? "");
-        setHeaderButtonColor(primaryButton.color || "#000000");
-        setHeaderButtonTextColor(primaryButton.textColor || "#ffffff");
-      } else {
-        // Set default values if no primary button exists
-        setHeaderButtonText("");
-        setHeaderButtonLink("");
-        setHeaderButtonColor("#000000");
-        setHeaderButtonTextColor("#ffffff");
+        setHeaderButtonColor(primaryButton.color ?? "#000000");
+        setHeaderButtonTextColor(primaryButton.textColor ?? "#ffffff");
       }
 
       // Update text and image states
@@ -421,14 +420,20 @@ export default function LinkListBuilder() {
       setHeaderImage(linkList.data.bg_image || "");
       setLogoImage(linkList.data.logo_asset || "");
     }
-  }, [linkList?.data, style, primaryButton]);
+  }, [linkList?.data]);
 
   // Update handlers
   const handleStyleUpdate = (newStyle: any) => {
     if (!newStyle) return;
-    // We just need to pass the specific updates to debouncedUpdateStyle
-    // It will now combine them with the complete style object
-    debouncedUpdateStyle(newStyle);
+
+    // Update our ref with the new style property
+    latestStyleRef.current = {
+      ...latestStyleRef.current,
+      ...newStyle,
+    };
+
+    // Pass the complete style object from our ref to debouncedUpdateStyle
+    debouncedUpdateStyle(latestStyleRef.current);
   };
 
   const handlePrimaryButtonUpdate = (newButton: any) => {
@@ -628,72 +633,83 @@ export default function LinkListBuilder() {
               setBgColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setBgColor(color);
+                // Also update our centralized style reference
+                latestStyleRef.current.backgroundColor = color;
                 // Debounce the server update
-                handleStyleUpdate({ ...(style || {}), backgroundColor: color });
+                handleStyleUpdate({ backgroundColor: color });
               }}
               setButtonColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setButtonColor(color);
+                // Also update our centralized style reference
+                latestStyleRef.current.buttonColor = color;
                 // Debounce the server update
-                handleStyleUpdate({ ...(style || {}), buttonColor: color });
+                handleStyleUpdate({ buttonColor: color });
               }}
               setButtonTextColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setButtonTextColor(color);
+                // Also update our centralized style reference
+                latestStyleRef.current.buttonTextColor = color;
                 // Debounce the server update
-                handleStyleUpdate({ ...(style || {}), buttonTextColor: color });
+                handleStyleUpdate({ buttonTextColor: color });
               }}
               setSocialsStyle={(styleValue) => {
                 // Immediately update UI state for responsive feedback
                 setSocialsStyle(styleValue);
+                // Also update our centralized style reference
+                latestStyleRef.current.socialsStyle = styleValue;
                 // Debounce the server update
-                handleStyleUpdate({
-                  ...(style || {}),
-                  socialsStyle: styleValue,
-                });
+                handleStyleUpdate({ socialsStyle: styleValue });
               }}
               setSocialsColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setSocialsColor(color);
+                // Also update our centralized style reference
+                latestStyleRef.current.socialsColor = color;
                 // Debounce the server update
-                handleStyleUpdate({ ...(style || {}), socialsColor: color });
+                handleStyleUpdate({ socialsColor: color });
               }}
               setSocialsIconColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setSocialsIconColor(color);
+                // Also update our centralized style reference
+                latestStyleRef.current.socialsIconColor = color;
                 // Debounce the server update
-                handleStyleUpdate({
-                  ...(style || {}),
-                  socialsIconColor: color,
-                });
+                handleStyleUpdate({ socialsIconColor: color });
               }}
               setSocialLinks={handleSocialLinksUpdate}
               setHeaderBgColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setHeaderBgColor(color);
+                // Also update our centralized style reference
+                latestStyleRef.current.headerBgColor = color;
                 // Debounce the server update
-                handleStyleUpdate({ ...(style || {}), headerBgColor: color });
+                handleStyleUpdate({ headerBgColor: color });
               }}
               setHeaderBlur={(blur) => {
                 // Immediately update UI state for responsive feedback
                 setHeaderBlur(blur);
+                // Also update our centralized style reference
+                latestStyleRef.current.headerBlur = blur;
                 // Debounce the server update
-                handleStyleUpdate({ ...(style || {}), headerBlur: blur });
+                handleStyleUpdate({ headerBlur: blur });
               }}
               setHeaderTextColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setHeaderTextColor(color);
+                // Also update our centralized style reference
+                latestStyleRef.current.headerTextColor = color;
                 // Debounce the server update
-                handleStyleUpdate({ ...(style || {}), headerTextColor: color });
+                handleStyleUpdate({ headerTextColor: color });
               }}
               setHeaderSecondaryTextColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setHeaderSecondaryTextColor(color);
+                // Also update our centralized style reference
+                latestStyleRef.current.headerSecondaryTextColor = color;
                 // Debounce the server update
-                handleStyleUpdate({
-                  ...(style || {}),
-                  headerSecondaryTextColor: color,
-                });
+                handleStyleUpdate({ headerSecondaryTextColor: color });
               }}
               setHeaderTitle={(title) => {
                 // Immediately update UI state for responsive feedback
@@ -780,66 +796,83 @@ export default function LinkListBuilder() {
           setBgColor={(color) => {
             // Immediately update UI state for responsive feedback
             setBgColor(color);
+            // Also update our centralized style reference
+            latestStyleRef.current.backgroundColor = color;
             // Debounce the server update
-            handleStyleUpdate({ ...(style || {}), backgroundColor: color });
+            handleStyleUpdate({ backgroundColor: color });
           }}
           setButtonColor={(color) => {
             // Immediately update UI state for responsive feedback
             setButtonColor(color);
+            // Also update our centralized style reference
+            latestStyleRef.current.buttonColor = color;
             // Debounce the server update
-            handleStyleUpdate({ ...(style || {}), buttonColor: color });
+            handleStyleUpdate({ buttonColor: color });
           }}
           setButtonTextColor={(color) => {
             // Immediately update UI state for responsive feedback
             setButtonTextColor(color);
+            // Also update our centralized style reference
+            latestStyleRef.current.buttonTextColor = color;
             // Debounce the server update
-            handleStyleUpdate({ ...(style || {}), buttonTextColor: color });
+            handleStyleUpdate({ buttonTextColor: color });
           }}
           setSocialsStyle={(styleValue) => {
             // Immediately update UI state for responsive feedback
             setSocialsStyle(styleValue);
+            // Also update our centralized style reference
+            latestStyleRef.current.socialsStyle = styleValue;
             // Debounce the server update
-            handleStyleUpdate({ ...(style || {}), socialsStyle: styleValue });
+            handleStyleUpdate({ socialsStyle: styleValue });
           }}
           setSocialsColor={(color) => {
             // Immediately update UI state for responsive feedback
             setSocialsColor(color);
+            // Also update our centralized style reference
+            latestStyleRef.current.socialsColor = color;
             // Debounce the server update
-            handleStyleUpdate({ ...(style || {}), socialsColor: color });
+            handleStyleUpdate({ socialsColor: color });
           }}
           setSocialsIconColor={(color) => {
             // Immediately update UI state for responsive feedback
             setSocialsIconColor(color);
+            // Also update our centralized style reference
+            latestStyleRef.current.socialsIconColor = color;
             // Debounce the server update
-            handleStyleUpdate({ ...(style || {}), socialsIconColor: color });
+            handleStyleUpdate({ socialsIconColor: color });
           }}
           setSocialLinks={handleSocialLinksUpdate}
           setHeaderBgColor={(color) => {
             // Immediately update UI state for responsive feedback
             setHeaderBgColor(color);
+            // Also update our centralized style reference
+            latestStyleRef.current.headerBgColor = color;
             // Debounce the server update
-            handleStyleUpdate({ ...(style || {}), headerBgColor: color });
+            handleStyleUpdate({ headerBgColor: color });
           }}
           setHeaderBlur={(blur) => {
             // Immediately update UI state for responsive feedback
             setHeaderBlur(blur);
+            // Also update our centralized style reference
+            latestStyleRef.current.headerBlur = blur;
             // Debounce the server update
-            handleStyleUpdate({ ...(style || {}), headerBlur: blur });
+            handleStyleUpdate({ headerBlur: blur });
           }}
           setHeaderTextColor={(color) => {
             // Immediately update UI state for responsive feedback
             setHeaderTextColor(color);
+            // Also update our centralized style reference
+            latestStyleRef.current.headerTextColor = color;
             // Debounce the server update
-            handleStyleUpdate({ ...(style || {}), headerTextColor: color });
+            handleStyleUpdate({ headerTextColor: color });
           }}
           setHeaderSecondaryTextColor={(color) => {
             // Immediately update UI state for responsive feedback
             setHeaderSecondaryTextColor(color);
+            // Also update our centralized style reference
+            latestStyleRef.current.headerSecondaryTextColor = color;
             // Debounce the server update
-            handleStyleUpdate({
-              ...(style || {}),
-              headerSecondaryTextColor: color,
-            });
+            handleStyleUpdate({ headerSecondaryTextColor: color });
           }}
           setHeaderTitle={(title) => {
             // Immediately update UI state for responsive feedback

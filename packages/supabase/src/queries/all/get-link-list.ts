@@ -23,7 +23,7 @@ type DatabaseLinkList = {
   id: bigint;
   created_at: string;
   title: string | null;
-  visibility: string | null;
+  is_public: boolean;
   description: string | null;
   name: string | null;
   logo_asset: string | null;
@@ -43,7 +43,7 @@ export async function getLinkListQuery(supabase: Client, linkListId: number) {
       id,
       created_at,
       title,
-      visibility,
+      is_public,
       description,
       name,
       logo_asset,

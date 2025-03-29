@@ -15,6 +15,7 @@ import { Button } from "@church-space/ui/button";
 import { Link, SocialLink } from "./link-list-builder";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
+import { Switch } from "@church-space/ui/switch";
 
 interface LinkListBuilderSidebarProps {
   className?: string;
@@ -268,24 +269,30 @@ export default function LinkListBuilderSidebar({
               </div>
               <div className="mt-4 flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label>Name</Label>
+                  <Label htmlFor="name">Name</Label>
                   <Input
+                    id="name"
                     placeholder="Link List Name"
                     className="bg-background"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>URL</Label>
+                  <Label htmlFor="url">URL</Label>
                   <div className="shadow-xs flex rounded-md">
                     <span className="-z-10 inline-flex items-center rounded-s-md border border-input bg-transparent px-3 text-xs text-muted-foreground">
                       churchspace.co/links/
                     </span>
                     <Input
+                      id="url"
                       className="-ms-px rounded-s-none bg-background shadow-none"
                       placeholder="ex: your-church"
                       type="text"
                     />
                   </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Switch id="is-public" />
+                  <Label htmlFor="is-public">Is Public</Label>
                 </div>
               </div>
             </div>

@@ -617,6 +617,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: number
+          is_public: boolean
           logo_asset: string | null
           name: string | null
           organization_id: string
@@ -625,13 +626,13 @@ export type Database = {
           style: Json | null
           title: string | null
           url_slug: string | null
-          visibility: string | null
         }
         Insert: {
           bg_image?: string | null
           created_at?: string
           description?: string | null
           id?: number
+          is_public?: boolean
           logo_asset?: string | null
           name?: string | null
           organization_id: string
@@ -640,13 +641,13 @@ export type Database = {
           style?: Json | null
           title?: string | null
           url_slug?: string | null
-          visibility?: string | null
         }
         Update: {
           bg_image?: string | null
           created_at?: string
           description?: string | null
           id?: number
+          is_public?: boolean
           logo_asset?: string | null
           name?: string | null
           organization_id?: string
@@ -655,7 +656,6 @@ export type Database = {
           style?: Json | null
           title?: string | null
           url_slug?: string | null
-          visibility?: string | null
         }
         Relationships: [
           {
