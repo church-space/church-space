@@ -44,7 +44,7 @@ export default async function LinkListPage({
 
   return (
     <div style={{ backgroundColor: bgColor }} className="min-h-screen w-full">
-      <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col overflow-y-auto rounded-md">
+      <div className="mx-auto flex flex-col rounded-md">
         <LinkListHeader
           headerBgColor={headerBgColor}
           headerTextColor={headerTextColor}

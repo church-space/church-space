@@ -322,7 +322,25 @@ export default function LinkListBuilder() {
   const debouncedUpdatePrimaryButton = useDebounceCallback(
     (primary_button: any) => {
       if (!primary_button) return;
-      updateLinkListMutation.mutate({ primary_button });
+
+      // Create a complete primary_button object with all necessary properties
+      // Use explicit values from the parameters, not defaults from state
+      const updatedPrimaryButton = {
+        text: primary_button.hasOwnProperty("text")
+          ? primary_button.text
+          : headerButtonText,
+        url: primary_button.hasOwnProperty("url")
+          ? primary_button.url
+          : headerButtonLink,
+        color: primary_button.hasOwnProperty("color")
+          ? primary_button.color
+          : headerButtonColor,
+        textColor: primary_button.hasOwnProperty("textColor")
+          ? primary_button.textColor
+          : headerButtonTextColor,
+      };
+
+      updateLinkListMutation.mutate({ primary_button: updatedPrimaryButton });
     },
     1000,
   );
@@ -384,13 +402,13 @@ export default function LinkListBuilder() {
 
       // Update primary button states with defaults
       if (primaryButton) {
-        setHeaderButtonText(primaryButton.text || "Plan your visit");
-        setHeaderButtonLink(primaryButton.url || "");
+        setHeaderButtonText(primaryButton.text ?? "");
+        setHeaderButtonLink(primaryButton.url ?? "");
         setHeaderButtonColor(primaryButton.color || "#000000");
         setHeaderButtonTextColor(primaryButton.textColor || "#ffffff");
       } else {
         // Set default values if no primary button exists
-        setHeaderButtonText("Plan your visit");
+        setHeaderButtonText("");
         setHeaderButtonLink("");
         setHeaderButtonColor("#000000");
         setHeaderButtonTextColor("#ffffff");
@@ -698,29 +716,26 @@ export default function LinkListBuilder() {
               setHeaderButtonText={(text) => {
                 // Immediately update UI state for responsive feedback
                 setHeaderButtonText(text);
-                // Debounce the server update
-                handlePrimaryButtonUpdate({ ...(primaryButton || {}), text });
+                // Debounce the server update - explicitly pass the text even if empty
+                handlePrimaryButtonUpdate({ text });
               }}
               setHeaderButtonLink={(url) => {
                 // Immediately update UI state for responsive feedback
                 setHeaderButtonLink(url);
-                // Debounce the server update
-                handlePrimaryButtonUpdate({ ...(primaryButton || {}), url });
+                // Debounce the server update - explicitly pass the url even if empty
+                handlePrimaryButtonUpdate({ url });
               }}
               setHeaderButtonColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setHeaderButtonColor(color);
                 // Debounce the server update
-                handlePrimaryButtonUpdate({ ...(primaryButton || {}), color });
+                handlePrimaryButtonUpdate({ color });
               }}
               setHeaderButtonTextColor={(color) => {
                 // Immediately update UI state for responsive feedback
                 setHeaderButtonTextColor(color);
                 // Debounce the server update
-                handlePrimaryButtonUpdate({
-                  ...(primaryButton || {}),
-                  textColor: color,
-                });
+                handlePrimaryButtonUpdate({ textColor: color });
               }}
               setLinks={handleSetLinks}
               setHeaderImage={(image) => {
@@ -847,29 +862,26 @@ export default function LinkListBuilder() {
           setHeaderButtonText={(text) => {
             // Immediately update UI state for responsive feedback
             setHeaderButtonText(text);
-            // Debounce the server update
-            handlePrimaryButtonUpdate({ ...(primaryButton || {}), text });
+            // Debounce the server update - explicitly pass the text even if empty
+            handlePrimaryButtonUpdate({ text });
           }}
           setHeaderButtonLink={(url) => {
             // Immediately update UI state for responsive feedback
             setHeaderButtonLink(url);
-            // Debounce the server update
-            handlePrimaryButtonUpdate({ ...(primaryButton || {}), url });
+            // Debounce the server update - explicitly pass the url even if empty
+            handlePrimaryButtonUpdate({ url });
           }}
           setHeaderButtonColor={(color) => {
             // Immediately update UI state for responsive feedback
             setHeaderButtonColor(color);
             // Debounce the server update
-            handlePrimaryButtonUpdate({ ...(primaryButton || {}), color });
+            handlePrimaryButtonUpdate({ color });
           }}
           setHeaderButtonTextColor={(color) => {
             // Immediately update UI state for responsive feedback
             setHeaderButtonTextColor(color);
             // Debounce the server update
-            handlePrimaryButtonUpdate({
-              ...(primaryButton || {}),
-              textColor: color,
-            });
+            handlePrimaryButtonUpdate({ textColor: color });
           }}
           setLinks={handleSetLinks}
           setHeaderImage={(image) => {

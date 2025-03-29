@@ -25,7 +25,7 @@ export default function LinkListLinks({
     mode === "live" ? links.filter((link) => link.url && link.text) : links;
 
   return (
-    <div className="flex w-full flex-col gap-4 px-4">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-4">
       {filteredLinks.map((link, index) => {
         const buttonElement = (
           <button

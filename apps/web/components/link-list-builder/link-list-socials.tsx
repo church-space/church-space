@@ -55,7 +55,7 @@ export default function LinkListSocials({
   return (
     <>
       {filteredLinks.length > 0 && (
-        <div className="w-fullitems-center mx-auto flex justify-between gap-3 px-6">
+        <div className="mx-auto flex w-fit items-center justify-between gap-3 px-6">
           {filteredLinks.map((link, index) => {
             const IconComponent = socialIcons[link.icon] || socialIcons.link;
             const iconElement = (

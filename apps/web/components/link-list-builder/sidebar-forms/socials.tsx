@@ -141,7 +141,7 @@ function SortableSocialItem({
         isDragging ? "border-dashed bg-accent opacity-50" : "",
       )}
     >
-      <div className="flex w-full">
+      <div className="flex w-full items-center p-0.5 pr-1">
         <div
           className="flex cursor-grab touch-none items-center justify-center px-3 py-4"
           {...attributes}
@@ -158,7 +158,7 @@ function SortableSocialItem({
           onValueChange={(value) => setOpenItem(value)}
         >
           <AccordionItem value={linkId} className="border-0">
-            <AccordionTrigger className="w-full px-2 py-3">
+            <AccordionTrigger className="w-full rounded-sm px-2 py-3">
               <span className="truncate pr-2 text-sm">
                 {getSocialDisplayName(link.icon)}
               </span>
@@ -171,7 +171,7 @@ function SortableSocialItem({
                     value={link.icon}
                     onValueChange={(value) => updateLink(index, "icon", value)}
                   >
-                    <SelectTrigger className="rounded-r-none">
+                    <SelectTrigger>
                       <SelectValue placeholder="Icon" />
                     </SelectTrigger>
                     <SelectContent className="min-w-20">
@@ -227,19 +227,6 @@ function SortableSocialItem({
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        onClick={() => removeLink(index)}
-                        size="icon"
-                        className="rounded-l-none border-l-0"
-                      >
-                        <XIcon height={"20"} width={"20"} />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Remove Link</TooltipContent>
-                  </Tooltip>
                 </div>
                 <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
                 <div className="col-span-2 flex flex-col gap-1">
@@ -261,6 +248,13 @@ function SortableSocialItem({
                   )}
                 </div>
               </div>
+              <Button
+                variant="outline"
+                onClick={() => removeLink(index)}
+                className="col-span-3 mt-3 h-7 w-full hover:bg-destructive hover:text-white"
+              >
+                Remove Link
+              </Button>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

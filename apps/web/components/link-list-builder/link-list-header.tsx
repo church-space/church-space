@@ -85,7 +85,7 @@ export default function LinkListHeader({
         </div>
       )}
 
-      <div className="relative z-10 space-y-12">
+      <div className="relative z-10 mx-auto max-w-md space-y-12">
         {(headerName || logoUrl) && (
           <div className="flex items-center gap-2">
             {logoUrl && (
@@ -128,8 +128,24 @@ export default function LinkListHeader({
           )}
         </div>
 
-        {headerButtonText && mode === "live" && (
-          <Link href={headerButtonLink} target="_blank">
+        {headerButtonText &&
+          headerButtonText.trim() !== "" &&
+          mode === "live" && (
+            <Link href={headerButtonLink || "#"} target="_blank">
+              <Button
+                className="mt-8 h-fit min-h-12 w-full text-balance rounded-full font-semibold shadow-sm"
+                style={{
+                  backgroundColor: headerButtonColor,
+                  color: headerButtonTextColor,
+                }}
+              >
+                {headerButtonText}
+              </Button>
+            </Link>
+          )}
+        {headerButtonText &&
+          headerButtonText.trim() !== "" &&
+          mode === "builder" && (
             <Button
               className="mt-8 h-fit min-h-12 w-full text-balance rounded-full font-semibold shadow-sm"
               style={{
@@ -139,19 +155,7 @@ export default function LinkListHeader({
             >
               {headerButtonText}
             </Button>
-          </Link>
-        )}
-        {headerButtonText && mode === "builder" && (
-          <Button
-            className="mt-8 h-fit min-h-12 w-full text-balance rounded-full font-semibold shadow-sm"
-            style={{
-              backgroundColor: headerButtonColor,
-              color: headerButtonTextColor,
-            }}
-          >
-            {headerButtonText}
-          </Button>
-        )}
+          )}
       </div>
     </div>
   );

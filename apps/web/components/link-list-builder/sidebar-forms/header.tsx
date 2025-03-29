@@ -149,10 +149,16 @@ export default function HeaderForm({
           setHeaderSecondaryTextColor(currentColor);
           break;
         case "headerButtonColor":
-          setHeaderButtonColor(currentColor);
+          // Ensure button color changes are properly captured and saved
+          if (setHeaderButtonColor) {
+            setHeaderButtonColor(currentColor);
+          }
           break;
         case "headerButtonTextColor":
-          setHeaderButtonTextColor(currentColor);
+          // Ensure button text color changes are properly captured and saved
+          if (setHeaderButtonTextColor) {
+            setHeaderButtonTextColor(currentColor);
+          }
           break;
       }
     }, 300); // 300ms debounce for colors
@@ -170,7 +176,7 @@ export default function HeaderForm({
   if (!organizationId) return null;
 
   return (
-    <div className="grid grid-cols-3 items-center gap-2">
+    <div className="grid grid-cols-3 items-center gap-2 pr-0.5">
       <Label className="font-medium">Background Color</Label>
       <ColorPicker
         value={headerBgColor}
