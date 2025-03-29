@@ -21,9 +21,10 @@ import LinkListHeader from "./link-list-header";
 import LinkListLinks from "./link-list-links";
 import LinkListSocials, { socialIcons } from "./link-list-socials";
 import LinkListBuilderSidebar from "./sidebar";
+import { Skeleton } from "@church-space/ui/skeleton";
 
 export interface Link {
-  icon: string;
+  type: string;
   url: string;
   text: string;
 }
@@ -104,7 +105,7 @@ export default function LinkListBuilder() {
       // Update links
       const dbLinks =
         linkList.data.link_list_links?.map((link) => ({
-          icon: link.type || "link",
+          type: link.type || "website",
           url: link.url || "",
           text: link.text || "",
         })) || [];
@@ -226,7 +227,7 @@ export default function LinkListBuilder() {
         {
           text: link.text,
           url: link.url,
-          type: link.icon,
+          type: link.type,
         },
         id,
       );
@@ -253,7 +254,7 @@ export default function LinkListBuilder() {
           link_list_id: linkListId,
           text: link.text,
           url: link.url,
-          type: link.icon,
+          type: link.type,
         },
         linkListId,
       );
@@ -378,7 +379,22 @@ export default function LinkListBuilder() {
   // Debounced update functions
   const debouncedUpdateStyle = useDebounceCallback((style: any) => {
     if (!style) return;
-    updateLinkListMutation.mutate({ style });
+
+    // Ensure we're saving the complete style object with all style properties
+    const updatedStyle = {
+      backgroundColor: bgColor,
+      buttonColor: buttonColor,
+      buttonTextColor: buttonTextColor,
+      socialsStyle: socialsStyle,
+      socialsColor: socialsColor,
+      socialsIconColor: socialsIconColor,
+      headerBgColor: headerBgColor,
+      headerTextColor: headerTextColor,
+      headerSecondaryTextColor: headerSecondaryTextColor,
+      ...style,
+    };
+
+    updateLinkListMutation.mutate({ style: updatedStyle });
   }, 1000);
 
   const debouncedUpdatePrimaryButton = useDebounceCallback(
@@ -397,6 +413,8 @@ export default function LinkListBuilder() {
   // Update handlers
   const handleStyleUpdate = (newStyle: any) => {
     if (!newStyle) return;
+    // We just need to pass the specific updates to debouncedUpdateStyle
+    // It will now combine them with the complete style object
     debouncedUpdateStyle(newStyle);
   };
 
@@ -425,7 +443,7 @@ export default function LinkListBuilder() {
       if (existingLink) {
         // Update it if it changed
         if (
-          existingLink.type !== link.icon ||
+          existingLink.type !== link.type ||
           existingLink.url !== link.url ||
           existingLink.text !== link.text
         ) {
@@ -439,7 +457,7 @@ export default function LinkListBuilder() {
       else {
         // Create new link even with empty values to maintain structure
         createLinkMutation.mutate({
-          icon: link.icon,
+          type: link.type,
           url: link.url || "",
           text: link.text || "",
         });
@@ -597,37 +615,44 @@ export default function LinkListBuilder() {
         }}
       />
       <div className="relative flex-1">
-        <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col overflow-y-auto rounded-md">
-          <LinkListHeader
-            headerBgColor={headerBgColor}
-            headerTextColor={headerTextColor}
-            headerSecondaryTextColor={headerSecondaryTextColor}
-            headerTitle={headerTitle}
-            headerDescription={headerDescription}
-            headerName={headerName}
-            headerButtonText={headerButtonText}
-            headerButtonLink={headerButtonLink}
-            headerButtonColor={headerButtonColor}
-            headerButtonTextColor={headerButtonTextColor}
-            headerImage={headerImage}
-            logoImage={logoImage}
-          />
-          <div
-            className="flex flex-col gap-6 py-6"
-            style={{ backgroundColor: bgColor }}
-          >
-            <LinkListSocials
-              style={socialsStyle}
-              color={socialsColor}
-              iconColor={socialsIconColor}
-              links={socialLinks}
-            />
-            <LinkListLinks
-              links={links}
-              buttonColor={buttonColor}
-              buttonTextColor={buttonTextColor}
-            />
-          </div>
+        <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col overflow-y-auto rounded-md border shadow-md">
+          {isLoading && (
+            <Skeleton className="h-[calc(100vh-20rem)] w-full bg-muted" />
+          )}
+          {!isLoading && (
+            <>
+              <LinkListHeader
+                headerBgColor={headerBgColor}
+                headerTextColor={headerTextColor}
+                headerSecondaryTextColor={headerSecondaryTextColor}
+                headerTitle={headerTitle}
+                headerDescription={headerDescription}
+                headerName={headerName}
+                headerButtonText={headerButtonText}
+                headerButtonLink={headerButtonLink}
+                headerButtonColor={headerButtonColor}
+                headerButtonTextColor={headerButtonTextColor}
+                headerImage={headerImage}
+                logoImage={logoImage}
+              />
+              <div
+                className="flex flex-col gap-6 py-6"
+                style={{ backgroundColor: bgColor }}
+              >
+                <LinkListSocials
+                  style={socialsStyle}
+                  color={socialsColor}
+                  iconColor={socialsIconColor}
+                  links={socialLinks}
+                />
+                <LinkListLinks
+                  links={links}
+                  buttonColor={buttonColor}
+                  buttonTextColor={buttonTextColor}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

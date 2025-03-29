@@ -2836,3 +2836,130 @@ export function CircleCheck({
     </svg>
   );
 }
+
+export function HeaderIcon({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M3.75012 16H14.2501C15.7667 16 17.0001 14.7666 17.0001 13.25V5C17.0001 4.5859 16.6642 4.25 16.2501 4.25H1.75012C1.33602 4.25 1.00012 4.5859 1.00012 5V13.25C1.00012 14.7666 2.23352 16 3.75012 16Z"
+          fill={secondaryfill}
+          opacity="0.4"
+        />
+        <path
+          d="M14.2501 2H3.75012C2.23134 2 1.00012 3.23122 1.00012 4.75V5.25C1.00012 6.76878 2.23134 8 3.75012 8H14.2501C15.7689 8 17.0001 6.76878 17.0001 5.25V4.75C17.0001 3.23122 15.7689 2 14.2501 2Z"
+          fill={fill}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function Users({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M0.554137 13.5756C1.34525 11.4759 3.36866 9.978 5.74997 9.978C8.13128 9.978 10.1547 11.4759 10.9458 13.5756C11.3059 14.5315 10.7272 15.5154 9.84596 15.8102C8.82613 16.1509 7.42657 16.477 5.75097 16.477C4.0754 16.477 2.67527 16.151 1.65458 15.8104C0.771586 15.5163 0.194851 14.5312 0.554137 13.5756Z"
+          fill={fill}
+          fillRule="evenodd"
+        />
+        <path
+          d="M12.5523 13.9772C13.9847 13.9159 15.1901 13.6248 16.096 13.3222C16.9772 13.0274 17.5559 12.0435 17.1958 11.0875C16.4047 8.98793 14.3813 7.48999 12 7.48999C10.5581 7.48999 9.24737 8.03921 8.26202 8.93866C10.147 9.65809 11.6398 11.1632 12.3495 13.0467C12.4675 13.3601 12.5329 13.6723 12.5523 13.9772Z"
+          fill={secondaryfill}
+          fillOpacity="0.4"
+        />
+        <path
+          d="M5.75 8.50049C6.99267 8.50049 8 7.49361 8 6.25049C8 5.00736 6.99267 4.00049 5.75 4.00049C4.50733 4.00049 3.5 5.00736 3.5 6.25049C3.5 7.49361 4.50733 8.50049 5.75 8.50049Z"
+          fill={fill}
+        />
+        <path
+          d="M12 6.00049C13.2427 6.00049 14.25 4.99361 14.25 3.75049C14.25 2.50736 13.2427 1.50049 12 1.50049C10.7573 1.50049 9.75 2.50736 9.75 3.75049C9.75 4.99361 10.7573 6.00049 12 6.00049Z"
+          fill={secondaryfill}
+          fillOpacity="0.4"
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function LinkFilled({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <rect
+          height="7.07332"
+          width="10.1272"
+          fill={secondaryfill}
+          fillOpacity="0.3"
+          rx="3.53666"
+          stroke="none"
+          transform="rotate(45 10.029 5.00841)"
+          x="10.029"
+          y="5.00841"
+        />
+        <path
+          d="M8.5 6.827C8.148 6.995 7.818 7.225 7.527 7.517L7.517 7.527C6.136 8.908 6.136 11.146 7.517 12.527L9.692 14.702C11.073 16.083 13.311 16.083 14.692 14.702L14.702 14.692C16.083 13.311 16.083 11.073 14.702 9.692L13.771 8.761"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M9.5 11.173C9.852 11.005 10.182 10.775 10.473 10.483L10.483 10.473C11.864 9.092 11.864 6.854 10.483 5.473L8.308 3.298C6.927 1.917 4.689 1.917 3.308 3.298L3.298 3.308C1.917 4.689 1.917 6.927 3.298 8.308L4.229 9.239"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}

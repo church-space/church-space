@@ -103,7 +103,7 @@ export default function LinksForm({
     }
   });
 
-  // Validate URL or email based on icon type
+  // Validate URL or email based on type type
   const validateLink = (
     value: string,
     type: string,
@@ -157,7 +157,7 @@ export default function LinksForm({
         setTypingLinks((prev) => ({ ...prev, [index]: false }));
 
         // Validate the URL/email value
-        const isValid = validateLink(value, newLinks[index].icon, index);
+        const isValid = validateLink(value, newLinks[index].type, index);
 
         // If valid or empty, update parent state
         if (isValid) {
@@ -197,7 +197,7 @@ export default function LinksForm({
 
       // Validate and update immediately on blur
       const link = localLinks[index];
-      const isValid = validateLink(link.url, link.icon, index);
+      const isValid = validateLink(link.url, link.type, index);
 
       // Update parent state if valid
       if (isValid) {
@@ -210,7 +210,7 @@ export default function LinksForm({
   const addLink = () => {
     if (localLinks.length < 50) {
       // Create new links array with added empty link
-      const newLinks = [...localLinks, { icon: "link", url: "", text: "" }];
+      const newLinks = [...localLinks, { type: "website", url: "", text: "" }];
 
       // Update local state for immediate UI feedback
       setLocalLinks(newLinks);
@@ -278,17 +278,17 @@ export default function LinksForm({
               key={index}
               className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
             >
-              <Label>Icon</Label>
+              <Label>Type</Label>
               <div className="col-span-2 flex">
                 <Select
-                  value={link.icon}
-                  onValueChange={(value) => updateLink(index, "icon", value)}
+                  value={link.type}
+                  onValueChange={(value) => updateLink(index, "type", value)}
                 >
                   <SelectTrigger className="rounded-r-none">
-                    <SelectValue placeholder="Icon" />
+                    <SelectValue placeholder="type" />
                   </SelectTrigger>
                   <SelectContent className="min-w-20">
-                    <SelectItem value="link">
+                    <SelectItem value="website">
                       <div className="flex flex-row gap-2">
                         <LinkIcon height={"20"} width={"20"} /> Website
                       </div>
@@ -316,7 +316,7 @@ export default function LinksForm({
                 onChange={(e) => updateLink(index, "text", e.target.value)}
                 placeholder="Link text"
               />
-              <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
+              <Label>{link.type === "mail" ? "Email" : "URL"}</Label>
               <div className="col-span-2 flex flex-col gap-1">
                 <Input
                   className={
@@ -328,7 +328,7 @@ export default function LinksForm({
                   onChange={(e) => updateLink(index, "url", e.target.value)}
                   onBlur={() => handleLinkBlur(index)}
                   placeholder={
-                    link.icon === "mail" ? "email@example.com" : "https://"
+                    link.type === "mail" ? "email@example.com" : "https://"
                   }
                 />
                 {linkErrors[index] && !typingLinks[index] && (

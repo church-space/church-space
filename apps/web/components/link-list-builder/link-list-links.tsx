@@ -1,7 +1,7 @@
 import React from "react";
 
 export interface LinkListLink {
-  icon: string;
+  type: string;
   url: string;
   text: string;
 }

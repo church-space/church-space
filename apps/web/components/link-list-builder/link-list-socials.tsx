@@ -47,13 +47,13 @@ export default function LinkListSocials({
   links,
 }: LinkListSocialsProps) {
   return (
-    <div className="mx-auto flex w-fit flex-wrap items-center justify-between gap-3 px-6">
+    <div className="w-fullitems-center mx-auto flex justify-between gap-3 px-6">
       {links.map((link, index) => {
         const IconComponent = socialIcons[link.icon] || socialIcons.link;
         return (
           <div
             key={index}
-            className="flex h-8 w-8 items-center justify-center rounded-full"
+            className="flex h-10 w-10 items-center justify-center rounded-full"
             style={{
               backgroundColor: style === "filled" ? color : "transparent",
               color: iconColor,
@@ -62,8 +62,8 @@ export default function LinkListSocials({
             }}
           >
             <IconComponent
-              height={style === "icon-only" ? "22" : "20"}
-              width={style === "icon-only" ? "22" : "20"}
+              height={style === "icon-only" ? "24" : "22"}
+              width={style === "icon-only" ? "24" : "22"}
             />
           </div>
         );

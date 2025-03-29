@@ -1,5 +1,11 @@
 import { cn } from "@church-space/ui/cn";
-import { ChevronLeft, ChevronRight, FooterIcon } from "@church-space/ui/icons";
+import {
+  ChevronLeft,
+  ChevronRight,
+  HeaderIcon,
+  Users,
+  LinkFilled,
+} from "@church-space/ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import HeaderForm from "./sidebar-forms/header";
@@ -211,7 +217,7 @@ export default function LinkListBuilderSidebar({
                 onClick={() => setActiveForm("header")}
               >
                 <div className="flex items-center gap-2">
-                  <FooterIcon />
+                  <HeaderIcon height={"18"} width={"18"} />
                   Header
                 </div>
                 <ChevronRight />
@@ -221,7 +227,7 @@ export default function LinkListBuilderSidebar({
                 onClick={() => setActiveForm("socials")}
               >
                 <div className="flex items-center gap-2">
-                  <FooterIcon />
+                  <Users height={"18"} width={"18"} />
                   Socials
                 </div>
                 <ChevronRight />
@@ -231,7 +237,7 @@ export default function LinkListBuilderSidebar({
                 onClick={() => setActiveForm("links")}
               >
                 <div className="flex items-center gap-2">
-                  <FooterIcon />
+                  <LinkFilled height={"18"} width={"18"} />
                   Links
                 </div>
                 <ChevronRight />
