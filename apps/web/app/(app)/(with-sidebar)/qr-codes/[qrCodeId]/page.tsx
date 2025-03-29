@@ -170,21 +170,28 @@ export default function Page() {
     isLoading: isLoadingClicks,
     refetch,
   } = useQuery({
-    queryKey: ["qr-clicks", qrLinkId, dateFilter],
+    // Don't include dateFilter in queryKey since we want to keep all data in memory
+    // and filter it client-side when zooming in/out
+    queryKey: ["qr-clicks", qrLinkId],
     queryFn: async () => {
       if (!qrLinkData?.qr_codes) return null;
       const qrCodeIds = qrLinkData.qr_codes.map((qr) => qr.id);
+      // Always fetch the entire year's data
+      const yearFilter = {
+        year: dateFilter.year,
+        month: null,
+        day: null,
+      };
       const { data, error } = await getQRCodeClicksQuery(
         supabase,
         qrCodeIds,
-        dateFilter,
+        yearFilter,
       );
       if (error) throw error;
       return data;
     },
     enabled: !!qrLinkData?.qr_codes,
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    // Only refetch when zooming out or changing to a different time period
     refetchOnWindowFocus: false,
   });
 
@@ -654,6 +661,24 @@ export default function Page() {
     // If we're in day view, do nothing on click
   };
 
+  // Update the handleBackClick function
+  const handleBackClick = async () => {
+    if (dateFilter.day !== null) {
+      // If in day view, go back to month view - no need to refetch since we have the data
+      setDateFilter({
+        ...dateFilter,
+        day: null,
+      });
+    } else if (dateFilter.month !== null) {
+      // If in month view, go back to year view - need to refetch to get the whole year
+      setDateFilter({
+        ...dateFilter,
+        month: null,
+      });
+      await refetch(); // Refetch only when going back to year view
+    }
+  };
+
   // Update the handleMonthChange function
   const handleMonthChange = (value: string | null) => {
     if (value === "all") {
@@ -699,23 +724,6 @@ export default function Page() {
   };
 
   // Update the back button handler
-  const handleBackClick = async () => {
-    if (dateFilter.day !== null) {
-      // If in day view, go back to month view - no need to refetch since we have the data
-      setDateFilter({
-        ...dateFilter,
-        day: null,
-      });
-    } else {
-      // If in month view, go back to year view - need to refetch to get the whole year
-      await refetch();
-      setDateFilter({
-        ...dateFilter,
-        month: null,
-      });
-    }
-  };
-
   const handleDeleteLink = async () => {
     try {
       const { error } = await deleteQRLink(supabase, qrLinkId);
