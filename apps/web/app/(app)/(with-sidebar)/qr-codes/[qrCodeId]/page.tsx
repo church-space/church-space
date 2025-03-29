@@ -57,7 +57,7 @@ import {
   type QRCodeClick,
 } from "@church-space/supabase/queries/all/get-qr-code";
 import { createClient } from "@church-space/supabase/client";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createQRCode,
@@ -83,6 +83,7 @@ import {
 import { createRoot } from "react-dom/client";
 import { useUser } from "@/stores/use-user";
 import FileUpload from "@/components/dnd-builder/file-upload";
+import { LoaderIcon } from "lucide-react";
 
 // Types
 type QRCodeData = {
@@ -152,8 +153,10 @@ export default function Page() {
   const qrLinkId = Number(params.qrCodeId);
   const { organizationId } = useUser();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const [isDeletingLink, setIsDeletingLink] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
@@ -734,12 +737,15 @@ export default function Page() {
   // Update the back button handler
   const handleDeleteLink = async () => {
     try {
+      setIsDeleting(true);
       const { error } = await deleteQRLink(supabase, qrLinkId);
       if (error) throw error;
-      // You might want to add navigation back to the QR codes list here
+      router.push("/qr-codes");
     } catch (error) {
       console.error("Error deleting QR link:", error);
       // You might want to show an error toast here
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -972,8 +978,19 @@ export default function Page() {
                       >
                         Cancel
                       </Button>
-                      <Button variant="destructive" onClick={handleDeleteLink}>
-                        Delete
+                      <Button
+                        variant="destructive"
+                        onClick={handleDeleteLink}
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? (
+                          <div className="flex items-center gap-2">
+                            <LoaderIcon className="h-4 w-4 animate-spin" />
+                            <span>Deleting...</span>
+                          </div>
+                        ) : (
+                          "Delete"
+                        )}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
