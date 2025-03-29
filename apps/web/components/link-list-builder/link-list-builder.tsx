@@ -94,6 +94,9 @@ export default function LinkListBuilder() {
     useState<string>("#ffffff");
   const [headerImage, setHeaderImage] = useState<string>("");
   const [logoImage, setLogoImage] = useState<string>("");
+  const [urlSlug, setUrlSlug] = useState<string>("");
+  const [isPublic, setIsPublic] = useState<boolean>(true);
+  const [privateName, setPrivateName] = useState<string>("");
 
   // Use a ref to track the latest complete style object
   const latestStyleRef = useRef<Style>({
@@ -130,6 +133,9 @@ export default function LinkListBuilder() {
       name?: string;
       bg_image?: string;
       logo_asset?: string;
+      url_slug?: string;
+      is_public?: boolean;
+      private_name?: string;
     }) => {
       const { data: result, error } = await updateLinkList(
         supabase,
@@ -374,6 +380,11 @@ export default function LinkListBuilder() {
         })) || [];
       setSocialLinks(dbSocialLinks);
 
+      // Update visibility and URL settings
+      setIsPublic(linkList.data.is_public ?? true);
+      setUrlSlug(linkList.data.url_slug || "");
+      setPrivateName(linkList.data.private_name || "");
+
       // Update style-related states with defaults
       if (style) {
         // Initialize latestStyleRef with database values
@@ -610,6 +621,9 @@ export default function LinkListBuilder() {
           <TabsContent value="settings" className="mt-2">
             <LinkListBuilderSidebar
               links={links}
+              urlSlug={urlSlug}
+              isPublic={isPublic}
+              privateName={privateName}
               bgColor={bgColor}
               buttonColor={buttonColor}
               buttonTextColor={buttonTextColor}
@@ -637,6 +651,24 @@ export default function LinkListBuilder() {
                 latestStyleRef.current.backgroundColor = color;
                 // Debounce the server update
                 handleStyleUpdate({ backgroundColor: color });
+              }}
+              setUrlSlug={(slug) => {
+                // Immediately update UI state for responsive feedback
+                setUrlSlug(slug);
+                // Debounce the server update
+                handleTextUpdate({ url_slug: slug });
+              }}
+              setIsPublic={(isPublic) => {
+                // Immediately update UI state for responsive feedback
+                setIsPublic(isPublic);
+                // Debounce the server update
+                handleTextUpdate({ is_public: isPublic });
+              }}
+              setPrivateName={(name) => {
+                // Immediately update UI state for responsive feedback
+                setPrivateName(name);
+                // Debounce the server update
+                handleTextUpdate({ private_name: name });
               }}
               setButtonColor={(color) => {
                 // Immediately update UI state for responsive feedback
@@ -772,6 +804,9 @@ export default function LinkListBuilder() {
       </div>
       <div className="hidden lg:block">
         <LinkListBuilderSidebar
+          urlSlug={urlSlug}
+          isPublic={isPublic}
+          privateName={privateName}
           links={links}
           bgColor={bgColor}
           buttonColor={buttonColor}
@@ -800,6 +835,24 @@ export default function LinkListBuilder() {
             latestStyleRef.current.backgroundColor = color;
             // Debounce the server update
             handleStyleUpdate({ backgroundColor: color });
+          }}
+          setUrlSlug={(slug) => {
+            // Immediately update UI state for responsive feedback
+            setUrlSlug(slug);
+            // Debounce the server update
+            handleTextUpdate({ url_slug: slug });
+          }}
+          setIsPublic={(isPublic) => {
+            // Immediately update UI state for responsive feedback
+            setIsPublic(isPublic);
+            // Debounce the server update
+            handleTextUpdate({ is_public: isPublic });
+          }}
+          setPrivateName={(name) => {
+            // Immediately update UI state for responsive feedback
+            setPrivateName(name);
+            // Debounce the server update
+            handleTextUpdate({ private_name: name });
           }}
           setButtonColor={(color) => {
             // Immediately update UI state for responsive feedback

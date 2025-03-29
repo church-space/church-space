@@ -31,6 +31,8 @@ type DatabaseLinkList = {
   style: Record<string, any> | null;
   primary_button: Record<string, any> | null;
   organization_id: string;
+  url_slug: string | null;
+  private_name: string | null;
   link_list_links: DatabaseLinkListLink[];
   link_list_socials: DatabaseLinkListSocial[];
 };
@@ -51,6 +53,8 @@ export async function getLinkListQuery(supabase: Client, linkListId: number) {
       style,
       primary_button,
       organization_id,
+      url_slug,
+      private_name,
       link_list_links(id, created_at, text, url, type, order),
       link_list_socials(id, created_at, icon, url, order)
     `

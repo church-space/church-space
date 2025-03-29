@@ -12,14 +12,15 @@ import HeaderForm from "./sidebar-forms/header";
 import LinksForm from "./sidebar-forms/links";
 import SocialsForm from "./sidebar-forms/socials";
 import { Button } from "@church-space/ui/button";
-import { Link, SocialLink } from "./link-list-builder";
+import { Link as LinkType, SocialLink } from "./link-list-builder";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { Switch } from "@church-space/ui/switch";
+import Link from "next/link";
 
 interface LinkListBuilderSidebarProps {
   className?: string;
-  links: Link[];
+  links: LinkType[];
   bgColor: string;
   buttonColor: string;
   buttonTextColor: string;
@@ -40,6 +41,9 @@ interface LinkListBuilderSidebarProps {
   headerImage: string;
   logoImage: string;
   headerBlur: boolean;
+  urlSlug: string;
+  isPublic: boolean;
+  privateName: string;
   setBgColor: (color: string) => void;
   setButtonColor: (color: string) => void;
   setButtonTextColor: (color: string) => void;
@@ -57,10 +61,13 @@ interface LinkListBuilderSidebarProps {
   setHeaderButtonLink: (link: string) => void;
   setHeaderButtonColor: (color: string) => void;
   setHeaderButtonTextColor: (color: string) => void;
-  setLinks: (links: Link[]) => void;
+  setLinks: (links: LinkType[]) => void;
   setHeaderImage: (image: string) => void;
   setLogoImage: (image: string) => void;
   setHeaderBlur: (blur: boolean) => void;
+  setUrlSlug: (slug: string) => void;
+  setIsPublic: (isPublic: boolean) => void;
+  setPrivateName: (name: string) => void;
 }
 
 export default function LinkListBuilderSidebar({
@@ -86,6 +93,9 @@ export default function LinkListBuilderSidebar({
   headerImage,
   logoImage,
   headerBlur,
+  urlSlug,
+  isPublic,
+  privateName,
   setBgColor,
   setButtonColor,
   setButtonTextColor,
@@ -107,6 +117,9 @@ export default function LinkListBuilderSidebar({
   setHeaderImage,
   setLogoImage,
   setHeaderBlur,
+  setUrlSlug,
+  setIsPublic,
+  setPrivateName,
 }: LinkListBuilderSidebarProps) {
   const [activeForm, setActiveForm] = useState<
     "header" | "socials" | "links" | "default"
@@ -274,6 +287,8 @@ export default function LinkListBuilderSidebar({
                     id="name"
                     placeholder="Link List Name"
                     className="bg-background"
+                    value={privateName}
+                    onChange={(e) => setPrivateName(e.target.value)}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
@@ -287,13 +302,22 @@ export default function LinkListBuilderSidebar({
                       className="-ms-px rounded-s-none bg-background shadow-none"
                       placeholder="ex: your-church"
                       type="text"
+                      value={urlSlug}
+                      onChange={(e) => setUrlSlug(e.target.value)}
                     />
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Switch id="is-public" />
+                  <Switch
+                    id="is-public"
+                    checked={isPublic}
+                    onCheckedChange={setIsPublic}
+                  />
                   <Label htmlFor="is-public">Is Public</Label>
                 </div>
+                <Link href={`/links/${urlSlug}`} target="_blank">
+                  <Button variant="outline">View Live</Button>
+                </Link>
               </div>
             </div>
           </motion.div>

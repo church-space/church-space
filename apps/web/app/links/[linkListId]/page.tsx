@@ -8,6 +8,7 @@ import LinkListLinks, {
 } from "@/components/link-list-builder/link-list-links";
 import { getLinkListQuery } from "@church-space/supabase/queries/all/get-link-list";
 import { createClient } from "@church-space/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function LinkListPage({
   params,
@@ -28,8 +29,8 @@ export default async function LinkListPage({
   const headerName = linkList?.name;
   const headerButtonText = linkList?.primary_button?.text;
   const headerButtonLink = linkList?.primary_button?.link;
-  const headerButtonColor = linkList?.style?.buttonColor;
-  const headerButtonTextColor = linkList?.style?.buttonTextColor;
+  const headerButtonColor = linkList?.primary_button?.color;
+  const headerButtonTextColor = linkList?.primary_button?.textColor;
   const headerImage = linkList?.bg_image;
   const logoImage = linkList?.logo_asset;
   const bgColor = linkList?.style?.backgroundColor;
@@ -41,6 +42,14 @@ export default async function LinkListPage({
   const socialLinks = linkList?.link_list_socials;
   const buttonColor = linkList?.style?.buttonColor;
   const buttonTextColor = linkList?.style?.buttonTextColor;
+
+  if (!linkList?.is_public) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <h1 className="text-2xl font-bold">Link List Not Found</h1>
+      </div>
+    );
+  }
 
   return (
     <div style={{ backgroundColor: bgColor }} className="min-h-screen w-full">

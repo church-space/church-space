@@ -11,7 +11,7 @@ import {
 } from "@church-space/ui/breadcrumb";
 import LinkListBuilder from "@/components/link-list-builder/link-list-builder";
 import { Button } from "@church-space/ui/button";
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -32,9 +32,6 @@ export default function Page() {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        <Link href="/link-lists">
-          <Button variant="outline">View Live</Button>
-        </Link>
       </header>
       <LinkListBuilder />
     </>
