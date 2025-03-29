@@ -74,7 +74,7 @@ export default function HeaderForm({
         type="image"
         initialFilePath={headerImage}
         onRemove={() => setHeaderImage("")}
-        bucket="link-assets"
+        bucket="link-list-assets"
       />
       <Label className="font-medium">Background Color</Label>
       <ColorPicker
@@ -99,6 +99,7 @@ export default function HeaderForm({
         type="image"
         initialFilePath={logoImage}
         onRemove={() => setLogoImage("")}
+        bucket="link-list-assets"
       />
       <Label className="font-medium">Name</Label>
       <Input

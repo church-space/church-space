@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@church-space/ui/button";
 import Link from "next/link";
+import { createClient } from "@church-space/supabase/client";
+import Image from "next/image";
 
 interface LinkListHeaderProps {
   headerBgColor: string;
@@ -29,16 +31,62 @@ export default function LinkListHeader({
   headerButtonLink,
   headerButtonColor,
   headerButtonTextColor,
+  headerImage,
+  logoImage,
   mode,
 }: LinkListHeaderProps) {
+  const [logoUrl, setLogoUrl] = useState<string>("");
+  const [bgImageUrl, setBgImageUrl] = useState<string>("");
+  const supabase = createClient();
+
+  useEffect(() => {
+    if (logoImage) {
+      const { data: urlData } = supabase.storage
+        .from("link-list-assets")
+        .getPublicUrl(logoImage);
+      setLogoUrl(urlData.publicUrl);
+    } else {
+      setLogoUrl("");
+    }
+  }, [logoImage]);
+
+  useEffect(() => {
+    if (headerImage) {
+      const { data: urlData } = supabase.storage
+        .from("link-list-assets")
+        .getPublicUrl(headerImage);
+      setBgImageUrl(urlData.publicUrl);
+    } else {
+      setBgImageUrl("");
+    }
+  }, [headerImage]);
+
   return (
     <div
-      className="flex flex-col space-y-6 rounded-t-md p-6 py-10"
+      className="relative flex flex-col space-y-6 rounded-t-md p-6 py-10"
       style={{ backgroundColor: headerBgColor }}
     >
+      {bgImageUrl && (
+        <div className="absolute inset-0 -z-10">
+          <Image
+            src={bgImageUrl}
+            alt="Background"
+            fill
+            className="object-cover opacity-20"
+            priority
+          />
+        </div>
+      )}
+
       {headerName && (
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-accent"></div>
+          {logoUrl ? (
+            <div className="relative h-8 w-8 overflow-hidden rounded-full">
+              <Image src={logoUrl} alt="Logo" fill className="object-cover" />
+            </div>
+          ) : (
+            <div className="h-8 w-8 rounded-full bg-accent"></div>
+          )}
           <div
             className="font-semibold tracking-tight"
             style={{ color: headerTextColor }}

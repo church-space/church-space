@@ -265,7 +265,7 @@ const FileUpload = ({
             <Button
               className={cn(
                 "justify-start bg-transparent px-3 font-normal",
-                file || filePath ? "rounded-r-none" : "rounded-l-none",
+                file || filePath ? "flex-1 rounded-r-none" : "rounded-l-none",
               )}
               variant="outline"
               disabled={isUploading || isDeleting}
