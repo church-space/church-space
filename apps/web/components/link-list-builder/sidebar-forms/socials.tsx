@@ -58,11 +58,33 @@ const CustomAccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionTrigger>,
   React.ComponentPropsWithoutRef<typeof AccordionTrigger>
 >((props, ref) => (
-  <AccordionTrigger
-    ref={ref}
-    className={cn("flex w-full pr-1", props.className)}
-    {...props}
-  />
+  <div className="flex w-full flex-1">
+    <button
+      ref={ref}
+      type="button"
+      className={cn(
+        "flex w-full flex-1 items-center justify-between px-3 py-4 font-medium transition-all [&[data-state=open]>svg]:rotate-180",
+        props.className,
+      )}
+      {...props}
+    >
+      <span className="truncate pr-2 text-sm">{props.children}</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-4 w-4 shrink-0 transition-transform duration-200"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </button>
+  </div>
 ));
 CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
 
@@ -70,6 +92,8 @@ CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
 function SortableSocialItem({
   link,
   index,
+  openItem,
+  setOpenItem,
   typingLinks,
   linkErrors,
   updateLink,
@@ -79,6 +103,8 @@ function SortableSocialItem({
 }: {
   link: SocialLink;
   index: number;
+  openItem: string | undefined;
+  setOpenItem: (value: string | undefined) => void;
   typingLinks: Record<number, boolean>;
   linkErrors: Record<number, string | null>;
   updateLink: (index: number, field: keyof SocialLink, value: string) => void;
@@ -103,127 +129,143 @@ function SortableSocialItem({
       }
     : undefined;
 
+  // Generate a stable ID from link properties
+  const linkId = `social-${link.order}-${index}`;
+
   return (
-    <AccordionItem
+    <div
       ref={setNodeRef}
-      key={index}
-      value={index.toString()}
       style={style}
       className={cn(
-        "w-full overflow-hidden rounded-md border",
+        "mb-2 w-full rounded-md border",
         isDragging ? "border-dashed bg-accent opacity-50" : "",
       )}
     >
-      <div className="flex w-full items-center">
+      <div className="flex w-full">
         <div
-          className="flex cursor-grab touch-none items-center justify-center px-2 py-2"
+          className="flex cursor-grab touch-none items-center justify-center px-3 py-4"
           {...attributes}
           {...listeners}
         >
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
-        <CustomAccordionTrigger className="flex-1">
-          {getSocialDisplayName(link.icon)}
-        </CustomAccordionTrigger>
+
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full"
+          value={openItem === linkId ? linkId : undefined}
+          onValueChange={(value) => setOpenItem(value)}
+        >
+          <AccordionItem value={linkId} className="border-0">
+            <AccordionTrigger className="w-full px-2 py-3">
+              <span className="truncate pr-2 text-sm">
+                {getSocialDisplayName(link.icon)}
+              </span>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-3 items-center gap-x-2 gap-y-2 py-1 pr-2">
+                <Label>Icon</Label>
+                <div className="col-span-2 flex">
+                  <Select
+                    value={link.icon}
+                    onValueChange={(value) => updateLink(index, "icon", value)}
+                  >
+                    <SelectTrigger className="rounded-r-none">
+                      <SelectValue placeholder="Icon" />
+                    </SelectTrigger>
+                    <SelectContent className="min-w-20">
+                      <SelectItem value="mail">
+                        <div className="flex flex-row gap-2">
+                          <MailFilled height={"20"} width={"20"} /> Email
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="link">
+                        <div className="flex flex-row gap-2">
+                          <LinkIcon height={"20"} width={"20"} /> Website
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="facebook">
+                        <div className="flex flex-row gap-2">
+                          <Facebook height={"20"} width={"20"} /> Facebook
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="youtube">
+                        <div className="flex flex-row gap-2">
+                          <Youtube height={"20"} width={"20"} /> Youtube
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="instagram">
+                        <div className="flex flex-row gap-2">
+                          <Instagram height={"20"} width={"20"} /> Instagram
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="tiktok">
+                        <div className="flex flex-row gap-2">
+                          <TikTok height={"20"} width={"20"} /> TikTok
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="x">
+                        <div className="flex flex-row gap-2">
+                          <XTwitter height={"20"} width={"20"} /> X
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="threads">
+                        <div className="flex flex-row gap-2">
+                          <Threads height={"20"} width={"20"} /> Threads
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="bluesky">
+                        <div className="flex flex-row gap-2">
+                          <Bluesky height={"20"} width={"20"} /> Bluesky
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="linkedin">
+                        <div className="flex flex-row gap-2">
+                          <Linkedin height={"20"} width={"20"} /> LinkedIn
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        onClick={() => removeLink(index)}
+                        size="icon"
+                        className="rounded-l-none border-l-0"
+                      >
+                        <XIcon height={"20"} width={"20"} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Remove Link</TooltipContent>
+                  </Tooltip>
+                </div>
+                <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
+                <div className="col-span-2 flex flex-col gap-1">
+                  <Input
+                    className={
+                      linkErrors[index] && !typingLinks[index]
+                        ? "border-red-500"
+                        : ""
+                    }
+                    value={link.url}
+                    onChange={(e) => updateLink(index, "url", e.target.value)}
+                    onBlur={() => handleLinkBlur(index)}
+                    placeholder={
+                      link.icon === "mail" ? "email@example.com" : "https://"
+                    }
+                  />
+                  {linkErrors[index] && !typingLinks[index] && (
+                    <p className="text-xs text-red-500">{linkErrors[index]}</p>
+                  )}
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
-      <AccordionContent>
-        <div className="grid grid-cols-3 items-center gap-x-2 gap-y-2 py-1 pr-1">
-          <Label>Icon</Label>
-          <div className="col-span-2 flex">
-            <Select
-              value={link.icon}
-              onValueChange={(value) => updateLink(index, "icon", value)}
-            >
-              <SelectTrigger className="rounded-r-none">
-                <SelectValue placeholder="Icon" />
-              </SelectTrigger>
-              <SelectContent className="min-w-20">
-                <SelectItem value="mail">
-                  <div className="flex flex-row gap-2">
-                    <MailFilled height={"20"} width={"20"} /> Email
-                  </div>
-                </SelectItem>
-                <SelectItem value="link">
-                  <div className="flex flex-row gap-2">
-                    <LinkIcon height={"20"} width={"20"} /> Website
-                  </div>
-                </SelectItem>
-                <SelectItem value="facebook">
-                  <div className="flex flex-row gap-2">
-                    <Facebook height={"20"} width={"20"} /> Facebook
-                  </div>
-                </SelectItem>
-                <SelectItem value="youtube">
-                  <div className="flex flex-row gap-2">
-                    <Youtube height={"20"} width={"20"} /> Youtube
-                  </div>
-                </SelectItem>
-                <SelectItem value="instagram">
-                  <div className="flex flex-row gap-2">
-                    <Instagram height={"20"} width={"20"} /> Instagram
-                  </div>
-                </SelectItem>
-                <SelectItem value="tiktok">
-                  <div className="flex flex-row gap-2">
-                    <TikTok height={"20"} width={"20"} /> TikTok
-                  </div>
-                </SelectItem>
-                <SelectItem value="x">
-                  <div className="flex flex-row gap-2">
-                    <XTwitter height={"20"} width={"20"} /> X
-                  </div>
-                </SelectItem>
-                <SelectItem value="threads">
-                  <div className="flex flex-row gap-2">
-                    <Threads height={"20"} width={"20"} /> Threads
-                  </div>
-                </SelectItem>
-                <SelectItem value="bluesky">
-                  <div className="flex flex-row gap-2">
-                    <Bluesky height={"20"} width={"20"} /> Bluesky
-                  </div>
-                </SelectItem>
-                <SelectItem value="linkedin">
-                  <div className="flex flex-row gap-2">
-                    <Linkedin height={"20"} width={"20"} /> LinkedIn
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  onClick={() => removeLink(index)}
-                  size="icon"
-                  className="rounded-l-none border-l-0"
-                >
-                  <XIcon height={"20"} width={"20"} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Remove Link</TooltipContent>
-            </Tooltip>
-          </div>
-          <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
-          <div className="col-span-2 flex flex-col gap-1">
-            <Input
-              className={
-                linkErrors[index] && !typingLinks[index] ? "border-red-500" : ""
-              }
-              value={link.url}
-              onChange={(e) => updateLink(index, "url", e.target.value)}
-              onBlur={() => handleLinkBlur(index)}
-              placeholder={
-                link.icon === "mail" ? "email@example.com" : "https://"
-              }
-            />
-            {linkErrors[index] && !typingLinks[index] && (
-              <p className="text-xs text-red-500">{linkErrors[index]}</p>
-            )}
-          </div>
-        </div>
-      </AccordionContent>
-    </AccordionItem>
+    </div>
   );
 }
 
@@ -431,13 +473,23 @@ export default function SocialsForm({
   // Add a new empty social link
   const addLink = () => {
     if (localSocialLinks.length < 5) {
+      // Find the highest order value
+      const maxOrder =
+        localSocialLinks.length > 0
+          ? Math.max(
+              ...localSocialLinks.map((link) =>
+                link.order !== undefined ? link.order : 0,
+              ),
+            )
+          : -1;
+
       // Create new social links array with added empty link
       const newLinks = [
         ...localSocialLinks,
         {
           icon: "link" as keyof typeof socialIcons,
           url: "",
-          order: localSocialLinks.length,
+          order: maxOrder + 1,
         },
       ];
 
@@ -447,6 +499,9 @@ export default function SocialsForm({
       // Update parent state - this is a deliberate user action (not a keystroke)
       // so it's appropriate to trigger a state update
       setSocialLinks(newLinks);
+
+      // Open the newly created link
+      setOpenSocial(`social-${maxOrder + 1}-${localSocialLinks.length}`);
     }
   };
 
@@ -601,8 +656,8 @@ export default function SocialsForm({
   };
 
   return (
-    <div className="flex flex-col gap-8 px-1">
-      <div className="grid grid-cols-3 items-center gap-2">
+    <div className="flex w-full flex-col gap-8 px-1">
+      <div className="grid w-full grid-cols-3 items-center gap-2">
         <Label className="font-medium">Icon Style</Label>
         <Select
           value={socialsStyle}
@@ -632,7 +687,7 @@ export default function SocialsForm({
           onChange={(color) => handleColorChange("socialsIconColor", color)}
         />
       </div>
-      <div className="flex flex-col gap-4">
+      <div className="flex w-full flex-col gap-4">
         <div className="flex items-center justify-between">
           <Label className="text-md font-bold">Social Links</Label>
           <Button
@@ -660,18 +715,14 @@ export default function SocialsForm({
             items={localSocialLinks.map((_, i) => i.toString())}
             strategy={verticalListSortingStrategy}
           >
-            <Accordion
-              type="single"
-              collapsible
-              value={openSocial}
-              onValueChange={setOpenSocial}
-              className="w-full space-y-2"
-            >
+            <div className="w-full">
               {localSocialLinks.map((link, index) => (
                 <SortableSocialItem
                   key={index}
                   link={link}
                   index={index}
+                  openItem={openSocial}
+                  setOpenItem={setOpenSocial}
                   typingLinks={typingLinks}
                   linkErrors={linkErrors}
                   updateLink={updateLink}
@@ -680,7 +731,7 @@ export default function SocialsForm({
                   getSocialDisplayName={getSocialDisplayName}
                 />
               ))}
-            </Accordion>
+            </div>
           </SortableContext>
         </DndContext>
       </div>

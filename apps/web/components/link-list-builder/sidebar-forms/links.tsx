@@ -49,11 +49,33 @@ const CustomAccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionTrigger>,
   React.ComponentPropsWithoutRef<typeof AccordionTrigger>
 >((props, ref) => (
-  <AccordionTrigger
-    ref={ref}
-    className={cn("flex w-full pr-1", props.className)}
-    {...props}
-  />
+  <div className="flex w-full flex-1">
+    <button
+      ref={ref}
+      type="button"
+      className={cn(
+        "flex w-full flex-1 items-center justify-between px-3 py-4 font-medium transition-all [&[data-state=open]>svg]:rotate-180",
+        props.className,
+      )}
+      {...props}
+    >
+      <span className="truncate pr-2 text-sm">{props.children}</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-4 w-4 shrink-0 transition-transform duration-200"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </button>
+  </div>
 ));
 CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
 
@@ -61,6 +83,8 @@ CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
 function SortableAccordionItem({
   link,
   index,
+  openItem,
+  setOpenItem,
   typingLinks,
   linkErrors,
   updateLink,
@@ -69,6 +93,8 @@ function SortableAccordionItem({
 }: {
   link: Link;
   index: number;
+  openItem: string | undefined;
+  setOpenItem: (value: string | undefined) => void;
   typingLinks: Record<number, boolean>;
   linkErrors: Record<number, string | null>;
   updateLink: (index: number, field: keyof Link, value: string) => void;
@@ -92,94 +118,110 @@ function SortableAccordionItem({
       }
     : undefined;
 
+  // Generate a stable ID from link properties
+  const linkId = `link-${link.order}-${index}`;
+
   return (
-    <AccordionItem
+    <div
       ref={setNodeRef}
-      key={index}
-      value={index.toString()}
       style={style}
       className={cn(
-        "w-full overflow-hidden rounded-md border",
+        "mb-2 w-full rounded-md border",
         isDragging ? "border-dashed bg-accent opacity-50" : "",
       )}
     >
-      <div className="flex w-full items-center">
+      <div className="flex w-full">
         <div
-          className="flex cursor-grab touch-none items-center justify-center px-2 py-2"
+          className="flex cursor-grab touch-none items-center justify-center px-3 py-4"
           {...attributes}
           {...listeners}
         >
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
-        <CustomAccordionTrigger className="flex-1">
-          {link.text ? link.text : `Link ${index + 1}`}
-        </CustomAccordionTrigger>
+
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full"
+          value={openItem === linkId ? linkId : undefined}
+          onValueChange={(value) => setOpenItem(value)}
+        >
+          <AccordionItem value={linkId} className="border-0">
+            <AccordionTrigger className="w-full px-2 py-3">
+              <span className="truncate pr-2 text-sm">
+                {link.text ? link.text : `Link ${index + 1}`}
+              </span>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-3 items-center gap-x-2 gap-y-2 py-1 pr-2">
+                <Label>Type</Label>
+                <div className="col-span-2 flex">
+                  <Select
+                    value={link.type}
+                    onValueChange={(value) => updateLink(index, "type", value)}
+                  >
+                    <SelectTrigger className="rounded-r-none">
+                      <SelectValue placeholder="type" />
+                    </SelectTrigger>
+                    <SelectContent className="min-w-20">
+                      <SelectItem value="website">
+                        <div className="flex flex-row gap-2">
+                          <LinkIcon height={"20"} width={"20"} /> Website
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="mail">
+                        <div className="flex flex-row gap-2">
+                          <MailFilled height={"20"} width={"20"} /> Email
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        onClick={() => removeLink(index)}
+                        size="icon"
+                        className="rounded-l-none border-l-0"
+                      >
+                        <XIcon height={"20"} width={"20"} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Remove Link</TooltipContent>
+                  </Tooltip>
+                </div>
+                <Label>Text</Label>
+                <Input
+                  className="col-span-2"
+                  value={link.text}
+                  onChange={(e) => updateLink(index, "text", e.target.value)}
+                  placeholder="Link text"
+                />
+                <Label>{link.type === "mail" ? "Email" : "URL"}</Label>
+                <div className="col-span-2 flex flex-col gap-1">
+                  <Input
+                    className={
+                      linkErrors[index] && !typingLinks[index]
+                        ? "border-red-500"
+                        : ""
+                    }
+                    value={link.url}
+                    onChange={(e) => updateLink(index, "url", e.target.value)}
+                    onBlur={() => handleLinkBlur(index)}
+                    placeholder={
+                      link.type === "mail" ? "email@example.com" : "https://"
+                    }
+                  />
+                  {linkErrors[index] && !typingLinks[index] && (
+                    <p className="text-xs text-red-500">{linkErrors[index]}</p>
+                  )}
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
-      <AccordionContent>
-        <div className="grid grid-cols-3 items-center gap-x-2 gap-y-2 py-1 pr-1">
-          <Label>Type</Label>
-          <div className="col-span-2 flex">
-            <Select
-              value={link.type}
-              onValueChange={(value) => updateLink(index, "type", value)}
-            >
-              <SelectTrigger className="rounded-r-none">
-                <SelectValue placeholder="type" />
-              </SelectTrigger>
-              <SelectContent className="min-w-20">
-                <SelectItem value="website">
-                  <div className="flex flex-row gap-2">
-                    <LinkIcon height={"20"} width={"20"} /> Website
-                  </div>
-                </SelectItem>
-                <SelectItem value="mail">
-                  <div className="flex flex-row gap-2">
-                    <MailFilled height={"20"} width={"20"} /> Email
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  onClick={() => removeLink(index)}
-                  size="icon"
-                  className="rounded-l-none border-l-0"
-                >
-                  <XIcon height={"20"} width={"20"} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Remove Link</TooltipContent>
-            </Tooltip>
-          </div>
-          <Label>Text</Label>
-          <Input
-            className="col-span-2"
-            value={link.text}
-            onChange={(e) => updateLink(index, "text", e.target.value)}
-            placeholder="Link text"
-          />
-          <Label>{link.type === "mail" ? "Email" : "URL"}</Label>
-          <div className="col-span-2 flex flex-col gap-1">
-            <Input
-              className={
-                linkErrors[index] && !typingLinks[index] ? "border-red-500" : ""
-              }
-              value={link.url}
-              onChange={(e) => updateLink(index, "url", e.target.value)}
-              onBlur={() => handleLinkBlur(index)}
-              placeholder={
-                link.type === "mail" ? "email@example.com" : "https://"
-              }
-            />
-            {linkErrors[index] && !typingLinks[index] && (
-              <p className="text-xs text-red-500">{linkErrors[index]}</p>
-            )}
-          </div>
-        </div>
-      </AccordionContent>
-    </AccordionItem>
+    </div>
   );
 }
 
@@ -425,10 +467,25 @@ export default function LinksForm({
   // Add a new empty link
   const addLink = () => {
     if (localLinks.length < 50) {
-      // Create new links array with added empty link
+      // Find the highest order value
+      const maxOrder =
+        localLinks.length > 0
+          ? Math.max(
+              ...localLinks.map((link) =>
+                link.order !== undefined ? link.order : 0,
+              ),
+            )
+          : -1;
+
+      // Create new links array with added empty link at the end with next order value
       const newLinks = [
         ...localLinks,
-        { type: "website", url: "", text: "", order: localLinks.length },
+        {
+          type: "website",
+          url: "",
+          text: "",
+          order: maxOrder + 1,
+        },
       ];
 
       // Update local state for immediate UI feedback
@@ -437,6 +494,9 @@ export default function LinksForm({
       // Update parent state - this is a deliberate user action (not a keystroke)
       // so it's appropriate to trigger a state update
       setLinks(newLinks);
+
+      // Open the newly created link
+      setOpenLink(`link-${maxOrder + 1}-${localLinks.length}`);
     }
   };
 
@@ -513,8 +573,8 @@ export default function LinksForm({
   }, []);
 
   return (
-    <div className="flex flex-col gap-8 px-1">
-      <div className="grid grid-cols-3 items-center gap-2">
+    <div className="flex w-full flex-col gap-8 px-1">
+      <div className="grid w-full grid-cols-3 items-center gap-2">
         <Label className="font-medium">Background Color</Label>
         <ColorPicker
           value={bgColor}
@@ -531,7 +591,7 @@ export default function LinksForm({
           onChange={(color) => handleColorChange("buttonTextColor", color)}
         />
       </div>
-      <div className="flex flex-col gap-4">
+      <div className="flex w-full flex-col gap-4">
         <div className="flex items-center justify-between">
           <Label className="text-md font-bold">Links</Label>
           <Button
@@ -558,18 +618,14 @@ export default function LinksForm({
             items={localLinks.map((_, i) => i.toString())}
             strategy={verticalListSortingStrategy}
           >
-            <Accordion
-              type="single"
-              collapsible
-              value={openLink}
-              onValueChange={setOpenLink}
-              className="w-full space-y-2"
-            >
+            <div className="w-full">
               {localLinks.map((link, index) => (
                 <SortableAccordionItem
                   key={index}
                   link={link}
                   index={index}
+                  openItem={openLink}
+                  setOpenItem={setOpenLink}
                   typingLinks={typingLinks}
                   linkErrors={linkErrors}
                   updateLink={updateLink}
@@ -577,7 +633,7 @@ export default function LinksForm({
                   handleLinkBlur={handleLinkBlur}
                 />
               ))}
-            </Accordion>
+            </div>
           </SortableContext>
         </DndContext>
       </div>

@@ -145,6 +145,7 @@ export default function LinkListBuilder() {
           text: link.text,
           url: link.url,
           type: link.type,
+          order: link.order,
         },
         id,
       );
@@ -172,6 +173,7 @@ export default function LinkListBuilder() {
           text: link.text,
           url: link.url,
           type: link.type,
+          order: link.order,
         },
         linkListId,
       );
@@ -222,6 +224,7 @@ export default function LinkListBuilder() {
         {
           icon: social.icon,
           url: social.url,
+          order: social.order,
         },
         id,
       );
@@ -251,6 +254,7 @@ export default function LinkListBuilder() {
           link_list: linkListId,
           icon: social.icon,
           url: social.url,
+          order: social.order,
         },
         linkListId,
       );
