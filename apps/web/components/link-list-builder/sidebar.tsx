@@ -7,7 +7,7 @@ import {
   LinkFilled,
 } from "@church-space/ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import HeaderForm from "./sidebar-forms/header";
 import LinksForm from "./sidebar-forms/links";
 import SocialsForm from "./sidebar-forms/socials";
@@ -126,6 +126,10 @@ export default function LinkListBuilderSidebar({
   >("default");
   const [hasMounted, setHasMounted] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [localUrlSlug, setLocalUrlSlug] = useState(urlSlug);
+  const [localPrivateName, setLocalPrivateName] = useState(privateName);
+  const urlSlugTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const privateNameTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setHasMounted(true);
@@ -139,6 +143,45 @@ export default function LinkListBuilderSidebar({
 
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  // Update local state when props change
+  useEffect(() => {
+    setLocalUrlSlug(urlSlug);
+  }, [urlSlug]);
+
+  useEffect(() => {
+    setLocalPrivateName(privateName);
+  }, [privateName]);
+
+  const handleUrlSlugChange = (value: string) => {
+    // Update local state immediately for responsive UI
+    setLocalUrlSlug(value);
+
+    // Clear any existing timer
+    if (urlSlugTimerRef.current) {
+      clearTimeout(urlSlugTimerRef.current);
+    }
+
+    // Set a new timer to update parent after typing stops
+    urlSlugTimerRef.current = setTimeout(() => {
+      setUrlSlug(value);
+    }, 800); // 800ms debounce
+  };
+
+  const handlePrivateNameChange = (value: string) => {
+    // Update local state immediately for responsive UI
+    setLocalPrivateName(value);
+
+    // Clear any existing timer
+    if (privateNameTimerRef.current) {
+      clearTimeout(privateNameTimerRef.current);
+    }
+
+    // Set a new timer to update parent after typing stops
+    privateNameTimerRef.current = setTimeout(() => {
+      setPrivateName(value);
+    }, 800); // 800ms debounce
+  };
 
   const exitX = isSmallScreen ? 800 : 400;
 
@@ -287,8 +330,8 @@ export default function LinkListBuilderSidebar({
                     id="name"
                     placeholder="Link List Name"
                     className="bg-background"
-                    value={privateName}
-                    onChange={(e) => setPrivateName(e.target.value)}
+                    value={localPrivateName}
+                    onChange={(e) => handlePrivateNameChange(e.target.value)}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
@@ -302,8 +345,8 @@ export default function LinkListBuilderSidebar({
                       className="-ms-px rounded-s-none bg-background shadow-none"
                       placeholder="ex: your-church"
                       type="text"
-                      value={urlSlug}
-                      onChange={(e) => setUrlSlug(e.target.value)}
+                      value={localUrlSlug}
+                      onChange={(e) => handleUrlSlugChange(e.target.value)}
                     />
                   </div>
                 </div>
@@ -315,7 +358,7 @@ export default function LinkListBuilderSidebar({
                   />
                   <Label htmlFor="is-public">Is Public</Label>
                 </div>
-                <Link href={`/links/${urlSlug}`} target="_blank">
+                <Link href={`/links/${localUrlSlug}`} target="_blank">
                   <Button variant="outline">View Live</Button>
                 </Link>
               </div>
