@@ -38,6 +38,7 @@ interface LinkListSocialsProps {
   color: string;
   iconColor: string;
   links: SocialLink[];
+  mode: "live" | "builder";
 }
 
 export default function LinkListSocials({
@@ -45,10 +46,14 @@ export default function LinkListSocials({
   color,
   iconColor,
   links,
+  mode,
 }: LinkListSocialsProps) {
+  const filteredLinks =
+    mode === "live" ? links.filter((link) => link.url) : links;
+
   return (
     <div className="w-fullitems-center mx-auto flex justify-between gap-3 px-6">
-      {links.map((link, index) => {
+      {filteredLinks.map((link, index) => {
         const IconComponent = socialIcons[link.icon] || socialIcons.link;
         return (
           <div

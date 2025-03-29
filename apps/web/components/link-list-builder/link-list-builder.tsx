@@ -606,11 +606,13 @@ export default function LinkListBuilder() {
                   color={socialsColor}
                   iconColor={socialsIconColor}
                   links={socialLinks}
+                  mode="builder"
                 />
                 <LinkListLinks
                   links={links}
                   buttonColor={buttonColor}
                   buttonTextColor={buttonTextColor}
+                  mode="builder"
                 />
               </div>
             </>

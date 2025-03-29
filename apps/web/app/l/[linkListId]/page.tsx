@@ -82,11 +82,13 @@ export default function LinkListPage() {
             color={socialsColor}
             iconColor={socialsIconColor}
             links={socialLinks as SocialLink[]}
+            mode="live"
           />
           <LinkListLinks
             links={links as LinkListLink[]}
             buttonColor={buttonColor}
             buttonTextColor={buttonTextColor}
+            mode="live"
           />
         </div>
       </div>
