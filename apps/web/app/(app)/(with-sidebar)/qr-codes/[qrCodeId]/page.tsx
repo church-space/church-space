@@ -1350,14 +1350,38 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="flex justify-between space-x-2 pt-4">
-                  <Button
-                    variant="ghost"
-                    className="h-7 w-7 p-0"
-                    onClick={() => handleDeleteQRCode(editingQRCode.id)}
-                  >
-                    <Trash />
-                  </Button>
+                <div className="flex justify-between pt-4">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <Trash /> Delete
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Delete QR Code</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to delete this QR code?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setEditingQRCode(null)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteQRCode(editingQRCode.id)}
+                        >
+                          Delete
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -1365,7 +1389,7 @@ export default function Page() {
                     >
                       Cancel
                     </Button>
-                    <Button onClick={saveQRCodeChanges}>Save Changes</Button>
+                    <Button onClick={saveQRCodeChanges}>Save</Button>
                   </div>
                 </div>
               </div>

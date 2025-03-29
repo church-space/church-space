@@ -2,7 +2,7 @@ import { createClient } from "@church-space/supabase/server";
 import { NextResponse, NextRequest } from "next/server";
 import { client as RedisClient } from "@church-space/kv";
 import { Ratelimit } from "@upstash/ratelimit";
-
+import { redirect } from "next/navigation";
 const ratelimit = new Ratelimit({
   limiter: Ratelimit.fixedWindow(2, "10s"),
   redis: RedisClient,
@@ -23,15 +23,21 @@ export async function GET(request: NextRequest) {
         `
         id,
         qr_links (
-          url
+          url, 
+          status
         )
       `,
       )
       .eq("id", qrCodeId)
       .single();
 
-    if (qrError || !qrCode || !qrCode.qr_links?.url) {
-      return new NextResponse("QR Code not found or invalid", { status: 404 });
+    if (
+      qrError ||
+      !qrCode ||
+      !qrCode.qr_links?.url ||
+      qrCode.qr_links.status !== "active"
+    ) {
+      redirect("/qr/not-found");
     }
 
     // Record the click
