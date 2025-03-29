@@ -15,6 +15,7 @@ interface LinkListHeaderProps {
   headerButtonTextColor: string;
   headerImage: string;
   logoImage: string;
+  mode: "builder" | "live";
 }
 
 export default function LinkListHeader({
@@ -28,37 +29,45 @@ export default function LinkListHeader({
   headerButtonLink,
   headerButtonColor,
   headerButtonTextColor,
+  mode,
 }: LinkListHeaderProps) {
   return (
     <div
       className="flex flex-col space-y-6 rounded-t-md p-6 py-10"
       style={{ backgroundColor: headerBgColor }}
     >
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-full bg-accent"></div>
-        <div
-          className="font-semibold tracking-tight"
-          style={{ color: headerTextColor }}
-        >
-          {headerName || "Church Name"}
+      {headerName && (
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-full bg-accent"></div>
+          <div
+            className="font-semibold tracking-tight"
+            style={{ color: headerTextColor }}
+          >
+            {headerName}
+          </div>
         </div>
-      </div>
+      )}
+
       <div className="flex flex-col gap-2">
-        <div
-          className="mt-8 text-pretty text-4xl font-bold tracking-tight"
-          style={{ color: headerTextColor }}
-        >
-          {headerTitle || "This is a longer title for a list"}
-        </div>
-        <div
-          className="mt-1 text-pretty"
-          style={{ color: headerSecondaryTextColor }}
-        >
-          {headerDescription ||
-            "This is a longer subtitle for a list. Now I'm making it even longer."}
-        </div>
+        {headerTitle && (
+          <div
+            className="mt-8 text-pretty text-4xl font-bold tracking-tight"
+            style={{ color: headerTextColor }}
+          >
+            {headerTitle}
+          </div>
+        )}
+        {headerDescription && (
+          <div
+            className="mt-1 text-pretty"
+            style={{ color: headerSecondaryTextColor }}
+          >
+            {headerDescription}
+          </div>
+        )}
       </div>
-      {headerButtonText && (
+
+      {headerButtonText && mode === "live" && (
         <Link href={headerButtonLink} target="_blank">
           <Button
             className="mt-8 h-fit min-h-12 w-full text-balance rounded-full font-semibold shadow-sm"

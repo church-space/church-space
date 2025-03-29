@@ -91,7 +91,7 @@ const compressImage = async (
 
 export const useFileUpload = (
   organizationId: string,
-  bucket: "email_assets" | "link-assets",
+  bucket: "email_assets" | "link-assets" | "link-list-assets",
 ) => {
   const supabase = createClient();
 

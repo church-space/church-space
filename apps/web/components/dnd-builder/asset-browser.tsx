@@ -180,7 +180,7 @@ export default function AssetBrowserModal({
   type?: "image" | "any";
   setIsUploadModalOpen?: (open: boolean) => void;
   handleDelete?: (asset: Asset) => void;
-  bucket: "email_assets" | "link-assets";
+  bucket: "email_assets" | "link-assets" | "link-list-assets";
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");

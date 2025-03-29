@@ -72,6 +72,7 @@ export default function LinkListPage() {
           headerButtonTextColor={headerButtonTextColor}
           headerImage={headerImage}
           logoImage={logoImage}
+          mode="live"
         />
         <div
           className="flex flex-col gap-6 py-6"

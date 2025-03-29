@@ -596,6 +596,7 @@ export default function LinkListBuilder() {
                 headerButtonTextColor={headerButtonTextColor}
                 headerImage={headerImage}
                 logoImage={logoImage}
+                mode="builder"
               />
               <div
                 className="flex flex-col gap-6 py-6"

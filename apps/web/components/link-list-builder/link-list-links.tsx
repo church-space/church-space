@@ -25,9 +25,10 @@ export default function LinkListLinks({
 
   return (
     <div className="flex w-full flex-col gap-4 px-4">
-      {filteredLinks.map((link, index) => (
-        <a href={link.url} key={index} target="_blank">
+      {filteredLinks.map((link, index) => {
+        const buttonElement = (
           <button
+            key={index}
             className="flex min-h-12 w-full items-center justify-center text-pretty rounded-full py-3 text-center text-sm font-semibold transition-opacity hover:opacity-90"
             style={{
               backgroundColor: buttonColor,
@@ -36,8 +37,21 @@ export default function LinkListLinks({
           >
             {link.text}
           </button>
-        </a>
-      ))}
+        );
+
+        return mode === "live" ? (
+          <a
+            href={link.url}
+            key={index}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {buttonElement}
+          </a>
+        ) : (
+          buttonElement
+        );
+      })}
       {filteredLinks.length === 0 && mode === "builder" && (
         <div className="flex w-full flex-col items-center justify-center rounded-md border bg-muted p-3 text-center text-sm text-muted-foreground">
           <LinkFilled height={"28"} width={"28"} />
