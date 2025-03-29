@@ -13,6 +13,7 @@ import {
 } from "@church-space/ui/sidebar";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
+import SidebarHelpMenu from "./sidebar-help-menu";
 
 const data = {
   navMain: [
@@ -93,8 +94,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <ChurchSpaceBlack height={"30"} width={"30"} />
+          <div className="flex items-center gap-0.5">
+            <ChurchSpaceBlack height={"22"} width={"22"} />
+            <span className="text-sm font-bold">ChurchSpace</span>
           </div>
           <NavUser />
         </div>
@@ -103,12 +105,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter className="flex justify-center text-muted-foreground">
-        <Button
-          className="size-7 gap-0 rounded-full p-0 text-muted-foreground [&_svg]:size-5"
-          variant="ghost"
-        >
-          <CircleQuestion height={"18"} width={"18"} />
-        </Button>
+        <SidebarHelpMenu />
       </SidebarFooter>
     </Sidebar>
   );

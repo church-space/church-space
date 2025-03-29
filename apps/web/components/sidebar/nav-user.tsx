@@ -1,16 +1,11 @@
 "use client";
 
-import {
-  ChevronUpDown,
-  Computer,
-  Moon,
-  Settings,
-  Sun,
-} from "@church-space/ui/icons";
+import { Computer, Moon, Sun } from "@church-space/ui/icons";
 import LogoutButton from "./logout";
 
 import { useUser } from "@/stores/use-user";
 import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
+import { Button } from "@church-space/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,14 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@church-space/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@church-space/ui/sidebar";
 import { useTheme } from "next-themes";
-import Link from "next/link";
-import { Button } from "@church-space/ui/button";
 
 export function NavUser() {
   const { firstName, lastName, avatarUrl } = useUser();
@@ -34,8 +22,8 @@ export function NavUser() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="h-9 w-9 p-1" variant="ghost">
-          <Avatar className="h-7 w-7">
+        <Button className="h-8 w-8 p-1" variant="ghost">
+          <Avatar className="h-6 w-6">
             <AvatarImage
               src={avatarUrl || ""}
               alt={`${firstName} ${lastName}`}
