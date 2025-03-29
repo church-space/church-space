@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@church-space/ui/button";
 import Link from "next/link";
@@ -70,14 +72,16 @@ export default function LinkListHeader({
       style={{ backgroundColor: headerBgColor }}
     >
       {bgImageUrl && (
-        <div className="absolute inset-0">
-          <Image
-            src={bgImageUrl}
-            alt="Background"
-            fill
-            className={`object-cover ${headerBlur ? "opacity-50 blur-sm" : ""}`}
-            priority
-          />
+        <div className="absolute inset-0 overflow-hidden">
+          <div className={`absolute ${headerBlur ? "-inset-8" : "inset-0"}`}>
+            <Image
+              src={bgImageUrl}
+              alt="Background"
+              fill
+              className={`object-cover ${headerBlur ? "scale-110 opacity-50 blur-sm" : ""}`}
+              priority
+            />
+          </div>
         </div>
       )}
 
