@@ -50,7 +50,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import { getQRLinkQuery } from "@church-space/supabase/queries/all/get-qr-code";
+import {
+  getQRLinkQuery,
+  getQRCodeClicksQuery,
+  type QRCodeClick,
+} from "@church-space/supabase/queries/all/get-qr-code";
 import { createClient } from "@church-space/supabase/client";
 import { useParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -102,53 +106,6 @@ type DateFilter = {
   day: number | null;
 };
 
-// Mock data for clicks
-const generateMockClicks = (
-  startDate: Date,
-  endDate: Date,
-  qrCodeCount: number,
-): ClickData[][] => {
-  const result: ClickData[][] = [];
-
-  for (let i = 0; i < qrCodeCount; i++) {
-    const clicks: ClickData[] = [];
-    const currentDate = new Date(startDate);
-
-    while (currentDate <= endDate) {
-      for (let h = 0; h < 24; h += 4) {
-        // Every 4 hours
-        const date = new Date(currentDate);
-        date.setHours(h, 0, 0, 0);
-
-        // Create different patterns for different QR codes
-        let count = 0;
-        if (i === 0) {
-          // First QR code has higher usage in mornings
-          count = Math.floor(Math.random() * 8) + (h < 12 ? 5 : 2);
-        } else if (i === 1) {
-          // Second QR code has higher usage in evenings
-          count = Math.floor(Math.random() * 7) + (h >= 12 ? 6 : 1);
-        } else {
-          // Other QR codes have more random patterns
-          count = Math.floor(Math.random() * 10) + 1;
-        }
-
-        clicks.push({
-          timestamp: date.toISOString(),
-          count: count,
-        });
-      }
-
-      // Move to next day
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    result.push(clicks);
-  }
-
-  return result;
-};
-
 // Chart colors
 const CHART_COLORS = [
   "#FF6384",
@@ -188,19 +145,16 @@ export default function Page() {
   const { organizationId } = useUser();
 
   const [isDeletingLink, setIsDeletingLink] = useState(false);
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
 
-  const handleDeleteLink = async () => {
-    try {
-      const { error } = await deleteQRLink(supabase, qrLinkId);
-      if (error) throw error;
-      // You might want to add navigation back to the QR codes list here
-    } catch (error) {
-      console.error("Error deleting QR link:", error);
-      // You might want to show an error toast here
-    }
-  };
+  const [dateFilter, setDateFilter] = useState<DateFilter>({
+    year: currentYear,
+    month: currentMonth,
+    day: null,
+  });
 
-  const { data: qrLinkData, isLoading } = useQuery({
+  const { data: qrLinkData, isLoading: isLoadingQRLink } = useQuery({
     queryKey: ["qr-link", qrLinkId],
     queryFn: async () => {
       const { data, error } = await getQRLinkQuery(supabase, qrLinkId);
@@ -208,6 +162,30 @@ export default function Page() {
       if (!data) throw new Error("QR link not found");
       return data;
     },
+  });
+
+  // Add a new query for QR code clicks with staleTime to prevent unnecessary refetches
+  const {
+    data: clicksData,
+    isLoading: isLoadingClicks,
+    refetch,
+  } = useQuery({
+    queryKey: ["qr-clicks", qrLinkId, dateFilter],
+    queryFn: async () => {
+      if (!qrLinkData?.qr_codes) return null;
+      const qrCodeIds = qrLinkData.qr_codes.map((qr) => qr.id);
+      const { data, error } = await getQRCodeClicksQuery(
+        supabase,
+        qrCodeIds,
+        dateFilter,
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!qrLinkData?.qr_codes,
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    // Only refetch when zooming out or changing to a different time period
+    refetchOnWindowFocus: false,
   });
 
   const queryClient = useQueryClient();
@@ -218,13 +196,6 @@ export default function Page() {
     qrCodes: [],
   });
 
-  const currentYear = new Date().getFullYear();
-  const [dateFilter, setDateFilter] = useState<DateFilter>({
-    year: currentYear,
-    month: null,
-    day: null,
-  });
-
   const [editingQRCode, setEditingQRCode] = useState<QRCodeData | null>(null);
   const [isAddingQRCode, setIsAddingQRCode] = useState(false);
   const [newQRCodeName, setNewQRCodeName] = useState("");
@@ -232,99 +203,6 @@ export default function Page() {
   const [isEditingLink, setIsEditingLink] = useState(false);
   const [editedLinkName, setEditedLinkName] = useState(linkData.name);
   const [editedLinkUrl, setEditedLinkUrl] = useState(linkData.url);
-
-  const processChartData = (qrCodes: QRCodeData[], filter: DateFilter) => {
-    const data: any[] = [];
-
-    if (filter.day !== null && filter.month !== null) {
-      // Day view - show hours
-      for (let hour = 0; hour < 24; hour++) {
-        const hourLabel = `${hour}:00`;
-        const date = new Date(filter.year, filter.month - 1, filter.day, hour);
-        const entry: any = {
-          name: hourLabel,
-          hour,
-          day: filter.day,
-          month: filter.month,
-          year: filter.year,
-          date,
-        };
-
-        qrCodes.forEach((qrCode) => {
-          const hourClicks = qrCode.clicks.filter((click) => {
-            const clickDate = new Date(click.timestamp);
-            return clickDate.getHours() === hour;
-          });
-
-          entry[qrCode.name] = hourClicks.reduce(
-            (sum, click) => sum + click.count,
-            0,
-          );
-        });
-
-        data.push(entry);
-      }
-    } else if (filter.month !== null) {
-      // Month view - show days
-      const daysInMonth = getAvailableDays(filter.year, filter.month);
-
-      for (const day of daysInMonth) {
-        const date = new Date(filter.year, filter.month - 1, day);
-        const dayLabel = `${day}`;
-
-        const entry: any = {
-          name: dayLabel,
-          day,
-          month: filter.month,
-          year: filter.year,
-          date,
-        };
-
-        qrCodes.forEach((qrCode) => {
-          const dayClicks = qrCode.clicks.filter((click) => {
-            const clickDate = new Date(click.timestamp);
-            return clickDate.getDate() === day;
-          });
-
-          entry[qrCode.name] = dayClicks.reduce(
-            (sum, click) => sum + click.count,
-            0,
-          );
-        });
-
-        data.push(entry);
-      }
-    } else {
-      // Year view - show months
-      for (let month = 0; month < 12; month++) {
-        const date = new Date(filter.year, month, 1);
-        const monthLabel = date.toLocaleDateString("en-US", { month: "short" });
-
-        const entry: any = {
-          name: monthLabel,
-          month: month + 1,
-          year: filter.year,
-          date,
-        };
-
-        qrCodes.forEach((qrCode) => {
-          const monthClicks = qrCode.clicks.filter((click) => {
-            const clickDate = new Date(click.timestamp);
-            return clickDate.getMonth() === month;
-          });
-
-          entry[qrCode.name] = monthClicks.reduce(
-            (sum, click) => sum + click.count,
-            0,
-          );
-        });
-
-        data.push(entry);
-      }
-    }
-
-    setChartData(data);
-  };
 
   // Map the database data to our component state
   useEffect(() => {
@@ -352,51 +230,120 @@ export default function Page() {
     }
   }, [qrLinkData]);
 
-  // Generate mock data for chart based on date filters
+  // Update the useEffect that processes chart data
   useEffect(() => {
-    let startDate: Date;
-    let endDate: Date;
+    if (!qrLinkData?.qr_codes || !clicksData) return;
 
-    if (dateFilter.day !== null && dateFilter.month !== null) {
-      // Day view - show hours in a single day
-      startDate = new Date(
-        dateFilter.year,
-        dateFilter.month - 1,
-        dateFilter.day,
-      );
-      endDate = new Date(dateFilter.year, dateFilter.month - 1, dateFilter.day);
-    } else if (dateFilter.month !== null) {
-      // Month view - show days in a month
-      startDate = new Date(dateFilter.year, dateFilter.month - 1, 1);
-      endDate = new Date(dateFilter.year, dateFilter.month, 0); // Last day of month
+    const qrCodes = qrLinkData.qr_codes;
+    const data: any[] = [];
+
+    if (dateFilter.month === null) {
+      // Year view - show months
+      for (let month = 0; month < 12; month++) {
+        const date = new Date(dateFilter.year, month, 1);
+        const monthLabel = date.toLocaleDateString("en-US", { month: "short" });
+
+        const entry: any = {
+          name: monthLabel,
+          month: month + 1,
+          year: dateFilter.year,
+          date,
+        };
+
+        qrCodes.forEach((qrCode) => {
+          const monthClicks = clicksData.filter((click: QRCodeClick) => {
+            const clickDate = new Date(click.created_at);
+            return (
+              click.qr_code_id === qrCode.id &&
+              clickDate.getMonth() === month &&
+              clickDate.getFullYear() === dateFilter.year
+            );
+          });
+
+          entry[qrCode.title || "Untitled QR Code"] = monthClicks.length;
+        });
+
+        data.push(entry);
+      }
     } else {
-      // Year view - show months in a year
-      startDate = new Date(dateFilter.year, 0, 1);
-      endDate = new Date(dateFilter.year, 11, 31);
+      const month = dateFilter.month; // Store the non-null month value
+
+      if (dateFilter.day !== null) {
+        // Day view - show hours
+        for (let hour = 0; hour < 24; hour++) {
+          const hourLabel = `${hour}:00`;
+          const date = new Date(
+            dateFilter.year,
+            month - 1,
+            dateFilter.day,
+            hour,
+          );
+          const entry: any = {
+            name: hourLabel,
+            hour,
+            day: dateFilter.day,
+            month,
+            year: dateFilter.year,
+            date,
+          };
+
+          qrCodes.forEach((qrCode) => {
+            const hourClicks = clicksData.filter((click: QRCodeClick) => {
+              const clickDate = new Date(click.created_at);
+              return (
+                click.qr_code_id === qrCode.id &&
+                clickDate.getHours() === hour &&
+                clickDate.getDate() === dateFilter.day &&
+                clickDate.getMonth() === month - 1 &&
+                clickDate.getFullYear() === dateFilter.year
+              );
+            });
+
+            entry[qrCode.title || "Untitled QR Code"] = hourClicks.length;
+          });
+
+          data.push(entry);
+        }
+      } else {
+        // Month view - show days
+        const daysInMonth = getAvailableDays(dateFilter.year, month);
+
+        for (const day of daysInMonth) {
+          const date = new Date(dateFilter.year, month - 1, day);
+          const dayLabel = `${day}`;
+
+          const entry: any = {
+            name: dayLabel,
+            day,
+            month,
+            year: dateFilter.year,
+            date,
+          };
+
+          qrCodes.forEach((qrCode) => {
+            const dayClicks = clicksData.filter((click: QRCodeClick) => {
+              const clickDate = new Date(click.created_at);
+              return (
+                click.qr_code_id === qrCode.id &&
+                clickDate.getDate() === day &&
+                clickDate.getMonth() === month - 1 &&
+                clickDate.getFullYear() === dateFilter.year
+              );
+            });
+
+            entry[qrCode.title || "Untitled QR Code"] = dayClicks.length;
+          });
+
+          data.push(entry);
+        }
+      }
     }
 
-    const mockClicksData = generateMockClicks(
-      startDate,
-      endDate,
-      linkData.qrCodes.length,
-    );
+    setChartData(data);
+  }, [dateFilter, qrLinkData?.qr_codes, clicksData]);
 
-    // Update each QR code with mock clicks
-    const updatedQRCodes = linkData.qrCodes.map((qrCode, index) => ({
-      ...qrCode,
-      clicks: mockClicksData[index] || [],
-    }));
-
-    setLinkData((prev) => ({
-      ...prev,
-      qrCodes: updatedQRCodes,
-    }));
-
-    // Process data for chart
-    processChartData(updatedQRCodes, dateFilter);
-  }, [dateFilter, linkData.qrCodes.length]);
-
-  if (isLoading) {
+  // Update loading state
+  if (isLoadingQRLink || isLoadingClicks) {
     return <div>Loading...</div>;
   }
 
@@ -449,7 +396,7 @@ export default function Page() {
           logoWidth={qrCode.logoSize * 8}
           logoHeight={qrCode.logoSize * 8}
           removeQrCodeBehindLogo={true}
-          ecLevel="M"
+          ecLevel="Q"
         />
       );
 
@@ -493,7 +440,7 @@ export default function Page() {
           qrStyle={qrCode.isRounded ? "fluid" : "squares"}
           eyeRadius={qrCode.isRounded ? 64 : 0}
           removeQrCodeBehindLogo={true}
-          ecLevel="M"
+          ecLevel="Q"
         />
       );
 
@@ -713,11 +660,12 @@ export default function Page() {
   };
 
   // Add a function to handle chart bar clicks
-  const handleChartClick = (data: any) => {
+  const handleChartClick = async (data: any) => {
     if (!data) return;
 
     // If we're in year view and a month is clicked
     if (dateFilter.month === null) {
+      // Zooming in to month view - no need to refetch since we have the data
       setDateFilter({
         year: dateFilter.year,
         month: data.month,
@@ -726,6 +674,7 @@ export default function Page() {
     }
     // If we're in month view and a day is clicked
     else if (dateFilter.day === null && data.day) {
+      // Zooming in to day view - no need to refetch since we have the data
       setDateFilter({
         year: dateFilter.year,
         month: dateFilter.month,
@@ -734,11 +683,42 @@ export default function Page() {
     }
     // If we're in day view, zoom out to month view
     else if (dateFilter.day !== null) {
+      // Zooming out to month view - need to refetch to get all days in the month
+      await refetch();
       setDateFilter({
         year: dateFilter.year,
         month: dateFilter.month,
         day: null,
       });
+    }
+  };
+
+  // Update the back button handler
+  const handleBackClick = async () => {
+    if (dateFilter.day !== null) {
+      // If in day view, go back to month view - no need to refetch since we have the data
+      setDateFilter({
+        ...dateFilter,
+        day: null,
+      });
+    } else {
+      // If in month view, go back to year view - need to refetch to get the whole year
+      await refetch();
+      setDateFilter({
+        ...dateFilter,
+        month: null,
+      });
+    }
+  };
+
+  const handleDeleteLink = async () => {
+    try {
+      const { error } = await deleteQRLink(supabase, qrLinkId);
+      if (error) throw error;
+      // You might want to add navigation back to the QR codes list here
+    } catch (error) {
+      console.error("Error deleting QR link:", error);
+      // You might want to show an error toast here
     }
   };
 
@@ -871,21 +851,7 @@ export default function Page() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => {
-                      if (dateFilter.day !== null) {
-                        // If in day view, go back to month view
-                        setDateFilter({
-                          ...dateFilter,
-                          day: null,
-                        });
-                      } else {
-                        // If in month view, go back to year view
-                        setDateFilter({
-                          ...dateFilter,
-                          month: null,
-                        });
-                      }
-                    }}
+                    onClick={handleBackClick}
                     className="h-8 px-2"
                   >
                     <svg
@@ -1062,7 +1028,7 @@ export default function Page() {
                     logoWidth={Math.round(qrCode.logoSize * (120 / 180))}
                     logoHeight={Math.round(qrCode.logoSize * (120 / 180))}
                     removeQrCodeBehindLogo={true}
-                    ecLevel="M"
+                    ecLevel="Q"
                   />
                   <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
                     <Download className="h-8 w-8 text-white" />
@@ -1278,7 +1244,7 @@ export default function Page() {
                       logoWidth={editingQRCode.logoSize}
                       logoHeight={editingQRCode.logoSize}
                       removeQrCodeBehindLogo={true}
-                      ecLevel="M"
+                      ecLevel="Q"
                     />
                   </div>
                 </div>
