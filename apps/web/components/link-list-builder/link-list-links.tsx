@@ -1,3 +1,4 @@
+import { LinkFilled } from "@church-space/ui/icons";
 import React from "react";
 
 export interface LinkListLink {
@@ -37,6 +38,18 @@ export default function LinkListLinks({
           </button>
         </a>
       ))}
+      {filteredLinks.length === 0 && mode === "builder" && (
+        <div className="flex w-full flex-col items-center justify-center rounded-md border bg-muted p-3 text-center text-sm text-muted-foreground">
+          <LinkFilled height={"28"} width={"28"} />
+          <h4 className="mb-1 mt-5 text-lg font-semibold">
+            Let's get started!
+          </h4>
+          <p className="text-pretty px-4 text-sm">
+            To add your first link, click the "Links" tab on the left and click
+            "Add Link".
+          </p>
+        </div>
+      )}
     </div>
   );
 }

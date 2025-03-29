@@ -52,27 +52,31 @@ export default function LinkListSocials({
     mode === "live" ? links.filter((link) => link.url) : links;
 
   return (
-    <div className="w-fullitems-center mx-auto flex justify-between gap-3 px-6">
-      {filteredLinks.map((link, index) => {
-        const IconComponent = socialIcons[link.icon] || socialIcons.link;
-        return (
-          <div
-            key={index}
-            className="flex h-10 w-10 items-center justify-center rounded-full"
-            style={{
-              backgroundColor: style === "filled" ? color : "transparent",
-              color: iconColor,
-              borderColor: style === "outline" ? iconColor : "transparent",
-              borderWidth: style === "outline" ? "1px" : "0px",
-            }}
-          >
-            <IconComponent
-              height={style === "icon-only" ? "24" : "22"}
-              width={style === "icon-only" ? "24" : "22"}
-            />
-          </div>
-        );
-      })}
-    </div>
+    <>
+      {filteredLinks.length > 0 && (
+        <div className="w-fullitems-center mx-auto flex justify-between gap-3 px-6">
+          {filteredLinks.map((link, index) => {
+            const IconComponent = socialIcons[link.icon] || socialIcons.link;
+            return (
+              <div
+                key={index}
+                className="flex h-10 w-10 items-center justify-center rounded-full"
+                style={{
+                  backgroundColor: style === "filled" ? color : "transparent",
+                  color: iconColor,
+                  borderColor: style === "outline" ? iconColor : "transparent",
+                  borderWidth: style === "outline" ? "1px" : "0px",
+                }}
+              >
+                <IconComponent
+                  height={style === "icon-only" ? "24" : "22"}
+                  width={style === "icon-only" ? "24" : "22"}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }
