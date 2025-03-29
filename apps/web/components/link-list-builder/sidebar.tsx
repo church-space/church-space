@@ -44,6 +44,7 @@ interface LinkListBuilderSidebarProps {
   urlSlug: string;
   isPublic: boolean;
   privateName: string;
+  urlSlugErrorProp?: string | null;
   setBgColor: (color: string) => void;
   setButtonColor: (color: string) => void;
   setButtonTextColor: (color: string) => void;
@@ -69,6 +70,11 @@ interface LinkListBuilderSidebarProps {
   setIsPublic: (isPublic: boolean) => void;
   setPrivateName: (name: string) => void;
 }
+
+const isValidSlug = (slug: string): boolean => {
+  if (!slug) return false;
+  return /^[a-zA-Z0-9-]+$/.test(slug);
+};
 
 export default function LinkListBuilderSidebar({
   className,
@@ -96,6 +102,7 @@ export default function LinkListBuilderSidebar({
   urlSlug,
   isPublic,
   privateName,
+  urlSlugErrorProp,
   setBgColor,
   setButtonColor,
   setButtonTextColor,
@@ -128,6 +135,13 @@ export default function LinkListBuilderSidebar({
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [localUrlSlug, setLocalUrlSlug] = useState(urlSlug);
   const [localPrivateName, setLocalPrivateName] = useState(privateName);
+  const [urlSlugFormatError, setUrlSlugFormatError] = useState<string | null>(
+    null,
+  );
+  const [privateNameError, setPrivateNameError] = useState<string | null>(null);
+
+  const urlSlugError = urlSlugFormatError || urlSlugErrorProp;
+
   const urlSlugTimerRef = useRef<NodeJS.Timeout | null>(null);
   const privateNameTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -144,43 +158,61 @@ export default function LinkListBuilderSidebar({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // Update local state when props change
   useEffect(() => {
     setLocalUrlSlug(urlSlug);
+    setUrlSlugFormatError(null);
   }, [urlSlug]);
 
   useEffect(() => {
     setLocalPrivateName(privateName);
+    setPrivateNameError(null);
   }, [privateName]);
 
-  const handleUrlSlugChange = (value: string) => {
-    // Update local state immediately for responsive UI
-    setLocalUrlSlug(value);
+  useEffect(() => {
+    if (urlSlugErrorProp) {
+      setUrlSlugFormatError(null);
+    }
+  }, [urlSlugErrorProp]);
 
-    // Clear any existing timer
+  const handleUrlSlugChange = (value: string) => {
+    const cleanedValue = value.toLowerCase();
+    setLocalUrlSlug(cleanedValue);
+    setUrlSlugFormatError(null);
+
     if (urlSlugTimerRef.current) {
       clearTimeout(urlSlugTimerRef.current);
     }
 
-    // Set a new timer to update parent after typing stops
     urlSlugTimerRef.current = setTimeout(() => {
-      setUrlSlug(value);
-    }, 800); // 800ms debounce
+      const trimmedValue = cleanedValue.trim();
+      if (trimmedValue === "") {
+        setUrlSlugFormatError("URL slug cannot be empty.");
+      } else if (!isValidSlug(cleanedValue)) {
+        setUrlSlugFormatError(
+          "Invalid format: use letters, numbers, or hyphens.",
+        );
+      } else {
+        setUrlSlug(cleanedValue);
+      }
+    }, 800);
   };
 
   const handlePrivateNameChange = (value: string) => {
-    // Update local state immediately for responsive UI
     setLocalPrivateName(value);
+    setPrivateNameError(null);
 
-    // Clear any existing timer
     if (privateNameTimerRef.current) {
       clearTimeout(privateNameTimerRef.current);
     }
 
-    // Set a new timer to update parent after typing stops
     privateNameTimerRef.current = setTimeout(() => {
-      setPrivateName(value);
-    }, 800); // 800ms debounce
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        setPrivateNameError("Name cannot be empty.");
+      } else {
+        setPrivateName(trimmedValue);
+      }
+    }, 800);
   };
 
   const exitX = isSmallScreen ? 800 : 400;
@@ -290,6 +322,7 @@ export default function LinkListBuilderSidebar({
             animate={{ x: 0 }}
             exit={{ x: -exitX }}
             transition={springConfig}
+            className="h-full overflow-y-auto pb-10"
           >
             <div className="flex flex-col gap-4">
               <div className="text-lg font-medium">Editor</div>
@@ -323,43 +356,88 @@ export default function LinkListBuilderSidebar({
                 </div>
                 <ChevronRight />
               </div>
-              <div className="mt-4 flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
+              <div className="mt-4 flex flex-col gap-4 border-t pt-4">
+                <div className="text-md font-medium">Settings</div>
+                <div className="flex flex-col gap-1.5">
                   <Label htmlFor="name">Name</Label>
                   <Input
                     id="name"
-                    placeholder="Link List Name"
-                    className="bg-background"
+                    placeholder="Link List Name (private)"
+                    className={cn(
+                      "bg-background",
+                      privateNameError && "border-destructive",
+                    )}
                     value={localPrivateName}
                     onChange={(e) => handlePrivateNameChange(e.target.value)}
+                    aria-invalid={!!privateNameError}
+                    aria-describedby={
+                      privateNameError ? "private-name-error" : undefined
+                    }
                   />
+                  {privateNameError && (
+                    <p
+                      id="private-name-error"
+                      className="text-xs text-destructive"
+                    >
+                      {privateNameError}
+                    </p>
+                  )}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1.5">
                   <Label htmlFor="url">URL</Label>
-                  <div className="shadow-xs flex rounded-md">
-                    <span className="-z-10 inline-flex items-center rounded-s-md border border-input bg-transparent px-3 text-xs text-muted-foreground">
+                  <div
+                    className={cn(
+                      "shadow-xs flex rounded-md border border-input focus-within:ring-1 focus-within:ring-ring",
+                      urlSlugError &&
+                        "border-destructive focus-within:ring-destructive",
+                    )}
+                  >
+                    <span className="inline-flex items-center rounded-s-md border-e border-input bg-accent px-3 text-xs text-muted-foreground">
                       churchspace.co/links/
                     </span>
                     <Input
                       id="url"
-                      className="-ms-px rounded-s-none bg-background shadow-none"
+                      className="-ms-px rounded-s-none border-0 bg-background px-2 py-2 shadow-none focus-visible:ring-0"
                       placeholder="ex: your-church"
                       type="text"
                       value={localUrlSlug}
                       onChange={(e) => handleUrlSlugChange(e.target.value)}
+                      aria-invalid={!!urlSlugError}
+                      aria-describedby={
+                        urlSlugError ? "url-slug-error" : undefined
+                      }
                     />
                   </div>
+                  {urlSlugError && (
+                    <p id="url-slug-error" className="text-xs text-destructive">
+                      {urlSlugError}
+                    </p>
+                  )}
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 pt-2">
                   <Switch
                     id="is-public"
                     checked={isPublic}
                     onCheckedChange={setIsPublic}
                   />
-                  <Label htmlFor="is-public">Is Public</Label>
+                  <Label htmlFor="is-public">Make Public</Label>
                 </div>
-                <Link href={`/links/${localUrlSlug}`} target="_blank">
-                  <Button variant="outline">View Live</Button>
+                <Link
+                  href={localUrlSlug ? `/links/${localUrlSlug}` : "#"}
+                  target="_blank"
+                  passHref
+                  legacyBehavior
+                >
+                  <a
+                    className={cn(
+                      !localUrlSlug && "pointer-events-none opacity-50",
+                    )}
+                    aria-disabled={!localUrlSlug}
+                  >
+                    <Button variant="outline" disabled={!localUrlSlug}>
+                      View Live Page
+                    </Button>
+                  </a>
                 </Link>
               </div>
             </div>

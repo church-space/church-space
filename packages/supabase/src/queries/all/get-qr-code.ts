@@ -1,5 +1,11 @@
 import { Client } from "../../types";
 
+type DatabaseQRCodeClick = {
+  id: number;
+  created_at: string;
+  qr_code_id: string;
+};
+
 type DatabaseQRCode = {
   id: string;
   created_at: string;
@@ -12,6 +18,7 @@ type DatabaseQRCode = {
     isTransparent?: boolean;
     logoSize?: number;
   } | null;
+  qr_code_clicks: DatabaseQRCodeClick[];
 };
 
 type DatabaseQRLink = {
@@ -40,12 +47,19 @@ export async function getQRLinkQuery(supabase: Client, qrLinkId: number) {
         created_at,
         title,
         linked_asset,
-        style
+        style,
+        qr_code_clicks (
+          id,
+          created_at,
+          qr_code_id
+        )
       )
     `
     )
     .eq("id", qrLinkId)
     .single();
+
+  console.log(data);
 
   return { data: data as DatabaseQRLink | null, error };
 }
