@@ -71,7 +71,7 @@ import {
   DropdownMenuItem,
 } from "@church-space/ui/dropdown-menu";
 import { DropdownMenuTrigger } from "@church-space/ui/dropdown-menu";
-import { Trash } from "@church-space/ui/icons";
+import { ChevronRight, ChevronLeft, Trash } from "@church-space/ui/icons";
 import { createRoot } from "react-dom/client";
 import { useUser } from "@/stores/use-user";
 import FileUpload from "@/components/dnd-builder/file-upload";
@@ -886,6 +886,9 @@ export default function Page() {
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                <Button variant="outline" size="icon">
+                  <ChevronLeft />
+                </Button>
                 <div className="flex items-center gap-2">
                   <Select
                     value={dateFilter.year.toString()}
@@ -949,6 +952,9 @@ export default function Page() {
                     </Select>
                   </div>
                 )}
+                <Button variant="outline" size="icon">
+                  <ChevronRight />
+                </Button>
               </div>
             </div>
 
