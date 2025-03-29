@@ -113,7 +113,7 @@ export default function LinkListBuilderSidebar({
   return (
     <div
       className={cn(
-        "sticky top-16 h-[calc(100vh-5rem)] flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm md:w-[320px] lg:w-[400px]",
+        "sticky top-16 h-[calc(100vh-5rem)] w-full flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm lg:w-[400px]",
         className,
       )}
     >
@@ -134,7 +134,7 @@ export default function LinkListBuilderSidebar({
           >
             <div className="mb-4 flex items-center gap-2">
               <Button
-                className="hidden h-7 gap-1 px-1 py-0 text-muted-foreground md:flex"
+                className="h-7 gap-1 px-1 py-0 text-muted-foreground"
                 variant="ghost"
                 onClick={() => setActiveForm("default")}
               >

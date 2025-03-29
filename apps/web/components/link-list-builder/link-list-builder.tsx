@@ -21,6 +21,12 @@ import LinkListLinks from "./link-list-links";
 import LinkListSocials, { socialIcons } from "./link-list-socials";
 import LinkListBuilderSidebar from "./sidebar";
 import { Skeleton } from "@church-space/ui/skeleton";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@church-space/ui/tabs";
 
 export interface Link {
   type: string;
@@ -473,110 +479,276 @@ export default function LinkListBuilder() {
   }
 
   return (
-    <div className="relative flex p-2 pt-0 md:gap-4 md:p-4 md:pt-0">
-      <LinkListBuilderSidebar
-        links={links}
-        bgColor={bgColor}
-        buttonColor={buttonColor}
-        buttonTextColor={buttonTextColor}
-        socialsStyle={socialsStyle}
-        socialsColor={socialsColor}
-        socialsIconColor={socialsIconColor}
-        socialLinks={socialLinks}
-        headerBgColor={headerBgColor}
-        headerTextColor={headerTextColor}
-        headerSecondaryTextColor={headerSecondaryTextColor}
-        headerTitle={headerTitle}
-        headerDescription={headerDescription}
-        headerName={headerName}
-        headerButtonText={headerButtonText}
-        headerButtonLink={headerButtonLink}
-        headerButtonColor={headerButtonColor}
-        headerButtonTextColor={headerButtonTextColor}
-        headerImage={headerImage}
-        logoImage={logoImage}
-        setBgColor={(color) => {
-          setBgColor(color);
-          handleStyleUpdate({ ...(style || {}), backgroundColor: color });
-        }}
-        setButtonColor={(color) => {
-          setButtonColor(color);
-          handleStyleUpdate({ ...(style || {}), buttonColor: color });
-        }}
-        setButtonTextColor={(color) => {
-          setButtonTextColor(color);
-          handleStyleUpdate({ ...(style || {}), buttonTextColor: color });
-        }}
-        setSocialsStyle={(styleValue) => {
-          setSocialsStyle(styleValue);
-          handleStyleUpdate({ ...(style || {}), socialsStyle: styleValue });
-        }}
-        setSocialsColor={(color) => {
-          setSocialsColor(color);
-          handleStyleUpdate({ ...(style || {}), socialsColor: color });
-        }}
-        setSocialsIconColor={(color) => {
-          setSocialsIconColor(color);
-          handleStyleUpdate({ ...(style || {}), socialsIconColor: color });
-        }}
-        setSocialLinks={handleSocialLinksUpdate}
-        setHeaderBgColor={(color) => {
-          setHeaderBgColor(color);
-          handleStyleUpdate({ ...(style || {}), headerBgColor: color });
-        }}
-        setHeaderTextColor={(color) => {
-          setHeaderTextColor(color);
-          handleStyleUpdate({ ...(style || {}), headerTextColor: color });
-        }}
-        setHeaderSecondaryTextColor={(color) => {
-          setHeaderSecondaryTextColor(color);
-          handleStyleUpdate({
-            ...(style || {}),
-            headerSecondaryTextColor: color,
-          });
-        }}
-        setHeaderTitle={(title) => {
-          setHeaderTitle(title);
-          handleTextUpdate({ title });
-        }}
-        setHeaderDescription={(description) => {
-          setHeaderDescription(description);
-          handleTextUpdate({ description });
-        }}
-        setHeaderName={(name) => {
-          setHeaderName(name);
-          handleTextUpdate({ name });
-        }}
-        setHeaderButtonText={(text) => {
-          setHeaderButtonText(text);
-          handlePrimaryButtonUpdate({ ...(primaryButton || {}), text });
-        }}
-        setHeaderButtonLink={(url) => {
-          setHeaderButtonLink(url);
-          handlePrimaryButtonUpdate({ ...(primaryButton || {}), url });
-        }}
-        setHeaderButtonColor={(color) => {
-          setHeaderButtonColor(color);
-          handlePrimaryButtonUpdate({ ...(primaryButton || {}), color });
-        }}
-        setHeaderButtonTextColor={(color) => {
-          setHeaderButtonTextColor(color);
-          handlePrimaryButtonUpdate({
-            ...(primaryButton || {}),
-            textColor: color,
-          });
-        }}
-        setLinks={handleSetLinks}
-        setHeaderImage={(image) => {
-          setHeaderImage(image);
-          handleTextUpdate({ bg_image: image });
-        }}
-        setLogoImage={(image) => {
-          setLogoImage(image);
-          handleTextUpdate({ logo_asset: image });
-        }}
-      />
-      <div className="relative flex-1">
+    <div className="relative flex p-2 pt-0 lg:gap-4 lg:p-4 lg:pt-0">
+      <div className="w-full lg:hidden">
+        <Tabs defaultValue="settings" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
+          </TabsList>
+          <TabsContent value="content" className="mt-2">
+            <div className="relative flex-1">
+              <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col overflow-y-auto rounded-md border shadow-md">
+                {isLoading && (
+                  <Skeleton className="h-[calc(100vh-20rem)] w-full bg-muted" />
+                )}
+                {!isLoading && (
+                  <>
+                    <LinkListHeader
+                      headerBgColor={headerBgColor}
+                      headerTextColor={headerTextColor}
+                      headerSecondaryTextColor={headerSecondaryTextColor}
+                      headerTitle={headerTitle}
+                      headerDescription={headerDescription}
+                      headerName={headerName}
+                      headerButtonText={headerButtonText}
+                      headerButtonLink={headerButtonLink}
+                      headerButtonColor={headerButtonColor}
+                      headerButtonTextColor={headerButtonTextColor}
+                      headerImage={headerImage}
+                      logoImage={logoImage}
+                      mode="builder"
+                    />
+                    <div
+                      className="flex flex-col gap-6 py-6"
+                      style={{ backgroundColor: bgColor }}
+                    >
+                      <LinkListSocials
+                        style={socialsStyle}
+                        color={socialsColor}
+                        iconColor={socialsIconColor}
+                        links={socialLinks}
+                        mode="builder"
+                      />
+                      <LinkListLinks
+                        links={links}
+                        buttonColor={buttonColor}
+                        buttonTextColor={buttonTextColor}
+                        mode="builder"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="settings" className="mt-2">
+            <LinkListBuilderSidebar
+              links={links}
+              bgColor={bgColor}
+              buttonColor={buttonColor}
+              buttonTextColor={buttonTextColor}
+              socialsStyle={socialsStyle}
+              socialsColor={socialsColor}
+              socialsIconColor={socialsIconColor}
+              socialLinks={socialLinks}
+              headerBgColor={headerBgColor}
+              headerTextColor={headerTextColor}
+              headerSecondaryTextColor={headerSecondaryTextColor}
+              headerTitle={headerTitle}
+              headerDescription={headerDescription}
+              headerName={headerName}
+              headerButtonText={headerButtonText}
+              headerButtonLink={headerButtonLink}
+              headerButtonColor={headerButtonColor}
+              headerButtonTextColor={headerButtonTextColor}
+              headerImage={headerImage}
+              logoImage={logoImage}
+              setBgColor={(color) => {
+                setBgColor(color);
+                handleStyleUpdate({ ...(style || {}), backgroundColor: color });
+              }}
+              setButtonColor={(color) => {
+                setButtonColor(color);
+                handleStyleUpdate({ ...(style || {}), buttonColor: color });
+              }}
+              setButtonTextColor={(color) => {
+                setButtonTextColor(color);
+                handleStyleUpdate({ ...(style || {}), buttonTextColor: color });
+              }}
+              setSocialsStyle={(styleValue) => {
+                setSocialsStyle(styleValue);
+                handleStyleUpdate({
+                  ...(style || {}),
+                  socialsStyle: styleValue,
+                });
+              }}
+              setSocialsColor={(color) => {
+                setSocialsColor(color);
+                handleStyleUpdate({ ...(style || {}), socialsColor: color });
+              }}
+              setSocialsIconColor={(color) => {
+                setSocialsIconColor(color);
+                handleStyleUpdate({
+                  ...(style || {}),
+                  socialsIconColor: color,
+                });
+              }}
+              setSocialLinks={handleSocialLinksUpdate}
+              setHeaderBgColor={(color) => {
+                setHeaderBgColor(color);
+                handleStyleUpdate({ ...(style || {}), headerBgColor: color });
+              }}
+              setHeaderTextColor={(color) => {
+                setHeaderTextColor(color);
+                handleStyleUpdate({ ...(style || {}), headerTextColor: color });
+              }}
+              setHeaderSecondaryTextColor={(color) => {
+                setHeaderSecondaryTextColor(color);
+                handleStyleUpdate({
+                  ...(style || {}),
+                  headerSecondaryTextColor: color,
+                });
+              }}
+              setHeaderTitle={(title) => {
+                setHeaderTitle(title);
+                handleTextUpdate({ title });
+              }}
+              setHeaderDescription={(description) => {
+                setHeaderDescription(description);
+                handleTextUpdate({ description });
+              }}
+              setHeaderName={(name) => {
+                setHeaderName(name);
+                handleTextUpdate({ name });
+              }}
+              setHeaderButtonText={(text) => {
+                setHeaderButtonText(text);
+                handlePrimaryButtonUpdate({ ...(primaryButton || {}), text });
+              }}
+              setHeaderButtonLink={(url) => {
+                setHeaderButtonLink(url);
+                handlePrimaryButtonUpdate({ ...(primaryButton || {}), url });
+              }}
+              setHeaderButtonColor={(color) => {
+                setHeaderButtonColor(color);
+                handlePrimaryButtonUpdate({ ...(primaryButton || {}), color });
+              }}
+              setHeaderButtonTextColor={(color) => {
+                setHeaderButtonTextColor(color);
+                handlePrimaryButtonUpdate({
+                  ...(primaryButton || {}),
+                  textColor: color,
+                });
+              }}
+              setLinks={handleSetLinks}
+              setHeaderImage={(image) => {
+                setHeaderImage(image);
+                handleTextUpdate({ bg_image: image });
+              }}
+              setLogoImage={(image) => {
+                setLogoImage(image);
+                handleTextUpdate({ logo_asset: image });
+              }}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+      <div className="hidden lg:block">
+        <LinkListBuilderSidebar
+          links={links}
+          bgColor={bgColor}
+          buttonColor={buttonColor}
+          buttonTextColor={buttonTextColor}
+          socialsStyle={socialsStyle}
+          socialsColor={socialsColor}
+          socialsIconColor={socialsIconColor}
+          socialLinks={socialLinks}
+          headerBgColor={headerBgColor}
+          headerTextColor={headerTextColor}
+          headerSecondaryTextColor={headerSecondaryTextColor}
+          headerTitle={headerTitle}
+          headerDescription={headerDescription}
+          headerName={headerName}
+          headerButtonText={headerButtonText}
+          headerButtonLink={headerButtonLink}
+          headerButtonColor={headerButtonColor}
+          headerButtonTextColor={headerButtonTextColor}
+          headerImage={headerImage}
+          logoImage={logoImage}
+          setBgColor={(color) => {
+            setBgColor(color);
+            handleStyleUpdate({ ...(style || {}), backgroundColor: color });
+          }}
+          setButtonColor={(color) => {
+            setButtonColor(color);
+            handleStyleUpdate({ ...(style || {}), buttonColor: color });
+          }}
+          setButtonTextColor={(color) => {
+            setButtonTextColor(color);
+            handleStyleUpdate({ ...(style || {}), buttonTextColor: color });
+          }}
+          setSocialsStyle={(styleValue) => {
+            setSocialsStyle(styleValue);
+            handleStyleUpdate({ ...(style || {}), socialsStyle: styleValue });
+          }}
+          setSocialsColor={(color) => {
+            setSocialsColor(color);
+            handleStyleUpdate({ ...(style || {}), socialsColor: color });
+          }}
+          setSocialsIconColor={(color) => {
+            setSocialsIconColor(color);
+            handleStyleUpdate({ ...(style || {}), socialsIconColor: color });
+          }}
+          setSocialLinks={handleSocialLinksUpdate}
+          setHeaderBgColor={(color) => {
+            setHeaderBgColor(color);
+            handleStyleUpdate({ ...(style || {}), headerBgColor: color });
+          }}
+          setHeaderTextColor={(color) => {
+            setHeaderTextColor(color);
+            handleStyleUpdate({ ...(style || {}), headerTextColor: color });
+          }}
+          setHeaderSecondaryTextColor={(color) => {
+            setHeaderSecondaryTextColor(color);
+            handleStyleUpdate({
+              ...(style || {}),
+              headerSecondaryTextColor: color,
+            });
+          }}
+          setHeaderTitle={(title) => {
+            setHeaderTitle(title);
+            handleTextUpdate({ title });
+          }}
+          setHeaderDescription={(description) => {
+            setHeaderDescription(description);
+            handleTextUpdate({ description });
+          }}
+          setHeaderName={(name) => {
+            setHeaderName(name);
+            handleTextUpdate({ name });
+          }}
+          setHeaderButtonText={(text) => {
+            setHeaderButtonText(text);
+            handlePrimaryButtonUpdate({ ...(primaryButton || {}), text });
+          }}
+          setHeaderButtonLink={(url) => {
+            setHeaderButtonLink(url);
+            handlePrimaryButtonUpdate({ ...(primaryButton || {}), url });
+          }}
+          setHeaderButtonColor={(color) => {
+            setHeaderButtonColor(color);
+            handlePrimaryButtonUpdate({ ...(primaryButton || {}), color });
+          }}
+          setHeaderButtonTextColor={(color) => {
+            setHeaderButtonTextColor(color);
+            handlePrimaryButtonUpdate({
+              ...(primaryButton || {}),
+              textColor: color,
+            });
+          }}
+          setLinks={handleSetLinks}
+          setHeaderImage={(image) => {
+            setHeaderImage(image);
+            handleTextUpdate({ bg_image: image });
+          }}
+          setLogoImage={(image) => {
+            setLogoImage(image);
+            handleTextUpdate({ logo_asset: image });
+          }}
+        />
+      </div>
+      <div className="relative hidden flex-1 lg:block">
         <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col overflow-y-auto rounded-md border shadow-md">
           {isLoading && (
             <Skeleton className="h-[calc(100vh-20rem)] w-full bg-muted" />

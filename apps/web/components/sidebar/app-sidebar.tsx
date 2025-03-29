@@ -1,24 +1,15 @@
 "use client";
 
-import {
-  Command,
-  Link,
-  Mail,
-  Settings2,
-  User,
-  QrCode,
-  List,
-} from "lucide-react";
+import { Link, List, Mail, QrCode, Settings2, User } from "lucide-react";
 import * as React from "react";
 
+import { Button } from "@church-space/ui/button";
+import { ChurchSpaceBlack, CircleQuestion } from "@church-space/ui/icons";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@church-space/ui/sidebar";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
@@ -101,27 +92,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex w-full items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <ChurchSpaceBlack height={"30"} width={"30"} />
+          </div>
+          <NavUser />
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser />
+      <SidebarFooter className="flex justify-center text-muted-foreground">
+        <Button
+          className="size-7 gap-0 rounded-full p-0 text-muted-foreground [&_svg]:size-5"
+          variant="ghost"
+        >
+          <CircleQuestion height={"18"} width={"18"} />
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
