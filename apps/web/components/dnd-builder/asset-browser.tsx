@@ -42,6 +42,7 @@ import {
 import { useEffect, useState, useCallback, useRef } from "react";
 import debounce from "lodash/debounce";
 import { fetchEmailAssets, type Asset } from "./fetch-email-assets";
+import { fetchQrLinkAssets } from "@/components/link-list-builder/fetch-qr-link-assets";
 import { fetchLinkListAssets } from "@/components/link-list-builder/fetch-link-list-assets";
 import { Skeleton } from "@church-space/ui/skeleton";
 import { useFileUpload } from "./use-file-upload";
@@ -218,14 +219,23 @@ export default function AssetBrowserModal({
                 selectedType,
                 type,
               })
-            : await fetchLinkListAssets({
-                organizationId,
-                currentPage,
-                itemsPerPage,
-                searchQuery: searchQueryRef.current,
-                selectedType,
-                type,
-              });
+            : bucket === "link-list-assets"
+              ? await fetchLinkListAssets({
+                  organizationId,
+                  currentPage,
+                  itemsPerPage,
+                  searchQuery: searchQueryRef.current,
+                  selectedType,
+                  type,
+                })
+              : await fetchQrLinkAssets({
+                  organizationId,
+                  currentPage,
+                  itemsPerPage,
+                  searchQuery: searchQueryRef.current,
+                  selectedType,
+                  type,
+                });
 
         setAssets(result.assets);
         setTotalCount(result.totalCount);

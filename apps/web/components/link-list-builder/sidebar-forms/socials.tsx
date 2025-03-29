@@ -19,12 +19,15 @@ import {
   Threads,
   Bluesky,
   Linkedin,
+  XIcon,
 } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
 import { z } from "zod";
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import { SocialLink } from "../link-list-builder";
+import { TooltipContent } from "@church-space/ui/tooltip";
 import { socialIcons } from "../link-list-socials";
+import { Tooltip, TooltipTrigger } from "@church-space/ui/tooltip";
 
 interface LocalState {
   links: SocialLink[];
@@ -324,12 +327,12 @@ export default function SocialsForm({
             className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
           >
             <Label>Icon</Label>
-            <div className="col-span-2 flex gap-2">
+            <div className="col-span-2 flex">
               <Select
                 value={link.icon}
                 onValueChange={(value) => updateLink(index, "icon", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="rounded-r-none">
                   <SelectValue placeholder="Icon" />
                 </SelectTrigger>
                 <SelectContent className="min-w-20">
@@ -385,13 +388,19 @@ export default function SocialsForm({
                   </SelectItem>
                 </SelectContent>
               </Select>
-              <Button
-                variant="outline"
-                onClick={() => removeLink(index)}
-                size="icon"
-              >
-                ×
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    onClick={() => removeLink(index)}
+                    size="icon"
+                    className="rounded-l-none border-l-0"
+                  >
+                    <XIcon height={"20"} width={"20"} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Remove Link</TooltipContent>
+              </Tooltip>
             </div>
             <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
             <div className="col-span-2 flex flex-col gap-1">

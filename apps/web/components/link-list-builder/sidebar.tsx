@@ -36,6 +36,7 @@ interface LinkListBuilderSidebarProps {
   headerButtonTextColor: string;
   headerImage: string;
   logoImage: string;
+  headerBlur: boolean;
   setBgColor: (color: string) => void;
   setButtonColor: (color: string) => void;
   setButtonTextColor: (color: string) => void;
@@ -56,6 +57,7 @@ interface LinkListBuilderSidebarProps {
   setLinks: (links: Link[]) => void;
   setHeaderImage: (image: string) => void;
   setLogoImage: (image: string) => void;
+  setHeaderBlur: (blur: boolean) => void;
 }
 
 export default function LinkListBuilderSidebar({
@@ -80,6 +82,7 @@ export default function LinkListBuilderSidebar({
   headerButtonTextColor,
   headerImage,
   logoImage,
+  headerBlur,
   setBgColor,
   setButtonColor,
   setButtonTextColor,
@@ -100,6 +103,7 @@ export default function LinkListBuilderSidebar({
   setLinks,
   setHeaderImage,
   setLogoImage,
+  setHeaderBlur,
 }: LinkListBuilderSidebarProps) {
   const [activeForm, setActiveForm] = useState<
     "header" | "socials" | "links" | "default"
@@ -190,6 +194,8 @@ export default function LinkListBuilderSidebar({
                   setHeaderButtonTextColor={setHeaderButtonTextColor}
                   setHeaderImage={setHeaderImage}
                   setLogoImage={setLogoImage}
+                  setHeaderBlur={setHeaderBlur}
+                  headerBlur={headerBlur}
                 />
               )}
               {activeForm === "socials" && (

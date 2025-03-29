@@ -1,6 +1,6 @@
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import { Button } from "@church-space/ui/button";
-import { LinkIcon, MailFilled } from "@church-space/ui/icons";
+import { LinkIcon, MailFilled, XIcon } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
@@ -13,6 +13,11 @@ import {
 import { useRef, useState, useEffect } from "react";
 import { z } from "zod";
 import { Link } from "../link-list-builder";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
 
 interface LinksFormProps {
   links: Link[];
@@ -300,14 +305,19 @@ export default function LinksForm({
                     </SelectItem>
                   </SelectContent>
                 </Select>
-                <Button
-                  variant="outline"
-                  onClick={() => removeLink(index)}
-                  size="icon"
-                  className="rounded-l-none border-l-0"
-                >
-                  ×
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      onClick={() => removeLink(index)}
+                      size="icon"
+                      className="rounded-l-none border-l-0"
+                    >
+                      <XIcon height={"20"} width={"20"} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Remove Link</TooltipContent>
+                </Tooltip>
               </div>
               <Label>Text</Label>
               <Input

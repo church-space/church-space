@@ -49,6 +49,7 @@ interface Style {
   headerBgColor: string;
   headerTextColor: string;
   headerSecondaryTextColor: string;
+  headerBlur: boolean;
 }
 
 interface PrimaryButton {
@@ -77,6 +78,7 @@ export default function LinkListBuilder() {
   const [socialsColor, setSocialsColor] = useState<string>("");
   const [socialsIconColor, setSocialsIconColor] = useState<string>("");
   const [headerBgColor, setHeaderBgColor] = useState<string>("");
+  const [headerBlur, setHeaderBlur] = useState<boolean>(false);
   const [headerTextColor, setHeaderTextColor] = useState<string>("");
   const [headerSecondaryTextColor, setHeaderSecondaryTextColor] =
     useState<string>("");
@@ -304,6 +306,7 @@ export default function LinkListBuilder() {
       headerBgColor: headerBgColor,
       headerTextColor: headerTextColor,
       headerSecondaryTextColor: headerSecondaryTextColor,
+      headerBlur: headerBlur,
       ...style,
     };
 
@@ -352,6 +355,7 @@ export default function LinkListBuilder() {
         setSocialsColor(style.socialsColor || "");
         setSocialsIconColor(style.socialsIconColor || "");
         setHeaderBgColor(style.headerBgColor || "");
+        setHeaderBlur(style.headerBlur || false);
         setHeaderTextColor(style.headerTextColor || "");
         setHeaderSecondaryTextColor(style.headerSecondaryTextColor || "");
       }
@@ -508,6 +512,7 @@ export default function LinkListBuilder() {
                       headerImage={headerImage}
                       logoImage={logoImage}
                       mode="builder"
+                      headerBlur={headerBlur}
                     />
                     <div
                       className="flex flex-col gap-6 py-6"
@@ -554,6 +559,7 @@ export default function LinkListBuilder() {
               headerButtonTextColor={headerButtonTextColor}
               headerImage={headerImage}
               logoImage={logoImage}
+              headerBlur={headerBlur}
               setBgColor={(color) => {
                 setBgColor(color);
                 handleStyleUpdate({ ...(style || {}), backgroundColor: color });
@@ -588,6 +594,10 @@ export default function LinkListBuilder() {
               setHeaderBgColor={(color) => {
                 setHeaderBgColor(color);
                 handleStyleUpdate({ ...(style || {}), headerBgColor: color });
+              }}
+              setHeaderBlur={(blur) => {
+                setHeaderBlur(blur);
+                handleStyleUpdate({ ...(style || {}), headerBlur: blur });
               }}
               setHeaderTextColor={(color) => {
                 setHeaderTextColor(color);
@@ -666,6 +676,7 @@ export default function LinkListBuilder() {
           headerButtonTextColor={headerButtonTextColor}
           headerImage={headerImage}
           logoImage={logoImage}
+          headerBlur={headerBlur}
           setBgColor={(color) => {
             setBgColor(color);
             handleStyleUpdate({ ...(style || {}), backgroundColor: color });
@@ -694,6 +705,10 @@ export default function LinkListBuilder() {
           setHeaderBgColor={(color) => {
             setHeaderBgColor(color);
             handleStyleUpdate({ ...(style || {}), headerBgColor: color });
+          }}
+          setHeaderBlur={(blur) => {
+            setHeaderBlur(blur);
+            handleStyleUpdate({ ...(style || {}), headerBlur: blur });
           }}
           setHeaderTextColor={(color) => {
             setHeaderTextColor(color);
@@ -769,6 +784,7 @@ export default function LinkListBuilder() {
                 headerImage={headerImage}
                 logoImage={logoImage}
                 mode="builder"
+                headerBlur={headerBlur}
               />
               <div
                 className="flex flex-col gap-6 py-6"

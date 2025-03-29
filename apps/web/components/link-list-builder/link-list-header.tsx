@@ -3,6 +3,7 @@ import { Button } from "@church-space/ui/button";
 import Link from "next/link";
 import { createClient } from "@church-space/supabase/client";
 import Image from "next/image";
+import { cn } from "@church-space/ui/cn";
 
 interface LinkListHeaderProps {
   headerBgColor: string;
@@ -18,6 +19,7 @@ interface LinkListHeaderProps {
   headerImage: string;
   logoImage: string;
   mode: "builder" | "live";
+  headerBlur: boolean;
 }
 
 export default function LinkListHeader({
@@ -34,6 +36,7 @@ export default function LinkListHeader({
   headerImage,
   logoImage,
   mode,
+  headerBlur,
 }: LinkListHeaderProps) {
   const [logoUrl, setLogoUrl] = useState<string>("");
   const [bgImageUrl, setBgImageUrl] = useState<string>("");
@@ -67,56 +70,74 @@ export default function LinkListHeader({
       style={{ backgroundColor: headerBgColor }}
     >
       {bgImageUrl && (
-        <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0">
           <Image
             src={bgImageUrl}
             alt="Background"
             fill
-            className="object-cover opacity-20"
+            className={`object-cover ${headerBlur ? "opacity-50 blur-sm" : ""}`}
             priority
           />
         </div>
       )}
 
-      {headerName && (
-        <div className="flex items-center gap-2">
-          {logoUrl ? (
-            <div className="relative h-8 w-8 overflow-hidden rounded-full">
-              <Image src={logoUrl} alt="Logo" fill className="object-cover" />
-            </div>
-          ) : (
-            <div className="h-8 w-8 rounded-full bg-accent"></div>
+      <div className="relative z-10 space-y-12">
+        {(headerName || logoUrl) && (
+          <div className="flex items-center gap-2">
+            {logoUrl && (
+              <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                <Image src={logoUrl} alt="Logo" fill className="object-cover" />
+              </div>
+            )}
+            {headerName && (
+              <div
+                className="font-semibold tracking-tight"
+                style={{ color: headerTextColor }}
+              >
+                {headerName}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div
+          className={cn(
+            "flex flex-col gap-2",
+            (!headerName || !logoUrl) && "mt-4",
           )}
-          <div
-            className="font-semibold tracking-tight"
-            style={{ color: headerTextColor }}
-          >
-            {headerName}
-          </div>
+        >
+          {headerTitle && (
+            <div
+              className="text-pretty text-4xl font-bold tracking-tight"
+              style={{ color: headerTextColor }}
+            >
+              {headerTitle}
+            </div>
+          )}
+          {headerDescription && (
+            <div
+              className="mt-1 text-pretty"
+              style={{ color: headerSecondaryTextColor }}
+            >
+              {headerDescription}
+            </div>
+          )}
         </div>
-      )}
 
-      <div className="flex flex-col gap-2">
-        {headerTitle && (
-          <div
-            className="mt-8 text-pretty text-4xl font-bold tracking-tight"
-            style={{ color: headerTextColor }}
-          >
-            {headerTitle}
-          </div>
+        {headerButtonText && mode === "live" && (
+          <Link href={headerButtonLink} target="_blank">
+            <Button
+              className="mt-8 h-fit min-h-12 w-full text-balance rounded-full font-semibold shadow-sm"
+              style={{
+                backgroundColor: headerButtonColor,
+                color: headerButtonTextColor,
+              }}
+            >
+              {headerButtonText}
+            </Button>
+          </Link>
         )}
-        {headerDescription && (
-          <div
-            className="mt-1 text-pretty"
-            style={{ color: headerSecondaryTextColor }}
-          >
-            {headerDescription}
-          </div>
-        )}
-      </div>
-
-      {headerButtonText && mode === "live" && (
-        <Link href={headerButtonLink} target="_blank">
+        {headerButtonText && mode === "builder" && (
           <Button
             className="mt-8 h-fit min-h-12 w-full text-balance rounded-full font-semibold shadow-sm"
             style={{
@@ -126,8 +147,8 @@ export default function LinkListHeader({
           >
             {headerButtonText}
           </Button>
-        </Link>
-      )}
+        )}
+      </div>
     </div>
   );
 }

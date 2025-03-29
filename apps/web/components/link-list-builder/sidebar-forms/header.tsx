@@ -7,6 +7,7 @@ import { AutosizeTextarea } from "@church-space/ui/auto-size-textarea";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { Separator } from "@church-space/ui/separator";
+import { Switch } from "@church-space/ui/switch";
 
 interface HeaderFormProps {
   headerBgColor: string;
@@ -21,6 +22,7 @@ interface HeaderFormProps {
   headerButtonLink: string;
   headerImage: string;
   logoImage: string;
+  headerBlur: boolean;
   setHeaderBgColor: (color: string) => void;
   setHeaderTextColor: (color: string) => void;
   setHeaderSecondaryTextColor: (color: string) => void;
@@ -33,6 +35,7 @@ interface HeaderFormProps {
   setHeaderButtonLink: (buttonLink: string) => void;
   setHeaderImage: (image: string) => void;
   setLogoImage: (image: string) => void;
+  setHeaderBlur: (blur: boolean) => void;
 }
 
 export default function HeaderForm({
@@ -48,6 +51,7 @@ export default function HeaderForm({
   headerButtonLink,
   headerImage,
   logoImage,
+  headerBlur,
   setHeaderBgColor,
   setHeaderTextColor,
   setHeaderSecondaryTextColor,
@@ -60,6 +64,7 @@ export default function HeaderForm({
   setHeaderButtonLink,
   setHeaderImage,
   setLogoImage,
+  setHeaderBlur,
 }: HeaderFormProps) {
   const { organizationId } = useUser();
 
@@ -67,15 +72,6 @@ export default function HeaderForm({
 
   return (
     <div className="grid grid-cols-3 items-center gap-2">
-      <Label className="font-medium">Background Image</Label>
-      <FileUpload
-        organizationId={organizationId || ""}
-        onUploadComplete={(path) => setHeaderImage(path)}
-        type="image"
-        initialFilePath={headerImage}
-        onRemove={() => setHeaderImage("")}
-        bucket="link-list-assets"
-      />
       <Label className="font-medium">Background Color</Label>
       <ColorPicker
         value={headerBgColor}
@@ -91,6 +87,24 @@ export default function HeaderForm({
         value={headerSecondaryTextColor}
         onChange={(color) => setHeaderSecondaryTextColor(color)}
       />
+      <Label className="font-medium">Background Image</Label>
+      <FileUpload
+        organizationId={organizationId || ""}
+        onUploadComplete={(path) => setHeaderImage(path)}
+        type="image"
+        initialFilePath={headerImage}
+        onRemove={() => setHeaderImage("")}
+        bucket="link-list-assets"
+      />
+
+      <Label className="font-medium">Background Blur</Label>
+      <div className="col-span-2 flex items-center gap-2">
+        <Switch
+          checked={headerBlur}
+          onCheckedChange={(checked) => setHeaderBlur(checked)}
+        />
+      </div>
+
       <Separator className="col-span-3 my-4" />
       <Label className="font-medium">Logo</Label>
       <FileUpload
