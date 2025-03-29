@@ -8,17 +8,17 @@ import LinkListLinks, {
 } from "@/components/link-list-builder/link-list-links";
 import { getLinkListQuery } from "@church-space/supabase/queries/all/get-link-list";
 import { createClient } from "@church-space/supabase/server";
-import { redirect } from "next/navigation";
 
 export default async function LinkListPage({
   params,
 }: {
-  params: { linkListId: string };
+  params: Promise<{ linkListId: string }>;
 }) {
+  const { linkListId } = await params;
   const supabase = await createClient();
   const { data: linkList, error } = await getLinkListQuery(
     supabase,
-    parseInt(params.linkListId),
+    parseInt(linkListId),
   );
   if (error) throw error;
   const headerBgColor = linkList?.style?.headerBgColor;

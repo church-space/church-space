@@ -41,12 +41,12 @@ const data = {
     },
     {
       title: "Links",
-      url: "/links",
+      url: "/link-lists",
       icon: Link,
       submenu: [
         {
           title: "Link Lists",
-          url: "/links",
+          url: "/link-lists",
           icon: List,
         },
         {
