@@ -770,7 +770,7 @@ export default function Page() {
           <div className="flex w-full justify-between gap-4 border-b pb-4">
             {isEditingLink ? (
               // Edit mode
-              <div className="space-y-4">
+              <div className="flex-1 space-y-4">
                 <div>
                   <Label htmlFor="edit-link-name" className="mb-2 block">
                     Link Name
@@ -803,7 +803,10 @@ export default function Page() {
               </div>
             ) : (
               // Display mode
-              <div className="group cursor-pointer" onClick={startEditingLink}>
+              <div
+                className="group flex-1 cursor-pointer"
+                onClick={startEditingLink}
+              >
                 <div className="flex items-center">
                   <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
                     {qrLinkData?.name || "Loading..."}

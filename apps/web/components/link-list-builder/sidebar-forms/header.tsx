@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState, useEffect } from "react";
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import FileUpload from "@/components/dnd-builder/file-upload";
 import { useUser } from "@/stores/use-user";
@@ -68,6 +69,104 @@ export default function HeaderForm({
 }: HeaderFormProps) {
   const { organizationId } = useUser();
 
+  // Local state for form values
+  const [localName, setLocalName] = useState(headerName);
+  const [localTitle, setLocalTitle] = useState(headerTitle);
+  const [localDescription, setLocalDescription] = useState(headerDescription);
+  const [localButtonText, setLocalButtonText] = useState(headerButtonText);
+  const [localButtonLink, setLocalButtonLink] = useState(headerButtonLink);
+
+  // Update local state when props change
+  useEffect(() => {
+    setLocalName(headerName);
+    setLocalTitle(headerTitle);
+    setLocalDescription(headerDescription);
+    setLocalButtonText(headerButtonText);
+    setLocalButtonLink(headerButtonLink);
+  }, [
+    headerName,
+    headerTitle,
+    headerDescription,
+    headerButtonText,
+    headerButtonLink,
+  ]);
+
+  // Debounced color update handlers
+  const updateTimerRef = useRef<Record<string, NodeJS.Timeout | null>>({});
+
+  // Handles debounced updates for text fields
+  const handleTextChange = (field: string, value: string) => {
+    // Store the current value for this field to use in the timeout closure
+    const currentValue = value;
+
+    // Clear any existing timer
+    if (updateTimerRef.current[field]) {
+      clearTimeout(updateTimerRef.current[field]);
+    }
+
+    // Set a new timer to update parent state after delay
+    updateTimerRef.current[field] = setTimeout(() => {
+      switch (field) {
+        case "headerName":
+          setHeaderName(currentValue);
+          break;
+        case "headerTitle":
+          setHeaderTitle(currentValue);
+          break;
+        case "headerDescription":
+          setHeaderDescription(currentValue);
+          break;
+        case "headerButtonText":
+          setHeaderButtonText(currentValue);
+          break;
+        case "headerButtonLink":
+          setHeaderButtonLink(currentValue);
+          break;
+      }
+    }, 500); // 500ms debounce
+  };
+
+  // Handles debounced updates for color fields
+  const handleColorChange = (field: string, value: string) => {
+    // Store the current color for this field to use in the timeout closure
+    const currentColor = value;
+
+    // Clear any existing timer
+    if (updateTimerRef.current[field]) {
+      clearTimeout(updateTimerRef.current[field]);
+    }
+
+    // Set a new timer to update parent state after delay
+    updateTimerRef.current[field] = setTimeout(() => {
+      switch (field) {
+        case "headerBgColor":
+          setHeaderBgColor(currentColor);
+          break;
+        case "headerTextColor":
+          setHeaderTextColor(currentColor);
+          break;
+        case "headerSecondaryTextColor":
+          setHeaderSecondaryTextColor(currentColor);
+          break;
+        case "headerButtonColor":
+          setHeaderButtonColor(currentColor);
+          break;
+        case "headerButtonTextColor":
+          setHeaderButtonTextColor(currentColor);
+          break;
+      }
+    }, 300); // 300ms debounce for colors
+  };
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(updateTimerRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
+    };
+  }, []);
+
   if (!organizationId) return null;
 
   return (
@@ -75,17 +174,19 @@ export default function HeaderForm({
       <Label className="font-medium">Background Color</Label>
       <ColorPicker
         value={headerBgColor}
-        onChange={(color) => setHeaderBgColor(color)}
+        onChange={(color) => handleColorChange("headerBgColor", color)}
       />
       <Label className="font-medium">Primary Text Color</Label>
       <ColorPicker
         value={headerTextColor}
-        onChange={(color) => setHeaderTextColor(color)}
+        onChange={(color) => handleColorChange("headerTextColor", color)}
       />
       <Label className="font-medium">Secondary Text Color</Label>
       <ColorPicker
         value={headerSecondaryTextColor}
-        onChange={(color) => setHeaderSecondaryTextColor(color)}
+        onChange={(color) =>
+          handleColorChange("headerSecondaryTextColor", color)
+        }
       />
       <Label className="font-medium">Background Image</Label>
       <FileUpload
@@ -117,45 +218,60 @@ export default function HeaderForm({
       />
       <Label className="font-medium">Name</Label>
       <Input
-        value={headerName}
-        onChange={(e) => setHeaderName(e.target.value)}
+        value={localName}
+        onChange={(e) => {
+          setLocalName(e.target.value);
+          handleTextChange("headerName", e.target.value);
+        }}
         className="col-span-2"
       />
       <Separator className="col-span-3 my-4" />
       <Label className="font-medium">Title</Label>
       <AutosizeTextarea
-        value={headerTitle}
-        onChange={(e) => setHeaderTitle(e.target.value)}
+        value={localTitle}
+        onChange={(e) => {
+          setLocalTitle(e.target.value);
+          handleTextChange("headerTitle", e.target.value);
+        }}
         className="col-span-2"
       />
       <Label className="font-medium">Description</Label>
       <AutosizeTextarea
-        value={headerDescription}
-        onChange={(e) => setHeaderDescription(e.target.value)}
+        value={localDescription}
+        onChange={(e) => {
+          setLocalDescription(e.target.value);
+          handleTextChange("headerDescription", e.target.value);
+        }}
         className="col-span-2"
       />
       <Separator className="col-span-3 my-4" />
       <Label className="font-medium">Button Text</Label>
       <Input
-        value={headerButtonText}
-        onChange={(e) => setHeaderButtonText(e.target.value)}
+        value={localButtonText}
+        onChange={(e) => {
+          setLocalButtonText(e.target.value);
+          handleTextChange("headerButtonText", e.target.value);
+        }}
         className="col-span-2"
       />
       <Label className="font-medium">Button Link</Label>
       <Input
-        value={headerButtonLink}
-        onChange={(e) => setHeaderButtonLink(e.target.value)}
+        value={localButtonLink}
+        onChange={(e) => {
+          setLocalButtonLink(e.target.value);
+          handleTextChange("headerButtonLink", e.target.value);
+        }}
         className="col-span-2"
       />
       <Label className="font-medium">Button Color</Label>
       <ColorPicker
         value={headerButtonColor}
-        onChange={(color) => setHeaderButtonColor(color)}
+        onChange={(color) => handleColorChange("headerButtonColor", color)}
       />
       <Label className="font-medium">Button Text Color</Label>
       <ColorPicker
         value={headerButtonTextColor}
-        onChange={(color) => setHeaderButtonTextColor(color)}
+        onChange={(color) => handleColorChange("headerButtonTextColor", color)}
       />
     </div>
   );

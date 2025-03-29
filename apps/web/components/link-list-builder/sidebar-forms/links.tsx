@@ -51,6 +51,9 @@ export default function LinksForm({
   // Local links state for UI rendering
   const [localLinks, setLocalLinks] = useState(links);
 
+  // Debounced color update handlers
+  const colorUpdateTimerRef = useRef<Record<string, NodeJS.Timeout | null>>({});
+
   // Sync local links with props when props change
   useEffect(() => {
     setLocalLinks(links);
@@ -137,7 +140,7 @@ export default function LinksForm({
     }
   };
 
-  // Handle field updates with optimistic UI and debounced server updates
+  // Handle field updates with optimistic UI and batched parent state updates
   const updateLink = (index: number, field: keyof Link, value: string) => {
     // Create updated links array
     const newLinks = [...localLinks];
@@ -146,7 +149,7 @@ export default function LinksForm({
     // Update local state immediately for responsive UI
     setLocalLinks(newLinks);
 
-    // For URL field, validate immediately but debounce server update
+    // For URL field, validate but don't immediately update parent
     if (field === "url") {
       // Mark this link as being typed
       setTypingLinks((prev) => ({ ...prev, [index]: true }));
@@ -156,35 +159,35 @@ export default function LinksForm({
         clearTimeout(linkTimersRef.current[index]);
       }
 
-      // Set a new timer to update parent state after typing stops
+      // Set a new timer to validate after typing stops
       linkTimersRef.current[index] = setTimeout(() => {
         // Clear typing flag
         setTypingLinks((prev) => ({ ...prev, [index]: false }));
 
+        // IMPORTANT: Use the current newLinks (not stale localLinks)
         // Validate the URL/email value
-        const isValid = validateLink(value, newLinks[index].type, index);
+        validateLink(newLinks[index].url, newLinks[index].type, index);
 
-        // If valid or empty, update parent state
-        if (isValid) {
-          // Update parent state (triggers server update)
-          setLinks(newLinks);
-        }
+        // Only update parent after typing has stopped
+        setLinks(newLinks);
       }, 800);
     } else {
-      // For non-URL fields, still debounce but don't need validation
+      // For non-URL fields, still debounce parent updates
       if (linkTimersRef.current[index]) {
         clearTimeout(linkTimersRef.current[index]);
       }
 
       linkTimersRef.current[index] = setTimeout(() => {
-        // Update parent state (triggers server update)
+        // Clear typing flag
+        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+
+        // IMPORTANT: Use the current newLinks (not stale localLinks)
+        // Only update parent after typing has stopped
         setLinks(newLinks);
       }, 400);
     }
 
-    // Always update the parent state immediately for optimistic UI
-    // This allows the UI to update instantly while server updates are debounced
-    setLinks(newLinks);
+    // DO NOT update parent state on every keystroke - this would cause thousands of writes
   };
 
   // Handle input blur events for URL/email fields
@@ -200,13 +203,16 @@ export default function LinksForm({
         linkTimersRef.current[index] = null;
       }
 
-      // Validate and update immediately on blur
-      const link = localLinks[index];
+      // Get a fresh reference to the current link state
+      const currentLinks = [...localLinks];
+      const link = currentLinks[index];
+
+      // Validate the URL/email value
       const isValid = validateLink(link.url, link.type, index);
 
-      // Update parent state if valid
+      // Only update parent state on blur if valid
       if (isValid) {
-        setLinks(localLinks);
+        setLinks(currentLinks);
       }
     }
   };
@@ -220,7 +226,8 @@ export default function LinksForm({
       // Update local state for immediate UI feedback
       setLocalLinks(newLinks);
 
-      // Update parent state (triggers server update)
+      // Update parent state - this is a deliberate user action (not a keystroke)
+      // so it's appropriate to trigger a state update
       setLinks(newLinks);
     }
   };
@@ -233,7 +240,8 @@ export default function LinksForm({
     // Update local state for immediate UI feedback
     setLocalLinks(newLinks);
 
-    // Update parent state (triggers server update)
+    // Update parent state - this is a deliberate user action (not a keystroke)
+    // so it's appropriate to trigger a state update
     setLinks(newLinks);
 
     // Clean up associated state
@@ -250,20 +258,63 @@ export default function LinksForm({
     }
   };
 
+  const handleColorChange = (colorField: string, color: string) => {
+    // Store the current color to use in the timeout closure
+    const currentColor = color;
+
+    // Clear any existing timer
+    if (colorUpdateTimerRef.current[colorField]) {
+      clearTimeout(colorUpdateTimerRef.current[colorField]);
+    }
+
+    // Set a new timer to update parent state after delay
+    colorUpdateTimerRef.current[colorField] = setTimeout(() => {
+      switch (colorField) {
+        case "bgColor":
+          setBgColor(currentColor);
+          break;
+        case "buttonColor":
+          setButtonColor(currentColor);
+          break;
+        case "buttonTextColor":
+          setButtonTextColor(currentColor);
+          break;
+      }
+    }, 300); // Short delay for color updates
+  };
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      // Clear any color update timers
+      Object.values(colorUpdateTimerRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
+
+      // Clear any link timers
+      Object.values(linkTimersRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
+    };
+  }, []);
+
   return (
     <div className="flex flex-col gap-8 px-1">
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Background Color</Label>
-        <ColorPicker value={bgColor} onChange={(color) => setBgColor(color)} />
+        <ColorPicker
+          value={bgColor}
+          onChange={(color) => handleColorChange("bgColor", color)}
+        />
         <Label className="font-medium">Button Color</Label>
         <ColorPicker
           value={buttonColor}
-          onChange={(color) => setButtonColor(color)}
+          onChange={(color) => handleColorChange("buttonColor", color)}
         />
         <Label className="font-medium">Button Text Color</Label>
         <ColorPicker
           value={buttonTextColor}
-          onChange={(color) => setButtonTextColor(color)}
+          onChange={(color) => handleColorChange("buttonTextColor", color)}
         />
       </div>
       <div className="flex flex-col gap-4">

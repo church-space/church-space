@@ -21,14 +21,9 @@ export default function Page() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/links">Links</BreadcrumbLink>
+                <BreadcrumbLink href="/links"> Links Lists</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/links/links-pages">
-                  Links Lists
-                </BreadcrumbLink>
-              </BreadcrumbItem>
+
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbLink href="/links/link-list/link-page-id">

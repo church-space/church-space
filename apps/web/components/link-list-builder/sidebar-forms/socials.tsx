@@ -65,6 +65,9 @@ export default function SocialsForm({
   // Local state for social links
   const [localSocialLinks, setLocalSocialLinks] = useState(socialLinks);
 
+  // Debounced color update handlers
+  const colorUpdateTimerRef = useRef<Record<string, NodeJS.Timeout | null>>({});
+
   // Sync local social links with props when props change
   useEffect(() => {
     setLocalSocialLinks(socialLinks);
@@ -72,6 +75,8 @@ export default function SocialsForm({
 
   const handleChange = (key: keyof LocalState, value: any) => {
     if (key === "socials_style") {
+      // Update parent state directly - this is a dropdown selection, not a continuous input
+      // so it's appropriate to trigger a state update
       setSocialsStyle(value as "outline" | "filled" | "icon-only");
     }
   };
@@ -157,77 +162,6 @@ export default function SocialsForm({
     }
   };
 
-  // Add a new empty social link
-  const addLink = () => {
-    if (localSocialLinks.length < 5) {
-      // Create new social links array with added empty link
-      const newLinks = [
-        ...localSocialLinks,
-        { icon: "link" as keyof typeof socialIcons, url: "" },
-      ];
-
-      // Update local state for immediate UI feedback
-      setLocalSocialLinks(newLinks);
-
-      // Update parent state (triggers server update)
-      setSocialLinks(newLinks);
-    }
-  };
-
-  // Handle field updates with optimistic UI and debounced server updates
-  const updateLink = (
-    index: number,
-    field: keyof SocialLink,
-    value: string,
-  ) => {
-    // Create updated social links array
-    const newLinks = [...localSocialLinks];
-    newLinks[index] = { ...newLinks[index], [field]: value };
-
-    // Update local state immediately for responsive UI
-    setLocalSocialLinks(newLinks);
-
-    // For URL field, validate immediately but debounce server update
-    if (field === "url") {
-      // Mark this link as being typed
-      setTypingLinks((prev) => ({ ...prev, [index]: true }));
-
-      // Clear any existing timer
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
-      }
-
-      // Set a new timer to update parent state after typing stops
-      linkTimersRef.current[index] = setTimeout(() => {
-        // Clear typing flag
-        setTypingLinks((prev) => ({ ...prev, [index]: false }));
-
-        // Validate the URL/email value
-        const isValid = validateLink(value, newLinks[index].icon, index);
-
-        // If valid or empty, update parent state
-        if (isValid) {
-          // Update parent state (triggers server update)
-          setSocialLinks(newLinks);
-        }
-      }, 800);
-    } else {
-      // For non-URL fields, still debounce but don't need validation
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
-      }
-
-      linkTimersRef.current[index] = setTimeout(() => {
-        // Update parent state (triggers server update)
-        setSocialLinks(newLinks);
-      }, 400);
-    }
-
-    // Always update the parent state immediately for optimistic UI
-    // This allows the UI to update instantly while server updates are debounced
-    setSocialLinks(newLinks);
-  };
-
   // Handle input blur events for URL/email fields
   const handleLinkBlur = (index: number) => {
     // If this link was being typed
@@ -241,15 +175,90 @@ export default function SocialsForm({
         linkTimersRef.current[index] = null;
       }
 
-      // Validate and update immediately on blur
-      const link = localSocialLinks[index];
+      // Get a fresh reference to the current link state
+      const currentLinks = [...localSocialLinks];
+      const link = currentLinks[index];
+
+      // Validate the URL/email value
       const isValid = validateLink(link.url, link.icon, index);
 
-      // Update parent state if valid
+      // Only update parent state on blur if valid
       if (isValid) {
-        setSocialLinks(localSocialLinks);
+        setSocialLinks(currentLinks);
       }
     }
+  };
+
+  // Add a new empty social link
+  const addLink = () => {
+    if (localSocialLinks.length < 5) {
+      // Create new social links array with added empty link
+      const newLinks = [
+        ...localSocialLinks,
+        { icon: "link" as keyof typeof socialIcons, url: "" },
+      ];
+
+      // Update local state for immediate UI feedback
+      setLocalSocialLinks(newLinks);
+
+      // Update parent state - this is a deliberate user action (not a keystroke)
+      // so it's appropriate to trigger a state update
+      setSocialLinks(newLinks);
+    }
+  };
+
+  // Handle field updates with optimistic UI and batched parent state updates
+  const updateLink = (
+    index: number,
+    field: keyof SocialLink,
+    value: string,
+  ) => {
+    // Create updated social links array
+    const newLinks = [...localSocialLinks];
+    newLinks[index] = { ...newLinks[index], [field]: value };
+
+    // Update local state immediately for responsive UI
+    setLocalSocialLinks(newLinks);
+
+    // For URL field, validate but don't immediately update parent
+    if (field === "url") {
+      // Mark this link as being typed
+      setTypingLinks((prev) => ({ ...prev, [index]: true }));
+
+      // Clear any existing timer
+      if (linkTimersRef.current[index]) {
+        clearTimeout(linkTimersRef.current[index]);
+      }
+
+      // Set a new timer to validate after typing stops
+      linkTimersRef.current[index] = setTimeout(() => {
+        // Clear typing flag
+        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+
+        // IMPORTANT: Use the current newLinks (not stale localSocialLinks)
+        // Validate the URL/email value
+        validateLink(newLinks[index].url, newLinks[index].icon, index);
+
+        // Only update parent after typing has stopped
+        setSocialLinks(newLinks);
+      }, 800);
+    } else {
+      // For non-URL fields, still debounce parent updates
+      if (linkTimersRef.current[index]) {
+        clearTimeout(linkTimersRef.current[index]);
+      }
+
+      linkTimersRef.current[index] = setTimeout(() => {
+        // Clear typing flag
+        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+
+        // IMPORTANT: Use the current newLinks (not stale localSocialLinks)
+        // Only update parent after typing has stopped
+        setSocialLinks(newLinks);
+      }, 400);
+    }
+
+    // DO NOT update parent state on every keystroke - this would cause thousands of writes
   };
 
   // Remove a social link at specified index
@@ -260,7 +269,8 @@ export default function SocialsForm({
     // Update local state for immediate UI feedback
     setLocalSocialLinks(newLinks);
 
-    // Update parent state (triggers server update)
+    // Update parent state - this is a deliberate user action (not a keystroke)
+    // so it's appropriate to trigger a state update
     setSocialLinks(newLinks);
 
     // Clean up associated state
@@ -276,6 +286,43 @@ export default function SocialsForm({
       delete linkTimersRef.current[index];
     }
   };
+
+  const handleColorChange = (colorField: string, color: string) => {
+    // Store the current color to use in the timeout closure
+    const currentColor = color;
+
+    // Clear any existing timer
+    if (colorUpdateTimerRef.current[colorField]) {
+      clearTimeout(colorUpdateTimerRef.current[colorField]);
+    }
+
+    // Set a new timer to update parent state after delay
+    colorUpdateTimerRef.current[colorField] = setTimeout(() => {
+      switch (colorField) {
+        case "socialsColor":
+          setSocialsColor(currentColor);
+          break;
+        case "socialsIconColor":
+          setSocialsIconColor(currentColor);
+          break;
+      }
+    }, 300); // Short delay for color updates
+  };
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      // Clear any color update timers
+      Object.values(colorUpdateTimerRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
+
+      // Clear any link timers
+      Object.values(linkTimersRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
+    };
+  }, []);
 
   return (
     <div className="flex flex-col gap-8 px-1">
@@ -299,14 +346,14 @@ export default function SocialsForm({
             <Label className="font-medium">Background Color</Label>
             <ColorPicker
               value={socialsColor}
-              onChange={(color) => setSocialsColor(color)}
+              onChange={(color) => handleColorChange("socialsColor", color)}
             />
           </>
         )}
         <Label className="font-medium">Icon Color</Label>
         <ColorPicker
           value={socialsIconColor}
-          onChange={(color) => setSocialsIconColor(color)}
+          onChange={(color) => handleColorChange("socialsIconColor", color)}
         />
       </div>
       <div className="flex flex-col gap-4">

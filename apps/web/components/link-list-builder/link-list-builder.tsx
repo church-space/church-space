@@ -15,7 +15,7 @@ import { getLinkListQuery } from "@church-space/supabase/queries/all/get-link-li
 import { useToast } from "@church-space/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import LinkListHeader from "./link-list-header";
 import LinkListLinks from "./link-list-links";
 import LinkListSocials, { socialIcons } from "./link-list-socials";
@@ -415,6 +415,9 @@ export default function LinkListBuilder() {
     debouncedUpdateText(updates);
   };
 
+  const linkDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const socialDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleSetLinks = (newLinks: Link[]) => {
     // Immediately update UI state for optimistic updates
     setLinks(newLinks);
@@ -422,39 +425,46 @@ export default function LinkListBuilder() {
     // Get existing links from the database
     const existingLinks = linkList?.data?.link_list_links || [];
 
-    // For each new link in the updated list
-    newLinks.forEach((link, index) => {
-      const existingLink = existingLinks[index];
+    // Debounce processing to avoid multiple unnecessary server calls
+    if (linkDebounceTimerRef.current) {
+      clearTimeout(linkDebounceTimerRef.current);
+    }
 
-      // If there's an existing link at this position
-      if (existingLink) {
-        // Update it if it changed
-        if (
-          existingLink.type !== link.type ||
-          existingLink.url !== link.url ||
-          existingLink.text !== link.text
-        ) {
-          updateLinkMutation.mutate({
-            link,
-            id: Number(existingLink.id),
+    linkDebounceTimerRef.current = setTimeout(() => {
+      // For each new link in the updated list
+      newLinks.forEach((link, index) => {
+        const existingLink = existingLinks[index];
+
+        // If there's an existing link at this position
+        if (existingLink) {
+          // Update it if it changed
+          if (
+            existingLink.type !== link.type ||
+            existingLink.url !== link.url ||
+            existingLink.text !== link.text
+          ) {
+            updateLinkMutation.mutate({
+              link,
+              id: Number(existingLink.id),
+            });
+          }
+        }
+        // If this is a new link, create it in the database
+        else {
+          // Create new link even with empty values to maintain structure
+          createLinkMutation.mutate({
+            type: link.type,
+            url: link.url || "",
+            text: link.text || "",
           });
         }
-      }
-      // If this is a new link, create it in the database
-      else {
-        // Create new link even with empty values to maintain structure
-        createLinkMutation.mutate({
-          type: link.type,
-          url: link.url || "",
-          text: link.text || "",
-        });
-      }
-    });
+      });
 
-    // If links were removed, delete them from the database
-    existingLinks.slice(newLinks.length).forEach((link) => {
-      deleteLinkMutation.mutate(Number(link.id));
-    });
+      // If links were removed, delete them from the database
+      existingLinks.slice(newLinks.length).forEach((link) => {
+        deleteLinkMutation.mutate(Number(link.id));
+      });
+    }, 1000); // 1 second debounce
   };
 
   const handleSocialLinksUpdate = (newSocialLinks: SocialLink[]) => {
@@ -464,37 +474,44 @@ export default function LinkListBuilder() {
     // Get existing social links from the database
     const existingSocials = linkList?.data?.link_list_socials || [];
 
-    // For each new social in the updated list
-    newSocialLinks.forEach((social, index) => {
-      const existingSocial = existingSocials[index];
+    // Debounce processing to avoid multiple unnecessary server calls
+    if (socialDebounceTimerRef.current) {
+      clearTimeout(socialDebounceTimerRef.current);
+    }
 
-      // If there's an existing social at this position
-      if (existingSocial) {
-        // Update it if it changed
-        if (
-          existingSocial.icon !== social.icon ||
-          existingSocial.url !== social.url
-        ) {
-          updateSocialMutation.mutate({
-            social,
-            id: Number(existingSocial.id),
+    socialDebounceTimerRef.current = setTimeout(() => {
+      // For each new social in the updated list
+      newSocialLinks.forEach((social, index) => {
+        const existingSocial = existingSocials[index];
+
+        // If there's an existing social at this position
+        if (existingSocial) {
+          // Update it if it changed
+          if (
+            existingSocial.icon !== social.icon ||
+            existingSocial.url !== social.url
+          ) {
+            updateSocialMutation.mutate({
+              social,
+              id: Number(existingSocial.id),
+            });
+          }
+        }
+        // If this is a new social, create it in the database
+        else {
+          // Create new social even with empty values to maintain structure
+          createSocialMutation.mutate({
+            icon: social.icon,
+            url: social.url || "",
           });
         }
-      }
-      // If this is a new social, create it in the database
-      else {
-        // Create new social even with empty values to maintain structure
-        createSocialMutation.mutate({
-          icon: social.icon,
-          url: social.url || "",
-        });
-      }
-    });
+      });
 
-    // If socials were removed, delete them from the database
-    existingSocials.slice(newSocialLinks.length).forEach((social) => {
-      deleteSocialMutation.mutate(Number(social.id));
-    });
+      // If socials were removed, delete them from the database
+      existingSocials.slice(newSocialLinks.length).forEach((social) => {
+        deleteSocialMutation.mutate(Number(social.id));
+      });
+    }, 1000); // 1 second debounce
   };
 
   // Early return for no linkListId, but now all hooks are declared above
@@ -581,30 +598,42 @@ export default function LinkListBuilder() {
               logoImage={logoImage}
               headerBlur={headerBlur}
               setBgColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setBgColor(color);
+                // Debounce the server update
                 handleStyleUpdate({ ...(style || {}), backgroundColor: color });
               }}
               setButtonColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setButtonColor(color);
+                // Debounce the server update
                 handleStyleUpdate({ ...(style || {}), buttonColor: color });
               }}
               setButtonTextColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setButtonTextColor(color);
+                // Debounce the server update
                 handleStyleUpdate({ ...(style || {}), buttonTextColor: color });
               }}
               setSocialsStyle={(styleValue) => {
+                // Immediately update UI state for responsive feedback
                 setSocialsStyle(styleValue);
+                // Debounce the server update
                 handleStyleUpdate({
                   ...(style || {}),
                   socialsStyle: styleValue,
                 });
               }}
               setSocialsColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setSocialsColor(color);
+                // Debounce the server update
                 handleStyleUpdate({ ...(style || {}), socialsColor: color });
               }}
               setSocialsIconColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setSocialsIconColor(color);
+                // Debounce the server update
                 handleStyleUpdate({
                   ...(style || {}),
                   socialsIconColor: color,
@@ -612,50 +641,72 @@ export default function LinkListBuilder() {
               }}
               setSocialLinks={handleSocialLinksUpdate}
               setHeaderBgColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderBgColor(color);
+                // Debounce the server update
                 handleStyleUpdate({ ...(style || {}), headerBgColor: color });
               }}
               setHeaderBlur={(blur) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderBlur(blur);
+                // Debounce the server update
                 handleStyleUpdate({ ...(style || {}), headerBlur: blur });
               }}
               setHeaderTextColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderTextColor(color);
+                // Debounce the server update
                 handleStyleUpdate({ ...(style || {}), headerTextColor: color });
               }}
               setHeaderSecondaryTextColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderSecondaryTextColor(color);
+                // Debounce the server update
                 handleStyleUpdate({
                   ...(style || {}),
                   headerSecondaryTextColor: color,
                 });
               }}
               setHeaderTitle={(title) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderTitle(title);
+                // Debounce the server update
                 handleTextUpdate({ title });
               }}
               setHeaderDescription={(description) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderDescription(description);
+                // Debounce the server update
                 handleTextUpdate({ description });
               }}
               setHeaderName={(name) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderName(name);
+                // Debounce the server update
                 handleTextUpdate({ name });
               }}
               setHeaderButtonText={(text) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderButtonText(text);
+                // Debounce the server update
                 handlePrimaryButtonUpdate({ ...(primaryButton || {}), text });
               }}
               setHeaderButtonLink={(url) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderButtonLink(url);
+                // Debounce the server update
                 handlePrimaryButtonUpdate({ ...(primaryButton || {}), url });
               }}
               setHeaderButtonColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderButtonColor(color);
+                // Debounce the server update
                 handlePrimaryButtonUpdate({ ...(primaryButton || {}), color });
               }}
               setHeaderButtonTextColor={(color) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderButtonTextColor(color);
+                // Debounce the server update
                 handlePrimaryButtonUpdate({
                   ...(primaryButton || {}),
                   textColor: color,
@@ -663,11 +714,15 @@ export default function LinkListBuilder() {
               }}
               setLinks={handleSetLinks}
               setHeaderImage={(image) => {
+                // Immediately update UI state for responsive feedback
                 setHeaderImage(image);
+                // Debounce the server update
                 handleTextUpdate({ bg_image: image });
               }}
               setLogoImage={(image) => {
+                // Immediately update UI state for responsive feedback
                 setLogoImage(image);
+                // Debounce the server update
                 handleTextUpdate({ logo_asset: image });
               }}
             />
@@ -698,75 +753,109 @@ export default function LinkListBuilder() {
           logoImage={logoImage}
           headerBlur={headerBlur}
           setBgColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setBgColor(color);
+            // Debounce the server update
             handleStyleUpdate({ ...(style || {}), backgroundColor: color });
           }}
           setButtonColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setButtonColor(color);
+            // Debounce the server update
             handleStyleUpdate({ ...(style || {}), buttonColor: color });
           }}
           setButtonTextColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setButtonTextColor(color);
+            // Debounce the server update
             handleStyleUpdate({ ...(style || {}), buttonTextColor: color });
           }}
           setSocialsStyle={(styleValue) => {
+            // Immediately update UI state for responsive feedback
             setSocialsStyle(styleValue);
+            // Debounce the server update
             handleStyleUpdate({ ...(style || {}), socialsStyle: styleValue });
           }}
           setSocialsColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setSocialsColor(color);
+            // Debounce the server update
             handleStyleUpdate({ ...(style || {}), socialsColor: color });
           }}
           setSocialsIconColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setSocialsIconColor(color);
+            // Debounce the server update
             handleStyleUpdate({ ...(style || {}), socialsIconColor: color });
           }}
           setSocialLinks={handleSocialLinksUpdate}
           setHeaderBgColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setHeaderBgColor(color);
+            // Debounce the server update
             handleStyleUpdate({ ...(style || {}), headerBgColor: color });
           }}
           setHeaderBlur={(blur) => {
+            // Immediately update UI state for responsive feedback
             setHeaderBlur(blur);
+            // Debounce the server update
             handleStyleUpdate({ ...(style || {}), headerBlur: blur });
           }}
           setHeaderTextColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setHeaderTextColor(color);
+            // Debounce the server update
             handleStyleUpdate({ ...(style || {}), headerTextColor: color });
           }}
           setHeaderSecondaryTextColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setHeaderSecondaryTextColor(color);
+            // Debounce the server update
             handleStyleUpdate({
               ...(style || {}),
               headerSecondaryTextColor: color,
             });
           }}
           setHeaderTitle={(title) => {
+            // Immediately update UI state for responsive feedback
             setHeaderTitle(title);
+            // Debounce the server update
             handleTextUpdate({ title });
           }}
           setHeaderDescription={(description) => {
+            // Immediately update UI state for responsive feedback
             setHeaderDescription(description);
+            // Debounce the server update
             handleTextUpdate({ description });
           }}
           setHeaderName={(name) => {
+            // Immediately update UI state for responsive feedback
             setHeaderName(name);
+            // Debounce the server update
             handleTextUpdate({ name });
           }}
           setHeaderButtonText={(text) => {
+            // Immediately update UI state for responsive feedback
             setHeaderButtonText(text);
+            // Debounce the server update
             handlePrimaryButtonUpdate({ ...(primaryButton || {}), text });
           }}
           setHeaderButtonLink={(url) => {
+            // Immediately update UI state for responsive feedback
             setHeaderButtonLink(url);
+            // Debounce the server update
             handlePrimaryButtonUpdate({ ...(primaryButton || {}), url });
           }}
           setHeaderButtonColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setHeaderButtonColor(color);
+            // Debounce the server update
             handlePrimaryButtonUpdate({ ...(primaryButton || {}), color });
           }}
           setHeaderButtonTextColor={(color) => {
+            // Immediately update UI state for responsive feedback
             setHeaderButtonTextColor(color);
+            // Debounce the server update
             handlePrimaryButtonUpdate({
               ...(primaryButton || {}),
               textColor: color,
@@ -774,11 +863,15 @@ export default function LinkListBuilder() {
           }}
           setLinks={handleSetLinks}
           setHeaderImage={(image) => {
+            // Immediately update UI state for responsive feedback
             setHeaderImage(image);
+            // Debounce the server update
             handleTextUpdate({ bg_image: image });
           }}
           setLogoImage={(image) => {
+            // Immediately update UI state for responsive feedback
             setLogoImage(image);
+            // Debounce the server update
             handleTextUpdate({ logo_asset: image });
           }}
         />
