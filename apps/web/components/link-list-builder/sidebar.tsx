@@ -105,10 +105,22 @@ export default function LinkListBuilderSidebar({
     "header" | "socials" | "links" | "default"
   >("default");
   const [hasMounted, setHasMounted] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
+
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  const exitX = isSmallScreen ? 800 : 400;
 
   return (
     <div
@@ -121,9 +133,9 @@ export default function LinkListBuilderSidebar({
         {activeForm !== "default" ? (
           <motion.div
             key={activeForm}
-            initial={{ x: hasMounted ? 400 : 0 }}
+            initial={{ x: hasMounted ? exitX : 0 }}
             animate={{ x: 0 }}
-            exit={{ x: 400 }}
+            exit={{ x: exitX }}
             transition={{
               type: "spring",
               stiffness: 200,
@@ -200,9 +212,9 @@ export default function LinkListBuilderSidebar({
         ) : (
           <motion.div
             key="default-content"
-            initial={{ x: hasMounted ? -400 : 0 }}
+            initial={{ x: hasMounted ? -exitX : 0 }}
             animate={{ x: 0 }}
-            exit={{ x: -400 }}
+            exit={{ x: -exitX }}
             transition={{
               type: "spring",
               stiffness: 200,

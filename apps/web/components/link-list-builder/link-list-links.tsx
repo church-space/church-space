@@ -56,11 +56,11 @@ export default function LinkListLinks({
         <div className="flex w-full flex-col items-center justify-center rounded-md border bg-muted p-3 text-center text-sm text-muted-foreground">
           <LinkFilled height={"28"} width={"28"} />
           <h4 className="mb-1 mt-5 text-lg font-semibold">
-            Let's get started!
+            Let&apos;s get started!
           </h4>
           <p className="text-pretty px-4 text-sm">
-            To add your first link, click the "Links" tab on the left and click
-            "Add Link".
+            To add your first link, click the &quot;Links&quot; tab on the left
+            and click &quot;Add Link&quot;.
           </p>
         </div>
       )}
