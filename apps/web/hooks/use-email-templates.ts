@@ -7,7 +7,7 @@ import {
 
 const ITEMS_PER_PAGE = 25;
 
-export function useEmails(organizationId: string, searchTerm?: string) {
+export function useEmailTemplates(organizationId: string, searchTerm?: string) {
   const supabase = createClient();
 
   return useInfiniteQuery({

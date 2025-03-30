@@ -3,16 +3,18 @@ import { createClient } from "@church-space/supabase/client";
 import {
   getEmailAutomationMembers,
   getEmailAutomationMembersCount,
-  EmailAutomationMemberParams,
 } from "@church-space/supabase/queries/all/get-all-email-automation-members";
 
 const ITEMS_PER_PAGE = 25;
 
-export function useEmailAutomationMembers(automationId: number) {
+export function useEmailAutomationMembers(
+  automationId: number,
+  status?: string,
+) {
   const supabase = createClient();
 
   return useInfiniteQuery({
-    queryKey: ["email-automation-members", automationId],
+    queryKey: ["email-automation-members", automationId, status],
     queryFn: async ({ pageParam = 0 }) => {
       const from = pageParam * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
@@ -21,6 +23,9 @@ export function useEmailAutomationMembers(automationId: number) {
       const { data, error } = await getEmailAutomationMembers(
         supabase,
         automationId,
+        {
+          step: status === "all" ? undefined : status,
+        },
       );
 
       if (error) throw error;
@@ -29,6 +34,9 @@ export function useEmailAutomationMembers(automationId: number) {
       const { count } = await getEmailAutomationMembersCount(
         supabase,
         automationId,
+        {
+          step: status === "all" ? undefined : status,
+        },
       );
 
       const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;

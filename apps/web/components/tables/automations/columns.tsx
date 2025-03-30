@@ -21,7 +21,7 @@ export type EmailAutomation = {
   is_active: boolean;
 };
 
-export const emailAutomationColumns: ColumnDef<EmailAutomation>[] = [
+export const columns: ColumnDef<EmailAutomation>[] = [
   {
     id: "select",
     header: ({ table }) => (
