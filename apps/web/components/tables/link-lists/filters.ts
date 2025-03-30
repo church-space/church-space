@@ -1,5 +1,5 @@
 export const LINK_LIST_STATUS_OPTIONS = [
-  { label: "All", value: "" },
+  { label: "All", value: "all" },
   { label: "Public", value: "true" },
   { label: "Private", value: "false" },
 ] as const;

@@ -14,7 +14,6 @@ import {
 } from "@church-space/ui/dialog";
 
 import { useQrCodes } from "@/hooks/use-qr-codes";
-import { ColumnDef } from "@tanstack/react-table";
 
 interface QrCodesTableProps {
   organizationId: string;
@@ -62,7 +61,7 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
         columns={columns}
         data={qrCodes}
         pageSize={25}
-        loadMore={async ({ from, to }) => {
+        loadMore={async () => {
           const result = await fetchNextPage();
           const newData =
             result.data?.pages[result.data.pages.length - 1]?.data ?? [];

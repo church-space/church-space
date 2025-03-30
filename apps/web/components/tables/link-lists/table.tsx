@@ -5,11 +5,7 @@ import DataTable from "../data-table";
 import { columns, LinkList } from "./columns";
 import { useQueryState } from "nuqs";
 import { Button } from "@church-space/ui/button";
-import {
-  getLinkListFilterConfig,
-  LinkListStatus,
-  LINK_LIST_STATUS_OPTIONS,
-} from "./filters";
+import { getLinkListFilterConfig, LinkListStatus } from "./filters";
 import {
   Dialog,
   DialogContent,
@@ -28,10 +24,10 @@ export default function LinkListsTable({
   const [search, setSearch] = useQueryState("search");
   const [isPublic, setIsPublic] = useQueryState<LinkListStatus>("isPublic", {
     parse: (value) => {
-      if (value === "true" || value === "false" || value === "") {
+      if (value === "true" || value === "false" || value === "all") {
         return value;
       }
-      return "";
+      return "all";
     },
     serialize: (value) => value,
   });
@@ -52,7 +48,7 @@ export default function LinkListsTable({
 
   const handleStatusChange = useCallback(
     async (value: string) => {
-      await setIsPublic(value === "" ? null : (value as LinkListStatus));
+      await setIsPublic(value === "all" ? null : (value as LinkListStatus));
     },
     [setIsPublic],
   );
@@ -91,7 +87,7 @@ export default function LinkListsTable({
           isPublic: handleStatusChange,
         }}
         initialFilters={{
-          isPublic: isPublic || "",
+          isPublic: isPublic || "all",
         }}
         isLoading={isFetchingNextPage}
       />
