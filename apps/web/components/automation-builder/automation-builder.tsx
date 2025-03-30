@@ -10,6 +10,7 @@ import {
   X,
   AlertCircle,
   Eye,
+  GripVertical,
 } from "lucide-react";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
@@ -128,53 +129,53 @@ export default function AutomationBuilder() {
   const [actionToDelete, setActionToDelete] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
 
-  const addAction = (type: ActionType) => {
+  const addAction = (type: ActionType, index?: number) => {
     const id = `action-${Date.now()}`;
+    let newAction: Action = {
+      id,
+      type: "wait",
+      config: {
+        value: "1 Day",
+        duration: 1,
+        unit: "days",
+      },
+      isExpanded: true,
+    };
 
-    if (type === "wait") {
-      setActions([
-        ...actions,
-        {
-          id,
-          type: "wait",
-          config: {
-            value: "1 Day",
-            duration: 1,
-            unit: "days",
-          },
-          isExpanded: true,
+    if (type === "send-email") {
+      newAction = {
+        id,
+        type: "send-email",
+        config: {
+          value: "New Email",
+          template: "",
+          fromName: "Support Team",
+          fromEmail: "support@example.com",
+          subject: "New Email",
         },
-      ]);
-    } else if (type === "send-email") {
-      setActions([
-        ...actions,
-        {
-          id,
-          type: "send-email",
-          config: {
-            value: "New Email",
-            template: "",
-            fromName: "Support Team",
-            fromEmail: "support@example.com",
-            subject: "New Email",
-          },
-          isExpanded: true,
-        },
-      ]);
+        isExpanded: true,
+      };
     } else if (type === "notify-admin") {
-      setActions([
-        ...actions,
-        {
-          id,
-          type: "notify-admin",
-          config: {
-            value: "Notify Admin",
-            email: "",
-            message: "Please review this automation",
-          },
-          isExpanded: true,
+      newAction = {
+        id,
+        type: "notify-admin",
+        config: {
+          value: "Notify Admin",
+          email: "",
+          message: "Please review this automation",
         },
+        isExpanded: true,
+      };
+    }
+
+    if (typeof index === "number") {
+      setActions([
+        ...actions.slice(0, index),
+        newAction,
+        ...actions.slice(index),
       ]);
+    } else {
+      setActions([...actions, newAction]);
     }
   };
 
@@ -709,6 +710,53 @@ export default function AutomationBuilder() {
 
           {/* Actions */}
           <div className="space-y-1">
+            {/* Add action button above first action */}
+            <div className="group/add relative">
+              <div className="absolute -top-3 left-0 right-0 flex justify-center opacity-0 transition-opacity group-hover/add:opacity-100">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="rounded-full bg-gray-200 p-2 shadow-sm transition-colors hover:bg-gray-300">
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 p-0" align="center">
+                    <div className="grid gap-1 p-2">
+                      <Button
+                        onClick={() => addAction("wait", 0)}
+                        className="flex h-10 items-center justify-start gap-2"
+                        variant="ghost"
+                      >
+                        <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-100">
+                          <Clock className="h-3.5 w-3.5 text-blue-600" />
+                        </div>
+                        <span>Wait</span>
+                      </Button>
+                      <Button
+                        onClick={() => addAction("send-email", 0)}
+                        className="flex h-10 items-center justify-start gap-2"
+                        variant="ghost"
+                      >
+                        <div className="flex h-6 w-6 items-center justify-center rounded bg-green-100">
+                          <Mail className="h-3.5 w-3.5 text-green-600" />
+                        </div>
+                        <span>Send Email</span>
+                      </Button>
+                      <Button
+                        onClick={() => addAction("notify-admin", 0)}
+                        className="flex h-10 items-center justify-start gap-2"
+                        variant="ghost"
+                      >
+                        <div className="flex h-6 w-6 items-center justify-center rounded bg-orange-100">
+                          <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
+                        </div>
+                        <span>Notify Admin</span>
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
             {actions.map((action, index) => (
               <div key={action.id}>
                 <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
@@ -716,6 +764,7 @@ export default function AutomationBuilder() {
                     className="flex cursor-pointer items-center p-4"
                     onClick={() => toggleActionExpand(action.id)}
                   >
+                    <GripVertical className="mr-2 h-4 w-4" />
                     {getActionIcon(action.type)}
                     <div className="mx-2 text-xl font-bold">
                       {getActionLabel(action.type)}
@@ -962,59 +1011,61 @@ export default function AutomationBuilder() {
                   </AnimatePresence>
                 </div>
 
-                {/* Dashed line connector (if not the last action) */}
+                {/* Dashed line connector with add button (if not the last action) */}
                 {index < actions.length - 1 && (
-                  <div className="flex justify-center">
-                    <div className="h-5 border-l-2 border-dashed border-gray-300"></div>
+                  <div className="group/add relative">
+                    <div className="flex justify-center">
+                      <div className="h-5 border-l-2 border-dashed border-gray-300"></div>
+                    </div>
+                    <div className="absolute left-0 right-0 top-1/2 flex -translate-y-1/2 justify-center opacity-0 transition-opacity group-hover/add:opacity-100">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="rounded-full bg-gray-200 p-2 shadow-sm transition-colors hover:bg-gray-300">
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 p-0" align="center">
+                          <div className="grid gap-1 p-2">
+                            <Button
+                              onClick={() => addAction("wait", index + 1)}
+                              className="flex h-10 items-center justify-start gap-2"
+                              variant="ghost"
+                            >
+                              <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-100">
+                                <Clock className="h-3.5 w-3.5 text-blue-600" />
+                              </div>
+                              <span>Wait</span>
+                            </Button>
+                            <Button
+                              onClick={() => addAction("send-email", index + 1)}
+                              className="flex h-10 items-center justify-start gap-2"
+                              variant="ghost"
+                            >
+                              <div className="flex h-6 w-6 items-center justify-center rounded bg-green-100">
+                                <Mail className="h-3.5 w-3.5 text-green-600" />
+                              </div>
+                              <span>Send Email</span>
+                            </Button>
+                            <Button
+                              onClick={() =>
+                                addAction("notify-admin", index + 1)
+                              }
+                              className="flex h-10 items-center justify-start gap-2"
+                              variant="ghost"
+                            >
+                              <div className="flex h-6 w-6 items-center justify-center rounded bg-orange-100">
+                                <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
+                              </div>
+                              <span>Notify Admin</span>
+                            </Button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
                 )}
               </div>
             ))}
-          </div>
-
-          {/* Add action button */}
-          <div className="flex justify-center pt-5">
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="rounded-full bg-gray-200 p-2 shadow-sm transition-colors hover:bg-gray-300">
-                  <Plus className="h-5 w-5" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 p-0" align="center">
-                <div className="grid gap-1 p-2">
-                  <Button
-                    onClick={() => addAction("wait")}
-                    className="flex h-10 items-center justify-start gap-2"
-                    variant="ghost"
-                  >
-                    <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-100">
-                      <Clock className="h-3.5 w-3.5 text-blue-600" />
-                    </div>
-                    <span>Wait</span>
-                  </Button>
-                  <Button
-                    onClick={() => addAction("send-email")}
-                    className="flex h-10 items-center justify-start gap-2"
-                    variant="ghost"
-                  >
-                    <div className="flex h-6 w-6 items-center justify-center rounded bg-green-100">
-                      <Mail className="h-3.5 w-3.5 text-green-600" />
-                    </div>
-                    <span>Send Email</span>
-                  </Button>
-                  <Button
-                    onClick={() => addAction("notify-admin")}
-                    className="flex h-10 items-center justify-start gap-2"
-                    variant="ghost"
-                  >
-                    <div className="flex h-6 w-6 items-center justify-center rounded bg-orange-100">
-                      <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
-                    </div>
-                    <span>Notify Admin</span>
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
           </div>
         </div>
 
