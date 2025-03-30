@@ -1,14 +1,41 @@
-import React from "react";
+import EmailCategoriesTable from "@/components/tables/email-categories/table";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@church-space/ui/breadcrumb";
+import { Separator } from "@church-space/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function page() {
+export default async function Page() {
+  const cookiesStore = await cookies();
+  const organizationId = cookiesStore.get("organizationId")?.value;
+
+  if (!organizationId) {
+    redirect("/onboarding");
+  }
+
   return (
-    <div className="m-8 rounded-lg border bg-muted p-6 font-mono text-sm text-muted-foreground">
-      Table with sheet. Sheet should have if it&apos;s public and the
-      description. Part of onboarding after PCO should be selecting which list
-      categories are public/let the user create list categories from Church
-      Space that they want to use as public. I think it&apos;s a little
-      complciated, but it keeps the management of lists in PCO so there&apos;s
-      not extra steps for the user.
-    </div>
+    <>
+      <header className="flex h-12 shrink-0 items-center gap-2">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbPage>Link Lists</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </header>
+      <div className="p-6">
+        <EmailCategoriesTable organizationId={organizationId} />
+      </div>
+    </>
   );
 }
