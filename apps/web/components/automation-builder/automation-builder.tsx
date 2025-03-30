@@ -15,13 +15,7 @@ import { Input } from "@church-space/ui/input";
 import { Textarea } from "@church-space/ui/textarea";
 import { Switch } from "@church-space/ui/switch";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  SheetContent,
-  SheetTitle,
-  SheetHeader,
-  SheetFooter,
-} from "@church-space/ui/sheet";
-import { useIsMobile } from "@/hooks/use-is-mobile";
+import { SheetTitle, SheetHeader, SheetFooter } from "@church-space/ui/sheet";
 
 type TriggerType = "person_added" | "person_removed" | "form_submitted";
 type ActionType = "notify_admin" | "wait" | "send_email";
@@ -30,8 +24,6 @@ export default function EmailAutomationBuilder() {
   const [trigger, setTrigger] = useState<TriggerType | null>(null);
   const [selectedList, setSelectedList] = useState<string>("");
   const [selectedForm, setSelectedForm] = useState<string>("");
-
-  const isMobile = useIsMobile();
 
   const [actions, setActions] = useState({
     notify_admin: { enabled: false, email: "", subject: "", message: "" },
