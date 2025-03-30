@@ -56,6 +56,11 @@
     "./queries/all/get-link-list": "./src/queries/all/get-link-list.ts",
     "./mutations/link-lists": "./src/mutations/link-lists.ts",
     "./queries/all/get-all-qr-links": "./src/queries/all/get-all-qr-links.ts",
-    "./queries/all/get-all-link-lists": "./src/queries/all/get-all-link-lists.ts"
+    "./queries/all/get-all-link-lists": "./src/queries/all/get-all-link-lists.ts",
+    "./queries/all/get-all-email-automations": "./src/queries/all/get-all-email-automations.ts",
+    "./queries/all/get-all-email-automation-members": "./src/queries/all/get-all-email-automation-members.ts",
+    "./queries/all/get-all-organization-members": "./src/queries/all/get-all-organization-members.ts",
+    "./queries/all/get-all-email-categories": "./src/queries/all/get-all-email-categories.ts",
+    "./queries/all/get-all-email-templates": "./src/queries/all/get-all-email-templates.ts"
   }
 }

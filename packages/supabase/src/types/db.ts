@@ -114,6 +114,121 @@ export type Database = {
           },
         ]
       }
+      email_automation_step_members: {
+        Row: {
+          automation_id: number
+          created_at: string
+          id: number
+          person_id: number
+          step: string
+        }
+        Insert: {
+          automation_id: number
+          created_at?: string
+          id?: number
+          person_id: number
+          step: string
+        }
+        Update: {
+          automation_id?: number
+          created_at?: string
+          id?: number
+          person_id?: number
+          step?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_automation_step_members_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_automation_step_members_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_automations: {
+        Row: {
+          created_at: string
+          description: string | null
+          email_details: Json | null
+          email_template_id: number | null
+          form_id: number | null
+          id: number
+          is_active: boolean
+          list_id: number | null
+          name: string
+          notify_admin: Json | null
+          organization_id: string
+          pco_form_id: string | null
+          pco_list_id: string | null
+          trigger_type: string | null
+          wait: Json | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          email_details?: Json | null
+          email_template_id?: number | null
+          form_id?: number | null
+          id?: number
+          is_active?: boolean
+          list_id?: number | null
+          name: string
+          notify_admin?: Json | null
+          organization_id: string
+          pco_form_id?: string | null
+          pco_list_id?: string | null
+          trigger_type?: string | null
+          wait?: Json | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          email_details?: Json | null
+          email_template_id?: number | null
+          form_id?: number | null
+          id?: number
+          is_active?: boolean
+          list_id?: number | null
+          name?: string
+          notify_admin?: Json | null
+          organization_id?: string
+          pco_form_id?: string | null
+          pco_list_id?: string | null
+          trigger_type?: string | null
+          wait?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_automations_email_template_id_fkey"
+            columns: ["email_template_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_automations_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "pco_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_automations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_blocks: {
         Row: {
           created_at: string
@@ -622,10 +737,10 @@ export type Database = {
           name: string | null
           organization_id: string
           primary_button: Json | null
-          private_name: string | null
+          private_name: string
           style: Json | null
           title: string | null
-          url_slug: string | null
+          url_slug: string
         }
         Insert: {
           bg_image?: string | null
@@ -637,10 +752,10 @@ export type Database = {
           name?: string | null
           organization_id: string
           primary_button?: Json | null
-          private_name?: string | null
+          private_name: string
           style?: Json | null
           title?: string | null
-          url_slug?: string | null
+          url_slug: string
         }
         Update: {
           bg_image?: string | null
@@ -652,10 +767,10 @@ export type Database = {
           name?: string | null
           organization_id?: string
           primary_button?: Json | null
-          private_name?: string | null
+          private_name?: string
           style?: Json | null
           title?: string | null
-          url_slug?: string | null
+          url_slug?: string
         }
         Relationships: [
           {
@@ -1218,7 +1333,7 @@ export type Database = {
           id: number
           name: string | null
           organization_id: string
-          status: string | null
+          status: string
           url: string | null
         }
         Insert: {
@@ -1226,7 +1341,7 @@ export type Database = {
           id?: number
           name?: string | null
           organization_id: string
-          status?: string | null
+          status?: string
           url?: string | null
         }
         Update: {
@@ -1234,7 +1349,7 @@ export type Database = {
           id?: number
           name?: string | null
           organization_id?: string
-          status?: string | null
+          status?: string
           url?: string | null
         }
         Relationships: [
