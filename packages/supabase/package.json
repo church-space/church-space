@@ -54,6 +54,8 @@
     "./queries/all/get-qr-code": "./src/queries/all/get-qr-code.ts",
     "./mutations/qr-codes": "./src/mutations/qr-codes.ts",
     "./queries/all/get-link-list": "./src/queries/all/get-link-list.ts",
-    "./mutations/link-lists": "./src/mutations/link-lists.ts"
+    "./mutations/link-lists": "./src/mutations/link-lists.ts",
+    "./queries/all/get-all-qr-links": "./src/queries/all/get-all-qr-links.ts",
+    "./queries/all/get-all-link-lists": "./src/queries/all/get-all-link-lists.ts"
   }
 }
