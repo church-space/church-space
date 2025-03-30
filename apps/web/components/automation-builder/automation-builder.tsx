@@ -12,6 +12,24 @@ import {
   Eye,
   GripVertical,
 } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { cn } from "@church-space/ui/cn";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
@@ -94,6 +112,14 @@ interface TriggerConfig {
 }
 
 export default function AutomationBuilder() {
+  // Add sensors for drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
   const [trigger, setTrigger] = useState<TriggerConfig>({
     type: "form-submitted",
     value: "Form submitted: Contact Form",
@@ -600,6 +626,355 @@ export default function AutomationBuilder() {
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    if (active.id !== over.id) {
+      setActions((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  function SortableAction({
+    action,
+    index,
+  }: {
+    action: Action;
+    index: number;
+  }) {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: action.id });
+
+    const style = transform
+      ? {
+          transform: CSS.Transform.toString(transform),
+          transition,
+          zIndex: isDragging ? 10 : 1,
+        }
+      : undefined;
+
+    const handleExpandClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      toggleActionExpand(action.id);
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={cn(
+          "mb-2 w-full rounded-xl border bg-card shadow-sm",
+          isDragging && "opacity-50",
+        )}
+      >
+        <div
+          className="flex cursor-pointer items-center p-4"
+          onClick={handleExpandClick}
+        >
+          <div
+            className="flex cursor-grab touch-none items-center justify-center"
+            {...attributes}
+            {...listeners}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+          </div>
+          {getActionIcon(action.type)}
+          <div className="mx-2 text-xl font-bold">
+            {getActionLabel(action.type)}
+          </div>
+          <div className="flex flex-1 items-center justify-between">
+            <div>{action.config.value}</div>
+            <div className="flex items-center">
+              <motion.div
+                initial={false}
+                animate={{ rotate: action.isExpanded ? 180 : 0 }}
+                transition={{ duration: 0.15 }}
+                className="mr-1"
+              >
+                <ChevronDown className="h-5 w-5" />
+              </motion.div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  confirmDeleteAction(action.id);
+                }}
+                className="rounded-full p-1 hover:bg-gray-200"
+              >
+                <X className="h-4 w-4 text-gray-500" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {action.isExpanded && (
+            <motion.div
+              key={`content-${action.id}`}
+              layout="position"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-gray-200 p-4 pt-2">
+                {action.type === "wait" && (
+                  <div className="flex items-end gap-3">
+                    <div className="flex-1">
+                      <Label htmlFor={`${action.id}-duration`}>Duration</Label>
+                      <Input
+                        id={`${action.id}-duration`}
+                        type="number"
+                        min="1"
+                        value={(action.config as WaitConfig).duration}
+                        onChange={(e) =>
+                          updateWaitConfig(action.id, {
+                            duration: Number.parseInt(e.target.value) || 1,
+                          })
+                        }
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label htmlFor={`${action.id}-unit`}>Unit</Label>
+                      <Select
+                        value={(action.config as WaitConfig).unit}
+                        onValueChange={(value) =>
+                          updateWaitConfig(action.id, {
+                            unit: value as "hours" | "days",
+                          })
+                        }
+                      >
+                        <SelectTrigger
+                          id={`${action.id}-unit`}
+                          className="mt-1"
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hours">Hours</SelectItem>
+                          <SelectItem value="days">Days</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                {action.type === "send-email" && (
+                  <div className="space-y-3">
+                    <div className="flex items-end gap-2">
+                      <div className="flex-1">
+                        <Label htmlFor={`${action.id}-template`}>
+                          Template
+                        </Label>
+                        <Select
+                          value={(action.config as EmailConfig).template}
+                          onValueChange={(value) =>
+                            updateEmailConfig(action.id, {
+                              template: value,
+                            })
+                          }
+                        >
+                          <SelectTrigger
+                            id={`${action.id}-template`}
+                            className="mt-1"
+                          >
+                            <SelectValue placeholder="Select a template" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="welcome-template">
+                              Welcome Template
+                            </SelectItem>
+                            <SelectItem value="follow-up-template">
+                              Follow-up Template
+                            </SelectItem>
+                            <SelectItem value="newsletter-template">
+                              Newsletter Template
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openTemplatePreview(
+                            (action.config as EmailConfig).template,
+                          );
+                        }}
+                        disabled={!(action.config as EmailConfig).template}
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span>Preview</span>
+                      </Button>
+                    </div>
+                    <div>
+                      <Label htmlFor={`${action.id}-from-name`}>
+                        From Name
+                      </Label>
+                      <Input
+                        id={`${action.id}-from-name`}
+                        value={(action.config as EmailConfig).fromName}
+                        onChange={(e) =>
+                          updateEmailConfig(action.id, {
+                            fromName: e.target.value,
+                          })
+                        }
+                        placeholder="Sender name"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`${action.id}-from-email`}>
+                        From Email
+                      </Label>
+                      <Input
+                        id={`${action.id}-from-email`}
+                        type="email"
+                        value={(action.config as EmailConfig).fromEmail}
+                        onChange={(e) =>
+                          updateEmailConfig(action.id, {
+                            fromEmail: e.target.value,
+                          })
+                        }
+                        placeholder="sender@example.com"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`${action.id}-subject`}>Subject</Label>
+                      <Input
+                        id={`${action.id}-subject`}
+                        value={(action.config as EmailConfig).subject}
+                        onChange={(e) =>
+                          updateEmailConfig(action.id, {
+                            subject: e.target.value,
+                          })
+                        }
+                        placeholder="Email subject"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {action.type === "notify-admin" && (
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor={`${action.id}-email`}>Admin Email</Label>
+                      <Input
+                        id={`${action.id}-email`}
+                        type="email"
+                        value={(action.config as NotifyAdminConfig).email}
+                        onChange={(e) =>
+                          updateNotifyAdminConfig(action.id, {
+                            email: e.target.value,
+                          })
+                        }
+                        placeholder="admin@example.com"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`${action.id}-message`}>Message</Label>
+                      <Input
+                        id={`${action.id}-message`}
+                        value={(action.config as NotifyAdminConfig).message}
+                        onChange={(e) =>
+                          updateNotifyAdminConfig(action.id, {
+                            message: e.target.value,
+                          })
+                        }
+                        placeholder="Notification message"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  function ActionAddButton({
+    index,
+    isLast,
+  }: {
+    index: number;
+    isLast?: boolean;
+  }) {
+    return (
+      <div className="group/add relative">
+        {!isLast && (
+          <div className="flex justify-center">
+            <div className="h-5 border-l-2 border-dashed border-gray-300"></div>
+          </div>
+        )}
+        <div className="absolute left-0 right-0 top-1/2 flex -translate-y-1/2 justify-center opacity-0 transition-opacity group-hover/add:opacity-100">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="rounded-full bg-gray-200 p-2 shadow-sm transition-colors hover:bg-gray-300">
+                <Plus className="h-4 w-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-0" align="center">
+              <div className="grid gap-1 p-2">
+                <Button
+                  onClick={() => addAction("wait", index)}
+                  className="flex h-10 items-center justify-start gap-2"
+                  variant="ghost"
+                >
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-100">
+                    <Clock className="h-3.5 w-3.5 text-blue-600" />
+                  </div>
+                  <span>Wait</span>
+                </Button>
+                <Button
+                  onClick={() => addAction("send-email", index)}
+                  className="flex h-10 items-center justify-start gap-2"
+                  variant="ghost"
+                >
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-green-100">
+                    <Mail className="h-3.5 w-3.5 text-green-600" />
+                  </div>
+                  <span>Send Email</span>
+                </Button>
+                <Button
+                  onClick={() => addAction("notify-admin", index)}
+                  className="flex h-10 items-center justify-start gap-2"
+                  variant="ghost"
+                >
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-orange-100">
+                    <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
+                  </div>
+                  <span>Notify Admin</span>
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dot-pattern min-h-screen py-10">
       <div className="container mx-auto max-w-xl py-6">
@@ -711,361 +1086,37 @@ export default function AutomationBuilder() {
           {/* Actions */}
           <div className="space-y-1">
             {/* Add action button above first action */}
-            <div className="group/add relative">
-              <div className="absolute -top-3 left-0 right-0 flex justify-center opacity-0 transition-opacity group-hover/add:opacity-100">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="rounded-full bg-gray-200 p-2 shadow-sm transition-colors hover:bg-gray-300">
-                      <Plus className="h-4 w-4" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-56 p-0" align="center">
-                    <div className="grid gap-1 p-2">
-                      <Button
-                        onClick={() => addAction("wait", 0)}
-                        className="flex h-10 items-center justify-start gap-2"
-                        variant="ghost"
-                      >
-                        <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-100">
-                          <Clock className="h-3.5 w-3.5 text-blue-600" />
-                        </div>
-                        <span>Wait</span>
-                      </Button>
-                      <Button
-                        onClick={() => addAction("send-email", 0)}
-                        className="flex h-10 items-center justify-start gap-2"
-                        variant="ghost"
-                      >
-                        <div className="flex h-6 w-6 items-center justify-center rounded bg-green-100">
-                          <Mail className="h-3.5 w-3.5 text-green-600" />
-                        </div>
-                        <span>Send Email</span>
-                      </Button>
-                      <Button
-                        onClick={() => addAction("notify-admin", 0)}
-                        className="flex h-10 items-center justify-start gap-2"
-                        variant="ghost"
-                      >
-                        <div className="flex h-6 w-6 items-center justify-center rounded bg-orange-100">
-                          <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
-                        </div>
-                        <span>Notify Admin</span>
-                      </Button>
+            <ActionAddButton index={0} />
+
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              modifiers={[
+                (args) => ({
+                  ...args.transform,
+                  scaleX: 1,
+                  scaleY: 1,
+                }),
+              ]}
+            >
+              <SortableContext
+                items={actions.map((action) => action.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="w-full">
+                  {actions.map((action, index) => (
+                    <div key={action.id}>
+                      <SortableAction action={action} index={index} />
+                      <ActionAddButton
+                        index={index + 1}
+                        isLast={index === actions.length - 1}
+                      />
                     </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-
-            {actions.map((action, index) => (
-              <div key={action.id}>
-                <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-                  <div
-                    className="flex cursor-pointer items-center p-4"
-                    onClick={() => toggleActionExpand(action.id)}
-                  >
-                    <GripVertical className="mr-2 h-4 w-4" />
-                    {getActionIcon(action.type)}
-                    <div className="mx-2 text-xl font-bold">
-                      {getActionLabel(action.type)}
-                    </div>
-                    <div className="flex flex-1 items-center justify-between">
-                      <div>{action.config.value}</div>
-                      <div className="flex items-center">
-                        <motion.div
-                          initial={false}
-                          animate={{ rotate: action.isExpanded ? 180 : 0 }}
-                          transition={{ duration: 0.15 }}
-                          className="mr-1"
-                        >
-                          <ChevronDown className="h-5 w-5" />
-                        </motion.div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            confirmDeleteAction(action.id);
-                          }}
-                          className="rounded-full p-1 hover:bg-gray-200"
-                        >
-                          <X className="h-4 w-4 text-gray-500" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <AnimatePresence>
-                    {action.isExpanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                        className="overflow-hidden"
-                      >
-                        {action.type === "wait" && (
-                          <div className="border-t border-gray-200 p-4 pt-2">
-                            <div className="flex items-end gap-3">
-                              <div className="flex-1">
-                                <Label htmlFor={`${action.id}-duration`}>
-                                  Duration
-                                </Label>
-                                <Input
-                                  id={`${action.id}-duration`}
-                                  type="number"
-                                  min="1"
-                                  value={(action.config as WaitConfig).duration}
-                                  onChange={(e) =>
-                                    updateWaitConfig(action.id, {
-                                      duration:
-                                        Number.parseInt(e.target.value) || 1,
-                                    })
-                                  }
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div className="flex-1">
-                                <Label htmlFor={`${action.id}-unit`}>
-                                  Unit
-                                </Label>
-                                <Select
-                                  value={(action.config as WaitConfig).unit}
-                                  onValueChange={(value) =>
-                                    updateWaitConfig(action.id, {
-                                      unit: value as "hours" | "days",
-                                    })
-                                  }
-                                >
-                                  <SelectTrigger
-                                    id={`${action.id}-unit`}
-                                    className="mt-1"
-                                  >
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="hours">Hours</SelectItem>
-                                    <SelectItem value="days">Days</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {action.type === "send-email" && (
-                          <div className="border-t border-gray-200 p-4 pt-2">
-                            <div className="space-y-3">
-                              <div className="flex items-end gap-2">
-                                <div className="flex-1">
-                                  <Label htmlFor={`${action.id}-template`}>
-                                    Template
-                                  </Label>
-                                  <Select
-                                    value={
-                                      (action.config as EmailConfig).template
-                                    }
-                                    onValueChange={(value) =>
-                                      updateEmailConfig(action.id, {
-                                        template: value,
-                                      })
-                                    }
-                                  >
-                                    <SelectTrigger
-                                      id={`${action.id}-template`}
-                                      className="mt-1"
-                                    >
-                                      <SelectValue placeholder="Select a template" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="welcome-template">
-                                        Welcome Template
-                                      </SelectItem>
-                                      <SelectItem value="follow-up-template">
-                                        Follow-up Template
-                                      </SelectItem>
-                                      <SelectItem value="newsletter-template">
-                                        Newsletter Template
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="flex items-center gap-1"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openTemplatePreview(
-                                      (action.config as EmailConfig).template,
-                                    );
-                                  }}
-                                  disabled={
-                                    !(action.config as EmailConfig).template
-                                  }
-                                >
-                                  <Eye className="h-4 w-4" />
-                                  <span>Preview</span>
-                                </Button>
-                              </div>
-                              <div>
-                                <Label htmlFor={`${action.id}-from-name`}>
-                                  From Name
-                                </Label>
-                                <Input
-                                  id={`${action.id}-from-name`}
-                                  value={
-                                    (action.config as EmailConfig).fromName
-                                  }
-                                  onChange={(e) =>
-                                    updateEmailConfig(action.id, {
-                                      fromName: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Sender name"
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`${action.id}-from-email`}>
-                                  From Email
-                                </Label>
-                                <Input
-                                  id={`${action.id}-from-email`}
-                                  type="email"
-                                  value={
-                                    (action.config as EmailConfig).fromEmail
-                                  }
-                                  onChange={(e) =>
-                                    updateEmailConfig(action.id, {
-                                      fromEmail: e.target.value,
-                                    })
-                                  }
-                                  placeholder="sender@example.com"
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`${action.id}-subject`}>
-                                  Subject
-                                </Label>
-                                <Input
-                                  id={`${action.id}-subject`}
-                                  value={(action.config as EmailConfig).subject}
-                                  onChange={(e) =>
-                                    updateEmailConfig(action.id, {
-                                      subject: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Email subject"
-                                  className="mt-1"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {action.type === "notify-admin" && (
-                          <div className="border-t border-gray-200 p-4 pt-2">
-                            <div className="space-y-3">
-                              <div>
-                                <Label htmlFor={`${action.id}-email`}>
-                                  Admin Email
-                                </Label>
-                                <Input
-                                  id={`${action.id}-email`}
-                                  type="email"
-                                  value={
-                                    (action.config as NotifyAdminConfig).email
-                                  }
-                                  onChange={(e) =>
-                                    updateNotifyAdminConfig(action.id, {
-                                      email: e.target.value,
-                                    })
-                                  }
-                                  placeholder="admin@example.com"
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`${action.id}-message`}>
-                                  Message
-                                </Label>
-                                <Input
-                                  id={`${action.id}-message`}
-                                  value={
-                                    (action.config as NotifyAdminConfig).message
-                                  }
-                                  onChange={(e) =>
-                                    updateNotifyAdminConfig(action.id, {
-                                      message: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Notification message"
-                                  className="mt-1"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  ))}
                 </div>
-
-                {/* Dashed line connector with add button (if not the last action) */}
-                {index < actions.length - 1 && (
-                  <div className="group/add relative">
-                    <div className="flex justify-center">
-                      <div className="h-5 border-l-2 border-dashed border-gray-300"></div>
-                    </div>
-                    <div className="absolute left-0 right-0 top-1/2 flex -translate-y-1/2 justify-center opacity-0 transition-opacity group-hover/add:opacity-100">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="rounded-full bg-gray-200 p-2 shadow-sm transition-colors hover:bg-gray-300">
-                            <Plus className="h-4 w-4" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-56 p-0" align="center">
-                          <div className="grid gap-1 p-2">
-                            <Button
-                              onClick={() => addAction("wait", index + 1)}
-                              className="flex h-10 items-center justify-start gap-2"
-                              variant="ghost"
-                            >
-                              <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-100">
-                                <Clock className="h-3.5 w-3.5 text-blue-600" />
-                              </div>
-                              <span>Wait</span>
-                            </Button>
-                            <Button
-                              onClick={() => addAction("send-email", index + 1)}
-                              className="flex h-10 items-center justify-start gap-2"
-                              variant="ghost"
-                            >
-                              <div className="flex h-6 w-6 items-center justify-center rounded bg-green-100">
-                                <Mail className="h-3.5 w-3.5 text-green-600" />
-                              </div>
-                              <span>Send Email</span>
-                            </Button>
-                            <Button
-                              onClick={() =>
-                                addAction("notify-admin", index + 1)
-                              }
-                              className="flex h-10 items-center justify-start gap-2"
-                              variant="ghost"
-                            >
-                              <div className="flex h-6 w-6 items-center justify-center rounded bg-orange-100">
-                                <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
-                              </div>
-                              <span>Notify Admin</span>
-                            </Button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
+              </SortableContext>
+            </DndContext>
           </div>
         </div>
 
