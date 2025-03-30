@@ -30,10 +30,6 @@ export function NavMain({
     <SidebarGroup>
       <SidebarMenu>
         {items.map((item) => {
-          // Main item is active if:
-          // 1. It's the exact route (e.g. /emails)
-          // 2. OR we're on any route under it (e.g. /emails/70)
-          // 3. OR any of its subitems are active
           const isActive =
             pathname === item.url ||
             pathname.startsWith(item.url + "/") ||

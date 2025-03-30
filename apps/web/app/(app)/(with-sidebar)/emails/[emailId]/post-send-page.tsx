@@ -26,8 +26,7 @@ export default function PostSendPage({ email }: { email: any }) {
 
               <BreadcrumbItem>
                 <BreadcrumbPage>
-                  {email.data.subject && email.data.subject}
-                  {!email.data.subject && "(No Subject)"}
+                  {email?.subject || "(No Subject)"}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>

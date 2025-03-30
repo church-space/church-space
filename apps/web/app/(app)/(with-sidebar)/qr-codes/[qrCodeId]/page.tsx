@@ -85,6 +85,7 @@ import { useUser } from "@/stores/use-user";
 import FileUpload from "@/components/dnd-builder/file-upload";
 import { LoaderIcon } from "lucide-react";
 import { z } from "zod";
+import Link from "next/link";
 
 // Types
 type QRCodeData = {
@@ -157,7 +158,6 @@ const linkSchema = z.object({
     .url("Please enter a valid URL")
     .refine((url) => {
       try {
-        const parsed = new URL(url);
         // URL must not contain spaces
         return !url.includes(" ");
       } catch {
@@ -913,7 +913,9 @@ export default function Page() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/qr-codes">QR Codes</BreadcrumbLink>
+                <Link prefetch={true} href="/qr-codes">
+                  QR Codes
+                </Link>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
