@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Separator } from "@church-space/ui/separator";
+import { Badge } from "@church-space/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,13 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-import { LoaderIcon } from "lucide-react";
-import Link from "next/link";
-import { Label } from "@church-space/ui/label";
-import { Input } from "@church-space/ui/input";
 import { Button } from "@church-space/ui/button";
-import { Badge } from "@church-space/ui/badge";
-import { Ellipsis, Edit, LinkIcon, Trash } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -28,19 +20,21 @@ import {
 } from "@church-space/ui/dialog";
 import {
   DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuContent,
 } from "@church-space/ui/dropdown-menu";
+import { Input } from "@church-space/ui/input";
+import { Label } from "@church-space/ui/label";
+import { Separator } from "@church-space/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { Edit, Ellipsis, LinkIcon, LoaderIcon, Trash } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@church-space/ui/sheet";
+import AutomationBuilder from "@/components/automation-builder/automation-builder";
 import { DisableLink } from "@church-space/ui/icons";
+import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 
 export default function Page() {
   const [isEditingLink, setIsEditingLink] = useState(false);
@@ -240,32 +234,31 @@ export default function Page() {
             </DropdownMenu>
           </div>
           <Sheet>
-            <SheetTrigger asChild>
-              <Button className="h-fit w-full cursor-pointer bg-foreground text-background transition-colors hover:bg-foreground/90">
-                <div className="flex w-full flex-row items-center justify-between space-y-0 px-3 py-6 pl-6 text-left">
-                  <div className="p-0">
-                    <div className="text-lg font-medium">Automation Steps</div>
-                    <div className="text-sm text-secondary">
-                      Manage the steps of this automation.
+            <>
+              <SheetTrigger asChild>
+                <Button className="h-fit w-full cursor-pointer bg-foreground text-background transition-colors hover:bg-foreground/90">
+                  <div className="flex w-full flex-row items-center justify-between space-y-0 px-3 py-6 pl-6 text-left">
+                    <div className="p-0">
+                      <div className="text-lg font-medium">
+                        Automation Steps
+                      </div>
+                      <div className="text-sm text-secondary">
+                        Manage the steps of this automation.
+                      </div>
+                    </div>
+                    <div className="flex h-9 items-center justify-center rounded-md bg-primary px-4 py-1 text-center text-sm">
+                      Edit
                     </div>
                   </div>
-                  <div className="flex h-9 items-center justify-center rounded-md bg-primary px-4 py-1 text-center text-sm">
-                    Edit
-                  </div>
-                </div>
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              className="h-[95%] w-full md:h-full md:max-w-3xl"
-              side={isMobile ? "bottom" : "right"}
-            >
-              <SheetHeader>
-                <SheetTitle>Automation Steps</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col gap-4">
-                Automation steps builder
-              </div>
-            </SheetContent>
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                className="h-[95%] w-full md:h-full md:max-w-3xl"
+                side={isMobile ? "bottom" : "right"}
+              >
+                <AutomationBuilder />
+              </SheetContent>
+            </>
           </Sheet>
           <h2 className="text-2xl font-bold">People</h2>
           <p>Table here with active steps, people, etc.</p>

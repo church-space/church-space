@@ -34,7 +34,7 @@ const data = {
           url: "/email/automations",
         },
         {
-          title: "Lists and Categories",
+          title: "Categories",
           url: "/email/categories",
         },
       ],

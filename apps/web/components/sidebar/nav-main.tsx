@@ -65,17 +65,23 @@ export function NavMain({
                         tooltip={submenuItem.title}
                         className={cn(
                           "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
-                          // For "All Emails", also active if we're on a dynamic route under /email
                           // For Settings, only exact matches
+                          // For Email, handle special cases
+                          // For other items, match exact path or subpaths
                           (item.title === "Settings"
                             ? pathname === submenuItem.url
-                            : pathname === submenuItem.url ||
-                              pathname.startsWith(submenuItem.url + "/") ||
-                              (submenuItem.url === "/email" &&
-                                pathname.startsWith("/email/") &&
-                                !pathname.startsWith("/email/templates") &&
-                                !pathname.startsWith("/email/automations") &&
-                                !pathname.startsWith("/email/categories"))) &&
+                            : item.title === "Email"
+                              ? submenuItem.url === "/email"
+                                ? pathname === "/email" ||
+                                  (pathname.startsWith("/email/") &&
+                                    !pathname.startsWith("/email/templates") &&
+                                    !pathname.startsWith(
+                                      "/email/automations",
+                                    ) &&
+                                    !pathname.startsWith("/email/categories"))
+                                : pathname.startsWith(submenuItem.url)
+                              : pathname === submenuItem.url ||
+                                pathname.startsWith(submenuItem.url + "/")) &&
                             "text-foreground",
                         )}
                       >
