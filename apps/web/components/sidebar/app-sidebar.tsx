@@ -17,25 +17,25 @@ import SidebarHelpMenu from "./sidebar-help-menu";
 const data = {
   navMain: [
     {
-      title: "Emails",
-      url: "/emails",
+      title: "Email",
+      url: "/email",
       icon: Mail,
       submenu: [
         {
-          title: "Emails",
-          url: "/emails",
+          title: "All Emails",
+          url: "/email",
         },
         {
           title: "Templates",
-          url: "/emails/templates",
+          url: "/email/templates",
         },
         {
           title: "Automations",
-          url: "/emails/automations",
+          url: "/email/automations",
         },
         {
           title: "Lists and Categories",
-          url: "/emails/categories",
+          url: "/email/categories",
         },
       ],
     },

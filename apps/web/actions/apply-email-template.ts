@@ -2,10 +2,7 @@
 
 import { authActionClient } from "./safe-action";
 import { createClient } from "@church-space/supabase/server";
-import {
-  applyEmailTemplate,
-  createEmailTemplate,
-} from "@church-space/supabase/mutations/emails";
+import { applyEmailTemplate } from "@church-space/supabase/mutations/emails";
 import { z } from "zod";
 import type { ActionResponse } from "@/types/action";
 import { getEmailWithFooterAndBlocksQuery } from "@church-space/supabase/queries/all/get-email-with-footer-and-blocks";

@@ -541,7 +541,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
+                <BreadcrumbLink href="/email">Email</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
 
@@ -626,7 +626,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                       if (email.scheduled_for) {
                         // Schedule the email
                         const response = await fetch(
-                          "/api/emails/schedule-email",
+                          "/api/email/schedule-email",
                           {
                             method: "POST",
                             headers: {
@@ -655,7 +655,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                       } else {
                         // Send the email immediately
                         const response = await fetch(
-                          "/api/emails/filter-emails",
+                          "/api/email/filter-emails",
                           {
                             method: "POST",
                             headers: {
@@ -708,7 +708,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           </div>
         )}
         <div className="flex items-center gap-2">
-          <ProtectedLink href={`/emails/${email.id}/editor`}>
+          <ProtectedLink href={`/email/${email.id}/editor`}>
             <Button variant="outline" size="sm">
               Edit Design
             </Button>
@@ -1067,7 +1067,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
         </AccordionItem>
         <div className="flex flex-1 items-center justify-between rounded-xl border bg-card py-4 pl-6 pr-5 text-left font-medium transition-all hover:bg-accent/50">
           <ProtectedLink
-            href={`/emails/${email.id}/editor`}
+            href={`/email/${email.id}/editor`}
             className="group/link flex w-full items-center gap-3"
           >
             <span className="text-muted-foreground">

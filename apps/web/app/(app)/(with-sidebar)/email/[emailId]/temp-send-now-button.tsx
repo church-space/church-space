@@ -11,7 +11,7 @@ export default function TempSendNowButton() {
 
   const handleSendNow = async () => {
     try {
-      const response = await fetch("/api/emails/filter-emails", {
+      const response = await fetch("/api/email/filter-emails", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -200,7 +200,7 @@ export const sendBulkEmails = task({
 
             // Make API request to render email with personalized URLs
             const renderResponse = await fetch(
-              "https://churchspace.co/api/emails/render",
+              "https://churchspace.co/api/email/render",
               {
                 method: "POST",
                 headers: {

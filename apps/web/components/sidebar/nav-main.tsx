@@ -65,17 +65,17 @@ export function NavMain({
                         tooltip={submenuItem.title}
                         className={cn(
                           "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
-                          // For "All Emails", also active if we're on a dynamic route under /emails
+                          // For "All Emails", also active if we're on a dynamic route under /email
                           // For Settings, only exact matches
                           (item.title === "Settings"
                             ? pathname === submenuItem.url
                             : pathname === submenuItem.url ||
                               pathname.startsWith(submenuItem.url + "/") ||
-                              (submenuItem.url === "/emails" &&
-                                pathname.startsWith("/emails/") &&
-                                !pathname.startsWith("/emails/templates") &&
-                                !pathname.startsWith("/emails/automations") &&
-                                !pathname.startsWith("/emails/categories"))) &&
+                              (submenuItem.url === "/email" &&
+                                pathname.startsWith("/email/") &&
+                                !pathname.startsWith("/email/templates") &&
+                                !pathname.startsWith("/email/automations") &&
+                                !pathname.startsWith("/email/categories"))) &&
                             "text-foreground",
                         )}
                       >

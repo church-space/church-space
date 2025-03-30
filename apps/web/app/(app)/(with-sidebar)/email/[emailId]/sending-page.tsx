@@ -77,7 +77,7 @@ export default function SendingPage({
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
+                <BreadcrumbLink href="/email">Email</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
 

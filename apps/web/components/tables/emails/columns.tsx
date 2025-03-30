@@ -51,7 +51,7 @@ export const columns: ColumnDef<Email>[] = [
       const email = row.original;
       return (
         <Link
-          href={`/emails/${email.id}`}
+          href={`/email/${email.id}`}
           className="font-medium hover:underline"
           prefetch={true}
         >

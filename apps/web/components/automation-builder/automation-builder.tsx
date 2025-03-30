@@ -719,15 +719,14 @@ export default function AutomationBuilder() {
           </div>
         </div>
 
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {action.isExpanded && (
             <motion.div
               key={`content-${action.id}`}
-              layout="position"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              transition={{ duration: 0.15, type: "tween" }}
               className="overflow-hidden"
             >
               <div className="border-t border-gray-200 p-4 pt-2">

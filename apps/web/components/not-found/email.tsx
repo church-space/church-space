@@ -18,7 +18,7 @@ export default function EmailNotFound() {
         </p>
 
         <Button asChild size="lg">
-          <Link href="/emails">Back to Emails</Link>
+          <Link href="/email">Back to Emails</Link>
         </Button>
       </div>
     </div>

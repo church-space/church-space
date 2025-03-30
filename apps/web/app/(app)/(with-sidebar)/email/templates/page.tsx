@@ -9,7 +9,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-import AutomationBuilder from "@/components/automation-builder/automation-builder";
 
 export default function Page() {
   return (
@@ -25,19 +24,17 @@ export default function Page() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/automations">Automations</BreadcrumbLink>
+                <BreadcrumbLink href="/email">Email</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Automation ID</BreadcrumbPage>
+                <BreadcrumbPage>Templates</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <AutomationBuilder />
-      </div>
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">Page</div>
     </>
   );
 }
