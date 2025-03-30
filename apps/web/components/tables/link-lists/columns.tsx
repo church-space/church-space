@@ -7,10 +7,10 @@ import Link from "next/link";
 // Define the type based on the SQL schema
 export type LinkList = {
   id: number;
-  created_at: string; // Use string for timestamp, can be formatted later
+  created_at: string;
+  private_name: string | null;
   is_public: boolean;
-  url_slug: string;
-  private_name: string; // Internal/private name
+  url_slug: string | null;
 };
 
 export const columns: ColumnDef<LinkList>[] = [
@@ -41,17 +41,18 @@ export const columns: ColumnDef<LinkList>[] = [
     accessorKey: "private_name",
     header: "Name",
     cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("private_name")}</div>;
+      const name = row.getValue("private_name") as string | null;
+      return <div className="font-medium">{name || "Untitled"}</div>;
     },
   },
   {
     accessorKey: "url_slug",
     header: "URL Slug",
     cell: ({ row }) => {
-      const urlSlug = row.getValue("url_slug") as string;
+      const urlSlug = row.getValue("url_slug") as string | null;
       return (
         <Link href={`/link-lists/${row.original.id}`} prefetch={true}>
-          /{urlSlug}
+          /{urlSlug || ""}
         </Link>
       );
     },
@@ -61,7 +62,6 @@ export const columns: ColumnDef<LinkList>[] = [
     header: "Created At",
     cell: ({ row }) => {
       const date = new Date(row.getValue("created_at"));
-      // Format the date as needed, e.g., MM/DD/YYYY
       return <span>{date.toLocaleDateString()}</span>;
     },
   },
