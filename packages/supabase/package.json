@@ -61,6 +61,7 @@
     "./queries/all/get-all-email-automation-members": "./src/queries/all/get-all-email-automation-members.ts",
     "./queries/all/get-all-organization-members": "./src/queries/all/get-all-organization-members.ts",
     "./queries/all/get-all-email-categories": "./src/queries/all/get-all-email-categories.ts",
-    "./queries/all/get-all-email-templates": "./src/queries/all/get-all-email-templates.ts"
+    "./queries/all/get-all-email-templates": "./src/queries/all/get-all-email-templates.ts",
+    "./mutations/automations": "./src/mutations/automations.ts"
   }
 }

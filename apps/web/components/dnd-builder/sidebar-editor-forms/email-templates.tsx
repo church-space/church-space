@@ -24,7 +24,7 @@ import {
   DialogFooter,
 } from "@church-space/ui/dialog";
 import { useToast } from "@church-space/ui/use-toast";
-import { createEmailTemplateAction } from "@/actions/create-email-template";
+import { createEmailTemplateFromEmailAction } from "@/actions/create-email-template-from-email";
 import { applyEmailTemplateAction } from "@/actions/apply-email-template";
 
 interface EmailTemplateFormProps {
@@ -130,7 +130,7 @@ export default function EmailTemplateForm({
         source_email_id: emailId,
       });
 
-      const result = await createEmailTemplateAction({
+      const result = await createEmailTemplateFromEmailAction({
         subject: templateName,
         organization_id: organizationId,
         source_email_id: emailId,

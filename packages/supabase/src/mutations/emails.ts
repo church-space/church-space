@@ -2,21 +2,14 @@ import type { Client, Database } from "../types";
 import { getEmailWithFooterAndBlocksQuery } from "../queries/all/get-email-with-footer-and-blocks";
 import { revalidateTag } from "next/cache";
 
-export async function createEmailTemplate(
+export async function createEmailTemplateFromEmail(
   supabase: Client,
   templateName: string,
   organizationId: string,
   sourceEmailId?: number
 ) {
-  console.log("createEmailTemplate called with:", {
-    templateName,
-    organizationId,
-    sourceEmailId,
-  });
-
   // If no sourceEmailId is provided, just create a basic template
   if (!sourceEmailId) {
-    console.log("No sourceEmailId provided, creating basic template");
     const { data, error } = await supabase
       .from("emails")
       .insert({
@@ -27,15 +20,12 @@ export async function createEmailTemplate(
       .select();
 
     if (error) {
-      console.error("Error creating basic template:", error);
       throw error;
     }
 
     return data;
   }
 
-  // Get the source email with its footer and blocks
-  console.log("Fetching source email with ID:", sourceEmailId);
   const { data: sourceEmail, error: sourceError } =
     await getEmailWithFooterAndBlocksQuery(supabase, sourceEmailId);
 
@@ -469,6 +459,43 @@ export async function createEmail(
   const { data, error } = await supabase
     .from("emails")
     .insert({ ...email, organization_id: organizationId })
+    .select();
+
+  if (error) {
+    console.error("Error creating email:", error);
+    throw error;
+  }
+
+  const { data: footer, error: footerError } = await supabase
+    .from("email_footers")
+    .insert({
+      email_id: data[0].id,
+      type: "standard",
+      organization_id: organizationId,
+    });
+
+  if (footerError) {
+    console.error("Error creating footer:", footerError);
+    throw footerError;
+  }
+
+  revalidateTag(`emails_${organizationId}`);
+
+  return { data, error, footer };
+}
+
+export async function createEmailTemplate(
+  supabase: Client,
+  email: Database["public"]["Tables"]["emails"]["Insert"],
+  organizationId: string
+) {
+  const { data, error } = await supabase
+    .from("emails")
+    .insert({
+      ...email,
+      organization_id: organizationId,
+      type: "template",
+    })
     .select();
 
   if (error) {

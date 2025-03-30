@@ -2,13 +2,13 @@
 
 import { authActionClient } from "./safe-action";
 import { createClient } from "@church-space/supabase/server";
-import { createEmailTemplate } from "@church-space/supabase/mutations/emails";
+import { createEmailTemplateFromEmail } from "@church-space/supabase/mutations/emails";
 import { z } from "zod";
 import type { ActionResponse } from "@/types/action";
 import { getEmailWithFooterAndBlocksQuery } from "@church-space/supabase/queries/all/get-email-with-footer-and-blocks";
 import { revalidateTag } from "next/cache";
 
-export const createEmailTemplateAction = authActionClient
+export const createEmailTemplateFromEmailAction = authActionClient
   .schema(
     z.object({
       subject: z.string(),
@@ -17,7 +17,7 @@ export const createEmailTemplateAction = authActionClient
     }),
   )
   .metadata({
-    name: "create-email-template",
+    name: "create-email-template-from-email",
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
@@ -85,7 +85,7 @@ export const createEmailTemplateAction = authActionClient
       );
 
       try {
-        const data = await createEmailTemplate(
+        const data = await createEmailTemplateFromEmail(
           supabase,
           parsedInput.parsedInput.subject,
           parsedInput.parsedInput.organization_id,
