@@ -2,7 +2,8 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { createClient } from "@church-space/supabase/client";
 import {
   getEmailAutomationMembers,
-  getEmailAutomationsCount,
+  getEmailAutomationMembersCount,
+  EmailAutomationMemberParams,
 } from "@church-space/supabase/queries/all/get-all-email-automation-members";
 
 const ITEMS_PER_PAGE = 25;
@@ -25,13 +26,9 @@ export function useEmailAutomationMembers(automationId: number) {
       if (error) throw error;
 
       // Get total count
-      const { count } = await getEmailAutomationsCount(
+      const { count } = await getEmailAutomationMembersCount(
         supabase,
-        automationId.toString(),
-        {
-          start: from,
-          end: to,
-        },
+        automationId,
       );
 
       const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;

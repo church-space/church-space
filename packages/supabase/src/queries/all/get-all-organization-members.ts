@@ -15,7 +15,13 @@ export async function getOrganizationMembersCount(
     .from("organization_memberships")
     .select(
       `
-      id
+      id,
+      users!inner (
+        id,
+        first_name,
+        last_name,
+        avatar_url
+      )
     `,
       { count: "exact", head: true }
     )
@@ -42,7 +48,13 @@ export async function getAllOrganizationMembers(
       created_at,
       user_id,
       organization_id,
-      role
+      role,
+      users!inner (
+        id,
+        first_name,
+        last_name,
+        avatar_url
+      )
     `
     )
     .order("created_at", { ascending: true })
