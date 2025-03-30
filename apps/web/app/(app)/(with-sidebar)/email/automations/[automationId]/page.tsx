@@ -1,16 +1,82 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Separator } from "@church-space/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
+import { LoaderIcon } from "lucide-react";
+import Link from "next/link";
+import { Label } from "@church-space/ui/label";
+import { Input } from "@church-space/ui/input";
+import { Button } from "@church-space/ui/button";
+import { Badge } from "@church-space/ui/badge";
+import { Ellipsis, Edit, LinkIcon, Trash } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@church-space/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@church-space/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@church-space/ui/sheet";
+import { DisableLink } from "@church-space/ui/icons";
 
 export default function Page() {
+  const [isEditingLink, setIsEditingLink] = useState(false);
+  const [editedLinkName, setEditedLinkName] = useState("Testing Automation");
+  const [linkErrors, setLinkErrors] = useState({
+    name: null,
+    url: null,
+  });
+  const [editedLinkStatus, setEditedLinkStatus] = useState("active");
+  const [editedLinkDescription, setEditedLinkDescription] = useState("Testing");
+  const [isDeletingLink, setIsDeletingLink] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const isMobile = useIsMobile();
+
+  const handleStatusToggle = () => {
+    // TODO: Implement status toggle
+  };
+
+  const handleDeleteLink = () => {
+    // TODO: Implement delete link
+  };
+
+  const cancelEditingLink = () => {
+    // TODO: Implement cancel editing link
+  };
+
+  const saveEditedLink = () => {
+    // TODO: Implement save edited link
+  };
+
+  const startEditingLink = () => {
+    // TODO: Implement start editing link
+  };
+
   return (
     <>
       <header className="flex h-12 shrink-0 items-center gap-2">
@@ -20,22 +86,190 @@ export default function Page() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">Hillsong Church Online</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/automations">Automations</BreadcrumbLink>
+                <Link prefetch={true} href="/email/automations">
+                  Automations
+                </Link>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Automation ID</BreadcrumbPage>
+                <BreadcrumbPage>Automation Name</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        Automation id page
+
+      <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+        <div className="flex flex-col space-y-6">
+          {/* Link Information Section */}
+          <div className="flex w-full justify-between gap-4 border-b pb-4">
+            {isEditingLink ? (
+              // Edit mode
+              <div className="flex-1 space-y-4">
+                <div>
+                  <Label htmlFor="edit-link-name" className="mb-2 block">
+                    Automation Name
+                  </Label>
+                  <Input
+                    id="edit-link-name"
+                    value={editedLinkName}
+                    onChange={(e) => setEditedLinkName(e.target.value)}
+                    placeholder="Enter a name for this automation"
+                    autoFocus
+                    className={linkErrors.name ? "border-destructive" : ""}
+                  />
+                  {linkErrors.name && (
+                    <p className="mt-1 text-sm text-destructive">
+                      {linkErrors.name}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="edit-link-url" className="mb-2 block">
+                    Automation Description
+                  </Label>
+                  <Input
+                    id="edit-link-url"
+                    value={editedLinkDescription}
+                    onChange={(e) => setEditedLinkDescription(e.target.value)}
+                    placeholder="Enter the automation description"
+                    className={linkErrors.url ? "border-destructive" : ""}
+                  />
+                  {linkErrors.url && (
+                    <p className="mt-1 text-sm text-destructive">
+                      {linkErrors.url}
+                    </p>
+                  )}
+                </div>
+                <div className="flex justify-end space-x-2 pt-2">
+                  <Button variant="outline" onClick={cancelEditingLink}>
+                    Cancel
+                  </Button>
+                  <Button onClick={saveEditedLink}>Save</Button>
+                </div>
+              </div>
+            ) : (
+              // Display mode
+              <div
+                className="group flex-1 cursor-pointer"
+                onClick={startEditingLink}
+              >
+                <div className="flex items-center">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
+                      {editedLinkName}
+                    </h2>
+                    {editedLinkStatus === "inactive" && (
+                      <Badge variant="outline">Disabled</Badge>
+                    )}
+                  </div>
+                  <Edit className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+                </div>
+                <p className="mt-1 text-muted-foreground">
+                  {editedLinkDescription}
+                </p>
+              </div>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Ellipsis className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={handleStatusToggle}
+                  disabled={isUpdatingStatus}
+                  className="cursor-pointer"
+                >
+                  {editedLinkStatus === "active" ? (
+                    <>
+                      <DisableLink /> Disable
+                    </>
+                  ) : (
+                    <>
+                      <LinkIcon /> Enable
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <Dialog open={isDeletingLink} onOpenChange={setIsDeletingLink}>
+                  <DialogTrigger
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsDeletingLink(true);
+                    }}
+                    asChild
+                  >
+                    <DropdownMenuItem className="!hover:text-destructive cursor-pointer">
+                      <Trash /> Delete
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Delete Link</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete this link? This action
+                        cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsDeletingLink(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDeleteLink}
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? (
+                          <div className="flex items-center gap-2">
+                            <LoaderIcon className="h-4 w-4 animate-spin" />
+                            <span>Deleting...</span>
+                          </div>
+                        ) : (
+                          "Delete"
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="h-fit w-full cursor-pointer bg-foreground text-background transition-colors hover:bg-foreground/90">
+                <div className="flex w-full flex-row items-center justify-between space-y-0 px-3 py-6 pl-6 text-left">
+                  <div className="p-0">
+                    <div className="text-lg font-medium">Automation Steps</div>
+                    <div className="text-sm text-secondary">
+                      Manage the steps of this automation.
+                    </div>
+                  </div>
+                  <div className="flex h-9 items-center justify-center rounded-md bg-primary px-4 py-1 text-center text-sm">
+                    Edit
+                  </div>
+                </div>
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              className="h-[95%] w-full md:h-full md:max-w-3xl"
+              side={isMobile ? "bottom" : "right"}
+            >
+              <SheetHeader>
+                <SheetTitle>Automation Steps</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-4">
+                Automation steps builder
+              </div>
+            </SheetContent>
+          </Sheet>
+          <h2 className="text-2xl font-bold">People</h2>
+          <p>Table here with active steps, people, etc.</p>
+        </div>
       </div>
     </>
   );
