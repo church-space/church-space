@@ -24,11 +24,8 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
   const [status, setStatus] = useQueryState("status");
   const [isNewEmailOpen, setIsNewEmailOpen] = useState(false);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useEmails(
-    organizationId,
-    search ?? undefined,
-    status ?? undefined,
-  );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useEmails(organizationId, search ?? undefined, status ?? undefined);
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -97,7 +94,7 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
           status: status ?? undefined,
         }}
         searchPlaceholderText="Search by subject..."
-        isLoading={isFetchingNextPage}
+        isLoading={isLoading || isFetchingNextPage}
       />
 
       <Dialog open={isNewEmailOpen} onOpenChange={setIsNewEmailOpen}>
