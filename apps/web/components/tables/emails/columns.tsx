@@ -64,6 +64,7 @@ export const columns: ColumnDef<Email>[] = [
   },
   {
     id: "status",
+    header: "Status",
     accessorKey: "status",
     enableHiding: true,
     cell: ({ row }) => {

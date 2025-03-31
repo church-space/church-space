@@ -359,7 +359,7 @@ export default function DataTable<TData>({
         className="h-full min-h-[calc(100vh-255px)] overflow-auto"
       >
         <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
-          <TableHeader className="backdrop-blur-xs sticky top-0 z-10 bg-background/90">
+          <TableHeader className="backdrop-blur-xs sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => {

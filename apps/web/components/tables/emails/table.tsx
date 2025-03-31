@@ -1,31 +1,46 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import DataTable from "../data-table";
-import { columns, type Email } from "./columns";
-import { useQueryState } from "nuqs";
+import { useEmails } from "@/hooks/use-emails";
 import { Button } from "@church-space/ui/button";
-import { getEmailFilterConfig, type EmailStatus } from "./filters";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@church-space/ui/dialog";
+import { useQueryState } from "nuqs";
+import { useCallback, useState } from "react";
 import NewEmail from "../../forms/new-email";
-import { useEmails } from "@/hooks/use-emails";
+import DataTable from "../data-table";
+import { columns, type Email } from "./columns";
+import { getEmailFilterConfig, type EmailStatus } from "./filters";
 
 interface EmailsTableProps {
   organizationId: string;
+  initialData: Email[];
+  initialCount: number;
+  initialSearch?: string;
+  initialStatus?: EmailStatus;
 }
 
-export default function EmailsTable({ organizationId }: EmailsTableProps) {
+export default function EmailsTable({
+  organizationId,
+  initialData,
+  initialCount,
+  initialSearch,
+  initialStatus,
+}: EmailsTableProps) {
   const [search, setSearch] = useQueryState("search");
   const [status, setStatus] = useQueryState("status");
   const [isNewEmailOpen, setIsNewEmailOpen] = useState(false);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useEmails(organizationId, search ?? undefined, status ?? undefined);
+    useEmails(organizationId, search ?? undefined, status ?? undefined, {
+      initialData: {
+        pages: [{ data: initialData, count: initialCount, nextPage: 1 }],
+        pageParams: [0],
+      },
+    });
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -42,21 +57,14 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
   );
 
   // Flatten all pages of data and cast to Email type
-  const emails = (data?.pages.flatMap((page) => page?.data ?? []) ?? []).map(
-    (email) => ({
-      ...email,
-      from_domain: email.from_domain as unknown as { domain: string } | null,
-      reply_to_domain: email.reply_to_domain as unknown as {
-        domain: string;
-      } | null,
-    }),
-  ) as Email[];
+  const emails = (data?.pages.flatMap((page) => page?.data ?? []) ??
+    []) as Email[];
   const count = data?.pages[0]?.count ?? 0;
 
   return (
     <>
-      <div className="flex w-full items-center justify-between">
-        <h1 className="mb-6 text-2xl font-bold">
+      <div className="mb-6 flex w-full items-center justify-between">
+        <h1 className="text-2xl font-bold">
           <span className="font-normal text-muted-foreground">{count}</span>{" "}
           Emails
         </h1>
@@ -68,17 +76,8 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
         pageSize={25}
         loadMore={async ({ from, to }) => {
           const result = await fetchNextPage();
-          const nextPageData = (
-            result.data?.pages[result.data.pages.length - 1]?.data ?? []
-          ).map((email) => ({
-            ...email,
-            from_domain: email.from_domain as unknown as {
-              domain: string;
-            } | null,
-            reply_to_domain: email.reply_to_domain as unknown as {
-              domain: string;
-            } | null,
-          })) as Email[];
+          const nextPageData = (result.data?.pages[result.data.pages.length - 1]
+            ?.data ?? []) as Email[];
           return {
             data: nextPageData,
           };
