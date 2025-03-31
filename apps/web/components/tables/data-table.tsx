@@ -36,6 +36,7 @@ import { SearchIcon } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import ActionBar from "./action-bar";
 import { Skeleton } from "@church-space/ui/skeleton";
+import { cn } from "@church-space/ui/cn";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -361,12 +362,17 @@ export default function DataTable<TData>({
         <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
           <TableHeader className="backdrop-blur-xs sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                {headerGroup.headers.map((header) => {
+              <TableRow key={headerGroup.id} className="bg-muted">
+                {headerGroup.headers.map((header, index) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="relative h-10 select-none border-t"
+                      className={cn(
+                        "relative h-10 select-none border-t",
+                        index === 0 && "rounded-l-lg border-l pl-4",
+                        index === headerGroup.headers.length - 1 &&
+                          "rounded-r-lg border-r pr-2",
+                      )}
                     >
                       {header.isPlaceholder
                         ? null
