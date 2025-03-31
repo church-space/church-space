@@ -395,22 +395,39 @@ export default function DataTable<TData>({
                 </TableRow>
               ))
             ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="group/table-row h-20"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
+              <>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="group/table-row h-20"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+                {isLoading &&
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <TableRow
+                      key={`loading-${index}`}
+                      className="group/table-row h-20"
+                    >
+                      {Array.from({ length: columns.length }).map(
+                        (_, cellIndex) => (
+                          <TableCell key={cellIndex}>
+                            <Skeleton className="h-4 w-3/4" />
+                          </TableCell>
+                        ),
                       )}
-                    </TableCell>
+                    </TableRow>
                   ))}
-                </TableRow>
-              ))
+              </>
             ) : (
               <TableRow>
                 <TableCell
@@ -423,11 +440,6 @@ export default function DataTable<TData>({
             )}
           </TableBody>
         </Table>
-        {isLoading && (
-          <div className="py-4 text-center text-sm text-muted-foreground">
-            Loading more...
-          </div>
-        )}
         {/* Sentinel element for intersection observer */}
         {hasMorePages && !isLoading && (
           <div className="sentinel h-4" data-testid="sentinel" />
