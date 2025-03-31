@@ -70,6 +70,7 @@ export default function NewEmail({
                   {...field}
                   type="text"
                   disabled={isLoading}
+                  autoFocus
                   autoComplete="off"
                   autoCorrect="off"
                   autoCapitalize="off"
@@ -78,15 +79,19 @@ export default function NewEmail({
                   data-lpignore="true"
                   name="email_subject_field"
                   aria-label="Email subject"
+                  data-1p-ignore="true"
+                  data-icloud-keychain-ignore="true"
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create Email"}
-        </Button>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Creating..." : "Create Email"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

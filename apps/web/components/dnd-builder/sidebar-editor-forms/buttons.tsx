@@ -178,7 +178,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
               <p className="text-xs text-red-500">{linkError}</p>
             )}
           </div>
-          <Label>Background</Label>
+          <Label>Button Color</Label>
           <ColorPicker
             value={localState.color}
             onChange={(color) => handleChange("color", color)}

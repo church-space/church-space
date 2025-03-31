@@ -177,7 +177,7 @@ const CustomButton: React.FC<{
               display: "inline-block",
               fontFamily: defaultFont || "sans-serif",
               fontSize: "14px",
-              fontWeight: "100",
+              fontWeight: "normal",
               lineHeight: "1",
               padding: "10px 15px",
               textDecoration: "none",
@@ -861,7 +861,7 @@ const CustomAuthor: React.FC<{
                             color: "#000000",
                             fontFamily: defaultFont || "sans-serif",
                             fontSize: "15px",
-                            fontWeight: "500",
+                            fontWeight: "300",
                           }}
                         >
                           {name[0]}
@@ -1336,8 +1336,8 @@ export function generateEmailCode(
                     <td style={{ padding: "0px" }}>
                       <Container
                         style={{
-                          padding: "0px 0px",
-                          maxWidth: "620px",
+                          padding: "10px 0px",
+                          maxWidth: "630px",
                         }}
                       >
                         {sections.map((section, sectionIndex) => (
@@ -1528,7 +1528,7 @@ export function generateEmailCode(
                                         cellPadding="0"
                                         cellSpacing="0"
                                         border={0}
-                                        style={blockStyle}
+                                        style={{ margin: "18px 0 4px 0" }}
                                       >
                                         <tr>
                                           <td>
@@ -1756,7 +1756,7 @@ export function generateEmailCode(
                                         cellPadding="0"
                                         cellSpacing="0"
                                         border={0}
-                                        style={blockStyle}
+                                        style={{ margin: "24px 0 8px 0" }}
                                       >
                                         <tr>
                                           <td>
