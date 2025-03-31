@@ -51,7 +51,8 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { EllipsisVertical } from "lucide-react";
 import { cookies } from "next/headers";
-
+import { format } from "date-fns";
+import DisconnectFromPcoButton from "@/components/pco/disconnect-from-pco-button";
 export default async function Page() {
   const cookieStore = await cookies();
   const organizationId = cookieStore.get("organizationId")?.value;
@@ -164,23 +165,38 @@ export default async function Page() {
           <SettingsContent>
             <SettingsRow isFirstRow>
               <div>
-                <SettingsRowTitle>Planning Center</SettingsRowTitle>
-                <SettingsRowDescription>
-                  Connect your Planning Center account to sync data
-                </SettingsRowDescription>
+                <SettingsRowTitle className="flex items-center gap-1.5">
+                  <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-green-500" />
+                  Planning Center
+                </SettingsRowTitle>
+                <div className="text-sm text-muted-foreground">
+                  {pcoConnection ? (
+                    <div className="flex flex-col">
+                      <p>
+                        Connected by{" "}
+                        <span className="font-medium">
+                          {pcoConnection.users.first_name}{" "}
+                          {pcoConnection.users.last_name}
+                        </span>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Connected on{" "}
+                        {format(
+                          new Date(pcoConnection.created_at),
+                          "MMM d, yyyy",
+                        )}
+                      </p>
+                    </div>
+                  ) : (
+                    "Connect your PCO account to sync data"
+                  )}
+                </div>
               </div>
               <SettingsRowAction>
                 {!pcoConnection ? (
                   <ConnectToPcoButton />
                 ) : (
-                  <div>
-                    <p>
-                      Connected by {pcoConnection.users.first_name}{" "}
-                      {pcoConnection.users.last_name}
-                    </p>
-                    <p>Last synced {pcoConnection.last_refreshed}</p>
-                    <p>Connected since {pcoConnection.created_at}</p>
-                  </div>
+                  <DisconnectFromPcoButton />
                 )}
               </SettingsRowAction>
             </SettingsRow>

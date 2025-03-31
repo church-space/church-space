@@ -99,7 +99,7 @@ const SettingsRowTitle = React.forwardRef<
   HTMLHeadingElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
-  <h3 ref={ref} className={cn("text-sm font-medium", className)} {...props} />
+  <h3 ref={ref} className={cn("text-sm font-semibold", className)} {...props} />
 ));
 SettingsRowTitle.displayName = "SettingsRowTitle";
 
