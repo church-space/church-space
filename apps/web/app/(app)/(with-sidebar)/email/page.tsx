@@ -21,7 +21,9 @@ import type { EmailStatus } from "@/components/tables/emails/filters";
 import type { Email } from "@/components/tables/emails/columns";
 
 interface PageProps {
+  // @ts-ignore
   params: {};
+  // @ts-ignore
   searchParams: { [key: string]: string | string[] | undefined };
 }
 

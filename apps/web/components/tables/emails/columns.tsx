@@ -23,28 +23,28 @@ export type Email = {
 };
 
 export const columns: ColumnDef<Email>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
-      />
-    ),
-    enableSorting: false,
-  },
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //       className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  // },
   {
     header: "Subject",
     id: "subject",
@@ -54,7 +54,7 @@ export const columns: ColumnDef<Email>[] = [
       return (
         <Link
           href={`/email/${email.id}`}
-          className="font-medium hover:underline"
+          className="pl-3 font-medium hover:underline"
           prefetch={true}
         >
           {email.subject || "No Subject"}
@@ -99,7 +99,7 @@ export const columns: ColumnDef<Email>[] = [
         return (
           <div className="flex flex-col">
             <span>Sent at</span>
-            <span className="font-bold">
+            <span className="font-semibold">
               {new Date(row.original.sent_at).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -112,7 +112,7 @@ export const columns: ColumnDef<Email>[] = [
         return (
           <div className="flex flex-col">
             <span>Scheduled for</span>
-            <span className="font-bold">
+            <span className="font-semibold">
               {new Date(row.original.scheduled_for).toLocaleDateString(
                 "en-US",
                 {
@@ -148,7 +148,11 @@ export const columns: ColumnDef<Email>[] = [
     header: "Created At",
     accessorKey: "created_at",
     cell: ({ row }) => {
-      return new Date(row.original.created_at).toLocaleDateString();
+      return new Date(row.original.created_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
     },
   },
 ];
