@@ -34,6 +34,7 @@ import {
 import debounce from "lodash/debounce";
 import { SearchIcon } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import ActionBar from "./action-bar";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -99,6 +100,7 @@ export default function DataTable<TData>({
   const [data, setData] = useState<TData[]>(initialData);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMorePages, setHasMorePages] = useState(initialHasNextPage);
+  const [rowSelection, setRowSelection] = useState({});
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -236,9 +238,11 @@ export default function DataTable<TData>({
     state: {
       columnFilters,
       globalFilter: "",
+      rowSelection,
     },
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -246,10 +250,13 @@ export default function DataTable<TData>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
     enableSorting: false,
+    enableRowSelection: true,
   });
 
+  const selectedRows = table.getSelectedRowModel().rows;
+
   return (
-    <div className="space-y-6">
+    <div className="relative space-y-6">
       {/* Search and Filters */}
       <div className="flex flex-wrap gap-3">
         {/* Global Search */}
@@ -346,8 +353,7 @@ export default function DataTable<TData>({
 
       <div
         ref={containerRef}
-        className="overflow-auto"
-        style={{ maxHeight: "calc(100vh - 255px)" }}
+        className="h-full min-h-[calc(100vh-255px)] overflow-auto"
       >
         <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
           <TableHeader className="backdrop-blur-xs sticky top-0 z-10 bg-background/90">
@@ -411,6 +417,13 @@ export default function DataTable<TData>({
           <div className="sentinel h-4" data-testid="sentinel" />
         )}
       </div>
+
+      {/* Action Bar */}
+      {selectedRows.length > 0 && (
+        <div className="absolute bottom-0 left-0 right-0 z-50">
+          <ActionBar />
+        </div>
+      )}
     </div>
   );
 }
