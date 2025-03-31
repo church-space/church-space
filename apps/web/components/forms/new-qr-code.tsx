@@ -14,11 +14,7 @@ import {
   FormMessage,
 } from "@church-space/ui/form";
 import { Input } from "@church-space/ui/input";
-import {
-  createQRLinkAction,
-  type QRLinkResponse,
-} from "@/actions/create-qr-link";
-import type { ActionResponse } from "@/types/action";
+import { createQRLinkAction } from "@/actions/create-qr-link";
 import { useState } from "react";
 
 const formSchema = z.object({

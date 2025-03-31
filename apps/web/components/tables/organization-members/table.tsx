@@ -74,7 +74,7 @@ export default function OrganizationMembersTable({
         columns={columns}
         data={members}
         pageSize={25}
-        loadMore={async ({ from, to }) => {
+        loadMore={async () => {
           const result = await fetchNextPage();
           const newData =
             result.data?.pages[result.data.pages.length - 1]?.data ?? [];

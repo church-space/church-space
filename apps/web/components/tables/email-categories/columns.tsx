@@ -2,7 +2,6 @@
 
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
-import Link from "next/link";
 
 // Define the type based on the SQL schema
 export type EmailCategory = {

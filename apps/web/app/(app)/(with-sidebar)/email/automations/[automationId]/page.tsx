@@ -37,17 +37,17 @@ import { DisableLink } from "@church-space/ui/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 
 export default function Page() {
-  const [isEditingLink, setIsEditingLink] = useState(false);
+  const [isEditingLink] = useState(false);
   const [editedLinkName, setEditedLinkName] = useState("Testing Automation");
-  const [linkErrors, setLinkErrors] = useState({
+  const [linkErrors] = useState({
     name: null,
     url: null,
   });
-  const [editedLinkStatus, setEditedLinkStatus] = useState("active");
+  const [editedLinkStatus] = useState("active");
   const [editedLinkDescription, setEditedLinkDescription] = useState("Testing");
   const [isDeletingLink, setIsDeletingLink] = useState(false);
-  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdatingStatus] = useState(false);
+  const [isDeleting] = useState(false);
 
   const isMobile = useIsMobile();
 

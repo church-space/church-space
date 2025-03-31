@@ -76,7 +76,7 @@ export default function EmailAutomationsTable({
         columns={columns}
         data={automations}
         pageSize={25}
-        loadMore={async ({ from, to }) => {
+        loadMore={async () => {
           const result = await fetchNextPage();
           const newData =
             result.data?.pages[result.data.pages.length - 1]?.data ?? [];
