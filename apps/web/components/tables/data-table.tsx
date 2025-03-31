@@ -269,7 +269,7 @@ export default function DataTable<TData>({
           <div className="relative">
             <Input
               id="global-search"
-              className="ps-9"
+              className="rounded-lg ps-9"
               value={globalFilter}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder={searchPlaceholderText}
@@ -323,7 +323,7 @@ export default function DataTable<TData>({
                       }
                     }}
                   >
-                    <SelectTrigger id={`filter-${key}`}>
+                    <SelectTrigger id={`filter-${key}`} className="rounded-lg">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

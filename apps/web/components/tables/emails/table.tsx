@@ -5,6 +5,7 @@ import { Button } from "@church-space/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@church-space/ui/dialog";
@@ -14,6 +15,8 @@ import NewEmail from "../../forms/new-email";
 import DataTable from "../data-table";
 import { columns, type Email } from "./columns";
 import { getEmailFilterConfig, type EmailStatus } from "./filters";
+import { Skeleton } from "@church-space/ui/skeleton";
+import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 
 interface EmailsTableProps {
   organizationId: string;
@@ -97,9 +100,11 @@ export default function EmailsTable({
   return (
     <>
       <div className="mb-6 flex w-full items-center justify-between">
-        <h1 className="text-2xl font-bold">
-          <span className="font-normal text-muted-foreground">{count}</span>{" "}
-          Emails
+        <h1 className="flex items-center gap-1.5 text-3xl font-bold">
+          <span className="font-normal text-muted-foreground">
+            {isLoading ? <Skeleton className="h-6 w-6" /> : count}
+          </span>{" "}
+          {count === 1 ? "Email" : "Emails"}
         </h1>
         <Button onClick={() => setIsNewEmailOpen(true)}>New Email</Button>
       </div>
@@ -132,8 +137,16 @@ export default function EmailsTable({
       <Dialog open={isNewEmailOpen} onOpenChange={setIsNewEmailOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Email</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <NewEmailIcon />
+              Create New Email
+            </DialogTitle>
+            <DialogDescription className="text-pretty">
+              What&apos;s the subject of your email? You can always change it
+              later.
+            </DialogDescription>
           </DialogHeader>
+
           <NewEmail organizationId={organizationId} />
         </DialogContent>
       </Dialog>

@@ -63,10 +63,10 @@ export default function NewEmail({
           name="subject"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subject</FormLabel>
+              <FormLabel className="ml-1">Subject</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter email subject..."
+                  placeholder="Email subject..."
                   {...field}
                   type="text"
                   disabled={isLoading}
