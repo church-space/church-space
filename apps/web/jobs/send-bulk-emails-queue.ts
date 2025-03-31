@@ -1,8 +1,6 @@
 import { task, queue } from "@trigger.dev/sdk/v3";
 import { Resend } from "resend";
 import { createClient } from "@church-space/supabase/job";
-//import { generateEmailCode } from "@/lib/generate-email-code"; // No longer needed here
-//import { render } from "@react-email/render"; // No longer needed here
 import { SignJWT } from "jose";
 import { Section, BlockType, BlockData } from "@/types/blocks";
 
@@ -267,6 +265,9 @@ export const sendBulkEmails = task({
 
                 if (resendEmailId) {
                   try {
+                    console.log(
+                      `Creating recipient record for ${emailAddress} with Resend ID: ${resendEmailId}`,
+                    );
                     await supabase.from("email_recipients").insert({
                       email_id: emailId,
                       people_email_id: parseInt(peopleEmailId),
@@ -275,10 +276,13 @@ export const sendBulkEmails = task({
                       status: "pending",
                       unsubscribe_token: batchTokens[peopleEmailId],
                     });
+                    console.log(
+                      `Successfully created recipient record for ${emailAddress}`,
+                    );
                     successCount++;
                   } catch (insertError) {
                     console.error(
-                      "Error creating recipient record:",
+                      `Failed to create recipient record for ${emailAddress}:`,
                       insertError,
                     );
                     failureCount++;
@@ -294,6 +298,9 @@ export const sendBulkEmails = task({
               const emailAddress = recipients[peopleEmailId];
 
               try {
+                console.log(
+                  `Creating failed recipient record for ${emailAddress}`,
+                );
                 await supabase.from("email_recipients").insert({
                   email_id: emailId,
                   people_email_id: parseInt(peopleEmailId),
@@ -301,10 +308,13 @@ export const sendBulkEmails = task({
                   status: "did-not-send",
                   unsubscribe_token: batchTokens[peopleEmailId] || "",
                 });
+                console.log(
+                  `Successfully created failed recipient record for ${emailAddress}`,
+                );
                 failureCount++;
               } catch (insertError) {
                 console.error(
-                  "Error creating failed recipient record:",
+                  `Failed to create failed recipient record for ${emailAddress}:`,
                   insertError,
                 );
               }

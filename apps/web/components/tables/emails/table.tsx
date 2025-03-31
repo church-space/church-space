@@ -45,7 +45,7 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
   );
 
   // Flatten all pages of data
-  const emails = data?.pages.flatMap((page) => page.data) ?? [];
+  const emails = data?.pages.flatMap((page) => page?.data ?? []) ?? [];
   const count = data?.pages[0]?.count ?? 0;
 
   return (
