@@ -20,11 +20,12 @@ import {
 import type { EmailStatus } from "@/components/tables/emails/filters";
 import type { Email } from "@/components/tables/emails/columns";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: { search?: string; status?: string };
-}) {
+interface PageProps {
+  params: {};
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default async function Page({ searchParams }: PageProps) {
   const cookiesStore = await cookies();
   const organizationId = cookiesStore.get("organizationId")?.value;
 
@@ -32,8 +33,17 @@ export default async function Page({
     redirect("/onboarding");
   }
 
+  // Get the first value if it's an array, or the value itself if it's a string
+  const searchValue = Array.isArray(searchParams.search)
+    ? searchParams.search[0]
+    : searchParams.search;
+
+  const statusValue = Array.isArray(searchParams.status)
+    ? searchParams.status[0]
+    : searchParams.status;
+
   // Parse status to ensure it's a valid EmailStatus
-  const status = searchParams.status as EmailStatus | undefined;
+  const status = statusValue as EmailStatus | undefined;
   const validStatus =
     status === "scheduled" ||
     status === "sent" ||
@@ -52,14 +62,14 @@ export default async function Page({
     {
       start: 0,
       end: 24,
-      searchTerm: searchParams.search,
+      searchTerm: searchValue,
       status: validStatus,
     },
   );
 
   // Get total count
   const { count } = await getEmailsCount(supabase, organizationId, {
-    searchTerm: searchParams.search,
+    searchTerm: searchValue,
     status: validStatus,
   });
 
@@ -101,7 +111,7 @@ export default async function Page({
           organizationId={organizationId}
           initialData={emails}
           initialCount={count ?? 0}
-          initialSearch={searchParams.search}
+          initialSearch={searchValue}
           initialStatus={validStatus}
         />
       </div>
