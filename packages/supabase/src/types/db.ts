@@ -782,6 +782,57 @@ export type Database = {
           },
         ]
       }
+      organization_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          expires_at: string
+          id: number
+          invited_by: string
+          invited_email: string
+          organization_id: string
+          role: string | null
+          token_hash: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: number
+          invited_by: string
+          invited_email: string
+          organization_id: string
+          role?: string | null
+          token_hash: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: number
+          invited_by?: string
+          invited_email?: string
+          organization_id?: string
+          role?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_invites_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_invites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_memberships: {
         Row: {
           created_at: string

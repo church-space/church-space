@@ -46,6 +46,19 @@ export default function LinkListLinks({
             key={index}
             target="_blank"
             rel="noopener noreferrer"
+            // onClick={() => {
+            //   const trackingData = JSON.stringify({ url: link.url, timestamp: Date.now() });
+            //   if (navigator.sendBeacon) {
+            //     navigator.sendBeacon('/track-click', trackingData);
+            //   } else {
+            //     // Fallback for browsers that don't support sendBeacon
+            //     fetch('/track-click', {
+            //       method: 'POST',
+            //       body: trackingData,
+            //       keepalive: true,
+            //     });
+            //   }
+            // }}
           >
             {buttonElement}
           </a>
