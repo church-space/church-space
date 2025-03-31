@@ -25,20 +25,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
-// Map of subscription plan values to their Stripe price IDs
-const PRICE_ID_MAP: Record<string, string> = {
-  "250": "price_1R44O5JPD51CqUc4qBh2XY7z",
-  "5000": "price_1R44BeJPD51CqUc4w3O6kphP",
-  "10000": "price_1R44D4JPD51CqUc45uoKQS77",
-  "20000": "price_1R44GGJPD51CqUc4gzUUGwcF",
-  "35000": "price_1R44GHJPD51CqUc4nx2vss1X",
-  "50000": "price_1R44GJJPD51CqUc4waaNBK2W",
-  "75000": "price_1R44GKJPD51CqUc4LmBi5azy",
-  "100000": "price_1R44GMJPD51CqUc48dPj9tCw",
-  "150000": "price_1R44HgJPD51CqUc4uhFo7Rlf",
-  "200000": "price_1R44HfJPD51CqUc4yODcbAXh",
-  "250000": "price_1R44IMJPD51CqUc4IZJRIzyB",
-};
 
 interface StripePlans {
   productId: string;
@@ -191,6 +177,19 @@ const STRIPE_PLANS: StripePlans[] = [
   },
 ];
 
+// Function to get price ID based on send limit and environment
+const getPriceId = (
+  sendLimit: string,
+  environment: "testing" | "live",
+): string => {
+  const plan = STRIPE_PLANS.find(
+    (plan) =>
+      plan.sendLimit.toString() === sendLimit &&
+      plan.enviorment === environment,
+  );
+  return plan?.priceId || "";
+};
+
 export default function SubscribeModal({
   organizationId,
   userId,
@@ -203,8 +202,18 @@ export default function SubscribeModal({
   const [error, setError] = useState<string | null>(null);
 
   const handleSubscribe = async () => {
-    if (!selectedPlan || !PRICE_ID_MAP[selectedPlan]) {
+    if (!selectedPlan) {
       setError("Please select a valid plan");
+      return;
+    }
+
+    const environment = process.env.NEXT_PUBLIC_STRIPE_ENV as
+      | "testing"
+      | "live";
+    const priceId = getPriceId(selectedPlan, environment);
+
+    if (!priceId) {
+      setError("Invalid plan selected");
       return;
     }
 
@@ -213,7 +222,7 @@ export default function SubscribeModal({
 
     try {
       console.log("Requesting checkout session with:", {
-        priceId: PRICE_ID_MAP[selectedPlan],
+        priceId,
         organizationId,
         userId,
       });
@@ -224,7 +233,7 @@ export default function SubscribeModal({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          priceId: PRICE_ID_MAP[selectedPlan],
+          priceId,
           organizationId,
           userId,
         }),
