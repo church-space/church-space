@@ -92,29 +92,40 @@ export const columns: ColumnDef<Email>[] = [
     },
   },
   {
-    header: "Scheduled For",
-    accessorKey: "scheduled_for",
-    cell: ({ row }) => {
-      return row.original.scheduled_for
-        ? new Date(row.original.scheduled_for).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-        : "—";
-    },
-  },
-  {
-    header: "Sent at",
+    header: "Date",
     accessorKey: "sent_at",
     cell: ({ row }) => {
-      return row.original.sent_at
-        ? new Date(row.original.sent_at).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-        : "—";
+      if (row.original.sent_at) {
+        return (
+          <div className="flex flex-col">
+            <span>Sent at</span>
+            <span className="font-bold">
+              {new Date(row.original.sent_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+        );
+      } else if (row.original.scheduled_for) {
+        return (
+          <div className="flex flex-col">
+            <span>Scheduled for</span>
+            <span className="font-bold">
+              {new Date(row.original.scheduled_for).toLocaleDateString(
+                "en-US",
+                {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                },
+              )}
+            </span>
+          </div>
+        );
+      }
+      return "—";
     },
   },
   {
@@ -122,7 +133,7 @@ export const columns: ColumnDef<Email>[] = [
     accessorKey: "from_name",
     cell: ({ row }) => {
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col">
           <span className="font-semibold">{row.original.from_name}</span>
           <span className="text-muted-foreground">
             {row.original.from_email && row.original.from_domain

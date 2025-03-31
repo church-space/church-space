@@ -27,8 +27,6 @@ export default function EmailsTable({
   organizationId,
   initialData,
   initialCount,
-  initialSearch,
-  initialStatus,
 }: EmailsTableProps) {
   const [search, setSearch] = useQueryState("search");
   const [status, setStatus] = useQueryState("status");
