@@ -27,18 +27,53 @@ export default function EmailsTable({
   organizationId,
   initialData,
   initialCount,
+  initialSearch,
+  initialStatus,
 }: EmailsTableProps) {
-  const [search, setSearch] = useQueryState("search");
-  const [status, setStatus] = useQueryState("status");
+  const [search, setSearch] = useQueryState("search", {
+    parse: (value) => value,
+    serialize: (value) => value ?? null,
+    history: "push",
+  });
+  const [status, setStatus] = useQueryState<EmailStatus | null>("status", {
+    parse: (value): EmailStatus | null => {
+      if (
+        value === "scheduled" ||
+        value === "sent" ||
+        value === "sending" ||
+        value === "draft" ||
+        value === "failed"
+      ) {
+        return value;
+      }
+      return null;
+    },
+    serialize: (value) => value || "all",
+    history: "push",
+  });
   const [isNewEmailOpen, setIsNewEmailOpen] = useState(false);
 
+  // Initialize search and status if they're not set and we have initial values
+  const effectiveSearch = search ?? initialSearch;
+  const effectiveStatus = status ?? initialStatus;
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useEmails(organizationId, search ?? undefined, status ?? undefined, {
-      initialData: {
-        pages: [{ data: initialData, count: initialCount, nextPage: 1 }],
-        pageParams: [0],
+    useEmails(
+      organizationId,
+      effectiveSearch ?? undefined,
+      effectiveStatus ?? undefined,
+      {
+        initialData:
+          effectiveSearch === initialSearch && effectiveStatus === initialStatus
+            ? {
+                pages: [
+                  { data: initialData, count: initialCount, nextPage: 1 },
+                ],
+                pageParams: [0],
+              }
+            : undefined,
       },
-    });
+    );
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -72,7 +107,7 @@ export default function EmailsTable({
         columns={columns}
         data={emails}
         pageSize={25}
-        loadMore={async ({ from, to }) => {
+        loadMore={async () => {
           const result = await fetchNextPage();
           const nextPageData = (result.data?.pages[result.data.pages.length - 1]
             ?.data ?? []) as Email[];
@@ -81,14 +116,14 @@ export default function EmailsTable({
           };
         }}
         hasNextPage={hasNextPage}
-        searchQuery={search || ""}
+        searchQuery={effectiveSearch || ""}
         onSearch={handleSearch}
         filterConfig={getEmailFilterConfig()}
         onFilterChange={{
           status: handleStatusChange,
         }}
         initialFilters={{
-          status: status ?? undefined,
+          status: effectiveStatus ?? undefined,
         }}
         searchPlaceholderText="Search by subject..."
         isLoading={isLoading || isFetchingNextPage}
