@@ -11,6 +11,7 @@ import {
   SettingsTitle,
 } from "@/components/settings/settings-settings";
 import { getDomainsQuery } from "@church-space/supabase/queries/all/get-domains";
+import { getPcoConnection } from "@church-space/supabase/queries/all/get-pco-connection";
 import { createClient } from "@church-space/supabase/server";
 import {
   AlertDialog,
@@ -66,8 +67,12 @@ export default async function Page() {
     return <div>No organization selected</div>;
   }
 
-  const domains = await getDomainsQuery(supabase, organizationId);
-  const domainsList = domains.data || [];
+  const data = await Promise.all([
+    getDomainsQuery(supabase, organizationId),
+    getPcoConnection(supabase, organizationId),
+  ]);
+  const domainsList = data[0].data || [];
+  const pcoConnection = data[1].data || null;
 
   return (
     <>
@@ -165,7 +170,18 @@ export default async function Page() {
                 </SettingsRowDescription>
               </div>
               <SettingsRowAction>
-                <ConnectToPcoButton />
+                {!pcoConnection ? (
+                  <ConnectToPcoButton />
+                ) : (
+                  <div>
+                    <p>
+                      Connected by {pcoConnection.users.first_name}{" "}
+                      {pcoConnection.users.last_name}
+                    </p>
+                    <p>Last synced {pcoConnection.last_refreshed}</p>
+                    <p>Connected since {pcoConnection.created_at}</p>
+                  </div>
+                )}
               </SettingsRowAction>
             </SettingsRow>
           </SettingsContent>
