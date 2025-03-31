@@ -18,7 +18,13 @@ import {
   SelectValue,
   SelectItem,
 } from "@church-space/ui/select";
-
+import { Label } from "@church-space/ui/label";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@church-space/ui/card";
 // Map of subscription plan values to their Stripe price IDs
 const PRICE_ID_MAP: Record<string, string> = {
   "250": "price_1R44O5JPD51CqUc4qBh2XY7z",
@@ -33,6 +39,157 @@ const PRICE_ID_MAP: Record<string, string> = {
   "200000": "price_1R44HfJPD51CqUc4yODcbAXh",
   "250000": "price_1R44IMJPD51CqUc4IZJRIzyB",
 };
+
+interface StripePlans {
+  productId: string;
+  priceId: string;
+  price: number;
+  sendLimit: number;
+  enviorment: "testing" | "live";
+}
+
+const STRIPE_PLANS: StripePlans[] = [
+  {
+    productId: "prod_Ry0AINZpor4sJ3",
+    priceId: "price_1R44AbJPD51CqUc4YgnAQmia",
+    price: 8,
+    sendLimit: 5000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0D0QpnB7zNfO",
+    priceId: "price_1R44D4JPD51CqUc45uoKQS77",
+    price: 16,
+    sendLimit: 10000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0EMgnmn9yzxB",
+    priceId: "price_1R44DlJPD51CqUc49Ty6MIfz",
+    price: 32,
+    sendLimit: 20000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0E46a7LnSdnp",
+    priceId: "price_1R44ELJPD51CqUc4ZEAQ8VFv",
+    price: 56,
+    sendLimit: 35000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0FtAuo7d83fN",
+    priceId: "price_1R44F6JPD51CqUc42OqLfKh4",
+    price: 80,
+    sendLimit: 50000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0GpfPkf6tmuo",
+    priceId: "price_1R44FbJPD51CqUc4M59ODEr0",
+    price: 120,
+    sendLimit: 75000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0GuwNyFWV7VZ",
+    priceId: "price_1R44G1JPD51CqUc4IOxGpopu",
+    price: 160,
+    sendLimit: 100000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0HasrAP8MNmG",
+    priceId: "price_1R44GsJPD51CqUc4h9KMvw4j",
+    price: 240,
+    sendLimit: 150000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0IhftKEGPcFx",
+    priceId: "price_1R44HbJPD51CqUc4ugrIwgyk",
+    price: 320,
+    sendLimit: 200000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0I707Nvcpiqe",
+    priceId: "price_1R44IMJPD51CqUc4IZJRIzyB",
+    price: 400,
+    sendLimit: 250000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0CJ8eQeoXnXR",
+    priceId: "price_1R44BeJPD51CqUc4w3O6kphP",
+    price: 8,
+    sendLimit: 5000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0DuepmPHWG8b",
+    priceId: "price_1R44DFJPD51CqUc4t3YdSRig",
+    price: 16,
+    sendLimit: 10000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0Ge0OavXMDQV",
+    priceId: "price_1R44GGJPD51CqUc4gzUUGwcF",
+    price: 32,
+    sendLimit: 20000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0GqqHFHHwqAb",
+    priceId: "price_1R44GHJPD51CqUc4nx2vss1X",
+    price: 56,
+    sendLimit: 35000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0GvuSloCxCMF",
+    priceId: "price_1R44GJJPD51CqUc4waaNBK2W",
+    price: 80,
+    sendLimit: 50000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0GTiTk5sNAIS",
+    priceId: "price_1R44GKJPD51CqUc4LmBi5azy",
+    price: 120,
+    sendLimit: 75000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0G0Bo4FvAExH",
+    priceId: "price_1R44GMJPD51CqUc48dPj9tCw",
+    price: 160,
+    sendLimit: 100000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0IPcegN3koXN",
+    priceId: "price_1R44HgJPD51CqUc4uhFo7Rlf",
+    price: 240,
+    sendLimit: 150000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0IVB2PVA3SAU",
+    priceId: "price_1R44HfJPD51CqUc4yODcbAXh",
+    price: 320,
+    sendLimit: 200000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0OPhNqvvY37g",
+    priceId: "price_1R44O4JPD51CqUc4EV7y9zru",
+    price: 400,
+    sendLimit: 250000,
+    enviorment: "live",
+  },
+];
 
 export default function SubscribeModal({
   organizationId,
@@ -109,6 +266,7 @@ export default function SubscribeModal({
           <DialogTitle>Subscribe</DialogTitle>
           <DialogDescription>Choose a plan to subscribe to</DialogDescription>
         </DialogHeader>
+        <Label>How many emails do you need to send per month?</Label>
         <Select onValueChange={setSelectedPlan} value={selectedPlan}>
           <SelectTrigger>
             <SelectValue placeholder="Select a plan" />
@@ -128,13 +286,25 @@ export default function SubscribeModal({
           </SelectContent>
         </Select>
         {error && <div className="mt-2 text-sm text-red-500">{error}</div>}
+        <Card className="flex flex-col gap-2">
+          <CardHeader>
+            <CardTitle>
+              <h3 className="text-xl font-semibold">$30/month usd</h3>
+            </CardTitle>
+            <CardDescription>
+              Send up to <b>20,000 emails</b> per month to an <b>unlimited</b>{" "}
+              number of contacts.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
         <DialogFooter>
           <Button
             type="button"
             onClick={handleSubscribe}
             disabled={!selectedPlan || isLoading}
           >
-            {isLoading ? "Processing..." : "Subscribe"}
+            {isLoading ? "Processing..." : "Subscribe for $30/month"}
           </Button>
         </DialogFooter>
       </DialogContent>
