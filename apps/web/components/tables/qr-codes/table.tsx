@@ -14,7 +14,7 @@ import {
 } from "@church-space/ui/dialog";
 
 import { useQrCodes } from "@/hooks/use-qr-codes";
-
+import NewQRCode from "@/components/forms/new-qr-code";
 interface QrCodesTableProps {
   organizationId: string;
 }
@@ -91,9 +91,7 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
           <DialogHeader>
             <DialogTitle>Create New QR Code</DialogTitle>
           </DialogHeader>
-          {/* TODO: Replace with actual NewQrCode component */}
-          {/* <NewQrCode organizationId={organizationId} /> */}
-          <div>Placeholder for NewQrCode form</div>
+          <NewQRCode organizationId={organizationId} />
         </DialogContent>
       </Dialog>
     </>

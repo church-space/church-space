@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@church-space/ui/dialog";
 import { useEmailTemplates } from "@/hooks/use-email-templates";
+import NewEmailTemplate from "@/components/forms/new-email-template";
 
 interface EmailTemplatesTableProps {
   organizationId: string;
@@ -78,7 +79,7 @@ export default function EmailTemplatesTable({
           <DialogHeader>
             <DialogTitle>Create New Email Template</DialogTitle>
           </DialogHeader>
-          <div>Placeholder for NewEmailTemplate form</div>
+          <NewEmailTemplate organizationId={organizationId} />
         </DialogContent>
       </Dialog>
     </>

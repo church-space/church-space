@@ -14,16 +14,19 @@ import {
   FormMessage,
 } from "@church-space/ui/form";
 import { Input } from "@church-space/ui/input";
-import { createEmailAction } from "@/actions/create-email";
+import { createLinkListAction } from "@/actions/create-link-list";
 import { useState } from "react";
 
 const formSchema = z.object({
-  subject: z.string().min(1, "Subject is required"),
+  private_name: z.string().min(1, "Name is required"),
+  url_slug: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
+    message: "URL slug must be lowercase letters, numbers, and hyphens only",
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function NewEmail({
+export default function NewLinkList({
   organizationId,
 }: {
   organizationId: string;
@@ -33,25 +36,29 @@ export default function NewEmail({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      subject: "",
+      private_name: "",
+      url_slug: "",
     },
   });
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
-      const result = await createEmailAction({
-        subject: values.subject,
+      const result = await createLinkListAction({
+        private_name: values.private_name,
+        url_slug: values.url_slug,
         organization_id: organizationId,
       });
 
-      console.log(result);
-
       if (result?.data?.success && result?.data?.data) {
-        await router.push(`/email/${result.data.data.id}/editor?newEmail=true`);
+        await router.push(
+          `/link-lists/${result.data.data.id}/editor?newList=true`,
+        );
       }
     } catch (error) {
-      console.error("Failed to create email:", error);
+      console.error("Failed to create link list:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,13 +67,13 @@ export default function NewEmail({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="subject"
+          name="private_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subject</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter email subject..."
+                  placeholder="Enter list name..."
                   {...field}
                   type="text"
                   disabled={isLoading}
@@ -76,8 +83,32 @@ export default function NewEmail({
                   spellCheck="false"
                   data-form-type="other"
                   data-lpignore="true"
-                  name="email_subject_field"
-                  aria-label="Email subject"
+                  aria-label="Link list name"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="url_slug"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL Slug</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="my-awesome-list"
+                  {...field}
+                  type="text"
+                  disabled={isLoading}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
+                  data-form-type="other"
+                  data-lpignore="true"
+                  aria-label="URL slug"
                 />
               </FormControl>
               <FormMessage />
@@ -85,7 +116,7 @@ export default function NewEmail({
           )}
         />
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create Email"}
+          {isLoading ? "Creating..." : "Create Link List"}
         </Button>
       </form>
     </Form>

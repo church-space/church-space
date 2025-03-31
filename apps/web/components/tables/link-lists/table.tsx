@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@church-space/ui/dialog";
 import { useLinkLists } from "@/hooks/use-link-lists";
+import NewLinkList from "@/components/forms/new-link-list";
 
 interface LinkListsTableProps {
   organizationId: string;
@@ -97,7 +98,7 @@ export default function LinkListsTable({
           <DialogHeader>
             <DialogTitle>Create New Link List</DialogTitle>
           </DialogHeader>
-          <div>Placeholder for NewLinkList form</div>
+          <NewLinkList organizationId={organizationId} />
         </DialogContent>
       </Dialog>
     </>

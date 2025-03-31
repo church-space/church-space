@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@church-space/ui/form";
 import { Input } from "@church-space/ui/input";
-import { createEmailAction } from "@/actions/create-email";
+import { createEmailTemplateAction } from "@/actions/create-email-template";
 import { useState } from "react";
 
 const formSchema = z.object({
@@ -23,7 +23,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function NewEmail({
+export default function NewEmailTemplate({
   organizationId,
 }: {
   organizationId: string;
@@ -40,18 +40,20 @@ export default function NewEmail({
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
-      const result = await createEmailAction({
+      const result = await createEmailTemplateAction({
         subject: values.subject,
         organization_id: organizationId,
       });
 
-      console.log(result);
-
       if (result?.data?.success && result?.data?.data) {
-        await router.push(`/email/${result.data.data.id}/editor?newEmail=true`);
+        await router.push(
+          `/email/${result.data.data.id}/editor?newTemplate=true`,
+        );
       }
     } catch (error) {
-      console.error("Failed to create email:", error);
+      console.error("Failed to create email template:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -63,10 +65,10 @@ export default function NewEmail({
           name="subject"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subject</FormLabel>
+              <FormLabel>Template Subject</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter email subject..."
+                  placeholder="Enter email template subject..."
                   {...field}
                   type="text"
                   disabled={isLoading}
@@ -76,8 +78,8 @@ export default function NewEmail({
                   spellCheck="false"
                   data-form-type="other"
                   data-lpignore="true"
-                  name="email_subject_field"
-                  aria-label="Email subject"
+                  name="email_template_subject_field"
+                  aria-label="Email template subject"
                 />
               </FormControl>
               <FormMessage />
@@ -85,7 +87,7 @@ export default function NewEmail({
           )}
         />
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create Email"}
+          {isLoading ? "Creating..." : "Create Email Template"}
         </Button>
       </form>
     </Form>

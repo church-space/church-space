@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@church-space/ui/dialog";
 import { useEmailAutomations } from "@/hooks/use-email-automations";
+import NewAutomation from "@/components/forms/new-automation";
 
 interface EmailAutomationsTableProps {
   organizationId: string;
@@ -108,7 +109,7 @@ export default function EmailAutomationsTable({
           <DialogHeader>
             <DialogTitle>Create New Email Automation</DialogTitle>
           </DialogHeader>
-          <div>Placeholder for NewEmailAutomation form</div>
+          <NewAutomation organizationId={organizationId} />
         </DialogContent>
       </Dialog>
     </>

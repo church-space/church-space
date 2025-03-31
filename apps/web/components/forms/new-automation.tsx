@@ -14,16 +14,17 @@ import {
   FormMessage,
 } from "@church-space/ui/form";
 import { Input } from "@church-space/ui/input";
-import { createEmailAction } from "@/actions/create-email";
+import { createAutomationAction } from "@/actions/create-automation";
 import { useState } from "react";
 
 const formSchema = z.object({
-  subject: z.string().min(1, "Subject is required"),
+  name: z.string().min(1, "Name is required"),
+  description: z.string().min(1, "Description is required"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function NewEmail({
+export default function NewAutomation({
   organizationId,
 }: {
   organizationId: string;
@@ -33,25 +34,29 @@ export default function NewEmail({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      subject: "",
+      name: "",
+      description: "",
     },
   });
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
-      const result = await createEmailAction({
-        subject: values.subject,
+      const result = await createAutomationAction({
+        name: values.name,
+        description: values.description,
         organization_id: organizationId,
       });
 
-      console.log(result);
-
       if (result?.data?.success && result?.data?.data) {
-        await router.push(`/email/${result.data.data.id}/editor?newEmail=true`);
+        await router.push(
+          `/automation/${result.data.data.id}/editor?newAutomation=true`,
+        );
       }
     } catch (error) {
-      console.error("Failed to create email:", error);
+      console.error("Failed to create automation:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,13 +65,13 @@ export default function NewEmail({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="subject"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subject</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter email subject..."
+                  placeholder="Enter automation name..."
                   {...field}
                   type="text"
                   disabled={isLoading}
@@ -76,8 +81,34 @@ export default function NewEmail({
                   spellCheck="false"
                   data-form-type="other"
                   data-lpignore="true"
-                  name="email_subject_field"
-                  aria-label="Email subject"
+                  name="automation_name_field"
+                  aria-label="Automation name"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter automation description..."
+                  {...field}
+                  type="text"
+                  disabled={isLoading}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
+                  data-form-type="other"
+                  data-lpignore="true"
+                  name="automation_description_field"
+                  aria-label="Automation description"
                 />
               </FormControl>
               <FormMessage />
@@ -85,7 +116,7 @@ export default function NewEmail({
           )}
         />
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create Email"}
+          {isLoading ? "Creating..." : "Create Automation"}
         </Button>
       </form>
     </Form>

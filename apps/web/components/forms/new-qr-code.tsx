@@ -14,16 +14,21 @@ import {
   FormMessage,
 } from "@church-space/ui/form";
 import { Input } from "@church-space/ui/input";
-import { createEmailAction } from "@/actions/create-email";
+import {
+  createQRLinkAction,
+  type QRLinkResponse,
+} from "@/actions/create-qr-link";
+import type { ActionResponse } from "@/types/action";
 import { useState } from "react";
 
 const formSchema = z.object({
-  subject: z.string().min(1, "Subject is required"),
+  name: z.string().min(1, "Name is required"),
+  url: z.string().url("Must be a valid URL"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function NewEmail({
+export default function NewQRCode({
   organizationId,
 }: {
   organizationId: string;
@@ -33,25 +38,27 @@ export default function NewEmail({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      subject: "",
+      name: "",
+      url: "",
     },
   });
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
-      const result = await createEmailAction({
-        subject: values.subject,
+      const result = await createQRLinkAction({
+        name: values.name,
+        url: values.url,
         organization_id: organizationId,
       });
 
-      console.log(result);
-
-      if (result?.data?.success && result?.data?.data) {
-        await router.push(`/email/${result.data.data.id}/editor?newEmail=true`);
+      if (result && "data" in result && result.data && "id" in result.data) {
+        await router.push(`/qr-codes/${result.data.id}`);
       }
     } catch (error) {
-      console.error("Failed to create email:", error);
+      console.error("Failed to create QR code:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,13 +67,13 @@ export default function NewEmail({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="subject"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subject</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter email subject..."
+                  placeholder="Enter QR code name..."
                   {...field}
                   type="text"
                   disabled={isLoading}
@@ -76,8 +83,32 @@ export default function NewEmail({
                   spellCheck="false"
                   data-form-type="other"
                   data-lpignore="true"
-                  name="email_subject_field"
-                  aria-label="Email subject"
+                  aria-label="QR code name"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter URL to encode..."
+                  {...field}
+                  type="url"
+                  disabled={isLoading}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
+                  data-form-type="other"
+                  data-lpignore="true"
+                  aria-label="QR code URL"
                 />
               </FormControl>
               <FormMessage />
@@ -85,7 +116,7 @@ export default function NewEmail({
           )}
         />
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create Email"}
+          {isLoading ? "Creating..." : "Create QR Code"}
         </Button>
       </form>
     </Form>
