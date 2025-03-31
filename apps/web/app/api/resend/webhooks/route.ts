@@ -23,8 +23,17 @@ type ResendWebhookEvent = {
     click?: {
       link: string;
     };
+    headers: { name: string; value: string }[];
   };
 };
+
+// Add this helper function at the top of the file
+function getHeaderValue(
+  headers: { name: string; value: string }[],
+  name: string,
+): string | undefined {
+  return headers.find((h) => h.name === name)?.value;
+}
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -71,36 +80,72 @@ export async function POST(request: NextRequest) {
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "sent",
+        email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
+        ),
+        people_email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
+        ),
       });
       break;
     case "email.delivered":
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "delivered",
+        email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
+        ),
+        people_email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
+        ),
       });
       break;
     case "email.delivery_delayed":
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "delivery_delayed",
+        email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
+        ),
+        people_email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
+        ),
       });
       break;
     case "email.complained":
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "complained",
+        email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
+        ),
+        people_email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
+        ),
       });
       break;
     case "email.bounced":
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "bounced",
+        email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
+        ),
+        people_email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
+        ),
       });
       break;
     case "email.opened":
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "opened",
+        email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
+        ),
+        people_email_id: Number(
+          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
+        ),
       });
       break;
   }

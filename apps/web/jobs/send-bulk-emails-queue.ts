@@ -230,7 +230,8 @@ export const sendBulkEmails = task({
               subject: typedEmailData.subject || "No Subject",
               html: personalizedHtml,
               headers: {
-                "X-Entity-Ref-ID": `${emailId}-${peopleEmailId}`,
+                "X-Entity-Email-ID": `${emailId}`,
+                "X-Entity-People-Email-ID": `${peopleEmailId}`,
               },
             });
           } catch (error) {
@@ -244,52 +245,6 @@ export const sendBulkEmails = task({
             // Send batch
             const response = await resend.batch.send(emailBatch);
             results.push(response);
-
-            // Create email_recipients records for successful sends
-            if (response.data) {
-              // We need to handle the response data carefully since it might not be an array
-              // with the same structure as our batch
-              const responseData = Array.isArray(response.data)
-                ? response.data
-                : [response.data];
-
-              // Create records for each successfully sent email
-              for (
-                let i = 0;
-                i < Math.min(responseData.length, batch.length);
-                i++
-              ) {
-                const peopleEmailId = batch[i];
-                const emailAddress = recipients[peopleEmailId];
-                const resendEmailId = responseData[i]?.id;
-
-                if (resendEmailId) {
-                  try {
-                    console.log(
-                      `Creating recipient record for ${emailAddress} with Resend ID: ${resendEmailId}`,
-                    );
-                    await supabase.from("email_recipients").insert({
-                      email_id: emailId,
-                      people_email_id: parseInt(peopleEmailId),
-                      email_address: emailAddress,
-                      resend_email_id: resendEmailId,
-                      status: "pending",
-                      unsubscribe_token: batchTokens[peopleEmailId],
-                    });
-                    console.log(
-                      `Successfully created recipient record for ${emailAddress}`,
-                    );
-                    successCount++;
-                  } catch (insertError) {
-                    console.error(
-                      `Failed to create recipient record for ${emailAddress}:`,
-                      insertError,
-                    );
-                    failureCount++;
-                  }
-                }
-              }
-            }
           } catch (error) {
             console.error("Error sending batch:", error);
 
