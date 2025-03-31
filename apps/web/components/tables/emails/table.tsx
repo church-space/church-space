@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import DataTable from "../data-table";
-import { columns } from "./columns";
+import { columns, type Email } from "./columns";
 import { useQueryState } from "nuqs";
 import { Button } from "@church-space/ui/button";
 import { getEmailFilterConfig, type EmailStatus } from "./filters";
@@ -44,8 +44,16 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
     [setStatus],
   );
 
-  // Flatten all pages of data
-  const emails = data?.pages.flatMap((page) => page?.data ?? []) ?? [];
+  // Flatten all pages of data and cast to Email type
+  const emails = (data?.pages.flatMap((page) => page?.data ?? []) ?? []).map(
+    (email) => ({
+      ...email,
+      from_domain: email.from_domain as unknown as { domain: string } | null,
+      reply_to_domain: email.reply_to_domain as unknown as {
+        domain: string;
+      } | null,
+    }),
+  ) as Email[];
   const count = data?.pages[0]?.count ?? 0;
 
   return (
@@ -61,10 +69,21 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
         columns={columns}
         data={emails}
         pageSize={25}
-        loadMore={async () => {
+        loadMore={async ({ from, to }) => {
           const result = await fetchNextPage();
+          const nextPageData = (
+            result.data?.pages[result.data.pages.length - 1]?.data ?? []
+          ).map((email) => ({
+            ...email,
+            from_domain: email.from_domain as unknown as {
+              domain: string;
+            } | null,
+            reply_to_domain: email.reply_to_domain as unknown as {
+              domain: string;
+            } | null,
+          })) as Email[];
           return {
-            data: result.data?.pages[result.data.pages.length - 1]?.data ?? [],
+            data: nextPageData,
           };
         }}
         hasNextPage={hasNextPage}
@@ -77,6 +96,7 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
         initialFilters={{
           status: status ?? undefined,
         }}
+        searchPlaceholderText="Search by subject..."
         isLoading={isFetchingNextPage}
       />
 

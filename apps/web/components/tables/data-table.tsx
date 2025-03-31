@@ -35,6 +35,7 @@ import debounce from "lodash/debounce";
 import { SearchIcon } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import ActionBar from "./action-bar";
+import { Skeleton } from "@church-space/ui/skeleton";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -79,6 +80,7 @@ interface DataTableProps<TData> {
     [key: string]: string | undefined;
   };
   isLoading?: boolean;
+  searchPlaceholderText?: string;
 }
 
 export default function DataTable<TData>({
@@ -94,6 +96,7 @@ export default function DataTable<TData>({
   onFilterChange,
   initialFilters,
   isLoading: externalIsLoading,
+  searchPlaceholderText = "Search...",
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState(searchQuery);
@@ -268,7 +271,7 @@ export default function DataTable<TData>({
               className="ps-9"
               value={globalFilter}
               onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search by name or email..."
+              placeholder={searchPlaceholderText}
               type="text"
             />
             <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80">
@@ -378,7 +381,20 @@ export default function DataTable<TData>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading && data.length === 0 ? (
+              // Show skeleton rows while loading
+              Array.from({ length: pageSize }).map((_, index) => (
+                <TableRow key={index} className="group/table-row h-20">
+                  {Array.from({ length: columns.length }).map(
+                    (_, cellIndex) => (
+                      <TableCell key={cellIndex}>
+                        <Skeleton className="h-4 w-3/4" />
+                      </TableCell>
+                    ),
+                  )}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

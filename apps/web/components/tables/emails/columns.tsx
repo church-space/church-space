@@ -8,7 +8,7 @@ import { Badge } from "@church-space/ui/badge";
 export type Email = {
   id: number;
   subject: string | null;
-  type: string;
+  type: "standard" | "template";
   created_at: string;
   organization_id: string;
   from_email: string | null;
@@ -18,6 +18,8 @@ export type Email = {
   updated_at: string | null;
   status: string | null;
   sent_at: string | null;
+  from_domain: { domain: string } | null;
+  reply_to_domain: { domain: string } | null;
 };
 
 export const columns: ColumnDef<Email>[] = [
@@ -93,7 +95,11 @@ export const columns: ColumnDef<Email>[] = [
     accessorKey: "scheduled_for",
     cell: ({ row }) => {
       return row.original.scheduled_for
-        ? new Date(row.original.scheduled_for).toLocaleDateString()
+        ? new Date(row.original.scheduled_for).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
         : "—";
     },
   },
@@ -102,7 +108,11 @@ export const columns: ColumnDef<Email>[] = [
     accessorKey: "sent_at",
     cell: ({ row }) => {
       return row.original.sent_at
-        ? new Date(row.original.sent_at).toLocaleDateString()
+        ? new Date(row.original.sent_at).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
         : "—";
     },
   },
@@ -114,7 +124,9 @@ export const columns: ColumnDef<Email>[] = [
         <div className="flex items-center gap-2">
           <span className="font-semibold">{row.original.from_name}</span>
           <span className="text-muted-foreground">
-            {row.original.from_email}
+            {row.original.from_email && row.original.from_domain
+              ? `${row.original.from_email}@${row.original.from_domain.domain}`
+              : row.original.from_email || "—"}
           </span>
         </div>
       );
