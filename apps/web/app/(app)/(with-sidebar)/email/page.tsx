@@ -4,10 +4,8 @@ import { Separator } from "@church-space/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import EmailsTable from "@/components/tables/emails/table";
 import { cookies } from "next/headers";
@@ -21,9 +19,7 @@ import type { EmailStatus } from "@/components/tables/emails/filters";
 import type { Email } from "@/components/tables/emails/columns";
 
 interface PageProps {
-  // @ts-ignore
-  params: {};
-  // @ts-ignore
+  params: Record<string, never>;
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
