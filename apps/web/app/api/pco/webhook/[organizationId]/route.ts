@@ -458,6 +458,10 @@ export async function POST(
         }
       }
       break;
+
+    case "people.v2.events.form_submission.created":
+      console.log("Form submission created:", data);
+      break;
     default:
       console.error("Unknown webhook name:", webhookName);
   }

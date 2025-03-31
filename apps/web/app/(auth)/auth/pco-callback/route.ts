@@ -205,6 +205,7 @@ export async function GET(request: NextRequest) {
       "people.v2.events.person.created",
       "people.v2.events.person.destroyed",
       "people.v2.events.person.updated",
+      "people.v2.events.form_submission.created",
     ];
 
     for (const event of webhookEvents) {
