@@ -1,6 +1,5 @@
 "use client";
 
-import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { Badge } from "@church-space/ui/badge";
