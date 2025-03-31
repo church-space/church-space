@@ -23,6 +23,7 @@
     "typescript": "^5.6.3"
   },
   "exports": {
+    "./types": "./src/types/index.ts",
     "./server": "./src/clients/server.ts",
     "./client": "./src/clients/client.ts",
     "./job": "./src/clients/job.ts",
