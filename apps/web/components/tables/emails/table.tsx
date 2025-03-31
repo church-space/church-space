@@ -102,7 +102,7 @@ export default function EmailsTable({
       <div className="mb-6 flex w-full items-center justify-between">
         <h1 className="flex items-center gap-1.5 text-3xl font-bold">
           <span className="font-normal text-muted-foreground">
-            {isLoading ? <Skeleton className="h-6 w-6" /> : count}
+            {isLoading ? <Skeleton className="h-7 w-6" /> : count}
           </span>{" "}
           {count === 1 ? "Email" : "Emails"}
         </h1>
