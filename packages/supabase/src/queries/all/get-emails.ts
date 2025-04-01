@@ -93,5 +93,6 @@ export async function getEmailsQuery(
   }
 
   const { data, error } = await query;
+  console.log("data", data);
   return { data, error };
 }

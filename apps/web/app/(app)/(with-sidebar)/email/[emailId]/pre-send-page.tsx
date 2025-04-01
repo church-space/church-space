@@ -60,6 +60,7 @@ import {
 } from "@church-space/ui/breadcrumb";
 import SendTestEmail from "@/components/dnd-builder/send-test-email";
 import { getEmailBlockCountQuery } from "@church-space/supabase/queries/all/get-email";
+import { Card, CardContent, CardHeader } from "@church-space/ui/card";
 
 function SaveButtons(props: {
   isSaving: boolean;
@@ -737,6 +738,14 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           </DropdownMenu>
         </div>
       </div>
+      {email.status === "failed" && (
+        <Card className="mx-auto w-full max-w-3xl space-y-4 px-4 py-4">
+          <CardHeader>Email Failed</CardHeader>
+          <CardContent>
+            <p>The email failed to send. Please try again.</p>
+          </CardContent>
+        </Card>
+      )}
       <Accordion
         type="single"
         collapsible

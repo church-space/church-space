@@ -42,7 +42,14 @@ export const filterEmailRecipients = task({
           .eq("id", emailId);
 
         throw new Error(
-          "Email must have a from_email, from_name, and from_email_domain",
+          "Email must have a from email, from name, and from email domain",
+        );
+      }
+
+      // Validate required email fields
+      if (emailData.status === "sending" || emailData.status === "sent") {
+        throw new Error(
+          "This email is already sending or has been sent. Please try again later.",
         );
       }
 
