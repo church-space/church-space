@@ -281,17 +281,13 @@ export default function SubscribeModal({
             <SelectValue placeholder="Select a plan" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="250">250</SelectItem>
-            <SelectItem value="5000">5,000</SelectItem>
-            <SelectItem value="10000">10,000</SelectItem>
-            <SelectItem value="20000">20,000</SelectItem>
-            <SelectItem value="35000">35,000</SelectItem>
-            <SelectItem value="50000">50,000</SelectItem>
-            <SelectItem value="75000">75,000</SelectItem>
-            <SelectItem value="100000">100,000</SelectItem>
-            <SelectItem value="150000">150,000</SelectItem>
-            <SelectItem value="200000">200,000</SelectItem>
-            <SelectItem value="250000">250,000</SelectItem>
+            {STRIPE_PLANS.filter(
+              (plan) => plan.enviorment === process.env.NEXT_PUBLIC_STRIPE_ENV,
+            ).map((plan) => (
+              <SelectItem key={plan.priceId} value={plan.sendLimit.toString()}>
+                {plan.sendLimit.toLocaleString()} emails - ${plan.price}/month
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         {error && <div className="mt-2 text-sm text-red-500">{error}</div>}

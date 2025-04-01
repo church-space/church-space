@@ -2466,12 +2466,12 @@ export default function EmailDndProvider({
           <Button variant="default" onClick={handleSave} disabled={isSaving}>
             <span className="hidden md:block">
               {isSaving ? (
-                <>
+                <div className="flex items-center gap-1">
                   <div className="flex h-4 w-4 animate-spin items-center justify-center">
                     <LoaderIcon />
                   </div>
                   <span>Saving...</span>
-                </>
+                </div>
               ) : (
                 "Save and Exit"
               )}

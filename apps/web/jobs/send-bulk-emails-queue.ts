@@ -140,12 +140,14 @@ export const sendBulkEmails = task({
       const sections: Section[] = [
         {
           id: "main-section",
-          blocks: typedEmailData.blocks.map((block) => ({
-            id: block.id.toString(),
-            type: block.type as BlockType,
-            order: block.order || 0,
-            data: block.value as unknown as BlockData,
-          })),
+          blocks: typedEmailData.blocks
+            .sort((a, b) => (a.order || 0) - (b.order || 0))
+            .map((block) => ({
+              id: block.id.toString(),
+              type: block.type as BlockType,
+              order: block.order || 0,
+              data: block.value as unknown as BlockData,
+            })),
         },
       ];
 
