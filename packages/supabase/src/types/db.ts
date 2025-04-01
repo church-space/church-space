@@ -435,7 +435,7 @@ export type Database = {
         Row: {
           created_at: string
           email_address: string | null
-          email_id: number | null
+          email_id: number
           id: number
           people_email_id: number | null
           resend_email_id: string | null
@@ -445,7 +445,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email_address?: string | null
-          email_id?: number | null
+          email_id: number
           id?: number
           people_email_id?: number | null
           resend_email_id?: string | null
@@ -455,7 +455,7 @@ export type Database = {
         Update: {
           created_at?: string
           email_address?: string | null
-          email_id?: number | null
+          email_id?: number
           id?: number
           people_email_id?: number | null
           resend_email_id?: string | null
@@ -780,6 +780,44 @@ export type Database = {
             foreignKeyName: "link_lists_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_email_usage: {
+        Row: {
+          current_period_end: string
+          current_period_start: string
+          organization_id: string
+          send_limit: number
+          sends_remaining: number
+          sends_used: number
+          updated_at: string
+        }
+        Insert: {
+          current_period_end: string
+          current_period_start: string
+          organization_id: string
+          send_limit: number
+          sends_remaining: number
+          sends_used: number
+          updated_at?: string
+        }
+        Update: {
+          current_period_end?: string
+          current_period_start?: string
+          organization_id?: string
+          send_limit?: number
+          sends_remaining?: number
+          sends_used?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_email_usage_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -1576,6 +1614,7 @@ export type Database = {
           is_test_mode: boolean | null
           metadata: Json | null
           name: string
+          send_limit: number | null
           stripe_product_id: string
           updated_at: string | null
         }
@@ -1587,6 +1626,7 @@ export type Database = {
           is_test_mode?: boolean | null
           metadata?: Json | null
           name: string
+          send_limit?: number | null
           stripe_product_id: string
           updated_at?: string | null
         }
@@ -1598,6 +1638,7 @@ export type Database = {
           is_test_mode?: boolean | null
           metadata?: Json | null
           name?: string
+          send_limit?: number | null
           stripe_product_id?: string
           updated_at?: string | null
         }
@@ -1727,6 +1768,10 @@ export type Database = {
           user_uuid: string
         }
         Returns: string[]
+      }
+      update_org_email_usage: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

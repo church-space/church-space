@@ -247,7 +247,55 @@ export const filterEmailRecipients = task({
         recipients[email.id.toString()] = email.email;
       });
 
-      // Step 9: Update email status to sending
+      // Step 9: Check organization's email usage limits
+      const { data: emailUsage, error: emailUsageError } = await supabase
+        .from("org_email_usage")
+        .select("sends_remaining, sends_used")
+        .eq("organization_id", emailData.organization_id)
+        .single();
+
+      if (emailUsageError) {
+        throw new Error(
+          `Failed to fetch email usage: ${emailUsageError.message}`,
+        );
+      }
+
+      if (!emailUsage) {
+        throw new Error("No email usage limits found for this organization");
+      }
+
+      const recipientCount = Object.keys(recipients).length;
+      if (emailUsage.sends_remaining < recipientCount) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", emailId);
+
+        throw new Error(
+          `Email limit exceeded. Required: ${recipientCount}, Remaining: ${emailUsage.sends_remaining}`,
+        );
+      }
+
+      // Update the organization's remaining email sends
+      const { error: updateUsageError } = await supabase
+        .from("org_email_usage")
+        .update({
+          sends_remaining: emailUsage.sends_remaining - recipientCount,
+          updated_at: new Date().toISOString(),
+          sends_used: emailUsage.sends_used + recipientCount,
+        })
+        .eq("organization_id", emailData.organization_id);
+
+      if (updateUsageError) {
+        throw new Error(
+          `Failed to update email usage: ${updateUsageError.message}`,
+        );
+      }
+
+      // Step 10: Update email status to sending
       await supabase
         .from("emails")
         .update({
@@ -256,7 +304,7 @@ export const filterEmailRecipients = task({
         })
         .eq("id", emailId);
 
-      // Step 10: Send to bulk email queue
+      // Step 11: Send to bulk email queue
       const result = await sendBulkEmails.trigger({
         emailId,
         recipients,

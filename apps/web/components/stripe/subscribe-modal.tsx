@@ -294,7 +294,15 @@ export default function SubscribeModal({
         <Card className="flex flex-col gap-2">
           <CardHeader>
             <CardTitle>
-              <h3 className="text-xl font-semibold">$30/month usd</h3>
+              <h3 className="text-xl font-semibold">
+                $
+                {
+                  STRIPE_PLANS.find(
+                    (plan) => plan.sendLimit.toString() === selectedPlan,
+                  )?.price
+                }
+                /month
+              </h3>
             </CardTitle>
             <CardDescription>
               Send up to <b>20,000 emails</b> per month to an <b>unlimited</b>{" "}
@@ -309,7 +317,13 @@ export default function SubscribeModal({
             onClick={handleSubscribe}
             disabled={!selectedPlan || isLoading}
           >
-            {isLoading ? "Processing..." : "Subscribe for $30/month"}
+            {isLoading
+              ? "Processing..."
+              : `Subscribe for $${
+                  STRIPE_PLANS.find(
+                    (plan) => plan.sendLimit.toString() === selectedPlan,
+                  )?.price
+                }/month`}
           </Button>
         </DialogFooter>
       </DialogContent>
