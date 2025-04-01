@@ -29,7 +29,7 @@ function FloatingPaths({ position }: { position: number }) {
   return (
     <div className="pointer-events-none absolute inset-0">
       <svg
-        className="h-full w-full text-slate-950 dark:text-white"
+        className="h-full w-full text-primary"
         viewBox="0 0 696 316"
         fill="none"
       >
@@ -89,7 +89,7 @@ export default function SendingPage({
         </div>
         <div className="flex items-center gap-2 px-4"></div>
       </header>
-      <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-white dark:bg-neutral-950">
+      <div className="relative flex min-h-[calc(100vh-4rem)] w-full items-center justify-center overflow-hidden bg-white dark:bg-neutral-950">
         <div className="absolute inset-0">
           <FloatingPaths position={1} />
           <FloatingPaths position={-1} />
@@ -102,7 +102,7 @@ export default function SendingPage({
             transition={{ duration: 2 }}
             className="mx-auto max-w-4xl"
           >
-            <h1 className="mb-8 text-xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
+            <h1 className="mb-8 -translate-y-8 text-xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
               {words.map((word, wordIndex) => (
                 <span key={wordIndex} className="mr-4 inline-block last:mr-0">
                   {word.split("").map((letter, letterIndex) => (
