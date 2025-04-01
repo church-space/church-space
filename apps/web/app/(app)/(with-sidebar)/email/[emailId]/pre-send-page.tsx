@@ -19,6 +19,7 @@ import {
   DialogTrigger,
 } from "@church-space/ui/dialog";
 import { Ellipsis, Eye } from "lucide-react";
+import Link from "next/link";
 import { CircleDashed, CircleCheck } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
 
@@ -60,7 +61,13 @@ import {
 } from "@church-space/ui/breadcrumb";
 import SendTestEmail from "@/components/dnd-builder/send-test-email";
 import { getEmailBlockCountQuery } from "@church-space/supabase/queries/all/get-email";
-import { Card, CardContent, CardHeader } from "@church-space/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@church-space/ui/card";
 
 function SaveButtons(props: {
   isSaving: boolean;
@@ -739,12 +746,25 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
         </div>
       </div>
       {email.status === "failed" && (
-        <Card className="mx-auto w-full max-w-3xl space-y-4 px-4 py-4">
-          <CardHeader>Email Failed</CardHeader>
-          <CardContent>
-            <p>The email failed to send. Please try again.</p>
-          </CardContent>
-        </Card>
+        <div className="mx-auto mt-4 w-full max-w-3xl px-4">
+          <Card className="mx-auto w-full rounded-md border-destructive bg-destructive/10 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-destructive">
+                Email Failed to Send
+              </CardTitle>
+              <CardDescription>
+                The email failed to send. Please try again or contact support.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Link
+                href={`mailto:support@churchspace.co?subject=Email%20Failed%20to%20Send&body=My%20email%20failed%20to%20send.%20Can%20you%20please%20investigate%20and%20let%20me%20know%20what%20to%20do%3F%0A%0AEmail%20ID%3A%20${email.id}%0A%0AThanks!`}
+              >
+                <Button variant="outline">Contact Support</Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
       )}
       <Accordion
         type="single"
