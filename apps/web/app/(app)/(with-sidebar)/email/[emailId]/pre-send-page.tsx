@@ -177,9 +177,10 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
   const [sendDate, setSendDate] = useState<Date | null>(
     email.scheduled_for ? new Date(email.scheduled_for) : null,
   );
-  const [isScheduled, setIsScheduled] = useState(
-    email.scheduled_for ? "schedule" : "send-now",
+  const [isScheduled, setIsScheduled] = useState<"schedule" | "send-now" | "">(
+    email.scheduled_for ? "schedule" : email.send_now ? "send-now" : "",
   );
+  const [sendNow, setSendNow] = useState(email.send_now || false);
 
   // Track changes
   const [toHasChanges, setToHasChanges] = useState(false);
@@ -250,13 +251,19 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
     const originalScheduledDate = email.scheduled_for
       ? new Date(email.scheduled_for)
       : null;
-    const originalIsScheduled = email.scheduled_for ? "schedule" : "send-now";
+    const originalIsScheduled = email.scheduled_for
+      ? "schedule"
+      : email.send_now
+        ? "send-now"
+        : "";
 
     setScheduleHasChanges(
       isScheduled !== originalIsScheduled ||
-        sendDate?.getTime() !== originalScheduledDate?.getTime(),
+        (isScheduled === "schedule" &&
+          sendDate?.getTime() !== originalScheduledDate?.getTime()) ||
+        (isScheduled === "send-now" && sendNow !== email.send_now),
     );
-  }, [sendDate, isScheduled, email.scheduled_for]);
+  }, [sendDate, isScheduled, email.scheduled_for, email.send_now, sendNow]);
 
   // Save functions for each section
   const saveToSection = async () => {
@@ -408,9 +415,11 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
 
       const scheduled_for =
         isScheduled === "schedule" ? sendDate?.toISOString() : null;
+      const send_now = isScheduled === "send-now";
 
       await updateEmailMutation.mutateAsync({
         scheduled_for,
+        send_now,
       });
 
       setScheduleIsSaving(false);
@@ -419,6 +428,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
         scheduled_for,
+        send_now,
       }));
     } catch (error) {
       console.error("Error saving Schedule section:", error);
@@ -429,7 +439,10 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
   // Cancel/reset functions for each section
   const resetScheduleSection = () => {
     setSendDate(email.scheduled_for ? new Date(email.scheduled_for) : null);
-    setIsScheduled(email.scheduled_for ? "schedule" : "send-now");
+    setIsScheduled(
+      email.scheduled_for ? "schedule" : email.send_now ? "send-now" : "",
+    );
+    setSendNow(email.send_now || false);
     setScheduleHasChanges(false);
     setScheduleIsSaving(false);
   };
@@ -1025,13 +1038,19 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
         >
           <AccordionTrigger className="text-md font-semibold">
             <div className="flex items-center gap-3">
-              <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+              {email.scheduled_for || email.send_now ? (
+                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+              ) : (
+                <CircleDashed height={"24"} width={"24"} />
+              )}
               <div className="flex flex-col">
                 <span>Send Time</span>
                 <span className="text-sm font-normal text-muted-foreground">
-                  {isScheduled === "schedule"
-                    ? `Schedule for ${format(sendDate ?? new Date(), "MMMM d, yyyy h:mm a")} in ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`
-                    : "Send this email by clicking the send button in the top right corner of this page."}
+                  {email.scheduled_for
+                    ? `Schedule for ${format(new Date(email.scheduled_for), "MMMM d, yyyy h:mm a")} in ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`
+                    : email.send_now
+                      ? "Send this email by clicking the send button in the top right corner of this page."
+                      : "No send time selected"}
                 </span>
               </div>
             </div>
@@ -1040,9 +1059,17 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
             <Tabs
               defaultValue=""
               onValueChange={(value) => {
-                setIsScheduled(value);
+                setIsScheduled(value as "schedule" | "send-now" | "");
                 if (value === "send-now") {
                   setSendDate(null);
+                  setSendNow(true);
+                  setScheduleHasChanges(true);
+                } else if (value === "schedule") {
+                  setSendNow(false);
+                  setScheduleHasChanges(true);
+                } else {
+                  setSendDate(null);
+                  setSendNow(false);
                   setScheduleHasChanges(true);
                 }
               }}

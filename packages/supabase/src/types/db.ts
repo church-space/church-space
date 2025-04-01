@@ -491,6 +491,7 @@ export type Database = {
           reply_to: string | null
           reply_to_domain: number | null
           scheduled_for: string | null
+          send_now: boolean
           sent_at: string | null
           status: Database["public"]["Enums"]["email_statuses"]
           style: Json | null
@@ -510,6 +511,7 @@ export type Database = {
           reply_to?: string | null
           reply_to_domain?: number | null
           scheduled_for?: string | null
+          send_now?: boolean
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_statuses"]
           style?: Json | null
@@ -529,6 +531,7 @@ export type Database = {
           reply_to?: string | null
           reply_to_domain?: number | null
           scheduled_for?: string | null
+          send_now?: boolean
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_statuses"]
           style?: Json | null
@@ -1511,6 +1514,7 @@ export type Database = {
       stripe_prices: {
         Row: {
           active: boolean | null
+          amount: number | null
           created_at: string | null
           currency: string | null
           id: number
@@ -1521,11 +1525,11 @@ export type Database = {
           stripe_price_id: string
           stripe_product_id: string | null
           type: string | null
-          unit_amount: number | null
           updated_at: string | null
         }
         Insert: {
           active?: boolean | null
+          amount?: number | null
           created_at?: string | null
           currency?: string | null
           id?: number
@@ -1536,11 +1540,11 @@ export type Database = {
           stripe_price_id: string
           stripe_product_id?: string | null
           type?: string | null
-          unit_amount?: number | null
           updated_at?: string | null
         }
         Update: {
           active?: boolean | null
+          amount?: number | null
           created_at?: string | null
           currency?: string | null
           id?: number
@@ -1551,7 +1555,6 @@ export type Database = {
           stripe_price_id?: string
           stripe_product_id?: string | null
           type?: string | null
-          unit_amount?: number | null
           updated_at?: string | null
         }
         Relationships: [
