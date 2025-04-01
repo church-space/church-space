@@ -520,3 +520,17 @@ export async function createEmailTemplate(
 
   return { data, error, footer };
 }
+
+export async function deleteEmail(supabase: Client, emailId: number) {
+  const { data, error } = await supabase
+    .from("emails")
+    .delete()
+    .eq("id", emailId)
+    .select();
+
+  if (error) {
+    console.error("Error deleting email:", error);
+    throw error;
+  }
+  return { data, error };
+}

@@ -68,6 +68,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
+import { deleteEmailAction } from "@/actions/delete-email";
 
 function SaveButtons(props: {
   isSaving: boolean;
@@ -540,6 +541,39 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
     );
   };
 
+  useEffect(() => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
+      if (deleteOpen && (e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        try {
+          const response = await deleteEmailAction({
+            emailId: email.id,
+          });
+
+          if (!response?.data) {
+            throw new Error("Failed to delete email");
+          }
+
+          toast({
+            title: "Email deleted",
+            description: "Your email has been deleted successfully.",
+          });
+
+          router.push("/email");
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Failed to delete email",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [deleteOpen, email.id, router, toast]);
+
   return (
     <>
       <header className="flex h-12 shrink-0 items-center justify-between gap-2">
@@ -564,7 +598,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
         <div className="flex items-center gap-2 px-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="p-2">
+              <Button variant="outline" className="p-2">
                 <Ellipsis />
               </Button>
             </DropdownMenuTrigger>
@@ -1164,11 +1198,40 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                 Esc
               </span>
             </Button>
-            <Button variant="destructive">
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                try {
+                  const response = await deleteEmailAction({
+                    emailId: email.id,
+                  });
+
+                  if (!response?.data) {
+                    throw new Error("Failed to delete email");
+                  }
+
+                  toast({
+                    title: "Email deleted",
+                    description: "Your email has been deleted successfully.",
+                  });
+
+                  router.push("/email");
+                } catch (error) {
+                  toast({
+                    title: "Error",
+                    description: "Failed to delete email",
+                    variant: "destructive",
+                  });
+                }
+              }}
+            >
               Delete
               <span className="rounded bg-muted/60 px-1 text-xs text-foreground/60">
-                ⌘/ctrl + ⏎
-              </span>{" "}
+                {navigator?.platform?.toLowerCase().includes("mac")
+                  ? "⌘"
+                  : "Ctrl"}{" "}
+                + ⏎
+              </span>
             </Button>
           </DialogFooter>
         </DialogContent>
