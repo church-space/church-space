@@ -7,6 +7,7 @@ import { redirect, useParams } from "next/navigation";
 import PostSendPage from "./post-send-page";
 import PreSendPage from "./pre-send-page";
 import SendingPage from "./sending-page";
+import ScheduledPage from "./scheduled-page";
 
 export default function Page() {
   const params = useParams();
@@ -32,9 +33,11 @@ export default function Page() {
         <SendingPage subject={email.data.subject} />
       )}
       {email.data.status === "sent" && <PostSendPage email={email.data} />}
-      {(email.data.status === "draft" || email.data.status === "scheduled") && (
-        <PreSendPage email={email.data} />
+      {email.data.status === "draft" && <PreSendPage email={email.data} />}
+      {email.data.status === "scheduled" && (
+        <ScheduledPage email={email.data} />
       )}
+
       {isLoading && <div>Loading...</div>}
     </>
   );
