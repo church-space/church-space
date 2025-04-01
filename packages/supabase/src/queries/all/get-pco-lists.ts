@@ -43,7 +43,18 @@ export async function getPublicPcoListsQuery(
 }
 
 export async function getPcoListQuery(supabase: Client, listId: number) {
-  let query = supabase.from("pco_lists").select("*").eq("id", listId);
+  let query = supabase
+    .from("pco_lists")
+    .select(
+      `
+      *,
+      pco_list_categories!inner (
+        pco_name,
+        is_public
+      )
+    `
+    )
+    .eq("id", listId);
 
   const { data, error } = await query;
 

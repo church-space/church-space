@@ -33,19 +33,20 @@ import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
+import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
 
 export default function ScheduledPage({ email: initialEmail }: { email: any }) {
-  const [email, setEmail] = useState<typeof initialEmail>(initialEmail);
+  const [email] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
 
   const supabase = createClient();
 
   // Initialize state from email data
-  const [subject, setSubject] = useState(email.subject || "");
-  const [listId, setListId] = useState(email.list_id || "");
+  const [subject] = useState(email.subject || "");
+  const [listId] = useState(email.list_id || "");
 
   // From details
-  const [fromEmail, setFromEmail] = useState(email.from_email || "");
+  const [fromEmail] = useState(email.from_email || "");
   const [fromDomain, setFromDomain] = useState(
     email.from_email_domain?.toString() || "",
   );
@@ -60,6 +61,18 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
     queryKey: ["pcoList", listId],
     queryFn: () => getPcoListQuery(supabase, parseInt(listId || "0")),
     enabled: !!listId,
+  });
+
+  const { data: domainData } = useQuery({
+    queryKey: ["domain", fromDomain],
+    queryFn: () => getDomainQuery(supabase, parseInt(fromDomain || "0")),
+    enabled: !!fromDomain,
+  });
+
+  const { data: replyToDomainData } = useQuery({
+    queryKey: ["domain", replyToDomain],
+    queryFn: () => getDomainQuery(supabase, parseInt(replyToDomain || "0")),
+    enabled: !!replyToDomain,
   });
 
   // Schedule details
@@ -113,14 +126,33 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
             <CardTitle className="text-lg font-bold">Details</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>To: {listData?.data?.[0]?.pco_list_description}</p>
+            <p>
+              To: {listData?.data?.[0]?.pco_list_description}{" "}
+              <span className="text-muted-foreground">
+                ({listData?.data?.[0]?.pco_total_people}{" "}
+                {listData?.data?.[0]?.pco_total_people === "1"
+                  ? "person"
+                  : "people"}
+                )
+              </span>
+              <span className="text-muted-foreground">
+                {listData?.data?.[0]?.pco_list_categories?.pco_name}
+              </span>
+            </p>
             <p>
               From: {fromName}{" "}
-              <span className="text-muted-foreground">{fromEmail}</span>
+              <span className="text-muted-foreground">
+                {fromEmail}
+                {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
+              </span>
             </p>
             <p>
               Reply-To: {replyToEmail}
-              <span className="text-muted-foreground">{replyToDomain}</span>
+              <span className="text-muted-foreground">
+                {replyToDomain
+                  ? `@${replyToDomainData?.data?.[0]?.domain}`
+                  : ""}
+              </span>
             </p>
             <p>Subject: {subject}</p>
             <p>Scheduled For: {sendDate?.toLocaleString()}</p>
