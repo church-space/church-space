@@ -20,7 +20,7 @@ import {
 } from "@church-space/ui/dialog";
 import { Ellipsis, Eye } from "lucide-react";
 import Link from "next/link";
-import { CircleDashed, CircleCheck } from "@church-space/ui/icons";
+import { CircleDashed, CircleCheck, Trash } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
 
 import DomainSelector from "@/components/id-pages/emails/domain-selector";
@@ -562,6 +562,26 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           </Breadcrumb>
         </div>
         <div className="flex items-center gap-2 px-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="p-2">
+                <Ellipsis />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem
+                onClick={() => {
+                  setDeleteOpen(true);
+                }}
+                className="h-fit p-0 hover:bg-transparent"
+              >
+                <div className="flex w-full items-center gap-2 rounded p-1.5 transition-colors hover:bg-destructive/10 hover:text-destructive">
+                  <Trash />
+                  Delete
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <SendTestEmail />
 
           <Dialog>
@@ -721,29 +741,6 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
             Subject
           </div>
         )}
-        <div className="flex items-center gap-2">
-          <ProtectedLink href={`/email/${email.id}/editor`}>
-            <Button variant="outline" size="sm">
-              Edit Design
-            </Button>
-          </ProtectedLink>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="p-2">
-                <Ellipsis />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  setDeleteOpen(true);
-                }}
-              >
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
       </div>
       {email.status === "failed" && (
         <div className="mx-auto mt-4 w-full max-w-3xl px-4">
@@ -1162,9 +1159,17 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           </DialogDescription>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-              Cancel
+              Cancel{" "}
+              <span className="rounded bg-muted px-1 text-xs text-muted-foreground">
+                Esc
+              </span>
             </Button>
-            <Button variant="destructive">Delete</Button>
+            <Button variant="destructive">
+              Delete
+              <span className="rounded bg-muted/60 px-1 text-xs text-foreground/60">
+                ⌘/ctrl + ⏎
+              </span>{" "}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
