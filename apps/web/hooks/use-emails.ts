@@ -59,9 +59,10 @@ export function useEmails(
     getNextPageParam: (lastPage) => lastPage?.nextPage,
     initialPageParam: 0,
     initialData: options?.initialData,
-    staleTime: 0, // Consider data stale immediately
-    gcTime: 0, // Don't cache the data
-    refetchOnMount: true, // Always refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when window gains focus
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 }

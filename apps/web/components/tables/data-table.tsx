@@ -211,8 +211,9 @@ export default function DataTable<TData>({
         }
       },
       {
-        root: containerRef.current,
-        threshold: 0.1,
+        root: null,
+        rootMargin: "100px",
+        threshold: 0.5,
       },
     );
 
@@ -448,7 +449,11 @@ export default function DataTable<TData>({
         </Table>
         {/* Sentinel element for intersection observer */}
         {hasMorePages && !isLoading && (
-          <div className="sentinel h-4" data-testid="sentinel" />
+          <div
+            className="sentinel h-20 w-full"
+            data-testid="sentinel"
+            style={{ visibility: "hidden" }}
+          />
         )}
       </div>
 
