@@ -107,7 +107,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
   const [email, setEmail] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const { toast } = useToast();
-  const [activeAccordion, setActiveAccordion] = useState<string | null>("to");
+  const [activeAccordion, setActiveAccordion] = useState<string | null>("");
   const router = useRouter();
 
   // Track which accordion is attempting to be closed with unsaved changes
@@ -767,7 +767,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           </Dialog>
         </div>
       </header>
-      <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-5">
+      <div className="mx-auto mb-2 mt-8 flex w-full max-w-3xl items-center justify-between px-5">
         {subject ? (
           <div className="text-2xl font-bold">{subject}</div>
         ) : (
