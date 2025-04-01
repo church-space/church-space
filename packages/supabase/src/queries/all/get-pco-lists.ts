@@ -7,9 +7,17 @@ export async function getPublicPcoListsQuery(
 ) {
   let query = supabase
     .from("pco_lists")
-    .select("*, pco_list_categories!left(pco_name)")
+    .select(
+      `
+      *,
+      pco_list_categories!inner (
+        pco_name,
+        is_public
+      )
+    `
+    )
     .eq("organization_id", organizationId)
-    .eq("pco_list_categories.pco_name", "public");
+    .eq("pco_list_categories.is_public", true);
 
   if (search && search.trim() !== "") {
     query = query.ilike("pco_list_description", `%${search.trim()}%`);

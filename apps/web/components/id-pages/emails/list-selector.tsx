@@ -42,6 +42,8 @@ export default function ListSelector({
     queryKey: ["pcoLists", debouncedSearch],
     queryFn: () =>
       getPublicPcoListsQuery(supabase, organizationId, debouncedSearch),
+    staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Cache is kept for 10 minutes
   });
 
   // Fetch the selected list if value is provided
@@ -49,6 +51,8 @@ export default function ListSelector({
     queryKey: ["pcoList", value],
     queryFn: () => getPcoListQuery(supabase, parseInt(value)),
     enabled: !!value, // Only run this query if value exists
+    staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Cache is kept for 10 minutes
   });
 
   const lists = pcoLists?.data || [];
@@ -96,12 +100,17 @@ export default function ListSelector({
                     }}
                   >
                     <div className="flex flex-col">
-                      <span>{list.pco_list_description}</span>
-                      {list.pco_list_categories?.pco_name && (
+                      <div className="flex flex-row items-baseline gap-2">
+                        <span>{list.pco_list_description} </span>
                         <span className="text-xs text-muted-foreground">
-                          {list.pco_list_categories.pco_name}
+                          {list.pco_total_people}{" "}
+                          {list.pco_total_people === "1" ? "person" : "people"}
                         </span>
-                      )}
+                      </div>
+
+                      <span className="text-xs text-muted-foreground">
+                        {list.pco_list_categories?.pco_name}
+                      </span>
                     </div>
                     <Check
                       className={cn(
