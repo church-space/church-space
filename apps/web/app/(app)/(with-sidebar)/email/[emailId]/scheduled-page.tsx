@@ -34,7 +34,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
 import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
-import { Label } from "@church-space/ui/label";
 import {
   FountainPen,
   PaperPlaneClock,
