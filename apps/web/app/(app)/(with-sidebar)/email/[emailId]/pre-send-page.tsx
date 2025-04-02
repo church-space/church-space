@@ -601,7 +601,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
               <BreadcrumbSeparator className="hidden md:block" />
 
               <BreadcrumbItem>
-                <BreadcrumbPage>
+                <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
                   {email.subject || "Untitled Email"}
                 </BreadcrumbPage>
               </BreadcrumbItem>

@@ -25,7 +25,7 @@ export default function PostSendPage({ email }: { email: any }) {
               <BreadcrumbSeparator className="hidden md:block" />
 
               <BreadcrumbItem>
-                <BreadcrumbPage>
+                <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
                   {email?.subject || "(No Subject)"}
                 </BreadcrumbPage>
               </BreadcrumbItem>

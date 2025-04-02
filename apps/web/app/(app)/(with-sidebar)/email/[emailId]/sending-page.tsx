@@ -82,7 +82,9 @@ export default function SendingPage({
               <BreadcrumbSeparator className="hidden md:block" />
 
               <BreadcrumbItem>
-                <BreadcrumbPage>{subject ?? "Email Is Sending"}</BreadcrumbPage>
+                <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
+                  {subject ?? "Email Is Sending"}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -102,7 +104,7 @@ export default function SendingPage({
             transition={{ duration: 2 }}
             className="mx-auto max-w-4xl"
           >
-            <h1 className="mb-8 -translate-y-8 text-xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
+            <h1 className="mb-8 -translate-y-8 text-3xl font-bold tracking-tighter sm:text-5xl lg:text-6xl">
               {words.map((word, wordIndex) => (
                 <span key={wordIndex} className="mr-4 inline-block last:mr-0">
                   {word.split("").map((letter, letterIndex) => (
