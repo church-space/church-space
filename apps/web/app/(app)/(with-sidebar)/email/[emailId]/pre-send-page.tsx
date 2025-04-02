@@ -573,7 +573,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           });
 
           router.push("/email");
-        } catch (error) {
+        } catch (err) {
           toast({
             title: "Error",
             description: "Failed to delete email",
@@ -1243,7 +1243,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                   });
 
                   router.push("/email");
-                } catch (error) {
+                } catch (err) {
                   toast({
                     title: "Error",
                     description: "Failed to delete email",

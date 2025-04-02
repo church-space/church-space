@@ -47,14 +47,10 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
 
   // From details
   const [fromEmail] = useState(email.from_email || "");
-  const [fromDomain, setFromDomain] = useState(
-    email.from_email_domain?.toString() || "",
-  );
-  const [fromName, setFromName] = useState(email.from_name || "");
-  const [replyToEmail, setReplyToEmail] = useState(email.reply_to || "");
-  const [replyToDomain, setReplyToDomain] = useState(
-    email.reply_to_domain?.toString() || "",
-  );
+  const [fromDomain] = useState(email.from_email_domain?.toString() || "");
+  const [fromName] = useState(email.from_name || "");
+  const [replyToEmail] = useState(email.reply_to || "");
+  const [replyToDomain] = useState(email.reply_to_domain?.toString() || "");
 
   // Fetch list and domain data
   const { data: listData } = useQuery({
@@ -76,7 +72,7 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
   });
 
   // Schedule details
-  const [sendDate, setSendDate] = useState<Date | null>(
+  const [sendDate] = useState<Date | null>(
     email.scheduled_for ? new Date(email.scheduled_for) : null,
   );
 
