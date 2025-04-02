@@ -15,7 +15,7 @@ export default function Page() {
   const supabase = createClient();
 
   const { data: email, isLoading } = useQuery({
-    queryKey: ["email", emailId],
+    queryKey: ["email-id-page", emailId],
     queryFn: () => getEmailQuery(supabase, emailId),
   });
 

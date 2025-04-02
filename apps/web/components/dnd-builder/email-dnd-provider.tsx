@@ -60,7 +60,6 @@ import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
 import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
-import EmailBuilderRealtimeListener from "@/components/listeners/email-builder/realtime-listener";
 import { useUpdateEmailFooter } from "./mutations/use-update-email-footer";
 import { DatabaseBlockType, OrderUpdate, ContentUpdate } from "./dnd-types";
 import NewEmailModal from "./new-email-modal";
@@ -106,7 +105,6 @@ export default function EmailDndProvider({
       },
     }),
   );
-  const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
   const updateEmailFooter = useUpdateEmailFooter();
 
   // Initialize blocks and styles
@@ -2527,7 +2525,6 @@ export default function EmailDndProvider({
             onFooterChange={handleFooterChange}
             linkColor={styles.linkColor}
             onLinkColorChange={handleLinkColorChange}
-            onlineUsers={onlineUsers}
             accentTextColor={styles.accentTextColor}
             onAccentTextColorChange={handleAccentTextColorChange}
             organizationId={organizationId}
@@ -2581,7 +2578,7 @@ export default function EmailDndProvider({
         </div>
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
-      <EmailBuilderRealtimeListener onOnlineUsersChange={setOnlineUsers} />
+
       <NewEmailModal />
     </div>
   );
