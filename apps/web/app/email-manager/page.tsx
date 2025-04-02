@@ -1,6 +1,6 @@
 import React from "react";
-import Manage from "./manage";
-import Unsubscribe from "./unsubscribe";
+import Manage from "./manage-page";
+import Unsubscribe from "./unsubscribe-page";
 import { jwtVerify } from "jose";
 
 type SearchParams = Promise<{
