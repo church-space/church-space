@@ -8,7 +8,7 @@ import PostSendPage from "./post-send-page";
 import PreSendPage from "./pre-send-page";
 import SendingPage from "./sending-page";
 import ScheduledPage from "./scheduled-page";
-
+import LoadingPage from "./loading-page";
 export default function Page() {
   const params = useParams();
   const emailId = parseInt(params.emailId as string, 10);
@@ -18,6 +18,10 @@ export default function Page() {
     queryKey: ["email-id-page", emailId],
     queryFn: () => getEmailQuery(supabase, emailId),
   });
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   if (!email || !email.data) {
     return <div>Email not found</div>;
@@ -39,8 +43,6 @@ export default function Page() {
       {email.data.status === "scheduled" && (
         <ScheduledPage email={email.data} />
       )}
-
-      {isLoading && <div>Loading...</div>}
     </>
   );
 }
