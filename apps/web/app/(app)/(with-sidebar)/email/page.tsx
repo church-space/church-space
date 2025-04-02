@@ -18,11 +18,11 @@ import {
 import type { EmailStatus } from "@/components/tables/emails/filters";
 import type { Email } from "@/components/tables/emails/columns";
 
-interface PageProps {
+export default async function Page({
+  searchParams,
+}: {
   searchParams: { [key: string]: string | string[] | undefined };
-}
-
-export default async function Page({ searchParams }: PageProps) {
+}) {
   const cookiesStore = await cookies();
   const organizationId = cookiesStore.get("organizationId")?.value;
 
