@@ -714,9 +714,9 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                         );
 
                         if (!response.ok) {
-                          const error = await response.json();
+                          const errorData = await response.json();
                           throw new Error(
-                            error.error || "Failed to schedule email",
+                            errorData.error || "Failed to schedule email",
                           );
                         }
 
@@ -746,9 +746,9 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                         );
 
                         if (!response.ok) {
-                          const error = await response.json();
+                          const errorData = await response.json();
                           throw new Error(
-                            error.error || "Failed to send email",
+                            errorData.error || "Failed to send email",
                           );
                         }
 
@@ -761,12 +761,12 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                         // Refresh the page to show sending status
                         router.refresh();
                       }
-                    } catch (error) {
+                    } catch (err) {
                       toast({
                         title: "Error",
                         description:
-                          error instanceof Error
-                            ? error.message
+                          err instanceof Error
+                            ? err.message
                             : "Failed to process email",
                         variant: "destructive",
                       });
