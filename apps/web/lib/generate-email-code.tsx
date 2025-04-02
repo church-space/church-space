@@ -1336,8 +1336,8 @@ export function generateEmailCode(
                     <td style={{ padding: "0px" }}>
                       <Container
                         style={{
-                          padding: "10px 0px",
-                          maxWidth: "630px",
+                          padding: "10px 10px",
+                          maxWidth: "656px",
                         }}
                       >
                         {sections.map((section, sectionIndex) => (
