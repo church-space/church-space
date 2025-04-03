@@ -167,14 +167,14 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
   };
 
   const handleFromEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const value = e.target.value.toLowerCase();
     if (isValidEmailLocalPart(value)) {
       setFromEmail(value);
     }
   };
 
   const handleReplyToEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const value = e.target.value.toLowerCase();
     if (isValidEmailLocalPart(value)) {
       setReplyToEmail(value);
     }

@@ -36,10 +36,6 @@ export const cancelScheduledEmail = authActionClient
         throw new Error("No scheduled run found for this email");
       }
 
-      console.log(
-        "email.trigger_dev_schduled_id",
-        email.trigger_dev_schduled_id,
-      );
       // Cancel the run in Trigger.dev
       await runs.cancel(email.trigger_dev_schduled_id);
 
