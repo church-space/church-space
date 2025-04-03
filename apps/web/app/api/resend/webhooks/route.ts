@@ -35,6 +35,27 @@ function getHeaderValue(
   return headers.find((h) => h.name === name)?.value;
 }
 
+// Add validation helper
+function validateIds(
+  headers: { name: string; value: string }[],
+): { email_id: number; people_email_id: number } | null {
+  const emailIdStr = getHeaderValue(headers, "X-Entity-Email-ID");
+  const peopleEmailIdStr = getHeaderValue(headers, "X-Entity-People-Email-ID");
+
+  const emailId = emailIdStr ? Number(emailIdStr) : NaN;
+  const peopleEmailId = peopleEmailIdStr ? Number(peopleEmailIdStr) : NaN;
+
+  if (isNaN(emailId) || isNaN(peopleEmailId)) {
+    console.error("Invalid email_id or people_email_id:", {
+      emailIdStr,
+      peopleEmailIdStr,
+    });
+    return null;
+  }
+
+  return { email_id: emailId, people_email_id: peopleEmailId };
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
 
@@ -77,75 +98,94 @@ export async function POST(request: NextRequest) {
       });
       break;
     case "email.sent":
+      const sentIds = validateIds(payload.data.headers);
+      if (!sentIds) {
+        return new NextResponse(
+          "Invalid email_id or people_email_id in headers",
+          { status: 400 },
+        );
+      }
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "sent",
-        email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
-        ),
-        people_email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
-        ),
+        email_id: sentIds.email_id,
+        people_email_id: sentIds.people_email_id,
       });
       break;
     case "email.delivered":
+      const deliveredIds = validateIds(payload.data.headers);
+      if (!deliveredIds) {
+        return new NextResponse(
+          "Invalid email_id or people_email_id in headers",
+          { status: 400 },
+        );
+      }
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "delivered",
-        email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
-        ),
-        people_email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
-        ),
+        email_id: deliveredIds.email_id,
+        people_email_id: deliveredIds.people_email_id,
       });
       break;
     case "email.delivery_delayed":
+      const delayedIds = validateIds(payload.data.headers);
+      if (!delayedIds) {
+        return new NextResponse(
+          "Invalid email_id or people_email_id in headers",
+          { status: 400 },
+        );
+      }
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "delivery_delayed",
-        email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
-        ),
-        people_email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
-        ),
+        email_id: delayedIds.email_id,
+        people_email_id: delayedIds.people_email_id,
       });
       break;
     case "email.complained":
+      const ids = validateIds(payload.data.headers);
+      if (!ids) {
+        return new NextResponse(
+          "Invalid email_id or people_email_id in headers",
+          { status: 400 },
+        );
+      }
+
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "complained",
-        email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
-        ),
-        people_email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
-        ),
+        email_id: ids.email_id,
+        people_email_id: ids.people_email_id,
       });
       break;
     case "email.bounced":
+      const bouncedIds = validateIds(payload.data.headers);
+      if (!bouncedIds) {
+        return new NextResponse(
+          "Invalid email_id or people_email_id in headers",
+          { status: 400 },
+        );
+      }
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "bounced",
-        email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
-        ),
-        people_email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
-        ),
+        email_id: bouncedIds.email_id,
+        people_email_id: bouncedIds.people_email_id,
       });
       break;
     case "email.opened":
+      const openedIds = validateIds(payload.data.headers);
+      if (!openedIds) {
+        return new NextResponse(
+          "Invalid email_id or people_email_id in headers",
+          { status: 400 },
+        );
+      }
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "opened",
-        email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-Email-ID"),
-        ),
-        people_email_id: Number(
-          getHeaderValue(payload.data.headers, "X-Entity-People-Email-ID"),
-        ),
+        email_id: openedIds.email_id,
+        people_email_id: openedIds.people_email_id,
       });
       break;
   }
