@@ -1,6 +1,5 @@
 "use client";
 
-import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Select,
@@ -9,7 +8,15 @@ import {
   SelectContent,
   SelectItem,
 } from "@church-space/ui/select";
-
+import { cn } from "@church-space/ui/cn";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@church-space/ui/sheet";
+import { Button } from "@church-space/ui/button";
 // Define the type based on the SQL schema
 export type EmailCategory = {
   id: number;
@@ -26,23 +33,28 @@ export const columns: ColumnDef<EmailCategory>[] = [
     header: "Name",
     cell: ({ row }) => {
       const name = row.getValue("pco_name") as string | null;
-      return <div className="ml-3 font-medium">{name || "Untitled"}</div>;
-    },
-  },
-  {
-    accessorKey: "pco_id",
-    header: "PCO ID",
-    cell: ({ row }) => {
-      const pcoId = row.getValue("pco_id") as string | null;
-      return <div>{pcoId || "-"}</div>;
-    },
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => {
-      const description = row.getValue("description") as string | null;
-      return <div className="max-w-[300px] truncate">{description || "-"}</div>;
+      return (
+        <div className="ml-1 font-medium">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                className="text-normal w-full justify-start p-0 px-2 text-left"
+              >
+                <span>{name || "Untitled"}</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>{name || "Untitled"}</SheetTitle>
+              </SheetHeader>
+              <div className="p-4">
+                <h2 className="text-lg font-bold">{name || "Untitled"}</h2>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      );
     },
   },
   {
@@ -66,7 +78,12 @@ export const columns: ColumnDef<EmailCategory>[] = [
             defaultValue={isPublic ? "public" : "hidden"}
             onValueChange={handleValueChange}
           >
-            <SelectTrigger className="h-8 w-[100px] border-none bg-transparent shadow-none transition-all hover:border hover:bg-background hover:shadow-sm">
+            <SelectTrigger
+              className={cn(
+                "h-7 w-[100px] border-none bg-transparent px-2 shadow-none transition-all hover:border hover:bg-background hover:shadow-sm",
+                isPublic ? "border border-green-500 bg-green-100" : "bg-muted",
+              )}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

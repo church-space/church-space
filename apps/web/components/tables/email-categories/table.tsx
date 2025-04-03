@@ -75,11 +75,12 @@ export default function EmailCategoriesTable({
         </div>
         <p className="rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
           Think of Categories as the types of emails you send. For example, you
-          might have "General Emails", "Events", "Giving", "Youth", etc. This
-          allows people to subscribe to only the types of emails they want. The
-          categories that you see here are your List Categories in Planning
-          Center People. To send an email to a type of List Category, set the
-          category to "public".
+          might have &quot;General Emails&quot;, &quot;Events&quot;,
+          &quot;Giving&quot;, &quot;Youth&quot;, etc. This allows people to
+          subscribe to only the types of emails they want. The categories that
+          you see here are your List Categories in Planning Center People. To
+          send an email to a type of List Category, set the category to
+          &quot;public&quot;.
         </p>
       </div>
       <DataTable<EmailCategory>
