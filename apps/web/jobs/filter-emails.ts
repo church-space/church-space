@@ -33,6 +33,24 @@ export const filterEmailRecipients = task({
         );
       }
 
+      // Add scheduled time validation
+      if (emailData.scheduled_for) {
+        const scheduledTime = new Date(emailData.scheduled_for);
+        const now = new Date();
+        if (scheduledTime > now) {
+          await supabase
+            .from("emails")
+            .update({
+              status: "failed",
+              updated_at: new Date().toISOString(),
+              error_message: "Email is scheduled for future delivery",
+            })
+            .eq("id", emailId);
+
+          throw new Error("Email is scheduled for future delivery");
+        }
+      }
+
       await supabase
         .from("emails")
         .update({

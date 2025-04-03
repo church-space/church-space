@@ -54,35 +54,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if email has list_id
-    if (!emailData.list_id) {
-      // Update email status to failed
-      await supabase
-        .from("emails")
-        .update({
-          status: "failed",
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", body.emailId);
-
-      return NextResponse.json(
-        { error: "Email must have a list_id" },
-        { status: 400 },
-      );
-    }
-
-    // Check scheduled time if applicable
-    if (emailData.scheduled_for) {
-      const scheduledTime = new Date(emailData.scheduled_for);
-      const now = new Date();
-      if (scheduledTime > now) {
-        return NextResponse.json(
-          { error: "Email is scheduled for future delivery" },
-          { status: 400 },
-        );
-      }
-    }
-
     // Trigger the email filtering job
     const result = await filterEmailRecipients.trigger({
       emailId: body.emailId,
