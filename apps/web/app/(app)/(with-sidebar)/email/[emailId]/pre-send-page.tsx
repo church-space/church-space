@@ -917,9 +917,16 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
               <div className="flex flex-col">
                 <span>To</span>
                 <span className="text-sm font-normal text-muted-foreground">
-                  {listId
-                    ? `${listData?.data?.[0]?.pco_list_description || "Loading..."}`
-                    : ""}
+                  <span className="font-medium">
+                    {listId
+                      ? `${listData?.data?.[0]?.pco_list_description || "Loading..."}`
+                      : ""}
+                  </span>{" "}
+                  ({listData?.data?.[0]?.pco_total_people || "Loading..."}{" "}
+                  {listData?.data?.[0]?.pco_total_people === "1"
+                    ? "person"
+                    : "people"}
+                  )
                 </span>
               </div>
             </div>
@@ -932,12 +939,26 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                 onChange={setListId}
                 organizationId={email.organization_id}
               />
-              <span className="text-xs text-muted-foreground">
+              <div className="flex flex-col px-2">
+                {listData?.data?.[0]?.pco_list_categories?.pco_name && (
+                  <span className="text-sm text-muted-foreground">
+                    <span className="font-semibold">Category:</span>{" "}
+                    {listData?.data?.[0]?.pco_list_categories?.pco_name}
+                  </span>
+                )}
+                {listData?.data?.[0]?.pco_total_people && (
+                  <span className="text-sm text-muted-foreground">
+                    <span className="font-semibold">Total People:</span>{" "}
+                    {listData?.data?.[0]?.pco_total_people}{" "}
+                  </span>
+                )}
+              </div>
+              <p className="px-2 text-xs text-muted-foreground">
                 Select the list from PCO that you would like to send this email
                 to. If they are unsubscribed from the PCO List Cateogry, the
                 person will not recieve the email. Learn more about how
                 unsubscribes work here.
-              </span>
+              </p>
             </div>
             <SaveButtons
               isSaving={toIsSaving}
