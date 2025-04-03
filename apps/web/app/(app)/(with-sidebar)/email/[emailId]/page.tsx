@@ -9,18 +9,11 @@ import PreSendPage from "./pre-send-page";
 import SendingPage from "./sending-page";
 import ScheduledPage from "./scheduled-page";
 import LoadingPage from "./loading-page";
-import { cookies } from "next/headers";
 
-export default async function Page() {
+export default function Page() {
   const params = useParams();
   const emailId = parseInt(params.emailId as string, 10);
   const supabase = createClient();
-  const cookieStore = await cookies();
-  const organizationId = cookieStore.get("organizationId")?.value;
-
-  if (!organizationId) {
-    redirect("/onboarding");
-  }
 
   const { data: email, isLoading } = useQuery({
     queryKey: ["email-id-page", emailId],
@@ -37,10 +30,6 @@ export default async function Page() {
 
   if (email.data.type === "template") {
     redirect(`/email/${emailId}/editor`);
-  }
-
-  if (email.data.organization_id !== organizationId) {
-    redirect("/email");
   }
 
   return (

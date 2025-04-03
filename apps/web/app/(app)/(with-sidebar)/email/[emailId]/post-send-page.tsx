@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Separator } from "@church-space/ui/separator";
