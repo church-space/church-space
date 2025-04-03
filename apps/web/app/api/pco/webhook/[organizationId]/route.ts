@@ -107,6 +107,7 @@ export async function POST(
   switch (webhookName) {
     case "people.v2.events.list.created":
     case "people.v2.events.list.updated":
+    case "people.v2.events.list.refreshed":
     case "people.v2.events.list.destroyed": {
       // Parse the payload string *first*.
       const payloadString = data.data[0].attributes.payload;

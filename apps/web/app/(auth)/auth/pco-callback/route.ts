@@ -197,6 +197,7 @@ export async function GET(request: NextRequest) {
       "people.v2.events.list.created",
       "people.v2.events.list.destroyed",
       "people.v2.events.list.updated",
+      "people.v2.events.list.refreshed",
       "people.v2.events.list_result.created",
       "people.v2.events.list_result.destroyed",
       "people.v2.events.email.created",

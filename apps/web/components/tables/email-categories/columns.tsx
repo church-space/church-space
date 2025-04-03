@@ -81,7 +81,9 @@ export const columns: ColumnDef<EmailCategory>[] = [
             <SelectTrigger
               className={cn(
                 "h-7 w-[100px] border-none bg-transparent px-2 shadow-none transition-all hover:border hover:bg-background hover:shadow-sm",
-                isPublic ? "border border-green-500 bg-green-100" : "bg-muted",
+                isPublic
+                  ? "border border-green-500 bg-green-100 dark:bg-green-900"
+                  : "bg-muted",
               )}
             >
               <SelectValue />
