@@ -252,12 +252,6 @@ export const sendBulkEmails = task({
                 "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
               },
-              tags: [
-                {
-                  name: "reply_to",
-                  value: replyToAddress || "",
-                },
-              ],
             });
           } catch (error) {
             console.error(
