@@ -19,11 +19,12 @@ import type { EmailStatus } from "@/components/tables/emails/filters";
 import type { Email } from "@/components/tables/emails/columns";
 
 interface PageProps {
-  params: Promise<any>;
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: { slug?: string };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function Page({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
   const cookiesStore = await cookies();
   const organizationId = cookiesStore.get("organizationId")?.value;
 
@@ -32,13 +33,13 @@ export default async function Page({ searchParams }: PageProps) {
   }
 
   // Get the first value if it's an array, or the value itself if it's a string
-  const searchValue = Array.isArray(searchParams.search)
-    ? searchParams.search[0]
-    : searchParams.search;
+  const searchValue = Array.isArray(resolvedSearchParams.search)
+    ? resolvedSearchParams.search[0]
+    : resolvedSearchParams.search;
 
-  const statusValue = Array.isArray(searchParams.status)
-    ? searchParams.status[0]
-    : searchParams.status;
+  const statusValue = Array.isArray(resolvedSearchParams.status)
+    ? resolvedSearchParams.status[0]
+    : resolvedSearchParams.status;
 
   // Parse status to ensure it's a valid EmailStatus
   const status = statusValue as EmailStatus | undefined;
