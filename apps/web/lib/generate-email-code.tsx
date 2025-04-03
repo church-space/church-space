@@ -12,7 +12,6 @@ import * as React from "react";
 import {
   File,
   Youtube,
-  YoutubeFilled,
   MailFilled,
   Instagram,
   Facebook,
@@ -230,7 +229,12 @@ const CustomImage: React.FC<{
   };
 
   const ImageComponent = (
-    <Img src={imageUrl} alt="Email content" width="100%" style={imageStyle} />
+    <Img
+      src={imageUrl}
+      alt="Email content"
+      width={`${size}%`}
+      style={imageStyle}
+    />
   );
 
   return (
@@ -358,52 +362,24 @@ const CustomVideo: React.FC<{
     >
       <tr>
         <td width={`${size}%`} align={centered ? "center" : "left"}>
-          <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-            <tr>
-              <td style={{ position: "relative" }}>
-                <a
-                  href={url}
-                  target="_blank"
-                  style={{
-                    display: "block",
-                    textDecoration: "none",
-                  }}
-                >
-                  <Img
-                    src={thumbnailUrl}
-                    alt="Video thumbnail"
-                    width="100%"
-                    style={{
-                      display: "block",
-                      borderRadius: isRounded ? "6px" : "0",
-                    }}
-                  />
-                  <table
-                    cellPadding="0"
-                    cellSpacing="0"
-                    border={0}
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  >
-                    <tr>
-                      <td>
-                        <YoutubeFilled
-                          width={`${size ? Math.max(48, Math.min(96, (96 * size) / 100)) : 68}px`}
-                          height={`${size ? Math.max(34, Math.min(68, (68 * size) / 100)) : 48}px`}
-                          fill="#FF0000"
-                          secondaryfill="#FFFFFF"
-                        />
-                      </td>
-                    </tr>
-                  </table>
-                </a>
-              </td>
-            </tr>
-          </table>
+          <a
+            href={url}
+            target="_blank"
+            style={{
+              display: "block",
+              textDecoration: "none",
+            }}
+          >
+            <Img
+              src={thumbnailUrl}
+              alt="Video thumbnail"
+              width={`${size}%`}
+              style={{
+                display: "block",
+                borderRadius: isRounded ? "6px" : "0",
+              }}
+            />
+          </a>
         </td>
       </tr>
     </table>
@@ -1343,7 +1319,10 @@ export function generateEmailCode(
                         {sections.map((section, sectionIndex) => (
                           <EmailSection key={`section-inset-${sectionIndex}`}>
                             {section.blocks.map((block, blockIndex) => {
-                              const blockStyle = { margin: "8px 0" };
+                              const blockStyle = {
+                                margin: "8px 0",
+                                padding: "8px 0px 0px 0",
+                              };
                               const Component = (() => {
                                 switch (block.type) {
                                   case "text":
