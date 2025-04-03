@@ -287,6 +287,10 @@ export const sendBulkEmails = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message:
+              failureCount > 0
+                ? `Failed to send ${failureCount} emails`
+                : "Failed to send any emails",
           })
           .eq("id", emailId);
       } else {
@@ -316,6 +320,10 @@ export const sendBulkEmails = task({
         .update({
           status: "failed",
           updated_at: new Date().toISOString(),
+          error_message:
+            error instanceof Error
+              ? error.message
+              : "An unknown error occurred while sending bulk emails",
         })
         .eq("id", emailId);
 

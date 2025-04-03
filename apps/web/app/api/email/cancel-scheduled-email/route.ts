@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     await supabase
       .from("emails")
       .update({
-        status: "failed",
+        status: "draft",
         updated_at: new Date().toISOString(),
         trigger_dev_schduled_id: null, // Clear the scheduled ID
       })

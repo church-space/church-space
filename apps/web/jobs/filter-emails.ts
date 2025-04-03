@@ -51,6 +51,8 @@ export const filterEmailRecipients = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message:
+              "Email must have a from email, from name, and from email domain",
           })
           .eq("id", emailId);
 
@@ -66,6 +68,7 @@ export const filterEmailRecipients = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message: "Email must have a subject",
           })
           .eq("id", emailId);
 
@@ -80,6 +83,7 @@ export const filterEmailRecipients = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message: "Email must have a list to send to",
           })
           .eq("id", emailId);
 
@@ -103,6 +107,7 @@ export const filterEmailRecipients = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message: "The list does not belong to your organization",
           })
           .eq("id", emailId);
 
@@ -124,6 +129,7 @@ export const filterEmailRecipients = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message: `Failed to fetch PCO list data: ${pcoListError?.message || "List not found"}`,
           })
           .eq("id", emailId);
 
@@ -169,6 +175,7 @@ export const filterEmailRecipients = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message: "No members found in the specified list",
           })
           .eq("id", emailId);
 
@@ -199,6 +206,8 @@ export const filterEmailRecipients = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message:
+              "No subscribed email addresses found for people in the list",
           })
           .eq("id", emailId);
 
@@ -239,6 +248,8 @@ export const filterEmailRecipients = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message:
+              "All recipients have unsubscribed from this list category",
           })
           .eq("id", emailId);
 
@@ -277,6 +288,7 @@ export const filterEmailRecipients = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message: `Email limit exceeded. Required: ${recipientCount}, Remaining: ${emailUsage.sends_remaining}. If this is a one-off exception and the ammount needed is close to your remaininglimit, email support@churchspace.co and we may increase your limit for this month at no extra charge.`,
           })
           .eq("id", emailId);
 
@@ -331,6 +343,10 @@ export const filterEmailRecipients = task({
         .update({
           status: "failed",
           updated_at: new Date().toISOString(),
+          error_message:
+            error instanceof Error
+              ? error.message
+              : "An unknown error occurred",
         })
         .eq("id", emailId);
 

@@ -36,6 +36,7 @@ export const scheduleEmail = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message: "Email must have a scheduled_for date",
           })
           .eq("id", emailId);
 
@@ -56,6 +57,7 @@ export const scheduleEmail = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message: `Email cannot be scheduled with status: ${emailData.status}`,
           })
           .eq("id", emailId);
 
@@ -78,6 +80,7 @@ export const scheduleEmail = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message: "Email cannot be scheduled for a date in the past",
           })
           .eq("id", emailId);
 
@@ -92,6 +95,8 @@ export const scheduleEmail = task({
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
+            error_message:
+              "Email cannot be scheduled more than a year in the future",
           })
           .eq("id", emailId);
 
@@ -133,6 +138,10 @@ export const scheduleEmail = task({
         .update({
           status: "failed",
           updated_at: new Date().toISOString(),
+          error_message:
+            error instanceof Error
+              ? error.message
+              : "An unknown error occurred",
         })
         .eq("id", emailId);
 
