@@ -21,7 +21,7 @@ export default async function Hero() {
           <br />
           Made Easy
         </h1>
-        <div className="mx-auto max-w-2xl text-pretty text-center text-xl text-muted-foreground">
+        <div className="mx-auto max-w-2xl text-pretty text-center text-2xl font-semibold">
           Church Space helps you engage
           <br />
           your people with craft and ease.
