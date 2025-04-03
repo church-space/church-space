@@ -482,6 +482,7 @@ export type Database = {
       emails: {
         Row: {
           created_at: string
+          error_message: string | null
           from_email: string | null
           from_email_domain: number | null
           from_name: string | null
@@ -502,6 +503,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          error_message?: string | null
           from_email?: string | null
           from_email_domain?: number | null
           from_name?: string | null
@@ -522,6 +524,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          error_message?: string | null
           from_email?: string | null
           from_email_domain?: number | null
           from_name?: string | null
@@ -1540,13 +1543,6 @@ export type Database = {
             referencedRelation: "stripe_prices"
             referencedColumns: ["stripe_price_id"]
           },
-          {
-            foreignKeyName: "stripe_payments_stripe_subscription_id_fkey"
-            columns: ["stripe_subscription_id"]
-            isOneToOne: false
-            referencedRelation: "stripe_subscriptions"
-            referencedColumns: ["stripe_subscription_id"]
-          },
         ]
       }
       stripe_prices: {
@@ -1768,10 +1764,6 @@ export type Database = {
           user_uuid: string
         }
         Returns: string[]
-      }
-      update_org_email_usage: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
     }
     Enums: {

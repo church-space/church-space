@@ -68,6 +68,7 @@ import SendTestEmail from "@/components/dnd-builder/send-test-email";
 import { getEmailBlockCountQuery } from "@church-space/supabase/queries/all/get-email";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -876,16 +877,18 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
         <div className="mx-auto mt-4 w-full max-w-3xl px-4">
           <Card className="mx-auto w-full rounded-md border-destructive bg-destructive/10 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-destructive">
+              <CardTitle className="text-foreground">
                 Email Failed to Send
               </CardTitle>
-              <CardDescription>
-                The email failed to send. Please try again or contact support.
-              </CardDescription>
             </CardHeader>
+            {email.error_message && (
+              <CardContent className="mx-6 mb-4 mt-2 rounded-md border border-destructive bg-muted px-3 pb-2 pt-2 font-mono text-sm">
+                {email.error_message}
+              </CardContent>
+            )}
             <CardFooter>
               <Link
-                href={`mailto:support@churchspace.co?subject=Email%20Failed%20to%20Send&body=My%20email%20failed%20to%20send.%20Can%20you%20please%20investigate%20and%20let%20me%20know%20what%20to%20do%3F%0A%0AEmail%20ID%3A%20${email.id}%0A%0AThanks!`}
+                href={`mailto:support@churchspace.co?subject=Email%20Failed%20to%20Send&body=My%20email%20failed%20to%20send.%20Can%20you%20please%20investigate%20and%20let%20me%20know%20what%20to%20do%3F%0A%0AEmail%20ID%3A%20${email.id}${email.error_message ? `%0A%0AError%20Message%3A%20${encodeURIComponent(email.error_message)}` : ""}%0A%0AThanks!`}
               >
                 <Button variant="outline">Contact Support</Button>
               </Link>
