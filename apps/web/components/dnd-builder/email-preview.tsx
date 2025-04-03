@@ -13,11 +13,14 @@ import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { cn } from "@church-space/ui/cn";
 
 export default function EmailPreview({
   showBackButton = false,
+  webOnly = false,
 }: {
   showBackButton?: boolean;
+  webOnly?: boolean;
 }) {
   const [previewType, setPreviewType] = useQueryState("previewType");
   const [htmlContent, setHtmlContent] = useState<string>("");
@@ -82,7 +85,7 @@ export default function EmailPreview({
             Back to Email
           </Link>
         )}
-        <TabsList>
+        <TabsList className={cn(webOnly && "hidden")}>
           <TabsTrigger value="web">Web</TabsTrigger>
           <TabsTrigger value="mobile">Mobile</TabsTrigger>
         </TabsList>

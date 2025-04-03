@@ -683,7 +683,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                 <div className="rounded-md border bg-muted p-3 text-sm text-muted-foreground">
                   <div className="flex flex-col gap-2">
                     <h4 className="font-medium">Preview</h4>
-                    <EmailPreview />
+                    <EmailPreview webOnly={true} />
                     <div className="flex flex-col gap-2">
                       <span className="text-xs text-muted-foreground">
                         {emailBlockCount} blocks
