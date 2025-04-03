@@ -2,6 +2,13 @@
 
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@church-space/ui/select";
 
 // Define the type based on the SQL schema
 export type EmailCategory = {
@@ -15,34 +22,11 @@ export type EmailCategory = {
 
 export const columns: ColumnDef<EmailCategory>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
     accessorKey: "pco_name",
     header: "Name",
     cell: ({ row }) => {
       const name = row.getValue("pco_name") as string | null;
-      return <div className="font-medium">{name || "Untitled"}</div>;
+      return <div className="ml-3 font-medium">{name || "Untitled"}</div>;
     },
   },
   {
@@ -66,7 +50,32 @@ export const columns: ColumnDef<EmailCategory>[] = [
     header: "Public",
     cell: ({ row }) => {
       const isPublic = row.getValue("is_public") as boolean;
-      return <div>{isPublic ? "Yes" : "No"}</div>;
+      const id = row.original.id;
+
+      const handleValueChange = (value: string) => {
+        // Here you would update the value in your database
+        console.log(
+          `Updating email category ${id} to ${value === "public" ? true : false}`,
+        );
+        // You might want to add API call here to update the value
+      };
+
+      return (
+        <div>
+          <Select
+            defaultValue={isPublic ? "public" : "hidden"}
+            onValueChange={handleValueChange}
+          >
+            <SelectTrigger className="h-8 w-[100px] border-none bg-transparent shadow-none transition-all hover:border hover:bg-background hover:shadow-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="public">Public</SelectItem>
+              <SelectItem value="hidden">Hidden</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
     },
   },
   {

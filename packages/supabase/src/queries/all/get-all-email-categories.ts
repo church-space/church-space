@@ -54,6 +54,7 @@ export async function getAllLinkLists(
       description
     `
     )
+    .order("is_public", { ascending: false })
     .order("pco_name", { ascending: true })
     .eq("organization_id", organizationId);
 
