@@ -227,6 +227,9 @@ export const sendBulkEmails = task({
                   footer: typedEmailData.footer,
                   unsubscribeUrl,
                   managePreferencesUrl,
+                  firstName: recipientData.firstName,
+                  lastName: recipientData.lastName,
+                  email: recipientData.email,
                 }),
               },
             );

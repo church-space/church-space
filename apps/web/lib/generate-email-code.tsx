@@ -41,6 +41,9 @@ const CustomText: React.FC<{
   defaultFont?: string;
   defaultTextColor?: string;
   linkColor?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
 }> = ({
   content,
   font,
@@ -48,9 +51,27 @@ const CustomText: React.FC<{
   defaultFont,
   defaultTextColor,
   linkColor,
+  firstName,
+  lastName,
+  email,
 }) => {
+  // Replace mention spans with actual values
+  const personalizedContent = content
+    .replace(
+      /<span class="mention" data-type="mention" data-id="first-name">@first-name<\/span>/g,
+      firstName || "@first-name",
+    )
+    .replace(
+      /<span class="mention" data-type="mention" data-id="last-name">@last-name<\/span>/g,
+      lastName || "@last-name",
+    )
+    .replace(
+      /<span class="mention" data-type="mention" data-id="email">@email<\/span>/g,
+      email || "@email",
+    );
+
   // Parse HTML content and convert to React Email components
-  const sanitizedContent = content
+  const sanitizedContent = personalizedContent
     .replace(/class="[^"]*"/g, "")
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(/<h1(?: style="([^"]*)")?/g, (match, existingStyle) => {
@@ -80,7 +101,7 @@ const CustomText: React.FC<{
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        "font-weight: 200; line-height: 1.5; font-size: 16px; margin: 0.5em 0";
+        "font-weight: 300; line-height: 1.5; font-size: 16px; margin: 0.5em 0";
       if (existingStyle) {
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
@@ -1267,6 +1288,9 @@ export function generateEmailCode(
   footerData?: any,
   unsubscribeUrl?: string,
   managePreferencesUrl?: string,
+  firstName?: string,
+  lastName?: string,
+  email?: string,
 ): React.ReactElement {
   const {
     bgColor = "#ffffff",
@@ -1351,6 +1375,9 @@ export function generateEmailCode(
                                                 defaultTextColor
                                               }
                                               linkColor={linkColor}
+                                              firstName={firstName}
+                                              lastName={lastName}
+                                              email={email}
                                             />
                                           </td>
                                         </tr>
@@ -1579,6 +1606,9 @@ export function generateEmailCode(
                                                 defaultTextColor
                                               }
                                               linkColor={linkColor}
+                                              firstName={firstName}
+                                              lastName={lastName}
+                                              email={email}
                                             />
                                           </td>
                                         </tr>
