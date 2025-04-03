@@ -436,7 +436,7 @@ const TimePeriodSelect = React.forwardRef<
             tempDate,
             hours.toString(),
             "12hours",
-            period === "AM" ? "PM" : "AM"
+            period === "AM" ? "PM" : "PM"
           )
         );
       }
@@ -810,7 +810,7 @@ const DateTimePicker = React.forwardRef<
   (
     {
       locale = enUS,
-      defaultPopupValue = new Date(new Date().setHours(0, 0, 0, 0)),
+      defaultPopupValue = new Date(new Date().setHours(18, 0, 0, 0)),
       value,
       onChange,
       onMonthChange,

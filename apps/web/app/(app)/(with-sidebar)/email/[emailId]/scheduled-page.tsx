@@ -38,6 +38,7 @@ import { useState } from "react";
 import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
 import {
   FountainPen,
+  LoaderIcon,
   PaperPlaneClock,
   Reply,
   UserPen,
@@ -48,6 +49,7 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
   const [email] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const [cancelScheduleOpen, setCancelScheduleOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
 
@@ -161,12 +163,23 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
                   </span>
                 </Button>
                 <Button
-                  onClick={() => {
-                    cancelScheduledEmail({ emailId: email.id });
+                  onClick={async () => {
+                    setIsLoading(true);
+                    try {
+                      await cancelScheduledEmail({ emailId: email.id });
+                    } catch (error) {
+                      console.error("Failed to cancel schedule", error);
+                    }
                     router.refresh();
                   }}
+                  className="flex items-center gap-2"
                 >
                   Cancel Schedule
+                  {isLoading && (
+                    <div className="animate-spin">
+                      <LoaderIcon />
+                    </div>
+                  )}
                 </Button>
               </DialogFooter>
             </DialogContent>
