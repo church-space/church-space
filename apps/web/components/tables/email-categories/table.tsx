@@ -4,7 +4,7 @@ import { useEmailCategories } from "@/hooks/use-email-categories";
 import { Button } from "@church-space/ui/button";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, EmailCategory } from "./columns";
 import { EmailCategoryStatus, getEmailCategoryFilterConfig } from "./filters";
