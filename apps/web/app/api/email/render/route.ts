@@ -13,8 +13,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { sections, style, footer, unsubscribeUrl, managePreferencesUrl } =
-      await req.json();
+    const {
+      sections,
+      style,
+      footer,
+      unsubscribeUrl,
+      managePreferencesUrl,
+      firstName,
+      lastName,
+      email,
+    } = await req.json();
 
     // Generate email code
     const emailCode = generateEmailCode(
@@ -23,6 +31,9 @@ export async function POST(req: NextRequest) {
       footer,
       unsubscribeUrl,
       managePreferencesUrl,
+      firstName,
+      lastName,
+      email,
     );
 
     // Generate both HTML and plain text versions
