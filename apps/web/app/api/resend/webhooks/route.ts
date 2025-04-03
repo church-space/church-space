@@ -177,6 +177,7 @@ export async function POST(request: NextRequest) {
         updatePeopleEmailStatus(supabase, {
           people_email_id: bouncedIds.people_email_id,
           status: "cleaned",
+          reason: "email bounced",
         }),
       ]);
       break;

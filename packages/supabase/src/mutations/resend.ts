@@ -46,13 +46,15 @@ export async function updatePeopleEmailStatus(
   {
     people_email_id,
     status,
+    reason,
   }: {
     people_email_id: number;
     status: Database["public"]["Enums"]["email_address_status"];
+    reason: string;
   }
 ) {
   return supabase
     .from("people_emails")
-    .update({ status })
+    .update({ status, reason })
     .eq("id", people_email_id);
 }

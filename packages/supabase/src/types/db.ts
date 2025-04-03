@@ -1252,7 +1252,10 @@ export type Database = {
           organization_id: string
           pco_email_id: string
           pco_person_id: string
+          protected_from_cleaning: boolean
+          reason: string | null
           status: Database["public"]["Enums"]["email_address_status"]
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
@@ -1261,7 +1264,10 @@ export type Database = {
           organization_id: string
           pco_email_id: string
           pco_person_id: string
+          protected_from_cleaning?: boolean
+          reason?: string | null
           status?: Database["public"]["Enums"]["email_address_status"]
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
@@ -1270,7 +1276,10 @@ export type Database = {
           organization_id?: string
           pco_email_id?: string
           pco_person_id?: string
+          protected_from_cleaning?: boolean
+          reason?: string | null
           status?: Database["public"]["Enums"]["email_address_status"]
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1748,6 +1757,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      clean_complained_emails: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       count_direct_storage_items: {
         Args: {
           bucket_name: string
