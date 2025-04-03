@@ -5,12 +5,14 @@ import { Button } from "@church-space/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
 import { Eye } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 import { cancelScheduledEmail } from "@/actions/cancel-schedule-email";
 import { createClient } from "@church-space/supabase/client";
 import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
@@ -45,6 +47,9 @@ import {
 export default function ScheduledPage({ email: initialEmail }: { email: any }) {
   const [email] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
+  const [cancelScheduleOpen, setCancelScheduleOpen] = useState(false);
+
+  const router = useRouter();
 
   const supabase = createClient();
 
@@ -134,12 +139,38 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
           </Breadcrumb>
         </div>
         <div className="flex items-center gap-2 px-4">
-          <Button
-            variant="outline"
-            onClick={() => cancelScheduledEmail({ emailId: email.id })}
+          <Dialog
+            open={cancelScheduleOpen}
+            onOpenChange={setCancelScheduleOpen}
           >
-            Cancel Schedule
-          </Button>
+            <DialogTrigger asChild>
+              <Button variant="outline">Cancel Schedule</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Cancel Schedule</DialogTitle>
+              </DialogHeader>
+              <DialogDescription>
+                Are you sure you want to cancel this schedule?
+              </DialogDescription>
+              <DialogFooter>
+                <Button variant="outline">
+                  Close{" "}
+                  <span className="rounded bg-muted px-1 text-xs text-muted-foreground">
+                    Esc
+                  </span>
+                </Button>
+                <Button
+                  onClick={() => {
+                    cancelScheduledEmail({ emailId: email.id });
+                    router.refresh();
+                  }}
+                >
+                  Cancel Schedule
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <Dialog
             open={previewOpen === "true"}
             onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}

@@ -26,6 +26,8 @@ export const cancelScheduledEmail = authActionClient
         .eq("id", parsedInput.emailId)
         .single();
 
+      console.log(email);
+
       if (emailError || !email) {
         throw new Error("Email not found");
       }
@@ -34,8 +36,14 @@ export const cancelScheduledEmail = authActionClient
         throw new Error("No scheduled run found for this email");
       }
 
+      console.log(
+        "email.trigger_dev_schduled_id",
+        email.trigger_dev_schduled_id,
+      );
       // Cancel the run in Trigger.dev
       await runs.cancel(email.trigger_dev_schduled_id);
+
+      console.log("Run cancelled");
 
       // Update the email status
       await updateEmail(supabase, parsedInput.emailId, {
@@ -44,6 +52,7 @@ export const cancelScheduledEmail = authActionClient
         trigger_dev_schduled_id: null,
       });
 
+      console.log("Email updated");
       return { success: true };
     } catch (error) {
       if (error instanceof Error) {

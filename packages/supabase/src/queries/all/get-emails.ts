@@ -70,7 +70,7 @@ export async function getEmailsQuery(
       reply_to_domain:reply_to_domain(domain)
     `
     )
-    .order("created_at", { ascending: false })
+    .order("updated_at", { ascending: false, nullsFirst: false })
     .eq("organization_id", organizationId);
 
   // Apply filters if provided
