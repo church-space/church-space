@@ -19,7 +19,7 @@ import type { EmailStatus } from "@/components/tables/emails/filters";
 import type { Email } from "@/components/tables/emails/columns";
 
 interface PageProps {
-  params: { slug?: string };
+  params: Promise<{ slug?: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
