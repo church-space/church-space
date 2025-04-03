@@ -281,25 +281,28 @@ export const sendBulkEmails = task({
       }
 
       // Update email status based on results
-      if (failureCount > 0 && successCount === 0) {
+      if (successCount === 0) {
+        // If no emails sent successfully, mark as failed
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message:
-              failureCount > 0
-                ? `Failed to send ${failureCount} emails`
-                : "Failed to send any emails",
+            error_message: "Failed to send any emails",
           })
           .eq("id", emailId);
       } else {
+        // If some emails sent successfully, mark as sent but include error message if there were failures
         await supabase
           .from("emails")
           .update({
             status: "sent",
             sent_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            error_message:
+              failureCount > 0
+                ? `Successfully sent ${successCount} emails, but failed to send ${failureCount} emails`
+                : null,
           })
           .eq("id", emailId);
       }
@@ -309,7 +312,7 @@ export const sendBulkEmails = task({
         totalRecipients: Object.keys(recipients).length,
         successCount,
         failureCount,
-        status: failureCount > 0 && successCount === 0 ? "failed" : "sent",
+        status: successCount === 0 ? "failed" : "sent",
       };
     } catch (error) {
       console.error("Error in bulk email job:", error);
