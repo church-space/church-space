@@ -151,6 +151,12 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
     enabled: !!fromDomain,
   });
 
+  const { data: replyToDomainData } = useQuery({
+    queryKey: ["domain", replyToDomain],
+    queryFn: () => getDomainQuery(supabase, parseInt(replyToDomain || "0")),
+    enabled: !!replyToDomain,
+  });
+
   // Add email block count query
   const { data: blockCountData } = useQuery({
     queryKey: ["emailBlockCount", email.id],
@@ -723,6 +729,12 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                     {fromName} &lt;{fromEmail}@
                     {fromDomainData?.data?.[0]?.domain || ""}&gt;
                   </p>
+                  {replyToEmail && (
+                    <p className="text-sm text-muted-foreground">
+                      Reply-To: {replyToEmail}@
+                      {replyToDomainData?.data?.[0]?.domain || ""}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-medium">Subject</h4>

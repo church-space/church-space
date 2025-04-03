@@ -26,6 +26,7 @@ interface EmailData {
   from_email: string | null;
   from_name: string | null;
   reply_to: string | null;
+  reply_to_domain: string | null;
   status: string | null;
   scheduled_for: string | null;
   organization_id: string;
