@@ -123,8 +123,13 @@ export const createEditor = (
           allowSpaces: true,
           decorationClass: "mention-suggestion",
           items: ({ query }) => {
-            // Always return all items initially
-            return suggestionItems;
+            if (!query) {
+              return suggestionItems;
+            }
+
+            return suggestionItems.filter((item) =>
+              item.label.toLowerCase().includes(query.toLowerCase()),
+            );
           },
           render: () => {
             let popup: Instance<Props> | null = null;
@@ -133,8 +138,8 @@ export const createEditor = (
             let currentProps: any = null;
 
             const selectItem = (index: number) => {
-              if (currentProps && suggestionItems[index]) {
-                currentProps.command({ id: suggestionItems[index].id });
+              if (currentProps && currentProps.items[index]) {
+                currentProps.command({ id: currentProps.items[index].id });
                 popup?.hide();
               }
             };
@@ -201,6 +206,8 @@ export const createEditor = (
               },
               onUpdate: (props) => {
                 if (!component || !popup) return;
+                currentProps = props;
+                selectedIndex = 0; // Reset selection when items update
 
                 component.innerHTML = `
                   <div class="items">
@@ -241,19 +248,21 @@ export const createEditor = (
 
                 if (props.event.key === "ArrowUp") {
                   selectedIndex =
-                    (selectedIndex + suggestionItems.length - 1) %
-                    suggestionItems.length;
+                    (selectedIndex + currentProps.items.length - 1) %
+                    currentProps.items.length;
                   updateSelection();
                   return true;
                 }
 
                 if (props.event.key === "ArrowDown") {
-                  selectedIndex = (selectedIndex + 1) % suggestionItems.length;
+                  selectedIndex =
+                    (selectedIndex + 1) % currentProps.items.length;
                   updateSelection();
                   return true;
                 }
 
                 if (props.event.key === "Enter") {
+                  props.event.preventDefault();
                   selectItem(selectedIndex);
                   return true;
                 }
