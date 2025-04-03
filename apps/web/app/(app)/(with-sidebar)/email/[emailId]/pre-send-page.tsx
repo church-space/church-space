@@ -69,7 +69,6 @@ import { getEmailBlockCountQuery } from "@church-space/supabase/queries/all/get-
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
