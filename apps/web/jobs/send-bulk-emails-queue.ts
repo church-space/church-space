@@ -246,7 +246,7 @@ export const sendBulkEmails = task({
             // Add to batch
             emailBatch.push({
               from: `${typedEmailData.from_name || typedEmailData.from_email} <${fromAddress}>`,
-              reply_to: replyToAddress,
+              replyTo: replyToAddress,
               to: recipientData.email,
               subject: typedEmailData.subject || "No Subject",
               html: personalizedHtml,

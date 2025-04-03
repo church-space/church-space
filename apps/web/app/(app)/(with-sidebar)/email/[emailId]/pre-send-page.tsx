@@ -936,11 +936,12 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                       ? `${listData?.data?.[0]?.pco_list_description || "Loading..."}`
                       : ""}
                   </span>{" "}
-                  ({listData?.data?.[0]?.pco_total_people || "Loading..."}{" "}
-                  {listData?.data?.[0]?.pco_total_people === "1"
-                    ? "person"
-                    : "people"}
-                  )
+                  {listId &&
+                    (listData?.data?.[0]?.pco_total_people || "Loading...") +
+                      " " +
+                      (listData?.data?.[0]?.pco_total_people === "1"
+                        ? "person"
+                        : "people")}
                 </span>
               </div>
             </div>
