@@ -222,7 +222,8 @@ export const sendBulkEmails = task({
               );
             }
 
-            const { html: personalizedHtml } = await renderResponse.json();
+            const { html: personalizedHtml, text: personalizedText } =
+              await renderResponse.json();
 
             // Add to batch
             emailBatch.push({
@@ -231,6 +232,7 @@ export const sendBulkEmails = task({
               to: emailAddress,
               subject: typedEmailData.subject || "No Subject",
               html: personalizedHtml,
+              text: personalizedText,
               headers: {
                 "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
