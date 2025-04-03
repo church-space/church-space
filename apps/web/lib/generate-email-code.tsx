@@ -55,7 +55,7 @@ const CustomText: React.FC<{
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(/<h1(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        "margin: 1em 0 0.2em 0; font-weight: 600; font-size: 2rem; line-height: 1";
+        "margin: 0.3em 0 0.2em 0; font-weight: 600; font-size: 2rem; line-height: 1";
       if (existingStyle) {
         return `<h1 style="${existingStyle}; ${baseStyle}"`;
       }
@@ -106,7 +106,7 @@ const CustomText: React.FC<{
   const processedContent = `
     <style>
       h1:first-child, h2:first-child, h3:first-child {
-        margin-top: 0.2em !important;
+        margin-top: 0em !important;
       }
     </style>
     ${sanitizedContent}

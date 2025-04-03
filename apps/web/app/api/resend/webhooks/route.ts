@@ -1,6 +1,7 @@
 import {
   insertEmailLinkClicked,
   upsertEmailRecipient,
+  updatePeopleEmailStatus,
 } from "@church-space/supabase/mutations/resend";
 import { createClient } from "@church-space/supabase/job";
 import { NextRequest, NextResponse } from "next/server";
@@ -166,12 +167,18 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
-      await upsertEmailRecipient(supabase, {
-        resend_email_id: payload.data.email_id,
-        status: "bounced",
-        email_id: bouncedIds.email_id,
-        people_email_id: bouncedIds.people_email_id,
-      });
+      await Promise.all([
+        upsertEmailRecipient(supabase, {
+          resend_email_id: payload.data.email_id,
+          status: "bounced",
+          email_id: bouncedIds.email_id,
+          people_email_id: bouncedIds.people_email_id,
+        }),
+        updatePeopleEmailStatus(supabase, {
+          people_email_id: bouncedIds.people_email_id,
+          status: "cleaned",
+        }),
+      ]);
       break;
     case "email.opened":
       const openedIds = validateIds(payload.data.headers);

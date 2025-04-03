@@ -1781,7 +1781,11 @@ export type Database = {
         | "author"
         | "quiz"
         | "audio"
-      email_address_status: "unsubscribed" | "pco_blocked" | "subscribed"
+      email_address_status:
+        | "unsubscribed"
+        | "pco_blocked"
+        | "subscribed"
+        | "cleaned"
       email_delivery_status:
         | "sent"
         | "delivered"

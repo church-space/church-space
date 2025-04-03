@@ -40,3 +40,19 @@ export async function insertEmailLinkClicked(
     link_clicked,
   });
 }
+
+export async function updatePeopleEmailStatus(
+  supabase: Client,
+  {
+    people_email_id,
+    status,
+  }: {
+    people_email_id: number;
+    status: Database["public"]["Enums"]["email_address_status"];
+  }
+) {
+  return supabase
+    .from("people_emails")
+    .update({ status })
+    .eq("id", people_email_id);
+}
