@@ -54,3 +54,29 @@ export async function getUserWithDetailsQuery(supabase: Client) {
     organizationMembership,
   };
 }
+
+export async function getUserOrganizationId(supabase: Client) {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data.user) {
+    return [];
+  }
+
+  const { data: organizationMemberships, error: membershipError } =
+    await supabase
+      .from("organization_memberships")
+      .select("organization_id")
+      .eq("user_id", data.user.id);
+
+  if (membershipError) {
+    throw membershipError;
+  }
+
+  return organizationMemberships.map(
+    (membership) => membership.organization_id
+  );
+}

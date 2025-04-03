@@ -5,7 +5,6 @@ import { createClient } from "@church-space/supabase/server";
 import { deleteEmail } from "@church-space/supabase/mutations/emails";
 import { z } from "zod";
 import type { ActionResponse } from "@/types/action";
-import { revalidateTag } from "next/cache";
 import { PostgrestError } from "@supabase/supabase-js";
 
 export interface EmailResponse {

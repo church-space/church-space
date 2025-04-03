@@ -1,6 +1,7 @@
 import { scheduleEmail } from "@/jobs/schduled-emails";
 import { NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";
+import { getUserOrganizationId } from "@church-space/supabase/get-user-with-details";
 
 export const dynamic = "force-dynamic";
 
@@ -15,17 +16,26 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    const supabase = await createClient();
+
+    const organizationId = await getUserOrganizationId(supabase);
 
     // Verify email exists and is in a valid state
-    const supabase = await createClient();
     const { data: emailData, error: emailError } = await supabase
       .from("emails")
-      .select("status, scheduled_for")
+      .select("status, scheduled_for, organization_id")
       .eq("id", body.emailId)
       .single();
 
     if (emailError || !emailData) {
       return NextResponse.json({ error: "Email not found" }, { status: 404 });
+    }
+
+    if (emailData.organization_id !== organizationId[0]) {
+      return NextResponse.json(
+        { error: "Email does not belong to organization" },
+        { status: 400 },
+      );
     }
 
     // Check if email has a scheduled_for date

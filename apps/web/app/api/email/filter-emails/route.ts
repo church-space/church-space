@@ -1,6 +1,7 @@
 import { filterEmailRecipients } from "@/jobs/filter-emails";
 import { NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";
+import { getUserOrganizationId } from "@church-space/supabase/get-user-with-details";
 
 export const dynamic = "force-dynamic";
 
@@ -18,14 +19,24 @@ export async function POST(request: Request) {
 
     // Verify email exists and is in a valid state
     const supabase = await createClient();
+
+    const organizationId = await getUserOrganizationId(supabase);
+
     const { data: emailData, error: emailError } = await supabase
       .from("emails")
-      .select("status, scheduled_for, list_id")
+      .select("status, scheduled_for, list_id, organization_id")
       .eq("id", body.emailId)
       .single();
 
     if (emailError || !emailData) {
       return NextResponse.json({ error: "Email not found" }, { status: 404 });
+    }
+
+    if (emailData.organization_id !== organizationId[0]) {
+      return NextResponse.json(
+        { error: "Email does not belong to organization" },
+        { status: 400 },
+      );
     }
 
     // Check email status
