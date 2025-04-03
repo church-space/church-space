@@ -120,6 +120,8 @@ export const sendBulkEmails = task({
           ? `${typedEmailData.reply_to}@${typedEmailData.reply_to_domain.domain}`
           : undefined;
 
+      console.log({ replyToAddress: replyToAddress });
+
       // Verify sender domain
       const senderDomain = typedEmailData.from_domain.domain;
 
@@ -242,6 +244,8 @@ export const sendBulkEmails = task({
             console.error(`Error preparing email for ${emailAddress}:`, error);
             failureCount++;
           }
+
+          console.log({ emailBatch: emailBatch });
         }
 
         if (emailBatch.length > 0) {
