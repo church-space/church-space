@@ -26,7 +26,7 @@ export type Person = {
   people_emails: Array<{
     id: number;
     email: string;
-    status: "subscribed" | "unsubscribed" | "pco_blocked";
+    status: "subscribed" | "unsubscribed" | "pco_blocked" | "cleaned";
     pco_person_id: string;
     organization_id: string;
   }>;
