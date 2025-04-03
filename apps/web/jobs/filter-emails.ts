@@ -188,7 +188,17 @@ export const filterEmailRecipients = task({
       // Step 5: Get all emails for these people that are subscribed
       const { data: peopleEmails, error: peopleEmailsError } = await supabase
         .from("people_emails")
-        .select("id, email, pco_person_id")
+        .select(
+          `
+          id, 
+          email, 
+          pco_person_id,
+          pco_people!people_emails_pco_person_id_fkey(
+            first_name,
+            last_name
+          )
+        `,
+        )
         .in("pco_person_id", personIds)
         .eq("organization_id", emailData.organization_id)
         .eq("status", "subscribed");
@@ -259,9 +269,16 @@ export const filterEmailRecipients = task({
       }
 
       // Step 8: Format recipients for the bulk email queue
-      const recipients: Record<string, string> = {};
-      filteredEmails.forEach((email) => {
-        recipients[email.id.toString()] = email.email;
+      const recipients: Record<
+        string,
+        { email: string; firstName?: string; lastName?: string }
+      > = {};
+      filteredEmails.forEach((email: any) => {
+        recipients[email.id.toString()] = {
+          email: email.email,
+          firstName: email.pco_people?.first_name || undefined,
+          lastName: email.pco_people?.last_name || undefined,
+        };
       });
 
       // Step 9: Check organization's email usage limits

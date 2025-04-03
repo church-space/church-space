@@ -16,7 +16,14 @@ const emailQueue = queue({
 // Interface for the payload
 interface BulkEmailPayload {
   emailId: number;
-  recipients: Record<string, string>; // Map of people_email_id to email address
+  recipients: Record<
+    string,
+    {
+      email: string;
+      firstName?: string;
+      lastName?: string;
+    }
+  >;
 }
 
 // Interface for email data
@@ -179,7 +186,10 @@ export const sendBulkEmails = task({
         const batchTokens: Record<string, string> = {};
 
         for (const peopleEmailId of batch) {
-          const emailAddress = recipients[peopleEmailId];
+          const recipientData = recipients[peopleEmailId];
+          console.log(
+            `Preparing email for recipient: ${recipientData.firstName || "[no first name]"} ${recipientData.lastName || "[no last name]"} <${recipientData.email}>`,
+          );
 
           try {
             // Create JWT token for unsubscribe link
@@ -232,7 +242,7 @@ export const sendBulkEmails = task({
             emailBatch.push({
               from: `${typedEmailData.from_name || typedEmailData.from_email} <${fromAddress}>`,
               reply_to: replyToAddress,
-              to: emailAddress,
+              to: recipientData.email,
               subject: typedEmailData.subject || "No Subject",
               html: personalizedHtml,
               text: personalizedText,
@@ -242,7 +252,10 @@ export const sendBulkEmails = task({
               },
             });
           } catch (error) {
-            console.error(`Error preparing email for ${emailAddress}:`, error);
+            console.error(
+              `Error preparing email for ${recipientData.email}:`,
+              error,
+            );
             failureCount++;
           }
 
@@ -261,7 +274,8 @@ export const sendBulkEmails = task({
 
             // Create recipient records for failed sends
             for (const peopleEmailId of batch) {
-              const emailAddress = recipients[peopleEmailId];
+              const recipientData = recipients[peopleEmailId];
+              const emailAddress = recipientData.email;
 
               try {
                 console.log(
