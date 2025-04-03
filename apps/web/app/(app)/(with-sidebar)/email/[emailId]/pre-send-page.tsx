@@ -20,7 +20,12 @@ import {
 } from "@church-space/ui/dialog";
 import { Ellipsis, Eye } from "lucide-react";
 import Link from "next/link";
-import { CircleDashed, CircleCheck, Trash } from "@church-space/ui/icons";
+import {
+  CircleDashed,
+  CircleCheck,
+  Trash,
+  LoaderIcon,
+} from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
 
 import DomainSelector from "@/components/id-pages/emails/domain-selector";
@@ -109,6 +114,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
   const { toast } = useToast();
   const [activeAccordion, setActiveAccordion] = useState<string | null>("");
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Track which accordion is attempting to be closed with unsaved changes
   const [accordionWithPreventedClose, setAccordionWithPreventedClose] =
@@ -274,6 +280,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
       });
       setToIsSaving(false);
       setToHasChanges(false);
+      setAccordionWithPreventedClose(null);
       // Update local email state
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
@@ -290,6 +297,8 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
     setListId(email.list_id || "");
     setToHasChanges(false);
     setToIsSaving(false);
+    setActiveAccordion("");
+    setAccordionWithPreventedClose(null);
   };
 
   const saveFromSection = async () => {
@@ -330,6 +339,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
       });
       setFromIsSaving(false);
       setFromHasChanges(false);
+      setAccordionWithPreventedClose(null);
       // Update local email state
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
@@ -354,6 +364,8 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
     setReplyToDomain(email.reply_to_domain?.toString() || "");
     setFromHasChanges(false);
     setFromIsSaving(false);
+    setActiveAccordion("");
+    setAccordionWithPreventedClose(null);
   };
 
   const saveSubjectSection = async () => {
@@ -363,6 +375,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
       });
       setSubjectIsSaving(false);
       setSubjectHasChanges(false);
+      setAccordionWithPreventedClose(null);
       // Update local email state
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
@@ -379,6 +392,8 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
     setSubject(email.subject || "");
     setSubjectHasChanges(false);
     setSubjectIsSaving(false);
+    setActiveAccordion("");
+    setAccordionWithPreventedClose(null);
   };
 
   const saveScheduleSection = async () => {
@@ -425,6 +440,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
 
       setScheduleIsSaving(false);
       setScheduleHasChanges(false);
+      setAccordionWithPreventedClose(null);
       // Update local email state
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
@@ -446,6 +462,8 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
     setSendNow(email.send_now || false);
     setScheduleHasChanges(false);
     setScheduleIsSaving(false);
+    setActiveAccordion("");
+    setAccordionWithPreventedClose(null);
   };
 
   // Subject validation functions
@@ -472,14 +490,22 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
     // If trying to close the current section
     if (value === "" || value !== activeAccordion) {
       // Check if current section has unsaved changes
-      if (
+      const hasUnsavedChangesInSection =
         (activeAccordion === "to" && toHasChanges) ||
         (activeAccordion === "from" && fromHasChanges) ||
         (activeAccordion === "subject" && subjectHasChanges) ||
-        (activeAccordion === "schedule" && scheduleHasChanges)
-      ) {
+        (activeAccordion === "schedule" && scheduleHasChanges);
+
+      if (hasUnsavedChangesInSection) {
         // Mark this accordion as having prevented close
         setAccordionWithPreventedClose(activeAccordion);
+        // Show toast notification
+        toast({
+          title: "Unsaved Changes",
+          description:
+            "Please save or cancel your changes before closing this section.",
+          variant: "destructive",
+        });
         // Don't update the accordion state
         return;
       }
@@ -698,6 +724,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                 </Button>
                 <Button
                   onClick={async () => {
+                    setIsLoading(true);
                     try {
                       if (email.scheduled_for) {
                         // Schedule the email
@@ -771,10 +798,26 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                             : "Failed to process email",
                         variant: "destructive",
                       });
+                    } finally {
+                      if (!email.scheduled_for) {
+                        await new Promise((resolve) =>
+                          setTimeout(resolve, 2000),
+                        );
+                      }
+                      router.refresh();
+                      window.location.reload();
                     }
                   }}
+                  disabled={isLoading}
                 >
-                  {email.scheduled_for ? "Schedule Email" : "Send Email"}
+                  <div className="flex items-center gap-2">
+                    {email.scheduled_for ? "Schedule Email" : "Send Email"}
+                    {isLoading && (
+                      <div className="h-4 w-4 animate-spin">
+                        <LoaderIcon />
+                      </div>
+                    )}
+                  </div>
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -1159,7 +1202,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
             />
           </AccordionContent>
         </AccordionItem>
-        <div className="flex flex-1 items-center justify-between rounded-xl border bg-card py-4 pl-6 pr-5 text-left font-medium transition-all hover:bg-accent/50">
+        <div className="flex flex-1 cursor-pointer items-center justify-between rounded-lg border bg-card py-4 pl-6 pr-5 text-left font-medium transition-all hover:bg-accent/50">
           <ProtectedLink
             href={`/email/${email.id}/editor`}
             className="group/link flex w-full items-center gap-3"
@@ -1180,15 +1223,14 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
               </span>
             </div>
           </ProtectedLink>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <Dialog
               open={previewOpen === "true"}
               onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
             >
               <DialogTrigger asChild>
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant="ghost"
                   onClick={() => {
                     setPreviewOpen("true");
                   }}
@@ -1207,6 +1249,9 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                 <EmailPreview />
               </DialogContent>
             </Dialog>
+            <Button variant="outline" className="cursor-pointer px-5">
+              Edit
+            </Button>
           </div>
         </div>
       </Accordion>
