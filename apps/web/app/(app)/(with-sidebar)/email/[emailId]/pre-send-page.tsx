@@ -115,6 +115,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
   const [activeAccordion, setActiveAccordion] = useState<string | null>("");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [sendDialogOpen, setSendDialogOpen] = useState(false);
 
   // Track which accordion is attempting to be closed with unsaved changes
   const [accordionWithPreventedClose, setAccordionWithPreventedClose] =
@@ -658,9 +659,44 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           </DropdownMenu>
           <SendTestEmail />
 
-          <Dialog>
+          <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
             <DialogTrigger asChild>
-              <Button disabled={!isAllStepsCompleted()}>
+              <Button
+                disabled={!isAllStepsCompleted()}
+                onClick={(e) => {
+                  if (email.scheduled_for) {
+                    const scheduledTime = new Date(email.scheduled_for);
+                    const now = new Date();
+                    const minValidTime = new Date(now);
+                    minValidTime.setMinutes(now.getMinutes() + 10);
+
+                    if (scheduledTime <= minValidTime) {
+                      e.preventDefault();
+                      toast({
+                        title: "Invalid schedule time",
+                        description:
+                          scheduledTime <= now
+                            ? "Schedule time cannot be in the past."
+                            : "Schedule time must be at least 10 minutes in the future.",
+                        variant: "destructive",
+                      });
+
+                      // Reset the schedule state
+                      setIsScheduled("");
+                      setSendDate(null);
+
+                      // Update email state to reflect changes
+                      setEmail((prev: typeof initialEmail) => ({
+                        ...prev,
+                        scheduled_for: null,
+                      }));
+
+                      return;
+                    }
+                  }
+                  setSendDialogOpen(true);
+                }}
+              >
                 {email.scheduled_for ? "Schedule" : "Send Now"}
               </Button>
             </DialogTrigger>
@@ -719,7 +755,10 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setSendDialogOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button
@@ -1156,15 +1195,6 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
 
                         setSendDate(date);
                       }
-                    }}
-                    onInvalidTime={(date, reason) => {
-                      // Still set the date, but validation will prevent saving
-                      setSendDate(date);
-                      toast({
-                        title: "Invalid time",
-                        description: reason,
-                        variant: "destructive",
-                      });
                     }}
                     value={sendDate ?? undefined}
                   />
