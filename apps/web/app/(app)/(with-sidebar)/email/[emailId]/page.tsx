@@ -9,6 +9,7 @@ import PreSendPage from "./pre-send-page";
 import SendingPage from "./sending-page";
 import ScheduledPage from "./scheduled-page";
 import LoadingPage from "./loading-page";
+
 export default function Page() {
   const params = useParams();
   const emailId = parseInt(params.emailId as string, 10);
