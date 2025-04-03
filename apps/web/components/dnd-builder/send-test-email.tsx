@@ -93,12 +93,6 @@ export default function SendTestEmail() {
       setIsSending(true);
       setIsOpen(false); // Close the modal immediately
 
-      // Show loading toast
-      const loadingToast = toast({
-        title: "Sending Test Email",
-        description: "Please wait while we send your test email...",
-      });
-
       // Get organization's default email and domain
       const supabase = createClient();
       const { data: orgData, error: orgError } = await supabase
@@ -122,20 +116,17 @@ export default function SendTestEmail() {
         toast({
           title: "Error",
           description: (
-            <div>
-              No default email or domain set for your organization.{" "}
-              <a
-                href="/settings/organization"
-                className="text-primary hover:underline"
-                onClick={(e) => {
-                  e.preventDefault();
-                  router.push("/settings/organization");
-                }}
-              >
-                Set it up here
-              </a>
-              .
-            </div>
+            <div>No default email or domain set for your organization. </div>
+          ),
+          action: (
+            <Button
+              size="sm"
+              onClick={() => {
+                router.push("/settings/organization");
+              }}
+            >
+              Add Now
+            </Button>
           ),
           variant: "destructive",
         });
@@ -219,7 +210,6 @@ export default function SendTestEmail() {
       }
 
       // Dismiss loading toast and show success
-      loadingToast.dismiss();
       toast({
         title: "Success",
         description: "Test email sent successfully",
@@ -266,6 +256,12 @@ export default function SendTestEmail() {
           }}
         />
         <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Cancel{" "}
+            <span className="rounded bg-muted px-1 text-xs text-muted-foreground">
+              Esc
+            </span>
+          </Button>
           <Button onClick={handleSendTestEmail} disabled={isSending}>
             {isSending ? "Sending..." : "Send"}
           </Button>

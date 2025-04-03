@@ -204,6 +204,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
       email.from_email &&
       email.from_email_domain &&
       email.subject &&
+      (email.scheduled_for || email.send_now) &&
       emailBlockCount > 0
     );
   };
@@ -1253,12 +1254,6 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
               }}
             >
               Delete
-              <span className="rounded bg-muted/60 px-1 text-xs text-foreground/60">
-                {navigator?.platform?.toLowerCase().includes("mac")
-                  ? "⌘"
-                  : "Ctrl"}{" "}
-                + ⏎
-              </span>
             </Button>
           </DialogFooter>
         </DialogContent>
