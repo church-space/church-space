@@ -218,6 +218,8 @@ export const sendBulkEmails = task({
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
+                  "X-Trigger-Secret":
+                    process.env.TRIGGER_API_ROUTE_SECRET || "",
                 },
                 body: JSON.stringify({
                   sections: sections,

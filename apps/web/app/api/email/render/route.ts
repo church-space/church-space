@@ -4,6 +4,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
+    // Verify the secret
+    const triggerSecret = req.headers.get("X-Trigger-Secret");
+    if (
+      !triggerSecret ||
+      triggerSecret !== process.env.TRIGGER_API_ROUTE_SECRET
+    ) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { sections, style, footer, unsubscribeUrl, managePreferencesUrl } =
       await req.json();
 
