@@ -193,7 +193,7 @@ export const filterEmailRecipients = task({
           id, 
           email, 
           pco_person_id,
-          pco_people!people_emails_pco_person_id_fkey(
+          people!people_emails_pco_person_id_fkey(
             first_name,
             last_name
           )
@@ -276,8 +276,8 @@ export const filterEmailRecipients = task({
       filteredEmails.forEach((email: any) => {
         recipients[email.id.toString()] = {
           email: email.email,
-          firstName: email.pco_people?.first_name || undefined,
-          lastName: email.pco_people?.last_name || undefined,
+          firstName: email.people?.first_name || undefined,
+          lastName: email.people?.last_name || undefined,
         };
       });
 
