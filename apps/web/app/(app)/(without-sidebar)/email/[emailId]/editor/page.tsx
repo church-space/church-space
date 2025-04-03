@@ -48,12 +48,18 @@ export default async function Page(props: { params: Params }) {
       }
 
       // Early return if email status is sent or sending, or if type is template
-      if (
-        (emailData?.status && ["sent", "sending"].includes(emailData.status)) ||
-        emailData?.type === "template"
-      ) {
+      if (emailData?.status && ["sent", "sending"].includes(emailData.status)) {
         return {
           email: emailData,
+          blocks: [],
+          footer: null,
+          shouldRedirect: true,
+        };
+      }
+
+      if (emailData?.organization_id !== organizationId) {
+        return {
+          email: null,
           blocks: [],
           footer: null,
           shouldRedirect: true,
