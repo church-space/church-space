@@ -8,6 +8,79 @@ import Underline from "@tiptap/extension-underline";
 import { Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { DynamicColor } from "./dynamic-color-extension";
+import { Mention } from "@tiptap/extension-mention";
+import tippy, {
+  Instance,
+  Props,
+  GetReferenceClientRect,
+  SingleTarget,
+} from "tippy.js";
+import "tippy.js/dist/tippy.css";
+
+// Add CSS styles for mentions
+const mentionStyle = `
+// .mention-suggestions {
+//   background: #2d3748;
+
+
+//   padding: 0.5rem;
+
+// }
+
+.mention-suggestions .items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 150px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 0.375rem;
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+}
+
+.mention-suggestions .item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: white;
+  border-radius: 0.25rem;
+}
+
+.mention-suggestions .item.is-selected,
+.mention-suggestions .item:hover {
+  background: #555555;
+}
+`;
+
+// Create and inject the style element
+const styleElement = document.createElement("style");
+styleElement.textContent = mentionStyle;
+document.head.appendChild(styleElement);
+
+interface SuggestionItem {
+  label: string;
+  id: string;
+}
+
+// Define the suggestion items
+const suggestionItems: SuggestionItem[] = [
+  {
+    label: "First Name",
+    id: "first-name",
+  },
+  {
+    label: "Last Name",
+    id: "last-name",
+  },
+  {
+    label: "Email",
+    id: "email",
+  },
+];
 
 export const createEditor = (
   initialContent?: string,
@@ -37,6 +110,165 @@ export const createEditor = (
         codeBlock: {
           HTMLAttributes: {
             class: "code-block",
+          },
+        },
+      }),
+      Mention.configure({
+        HTMLAttributes: {
+          class: "mention",
+        },
+        suggestion: {
+          char: "@",
+          startOfLine: false,
+          allowSpaces: true,
+          decorationClass: "mention-suggestion",
+          items: ({ query }) => {
+            // Always return all items initially
+            return suggestionItems;
+          },
+          render: () => {
+            let popup: Instance<Props> | null = null;
+            let component: HTMLElement | null = null;
+            let selectedIndex = 0;
+            let currentProps: any = null;
+
+            const selectItem = (index: number) => {
+              if (currentProps && suggestionItems[index]) {
+                currentProps.command({ id: suggestionItems[index].id });
+                popup?.hide();
+              }
+            };
+
+            const updateSelection = () => {
+              if (!component) return;
+              const buttons = component.querySelectorAll(".item");
+              buttons.forEach((button, index) => {
+                if (index === selectedIndex) {
+                  button.classList.add("is-selected");
+                } else {
+                  button.classList.remove("is-selected");
+                }
+              });
+            };
+
+            return {
+              onStart: (props) => {
+                currentProps = props;
+                component = document.createElement("div");
+                component.classList.add("mention-suggestions");
+
+                const element = document.createElement("div");
+                document.body.appendChild(element);
+
+                const getReferenceClientRect: GetReferenceClientRect = () => {
+                  const rect = props.clientRect?.();
+                  if (!rect) {
+                    return new DOMRect(0, 0, 0, 0);
+                  }
+                  return rect;
+                };
+
+                popup = tippy(element as SingleTarget, {
+                  getReferenceClientRect,
+                  appendTo: () => document.body,
+                  content: component,
+                  showOnCreate: true,
+                  interactive: true,
+                  trigger: "manual",
+                  placement: "bottom-start",
+                  theme: "mention",
+                });
+
+                // Show all items immediately
+                component.innerHTML = `
+                  <div class="items">
+                    ${suggestionItems
+                      .map(
+                        (item: SuggestionItem, index: number) =>
+                          `<button class="item ${index === 0 ? "is-selected" : ""}">${item.label}</button>`,
+                      )
+                      .join("")}
+                  </div>
+                `;
+
+                // Add click handlers
+                const buttons = component.querySelectorAll("button");
+                buttons.forEach((button: Element, index: number) => {
+                  button.addEventListener("click", () => {
+                    selectItem(index);
+                  });
+                });
+              },
+              onUpdate: (props) => {
+                if (!component || !popup) return;
+
+                component.innerHTML = `
+                  <div class="items">
+                    ${props.items
+                      .map(
+                        (item: SuggestionItem, index: number) =>
+                          `<button class="item ${index === 0 ? "is-selected" : ""}">${item.label}</button>`,
+                      )
+                      .join("")}
+                  </div>
+                `;
+
+                // Add click handlers
+                const buttons = component.querySelectorAll("button");
+                buttons.forEach((button: Element, index: number) => {
+                  button.addEventListener("click", () => {
+                    selectItem(index);
+                  });
+                });
+
+                const getReferenceClientRect: GetReferenceClientRect = () => {
+                  const rect = props.clientRect?.();
+                  if (!rect) {
+                    return new DOMRect(0, 0, 0, 0);
+                  }
+                  return rect;
+                };
+
+                popup.setProps({
+                  getReferenceClientRect,
+                });
+              },
+              onKeyDown: (props) => {
+                if (props.event.key === "Escape" && popup) {
+                  popup.hide();
+                  return true;
+                }
+
+                if (props.event.key === "ArrowUp") {
+                  selectedIndex =
+                    (selectedIndex + suggestionItems.length - 1) %
+                    suggestionItems.length;
+                  updateSelection();
+                  return true;
+                }
+
+                if (props.event.key === "ArrowDown") {
+                  selectedIndex = (selectedIndex + 1) % suggestionItems.length;
+                  updateSelection();
+                  return true;
+                }
+
+                if (props.event.key === "Enter") {
+                  selectItem(selectedIndex);
+                  return true;
+                }
+
+                return false;
+              },
+              onExit: () => {
+                if (popup) {
+                  popup.destroy();
+                }
+                if (component) {
+                  component.remove();
+                }
+              },
+            };
           },
         },
       }),

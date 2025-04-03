@@ -42,6 +42,7 @@
     "@tiptap/extension-underline": "^2.11.5",
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
+    "@tiptap/suggestion": "^2.11.7",
     "@trigger.dev/sdk": "3.3.17",
     "@types/mdx": "^2.0.13",
     "@upstash/ratelimit": "^2.0.5",
