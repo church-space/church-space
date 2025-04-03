@@ -167,10 +167,14 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
                     setIsLoading(true);
                     try {
                       await cancelScheduledEmail({ emailId: email.id });
+                      setCancelScheduleOpen(false);
+                      router.refresh();
+                      window.location.reload();
                     } catch (error) {
                       console.error("Failed to cancel schedule", error);
+                    } finally {
+                      setIsLoading(false);
                     }
-                    router.refresh();
                   }}
                   className="flex items-center gap-2"
                 >
