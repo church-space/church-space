@@ -249,6 +249,8 @@ export const sendBulkEmails = task({
             // Send batch
             const response = await resend.batch.send(emailBatch);
             results.push(response);
+            // Increment success count by the number of emails in the batch
+            successCount += emailBatch.length;
           } catch (error) {
             console.error("Error sending batch:", error);
 
