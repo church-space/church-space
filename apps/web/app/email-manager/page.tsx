@@ -2,21 +2,23 @@ import React from "react";
 import Manage from "./manage-page";
 import Unsubscribe from "./unsubscribe-page";
 import { jwtVerify } from "jose";
+import { NextRequest } from "next/server";
 
-type SearchParams = Promise<{
+type SearchParams = {
   type?: string;
   tk?: string;
-}>;
-
-type Props = {
-  searchParams: SearchParams;
-  method?: string;
 };
 
-export default async function Page({ searchParams, method }: Props) {
-  const params = await searchParams;
-  const type = params.type;
-  const tk = params.tk;
+export default async function Page({
+  searchParams,
+  request,
+}: {
+  searchParams: SearchParams;
+  request?: NextRequest;
+}) {
+  const type = searchParams.type;
+  const tk = searchParams.tk;
+  const method = request?.method;
 
   let emailId: number | null = null;
   let peopleEmailId: number | null = null;
