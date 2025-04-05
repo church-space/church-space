@@ -30,14 +30,17 @@ export async function insertEmailLinkClicked(
   {
     resend_email_id,
     link_clicked,
+    email_id,
   }: {
     resend_email_id: string;
     link_clicked: string;
+    email_id: number;
   }
 ) {
   return supabase.from("email_link_clicks").insert({
     resend_email_id,
     link_clicked,
+    email_id,
   });
 }
 

@@ -351,23 +351,34 @@ export type Database = {
       email_link_clicks: {
         Row: {
           created_at: string
+          email_id: number | null
           id: number
           link_clicked: string
           resend_email_id: string
         }
         Insert: {
           created_at?: string
+          email_id?: number | null
           id?: number
           link_clicked: string
           resend_email_id: string
         }
         Update: {
           created_at?: string
+          email_id?: number | null
           id?: number
           link_clicked?: string
           resend_email_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "email_link_clicks_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_list_category_unsubscribes: {
         Row: {
@@ -426,6 +437,47 @@ export type Database = {
             foreignKeyName: "people_email_unsubscribes_unsub_email_id_fkey"
             columns: ["unsub_email_id"]
             isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_metrics: {
+        Row: {
+          email_id: number
+          total_bounces: number
+          total_clicks: number
+          total_complaints: number
+          total_delivered: number
+          total_opens: number
+          total_sent: number
+          total_unsubscribes: number
+        }
+        Insert: {
+          email_id: number
+          total_bounces?: number
+          total_clicks?: number
+          total_complaints?: number
+          total_delivered?: number
+          total_opens?: number
+          total_sent?: number
+          total_unsubscribes?: number
+        }
+        Update: {
+          email_id?: number
+          total_bounces?: number
+          total_clicks?: number
+          total_complaints?: number
+          total_delivered?: number
+          total_opens?: number
+          total_sent?: number
+          total_unsubscribes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_metrics_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: true
             referencedRelation: "emails"
             referencedColumns: ["id"]
           },

@@ -93,9 +93,17 @@ export async function POST(request: NextRequest) {
   // Handle email status events
   switch (payload.type) {
     case "email.clicked":
+      const clickedIds = validateIds(payload.data.headers);
+      if (!clickedIds) {
+        return new NextResponse(
+          "Invalid email_id or people_email_id in headers",
+          { status: 400 },
+        );
+      }
       await insertEmailLinkClicked(supabase, {
         resend_email_id: payload.data.email_id,
         link_clicked: payload.data.click!.link,
+        email_id: clickedIds.email_id,
       });
       break;
     case "email.sent":

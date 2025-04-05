@@ -1,7 +1,10 @@
 "use client";
 
 import { createClient } from "@church-space/supabase/client";
-import { getEmailQuery } from "@church-space/supabase/queries/all/get-email";
+import {
+  getEmailQuery,
+  getEmailStatsQuery,
+} from "@church-space/supabase/queries/all/get-email";
 import { useQuery } from "@tanstack/react-query";
 import { redirect, useParams } from "next/navigation";
 import PostSendPage from "./post-send-page";
@@ -20,7 +23,13 @@ export default function Page() {
     queryFn: () => getEmailQuery(supabase, emailId),
   });
 
-  if (isLoading) {
+  const { data: stats, isLoading: isStatsLoading } = useQuery({
+    queryKey: ["email-stats", emailId],
+    queryFn: () => getEmailStatsQuery(supabase, emailId),
+    enabled: email?.data?.status === "sent",
+  });
+
+  if (isLoading || (email?.data?.status === "sent" && isStatsLoading)) {
     return <LoadingPage />;
   }
 
