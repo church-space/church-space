@@ -340,7 +340,7 @@ const CustomFileDownload: React.FC<{
 
   return (
     <table
-      style={{ width: "100%", borderCollapse: "collapse", margin: "12px 0" }}
+      style={{ width: "100%", borderCollapse: "collapse", margin: "2px 0" }}
       cellPadding="0"
       cellSpacing="0"
     >
