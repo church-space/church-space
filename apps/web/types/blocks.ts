@@ -61,6 +61,7 @@ export interface AuthorBlockData {
     icon: string;
     url: string;
   }>;
+  hideAvatar: boolean;
 }
 
 export interface ImageBlockData {

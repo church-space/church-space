@@ -25,6 +25,7 @@ import {
 import { useRef, useState } from "react";
 import { z } from "zod";
 import FileUpload from "../file-upload";
+import { Switch } from "@church-space/ui/switch";
 
 interface AuthorFormProps {
   block: Block & { data?: AuthorBlockData };
@@ -40,6 +41,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     avatar: block.data?.avatar || "",
     links: block.data?.links || [],
     textColor: block.data?.textColor || "#000000",
+    hideAvatar: block.data?.hideAvatar || false,
   });
 
   // Track validation errors for links
@@ -253,16 +255,25 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
               onRemove={onImageRemove}
             />
           </div>
+          <Label>Hide Avatar</Label>
+          <div className="col-span-2">
+            <Switch
+              checked={localState.hideAvatar}
+              onCheckedChange={(checked) => handleChange("hideAvatar", checked)}
+            />
+          </div>
           <Label>Name</Label>
           <Input
             className="col-span-2"
             value={localState.name}
+            placeholder="Name"
             onChange={(e) => handleChange("name", e.target.value)}
           />
           <Label>Title</Label>
           <Input
             className="col-span-2"
             value={localState.subtitle}
+            placeholder="Pastor, Deacon, etc."
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
         </div>
@@ -285,12 +296,12 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
           >
             <Label>Icon</Label>
-            <div className="col-span-2 flex gap-2">
+            <div className="col-span-2 flex">
               <Select
                 value={link.icon}
                 onValueChange={(value) => updateLink(index, "icon", value)}
               >
-                <SelectTrigger className="rounded-r-none">
+                <SelectTrigger className="rounded-r-none bg-background">
                   <SelectValue placeholder="Icon" />
                 </SelectTrigger>
                 <SelectContent className="min-w-20">

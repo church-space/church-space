@@ -40,10 +40,11 @@ export default function AuthorBlock({
   defaultTextColor,
 }: AuthorBlockProps) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const name = data?.name || "Name";
-  const subtitle = data?.subtitle || "Title";
+  const name = data?.name || "";
+  const subtitle = data?.subtitle || "";
   const avatar = data?.avatar || "";
   const links = data?.links || [];
+  const hideAvatar = data?.hideAvatar || false;
 
   // Force re-render of the Avatar component when avatar changes
   const [key, setKey] = useState(0);
@@ -74,26 +75,33 @@ export default function AuthorBlock({
     >
       <div className="flex items-center gap-3">
         {/* Use key to force re-render when avatar changes */}
-        <Avatar key={key}>
-          {avatarUrl ? (
-            <AvatarImage src={avatarUrl} className="object-cover" />
-          ) : null}
-          <AvatarFallback className="bg-zinc-300 text-black" delayMs={0}>
-            {name[0]}
-          </AvatarFallback>
-        </Avatar>
+        {!hideAvatar && (
+          <Avatar key={key}>
+            {avatarUrl ? (
+              <AvatarImage src={avatarUrl} className="object-cover" />
+            ) : null}
+            <AvatarFallback className="bg-zinc-300 text-black" delayMs={0}>
+              {name[0]}
+            </AvatarFallback>
+          </Avatar>
+        )}
         <div className="flex flex-col">
           <p
             className="text-sm font-semibold leading-tight"
             style={{ color: defaultTextColor }}
           >
-            {name}
+            {name ? name : <span className="text-muted-foreground">Name</span>}
           </p>
+
           <p
             className="text-sm text-muted-foreground opacity-80"
             style={{ color: defaultTextColor }}
           >
-            {subtitle}
+            {subtitle ? (
+              subtitle
+            ) : (
+              <span className="text-muted-foreground">Title</span>
+            )}
           </p>
         </div>
       </div>

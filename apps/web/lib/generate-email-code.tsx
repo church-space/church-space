@@ -828,7 +828,16 @@ const CustomAuthor: React.FC<{
   }>;
   defaultFont?: string;
   defaultTextColor?: string;
-}> = ({ name, subtitle, avatar, links, defaultFont, defaultTextColor }) => {
+  hideAvatar?: boolean;
+}> = ({
+  name,
+  subtitle,
+  avatar,
+  links,
+  defaultFont,
+  defaultTextColor,
+  hideAvatar,
+}) => {
   const avatarUrl = avatar
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${avatar}`
     : "";
@@ -844,38 +853,40 @@ const CustomAuthor: React.FC<{
               <td style={{ verticalAlign: "middle" }}>
                 <table cellPadding="0" cellSpacing="0">
                   <tr>
-                    <td style={{ paddingRight: "12px" }}>
-                      {avatarUrl ? (
-                        <Img
-                          src={avatarUrl}
-                          alt={name}
-                          width="40"
-                          height="40"
-                          style={{
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: "40px",
-                            height: "40px",
-                            backgroundColor: "#d4d4d8",
-                            borderRadius: "50%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#000000",
-                            fontFamily: defaultFont || "sans-serif",
-                            fontSize: "15px",
-                            fontWeight: "300",
-                          }}
-                        >
-                          {name && name.length > 0 ? name[0] : ""}
-                        </div>
-                      )}
-                    </td>
+                    {!hideAvatar && (
+                      <td style={{ paddingRight: "12px" }}>
+                        {avatarUrl ? (
+                          <Img
+                            src={avatarUrl}
+                            alt={name}
+                            width="40"
+                            height="40"
+                            style={{
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              backgroundColor: "#d4d4d8",
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#000000",
+                              fontFamily: defaultFont || "sans-serif",
+                              fontSize: "15px",
+                              fontWeight: "300",
+                            }}
+                          >
+                            {name && name.length > 0 ? name[0] : ""}
+                          </div>
+                        )}
+                      </td>
+                    )}
                     <td>
                       <div
                         style={{
@@ -905,15 +916,53 @@ const CustomAuthor: React.FC<{
               <td style={{ textAlign: "right" }}>
                 {links?.map((link, index) => {
                   // Add mailto: prefix for mail icon links
-                  const href =
-                    link.icon === "mail" && !link.url.startsWith("mailto:")
-                      ? `mailto:${link.url}`
-                      : link.url;
+                  if (!link.icon) {
+                    return null;
+                  }
+
+                  if (!link.url) {
+                    return (
+                      <span
+                        key={index}
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          display: "inline-block",
+                          marginLeft: "8px",
+                          color: finalTextColor,
+                          textDecoration: "none",
+                        }}
+                      >
+                        {(() => {
+                          const Icon =
+                            socialIcons[link.icon as keyof typeof socialIcons];
+                          return Icon ? (
+                            <Icon
+                              fill={finalTextColor}
+                              width="18px"
+                              height="18px"
+                            />
+                          ) : null;
+                        })()}
+                      </span>
+                    );
+                  }
+
+                  // Format the URL with proper prefix
+                  const formattedUrl =
+                    link.icon === "mail"
+                      ? !link.url.startsWith("mailto:")
+                        ? `mailto:${link.url}`
+                        : link.url
+                      : !link.url.startsWith("http://") &&
+                          !link.url.startsWith("https://")
+                        ? `https://${link.url}`
+                        : link.url;
 
                   return (
                     <a
                       key={index}
-                      href={href}
+                      href={formattedUrl}
                       target="_blank"
                       style={{
                         marginLeft: "8px",
@@ -1120,17 +1169,21 @@ const CustomFooter: React.FC<{
                             socialIcons[link.icon as keyof typeof socialIcons];
                           if (!Icon) return null;
 
-                          // Add mailto: prefix for mail icon links
-                          const href =
-                            link.icon === "mail" &&
-                            !link.url.startsWith("mailto:")
-                              ? `mailto:${link.url}`
-                              : link.url;
+                          // Format the URL with proper prefix
+                          const formattedUrl =
+                            link.icon === "mail"
+                              ? !link.url.startsWith("mailto:")
+                                ? `mailto:${link.url}`
+                                : link.url
+                              : !link.url.startsWith("http://") &&
+                                  !link.url.startsWith("https://")
+                                ? `https://${link.url}`
+                                : link.url;
 
                           return (
                             <a
                               key={index}
-                              href={href}
+                              href={formattedUrl}
                               style={{
                                 display: "inline-block",
                                 margin: "0 4px",
