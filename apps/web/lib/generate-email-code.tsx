@@ -1347,7 +1347,7 @@ export function generateEmailCode(
                     <td style={{ padding: "0px" }}>
                       <Container
                         style={{
-                          padding: "10px 10px",
+                          padding: "0px 10px",
                           maxWidth: "656px",
                         }}
                       >
