@@ -1,20 +1,37 @@
 import stripe from "@/lib/stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";
+import { headers } from "next/headers";
+import { client as RedisClient } from "@church-space/kv";
+import { Ratelimit } from "@upstash/ratelimit";
+
+const ratelimit = new Ratelimit({
+  limiter: Ratelimit.fixedWindow(5, "10s"),
+  redis: RedisClient,
+});
 
 export async function POST(request: NextRequest) {
-  const { priceId, userId, organizationId } = await request.json();
-
-  if (!userId || !organizationId || !priceId) {
-    return NextResponse.json(
-      { error: "User ID, Organization ID, and Price ID are required" },
-      { status: 400 },
-    );
-  }
-
-  const supabase = await createClient();
-
   try {
+    const ip = (await headers()).get("x-forwarded-for");
+    const { success, remaining } = await ratelimit.limit(
+      `${ip}-stripe-checkout`,
+    );
+
+    if (!success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    const { priceId, userId, organizationId } = await request.json();
+
+    if (!userId || !organizationId || !priceId) {
+      return NextResponse.json(
+        { error: "User ID, Organization ID, and Price ID are required" },
+        { status: 400 },
+      );
+    }
+
+    const supabase = await createClient();
+
     // Check if customer already exists in Supabase
     const { data: existingCustomerData, error: customerQueryError } =
       await supabase
