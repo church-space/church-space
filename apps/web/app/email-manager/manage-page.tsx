@@ -4,8 +4,6 @@ import { Switch } from "@church-space/ui/switch";
 import React, { useEffect, useState } from "react";
 import { LoaderIcon } from "@church-space/ui/icons";
 import { getCategories } from "./use-categories";
-import { handleUnsubscribe as handleCategoryUnsubscribe } from "./use-unsub-from-category";
-import { handleCategoryResubscribe } from "./use-resubscribe-to-category";
 import {
   Dialog,
   DialogContent,
@@ -26,13 +24,27 @@ export default function Manage({
   emailId,
   peopleEmailId,
   unsubscribeAll,
+  unsubscribeFromCategory,
+  resubscribeToCategory,
+  resubscribeAll,
 }: {
   emailId: number;
   peopleEmailId: number;
   unsubscribeAll: (emailId: number, peopleEmailId: number) => Promise<void>;
+  unsubscribeFromCategory: (
+    emailId: number,
+    peopleEmailId: number,
+    categoryId: number,
+  ) => Promise<void>;
+  resubscribeToCategory: (
+    peopleEmailId: number,
+    categoryId: number,
+  ) => Promise<void>;
+  resubscribeAll: (peopleEmailId: number) => Promise<void>;
 }) {
   const [unsubscribed, setUnsubscribed] = useState(false);
   const [isUnsubscribing, setIsUnsubscribing] = useState(false);
+  const [isResubscribing, setIsResubscribing] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [togglingCategories, setTogglingCategories] = useState<Set<number>>(
@@ -64,14 +76,24 @@ export default function Manage({
     }
   };
 
+  const handleResubscribeAll = async () => {
+    try {
+      setIsResubscribing(true);
+      await resubscribeAll(peopleEmailId);
+      setUnsubscribed(false);
+    } finally {
+      setIsResubscribing(false);
+    }
+  };
+
   const handleCategoryToggle = async (category: Category) => {
     try {
       setTogglingCategories((prev) => new Set([...prev, category.category_id]));
 
       if (category.is_unsubscribed) {
-        await handleCategoryResubscribe(peopleEmailId, category.category_id);
+        await resubscribeToCategory(peopleEmailId, category.category_id);
       } else {
-        await handleCategoryUnsubscribe(
+        await unsubscribeFromCategory(
           emailId,
           peopleEmailId,
           category.category_id,
@@ -119,8 +141,23 @@ export default function Manage({
           <>
             <h1 className="text-2xl font-bold">Unsubscribed</h1>
             <p className="text-sm text-muted-foreground">
-              You have successfully unsubscribed from future emails.
+              You have successfully unsubscribed from future emails. If this was
+              an error, you can resubscribe to all emails by clicking the button
+              below.
             </p>
+            <Button
+              className="mt-4 w-full"
+              onClick={handleResubscribeAll}
+              disabled={isResubscribing}
+            >
+              {isResubscribing ? (
+                <span className="animate-spin">
+                  <LoaderIcon />
+                </span>
+              ) : (
+                "Resubscribe to All"
+              )}
+            </Button>
           </>
         ) : (
           <>

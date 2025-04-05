@@ -10,29 +10,23 @@ const ratelimit = new Ratelimit({
   redis: RedisClient,
 });
 
-export async function handleCategoryUnsubscribe(
-  emailId: number,
-  peopleEmailId: number,
-  pcoListCategory: number,
-) {
+export async function handleResubscribeAll(peopleEmailId: number) {
   const ip = (await headers()).get("x-forwarded-for");
 
-  const { success } = await ratelimit.limit(`${ip}-unsubscribe-category`);
+  const { success } = await ratelimit.limit(`${ip}-resubscribe-all`);
 
   if (!success) {
     throw new Error("Too many requests");
   }
-
   const supabase = await createClient();
 
-  const { error } = await supabase.rpc("unsubscribe_from_email_category", {
-    unsub_email_id: emailId,
+  const { data, error } = await supabase.rpc("re_subscribe_email_by_id", {
     person_email_id: peopleEmailId,
-    pco_list_category: pcoListCategory,
   });
 
   if (error) {
-    console.error("Error unsubscribing from category:", error);
     throw error;
   }
+
+  return data;
 }

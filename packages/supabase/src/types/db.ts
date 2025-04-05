@@ -1824,6 +1824,25 @@ export type Database = {
         }
         Returns: string[]
       }
+      re_subscribe_email: {
+        Args: {
+          target_pco_email_id: string
+        }
+        Returns: undefined
+      }
+      re_subscribe_email_by_id: {
+        Args: {
+          person_email_id: number
+        }
+        Returns: undefined
+      }
+      resubscribe_category: {
+        Args: {
+          p_people_email_id: number
+          p_category_id: number
+        }
+        Returns: undefined
+      }
       unsubscribe_from_all_emails: {
         Args: {
           p_email_id: number

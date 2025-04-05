@@ -7,6 +7,9 @@ import { jwtVerify } from "jose";
 import { headers } from "next/headers";
 import { createClient } from "@church-space/supabase/server";
 import { handleUnsubscribe } from "./use-unsubscribe";
+import { handleCategoryUnsubscribe } from "./use-unsub-from-category";
+import { handleCategoryResubscribe } from "./use-resubscribe-to-category";
+import { handleResubscribeAll } from "./use-resubscribe-all";
 
 type SearchParams = Promise<{
   type?: string;
@@ -73,6 +76,7 @@ export default async function Page({
           emailId={emailId}
           peopleEmailId={peopleEmailId}
           unsubscribe={handleUnsubscribe}
+          resubscribeAll={handleResubscribeAll}
         />
       )}
       {type === "manage" && emailId && peopleEmailId && (
@@ -80,6 +84,9 @@ export default async function Page({
           emailId={emailId}
           peopleEmailId={peopleEmailId}
           unsubscribeAll={handleUnsubscribe}
+          unsubscribeFromCategory={handleCategoryUnsubscribe}
+          resubscribeToCategory={handleCategoryResubscribe}
+          resubscribeAll={handleResubscribeAll}
         />
       )}
     </>
