@@ -55,10 +55,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
   };
 
   const addItem = () => {
-    const newItems = [
-      ...localState.items,
-      { title: "New Item", description: "Description" },
-    ];
+    const newItems = [...localState.items, { title: "", description: "" }];
     handleChange("items", newItems);
   };
 

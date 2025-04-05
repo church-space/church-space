@@ -789,111 +789,116 @@ const CustomList: React.FC<{
     <tr>
       <td>
         <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-          {items.map((item, index) => (
-            <tr key={index}>
-              <td
-                style={{
-                  padding: "10px 0",
-                  verticalAlign: "top",
-                }}
-              >
-                <table
-                  style={{ width: "100%" }}
-                  cellPadding="0"
-                  cellSpacing="0"
+          {items
+            .filter((item) => item.title || item.description)
+            .map((item, displayIndex) => (
+              <tr key={displayIndex}>
+                <td
+                  style={{
+                    padding: "10px 0",
+                    verticalAlign: "top",
+                  }}
                 >
-                  <tr>
-                    <td
-                      style={{
-                        width: "48px",
-                        verticalAlign: "top",
-                        paddingRight: "10px",
-                      }}
-                    >
-                      <table
-                        cellPadding="0"
-                        cellSpacing="0"
-                        border={0}
-                        width="32px"
+                  <table
+                    style={{ width: "100%" }}
+                    cellPadding="0"
+                    cellSpacing="0"
+                  >
+                    <tr>
+                      <td
                         style={{
-                          backgroundColor: bulletColor,
-                          borderRadius: "50%",
-                          height: "32px",
+                          width: "48px",
+                          verticalAlign: "top",
+                          paddingRight: "10px",
                         }}
-                        align="center"
                       >
-                        <tr>
-                          <td
-                            align="center"
-                            valign="middle"
-                            style={{
-                              color: "#FFFFFF",
-                              fontFamily: defaultFont || "sans-serif",
-                              fontSize: "18px",
-                              fontWeight: "500",
-                              height: "32px",
-                              lineHeight: "1",
-                            }}
-                          >
-                            {index + 1}
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                    <td>
-                      <table
-                        width="100%"
-                        cellPadding="0"
-                        cellSpacing="0"
-                        border={0}
-                      >
-                        <tr>
-                          <td
-                            style={{
-                              fontFamily: defaultFont || "sans-serif",
-                              fontSize: "18px",
-                              fontWeight: "600",
-                              color: defaultTextColor || textColor,
-                              paddingBottom: item.description ? "4px" : "0",
-                            }}
-                          >
-                            {item.title}
-                          </td>
-                        </tr>
-                        {item.description && (
+                        <table
+                          cellPadding="0"
+                          cellSpacing="0"
+                          border={0}
+                          width="32px"
+                          style={{
+                            backgroundColor: bulletColor,
+                            borderRadius: "50%",
+                            height: "32px",
+                          }}
+                          align="center"
+                        >
                           <tr>
-                            <td>
-                              {item.description
-                                .split("\n")
-                                .map((paragraph, pIndex) => (
-                                  <div
-                                    key={pIndex}
-                                    style={{
-                                      fontFamily: defaultFont || "sans-serif",
-                                      fontSize: "14px",
-                                      color: defaultTextColor || textColor,
-                                      opacity: 0.8,
-                                      lineHeight: "1.5",
-                                      marginBottom:
-                                        pIndex <
-                                        item.description.split("\n").length - 1
-                                          ? "12px"
-                                          : "0",
-                                    }}
-                                  >
-                                    {paragraph}
-                                  </div>
-                                ))}
+                            <td
+                              align="center"
+                              valign="middle"
+                              style={{
+                                color: "#FFFFFF",
+                                fontFamily: defaultFont || "sans-serif",
+                                fontSize: "18px",
+                                fontWeight: "500",
+                                height: "32px",
+                                lineHeight: "1",
+                              }}
+                            >
+                              {displayIndex + 1}
                             </td>
                           </tr>
-                        )}
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          ))}
+                        </table>
+                      </td>
+                      <td>
+                        <table
+                          width="100%"
+                          cellPadding="0"
+                          cellSpacing="0"
+                          border={0}
+                        >
+                          {item.title && (
+                            <tr>
+                              <td
+                                style={{
+                                  fontFamily: defaultFont || "sans-serif",
+                                  fontSize: "18px",
+                                  fontWeight: "600",
+                                  color: defaultTextColor || textColor,
+                                  paddingBottom: item.description ? "4px" : "0",
+                                }}
+                              >
+                                {item.title}
+                              </td>
+                            </tr>
+                          )}
+                          {item.description && (
+                            <tr>
+                              <td>
+                                {item.description
+                                  .split("\n")
+                                  .map((paragraph, pIndex) => (
+                                    <div
+                                      key={pIndex}
+                                      style={{
+                                        fontFamily: defaultFont || "sans-serif",
+                                        fontSize: "14px",
+                                        color: defaultTextColor || textColor,
+                                        opacity: 0.8,
+                                        lineHeight: "1.5",
+                                        marginBottom:
+                                          pIndex <
+                                          item.description.split("\n").length -
+                                            1
+                                            ? "12px"
+                                            : "0",
+                                      }}
+                                    >
+                                      {paragraph}
+                                    </div>
+                                  ))}
+                              </td>
+                            </tr>
+                          )}
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            ))}
         </table>
       </td>
     </tr>
