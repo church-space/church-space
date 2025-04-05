@@ -29,6 +29,8 @@ export default function Page() {
     enabled: email?.data?.status === "sent",
   });
 
+  console.log(stats);
+
   if (isLoading || (email?.data?.status === "sent" && isStatsLoading)) {
     return <LoadingPage />;
   }

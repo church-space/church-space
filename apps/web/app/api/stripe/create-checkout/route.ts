@@ -13,9 +13,7 @@ const ratelimit = new Ratelimit({
 export async function POST(request: NextRequest) {
   try {
     const ip = (await headers()).get("x-forwarded-for");
-    const { success, remaining } = await ratelimit.limit(
-      `${ip}-stripe-checkout`,
-    );
+    const { success } = await ratelimit.limit(`${ip}-stripe-checkout`);
 
     if (!success) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });

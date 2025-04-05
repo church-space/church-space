@@ -32,7 +32,7 @@ const requestSchema = z.object({
 export async function POST(request: Request) {
   try {
     const ip = (await headers()).get("x-forwarded-for");
-    const { success, remaining } = await ratelimit.limit(`${ip}-test-email`);
+    const { success } = await ratelimit.limit(`${ip}-test-email`);
 
     if (!success) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });

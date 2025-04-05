@@ -16,9 +16,7 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const ip = (await headers()).get("x-forwarded-for");
-    const { success, remaining } = await ratelimit.limit(
-      `${ip}-schedule-email`,
-    );
+    const { success } = await ratelimit.limit(`${ip}-schedule-email`);
 
     if (!success) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
