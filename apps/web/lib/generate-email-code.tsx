@@ -728,7 +728,6 @@ const CustomList: React.FC<{
   subtitle: string;
   textColor: string;
   bulletColor: string;
-  bulletType: "number" | "bullet";
   items: Array<{
     title: string;
     description: string;
@@ -740,7 +739,6 @@ const CustomList: React.FC<{
   subtitle,
   textColor,
   bulletColor,
-  bulletType,
   items,
   defaultFont,
   defaultTextColor,
@@ -795,7 +793,7 @@ const CustomList: React.FC<{
             <tr key={index}>
               <td
                 style={{
-                  padding: bulletType === "number" ? "10px 0" : "8px 0",
+                  padding: "10px 0",
                   verticalAlign: "top",
                 }}
               >
@@ -807,7 +805,7 @@ const CustomList: React.FC<{
                   <tr>
                     <td
                       style={{
-                        width: bulletType === "number" ? "48px" : "24px",
+                        width: "48px",
                         verticalAlign: "top",
                         paddingRight: "10px",
                       }}
@@ -816,14 +814,11 @@ const CustomList: React.FC<{
                         cellPadding="0"
                         cellSpacing="0"
                         border={0}
-                        width={bulletType === "number" ? "32px" : "24px"}
+                        width="32px"
                         style={{
-                          backgroundColor:
-                            bulletType === "number"
-                              ? bulletColor
-                              : "transparent",
+                          backgroundColor: bulletColor,
                           borderRadius: "50%",
-                          height: bulletType === "number" ? "32px" : "21px",
+                          height: "32px",
                         }}
                         align="center"
                       >
@@ -832,19 +827,15 @@ const CustomList: React.FC<{
                             align="center"
                             valign="middle"
                             style={{
-                              color:
-                                bulletType === "number"
-                                  ? "#FFFFFF"
-                                  : defaultTextColor,
+                              color: "#FFFFFF",
                               fontFamily: defaultFont || "sans-serif",
-                              fontSize:
-                                bulletType === "number" ? "18px" : "36px",
+                              fontSize: "18px",
                               fontWeight: "500",
-                              height: bulletType === "number" ? "32px" : "21px",
+                              height: "32px",
                               lineHeight: "1",
                             }}
                           >
-                            {bulletType === "number" ? index + 1 : "•"}
+                            {index + 1}
                           </td>
                         </tr>
                       </table>
