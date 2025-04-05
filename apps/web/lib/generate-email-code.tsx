@@ -21,6 +21,7 @@ import {
   Threads,
   TikTok,
   XTwitter,
+  YoutubeFilled,
 } from "@church-space/ui/icons";
 
 interface EmailStyle {
@@ -419,10 +420,10 @@ const CustomVideo: React.FC<{
 
   return (
     <table
-      width="100%"
       cellPadding="0"
       cellSpacing="0"
       border={0}
+      width={`${size}%`}
       align={centered ? "center" : "left"}
     >
       <tr>
@@ -435,15 +436,45 @@ const CustomVideo: React.FC<{
               textDecoration: "none",
             }}
           >
-            <Img
-              src={thumbnailUrl}
-              alt="Video thumbnail"
-              width={`${size}%`}
-              style={{
-                display: "block",
-                borderRadius: isRounded ? "6px" : "0",
-              }}
-            />
+            <table cellPadding="0" cellSpacing="0" border={0} width="100%">
+              <tr>
+                <td>
+                  <Img
+                    src={thumbnailUrl}
+                    alt="Video thumbnail"
+                    width="100%"
+                    style={{
+                      display: "block",
+                      borderRadius: isRounded ? "6px" : "0",
+                    }}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td style={{ textAlign: "center", marginTop: "-50px" }}>
+                  <table
+                    cellPadding="0"
+                    cellSpacing="0"
+                    border={0}
+                    style={{
+                      width: "100%",
+                      marginTop: `-${size * 2.2}px`,
+                      zIndex: "2",
+                    }}
+                  >
+                    <tr>
+                      <td align="center">
+                        <YoutubeFilled
+                          width="64px"
+                          height="64px"
+                          fill="#ff0000"
+                        />
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </a>
         </td>
       </tr>
