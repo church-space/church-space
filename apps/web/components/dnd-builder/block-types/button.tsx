@@ -13,7 +13,7 @@ export default function ButtonBlock({
   defaultFont,
   isRounded,
 }: ButtonBlockProps) {
-  const text = data?.text || "Button";
+  const text = data?.text || "";
   const color = data?.color || "#000000";
   const textColor = data?.textColor || "#FFFFFF";
   const style = data?.style || "filled";
@@ -44,7 +44,11 @@ export default function ButtonBlock({
           fontFamily: defaultFont || "inherit",
         }}
       >
-        {text}
+        {text && text.length > 0 ? (
+          text
+        ) : (
+          <span className="text-muted-foreground">Button</span>
+        )}
       </div>
     </div>
   );

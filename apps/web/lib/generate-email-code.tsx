@@ -173,7 +173,7 @@ const CustomButton: React.FC<{
   const buttonWidth = size === "full" ? "100%" : "auto";
   const borderRadius = isRounded ? "6px" : "0";
 
-  return (
+  return text && text.length > 0 ? (
     <table
       style={{
         width: "100%",
@@ -199,7 +199,7 @@ const CustomButton: React.FC<{
               fontSize: "14px",
               fontWeight: "normal",
               lineHeight: "1",
-              padding: "10px 15px",
+              padding: "9px 15px",
               textDecoration: "none",
               textAlign: "center",
               width: buttonWidth,
@@ -207,12 +207,12 @@ const CustomButton: React.FC<{
               boxSizing: "border-box",
             }}
           >
-            {text}
+            {text && text.length > 0 ? text : ""}
           </a>
         </td>
       </tr>
     </table>
-  );
+  ) : null;
 };
 
 const CustomDivider: React.FC<{
@@ -258,6 +258,10 @@ const CustomImage: React.FC<{
     />
   );
 
+  // Add https:// prefix to link if it doesn't start with http:// or https://
+  const formattedLink =
+    link && !/^https?:\/\//i.test(link) ? `https://${link}` : link;
+
   return (
     <table
       width="100%"
@@ -268,8 +272,12 @@ const CustomImage: React.FC<{
     >
       <tr>
         <td width={`${size}%`} align={centered ? "center" : "left"}>
-          {link ? (
-            <a href={link} target="_blank" style={{ textDecoration: "none" }}>
+          {formattedLink ? (
+            <a
+              href={formattedLink}
+              target="_blank"
+              style={{ textDecoration: "none" }}
+            >
               {ImageComponent}
             </a>
           ) : (
@@ -864,7 +872,7 @@ const CustomAuthor: React.FC<{
                             fontWeight: "300",
                           }}
                         >
-                          {name[0]}
+                          {name && name.length > 0 ? name[0] : ""}
                         </div>
                       )}
                     </td>
@@ -895,7 +903,7 @@ const CustomAuthor: React.FC<{
                 </table>
               </td>
               <td style={{ textAlign: "right" }}>
-                {links.map((link, index) => {
+                {links?.map((link, index) => {
                   // Add mailto: prefix for mail icon links
                   const href =
                     link.icon === "mail" && !link.url.startsWith("mailto:")

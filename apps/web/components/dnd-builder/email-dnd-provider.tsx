@@ -392,7 +392,7 @@ export default function EmailDndProvider({
       blockData = { color: styles.defaultTextColor, margin: 0 };
     } else if (blockType === "button") {
       blockData = {
-        text: "Button",
+        text: "",
         link: "",
         color: styles.defaultTextColor,
         textColor: "#FFFFFF",
@@ -838,7 +838,7 @@ export default function EmailDndProvider({
                 break;
               case "button":
                 blockValue = {
-                  text: "Button",
+                  text: "",
                   link: "#",
                   color: "#000000",
                   textColor: "#ffffff",
