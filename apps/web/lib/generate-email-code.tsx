@@ -347,7 +347,7 @@ const CustomFileDownload: React.FC<{
       <tr>
         <td>
           <a
-            href={file}
+            href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${file}`}
             target="_blank"
             style={{
               textDecoration: "none",
