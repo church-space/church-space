@@ -840,6 +840,7 @@ export default function CourseDndProvider({
                   avatar: "",
                   textColor: "#000000",
                   links: [],
+                  hideAvatar: false,
                 };
                 break;
               default:
