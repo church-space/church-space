@@ -24,7 +24,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
     subtitle: block.data?.subtitle || "",
     textColor: block.data?.textColor || "#000000",
     bulletColor: block.data?.bulletColor || "#000000",
-    bulletType: block.data?.bulletType || "number",
+    bulletType: "number",
     items: block.data?.items || [],
   });
 
@@ -34,7 +34,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
       subtitle: block.data?.subtitle || "",
       textColor: block.data?.textColor || "#000000",
       bulletColor: block.data?.bulletColor || "#000000",
-      bulletType: block.data?.bulletType || "number",
+      bulletType: "number",
       items: block.data?.items || [],
     });
   }, [block.data]);
@@ -96,28 +96,13 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             maxHeight={150}
           />
 
-          <Label>Bullet Type</Label>
-          <Select
-            value={localState.bulletType}
-            onValueChange={(value) => handleChange("bulletType", value)}
-          >
-            <SelectTrigger className="col-span-2 bg-background">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="number">Number</SelectItem>
-              <SelectItem value="bullet">Bullet</SelectItem>
-            </SelectContent>
-          </Select>
-          {localState.bulletType === "number" && (
-            <>
-              <Label>Bullet Color</Label>
-              <ColorPicker
-                value={localState.bulletColor}
-                onChange={(color) => handleChange("bulletColor", color)}
-              />
-            </>
-          )}
+          <>
+            <Label>Bullet Color</Label>
+            <ColorPicker
+              value={localState.bulletColor}
+              onChange={(color) => handleChange("bulletColor", color)}
+            />
+          </>
         </div>
       </div>
       <div className="flex flex-col gap-4">

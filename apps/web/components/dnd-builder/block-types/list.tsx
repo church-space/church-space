@@ -15,7 +15,7 @@ export default function ListBlock({
   const title = data?.title || "";
   const subtitle = data?.subtitle || "";
   const bulletColor = data?.bulletColor || "#000000";
-  const bulletType = data?.bulletType || "number";
+  const bulletType = "number";
   const items = data?.items || [];
 
   return (
@@ -51,19 +51,12 @@ export default function ListBlock({
       </div>
       <div className="mt-4 flex flex-col gap-4">
         {items.map((item, index) => (
-          <div
-            key={index}
-            className={cn(
-              "flex items-start gap-4",
-              bulletType === "bullet" ? "gap-0" : "",
-            )}
-          >
+          <div key={index} className="flex items-start gap-4">
             <div
               className={cn(
                 "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-lg font-medium",
-                bulletType === "bullet" ? "h-6 w-6 pt-2 text-4xl" : "",
                 bulletType === "number" && item.description
-                  ? "mt-1"
+                  ? "mt-0"
                   : "-mt-0.5",
               )}
               style={{
@@ -76,16 +69,22 @@ export default function ListBlock({
             </div>
             <div className="flex flex-col">
               <p
-                className="text-lg font-semibold"
+                className="text-lg font-semibold leading-tight"
                 style={{ color: defaultTextColor }}
               >
-                {item.title}
+                {item.title || (
+                  <span className="text-muted-foreground">List Item</span>
+                )}
               </p>
               <p
                 className="overflow-hidden whitespace-pre-wrap text-pretty !break-words text-sm text-muted-foreground"
                 style={{ color: defaultTextColor }}
               >
-                {item.description}
+                {item.description || (
+                  <span className="text-muted-foreground">
+                    List Item Description
+                  </span>
+                )}
               </p>
             </div>
           </div>

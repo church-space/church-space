@@ -406,7 +406,7 @@ export default function EmailDndProvider({
         subtitle: "",
         textColor: "#000000",
         bulletColor: "#000000",
-        bulletType: "number" as "number" | "bullet",
+        bulletType: "number",
         items: [
           {
             title: "",
@@ -890,7 +890,7 @@ export default function EmailDndProvider({
                   subtitle: "",
                   textColor: "#000000",
                   bulletColor: "#000000",
-                  bulletType: "bullet",
+                  bulletType: "number",
                   items: [],
                 };
                 break;

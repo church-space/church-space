@@ -809,6 +809,7 @@ const CustomList: React.FC<{
                       style={{
                         width: bulletType === "number" ? "48px" : "24px",
                         verticalAlign: "top",
+                        paddingRight: "10px",
                       }}
                     >
                       <table
@@ -870,16 +871,28 @@ const CustomList: React.FC<{
                         </tr>
                         {item.description && (
                           <tr>
-                            <td
-                              style={{
-                                fontFamily: defaultFont || "sans-serif",
-                                fontSize: "14px",
-                                color: defaultTextColor || textColor,
-                                opacity: 0.8,
-                                lineHeight: "1.5",
-                              }}
-                            >
-                              {item.description}
+                            <td>
+                              {item.description
+                                .split("\n")
+                                .map((paragraph, pIndex) => (
+                                  <div
+                                    key={pIndex}
+                                    style={{
+                                      fontFamily: defaultFont || "sans-serif",
+                                      fontSize: "14px",
+                                      color: defaultTextColor || textColor,
+                                      opacity: 0.8,
+                                      lineHeight: "1.5",
+                                      marginBottom:
+                                        pIndex <
+                                        item.description.split("\n").length - 1
+                                          ? "12px"
+                                          : "0",
+                                    }}
+                                  >
+                                    {paragraph}
+                                  </div>
+                                ))}
                             </td>
                           </tr>
                         )}
