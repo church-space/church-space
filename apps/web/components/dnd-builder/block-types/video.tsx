@@ -59,7 +59,7 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
     }
   }, [data?.url, extractYouTubeId]);
 
-  const imageUrl = `https://i3.ytimg.com/vi/${result.videoId}/maxresdefault.jpg`;
+  const imageUrl = `https://img.youtube.com/vi/${result.videoId}/maxresdefault.jpg`;
   const style = {
     maxWidth: data?.size ? `${data.size}%` : "33%",
     margin: data?.centered ? "0 auto" : undefined,

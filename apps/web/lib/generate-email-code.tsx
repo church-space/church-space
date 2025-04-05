@@ -444,7 +444,7 @@ const CustomVideo: React.FC<{
 }> = ({ url, size, centered, isRounded }) => {
   const videoId = extractYouTubeId(url);
   const thumbnailUrl = videoId
-    ? `https://i3.ytimg.com/vi/${videoId}/maxresdefault.jpg`
+    ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
     : "";
 
   if (!videoId) {
@@ -474,7 +474,7 @@ const CustomVideo: React.FC<{
                 <td>
                   <Img
                     src={thumbnailUrl}
-                    alt="Video thumbnail"
+                    alt="YouTube video thumbnail"
                     width="100%"
                     style={{
                       display: "block",
@@ -1194,7 +1194,7 @@ const CustomFooter: React.FC<{
                       <td align="center" style={{ paddingBottom: "16px" }}>
                         <Img
                           src={logoUrl}
-                          alt="Logo"
+                          alt="Church Logo"
                           width="112"
                           height="112"
                           style={{
