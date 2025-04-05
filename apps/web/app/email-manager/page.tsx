@@ -59,7 +59,6 @@ export default async function Page({
       p_person_email_id: peopleEmailId,
     });
 
-    console.log("email unsubscribed");
     return new Response(null, { status: 202 });
   }
 
@@ -77,7 +76,11 @@ export default async function Page({
         />
       )}
       {type === "manage" && emailId && peopleEmailId && (
-        <Manage emailId={emailId} peopleEmailId={peopleEmailId} />
+        <Manage
+          emailId={emailId}
+          peopleEmailId={peopleEmailId}
+          unsubscribeAll={handleUnsubscribe}
+        />
       )}
     </>
   );
