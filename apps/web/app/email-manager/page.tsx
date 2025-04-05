@@ -2,23 +2,25 @@ import React from "react";
 import Manage from "./manage-page";
 import Unsubscribe from "./unsubscribe-page";
 import { jwtVerify } from "jose";
-import { NextRequest } from "next/server";
+import { headers } from "next/headers";
 
-type SearchParams = {
+type SearchParams = Promise<{
   type?: string;
   tk?: string;
-};
+}>;
 
 export default async function Page({
   searchParams,
-  request,
 }: {
   searchParams: SearchParams;
-  request?: NextRequest;
 }) {
-  const type = searchParams.type;
-  const tk = searchParams.tk;
-  const method = request?.method;
+  const params = await searchParams;
+  const type = params.type;
+  const tk = params.tk;
+
+  // Get the request method from headers
+  const headersList = await headers();
+  const method = headersList.get("x-method") || "GET";
 
   let emailId: number | null = null;
   let peopleEmailId: number | null = null;

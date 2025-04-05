@@ -458,7 +458,7 @@ const CustomVideo: React.FC<{
                     border={0}
                     style={{
                       width: "100%",
-                      marginTop: `-${size * 2.2}px`,
+                      marginTop: `-${size * 2.25}px`,
                       zIndex: "2",
                     }}
                   >
