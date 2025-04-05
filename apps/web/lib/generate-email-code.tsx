@@ -649,7 +649,7 @@ const CustomCards: React.FC<{
                                     fontSize: "14px",
                                     fontWeight: "500",
                                     color: labelColor,
-                                    paddingBottom: "4px",
+                                    paddingBottom: "8px",
                                   }}
                                 >
                                   {card.label}
@@ -662,7 +662,7 @@ const CustomCards: React.FC<{
                                     fontSize: "18px",
                                     fontWeight: "bold",
                                     color: textColor,
-                                    paddingBottom: "4px",
+                                    paddingBottom: "8px",
                                   }}
                                 >
                                   {card.title}

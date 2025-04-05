@@ -217,11 +217,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             onChange={(e) => handleChange("subtitle", e.target.value)}
             placeholder="Subtitle"
           />
-          <Label>Label Color</Label>
-          <ColorPicker
-            value={localState.labelColor}
-            onChange={(color) => handleChange("labelColor", color)}
-          />
+
           <Label>Button Color</Label>
           <ColorPicker
             value={localState.buttonColor}

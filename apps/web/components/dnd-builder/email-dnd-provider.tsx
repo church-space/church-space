@@ -1566,10 +1566,40 @@ export default function EmailDndProvider({
         }
       });
 
+      // Update all card blocks to use the new accent color for labels
+      const updatedBlocks = blocks.map((block) => {
+        if (block.type === "cards" && block.data) {
+          return {
+            ...block,
+            data: {
+              ...block.data,
+              labelColor: color,
+            } as BlockType["data"],
+          } as BlockType;
+        }
+        return block;
+      });
+
+      // Only update blocks if there were changes
+      if (JSON.stringify(blocks) !== JSON.stringify(updatedBlocks)) {
+        updateBlocksHistory(updatedBlocks);
+      }
+
       // Update in database if we have an emailId
       if (emailId) {
         debouncedStyleUpdate({
           accent_text_color: color,
+        });
+
+        // Update any card blocks in the database
+        updatedBlocks.forEach((block) => {
+          if (block.type === "cards" && !isNaN(parseInt(block.id, 10))) {
+            const blockId = parseInt(block.id, 10);
+            updateEmailBlock.mutate({
+              blockId,
+              value: block.data,
+            });
+          }
         });
       }
     },
@@ -1579,7 +1609,9 @@ export default function EmailDndProvider({
       updateStylesHistory,
       editors,
       styles.defaultTextColor,
-      styles,
+      blocks,
+      updateBlocksHistory,
+      updateEmailBlock,
     ],
   );
 
