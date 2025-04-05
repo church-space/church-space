@@ -178,7 +178,7 @@ const CustomButton: React.FC<{
       style={{
         width: "100%",
         textAlign: centered ? "center" : "left",
-        margin: "12px 0",
+        margin: "2px 0",
       }}
       cellPadding="0"
       cellSpacing="0"
@@ -186,29 +186,55 @@ const CustomButton: React.FC<{
     >
       <tr>
         <td align={centered ? "center" : "left"} style={{ width: "100%" }}>
-          <a
-            href={link || "#"}
-            target="_blank"
-            style={{
-              backgroundColor: buttonStyle === "filled" ? color : "transparent",
-              border: `2px solid ${color}`,
-              borderRadius,
-              color: buttonStyle === "filled" ? textColor : color,
-              display: "inline-block",
-              fontFamily: defaultFont || "sans-serif",
-              fontSize: "14px",
-              fontWeight: "normal",
-              lineHeight: "1",
-              padding: "9px 15px",
-              textDecoration: "none",
-              textAlign: "center",
-              width: buttonWidth,
-              maxWidth: "100%",
-              boxSizing: "border-box",
-            }}
-          >
-            {text && text.length > 0 ? text : ""}
-          </a>
+          {link && link.length > 0 ? (
+            <a
+              href={link || "#"}
+              target="_blank"
+              style={{
+                backgroundColor:
+                  buttonStyle === "filled" ? color : "transparent",
+                border: `2px solid ${color}`,
+                borderRadius,
+                color: buttonStyle === "filled" ? textColor : color,
+                display: "inline-block",
+                fontFamily: defaultFont || "sans-serif",
+                fontSize: "14px",
+                fontWeight: "normal",
+                lineHeight: "1",
+                padding: "9px 15px",
+                textDecoration: "none",
+                textAlign: "center",
+                width: buttonWidth,
+                maxWidth: "100%",
+                boxSizing: "border-box",
+              }}
+            >
+              {text && text.length > 0 ? text : ""}
+            </a>
+          ) : (
+            <span
+              style={{
+                backgroundColor:
+                  buttonStyle === "filled" ? color : "transparent",
+                border: `2px solid ${color}`,
+                borderRadius,
+                color: buttonStyle === "filled" ? textColor : color,
+                display: "inline-block",
+                fontFamily: defaultFont || "sans-serif",
+                fontSize: "14px",
+                fontWeight: "normal",
+                lineHeight: "1",
+                padding: "9px 15px",
+                textDecoration: "none",
+                textAlign: "center",
+                width: buttonWidth,
+                maxWidth: "100%",
+                boxSizing: "border-box",
+              }}
+            >
+              {text}
+            </span>
+          )}
         </td>
       </tr>
     </table>
