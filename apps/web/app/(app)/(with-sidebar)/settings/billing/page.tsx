@@ -69,10 +69,6 @@ export default async function Page() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">Hillsong Church Online</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage>Settings</BreadcrumbPage>
               </BreadcrumbItem>
