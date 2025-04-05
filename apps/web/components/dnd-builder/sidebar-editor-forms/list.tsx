@@ -136,12 +136,14 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             <Input
               className="col-span-2 bg-background"
               value={item.title}
+              placeholder="Item Title"
               onChange={(e) => updateItem(index, "title", e.target.value)}
             />
             <Label>Description</Label>
             <AutosizeTextarea
               className="col-span-2"
               value={item.description}
+              placeholder="Item Description"
               onChange={(e) => updateItem(index, "description", e.target.value)}
               maxHeight={150}
             />

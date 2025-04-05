@@ -374,15 +374,6 @@ const CustomFileDownload: React.FC<{
                     <tr>
                       <td
                         style={{
-                          verticalAlign: "middle",
-                          paddingTop: "4px",
-                        }}
-                        width="20"
-                      >
-                        <File width="20px" height="20px" fill={textColor} />
-                      </td>
-                      <td
-                        style={{
                           paddingLeft: "8px",
                           verticalAlign: "middle",
                           width: "auto",

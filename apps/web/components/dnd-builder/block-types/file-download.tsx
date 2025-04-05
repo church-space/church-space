@@ -1,4 +1,3 @@
-import { File } from "@church-space/ui/icons";
 import type { FileDownloadBlockData } from "@/types/blocks";
 import { cn } from "@church-space/ui/cn";
 
@@ -26,7 +25,6 @@ export default function FileDownloadBlock({
       style={{ backgroundColor: bgColor, fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex items-center gap-2">
-        <File height="20" width="20" fill={textColor} />
         <p className="text-sm font-medium" style={{ color: textColor }}>
           {title}
         </p>
