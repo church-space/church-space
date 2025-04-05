@@ -19,6 +19,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useFileUpload } from "./use-file-upload";
 import AssetBrowserModal from "./asset-browser";
 import { CloudUpload } from "@church-space/ui/icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
 
 // Add a debounce utility function
 const debounce = <T extends (...args: any[]) => any>(fn: T, ms = 300) => {
@@ -281,6 +286,7 @@ const FileUpload = ({
               )}
             </Button>
           </DialogTrigger>
+
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Upload File</DialogTitle>
@@ -319,17 +325,23 @@ const FileUpload = ({
 
       {(file || filePath) && (
         <>
-          <Button
-            variant="outline"
-            className="rounded-l-none border-l-0 bg-transparent hover:text-destructive"
-            size="icon"
-            onClick={() => setIsDeleteDialogOpen(true)}
-            disabled={isDeleting}
-          >
-            <XIcon />
-            <span className="sr-only">Delete file</span>
-          </Button>
-
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                className="rounded-l-none border-l-0 bg-transparent hover:text-destructive"
+                size="icon"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                disabled={isDeleting}
+              >
+                <XIcon />
+                <span className="sr-only">Delete file</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Remove file</p>
+            </TooltipContent>
+          </Tooltip>
           <Dialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}

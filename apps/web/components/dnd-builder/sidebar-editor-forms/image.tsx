@@ -7,6 +7,11 @@ import { Switch } from "@church-space/ui/switch";
 import { useRef, useState } from "react";
 import { z } from "zod";
 import FileUpload from "../file-upload";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
 
 interface ImageFormProps {
   block: Block & { data?: ImageBlockData };
@@ -154,7 +159,21 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
             className="col-span-2"
             onValueChange={(value) => handleChange("size", value[0])}
           />
-          <Label>Link</Label>
+          <Label>Center Image</Label>
+          <div className="col-span-2">
+            <Switch
+              checked={localState.centered}
+              onCheckedChange={(checked) => handleChange("centered", checked)}
+            />
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Label>Link</Label>
+            </TooltipTrigger>
+            <TooltipContent>
+              Link to a webpage when someone clicks on the image.
+            </TooltipContent>
+          </Tooltip>
           <div className="col-span-2 flex flex-col gap-1">
             <Input
               className={linkError && !isTyping ? "border-red-500" : ""}
@@ -166,13 +185,6 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
             {linkError && !isTyping && (
               <p className="text-xs text-red-500">{linkError}</p>
             )}
-          </div>
-          <Label>Center Image</Label>
-          <div className="col-span-2">
-            <Switch
-              checked={localState.centered}
-              onCheckedChange={(checked) => handleChange("centered", checked)}
-            />
           </div>
         </div>
       </div>
