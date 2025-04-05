@@ -187,7 +187,7 @@ export default function SendTestEmail() {
         );
 
       // Send to API
-      const response = await fetch("/api/email/send-test-email", {
+      const response = await fetch("/api/emails/send-test-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

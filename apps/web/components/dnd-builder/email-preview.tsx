@@ -76,7 +76,7 @@ export default function EmailPreview({
       <div className="flex items-center justify-between">
         {showBackButton && (
           <Link
-            href={`/email/${emailId}`}
+            href={`/emails/${emailId}`}
             className="group flex -translate-x-px cursor-pointer flex-row items-center gap-1 text-sm font-medium"
           >
             <span className="transition-transform duration-300 group-hover:-translate-x-1">

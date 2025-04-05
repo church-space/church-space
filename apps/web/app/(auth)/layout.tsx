@@ -13,7 +13,7 @@ export default async function ProtectedLayout({
   const user = await getUserQuery(supabase);
 
   if (user?.data?.user) {
-    return redirect("/email");
+    return redirect("/emails");
   }
 
   return (

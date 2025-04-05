@@ -37,7 +37,7 @@ export default function MobileHeaderSheet() {
           <span className="text-sm text-muted-foreground">Features</span>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/features/email"
+            href="/features/emails"
           >
             <MailFilled />
             Email

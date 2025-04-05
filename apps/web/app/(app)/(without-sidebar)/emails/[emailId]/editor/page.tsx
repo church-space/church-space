@@ -108,7 +108,7 @@ export default async function Page(props: { params: Params }) {
 
   // Redirect if email status is sent/sending or type is template
   if (emailData.shouldRedirect) {
-    redirect(`/email/${emailId}?previewOpen=true`);
+    redirect(`/emails/${emailId}?previewOpen=true`);
   }
 
   return (

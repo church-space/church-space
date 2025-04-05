@@ -17,7 +17,7 @@ export default async function ProtectedLayout({
   }
 
   if (user.organizationMembership) {
-    return redirect("/email");
+    return redirect("/emails");
   }
 
   return (

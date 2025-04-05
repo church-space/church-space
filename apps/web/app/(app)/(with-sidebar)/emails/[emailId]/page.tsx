@@ -29,7 +29,7 @@ export default function Page() {
   }
 
   if (email.data.type === "template") {
-    redirect(`/email/${emailId}/editor`);
+    redirect(`/emails/${emailId}/editor`);
   }
 
   return (

@@ -18,24 +18,24 @@ const data = {
   navMain: [
     {
       title: "Email",
-      url: "/email",
+      url: "/emails",
       icon: Mail,
       submenu: [
         {
           title: "All Emails",
-          url: "/email",
+          url: "/emails",
         },
         {
           title: "Templates",
-          url: "/email/templates",
+          url: "/emails/templates",
         },
         {
           title: "Automations",
-          url: "/email/automations",
+          url: "/emails/automations",
         },
         {
           title: "Categories",
-          url: "/email/categories",
+          url: "/emails/categories",
         },
       ],
     },

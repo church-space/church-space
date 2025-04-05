@@ -46,7 +46,7 @@ export default function Header() {
               <NavigationMenuContent>
                 <ul className="grid gap-1 p-3 md:w-[500px] md:grid-cols-2">
                   <ListItem
-                    href="/features/email"
+                    href="/features/emails"
                     title="Email"
                     icon={<MailFilled />}
                   >

@@ -48,7 +48,9 @@ export default function NewEmail({
       console.log(result);
 
       if (result?.data?.success && result?.data?.data) {
-        await router.push(`/email/${result.data.data.id}/editor?newEmail=true`);
+        await router.push(
+          `/emails/${result.data.data.id}/editor?newEmail=true`,
+        );
       }
     } catch (error) {
       console.error("Failed to create email:", error);

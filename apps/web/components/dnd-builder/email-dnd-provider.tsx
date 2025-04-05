@@ -1216,7 +1216,7 @@ export default function EmailDndProvider({
       queryClient.invalidateQueries({ queryKey: ["email", emailId] });
 
       // Navigate to the emails page with the emailId
-      router.push(`/email/${emailId}`);
+      router.push(`/emails/${emailId}`);
 
       // Note: We don't set isSaving to false here because we want the button
       // to remain in loading state during navigation
@@ -2396,11 +2396,14 @@ export default function EmailDndProvider({
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/email">Email</BreadcrumbLink>
+                <BreadcrumbLink href="/emails">Email</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbLink href={`/email/${emailId}`} className="truncate">
+                <BreadcrumbLink
+                  href={`/emails/${emailId}`}
+                  className="truncate"
+                >
                   {(emailData?.email as any)?.subject || "Email Subject"}
                 </BreadcrumbLink>
               </BreadcrumbItem>

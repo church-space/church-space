@@ -22,7 +22,7 @@ export default function LoadingPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/email">Email</BreadcrumbLink>
+                <BreadcrumbLink href="/emails">Email</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
 

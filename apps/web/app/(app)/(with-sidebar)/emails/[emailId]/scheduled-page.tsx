@@ -128,7 +128,7 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/email">Email</BreadcrumbLink>
+                <BreadcrumbLink href="/emails">Email</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
 

@@ -606,7 +606,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
             description: "Your email has been deleted successfully.",
           });
 
-          router.push("/email");
+          router.push("/emails");
         } catch {
           toast({
             title: "Error",
@@ -630,7 +630,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/email">Email</BreadcrumbLink>
+                <BreadcrumbLink href="/emails">Email</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
 
@@ -780,7 +780,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                       if (email.scheduled_for) {
                         // Schedule the email
                         const response = await fetch(
-                          "/api/email/schedule-email",
+                          "/api/emails/schedule-email",
                           {
                             method: "POST",
                             headers: {
@@ -812,7 +812,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                       } else {
                         // Send the email immediately
                         const response = await fetch(
-                          "/api/email/filter-emails",
+                          "/api/emails/filter-emails",
                           {
                             method: "POST",
                             headers: {
@@ -1270,7 +1270,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
         </AccordionItem>
         <div className="flex flex-1 cursor-pointer items-center justify-between rounded-lg border bg-card py-4 pl-6 pr-5 text-left font-medium transition-all hover:bg-accent/50">
           <ProtectedLink
-            href={`/email/${email.id}/editor`}
+            href={`/emails/${email.id}/editor`}
             className="group/link flex w-full items-center gap-3"
           >
             <span className="text-muted-foreground">
@@ -1354,7 +1354,7 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                     description: "Your email has been deleted successfully.",
                   });
 
-                  router.push("/email");
+                  router.push("/emails");
                 } catch {
                   toast({
                     title: "Error",

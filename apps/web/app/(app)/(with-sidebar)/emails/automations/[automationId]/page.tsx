@@ -80,7 +80,7 @@ export default function Page() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <Link prefetch={true} href="/email/automations">
+                <Link prefetch={true} href="/emails/automations">
                   Automations
                 </Link>
               </BreadcrumbItem>

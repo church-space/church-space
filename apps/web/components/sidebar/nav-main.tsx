@@ -71,14 +71,14 @@ export function NavMain({
                           (item.title === "Settings"
                             ? pathname === submenuItem.url
                             : item.title === "Email"
-                              ? submenuItem.url === "/email"
-                                ? pathname === "/email" ||
-                                  (pathname.startsWith("/email/") &&
-                                    !pathname.startsWith("/email/templates") &&
+                              ? submenuItem.url === "/emails"
+                                ? pathname === "/emails" ||
+                                  (pathname.startsWith("/emails/") &&
+                                    !pathname.startsWith("/emails/templates") &&
                                     !pathname.startsWith(
-                                      "/email/automations",
+                                      "/emails/automations",
                                     ) &&
-                                    !pathname.startsWith("/email/categories"))
+                                    !pathname.startsWith("/emails/categories"))
                                 : pathname.startsWith(submenuItem.url)
                               : pathname === submenuItem.url ||
                                 pathname.startsWith(submenuItem.url + "/")) &&

@@ -47,7 +47,7 @@ export default function NewEmailTemplate({
 
       if (result?.data?.success && result?.data?.data) {
         await router.push(
-          `/email/${result.data.data.id}/editor?newTemplate=true`,
+          `/emails/${result.data.data.id}/editor?newTemplate=true`,
         );
       }
     } catch (error) {
