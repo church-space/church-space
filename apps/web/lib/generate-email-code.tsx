@@ -465,8 +465,8 @@ const CustomVideo: React.FC<{
                     <tr>
                       <td align="center">
                         <YoutubeFilled
-                          width="64px"
-                          height="64px"
+                          width={`${size}px`}
+                          height={`${size}px`}
                           fill="#ff0000"
                         />
                       </td>
