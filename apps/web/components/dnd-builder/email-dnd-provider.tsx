@@ -419,8 +419,8 @@ export default function EmailDndProvider({
         title: "",
         subtitle: "",
         textColor: "#000000",
-        labelColor: "#4274D2",
-        buttonColor: "#4274D2",
+        labelColor: styles.accentTextColor,
+        buttonColor: styles.accentTextColor,
         buttonTextColor: "#FFFFFF",
         cards: [
           {
