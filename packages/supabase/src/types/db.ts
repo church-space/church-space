@@ -321,7 +321,6 @@ export type Database = {
           organization_id: string
           pco_list_category: number
           person_id: number | null
-          reason: string | null
           unsub_email_id: number | null
         }
         Insert: {
@@ -331,7 +330,6 @@ export type Database = {
           organization_id: string
           pco_list_category: number
           person_id?: number | null
-          reason?: string | null
           unsub_email_id?: number | null
         }
         Update: {
@@ -341,7 +339,6 @@ export type Database = {
           organization_id?: string
           pco_list_category?: number
           person_id?: number | null
-          reason?: string | null
           unsub_email_id?: number | null
         }
         Relationships: [
@@ -1827,13 +1824,6 @@ export type Database = {
         }
         Returns: string[]
       }
-      resubscribe_to_email_category: {
-        Args: {
-          p_person_email_id: number
-          p_pco_list_category: number
-        }
-        Returns: undefined
-      }
       unsubscribe_from_all_emails: {
         Args: {
           p_email_id: number
@@ -1843,12 +1833,9 @@ export type Database = {
       }
       unsubscribe_from_email_category: {
         Args: {
-          p_email_id: number
-          p_person_email_id: number
-          p_email_address: string
-          p_organization_id: string
-          p_pco_list_category: number
-          p_reason?: string
+          unsub_email_id: number
+          person_email_id: number
+          pco_list_category: number
         }
         Returns: undefined
       }
