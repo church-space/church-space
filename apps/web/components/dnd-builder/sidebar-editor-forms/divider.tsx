@@ -18,7 +18,7 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
   useEffect(() => {
     setLocalState({
       color: block.data?.color || "#e2e8f0",
-      margin: block.data?.margin || 8,
+      margin: block.data?.margin || 0,
     });
   }, [block.data]);
 
