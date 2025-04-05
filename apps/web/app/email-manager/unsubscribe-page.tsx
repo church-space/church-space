@@ -4,15 +4,11 @@ import { LoaderIcon } from "@church-space/ui/icons";
 import React, { useState } from "react";
 
 export default function Unsubscribe({
-  emailId,
-  peopleEmailId,
   unsubscribe,
   resubscribeAll,
 }: {
-  emailId: number;
-  peopleEmailId: number;
-  unsubscribe: (emailId: number, peopleEmailId: number) => Promise<void>;
-  resubscribeAll: (peopleEmailId: number) => Promise<void>;
+  unsubscribe: () => Promise<void>;
+  resubscribeAll: () => Promise<void>;
 }) {
   const [unsubscribed, setUnsubscribed] = useState(false);
   const [isUnsubscribing, setIsUnsubscribing] = useState(false);
@@ -21,7 +17,7 @@ export default function Unsubscribe({
   const handleUnsubscribe = async () => {
     try {
       setIsUnsubscribing(true);
-      await unsubscribe(emailId, peopleEmailId);
+      await unsubscribe();
       setUnsubscribed(true);
     } finally {
       setIsUnsubscribing(false);
@@ -31,7 +27,7 @@ export default function Unsubscribe({
   const handleResubscribeAll = async () => {
     try {
       setIsResubscribing(true);
-      await resubscribeAll(peopleEmailId);
+      await resubscribeAll();
       setUnsubscribed(false);
     } finally {
       setIsResubscribing(false);

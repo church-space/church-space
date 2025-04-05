@@ -44,11 +44,6 @@ export default async function Page({
       // Extract the email_id and people_email_id from the payload
       emailId = payload.email_id as number;
       peopleEmailId = payload.people_email_id as number;
-
-      console.log("Decoded Token Information:");
-      console.log("Email ID:", emailId);
-      console.log("People Email ID:", peopleEmailId);
-      console.log("Full payload:", payload);
     } catch (error) {
       console.error("Error decoding token:", error);
     }
@@ -69,14 +64,26 @@ export default async function Page({
     return <div>Invalid token</div>;
   }
 
+  const handleServerUnsubscribe = async () => {
+    "use server";
+    if (emailId && peopleEmailId) {
+      await handleUnsubscribe(emailId, peopleEmailId);
+    }
+  };
+
+  const handleServerResubscribeAll = async () => {
+    "use server";
+    if (peopleEmailId) {
+      await handleResubscribeAll(peopleEmailId);
+    }
+  };
+
   return (
     <>
       {type === "unsubscribe" && emailId && peopleEmailId && (
         <Unsubscribe
-          emailId={emailId}
-          peopleEmailId={peopleEmailId}
-          unsubscribe={handleUnsubscribe}
-          resubscribeAll={handleResubscribeAll}
+          unsubscribe={handleServerUnsubscribe}
+          resubscribeAll={handleServerResubscribeAll}
         />
       )}
       {type === "manage" && emailId && peopleEmailId && (
