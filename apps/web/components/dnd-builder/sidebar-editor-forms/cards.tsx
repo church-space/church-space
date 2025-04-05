@@ -30,8 +30,8 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   const debounceTimerRef = useRef<Record<number, NodeJS.Timeout | null>>({});
 
   const [localState, setLocalState] = useState<CardsBlockData>({
-    title: block.data?.title || "Cards",
-    subtitle: block.data?.subtitle || "Add a card to your page",
+    title: block.data?.title || "",
+    subtitle: block.data?.subtitle || "",
     cards: block.data?.cards || [],
     textColor: block.data?.textColor || "#000000",
     labelColor: block.data?.labelColor || "#4274D2",
@@ -208,12 +208,14 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             className="col-span-2 bg-background"
             value={localState.title}
             onChange={(e) => handleChange("title", e.target.value)}
+            placeholder="Title"
           />
           <Label>Subtitle</Label>
           <Textarea
             className="col-span-2 bg-background"
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
+            placeholder="Subtitle"
           />
           <Label>Label Color</Label>
           <ColorPicker
@@ -256,6 +258,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                 <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4 py-1 pr-1">
                   <Label>Title</Label>
                   <Input
+                    placeholder="Card Title"
                     className="col-span-2"
                     value={card.title}
                     onChange={(e) => updateCard(index, "title", e.target.value)}
@@ -263,6 +266,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                   <Label>Description</Label>
                   <Textarea
                     className="col-span-2"
+                    placeholder="Description"
                     value={card.description}
                     onChange={(e) =>
                       updateCard(index, "description", e.target.value)
@@ -270,6 +274,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                   />
                   <Label>Label</Label>
                   <Input
+                    placeholder="Label"
                     className="col-span-2"
                     value={card.label}
                     onChange={(e) => updateCard(index, "label", e.target.value)}
@@ -293,6 +298,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                     onChange={(e) =>
                       updateCard(index, "buttonText", e.target.value)
                     }
+                    placeholder="Button Text"
                   />
                   <Label>Button Link</Label>
                   <div className="col-span-2 flex flex-col gap-1">

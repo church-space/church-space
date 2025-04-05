@@ -47,20 +47,28 @@ export default function CardsBlock({
       style={{ fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex flex-col">
-        {title && (
+        {title !== undefined && (
           <span
             className="text-3xl font-bold"
             style={{ color: defaultTextColor }}
           >
-            {title}
+            {title === "" ? (
+              <span className="text-muted-foreground">Title</span>
+            ) : (
+              title
+            )}
           </span>
         )}
-        {subtitle && (
+        {subtitle !== undefined && (
           <span
             className="text-muted-foreground"
             style={{ color: defaultTextColor }}
           >
-            {subtitle}
+            {subtitle === "" ? (
+              <span className="text-muted-foreground">Subtitle</span>
+            ) : (
+              subtitle
+            )}
           </span>
         )}
       </div>
@@ -90,13 +98,23 @@ export default function CardsBlock({
                 className="text-lg font-bold"
                 style={{ color: defaultTextColor }}
               >
-                {card.title}
+                {card.title === "" ? (
+                  <span className="text-muted-foreground">Card Title</span>
+                ) : (
+                  card.title
+                )}
               </h3>
               <p
                 className="text-sm text-muted-foreground"
                 style={{ color: defaultTextColor }}
               >
-                {card.description}
+                {card.description === "" ? (
+                  <span className="text-muted-foreground">
+                    Card Description
+                  </span>
+                ) : (
+                  card.description
+                )}
               </p>
             </div>
             {card.buttonText && (

@@ -416,18 +416,26 @@ export default function EmailDndProvider({
       };
     } else if (blockType === "cards") {
       blockData = {
-        title: "Cards Title",
-        subtitle: "Cards Subtitle",
+        title: "",
+        subtitle: "",
         textColor: "#000000",
         labelColor: "#4274D2",
         buttonColor: "#4274D2",
         buttonTextColor: "#FFFFFF",
         cards: [
           {
-            title: "First Card",
-            description: "Card description here",
+            title: "",
+            description: "",
             label: "",
-            buttonText: "Learn More",
+            buttonText: "",
+            buttonLink: "",
+            image: "",
+          },
+          {
+            title: "",
+            description: "",
+            label: "",
+            buttonText: "",
             buttonLink: "",
             image: "",
           },
