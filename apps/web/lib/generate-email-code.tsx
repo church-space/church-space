@@ -173,6 +173,16 @@ const CustomButton: React.FC<{
   const buttonWidth = size === "full" ? "100%" : "auto";
   const borderRadius = isRounded ? "6px" : "0";
 
+  // Format the URL with proper prefix if it's not a mailto link
+  const formattedLink =
+    link && link.length > 0
+      ? link.startsWith("mailto:")
+        ? link
+        : !link.startsWith("http://") && !link.startsWith("https://")
+          ? `https://${link}`
+          : link
+      : "#";
+
   return text && text.length > 0 ? (
     <table
       style={{
@@ -188,7 +198,7 @@ const CustomButton: React.FC<{
         <td align={centered ? "center" : "left"} style={{ width: "100%" }}>
           {link && link.length > 0 ? (
             <a
-              href={link || "#"}
+              href={formattedLink}
               target="_blank"
               style={{
                 backgroundColor:
