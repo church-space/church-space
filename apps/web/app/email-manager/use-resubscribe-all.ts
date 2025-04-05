@@ -10,7 +10,10 @@ const ratelimit = new Ratelimit({
   redis: RedisClient,
 });
 
-export async function handleResubscribeAll(peopleEmailId: number) {
+export async function handleResubscribeAll(
+  emailId: number,
+  peopleEmailId: number,
+) {
   const ip = (await headers()).get("x-forwarded-for");
 
   const { success } = await ratelimit.limit(`${ip}-resubscribe-all`);
@@ -20,8 +23,9 @@ export async function handleResubscribeAll(peopleEmailId: number) {
   }
   const supabase = await createClient();
 
-  const { data, error } = await supabase.rpc("re_subscribe_email_by_id", {
-    person_email_id: peopleEmailId,
+  const { data, error } = await supabase.rpc("re_subscribe_and_cleanup", {
+    email_id_input: emailId,
+    person_email_id_input: peopleEmailId,
   });
 
   if (error) {

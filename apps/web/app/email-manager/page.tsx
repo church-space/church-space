@@ -10,6 +10,14 @@ import { handleUnsubscribe } from "./use-unsubscribe";
 import { handleCategoryUnsubscribe } from "./use-unsub-from-category";
 import { handleCategoryResubscribe } from "./use-resubscribe-to-category";
 import { handleResubscribeAll } from "./use-resubscribe-all";
+import { getCategories } from "./use-categories";
+
+type Category = {
+  category_id: number;
+  pco_name: string;
+  description: string;
+  is_unsubscribed: boolean;
+};
 
 type SearchParams = Promise<{
   type?: string;
@@ -73,10 +81,29 @@ export default async function Page({
 
   const handleServerResubscribeAll = async () => {
     "use server";
-    if (peopleEmailId) {
-      await handleResubscribeAll(peopleEmailId);
+    if (emailId && peopleEmailId) {
+      await handleResubscribeAll(emailId, peopleEmailId);
     }
   };
+
+  const handleServerCategoryUnsubscribe = async (categoryId: number) => {
+    "use server";
+    if (emailId && peopleEmailId) {
+      await handleCategoryUnsubscribe(emailId, peopleEmailId, categoryId);
+    }
+  };
+
+  const handleServerCategoryResubscribe = async (categoryId: number) => {
+    "use server";
+    if (peopleEmailId) {
+      await handleCategoryResubscribe(peopleEmailId, categoryId);
+    }
+  };
+
+  let categories: Category[] = [];
+  if (type === "manage") {
+    categories = await getCategories(emailId, peopleEmailId);
+  }
 
   return (
     <>
@@ -88,12 +115,11 @@ export default async function Page({
       )}
       {type === "manage" && emailId && peopleEmailId && (
         <Manage
-          emailId={emailId}
-          peopleEmailId={peopleEmailId}
-          unsubscribeAll={handleUnsubscribe}
-          unsubscribeFromCategory={handleCategoryUnsubscribe}
-          resubscribeToCategory={handleCategoryResubscribe}
-          resubscribeAll={handleResubscribeAll}
+          categories={categories}
+          unsubscribeAll={handleServerUnsubscribe}
+          unsubscribeFromCategory={handleServerCategoryUnsubscribe}
+          resubscribeToCategory={handleServerCategoryResubscribe}
+          resubscribeAll={handleServerResubscribeAll}
         />
       )}
     </>

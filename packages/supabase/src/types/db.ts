@@ -1824,15 +1824,10 @@ export type Database = {
         }
         Returns: string[]
       }
-      re_subscribe_email: {
+      re_subscribe_and_cleanup: {
         Args: {
-          target_pco_email_id: string
-        }
-        Returns: undefined
-      }
-      re_subscribe_email_by_id: {
-        Args: {
-          person_email_id: number
+          email_id_input: number
+          person_email_id_input: number
         }
         Returns: undefined
       }

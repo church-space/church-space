@@ -3,7 +3,6 @@ import { Button } from "@church-space/ui/button";
 import { Switch } from "@church-space/ui/switch";
 import React, { useEffect, useState } from "react";
 import { LoaderIcon } from "@church-space/ui/icons";
-import { getCategories } from "./use-categories";
 import {
   Dialog,
   DialogContent,
@@ -21,55 +20,30 @@ type Category = {
 };
 
 export default function Manage({
-  emailId,
-  peopleEmailId,
+  categories: initialCategories,
   unsubscribeAll,
   unsubscribeFromCategory,
   resubscribeToCategory,
   resubscribeAll,
 }: {
-  emailId: number;
-  peopleEmailId: number;
-  unsubscribeAll: (emailId: number, peopleEmailId: number) => Promise<void>;
-  unsubscribeFromCategory: (
-    emailId: number,
-    peopleEmailId: number,
-    categoryId: number,
-  ) => Promise<void>;
-  resubscribeToCategory: (
-    peopleEmailId: number,
-    categoryId: number,
-  ) => Promise<void>;
-  resubscribeAll: (peopleEmailId: number) => Promise<void>;
+  categories: Category[];
+  unsubscribeAll: () => Promise<void>;
+  unsubscribeFromCategory: (categoryId: number) => Promise<void>;
+  resubscribeToCategory: (categoryId: number) => Promise<void>;
+  resubscribeAll: () => Promise<void>;
 }) {
   const [unsubscribed, setUnsubscribed] = useState(false);
   const [isUnsubscribing, setIsUnsubscribing] = useState(false);
   const [isResubscribing, setIsResubscribing] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [togglingCategories, setTogglingCategories] = useState<Set<number>>(
     new Set(),
   );
 
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const data = await getCategories(emailId, peopleEmailId);
-        setCategories(data);
-      } catch (error) {
-        console.error("Failed to load categories:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCategories();
-  }, [emailId, peopleEmailId]);
-
   const handleUnsubscribe = async () => {
     try {
       setIsUnsubscribing(true);
-      await unsubscribeAll(emailId, peopleEmailId);
+      await unsubscribeAll();
       setUnsubscribed(true);
     } finally {
       setIsUnsubscribing(false);
@@ -79,7 +53,7 @@ export default function Manage({
   const handleResubscribeAll = async () => {
     try {
       setIsResubscribing(true);
-      await resubscribeAll(peopleEmailId);
+      await resubscribeAll();
       setUnsubscribed(false);
     } finally {
       setIsResubscribing(false);
@@ -91,13 +65,9 @@ export default function Manage({
       setTogglingCategories((prev) => new Set([...prev, category.category_id]));
 
       if (category.is_unsubscribed) {
-        await resubscribeToCategory(peopleEmailId, category.category_id);
+        await resubscribeToCategory(category.category_id);
       } else {
-        await unsubscribeFromCategory(
-          emailId,
-          peopleEmailId,
-          category.category_id,
-        );
+        await unsubscribeFromCategory(category.category_id);
       }
 
       // Update the local state
@@ -118,21 +88,6 @@ export default function Manage({
       });
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="mx-auto mt-10 max-w-lg">
-        <div className="mx-3 flex flex-col items-center rounded-md border bg-card p-4">
-          <div className="h-8 w-8">
-            <LoaderIcon />
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Loading categories...
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto mt-10 max-w-lg">
