@@ -110,7 +110,7 @@ export default function Manage({
                   <LoaderIcon />
                 </span>
               ) : (
-                "Resubscribe to All"
+                "Resubscribe"
               )}
             </Button>
           </>

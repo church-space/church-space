@@ -466,24 +466,34 @@ export type Database = {
       }
       email_unsubscribes: {
         Row: {
+          category_id: number | null
           created_at: string
           email_id: number
           id: number
           person_email_id: number | null
         }
         Insert: {
+          category_id?: number | null
           created_at?: string
           email_id: number
           id?: number
           person_email_id?: number | null
         }
         Update: {
+          category_id?: number | null
           created_at?: string
           email_id?: number
           id?: number
           person_email_id?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "email_unsubscribes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "pco_list_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "email_unsubscribes_email_id_fkey"
             columns: ["email_id"]
@@ -1831,13 +1841,21 @@ export type Database = {
         }
         Returns: undefined
       }
-      resubscribe_category: {
-        Args: {
-          p_people_email_id: number
-          p_category_id: number
-        }
-        Returns: undefined
-      }
+      resubscribe_category:
+        | {
+            Args: {
+              p_people_email_id: number
+              p_category_id: number
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_people_email_id: number
+              p_category_id: number
+            }
+            Returns: undefined
+          }
       unsubscribe_from_all_emails: {
         Args: {
           p_email_id: number
