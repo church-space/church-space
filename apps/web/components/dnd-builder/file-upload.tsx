@@ -269,7 +269,7 @@ const FileUpload = ({
           <DialogTrigger asChild>
             <Button
               className={cn(
-                "justify-start bg-transparent px-3 font-normal",
+                "justify-start bg-background px-3 font-normal",
                 file || filePath ? "flex-1 rounded-r-none" : "rounded-l-none",
               )}
               variant="outline"

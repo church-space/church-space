@@ -24,20 +24,28 @@ export default function ListBlock({
       style={{ fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex flex-col">
-        {title && (
+        {title !== undefined && (
           <span
             className="text-2xl font-bold"
             style={{ color: defaultTextColor }}
           >
-            {title}
+            {title === "" ? (
+              <span className="text-muted-foreground">List Title</span>
+            ) : (
+              title
+            )}
           </span>
         )}
-        {subtitle && (
+        {subtitle !== undefined && (
           <span
             className="text-md text-muted-foreground"
             style={{ color: defaultTextColor }}
           >
-            {subtitle}
+            {subtitle ? (
+              subtitle
+            ) : (
+              <span className="text-muted-foreground">List Subtitle</span>
+            )}
           </span>
         )}
       </div>

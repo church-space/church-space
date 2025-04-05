@@ -82,14 +82,16 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
         <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
           <Label>Title</Label>
           <Input
-            className="col-span-2"
+            className="col-span-2 bg-background"
             value={localState.title}
+            placeholder="List Title"
             onChange={(e) => handleChange("title", e.target.value)}
           />
           <Label>Subtitle</Label>
           <AutosizeTextarea
             className="col-span-2"
             value={localState.subtitle}
+            placeholder="List Subtitle"
             onChange={(e) => handleChange("subtitle", e.target.value)}
             maxHeight={150}
           />
@@ -99,7 +101,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             value={localState.bulletType}
             onValueChange={(value) => handleChange("bulletType", value)}
           >
-            <SelectTrigger className="col-span-2">
+            <SelectTrigger className="col-span-2 bg-background">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -121,7 +123,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-2">
           <Label className="text-md font-bold">Items</Label>
-          <Button variant="outline" onClick={addItem}>
+          <Button size="sm" onClick={addItem}>
             Add Item
           </Button>
         </div>
@@ -132,7 +134,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
           >
             <Label>Title</Label>
             <Input
-              className="col-span-2"
+              className="col-span-2 bg-background"
               value={item.title}
               onChange={(e) => updateItem(index, "title", e.target.value)}
             />
@@ -144,9 +146,10 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
               maxHeight={150}
             />
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => removeItem(index)}
-              className="col-span-3 mt-2"
+              className="col-span-3 hover:bg-destructive hover:text-white"
+              size="sm"
             >
               Remove Item
             </Button>

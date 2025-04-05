@@ -205,13 +205,13 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
         <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
           <Label>Title</Label>
           <Input
-            className="col-span-2"
+            className="col-span-2 bg-background"
             value={localState.title}
             onChange={(e) => handleChange("title", e.target.value)}
           />
           <Label>Subtitle</Label>
           <Textarea
-            className="col-span-2"
+            className="col-span-2 bg-background"
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
@@ -236,7 +236,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <Label className="text-md font-bold">Cards</Label>
-          <Button variant="outline" onClick={addCard}>
+          <Button size="sm" onClick={addCard}>
             Add Card
           </Button>
         </div>
@@ -316,9 +316,10 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                     )}
                   </div>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => removeCard(index)}
-                    className="col-span-3 mt-2"
+                    className="col-span-3 hover:bg-destructive hover:text-white"
+                    size="sm"
                   >
                     Remove Card
                   </Button>

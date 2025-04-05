@@ -264,14 +264,14 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
           </div>
           <Label>Name</Label>
           <Input
-            className="col-span-2"
+            className="col-span-2 bg-background"
             value={localState.name}
             placeholder="Name"
             onChange={(e) => handleChange("name", e.target.value)}
           />
           <Label>Title</Label>
           <Input
-            className="col-span-2"
+            className="col-span-2 bg-background"
             value={localState.subtitle}
             placeholder="Pastor, Deacon, etc."
             onChange={(e) => handleChange("subtitle", e.target.value)}
@@ -283,7 +283,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
         <div className="flex items-center justify-between">
           <Label className="text-md font-bold">Social Links</Label>
           <Button
-            variant="outline"
+            size="sm"
             onClick={addLink}
             disabled={localState.links.length >= 5}
           >
@@ -371,8 +371,8 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
               <Input
                 className={
                   linkErrors[index] && !typingLinks[index]
-                    ? "border-red-500"
-                    : ""
+                    ? "border-red-500 bg-background"
+                    : "bg-background"
                 }
                 value={link.url}
                 onChange={(e) => updateLink(index, "url", e.target.value)}

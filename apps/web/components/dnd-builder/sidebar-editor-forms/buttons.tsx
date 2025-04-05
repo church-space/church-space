@@ -160,7 +160,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
         <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
           <Label>Text</Label>
           <Input
-            className="col-span-2"
+            className="col-span-2 bg-background"
             placeholder="Button text"
             value={localState.text}
             onChange={(e) => handleChange("text", e.target.value)}
@@ -168,7 +168,11 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
           <Label>Link</Label>
           <div className="col-span-2 flex flex-col gap-1">
             <Input
-              className={linkError && !isTyping ? "border-red-500" : ""}
+              className={
+                linkError && !isTyping
+                  ? "border-red-500 bg-background"
+                  : "bg-background"
+              }
               placeholder="https://..."
               value={localState.link}
               onChange={(e) => handleChange("link", e.target.value)}
@@ -199,7 +203,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             value={localState.style}
             onValueChange={(value) => handleChange("style", value)}
           >
-            <SelectTrigger className="col-span-2">
+            <SelectTrigger className="col-span-2 bg-background">
               <SelectValue placeholder="Select a style" />
             </SelectTrigger>
             <SelectContent>
@@ -212,7 +216,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             value={localState.size}
             onValueChange={(value) => handleChange("size", value)}
           >
-            <SelectTrigger className="col-span-2">
+            <SelectTrigger className="col-span-2 bg-background">
               <SelectValue placeholder="Select a size" />
             </SelectTrigger>
             <SelectContent>

@@ -73,7 +73,9 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
               value={localState.url}
               onChange={(e) => handleChange("url", e.target.value)}
               placeholder="YouTube URL"
-              className={error ? "border-red-500" : ""}
+              className={
+                error ? "border-red-500 bg-background" : "bg-background"
+              }
             />
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>

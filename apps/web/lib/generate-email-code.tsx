@@ -354,48 +354,81 @@ const CustomFileDownload: React.FC<{
               display: "block",
             }}
           >
-            <div
+            <table
               style={{
+                width: "100%",
                 backgroundColor: bgColor,
                 borderRadius: isRounded ? "6px" : "0",
-                padding: "8px 8px 8px 13px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
+                borderCollapse: "collapse",
               }}
+              cellPadding="0"
+              cellSpacing="0"
             >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <File width="20px" height="20px" fill={textColor} />
-                <span
-                  style={{
-                    fontFamily: defaultFont || "sans-serif",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: textColor,
-                  }}
-                >
-                  {title}
-                </span>
-              </div>
-              <div>
-                <span
-                  style={{
-                    border: `1px solid ${bgColor}`,
-                    borderRadius: isRounded ? "6px" : "0",
-                    color: bgColor,
-                    backgroundColor: textColor,
-                    display: "inline-block",
-                    fontFamily: defaultFont || "sans-serif",
-                    fontSize: "14px",
-                    padding: "6px 16px",
-                  }}
-                >
-                  Download
-                </span>
-              </div>
-            </div>
+              <tr>
+                <td style={{ padding: "8px 8px 8px 13px" }}>
+                  <table
+                    style={{ width: "100%" }}
+                    cellPadding="0"
+                    cellSpacing="0"
+                  >
+                    <tr>
+                      <td
+                        style={{
+                          verticalAlign: "middle",
+                          paddingTop: "4px",
+                        }}
+                        width="20"
+                      >
+                        <File width="20px" height="20px" fill={textColor} />
+                      </td>
+                      <td
+                        style={{
+                          paddingLeft: "8px",
+                          verticalAlign: "middle",
+                          width: "auto",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontFamily: defaultFont || "sans-serif",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            color: textColor,
+                            display: "inline-block",
+                          }}
+                        >
+                          {title}
+                        </span>
+                      </td>
+                      <td
+                        style={{
+                          textAlign: "right",
+                          verticalAlign: "middle",
+                          width: "1%",
+                        }}
+                        width="80"
+                      >
+                        <span
+                          style={{
+                            border: `1px solid ${bgColor}`,
+                            borderRadius: isRounded ? "6px" : "0",
+                            color: bgColor,
+                            backgroundColor: textColor,
+                            display: "inline-block",
+                            fontFamily: defaultFont || "sans-serif",
+                            fontSize: "14px",
+                            padding: "6px 16px",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Download
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </a>
         </td>
       </tr>
@@ -459,7 +492,7 @@ const CustomVideo: React.FC<{
                     style={{
                       width: "100%",
                       marginTop: `-${size * 2.25}px`,
-                      zIndex: "2",
+                      zIndex: "10",
                     }}
                   >
                     <tr>

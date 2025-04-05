@@ -52,10 +52,6 @@ export default function EmailStyleForm({
       <h2 className="text-lg font-semibold">Email Style</h2>
 
       <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Rounded Corners</Label>
-        <Switch checked={isRounded} onCheckedChange={onIsRoundedChange} />
-      </div>
-      <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Inset Email</Label>
         <Switch checked={isInset} onCheckedChange={onIsInsetChange} />
       </div>
@@ -69,6 +65,7 @@ export default function EmailStyleForm({
           onChange={(color) => onBgColorChange?.(color)}
         />
       </div>
+
       {isInset && (
         <div className="grid grid-cols-3 items-center gap-2">
           <Label className="font-medium">Email BG Color</Label>
@@ -79,8 +76,12 @@ export default function EmailStyleForm({
           />
         </div>
       )}
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Rounded Corners</Label>
+        <Switch checked={isRounded} onCheckedChange={onIsRoundedChange} />
+      </div>
       <Separator className="my-4" />
-      <Label className="text-lg">Text</Label>
+      <Label className="text-lg font-semibold">Text</Label>
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Text Color</Label>
 

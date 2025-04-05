@@ -55,7 +55,7 @@ export default function ColorPicker({
       <div className="flex items-center">
         <Input
           type="color"
-          className="h-9 w-[42px] rounded-r-none border-r-0 px-1 py-0.5"
+          className="h-9 w-[42px] rounded-r-none border-r-0 bg-background px-1 py-0.5"
           value={color}
           onChange={(e) => {
             const newColor = e.target.value;
@@ -68,7 +68,7 @@ export default function ColorPicker({
         <div className="relative">
           <Input
             type="text"
-            className={`w-full rounded-l-none ps-5 ${error && !isTyping ? "border-red-500" : ""}`}
+            className={`w-full rounded-l-none bg-background ps-5 ${error && !isTyping ? "border-red-500" : ""}`}
             placeholder="ffffff"
             maxLength={6}
             value={stripHash(color)}

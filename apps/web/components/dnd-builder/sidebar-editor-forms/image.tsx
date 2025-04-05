@@ -150,22 +150,6 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
             onRemove={onImageRemove}
             bucket="email_assets"
           />
-          <Label>Size</Label>
-          <Slider
-            value={[localState.size]}
-            max={100}
-            min={40}
-            step={1}
-            className="col-span-2"
-            onValueChange={(value) => handleChange("size", value[0])}
-          />
-          <Label>Center Image</Label>
-          <div className="col-span-2">
-            <Switch
-              checked={localState.centered}
-              onCheckedChange={(checked) => handleChange("centered", checked)}
-            />
-          </div>
           <Tooltip>
             <TooltipTrigger asChild>
               <Label>Link</Label>
@@ -176,7 +160,11 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
           </Tooltip>
           <div className="col-span-2 flex flex-col gap-1">
             <Input
-              className={linkError && !isTyping ? "border-red-500" : ""}
+              className={
+                linkError && !isTyping
+                  ? "border-red-500 bg-background"
+                  : "bg-background"
+              }
               placeholder="https://..."
               value={localState.link}
               onChange={(e) => handleChange("link", e.target.value)}
@@ -185,6 +173,23 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
             {linkError && !isTyping && (
               <p className="text-xs text-red-500">{linkError}</p>
             )}
+          </div>
+          <Label>Size</Label>
+          <Slider
+            value={[localState.size]}
+            max={100}
+            min={40}
+            step={1}
+            className="col-span-2"
+            onValueChange={(value) => handleChange("size", value[0])}
+          />
+
+          <Label className="mt-0.5">Center Image</Label>
+          <div className="col-span-2 mt-1.5">
+            <Switch
+              checked={localState.centered}
+              onCheckedChange={(checked) => handleChange("centered", checked)}
+            />
           </div>
         </div>
       </div>

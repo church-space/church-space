@@ -61,7 +61,7 @@ export default function FileDownloadForm({
           />
           <Label>Title</Label>
           <Input
-            className="col-span-2"
+            className="col-span-2 bg-background"
             value={localState.title}
             onChange={(e) => handleChange("title", e.target.value)}
           />

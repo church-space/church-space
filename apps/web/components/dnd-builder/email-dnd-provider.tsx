@@ -402,15 +402,15 @@ export default function EmailDndProvider({
       };
     } else if (blockType === "list") {
       blockData = {
-        title: "List Title",
-        subtitle: "List Subtitle",
+        title: "",
+        subtitle: "",
         textColor: "#000000",
         bulletColor: "#000000",
         bulletType: "number" as "number" | "bullet",
         items: [
           {
-            title: "First Item",
-            description: "Description",
+            title: "",
+            description: "",
           },
         ],
       };
