@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@church-space/ui/button";
+import { LoaderIcon } from "@church-space/ui/icons";
 import React, { useState } from "react";
 
 export default function Unsubscribe({
@@ -9,13 +10,19 @@ export default function Unsubscribe({
 }: {
   emailId: number;
   peopleEmailId: number;
-  unsubscribe: () => Promise<void>;
+  unsubscribe: (emailId: number, peopleEmailId: number) => Promise<void>;
 }) {
   const [unsubscribed, setUnsubscribed] = useState(false);
+  const [isUnsubscribing, setIsUnsubscribing] = useState(false);
 
   const handleUnsubscribe = async () => {
-    await unsubscribe();
-    setUnsubscribed(true);
+    try {
+      setIsUnsubscribing(true);
+      await unsubscribe(emailId, peopleEmailId);
+      setUnsubscribed(true);
+    } finally {
+      setIsUnsubscribing(false);
+    }
   };
 
   return (
@@ -34,8 +41,18 @@ export default function Unsubscribe({
             <p className="text-sm text-muted-foreground">
               To unsubscribe from future emails, please click the button below.
             </p>
-            <Button className="mt-4 w-full" onClick={handleUnsubscribe}>
-              Unsubscribe
+            <Button
+              className="mt-4 w-full"
+              onClick={handleUnsubscribe}
+              disabled={isUnsubscribing}
+            >
+              {isUnsubscribing ? (
+                <span className="animate-spin">
+                  <LoaderIcon />
+                </span>
+              ) : (
+                "Unsubscribe"
+              )}
             </Button>
           </>
         )}
