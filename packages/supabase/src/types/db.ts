@@ -1796,24 +1796,43 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      get_public_list_categories_with_unsub_status: {
-        Args: {
-          input_email: string
-          input_pco_person_id: string
-        }
-        Returns: {
-          category_id: number
-          pco_name: string
-          pco_id: string
-          description: string
-          is_unsubscribed: boolean
-        }[]
-      }
+      get_public_list_categories_with_unsub_status:
+        | {
+            Args: {
+              input_email: string
+              input_pco_person_id: string
+            }
+            Returns: {
+              category_id: number
+              pco_name: string
+              description: string
+              is_unsubscribed: boolean
+            }[]
+          }
+        | {
+            Args: {
+              input_people_email_id: number
+              input_email_id: number
+            }
+            Returns: {
+              category_id: number
+              pco_name: string
+              description: string
+              is_unsubscribed: boolean
+            }[]
+          }
       get_user_organizations: {
         Args: {
           user_uuid: string
         }
         Returns: string[]
+      }
+      resubscribe_to_email_category: {
+        Args: {
+          p_person_email_id: number
+          p_pco_list_category: number
+        }
+        Returns: undefined
       }
       unsubscribe_from_all_emails: {
         Args: {
