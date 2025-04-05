@@ -9,73 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      course_blocks: {
-        Row: {
-          course_id: number
-          created_at: string
-          id: number
-          linked_file: string | null
-          order: number | null
-          type: Database["public"]["Enums"]["block_types"]
-          value: Json | null
-        }
-        Insert: {
-          course_id: number
-          created_at?: string
-          id?: number
-          linked_file?: string | null
-          order?: number | null
-          type: Database["public"]["Enums"]["block_types"]
-          value?: Json | null
-        }
-        Update: {
-          course_id?: number
-          created_at?: string
-          id?: number
-          linked_file?: string | null
-          order?: number | null
-          type?: Database["public"]["Enums"]["block_types"]
-          value?: Json | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "course_blocks_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      courses: {
-        Row: {
-          created_at: string
-          id: number
-          organization_id: string
-          title: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          organization_id: string
-          title: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          organization_id?: string
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "courses_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       domains: {
         Row: {
           created_at: string
@@ -351,21 +284,21 @@ export type Database = {
       email_link_clicks: {
         Row: {
           created_at: string
-          email_id: number | null
+          email_id: number
           id: number
           link_clicked: string
           resend_email_id: string
         }
         Insert: {
           created_at?: string
-          email_id?: number | null
+          email_id: number
           id?: number
           link_clicked: string
           resend_email_id: string
         }
         Update: {
           created_at?: string
-          email_id?: number | null
+          email_id?: number
           id?: number
           link_clicked?: string
           resend_email_id?: string
@@ -448,30 +381,30 @@ export type Database = {
           total_bounces: number
           total_clicks: number
           total_complaints: number
-          total_delivered: number
           total_opens: number
           total_sent: number
           total_unsubscribes: number
+          updated_at: string | null
         }
         Insert: {
           email_id: number
           total_bounces?: number
           total_clicks?: number
           total_complaints?: number
-          total_delivered?: number
           total_opens?: number
           total_sent?: number
           total_unsubscribes?: number
+          updated_at?: string | null
         }
         Update: {
           email_id?: number
           total_bounces?: number
           total_clicks?: number
           total_complaints?: number
-          total_delivered?: number
           total_opens?: number
           total_sent?: number
           total_unsubscribes?: number
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -493,6 +426,7 @@ export type Database = {
           resend_email_id: string | null
           status: Database["public"]["Enums"]["email_delivery_status"] | null
           unsubscribe_token: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
@@ -503,6 +437,7 @@ export type Database = {
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
           unsubscribe_token?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
@@ -513,6 +448,7 @@ export type Database = {
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
           unsubscribe_token?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -525,6 +461,42 @@ export type Database = {
           {
             foreignKeyName: "email_recipients_people_email_id_fkey"
             columns: ["people_email_id"]
+            isOneToOne: false
+            referencedRelation: "people_emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_unsubscribes: {
+        Row: {
+          created_at: string
+          email_id: number
+          id: number
+          person_email_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          email_id: number
+          id?: number
+          person_email_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          email_id?: number
+          id?: number
+          person_email_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_unsubscribes_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_unsubscribes_person_email_id_fkey"
+            columns: ["person_email_id"]
             isOneToOne: false
             referencedRelation: "people_emails"
             referencedColumns: ["id"]
@@ -1829,6 +1801,17 @@ export type Database = {
           user_uuid: string
         }
         Returns: string[]
+      }
+      unsubscribe_from_all_emails: {
+        Args: {
+          p_email_id: number
+          p_person_email_id: number
+        }
+        Returns: undefined
+      }
+      update_hourly_email_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

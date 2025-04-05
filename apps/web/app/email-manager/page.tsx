@@ -1,8 +1,11 @@
+import "server-only";
+
 import React from "react";
 import Manage from "./manage-page";
 import Unsubscribe from "./unsubscribe-page";
 import { jwtVerify } from "jose";
 import { headers } from "next/headers";
+import { createClient } from "@church-space/supabase/server";
 
 type SearchParams = Promise<{
   type?: string;
@@ -17,6 +20,8 @@ export default async function Page({
   const params = await searchParams;
   const type = params.type;
   const tk = params.tk;
+
+  const supabase = await createClient();
 
   // Get the request method from headers
   const headersList = await headers();
@@ -46,7 +51,13 @@ export default async function Page({
   }
 
   // Handle POST request for one-click unsubscribe
-  if (method === "POST" && type === "unsubscribe") {
+  if (method === "POST" && type === "unsubscribe" && emailId && peopleEmailId) {
+    // Call the unsubscribe_from_all_emails function
+    await supabase.rpc("unsubscribe_from_all_emails", {
+      p_email_id: emailId,
+      p_person_email_id: peopleEmailId,
+    });
+
     console.log("email unsubscribed");
     return new Response(null, { status: 202 });
   }
@@ -58,7 +69,18 @@ export default async function Page({
   return (
     <>
       {type === "unsubscribe" && emailId && peopleEmailId && (
-        <Unsubscribe emailId={emailId} peopleEmailId={peopleEmailId} />
+        <Unsubscribe
+          emailId={emailId}
+          peopleEmailId={peopleEmailId}
+          unsubscribe={async () => {
+            // Call the unsubscribe_from_all_emails function
+            await supabase.rpc("unsubscribe_from_all_emails", {
+              p_email_id: emailId,
+              p_person_email_id: peopleEmailId,
+            });
+            console.log("unsubscribed");
+          }}
+        />
       )}
       {type === "manage" && emailId && peopleEmailId && (
         <Manage emailId={emailId} peopleEmailId={peopleEmailId} />
