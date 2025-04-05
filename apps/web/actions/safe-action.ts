@@ -1,6 +1,6 @@
 import { client as RedisClient } from "@church-space/kv";
-import { getUser } from "@church-space/supabase/cached-queries/platform";
 import { Ratelimit } from "@upstash/ratelimit";
+import { getUser } from "@church-space/supabase/cached-queries/platform";
 import {
   DEFAULT_SERVER_ERROR_MESSAGE,
   createSafeActionClient,
@@ -54,7 +54,7 @@ export const authActionClient = actionClientWithMeta
     const ip = (await headers()).get("x-forwarded-for");
 
     const { success, remaining } = await ratelimit.limit(
-      `${ip}-${metadata.name}`
+      `${ip}-${metadata.name}`,
     );
 
     if (!success) {

@@ -1,6 +1,14 @@
 import { sendEmails } from "@/jobs/test-email-queue";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { client as RedisClient } from "@church-space/kv";
+import { Ratelimit } from "@upstash/ratelimit";
+import { headers } from "next/headers";
+
+const ratelimit = new Ratelimit({
+  limiter: Ratelimit.fixedWindow(10, "10s"),
+  redis: RedisClient,
+});
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +31,13 @@ const requestSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const ip = (await headers()).get("x-forwarded-for");
+    const { success, remaining } = await ratelimit.limit(`${ip}-test-email`);
+
+    if (!success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const body = await request.json();
     const validatedData = requestSchema.parse(body);
 
