@@ -105,6 +105,12 @@ export async function POST(request: NextRequest) {
         link_clicked: payload.data.click!.link,
         email_id: clickedIds.email_id,
       });
+      await upsertEmailRecipient(supabase, {
+        resend_email_id: payload.data.email_id,
+        status: "opened",
+        email_id: clickedIds.email_id,
+        people_email_id: clickedIds.people_email_id,
+      });
       break;
     case "email.sent":
       const sentIds = validateIds(payload.data.headers);
