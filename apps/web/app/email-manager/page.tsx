@@ -8,11 +8,12 @@ type SearchParams = Promise<{
   tk?: string;
 }>;
 
-export default async function Page({
-  searchParams,
-}: {
+type Props = {
   searchParams: SearchParams;
-}) {
+  method?: string;
+};
+
+export default async function Page({ searchParams, method }: Props) {
   const params = await searchParams;
   const type = params.type;
   const tk = params.tk;
@@ -38,6 +39,12 @@ export default async function Page({
     } catch (error) {
       console.error("Error decoding token:", error);
     }
+  }
+
+  // Handle POST request for one-click unsubscribe
+  if (method === "POST" && type === "unsubscribe") {
+    console.log("email unsubscribed");
+    return new Response(null, { status: 202 });
   }
 
   if (!emailId || !peopleEmailId) {

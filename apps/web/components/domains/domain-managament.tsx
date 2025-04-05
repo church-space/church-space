@@ -641,12 +641,21 @@ export default function DomainManagement({
     // If it's a recommendation, show info badge instead
     if (record.isRecommendation) {
       return (
-        <Badge
-          variant="outline"
-          className="border bg-muted text-muted-foreground"
-        >
-          Recommended
-        </Badge>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge
+              variant="outline"
+              className="border bg-muted text-muted-foreground"
+            >
+              Recommended
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>
+              Adding this record will help improve your email deliverability.
+            </p>
+          </TooltipContent>
+        </Tooltip>
       );
     }
 
