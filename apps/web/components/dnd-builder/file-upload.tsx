@@ -41,10 +41,12 @@ interface FileUploadProps {
   initialFilePath?: string;
   onRemove?: () => void;
   bucket?: "email_assets" | "link-assets" | "link-list-assets";
+  isSmallInput?: boolean;
 }
 
 const FileUpload = ({
   organizationId,
+  isSmallInput = false,
   onUploadComplete,
   type = "any",
   initialFilePath = "",
@@ -269,14 +271,19 @@ const FileUpload = ({
           <DialogTrigger asChild>
             <Button
               className={cn(
-                "justify-start bg-background px-3 font-normal",
+                "justify-start bg-background pl-3 font-normal",
                 file || filePath ? "flex-1 rounded-r-none" : "rounded-l-none",
               )}
               variant="outline"
               disabled={isUploading || isDeleting}
             >
               {getDisplayName() ? (
-                <span className="block w-full max-w-[180px] overflow-hidden truncate text-ellipsis">
+                <span
+                  className={cn(
+                    "block w-full max-w-[170px] overflow-hidden truncate text-ellipsis",
+                    isSmallInput && "max-w-[135px]",
+                  )}
+                >
                   {getDisplayName()}
                 </span>
               ) : (

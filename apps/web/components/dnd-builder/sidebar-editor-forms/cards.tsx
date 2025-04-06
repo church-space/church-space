@@ -283,6 +283,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                         updateCard(index, "image", path)
                       }
                       type="image"
+                      isSmallInput
                       initialFilePath={card.image}
                       onRemove={() => onImageRemove(index)}
                     />
