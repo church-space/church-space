@@ -9,6 +9,12 @@ import {
 import { Switch } from "@church-space/ui/switch";
 import ColorPicker from "../color-picker";
 import { Separator } from "@church-space/ui/separator";
+import { CircleInfo } from "@church-space/ui/icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
 
 interface EmailStyleFormProps {
   bgColor?: string;
@@ -109,7 +115,20 @@ export default function EmailStyleForm({
       </div>
 
       <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Font</Label>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Label className="flex items-center gap-1">
+              Font <CircleInfo />
+            </Label>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs">
+            <p>
+              Custom fonts are not support in most major email clients, so we do
+              not support them at this time.
+            </p>
+          </TooltipContent>
+        </Tooltip>
+
         <Select value={defaultFont} onValueChange={onDefaultFontChange}>
           <SelectTrigger
             className="col-span-2 bg-background"
@@ -124,9 +143,7 @@ export default function EmailStyleForm({
             <SelectItem value="serif" style={{ fontFamily: "serif" }}>
               Serif
             </SelectItem>
-            <SelectItem value="monospace" style={{ fontFamily: "monospace" }}>
-              Monospace
-            </SelectItem>
+
             <SelectItem
               value="Arial, sans-serif"
               style={{ fontFamily: "Arial, sans-serif" }}

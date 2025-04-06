@@ -135,7 +135,7 @@ export default function Footer({
           )}
           {footerData?.subtitle && (
             <div
-              className="max-w-sm text-pretty text-center text-sm leading-tight text-muted-foreground"
+              className="w-full max-w-md text-balance pb-4 text-center text-sm leading-tight text-muted-foreground"
               style={{ color: footerSecondaryTextColor }}
             >
               {footerData?.subtitle ||
@@ -180,7 +180,7 @@ export default function Footer({
           style={{ backgroundColor: footerSecondaryTextColor }}
         />
         <div
-          className="flex flex-col items-center gap-1.5"
+          className="flex flex-col items-center gap-3"
           style={{ color: footerSecondaryTextColor }}
         >
           {footerData?.address && (
@@ -193,13 +193,13 @@ export default function Footer({
               {footerData?.reason}
             </div>
           )}
-          <div className="flex w-full flex-col items-center justify-center text-pretty pb-1 text-xs md:flex-row md:gap-2 md:leading-10">
+          <div className="flex w-full flex-col items-center justify-center text-pretty pb-1 text-xs md:flex-row md:gap-2">
             <span>
               &copy; {getYear(new Date())}{" "}
               {footerData?.copyright_name && footerData?.copyright_name}
             </span>
             <span className="hidden md:block">|</span>
-            <div className="flex items-center gap-2 leading-7">
+            <div className="flex items-center gap-2">
               <span className="underline">Update your preferences</span>
               <span>|</span>
               <span className="underline">Unsubscribe</span>

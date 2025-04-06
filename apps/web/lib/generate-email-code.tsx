@@ -1376,6 +1376,8 @@ const CustomFooter: React.FC<{
                           maxWidth: "384px",
                           margin: "0 auto 16px",
                           lineHeight: "1.4",
+                          textWrap: "balance",
+                          paddingBottom: "26px",
                         }}
                       >
                         {subtitle}
@@ -1390,7 +1392,6 @@ const CustomFooter: React.FC<{
                     cellSpacing="0"
                     border={0}
                     width="100%"
-                    style={{ paddingBottom: "24px" }}
                   >
                     <tr>
                       <td align="center">
