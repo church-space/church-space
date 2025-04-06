@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@church-space/ui/select";
 import { Textarea } from "@church-space/ui/textarea";
+import { AutosizeTextarea } from "@church-space/ui/auto-size-textarea";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import ColorPicker from "../color-picker";
@@ -316,7 +317,7 @@ export default function EmailFooterForm({
           onChange={(e) => handleChange("name", e.target.value)}
         />
         <Label>Subtitle</Label>
-        <Textarea
+        <AutosizeTextarea
           className="col-span-2 bg-background"
           value={localState.subtitle}
           onChange={(e) => handleChange("subtitle", e.target.value)}
