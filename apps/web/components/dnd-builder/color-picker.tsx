@@ -1,5 +1,5 @@
 import { Input } from "@church-space/ui/input";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { z } from "zod";
 
 // Define a Zod schema for hex color validation
@@ -21,6 +21,7 @@ export default function ColorPicker({
   const [error, setError] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const colorUpdateTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Function to strip the hash from a color string
   const stripHash = (colorStr: string) => colorStr.replace(/^#/, "");
@@ -41,14 +42,36 @@ export default function ColorPicker({
     return true;
   };
 
-  // Cleanup timer on unmount
+  // Debounced color update function
+  const debouncedColorUpdate = useCallback(
+    (newColor: string) => {
+      if (colorUpdateTimerRef.current) {
+        clearTimeout(colorUpdateTimerRef.current);
+      }
+
+      colorUpdateTimerRef.current = setTimeout(() => {
+        onChange(newColor);
+      }, 100); // Small delay for color picker updates
+    },
+    [onChange],
+  );
+
+  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
+      if (colorUpdateTimerRef.current) {
+        clearTimeout(colorUpdateTimerRef.current);
+      }
     };
   }, []);
+
+  // Update local state when value prop changes
+  useEffect(() => {
+    setColor(value);
+  }, [value]);
 
   return (
     <div className="col-span-2 flex flex-col">
@@ -60,8 +83,7 @@ export default function ColorPicker({
           onChange={(e) => {
             const newColor = e.target.value;
             setColor(newColor);
-            onChange(newColor);
-            // Color picker input always provides valid hex, so clear any errors
+            debouncedColorUpdate(newColor);
             setError(null);
           }}
         />
@@ -94,9 +116,9 @@ export default function ColorPicker({
 
                 // Only update the parent component if validation passes
                 if (isValid) {
-                  onChange(newColor);
+                  debouncedColorUpdate(newColor);
                 }
-              }, 800); // 800ms debounce
+              }, 500); // 500ms debounce for text input
             }}
             onBlur={() => {
               // When input loses focus, clear typing state and validate
@@ -112,7 +134,7 @@ export default function ColorPicker({
                 const isValid = validateHexColor(hexValue);
 
                 if (isValid) {
-                  onChange(color);
+                  debouncedColorUpdate(color);
                 }
               }
             }}
