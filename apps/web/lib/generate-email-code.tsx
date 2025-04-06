@@ -9,19 +9,7 @@ import {
   Body,
 } from "@react-email/components";
 import * as React from "react";
-import {
-  Youtube,
-  MailFilled,
-  Instagram,
-  Facebook,
-  Linkedin,
-  Bluesky,
-  LinkIcon,
-  Threads,
-  TikTok,
-  XTwitter,
-  YoutubeFilled,
-} from "@church-space/ui/icons";
+import { YoutubeFilled } from "@church-space/ui/icons";
 
 const IconColors = {
   black: "#000000",
@@ -261,6 +249,19 @@ const CustomText: React.FC<{
   );
 };
 
+// Helper function to format URLs with proper protocol
+function formatUrl(url: string, type: "mail" | "link" = "link"): string {
+  if (!url || url.length === 0) return "#";
+
+  if (type === "mail") {
+    return !url.startsWith("mailto:") ? `mailto:${url}` : url;
+  }
+
+  return !url.startsWith("http://") && !url.startsWith("https://")
+    ? `https://${url}`
+    : url;
+}
+
 const CustomButton: React.FC<{
   text: string;
   link: string;
@@ -286,14 +287,7 @@ const CustomButton: React.FC<{
   const borderRadius = isRounded ? "6px" : "0";
 
   // Format the URL with proper prefix if it's not a mailto link
-  const formattedLink =
-    link && link.length > 0
-      ? link.startsWith("mailto:")
-        ? link
-        : !link.startsWith("http://") && !link.startsWith("https://")
-          ? `https://${link}`
-          : link
-      : "#";
+  const formattedLink = link && link.length > 0 ? formatUrl(link) : "#";
 
   return text && text.length > 0 ? (
     <table
@@ -406,9 +400,8 @@ const CustomImage: React.FC<{
     />
   );
 
-  // Add https:// prefix to link if it doesn't start with http:// or https://
-  const formattedLink =
-    link && !/^https?:\/\//i.test(link) ? `https://${link}` : link;
+  // Format link with proper protocol
+  const formattedLink = link ? formatUrl(link) : "";
 
   return (
     <table
@@ -711,6 +704,9 @@ const CustomCards: React.FC<{
               >
                 {row.map((card: any, colIndex: number) => {
                   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${card.image}`;
+                  const formattedButtonLink = card.buttonLink
+                    ? formatUrl(card.buttonLink)
+                    : "";
                   const CardContent = (
                     <table
                       width="100%"
@@ -826,7 +822,7 @@ const CustomCards: React.FC<{
                     >
                       {card.buttonLink ? (
                         <a
-                          href={card.buttonLink}
+                          href={formattedButtonLink}
                           target="_blank"
                           style={{
                             textDecoration: "none",
@@ -1179,15 +1175,10 @@ const CustomAuthor: React.FC<{
                   }
 
                   // Format the URL with proper prefix
-                  const formattedUrl =
-                    link.icon === "mail"
-                      ? !link.url.startsWith("mailto:")
-                        ? `mailto:${link.url}`
-                        : link.url
-                      : !link.url.startsWith("http://") &&
-                          !link.url.startsWith("https://")
-                        ? `https://${link.url}`
-                        : link.url;
+                  const formattedUrl = formatUrl(
+                    link.url,
+                    link.icon === "mail" ? "mail" : "link",
+                  );
 
                   return (
                     <a
@@ -1415,15 +1406,10 @@ const CustomFooter: React.FC<{
                           if (!iconUrl) return null;
 
                           // Format the URL with proper prefix
-                          const formattedUrl =
-                            link.icon === "mail"
-                              ? !link.url.startsWith("mailto:")
-                                ? `mailto:${link.url}`
-                                : link.url
-                              : !link.url.startsWith("http://") &&
-                                  !link.url.startsWith("https://")
-                                ? `https://${link.url}`
-                                : link.url;
+                          const formattedUrl = formatUrl(
+                            link.url,
+                            link.icon === "mail" ? "mail" : "link",
+                          );
 
                           return (
                             <a
