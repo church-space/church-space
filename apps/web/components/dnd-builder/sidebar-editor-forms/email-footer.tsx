@@ -53,6 +53,7 @@ export default function EmailFooterForm({
 }: EmailFooterFormProps) {
   const { organizationId } = useUser();
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  const colorTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Local state with default values and validation errors
   const [localState, setLocalState] = useState({
@@ -149,6 +150,24 @@ export default function EmailFooterForm({
 
     // Validate required fields and update footer
     validateAndUpdateFooter(newState);
+  };
+
+  // Separate handler for color changes to avoid unnecessary validation
+  const handleColorChange = (key: string, value: string) => {
+    // Update local state immediately for responsive UI
+    setLocalState((prev) => ({ ...prev, [key]: value }));
+
+    // Clear any existing timer
+    if (colorTimerRef.current) {
+      clearTimeout(colorTimerRef.current);
+    }
+
+    // Set a new timer to update parent after user stops moving
+    colorTimerRef.current = setTimeout(() => {
+      if (onFooterChange) {
+        onFooterChange({ ...localState, [key]: value });
+      }
+    }, 150);
   };
 
   const addLink = () => {
@@ -332,6 +351,15 @@ export default function EmailFooterForm({
     };
   }, []);
 
+  // Cleanup color timer on unmount
+  useEffect(() => {
+    return () => {
+      if (colorTimerRef.current) {
+        clearTimeout(colorTimerRef.current);
+      }
+    };
+  }, []);
+
   if (!organizationId) return null;
 
   return (
@@ -363,13 +391,13 @@ export default function EmailFooterForm({
         <Label className="font-medium">Title Color</Label>
         <ColorPicker
           value={localState.text_color}
-          onChange={(color) => handleChange("text_color", color)}
+          onChange={(color) => handleColorChange("text_color", color)}
         />
 
         <Label className="font-medium">Accent Text Color</Label>
         <ColorPicker
           value={localState.secondary_text_color}
-          onChange={(color) => handleChange("secondary_text_color", color)}
+          onChange={(color) => handleColorChange("secondary_text_color", color)}
         />
         <Separator className="col-span-3 my-4" />
         <Label>Address</Label>
@@ -499,7 +527,7 @@ export default function EmailFooterForm({
             <Label className="font-medium">Social Icon BG</Label>
             <ColorPicker
               value={localState.socials_color}
-              onChange={(color) => handleChange("socials_color", color)}
+              onChange={(color) => handleColorChange("socials_color", color)}
             />
           </>
         )}
