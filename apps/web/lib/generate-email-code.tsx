@@ -711,6 +711,107 @@ const CustomCards: React.FC<{
               >
                 {row.map((card: any, colIndex: number) => {
                   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${card.image}`;
+                  const CardContent = (
+                    <table
+                      width="100%"
+                      cellPadding="0"
+                      cellSpacing="0"
+                      border={0}
+                    >
+                      {card.image && (
+                        <tr>
+                          <td style={{ paddingBottom: "16px" }}>
+                            <Img
+                              src={imageUrl}
+                              alt={card.title}
+                              width="100%"
+                              height="192"
+                              style={{
+                                display: "block",
+                                objectFit: "cover",
+                                borderRadius: isRounded ? "6px" : "0",
+                              }}
+                            />
+                          </td>
+                        </tr>
+                      )}
+                      <tr>
+                        <td style={{ padding: "0 4px" }}>
+                          <table
+                            width="100%"
+                            cellPadding="0"
+                            cellSpacing="0"
+                            border={0}
+                          >
+                            <tr>
+                              <td
+                                style={{
+                                  fontFamily: defaultFont || "sans-serif",
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                  color: labelColor,
+                                  paddingBottom: "8px",
+                                }}
+                              >
+                                {card.label}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td
+                                style={{
+                                  fontFamily: defaultFont || "sans-serif",
+                                  fontSize: "18px",
+                                  fontWeight: "bold",
+                                  color: textColor,
+                                  paddingBottom: "8px",
+                                }}
+                              >
+                                {card.title}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td
+                                style={{
+                                  fontFamily: defaultFont || "sans-serif",
+                                  fontSize: "14px",
+                                  color: textColor,
+                                  opacity: 0.8,
+                                  paddingBottom: "16px",
+                                }}
+                              >
+                                {card.description}
+                              </td>
+                            </tr>
+                            {card.buttonText && (
+                              <tr>
+                                <td>
+                                  <div
+                                    style={{
+                                      backgroundColor: buttonColor,
+                                      borderRadius: isRounded ? "6px" : "0",
+                                      color: buttonTextColor,
+                                      display: "block",
+                                      fontFamily: defaultFont || "sans-serif",
+                                      fontSize: "14px",
+                                      fontWeight: "500",
+                                      padding: "8px 16px",
+                                      textDecoration: "none",
+                                      textAlign: "center",
+                                      boxSizing: "border-box",
+                                      width: "100%",
+                                    }}
+                                  >
+                                    {card.buttonText}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  );
+
                   return (
                     <td
                       key={colIndex}
@@ -723,106 +824,20 @@ const CustomCards: React.FC<{
                           : { paddingLeft: "12px" }),
                       }}
                     >
-                      <table
-                        width="100%"
-                        cellPadding="0"
-                        cellSpacing="0"
-                        border={0}
-                      >
-                        {card.image && (
-                          <tr>
-                            <td style={{ paddingBottom: "16px" }}>
-                              <Img
-                                src={imageUrl}
-                                alt={card.title}
-                                width="100%"
-                                height="192"
-                                style={{
-                                  display: "block",
-                                  objectFit: "cover",
-                                  borderRadius: isRounded ? "6px" : "0",
-                                }}
-                              />
-                            </td>
-                          </tr>
-                        )}
-                        <tr>
-                          <td style={{ padding: "0 4px" }}>
-                            <table
-                              width="100%"
-                              cellPadding="0"
-                              cellSpacing="0"
-                              border={0}
-                            >
-                              <tr>
-                                <td
-                                  style={{
-                                    fontFamily: defaultFont || "sans-serif",
-                                    fontSize: "14px",
-                                    fontWeight: "500",
-                                    color: labelColor,
-                                    paddingBottom: "8px",
-                                  }}
-                                >
-                                  {card.label}
-                                </td>
-                              </tr>
-                              <tr>
-                                <td
-                                  style={{
-                                    fontFamily: defaultFont || "sans-serif",
-                                    fontSize: "18px",
-                                    fontWeight: "bold",
-                                    color: textColor,
-                                    paddingBottom: "8px",
-                                  }}
-                                >
-                                  {card.title}
-                                </td>
-                              </tr>
-                              <tr>
-                                <td
-                                  style={{
-                                    fontFamily: defaultFont || "sans-serif",
-                                    fontSize: "14px",
-                                    color: textColor,
-                                    opacity: 0.8,
-                                    paddingBottom: "16px",
-                                  }}
-                                >
-                                  {card.description}
-                                </td>
-                              </tr>
-                              {card.buttonText && (
-                                <tr>
-                                  <td>
-                                    <a
-                                      href={card.buttonLink}
-                                      target="_blank"
-                                      style={{
-                                        backgroundColor: buttonColor,
-                                        borderRadius: isRounded ? "6px" : "0",
-                                        color: buttonTextColor,
-                                        display: "block",
-                                        fontFamily: defaultFont || "sans-serif",
-                                        fontSize: "14px",
-                                        fontWeight: "500",
-                                        padding: "8px 16px",
-                                        textDecoration: "none",
-                                        textAlign: "center",
-                                        boxSizing: "border-box",
-                                        width: "100%",
-                                      }}
-                                    >
-                                      {card.buttonText}
-                                    </a>
-                                  </td>
-                                </tr>
-                              )}
-                            </table>
-                          </td>
-                        </tr>
-                      </table>
+                      {card.buttonLink ? (
+                        <a
+                          href={card.buttonLink}
+                          target="_blank"
+                          style={{
+                            textDecoration: "none",
+                            display: "block",
+                          }}
+                        >
+                          {CardContent}
+                        </a>
+                      ) : (
+                        CardContent
+                      )}
                     </td>
                   );
                 })}
