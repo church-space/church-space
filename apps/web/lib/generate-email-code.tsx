@@ -1066,7 +1066,7 @@ const CustomAuthor: React.FC<{
 
   return (
     <table
-      style={{ width: "100%", minHeight: "50px" }}
+      style={{ width: "100%", minHeight: "48px" }}
       cellPadding="0"
       cellSpacing="0"
     >
