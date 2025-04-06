@@ -1421,14 +1421,27 @@ export default function EmailDndProvider({
     }
   }, [blocksBeingDeleted]);
 
+  // Create a ref for footer update debouncing
+  const debouncedFooterUpdateRef = useRef<NodeJS.Timeout | null>(null);
+
   // Handle footer changes locally before sending to server
   const handleFooterChange = (updatedFooter: any) => {
-    // Add to history system - this will update the UI state
+    // Add to history system - this will update the UI state immediately
     updateFooterHistory(updatedFooter);
 
-    // Update the server
-    updateFooterOnServer(updatedFooter);
+    // Debounce the server update
+    if (debouncedFooterUpdateRef.current) {
+      clearTimeout(debouncedFooterUpdateRef.current);
+    }
+
+    debouncedFooterUpdateRef.current = setTimeout(() => {
+      // Update the server
+      updateFooterOnServer(updatedFooter);
+    }, 500);
   };
+
+  // Create a ref for style update debouncing
+  const debouncedStyleUpdateRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fix handleBgColorChange to include history update
   const handleBgColorChange = useCallback(
@@ -1436,14 +1449,21 @@ export default function EmailDndProvider({
       // Update UI immediately - this will add to history
       updateStylesHistory({ bgColor: color });
 
-      // Update database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          blocks_bg_color: color,
-        });
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
       }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        // Update in database if we have an emailId
+        if (emailId) {
+          debouncedStyleUpdate({
+            blocks_bg_color: color,
+          });
+        }
+      }, 500);
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleIsInsetChange to include history update
@@ -1452,14 +1472,21 @@ export default function EmailDndProvider({
       // Update UI immediately - this will add to history
       updateStylesHistory({ isInset: inset });
 
-      // Update database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          is_inset: inset,
-        });
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
       }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        // Update in database if we have an emailId
+        if (emailId) {
+          debouncedStyleUpdate({
+            is_inset: inset,
+          });
+        }
+      }, 500);
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleIsRoundedChange to include history update
@@ -1468,14 +1495,21 @@ export default function EmailDndProvider({
       // Update UI immediately - this will add to history
       updateStylesHistory({ isRounded: rounded });
 
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          is_rounded: rounded,
-        });
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
       }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        // Update in database if we have an emailId
+        if (emailId) {
+          debouncedStyleUpdate({
+            is_rounded: rounded,
+          });
+        }
+      }, 500);
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleEmailBgColorChange to include history update
@@ -1484,14 +1518,21 @@ export default function EmailDndProvider({
       // Update UI immediately - this will add to history
       updateStylesHistory({ emailBgColor: color });
 
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          bg_color: color,
-        });
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
       }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        // Update in database if we have an emailId
+        if (emailId) {
+          debouncedStyleUpdate({
+            bg_color: color,
+          });
+        }
+      }, 500);
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleLinkColorChange to include history update
@@ -1500,13 +1541,20 @@ export default function EmailDndProvider({
       // Update UI immediately - this will add to history
       updateStylesHistory({ linkColor: color });
 
-      if (emailId) {
-        debouncedStyleUpdate({
-          link_color: color,
-        });
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
       }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        if (emailId) {
+          debouncedStyleUpdate({
+            link_color: color,
+          });
+        }
+      }, 500);
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   // Fix handleDefaultTextColorChange to include history update
@@ -1522,12 +1570,19 @@ export default function EmailDndProvider({
         }
       });
 
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          default_text_color: color,
-        });
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
       }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        // Update in database if we have an emailId
+        if (emailId) {
+          debouncedStyleUpdate({
+            default_text_color: color,
+          });
+        }
+      }, 500);
     },
     [
       emailId,
@@ -1535,7 +1590,6 @@ export default function EmailDndProvider({
       updateStylesHistory,
       editors,
       styles.accentTextColor,
-      styles,
     ],
   );
 
@@ -1545,14 +1599,21 @@ export default function EmailDndProvider({
       // Update UI immediately - this will add to history
       updateStylesHistory({ defaultFont: font });
 
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          default_font: font,
-        });
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
       }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        // Update in database if we have an emailId
+        if (emailId) {
+          debouncedStyleUpdate({
+            default_font: font,
+          });
+        }
+      }, 500);
     },
-    [emailId, debouncedStyleUpdate, updateStylesHistory, styles],
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
   const handleAccentTextColorChange = useCallback(
@@ -1586,23 +1647,30 @@ export default function EmailDndProvider({
         updateBlocksHistory(updatedBlocks);
       }
 
-      // Update in database if we have an emailId
-      if (emailId) {
-        debouncedStyleUpdate({
-          accent_text_color: color,
-        });
-
-        // Update any card blocks in the database
-        updatedBlocks.forEach((block) => {
-          if (block.type === "cards" && !isNaN(parseInt(block.id, 10))) {
-            const blockId = parseInt(block.id, 10);
-            updateEmailBlock.mutate({
-              blockId,
-              value: block.data,
-            });
-          }
-        });
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
       }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        // Update in database if we have an emailId
+        if (emailId) {
+          debouncedStyleUpdate({
+            accent_text_color: color,
+          });
+
+          // Update any card blocks in the database
+          updatedBlocks.forEach((block) => {
+            if (block.type === "cards" && !isNaN(parseInt(block.id, 10))) {
+              const blockId = parseInt(block.id, 10);
+              updateEmailBlock.mutate({
+                blockId,
+                value: block.data,
+              });
+            }
+          });
+        }
+      }, 500);
     },
     [
       emailId,
