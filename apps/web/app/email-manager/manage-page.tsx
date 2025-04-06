@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@church-space/ui/button";
 import { Switch } from "@church-space/ui/switch";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { LoaderIcon } from "@church-space/ui/icons";
 import {
   Dialog,

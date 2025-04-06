@@ -1059,9 +1059,17 @@ const CustomAuthor: React.FC<{
     : "";
 
   const finalTextColor = defaultTextColor || "#000000";
+  const iconColor = linkColor || finalTextColor;
+  const iconColorKey =
+    Object.entries(IconColors).find(([_, value]) => value === iconColor)?.[0] ||
+    "black";
 
   return (
-    <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
+    <table
+      style={{ width: "100%", minHeight: "50px" }}
+      cellPadding="0"
+      cellSpacing="0"
+    >
       <tr>
         <td>
           <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
@@ -1131,8 +1139,15 @@ const CustomAuthor: React.FC<{
               </td>
               <td style={{ textAlign: "right" }}>
                 {links?.map((link, index) => {
-                  // Add mailto: prefix for mail icon links
                   if (!link.icon) {
+                    return null;
+                  }
+
+                  const iconUrl =
+                    IconImages[iconColorKey as keyof typeof IconImages]?.[
+                      link.icon as keyof (typeof IconImages)["black"]
+                    ];
+                  if (!iconUrl) {
                     return null;
                   }
 
@@ -1149,17 +1164,15 @@ const CustomAuthor: React.FC<{
                           textDecoration: "none",
                         }}
                       >
-                        {(() => {
-                          const Icon =
-                            socialIcons[link.icon as keyof typeof socialIcons];
-                          return Icon ? (
-                            <Icon
-                              fill={finalTextColor}
-                              width="18px"
-                              height="18px"
-                            />
-                          ) : null;
-                        })()}
+                        <Img
+                          src={iconUrl}
+                          alt={link.icon}
+                          width="18"
+                          height="18"
+                          style={{
+                            display: "block",
+                          }}
+                        />
                       </span>
                     );
                   }
@@ -1193,17 +1206,15 @@ const CustomAuthor: React.FC<{
                           display: "inline-block",
                         }}
                       >
-                        {(() => {
-                          const Icon =
-                            socialIcons[link.icon as keyof typeof socialIcons];
-                          return Icon ? (
-                            <Icon
-                              fill={finalTextColor}
-                              width="18px"
-                              height="18px"
-                            />
-                          ) : null;
-                        })()}
+                        <Img
+                          src={iconUrl}
+                          alt={link.icon}
+                          width="18"
+                          height="18"
+                          style={{
+                            display: "block",
+                          }}
+                        />
                       </span>
                     </a>
                   );

@@ -2,13 +2,6 @@ import type { Block, ListBlockData } from "@/types/blocks";
 import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@church-space/ui/select";
 import { AutosizeTextarea } from "@church-space/ui/auto-size-textarea";
 import { useEffect, useState } from "react";
 import ColorPicker from "../color-picker";
