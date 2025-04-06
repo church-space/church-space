@@ -73,13 +73,13 @@ export default function NewEmail({
                   type="text"
                   disabled={isLoading}
                   autoFocus
-                  autoComplete="off"
+                  inputMode="text"
+                  autoComplete="new-password"
                   autoCorrect="off"
                   autoCapitalize="off"
                   spellCheck="false"
                   data-form-type="other"
                   data-lpignore="true"
-                  name="email_subject_field"
                   aria-label="Email subject"
                   data-1p-ignore="true"
                   data-icloud-keychain-ignore="true"
