@@ -518,9 +518,10 @@ const CustomFileDownload: React.FC<{
                             backgroundColor: textColor,
                             display: "inline-block",
                             fontFamily: defaultFont || "sans-serif",
-                            fontSize: "14px",
-                            padding: "6px 16px",
+                            fontSize: "13px",
+                            padding: "6px 18px",
                             whiteSpace: "nowrap",
+                            fontWeight: "300",
                           }}
                         >
                           Download
@@ -650,7 +651,7 @@ const CustomCards: React.FC<{
     cellPadding="0"
     cellSpacing="0"
     border={0}
-    style={{ paddingTop: "12px" }}
+    style={{ paddingTop: "12px", paddingBottom: "12px" }}
   >
     {(title || subtitle) && (
       <tr>
