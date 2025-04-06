@@ -12,6 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
+import { CircleInfo } from "@church-space/ui/icons";
 
 interface ImageFormProps {
   block: Block & { data?: ImageBlockData };
@@ -152,7 +153,9 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
           />
           <Tooltip>
             <TooltipTrigger asChild>
-              <Label>Link</Label>
+              <Label className="flex items-center gap-1">
+                Link <CircleInfo />
+              </Label>
             </TooltipTrigger>
             <TooltipContent>
               Link to a webpage when someone clicks on the image.

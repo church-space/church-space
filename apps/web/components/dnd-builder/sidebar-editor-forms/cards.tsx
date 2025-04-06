@@ -14,6 +14,10 @@ import { useRef, useState } from "react";
 import { z } from "zod";
 import ColorPicker from "../color-picker";
 import FileUpload from "../file-upload";
+import { Tooltip } from "@church-space/ui/tooltip";
+import { TooltipTrigger } from "@church-space/ui/tooltip";
+import { TooltipContent } from "@church-space/ui/tooltip";
+import { CircleInfo } from "@church-space/ui/icons";
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };
@@ -297,7 +301,19 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                     }
                     placeholder="Button Text"
                   />
-                  <Label>Button Link</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Label className="flex items-center gap-1">
+                        Link <CircleInfo />
+                      </Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        Add a link that will cover the card (including the
+                        button)
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
                   <div className="col-span-2 flex flex-col gap-1">
                     <Input
                       className={
