@@ -10,20 +10,20 @@ export default function CallToAction() {
         </h2>
 
         <div className="flex flex-wrap justify-center gap-4">
-          <Button asChild size="lg" variant="outline">
-            <Link href="mailto:hello@churchspace.co?subject=Question%20about%20Church%20Space&body=NAME%3A%20%0ACHURCH%3A%20%0A%0AQUESTION%3A%20%0A">
+          <Link href="mailto:hello@churchspace.co?subject=Question%20about%20Church%20Space&body=NAME%3A%20%0ACHURCH%3A%20%0A%0AQUESTION%3A%20%0A">
+            <Button asChild size="lg" variant="outline">
               <span>Contact Us</span>
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            className="bg-foreground/90 hover:bg-foreground"
-          >
-            <Link href="/signup">
+            </Button>
+          </Link>
+          <Link href="/signup">
+            <Button
+              asChild
+              size="lg"
+              className="bg-foreground/90 hover:bg-foreground"
+            >
               <span>Get Started</span>
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

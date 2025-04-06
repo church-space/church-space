@@ -466,12 +466,33 @@ export async function createEmail(
     throw error;
   }
 
+  const { data: defaultFooter, error: defaultFooterError } = await supabase
+    .from("email_org_default_footer_values")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .single();
+
+  if (defaultFooterError) {
+    console.error("Error fetching default footer:", defaultFooterError);
+    throw defaultFooterError;
+  }
+
   const { data: footer, error: footerError } = await supabase
     .from("email_footers")
     .insert({
       email_id: data[0].id,
       type: "standard",
       organization_id: organizationId,
+      name: defaultFooter.name,
+      subtitle: defaultFooter.subtitle,
+      logo: defaultFooter.logo,
+      links: defaultFooter.links,
+      address: defaultFooter.address,
+      reason: defaultFooter.reason,
+      copyright_name: defaultFooter.copyright_name,
+      socials_style: defaultFooter.socials_style,
+      socials_color: defaultFooter.socials_color,
+      socials_icon_color: defaultFooter.socials_icon_color,
     });
 
   if (footerError) {

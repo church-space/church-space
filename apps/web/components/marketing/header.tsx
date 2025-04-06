@@ -26,6 +26,7 @@ import MobileHeaderSheet from "./mobile-header-sheet";
 import HeaderButtons from "./header-buttons";
 import { Separator } from "@church-space/ui/separator";
 import { Label } from "@church-space/ui/label";
+
 export default function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-16 w-full shrink-0 items-center gap-2 border-b bg-background/80 backdrop-blur-lg">
@@ -149,7 +150,7 @@ export default function Header() {
   );
 }
 
-const ListItem = React.forwardRef<
+export const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a"> & {
     icon: React.ReactNode;

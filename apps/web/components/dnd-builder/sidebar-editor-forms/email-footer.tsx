@@ -38,6 +38,7 @@ interface Link {
 // Define validation schemas
 const urlSchema = z.string().url("Please enter a valid URL");
 const emailSchema = z.string().email("Please enter a valid email address");
+const requiredFieldSchema = z.string().min(1, "This field is required");
 
 interface EmailFooterFormProps {
   footerData?: any;
@@ -53,7 +54,7 @@ export default function EmailFooterForm({
   const { organizationId } = useUser();
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
 
-  // Local state with default values
+  // Local state with default values and validation errors
   const [localState, setLocalState] = useState({
     name: footerData?.name || "",
     subtitle: footerData?.subtitle || "",
@@ -70,10 +71,36 @@ export default function EmailFooterForm({
     socials_icon_color: footerData?.socials_icon_color || "#ffffff",
   });
 
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string | null>>(
+    {
+      address: null,
+      reason: null,
+      copyright_name: null,
+    },
+  );
+
+  // Validate required fields
+  const validateRequiredField = (key: string, value: string): boolean => {
+    try {
+      requiredFieldSchema.parse(value);
+      setFieldErrors((prev) => ({ ...prev, [key]: null }));
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          [key]: error.errors[0].message,
+        }));
+        return false;
+      }
+      return true;
+    }
+  };
+
   // Update local state when footerData changes
   useEffect(() => {
     if (footerData) {
-      setLocalState({
+      const newState = {
         name: footerData.name || "",
         subtitle: footerData.subtitle || "",
         logo: footerData.logo || "",
@@ -87,14 +114,30 @@ export default function EmailFooterForm({
         socials_color: footerData.socials_color || "#000000",
         socials_style: footerData.socials_style || "icon-only",
         socials_icon_color: footerData.socials_icon_color || "#ffffff",
-      });
+      };
+
+      setLocalState(newState);
+
+      // Validate required fields
+      validateRequiredField("address", newState.address);
+      validateRequiredField("reason", newState.reason);
+      validateRequiredField("copyright_name", newState.copyright_name);
     }
   }, [footerData]);
 
-  const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
-    {},
-  );
-  const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
+  // Validate all required fields before triggering onFooterChange
+  const validateAndUpdateFooter = (newState: typeof localState) => {
+    const isAddressValid = validateRequiredField("address", newState.address);
+    const isReasonValid = validateRequiredField("reason", newState.reason);
+    const isCopyrightValid = validateRequiredField(
+      "copyright_name",
+      newState.copyright_name,
+    );
+
+    if (isAddressValid && isReasonValid && isCopyrightValid && onFooterChange) {
+      onFooterChange(newState);
+    }
+  };
 
   // Handle general state changes
   const handleChange = (key: string, value: any) => {
@@ -104,10 +147,8 @@ export default function EmailFooterForm({
     // Update local state immediately for responsive UI
     setLocalState(newState);
 
-    // Trigger UI update and server update through prop
-    if (onFooterChange) {
-      onFooterChange(newState);
-    }
+    // Validate required fields and update footer
+    validateAndUpdateFooter(newState);
   };
 
   const addLink = () => {
@@ -138,14 +179,14 @@ export default function EmailFooterForm({
       }
 
       // Clear error if validation passes
-      setLinkErrors((prev) => ({ ...prev, [index]: null }));
+      setFieldErrors((prev) => ({ ...prev, [type]: null }));
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Set error message
-        setLinkErrors((prev) => ({
+        setFieldErrors((prev) => ({
           ...prev,
-          [index]: error.errors[0].message,
+          [type]: error.errors[0].message,
         }));
         return false;
       }
@@ -160,7 +201,7 @@ export default function EmailFooterForm({
     // If updating the URL field
     if (key === "url") {
       // Mark as typing
-      setTypingLinks((prev) => ({ ...prev, [index]: true }));
+      setFieldErrors((prev) => ({ ...prev, [newLinks[index].icon]: null }));
 
       // Clear any existing timer
       if (linkTimersRef.current[index]) {
@@ -169,7 +210,7 @@ export default function EmailFooterForm({
 
       // Set a new timer to validate after typing stops
       linkTimersRef.current[index] = setTimeout(() => {
-        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+        setFieldErrors((prev) => ({ ...prev, [newLinks[index].icon]: null }));
 
         // Validate based on the icon type
         const isValid = validateLink(value, newLinks[index].icon, index);
@@ -196,7 +237,7 @@ export default function EmailFooterForm({
     } else {
       // For icon changes, update immediately and clear any existing errors
       if (key === "icon") {
-        setLinkErrors((prev) => ({ ...prev, [index]: null }));
+        setFieldErrors((prev) => ({ ...prev, [value]: null }));
       }
 
       const newState = { ...localState, links: newLinks };
@@ -213,23 +254,19 @@ export default function EmailFooterForm({
 
   const handleLinkBlur = (index: number) => {
     // When input loses focus, clear typing state and validate
-    if (typingLinks[index]) {
-      setTypingLinks((prev) => ({ ...prev, [index]: false }));
+    if (linkTimersRef.current[index]) {
+      clearTimeout(linkTimersRef.current[index]);
+      linkTimersRef.current[index] = null;
+    }
 
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
-        linkTimersRef.current[index] = null;
-      }
+    const link = localState.links[index];
+    const isValid = validateLink(link.url, link.icon, index);
 
-      const link = localState.links[index];
-      const isValid = validateLink(link.url, link.icon, index);
-
-      if (isValid) {
-        // No need to create a new state object since we're not changing anything
-        // Just trigger the server update through the prop
-        if (onFooterChange) {
-          onFooterChange(localState);
-        }
+    if (isValid) {
+      // No need to create a new state object since we're not changing anything
+      // Just trigger the server update through the prop
+      if (onFooterChange) {
+        onFooterChange(localState);
       }
     }
   };
@@ -250,7 +287,7 @@ export default function EmailFooterForm({
     }
 
     // Clean up any errors or timers for this index
-    setLinkErrors((prev) => {
+    setFieldErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[index];
       return newErrors;
@@ -336,23 +373,61 @@ export default function EmailFooterForm({
         />
         <Separator className="col-span-3 my-4" />
         <Label>Address</Label>
-        <Textarea
-          className="col-span-2 bg-background"
-          value={localState.address}
-          onChange={(e) => handleChange("address", e.target.value)}
-        />
+        <div className="col-span-2 flex flex-col gap-1">
+          <Textarea
+            className={
+              fieldErrors.address
+                ? "border-red-500 bg-background"
+                : "bg-background"
+            }
+            value={localState.address}
+            onChange={(e) => handleChange("address", e.target.value)}
+            onBlur={() => validateRequiredField("address", localState.address)}
+            placeholder="Enter address (required)"
+            required
+          />
+          {fieldErrors.address && (
+            <p className="text-xs text-red-500">{fieldErrors.address}</p>
+          )}
+        </div>
         <Label>Reason for Contact</Label>
-        <Textarea
-          className="col-span-2 bg-background"
-          value={localState.reason}
-          onChange={(e) => handleChange("reason", e.target.value)}
-        />
+        <div className="col-span-2 flex flex-col gap-1">
+          <Textarea
+            className={
+              fieldErrors.reason
+                ? "border-red-500 bg-background"
+                : "bg-background"
+            }
+            value={localState.reason}
+            onChange={(e) => handleChange("reason", e.target.value)}
+            onBlur={() => validateRequiredField("reason", localState.reason)}
+            placeholder="Enter reason for contact (required)"
+            required
+          />
+          {fieldErrors.reason && (
+            <p className="text-xs text-red-500">{fieldErrors.reason}</p>
+          )}
+        </div>
         <Label>Copyright Name</Label>
-        <Input
-          className="col-span-2 bg-background"
-          value={localState.copyright_name}
-          onChange={(e) => handleChange("copyright_name", e.target.value)}
-        />
+        <div className="col-span-2 flex flex-col gap-1">
+          <Input
+            className={
+              fieldErrors.copyright_name
+                ? "border-red-500 bg-background"
+                : "bg-background"
+            }
+            value={localState.copyright_name}
+            onChange={(e) => handleChange("copyright_name", e.target.value)}
+            onBlur={() =>
+              validateRequiredField("copyright_name", localState.copyright_name)
+            }
+            placeholder="Enter copyright name (required)"
+            required
+          />
+          {fieldErrors.copyright_name && (
+            <p className="text-xs text-red-500">{fieldErrors.copyright_name}</p>
+          )}
+        </div>
         {!emailInset && (
           <>
             <Label className="font-medium">Background Color</Label>
@@ -525,7 +600,7 @@ export default function EmailFooterForm({
             <div className="col-span-2 flex flex-col gap-1">
               <Input
                 className={
-                  linkErrors[index] && !typingLinks[index]
+                  fieldErrors[link.icon] && !linkTimersRef.current[index]
                     ? "border-red-500 bg-background"
                     : "bg-background"
                 }
@@ -536,8 +611,8 @@ export default function EmailFooterForm({
                   link.icon === "mail" ? "email@example.com" : "https://"
                 }
               />
-              {linkErrors[index] && !typingLinks[index] && (
-                <p className="text-xs text-red-500">{linkErrors[index]}</p>
+              {fieldErrors[link.icon] && !linkTimersRef.current[index] && (
+                <p className="text-xs text-red-500">{fieldErrors[link.icon]}</p>
               )}
             </div>
           </div>
