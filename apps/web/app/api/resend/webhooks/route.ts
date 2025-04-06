@@ -63,6 +63,11 @@ export async function POST(request: NextRequest) {
   // Get the raw body and signature
   const rawBody = await request.text();
 
+  // Check if this is a test webhook
+  if (request.headers.get("X-Entity-Church-Space-Test") === "true") {
+    return NextResponse.json({ success: true });
+  }
+
   // Get the headers we need to verify
   const svixId = request.headers.get("svix-id");
   const svixTimestamp = request.headers.get("svix-timestamp");

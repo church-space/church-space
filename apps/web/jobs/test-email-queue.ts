@@ -33,6 +33,7 @@ export const sendEmails = task({
       ...email,
       headers: {
         "X-Entity-Ref-ID": uuidv4(),
+        "X-Entity-Church-Space-Test": "true",
         ...email.headers,
       },
     }));

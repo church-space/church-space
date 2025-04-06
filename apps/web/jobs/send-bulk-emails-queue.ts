@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { createClient } from "@church-space/supabase/job";
 import { SignJWT } from "jose";
 import { Section, BlockType, BlockData } from "@/types/blocks";
-
+import { v4 as uuidv4 } from "uuid";
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -258,6 +258,7 @@ export const sendBulkEmails = task({
               headers: {
                 "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
+                "X-Entity-Ref-ID": uuidv4(),
               },
             });
           } catch (error) {
