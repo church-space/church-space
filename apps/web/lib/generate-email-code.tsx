@@ -1287,6 +1287,23 @@ const CustomFooter: React.FC<{
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${logo}`
     : "";
 
+  // Determine which color key to use for icons based on style
+  const getIconColorKey = (color: string) => {
+    return (
+      Object.entries(IconColors).find(([_, value]) => value === color)?.[0] ||
+      "black"
+    );
+  };
+
+  // Get icon URL based on style and colors
+  const getIconUrl = (icon: string) => {
+    // Always use socials_icon_color for the icon color
+    const colorKey = getIconColorKey(socials_icon_color);
+    return IconImages[colorKey as keyof typeof IconImages]?.[
+      icon as keyof (typeof IconImages)["black"]
+    ];
+  };
+
   return (
     <table
       width="100%"
@@ -1392,9 +1409,8 @@ const CustomFooter: React.FC<{
                     <tr>
                       <td align="center">
                         {links.map((link: any, index: number) => {
-                          const Icon =
-                            socialIcons[link.icon as keyof typeof socialIcons];
-                          if (!Icon) return null;
+                          const iconUrl = getIconUrl(link.icon);
+                          if (!iconUrl) return null;
 
                           // Format the URL with proper prefix
                           const formattedUrl =
@@ -1413,7 +1429,8 @@ const CustomFooter: React.FC<{
                               href={formattedUrl}
                               style={{
                                 display: "inline-block",
-                                margin: "0 4px",
+                                margin:
+                                  socials_style === "icon-only" ? "0" : "0 4px",
                                 padding: "8px",
                                 backgroundColor:
                                   socials_style === "filled"
@@ -1421,20 +1438,20 @@ const CustomFooter: React.FC<{
                                     : "transparent",
                                 border:
                                   socials_style === "outline"
-                                    ? `1px solid ${socials_color}`
+                                    ? `1px solid ${socials_icon_color}`
                                     : "none",
                                 borderRadius: "50%",
                                 lineHeight: 0,
                               }}
                             >
-                              <Icon
-                                width="18px"
-                                height="18px"
-                                fill={
-                                  socials_style === "filled"
-                                    ? socials_icon_color
-                                    : socials_color
-                                }
+                              <Img
+                                src={iconUrl}
+                                alt={link.icon}
+                                width="18"
+                                height="18"
+                                style={{
+                                  display: "block",
+                                }}
                               />
                             </a>
                           );

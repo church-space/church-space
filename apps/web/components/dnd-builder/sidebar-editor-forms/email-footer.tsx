@@ -376,51 +376,55 @@ export default function EmailFooterForm({
             <SelectItem value="icon-only">Icon Only</SelectItem>
           </SelectContent>
         </Select>
-        <Label className="font-medium">
-          {localState.socials_style === "filled"
-            ? "Social Icon BG"
-            : "Social Icon Color"}
-        </Label>
-        {localState.socials_style === "filled" ? (
-          <ColorPicker
-            value={localState.socials_color}
-            onChange={(color) => handleChange("socials_color", color)}
-          />
-        ) : (
-          <Select
-            value={localState.socials_color}
-            onValueChange={(value) => handleChange("socials_color", value)}
-          >
-            <SelectTrigger className="col-span-2 bg-background">
-              <SelectValue placeholder="Select icon color" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="#ffffff">White</SelectItem>
-              <SelectItem value="#c4c4c4">Light Gray</SelectItem>
-              <SelectItem value="#404040">Dark Gray</SelectItem>
-              <SelectItem value="#000000">Black</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
+
+        <Label className="font-medium">Icon Color</Label>
+        <Select
+          value={localState.socials_icon_color}
+          onValueChange={(value) => handleChange("socials_icon_color", value)}
+        >
+          <SelectTrigger className="col-span-2 bg-background">
+            <SelectValue placeholder="Select icon color" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="#ffffff">
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 rounded-full border bg-white dark:border-none" />
+                White
+              </div>
+            </SelectItem>
+            <SelectItem value="#c4c4c4">
+              <div className="flex items-center gap-2">
+                <div
+                  className="h-4 w-4 rounded-full"
+                  style={{ backgroundColor: "#c4c4c4" }}
+                />
+                Light Gray
+              </div>
+            </SelectItem>
+            <SelectItem value="#404040">
+              <div className="flex items-center gap-2">
+                <div
+                  className="h-4 w-4 rounded-full"
+                  style={{ backgroundColor: "#404040" }}
+                />
+                Dark Gray
+              </div>
+            </SelectItem>
+            <SelectItem value="#000000">
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 rounded-full bg-black dark:border" />
+                Black
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
         {localState.socials_style === "filled" && (
           <>
-            <Label className="font-medium">Icon Color</Label>
-            <Select
-              value={localState.socials_icon_color}
-              onValueChange={(value) =>
-                handleChange("socials_icon_color", value)
-              }
-            >
-              <SelectTrigger className="col-span-2 bg-background">
-                <SelectValue placeholder="Select icon color" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="#ffffff">White</SelectItem>
-                <SelectItem value="#c4c4c4">Light Gray</SelectItem>
-                <SelectItem value="#404040">Dark Gray</SelectItem>
-                <SelectItem value="#000000">Black</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label className="font-medium">Social Icon BG</Label>
+            <ColorPicker
+              value={localState.socials_color}
+              onChange={(color) => handleChange("socials_color", color)}
+            />
           </>
         )}
       </div>

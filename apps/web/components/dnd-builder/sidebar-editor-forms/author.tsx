@@ -288,10 +288,38 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
               <SelectValue placeholder="Select icon color" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="#ffffff">White</SelectItem>
-              <SelectItem value="#c4c4c4">Light Gray</SelectItem>
-              <SelectItem value="#404040">Dark Gray</SelectItem>
-              <SelectItem value="#000000">Black</SelectItem>
+              <SelectContent>
+                <SelectItem value="#ffffff">
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 rounded-full border bg-white dark:border-none" />
+                    White
+                  </div>
+                </SelectItem>
+                <SelectItem value="#c4c4c4">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="h-4 w-4 rounded-full"
+                      style={{ backgroundColor: "#c4c4c4" }}
+                    />
+                    Light Gray
+                  </div>
+                </SelectItem>
+                <SelectItem value="#404040">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="h-4 w-4 rounded-full"
+                      style={{ backgroundColor: "#404040" }}
+                    />
+                    Dark Gray
+                  </div>
+                </SelectItem>
+                <SelectItem value="#000000">
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 rounded-full bg-black dark:border" />
+                    Black
+                  </div>
+                </SelectItem>
+              </SelectContent>
             </SelectContent>
           </Select>
         </div>

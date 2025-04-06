@@ -158,18 +158,16 @@ export default function Footer({
                     backgroundColor:
                       socialIconStyle === "filled" ? socialIconColor : "",
                     borderColor:
-                      socialIconStyle === "outline" ? socialIconColor : "",
+                      socialIconStyle === "outline" ? socialIconTextColor : "",
                     borderWidth: socialIconStyle === "outline" ? "1px" : "0px",
+                    height: socialIconStyle === "icon-only" ? "20px" : "35px",
+                    width: socialIconStyle === "icon-only" ? "20px" : "35px",
                   }}
                 >
                   <IconComponent
                     height="18"
                     width="18"
-                    fill={
-                      socialIconStyle === "filled"
-                        ? socialIconTextColor
-                        : socialIconColor
-                    }
+                    fill={socialIconTextColor}
                   />
                 </div>
               );
