@@ -175,7 +175,7 @@ const CustomText: React.FC<{
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(/<h1(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        "margin: 0.3cem 0 0.2em 0; font-weight: 600; font-size: 2rem; line-height: 1";
+        "margin: 0.3cem 0 0.2em 0; font-weight: 600; font-size: 2rem; line-height: 1.3";
       if (existingStyle) {
         return `<h1 style="${existingStyle}; ${baseStyle}"`;
       }
@@ -1019,19 +1019,6 @@ const CustomList: React.FC<{
   </table>
 );
 
-const socialIcons = {
-  instagram: Instagram,
-  tiktok: TikTok,
-  x: XTwitter,
-  mail: MailFilled,
-  link: LinkIcon,
-  facebook: Facebook,
-  linkedin: Linkedin,
-  bluesky: Bluesky,
-  youtube: Youtube,
-  threads: Threads,
-};
-
 const CustomAuthor: React.FC<{
   name: string;
   subtitle: string;
@@ -1061,8 +1048,9 @@ const CustomAuthor: React.FC<{
   const finalTextColor = defaultTextColor || "#000000";
   const iconColor = linkColor || finalTextColor;
   const iconColorKey =
-    Object.entries(IconColors).find(([_, value]) => value === iconColor)?.[0] ||
-    "black";
+    Object.entries(IconColors).find(
+      ([key, value]) => value === iconColor,
+    )?.[0] || "black";
 
   return (
     <table
@@ -1290,7 +1278,7 @@ const CustomFooter: React.FC<{
   // Determine which color key to use for icons based on style
   const getIconColorKey = (color: string) => {
     return (
-      Object.entries(IconColors).find(([_, value]) => value === color)?.[0] ||
+      Object.entries(IconColors).find(([key, value]) => value === color)?.[0] ||
       "black"
     );
   };
