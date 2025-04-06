@@ -26,7 +26,7 @@ export default function ListBlock({
       <div className="flex flex-col">
         {title !== undefined && (
           <span
-            className="text-2xl font-bold"
+            className="text-3xl font-bold"
             style={{ color: defaultTextColor }}
           >
             {title === "" ? (

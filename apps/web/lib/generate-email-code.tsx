@@ -174,24 +174,21 @@ const CustomText: React.FC<{
     .replace(/class="[^"]*"/g, "")
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(/<h1(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle =
-        "margin: 0.3cem 0 0.2em 0; font-weight: 600; font-size: 2rem; line-height: 1.3";
+      const baseStyle = " font-weight: 600; font-size: 2rem; line-height: 1";
       if (existingStyle) {
         return `<h1 style="${existingStyle}; ${baseStyle}"`;
       }
       return `<h1 style="${baseStyle}"`;
     })
     .replace(/<h2(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle =
-        "margin: 1em 0 0.2em 0; font-weight: 700; font-size: 1.5rem; line-height: 1.3";
+      const baseStyle = " font-weight: 700; font-size: 1.5rem; line-height: 1";
       if (existingStyle) {
         return `<h2 style="${existingStyle}; ${baseStyle}"`;
       }
       return `<h2 style="${baseStyle}"`;
     })
     .replace(/<h3(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle =
-        "margin: 1em 0 0.2em 0; font-weight: 600; font-size: 1.25rem; line-height: 1.3";
+      const baseStyle = "font-weight: 600; font-size: 1.25rem; line-height: 1";
       if (existingStyle) {
         return `<h3 style="${existingStyle}; ${baseStyle}"`;
       }
@@ -200,7 +197,7 @@ const CustomText: React.FC<{
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        "font-weight: 300; line-height: 1.5; font-size: 16px; margin: 0.5em 0";
+        "font-weight: 400; line-height: 1.5; font-size: 16px; margin: 0.5em 0";
       if (existingStyle) {
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
@@ -872,8 +869,8 @@ const CustomList: React.FC<{
               <td
                 style={{
                   fontFamily: defaultFont || "sans-serif",
-                  fontSize: "1.5rem",
                   fontWeight: "800",
+                  fontSize: "30px",
                   color: defaultTextColor || textColor,
                   lineHeight: "1.5",
                 }}
@@ -1091,7 +1088,7 @@ const CustomAuthor: React.FC<{
                               color: "#000000",
                               fontFamily: defaultFont || "sans-serif",
                               fontSize: "15px",
-                              fontWeight: "300",
+                              fontWeight: "400",
                             }}
                           >
                             {name && name.length > 0 ? name[0] : ""}
@@ -1627,6 +1624,7 @@ export function generateEmailCode(
                     backgroundColor: bgColor,
                     borderRadius: isRounded ? "12px" : "0",
                     borderCollapse: "separate",
+                    paddingBottom: "10px",
                   }}
                 >
                   <tr>
