@@ -7,6 +7,8 @@ import {
   Linkedin,
   LinkIcon,
   MailFilled,
+  Refresh,
+  Save,
   Threads,
   TikTok,
   Vimeo,
@@ -29,6 +31,19 @@ import { z } from "zod";
 import ColorPicker from "../color-picker";
 import FileUpload from "../file-upload";
 import { Separator } from "@church-space/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@church-space/ui/dialog";
 
 interface Link {
   icon: string;
@@ -54,6 +69,10 @@ export default function EmailFooterForm({
   const { organizationId } = useUser();
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
   const colorTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [revertToDefaultDialogOpen, setRevertToDefaultDialogOpen] =
+    useState(false);
+  const [saveAsDefaultDialogOpen, setSaveAsDefaultDialogOpen] = useState(false);
 
   // Local state with default values and validation errors
   const [localState, setLocalState] = useState({
@@ -359,289 +378,366 @@ export default function EmailFooterForm({
   if (!organizationId) return null;
 
   return (
-    <div className="flex flex-col gap-6 px-1">
-      <h2 className="text-lg font-semibold">Email Footer</h2>
-      <div className="grid grid-cols-3 items-center gap-2">
-        <Label>Logo</Label>
-        <div className="col-span-2">
-          <FileUpload
-            organizationId={organizationId}
-            initialFilePath={localState.logo}
-            onUploadComplete={handleUploadComplete}
-            onRemove={handleLogoRemove}
-          />
-        </div>
-        <Label>Title</Label>
-        <Input
-          className="col-span-2 bg-background"
-          value={localState.name}
-          onChange={(e) => handleChange("name", e.target.value)}
-        />
-        <Label>Subtitle</Label>
-        <AutosizeTextarea
-          className="col-span-2 bg-background"
-          value={localState.subtitle}
-          onChange={(e) => handleChange("subtitle", e.target.value)}
-        />
-        <Separator className="col-span-3 my-4" />
-        <Label className="font-medium">Title Color</Label>
-        <ColorPicker
-          value={localState.text_color}
-          onChange={(color) => handleColorChange("text_color", color)}
-        />
-
-        <Label className="font-medium">Accent Text Color</Label>
-        <ColorPicker
-          value={localState.secondary_text_color}
-          onChange={(color) => handleColorChange("secondary_text_color", color)}
-        />
-        <Separator className="col-span-3 my-4" />
-        <Label>Address</Label>
-        <div className="col-span-2 flex flex-col gap-1">
-          <Textarea
-            className={
-              fieldErrors.address
-                ? "border-red-500 bg-background"
-                : "bg-background"
-            }
-            value={localState.address}
-            onChange={(e) => handleChange("address", e.target.value)}
-            onBlur={() => validateRequiredField("address", localState.address)}
-            placeholder="Enter address (required)"
-            required
-          />
-          {fieldErrors.address && (
-            <p className="text-xs text-red-500">{fieldErrors.address}</p>
-          )}
-        </div>
-        <Label>Reason for Contact</Label>
-        <div className="col-span-2 flex flex-col gap-1">
-          <Textarea
-            className={
-              fieldErrors.reason
-                ? "border-red-500 bg-background"
-                : "bg-background"
-            }
-            value={localState.reason}
-            onChange={(e) => handleChange("reason", e.target.value)}
-            onBlur={() => validateRequiredField("reason", localState.reason)}
-            placeholder="Enter reason for contact (required)"
-            required
-          />
-          {fieldErrors.reason && (
-            <p className="text-xs text-red-500">{fieldErrors.reason}</p>
-          )}
-        </div>
-        <Label>Copyright Name</Label>
-        <div className="col-span-2 flex flex-col gap-1">
-          <Input
-            className={
-              fieldErrors.copyright_name
-                ? "border-red-500 bg-background"
-                : "bg-background"
-            }
-            value={localState.copyright_name}
-            onChange={(e) => handleChange("copyright_name", e.target.value)}
-            onBlur={() =>
-              validateRequiredField("copyright_name", localState.copyright_name)
-            }
-            placeholder="Enter copyright name (required)"
-            required
-          />
-          {fieldErrors.copyright_name && (
-            <p className="text-xs text-red-500">{fieldErrors.copyright_name}</p>
-          )}
-        </div>
-        {!emailInset && (
-          <>
-            <Label className="font-medium">Background Color</Label>
-            <ColorPicker
-              value={localState.bg_color}
-              onChange={(color) => handleChange("bg_color", color)}
-            />
-          </>
-        )}
-        <Separator className="col-span-3 my-4" />
-        <Label className="font-medium">Social Icon Style</Label>
-        <Select
-          value={localState.socials_style}
-          onValueChange={(value) => handleChange("socials_style", value)}
-        >
-          <SelectTrigger className="col-span-2 bg-background">
-            <SelectValue placeholder="Select icon style" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="filled">Filled</SelectItem>
-            <SelectItem value="outline">Outline</SelectItem>
-            <SelectItem value="icon-only">Icon Only</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Label className="font-medium">Icon Color</Label>
-        <Select
-          value={localState.socials_icon_color}
-          onValueChange={(value) => handleChange("socials_icon_color", value)}
-        >
-          <SelectTrigger className="col-span-2 bg-background">
-            <SelectValue placeholder="Select icon color" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="#ffffff">
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 rounded-full border bg-white dark:border-none" />
-                White
-              </div>
-            </SelectItem>
-            <SelectItem value="#c4c4c4">
-              <div className="flex items-center gap-2">
-                <div
-                  className="h-4 w-4 rounded-full"
-                  style={{ backgroundColor: "#c4c4c4" }}
-                />
-                Light Gray
-              </div>
-            </SelectItem>
-            <SelectItem value="#404040">
-              <div className="flex items-center gap-2">
-                <div
-                  className="h-4 w-4 rounded-full"
-                  style={{ backgroundColor: "#404040" }}
-                />
-                Dark Gray
-              </div>
-            </SelectItem>
-            <SelectItem value="#000000">
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 rounded-full bg-black dark:border" />
-                Black
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        {localState.socials_style === "filled" && (
-          <>
-            <Label className="font-medium">Social Icon BG</Label>
-            <ColorPicker
-              value={localState.socials_color}
-              onChange={(color) => handleColorChange("socials_color", color)}
-            />
-          </>
-        )}
-      </div>
-      <div className="flex flex-col gap-4">
+    <>
+      <div className="flex flex-col gap-6 px-1">
         <div className="flex items-center justify-between">
-          <Label className="text-md font-bold">Social Links</Label>
-          <Button
-            onClick={addLink}
-            disabled={localState.links.length >= 5}
-            size="sm"
-          >
-            Add Link
-          </Button>
-        </div>
-        {localState.links.map((link: Link, index: number) => (
-          <div
-            key={index}
-            className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
-          >
-            <Label>Icon</Label>
-            <div className="col-span-2 flex">
-              <Select
-                value={link.icon}
-                onValueChange={(value) => updateLink(index, "icon", value)}
-              >
-                <SelectTrigger className="rounded-r-none bg-background">
-                  <SelectValue placeholder="Icon" />
-                </SelectTrigger>
-                <SelectContent className="min-w-20">
-                  <SelectItem value="mail">
-                    <div className="flex flex-row gap-2">
-                      <MailFilled height={"20"} width={"20"} /> Email
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="link">
-                    <div className="flex flex-row gap-2">
-                      <LinkIcon height={"20"} width={"20"} /> Website
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="facebook">
-                    <div className="flex flex-row gap-2">
-                      <Facebook height={"20"} width={"20"} /> Facebook
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="youtube">
-                    <div className="flex flex-row gap-2">
-                      <Youtube height={"20"} width={"20"} /> Youtube
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="instagram">
-                    <div className="flex flex-row gap-2">
-                      <Instagram height={"20"} width={"20"} /> Instagram
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="tiktok">
-                    <div className="flex flex-row gap-2">
-                      <TikTok height={"20"} width={"20"} /> TikTok
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="twitter">
-                    <div className="flex flex-row gap-2">
-                      <XTwitter height={"20"} width={"20"} /> X
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="vimeo">
-                    <div className="flex flex-row gap-2">
-                      <Vimeo height={"20"} width={"20"} /> Vimeo
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="threads">
-                    <div className="flex flex-row gap-2">
-                      <Threads height={"20"} width={"20"} /> Threads
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="bluesky">
-                    <div className="flex flex-row gap-2">
-                      <Bluesky height={"20"} width={"20"} /> Bluesky
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="linkedin">
-                    <div className="flex flex-row gap-2">
-                      <Linkedin height={"20"} width={"20"} /> LinkedIn
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                onClick={() => removeLink(index)}
-                size="icon"
-                className="rounded-l-none border-l-0"
-              >
-                ×
-              </Button>
-            </div>
-            <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
-            <div className="col-span-2 flex flex-col gap-1">
-              <Input
-                className={
-                  fieldErrors[link.icon] && !linkTimersRef.current[index]
-                    ? "border-red-500 bg-background"
-                    : "bg-background"
-                }
-                value={link.url}
-                onChange={(e) => updateLink(index, "url", e.target.value)}
-                onBlur={() => handleLinkBlur(index)}
-                placeholder={
-                  link.icon === "mail" ? "email@example.com" : "https://"
-                }
-              />
-              {fieldErrors[link.icon] && !linkTimersRef.current[index] && (
-                <p className="text-xs text-red-500">{fieldErrors[link.icon]}</p>
-              )}
-            </div>
+          <h2 className="text-lg font-semibold">Email Footer</h2>
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setRevertToDefaultDialogOpen(true)}
+                >
+                  <Refresh />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Revert to Default</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSaveAsDefaultDialogOpen(true)}
+                >
+                  <Save />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Save as Default</TooltipContent>
+            </Tooltip>
           </div>
-        ))}
+        </div>
+        <div className="grid grid-cols-3 items-center gap-2">
+          <Label>Logo</Label>
+          <div className="col-span-2">
+            <FileUpload
+              organizationId={organizationId}
+              initialFilePath={localState.logo}
+              onUploadComplete={handleUploadComplete}
+              onRemove={handleLogoRemove}
+            />
+          </div>
+          <Label>Title</Label>
+          <Input
+            className="col-span-2 bg-background"
+            value={localState.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+          />
+          <Label>Subtitle</Label>
+          <AutosizeTextarea
+            className="col-span-2 bg-background"
+            value={localState.subtitle}
+            onChange={(e) => handleChange("subtitle", e.target.value)}
+          />
+          <Separator className="col-span-3 my-4" />
+          <Label className="font-medium">Title Color</Label>
+          <ColorPicker
+            value={localState.text_color}
+            onChange={(color) => handleColorChange("text_color", color)}
+          />
+
+          <Label className="font-medium">Accent Text Color</Label>
+          <ColorPicker
+            value={localState.secondary_text_color}
+            onChange={(color) =>
+              handleColorChange("secondary_text_color", color)
+            }
+          />
+          <Separator className="col-span-3 my-4" />
+          <Label>Address</Label>
+          <div className="col-span-2 flex flex-col gap-1">
+            <Textarea
+              className={
+                fieldErrors.address
+                  ? "border-red-500 bg-background"
+                  : "bg-background"
+              }
+              value={localState.address}
+              onChange={(e) => handleChange("address", e.target.value)}
+              onBlur={() =>
+                validateRequiredField("address", localState.address)
+              }
+              placeholder="Enter address (required)"
+              required
+            />
+            {fieldErrors.address && (
+              <p className="text-xs text-red-500">{fieldErrors.address}</p>
+            )}
+          </div>
+          <Label>Reason for Contact</Label>
+          <div className="col-span-2 flex flex-col gap-1">
+            <Textarea
+              className={
+                fieldErrors.reason
+                  ? "border-red-500 bg-background"
+                  : "bg-background"
+              }
+              value={localState.reason}
+              onChange={(e) => handleChange("reason", e.target.value)}
+              onBlur={() => validateRequiredField("reason", localState.reason)}
+              placeholder="Enter reason for contact (required)"
+              required
+            />
+            {fieldErrors.reason && (
+              <p className="text-xs text-red-500">{fieldErrors.reason}</p>
+            )}
+          </div>
+          <Label>Copyright Name</Label>
+          <div className="col-span-2 flex flex-col gap-1">
+            <Input
+              className={
+                fieldErrors.copyright_name
+                  ? "border-red-500 bg-background"
+                  : "bg-background"
+              }
+              value={localState.copyright_name}
+              onChange={(e) => handleChange("copyright_name", e.target.value)}
+              onBlur={() =>
+                validateRequiredField(
+                  "copyright_name",
+                  localState.copyright_name,
+                )
+              }
+              placeholder="Enter copyright name (required)"
+              required
+            />
+            {fieldErrors.copyright_name && (
+              <p className="text-xs text-red-500">
+                {fieldErrors.copyright_name}
+              </p>
+            )}
+          </div>
+          {!emailInset && (
+            <>
+              <Label className="font-medium">Background Color</Label>
+              <ColorPicker
+                value={localState.bg_color}
+                onChange={(color) => handleChange("bg_color", color)}
+              />
+            </>
+          )}
+          <Separator className="col-span-3 my-4" />
+          <Label className="font-medium">Social Icon Style</Label>
+          <Select
+            value={localState.socials_style}
+            onValueChange={(value) => handleChange("socials_style", value)}
+          >
+            <SelectTrigger className="col-span-2 bg-background">
+              <SelectValue placeholder="Select icon style" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="filled">Filled</SelectItem>
+              <SelectItem value="outline">Outline</SelectItem>
+              <SelectItem value="icon-only">Icon Only</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Label className="font-medium">Icon Color</Label>
+          <Select
+            value={localState.socials_icon_color}
+            onValueChange={(value) => handleChange("socials_icon_color", value)}
+          >
+            <SelectTrigger className="col-span-2 bg-background">
+              <SelectValue placeholder="Select icon color" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="#ffffff">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded-full border bg-white dark:border-none" />
+                  White
+                </div>
+              </SelectItem>
+              <SelectItem value="#c4c4c4">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-4 w-4 rounded-full"
+                    style={{ backgroundColor: "#c4c4c4" }}
+                  />
+                  Light Gray
+                </div>
+              </SelectItem>
+              <SelectItem value="#404040">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-4 w-4 rounded-full"
+                    style={{ backgroundColor: "#404040" }}
+                  />
+                  Dark Gray
+                </div>
+              </SelectItem>
+              <SelectItem value="#000000">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded-full bg-black dark:border" />
+                  Black
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          {localState.socials_style === "filled" && (
+            <>
+              <Label className="font-medium">Social Icon BG</Label>
+              <ColorPicker
+                value={localState.socials_color}
+                onChange={(color) => handleColorChange("socials_color", color)}
+              />
+            </>
+          )}
+        </div>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-md font-bold">Social Links</Label>
+            <Button
+              onClick={addLink}
+              disabled={localState.links.length >= 5}
+              size="sm"
+            >
+              Add Link
+            </Button>
+          </div>
+          {localState.links.map((link: Link, index: number) => (
+            <div
+              key={index}
+              className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
+            >
+              <Label>Icon</Label>
+              <div className="col-span-2 flex">
+                <Select
+                  value={link.icon}
+                  onValueChange={(value) => updateLink(index, "icon", value)}
+                >
+                  <SelectTrigger className="rounded-r-none bg-background">
+                    <SelectValue placeholder="Icon" />
+                  </SelectTrigger>
+                  <SelectContent className="min-w-20">
+                    <SelectItem value="mail">
+                      <div className="flex flex-row gap-2">
+                        <MailFilled height={"20"} width={"20"} /> Email
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="link">
+                      <div className="flex flex-row gap-2">
+                        <LinkIcon height={"20"} width={"20"} /> Website
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="facebook">
+                      <div className="flex flex-row gap-2">
+                        <Facebook height={"20"} width={"20"} /> Facebook
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="youtube">
+                      <div className="flex flex-row gap-2">
+                        <Youtube height={"20"} width={"20"} /> Youtube
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="instagram">
+                      <div className="flex flex-row gap-2">
+                        <Instagram height={"20"} width={"20"} /> Instagram
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="tiktok">
+                      <div className="flex flex-row gap-2">
+                        <TikTok height={"20"} width={"20"} /> TikTok
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="twitter">
+                      <div className="flex flex-row gap-2">
+                        <XTwitter height={"20"} width={"20"} /> X
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="vimeo">
+                      <div className="flex flex-row gap-2">
+                        <Vimeo height={"20"} width={"20"} /> Vimeo
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="threads">
+                      <div className="flex flex-row gap-2">
+                        <Threads height={"20"} width={"20"} /> Threads
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="bluesky">
+                      <div className="flex flex-row gap-2">
+                        <Bluesky height={"20"} width={"20"} /> Bluesky
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="linkedin">
+                      <div className="flex flex-row gap-2">
+                        <Linkedin height={"20"} width={"20"} /> LinkedIn
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  onClick={() => removeLink(index)}
+                  size="icon"
+                  className="rounded-l-none border-l-0"
+                >
+                  ×
+                </Button>
+              </div>
+              <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
+              <div className="col-span-2 flex flex-col gap-1">
+                <Input
+                  className={
+                    fieldErrors[link.icon] && !linkTimersRef.current[index]
+                      ? "border-red-500 bg-background"
+                      : "bg-background"
+                  }
+                  value={link.url}
+                  onChange={(e) => updateLink(index, "url", e.target.value)}
+                  onBlur={() => handleLinkBlur(index)}
+                  placeholder={
+                    link.icon === "mail" ? "email@example.com" : "https://"
+                  }
+                />
+                {fieldErrors[link.icon] && !linkTimersRef.current[index] && (
+                  <p className="text-xs text-red-500">
+                    {fieldErrors[link.icon]}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+      <Dialog
+        open={revertToDefaultDialogOpen}
+        onOpenChange={setRevertToDefaultDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Revert to Default</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to revert to the default footer? This will
+              overwrite any changes you have made.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline">Cancel</Button>
+            <Button variant="destructive">Revert to Default</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={saveAsDefaultDialogOpen}
+        onOpenChange={setSaveAsDefaultDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save as Default</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to save the current footer as the default?
+              This will overwrite your current default footer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline">Cancel</Button>
+            <Button>Save as Default</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
