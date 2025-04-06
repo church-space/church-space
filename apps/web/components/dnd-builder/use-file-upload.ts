@@ -124,7 +124,7 @@ export const useFileUpload = (
       const sanitizedOrgId = organizationId.replace(/\s+/g, "");
       const filePath =
         bucket === "email_assets"
-          ? `unsent/${sanitizedOrgId}/${fileName}`
+          ? `org/${sanitizedOrgId}/${fileName}`
           : `${sanitizedOrgId}/${fileName}`;
 
       // Implement retry logic

@@ -62,7 +62,7 @@ export async function fetchEmailAssets({
 
   try {
     const sanitizedOrgId = organizationId.replace(/\s+/g, "");
-    const path = `unsent/${sanitizedOrgId}`;
+    const path = `org/${sanitizedOrgId}`;
 
     // Get the total count using the RPC function
     const { data: countData, error: countError } = await supabase.rpc(
