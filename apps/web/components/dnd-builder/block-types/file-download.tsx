@@ -12,8 +12,8 @@ export default function FileDownloadBlock({
   defaultFont,
   isRounded,
 }: FileDownloadBlockProps) {
-  const title = data?.title || "File Name";
-  const bgColor = data?.bgColor || "#ffffff";
+  const title = data?.title || "";
+  const bgColor = data?.bgColor || "#f0f0f0";
   const textColor = data?.textColor || "#000000";
 
   return (
@@ -25,8 +25,8 @@ export default function FileDownloadBlock({
       style={{ backgroundColor: bgColor, fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex items-center gap-2">
-        <p className="text-sm font-medium" style={{ color: textColor }}>
-          {title}
+        <p className="text-sm" style={{ color: textColor, fontWeight: "400" }}>
+          {title ? title : <span className="text-gray-500">File Name</span>}
         </p>
       </div>
       <div

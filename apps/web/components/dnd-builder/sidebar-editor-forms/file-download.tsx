@@ -18,9 +18,9 @@ export default function FileDownloadForm({
   const { organizationId } = useUser();
 
   const [localState, setLocalState] = useState<FileDownloadBlockData>({
-    title: block.data?.title || "File Name",
+    title: block.data?.title || "",
     file: block.data?.file || "",
-    bgColor: block.data?.bgColor || "#ffffff",
+    bgColor: block.data?.bgColor || "#f0f0f0",
     textColor: block.data?.textColor || "#000000",
   });
 
@@ -64,6 +64,7 @@ export default function FileDownloadForm({
             className="col-span-2 bg-background"
             value={localState.title}
             onChange={(e) => handleChange("title", e.target.value)}
+            placeholder="File Name"
           />
           <Label>BG Color</Label>
           <ColorPicker

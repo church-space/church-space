@@ -383,9 +383,9 @@ export default function EmailDndProvider({
       };
     } else if (blockType === "file-download") {
       blockData = {
-        title: "File Name",
+        title: "",
         file: "",
-        bgColor: "#ffffff",
+        bgColor: "#f0f0f0",
         textColor: "#000000",
       };
     } else if (blockType === "divider") {
@@ -877,7 +877,7 @@ export default function EmailDndProvider({
                 blockValue = {
                   title: "Download",
                   file: "",
-                  bgColor: "#f5f5f5",
+                  bgColor: "#f0f0f0",
                   textColor: "#000000",
                 };
                 break;
