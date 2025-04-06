@@ -62,6 +62,7 @@ export interface AuthorBlockData {
     url: string;
   }>;
   hideAvatar: boolean;
+  linkColor: string;
 }
 
 export interface ImageBlockData {

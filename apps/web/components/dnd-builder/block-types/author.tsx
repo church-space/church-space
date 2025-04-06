@@ -10,6 +10,7 @@ import {
   TikTok,
   XTwitter,
   Youtube,
+  Vimeo,
 } from "@church-space/ui/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
 import type { AuthorBlockData } from "@/types/blocks";
@@ -26,6 +27,7 @@ const socialIcons = {
   bluesky: Bluesky,
   youtube: Youtube,
   threads: Threads,
+  vimeo: Vimeo,
 };
 
 interface AuthorBlockProps {
@@ -45,7 +47,7 @@ export default function AuthorBlock({
   const avatar = data?.avatar || "";
   const links = data?.links || [];
   const hideAvatar = data?.hideAvatar || false;
-
+  const linkColor = data?.linkColor || "#000000";
   // Force re-render of the Avatar component when avatar changes
   const [key, setKey] = useState(0);
 
@@ -109,12 +111,7 @@ export default function AuthorBlock({
         {links.map((link, index) => {
           const Icon = socialIcons[link.icon as keyof typeof socialIcons];
           return Icon ? (
-            <Icon
-              key={index}
-              fill={defaultTextColor}
-              height="18px"
-              width="18px"
-            />
+            <Icon key={index} fill={linkColor} height="18px" width="18px" />
           ) : null;
         })}
       </div>

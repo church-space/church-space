@@ -909,6 +909,7 @@ export default function EmailDndProvider({
                   avatar: "",
                   textColor: "#000000",
                   links: [],
+                  linkColor: "#000000",
                   hideAvatar: false,
                 };
                 break;

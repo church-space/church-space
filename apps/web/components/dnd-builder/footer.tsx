@@ -10,6 +10,7 @@ import {
   TikTok,
   XTwitter,
   Youtube,
+  Vimeo,
 } from "@church-space/ui/icons";
 import { Separator } from "@church-space/ui/separator";
 import { getYear } from "date-fns";
@@ -27,7 +28,8 @@ type SocialIconKey =
   | "linkedin"
   | "bluesky"
   | "youtube"
-  | "threads";
+  | "threads"
+  | "vimeo";
 
 interface FooterProps {
   onClick: (e: React.MouseEvent) => void;
@@ -49,6 +51,7 @@ const socialIcons = {
   bluesky: Bluesky,
   youtube: Youtube,
   threads: Threads,
+  vimeo: Vimeo,
 };
 
 export default function Footer({

@@ -10,6 +10,7 @@ import {
   MailFilled,
   Threads,
   TikTok,
+  Vimeo,
   XTwitter,
   Youtube,
 } from "@church-space/ui/icons";
@@ -42,6 +43,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     links: block.data?.links || [],
     textColor: block.data?.textColor || "#000000",
     hideAvatar: block.data?.hideAvatar || false,
+    linkColor: block.data?.linkColor || "#000000",
   });
 
   // Track validation errors for links
@@ -276,6 +278,22 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             placeholder="Pastor, Deacon, etc."
             onChange={(e) => handleChange("subtitle", e.target.value)}
           />
+
+          <Label className="font-medium">Icon Color</Label>
+          <Select
+            value={localState.linkColor}
+            onValueChange={(value) => handleChange("linkColor", value)}
+          >
+            <SelectTrigger className="col-span-2 bg-background">
+              <SelectValue placeholder="Select icon color" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="#ffffff">White</SelectItem>
+              <SelectItem value="#c4c4c4">Light Gray</SelectItem>
+              <SelectItem value="#404040">Dark Gray</SelectItem>
+              <SelectItem value="#000000">Black</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -338,6 +356,11 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
                   <SelectItem value="x">
                     <div className="flex flex-row gap-2">
                       <XTwitter height={"20"} width={"20"} /> X
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="vimeo">
+                    <div className="flex flex-row gap-2">
+                      <Vimeo height={"20"} width={"20"} /> Vimeo
                     </div>
                   </SelectItem>
                   <SelectItem value="threads">

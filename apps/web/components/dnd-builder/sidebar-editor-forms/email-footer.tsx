@@ -9,6 +9,7 @@ import {
   MailFilled,
   Threads,
   TikTok,
+  Vimeo,
   XTwitter,
   Youtube,
 } from "@church-space/ui/icons";
@@ -310,13 +311,13 @@ export default function EmailFooterForm({
         </div>
         <Label>Title</Label>
         <Input
-          className="col-span-2"
+          className="col-span-2 bg-background"
           value={localState.name}
           onChange={(e) => handleChange("name", e.target.value)}
         />
         <Label>Subtitle</Label>
         <Textarea
-          className="col-span-2"
+          className="col-span-2 bg-background"
           value={localState.subtitle}
           onChange={(e) => handleChange("subtitle", e.target.value)}
         />
@@ -335,19 +336,19 @@ export default function EmailFooterForm({
         <Separator className="col-span-3 my-4" />
         <Label>Address</Label>
         <Textarea
-          className="col-span-2"
+          className="col-span-2 bg-background"
           value={localState.address}
           onChange={(e) => handleChange("address", e.target.value)}
         />
         <Label>Reason for Contact</Label>
         <Textarea
-          className="col-span-2"
+          className="col-span-2 bg-background"
           value={localState.reason}
           onChange={(e) => handleChange("reason", e.target.value)}
         />
         <Label>Copyright Name</Label>
         <Input
-          className="col-span-2"
+          className="col-span-2 bg-background"
           value={localState.copyright_name}
           onChange={(e) => handleChange("copyright_name", e.target.value)}
         />
@@ -366,7 +367,7 @@ export default function EmailFooterForm({
           value={localState.socials_style}
           onValueChange={(value) => handleChange("socials_style", value)}
         >
-          <SelectTrigger className="col-span-2">
+          <SelectTrigger className="col-span-2 bg-background">
             <SelectValue placeholder="Select icon style" />
           </SelectTrigger>
           <SelectContent>
@@ -380,17 +381,46 @@ export default function EmailFooterForm({
             ? "Social Icon BG"
             : "Social Icon Color"}
         </Label>
-        <ColorPicker
-          value={localState.socials_color}
-          onChange={(color) => handleChange("socials_color", color)}
-        />
+        {localState.socials_style === "filled" ? (
+          <ColorPicker
+            value={localState.socials_color}
+            onChange={(color) => handleChange("socials_color", color)}
+          />
+        ) : (
+          <Select
+            value={localState.socials_color}
+            onValueChange={(value) => handleChange("socials_color", value)}
+          >
+            <SelectTrigger className="col-span-2 bg-background">
+              <SelectValue placeholder="Select icon color" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="#ffffff">White</SelectItem>
+              <SelectItem value="#c4c4c4">Light Gray</SelectItem>
+              <SelectItem value="#404040">Dark Gray</SelectItem>
+              <SelectItem value="#000000">Black</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
         {localState.socials_style === "filled" && (
           <>
             <Label className="font-medium">Icon Color</Label>
-            <ColorPicker
+            <Select
               value={localState.socials_icon_color}
-              onChange={(color) => handleChange("socials_icon_color", color)}
-            />
+              onValueChange={(value) =>
+                handleChange("socials_icon_color", value)
+              }
+            >
+              <SelectTrigger className="col-span-2 bg-background">
+                <SelectValue placeholder="Select icon color" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="#ffffff">White</SelectItem>
+                <SelectItem value="#c4c4c4">Light Gray</SelectItem>
+                <SelectItem value="#404040">Dark Gray</SelectItem>
+                <SelectItem value="#000000">Black</SelectItem>
+              </SelectContent>
+            </Select>
           </>
         )}
       </div>
@@ -398,9 +428,9 @@ export default function EmailFooterForm({
         <div className="flex items-center justify-between">
           <Label className="text-md font-bold">Social Links</Label>
           <Button
-            variant="outline"
             onClick={addLink}
             disabled={localState.links.length >= 5}
+            size="sm"
           >
             Add Link
           </Button>
@@ -411,12 +441,12 @@ export default function EmailFooterForm({
             className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
           >
             <Label>Icon</Label>
-            <div className="col-span-2 flex gap-2">
+            <div className="col-span-2 flex">
               <Select
                 value={link.icon}
                 onValueChange={(value) => updateLink(index, "icon", value)}
               >
-                <SelectTrigger className="rounded-r-none">
+                <SelectTrigger className="rounded-r-none bg-background">
                   <SelectValue placeholder="Icon" />
                 </SelectTrigger>
                 <SelectContent className="min-w-20">
@@ -455,6 +485,11 @@ export default function EmailFooterForm({
                       <XTwitter height={"20"} width={"20"} /> X
                     </div>
                   </SelectItem>
+                  <SelectItem value="vimeo">
+                    <div className="flex flex-row gap-2">
+                      <Vimeo height={"20"} width={"20"} /> Vimeo
+                    </div>
+                  </SelectItem>
                   <SelectItem value="threads">
                     <div className="flex flex-row gap-2">
                       <Threads height={"20"} width={"20"} /> Threads
@@ -486,8 +521,8 @@ export default function EmailFooterForm({
               <Input
                 className={
                   linkErrors[index] && !typingLinks[index]
-                    ? "border-red-500"
-                    : ""
+                    ? "border-red-500 bg-background"
+                    : "bg-background"
                 }
                 value={link.url}
                 onChange={(e) => updateLink(index, "url", e.target.value)}

@@ -945,6 +945,7 @@ const CustomAuthor: React.FC<{
   defaultFont?: string;
   defaultTextColor?: string;
   hideAvatar?: boolean;
+  linkColor?: string;
 }> = ({
   name,
   subtitle,
@@ -953,6 +954,7 @@ const CustomAuthor: React.FC<{
   defaultFont,
   defaultTextColor,
   hideAvatar,
+  linkColor,
 }) => {
   const avatarUrl = avatar
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${avatar}`
