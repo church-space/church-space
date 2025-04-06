@@ -2,11 +2,27 @@ import { filterEmailRecipients } from "@/jobs/filter-emails";
 import { NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";
 import { getUserOrganizationId } from "@church-space/supabase/get-user-with-details";
+import { Ratelimit } from "@upstash/ratelimit";
+import { headers } from "next/headers";
+import { client as RedisClient } from "@church-space/kv";
+
+const ratelimit = new Ratelimit({
+  limiter: Ratelimit.fixedWindow(5, "10s"),
+  redis: RedisClient,
+});
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
+    const ip = (await headers()).get("x-forwarded-for");
+
+    const { success } = await ratelimit.limit(`${ip}-filter-emails`);
+
+    if (!success) {
+      throw new Error("Too many requests");
+    }
+
     const body = await request.json();
 
     // Validate request format
@@ -22,6 +38,13 @@ export async function POST(request: Request) {
 
     const organizationId = await getUserOrganizationId(supabase);
 
+    if (!organizationId) {
+      return NextResponse.json(
+        { error: "User does not belong to an organization" },
+        { status: 400 },
+      );
+    }
+
     const { data: emailData, error: emailError } = await supabase
       .from("emails")
       .select("status, scheduled_for, list_id, organization_id")
@@ -35,21 +58,6 @@ export async function POST(request: Request) {
     if (emailData.organization_id !== organizationId[0]) {
       return NextResponse.json(
         { error: "Email does not belong to organization" },
-        { status: 400 },
-      );
-    }
-
-    // Check email status
-    if (emailData.status === "sent") {
-      return NextResponse.json(
-        { error: "Email has already been sent" },
-        { status: 400 },
-      );
-    }
-
-    if (emailData.status === "sending") {
-      return NextResponse.json(
-        { error: "Email is already being sent" },
         { status: 400 },
       );
     }
