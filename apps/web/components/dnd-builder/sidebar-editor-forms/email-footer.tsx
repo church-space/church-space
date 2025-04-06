@@ -185,11 +185,7 @@ export default function EmailFooterForm({
     }
   };
 
-  const validateLink = (
-    value: string,
-    type: string,
-    index: number,
-  ): boolean => {
+  const validateLink = (value: string, type: string): boolean => {
     try {
       if (type === "mail") {
         emailSchema.parse(value);
@@ -232,7 +228,7 @@ export default function EmailFooterForm({
         setFieldErrors((prev) => ({ ...prev, [newLinks[index].icon]: null }));
 
         // Validate based on the icon type
-        const isValid = validateLink(value, newLinks[index].icon, index);
+        const isValid = validateLink(value, newLinks[index].icon);
 
         // Only update if valid
         if (isValid) {
@@ -279,7 +275,7 @@ export default function EmailFooterForm({
     }
 
     const link = localState.links[index];
-    const isValid = validateLink(link.url, link.icon, index);
+    const isValid = validateLink(link.url, link.icon);
 
     if (isValid) {
       // No need to create a new state object since we're not changing anything
