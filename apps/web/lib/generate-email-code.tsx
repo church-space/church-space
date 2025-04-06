@@ -1087,23 +1087,33 @@ const CustomAuthor: React.FC<{
                             }}
                           />
                         ) : (
-                          <div
+                          <table
+                            cellPadding="0"
+                            cellSpacing="0"
+                            border={0}
                             style={{
                               width: "40px",
                               height: "40px",
                               backgroundColor: "#d4d4d8",
                               borderRadius: "50%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: "#000000",
-                              fontFamily: defaultFont || "sans-serif",
-                              fontSize: "15px",
-                              fontWeight: "400",
                             }}
                           >
-                            {name && name.length > 0 ? name[0] : ""}
-                          </div>
+                            <tr>
+                              <td
+                                align="center"
+                                valign="middle"
+                                style={{
+                                  color: "#000000",
+                                  fontFamily: defaultFont || "sans-serif",
+                                  fontSize: "15px",
+                                  fontWeight: "400",
+                                  lineHeight: "40px",
+                                }}
+                              >
+                                {name && name.length > 0 ? name[0] : ""}
+                              </td>
+                            </tr>
+                          </table>
                         )}
                       </td>
                     )}
@@ -1373,19 +1383,28 @@ const CustomFooter: React.FC<{
                     width="100%"
                   >
                     <tr>
-                      <td
-                        align="center"
-                        style={{
-                          fontSize: "14px",
-                          color: secondary_text_color,
-                          maxWidth: "384px",
-                          margin: "0 auto 16px",
-                          lineHeight: "1.4",
-                          textWrap: "balance",
-                          paddingBottom: "26px",
-                        }}
-                      >
-                        {subtitle}
+                      <td align="center">
+                        <table
+                          cellPadding="0"
+                          cellSpacing="0"
+                          border={0}
+                          style={{ maxWidth: "448px" }}
+                        >
+                          <tr>
+                            <td
+                              align="center"
+                              style={{
+                                fontSize: "14px",
+                                color: secondary_text_color,
+                                lineHeight: "1.4",
+                                textWrap: "balance",
+                                paddingBottom: "26px",
+                              }}
+                            >
+                              {subtitle}
+                            </td>
+                          </tr>
+                        </table>
                       </td>
                     </tr>
                   </table>
