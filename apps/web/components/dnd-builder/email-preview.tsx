@@ -52,6 +52,7 @@ export default function EmailPreview({
     isInset: emailStyle.is_inset || false,
     emailBgColor: emailStyle.bg_color || "#ffffff",
     defaultTextColor: emailStyle.default_text_color || "#000000",
+    accentTextColor: emailStyle.accent_text_color || "#000000",
     defaultFont: emailStyle.default_font || "Inter",
     isRounded: emailStyle.is_rounded ?? true,
     linkColor: emailStyle.link_color || "#0000ff",

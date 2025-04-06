@@ -112,7 +112,7 @@ export default function EmailStyleForm({
         <Label className="font-medium">Font</Label>
         <Select value={defaultFont} onValueChange={onDefaultFontChange}>
           <SelectTrigger
-            className="col-span-2"
+            className="col-span-2 bg-background"
             style={{ fontFamily: defaultFont }}
           >
             <SelectValue placeholder="Select a font" />

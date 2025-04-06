@@ -158,6 +158,7 @@ export default function SendTestEmail() {
         isRounded: emailStyle?.is_rounded || false,
         emailBgColor: emailStyle?.bg_color || "#eeeeee",
         defaultTextColor: emailStyle?.default_text_color || "#000000",
+        accentTextColor: emailStyle?.accent_text_color || "#000000",
         defaultFont: emailStyle?.default_font || "sans-serif",
         linkColor: emailStyle?.link_color || "#0000ff",
       };

@@ -30,6 +30,7 @@ interface EmailStyle {
   isRounded?: boolean;
   emailBgColor?: string;
   defaultTextColor?: string;
+  accentTextColor?: string;
   defaultFont?: string;
   linkColor?: string;
 }
@@ -38,7 +39,7 @@ interface EmailStyle {
 const CustomText: React.FC<{
   content: string;
   font?: string;
-  textColor?: string;
+  accentTextColor?: string;
   defaultFont?: string;
   defaultTextColor?: string;
   linkColor?: string;
@@ -48,7 +49,7 @@ const CustomText: React.FC<{
 }> = ({
   content,
   font,
-  textColor,
+  accentTextColor,
   defaultFont,
   defaultTextColor,
   linkColor,
@@ -122,7 +123,23 @@ const CustomText: React.FC<{
       '<br style="display: block; margin: 0.8em 0;" />',
     )
     // Add font size to list items
-    .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"');
+    .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"')
+    // Replace color styles in spans with data-color-type="accent"
+    .replace(
+      /<span(?: style="([^"]*)")?(?: data-color-type="accent"| class="accent-text-color")[^>]*>/g,
+      (match, existingStyle) => {
+        // Keep existing styles except color
+        const cleanStyle = existingStyle
+          ? existingStyle
+              .replace(/color:\s*(?:rgb\([^)]+\)|#[a-fA-F0-9]{3,6})/g, "")
+              .trim()
+          : "";
+        const combinedStyle = cleanStyle
+          ? `${cleanStyle}; color: ${accentTextColor}`
+          : `color: ${accentTextColor}`;
+        return `<span style="${combinedStyle}" data-color-type="accent">`;
+      },
+    );
 
   // Now add a style tag to handle the first-child rule similar to the CSS
   const processedContent = `
@@ -140,7 +157,7 @@ const CustomText: React.FC<{
         <td
           style={{
             fontFamily: font || defaultFont || "sans-serif",
-            color: textColor || defaultTextColor || "#000000",
+            color: defaultTextColor || "#000000",
             fontSize: "16px",
           }}
           dangerouslySetInnerHTML={{ __html: processedContent }}
@@ -1459,6 +1476,7 @@ export function generateEmailCode(
     isRounded = false,
     emailBgColor = "#eeeeee",
     defaultTextColor = "#000000",
+    accentTextColor = "#000000",
     defaultFont = "sans-serif",
     linkColor = "#0000ff",
   } = style;
@@ -1530,7 +1548,7 @@ export function generateEmailCode(
                                             <CustomText
                                               content={textData?.content || ""}
                                               font={textData?.font}
-                                              textColor={textData?.textColor}
+                                              accentTextColor={accentTextColor}
                                               defaultFont={defaultFont}
                                               defaultTextColor={
                                                 defaultTextColor
@@ -1761,7 +1779,7 @@ export function generateEmailCode(
                                             <CustomText
                                               content={textData?.content || ""}
                                               font={textData?.font}
-                                              textColor={textData?.textColor}
+                                              accentTextColor={accentTextColor}
                                               defaultFont={defaultFont}
                                               defaultTextColor={
                                                 defaultTextColor
