@@ -2041,6 +2041,62 @@ export default function EmailDndProvider({
           ),
       );
 
+      // For restored blocks, remove them from permanentlyDeletedBlocksRef and blocksBeingDeleted
+      const restoredBlockIds = new Set<string>();
+      restoredBlocks.forEach((block) => {
+        permanentlyDeletedBlocksRef.current.delete(block.id);
+        if (!isNaN(parseInt(block.id, 10))) {
+          permanentlyDeletedBlocksRef.current.delete(
+            parseInt(block.id, 10).toString(),
+          );
+          restoredBlockIds.add(block.id);
+          restoredBlockIds.add(parseInt(block.id, 10).toString());
+        }
+
+        setBlocksBeingDeleted((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(block.id);
+          if (!isNaN(parseInt(block.id, 10))) {
+            newSet.delete(parseInt(block.id, 10).toString());
+          }
+          return newSet;
+        });
+
+        // If this is a block that was previously in the database (has numeric ID),
+        // we need to recreate it on the server
+        if (emailId && !isNaN(parseInt(block.id, 10))) {
+          addEmailBlock.mutate(
+            {
+              emailId,
+              type: block.type,
+              value: block.data as BlockData,
+              order: block.order,
+              linkedFile: undefined,
+            },
+            {
+              onSuccess: (result) => {
+                if (result && result.id) {
+                  // Update the block ID in our local state to use the database ID
+                  const updatedBlocks = previousState.blocks.map((b) =>
+                    b.id === block.id ? { ...b, id: result.id.toString() } : b,
+                  );
+
+                  // Update the UI with the new ID
+                  setCurrentState({
+                    blocks: updatedBlocks,
+                    styles: previousState.styles,
+                    footer: previousState.footer,
+                  });
+
+                  // Update block orders in database to ensure correct positioning
+                  updateBlockOrdersInDatabase(updatedBlocks);
+                }
+              },
+            },
+          );
+        }
+      });
+
       // Add removed blocks to blocksBeingDeleted to ensure they're filtered out of the UI
       if (removedBlocks.length > 0) {
         // Add to blocksBeingDeleted for immediate UI filtering
@@ -2080,21 +2136,13 @@ export default function EmailDndProvider({
         }
       }
 
-      // For each restored block, check if it has a numeric ID and mark it as deleted
-      // so that it will be recreated on the server
-      restoredBlocks.forEach((block) => {
-        // If it has a numeric ID, mark it as deleted so it will be recreated
-        if (!isNaN(parseInt(block.id, 10))) {
-          permanentlyDeletedBlocksRef.current.add(block.id);
-          permanentlyDeletedBlocksRef.current.add(
-            parseInt(block.id, 10).toString(),
-          );
-        }
-      });
-
-      // Update server state based on the differences
-      // This will recreate any restored blocks on the server
-      debouncedServerUpdate(previousState.blocks, blocksBeforeUndo);
+      // Update server state based on the differences, excluding restored blocks that we're already handling
+      const nonRestoredBlocks = previousState.blocks.filter(
+        (block) =>
+          !restoredBlockIds.has(block.id) &&
+          !restoredBlockIds.has(parseInt(block.id, 10)?.toString()),
+      );
+      debouncedServerUpdate(nonRestoredBlocks, blocksBeforeUndo);
 
       // Check if styles have changed and update on server if needed
       if (
@@ -2115,26 +2163,6 @@ export default function EmailDndProvider({
       // Update editor content for text blocks
       previousState.blocks.forEach((block) => {
         if (
-          block.type === "text" &&
-          editors[block.id] &&
-          !editors[block.id].isDestroyed
-        ) {
-          const content = (block.data as any)?.content || "";
-
-          // Only update if content has changed to avoid unnecessary re-renders
-          if (editors[block.id].getHTML() !== content) {
-            // Set content directly
-            editors[block.id].commands.setContent(content);
-          }
-        }
-      });
-
-      // Handle blocks that exist in the current state but not in the previous state
-      // (these editors need to be destroyed)
-      blocksBeforeUndo.forEach((block) => {
-        const stillExists = previousState.blocks.some((b) => b.id === block.id);
-        if (
-          !stillExists &&
           block.type === "text" &&
           editors[block.id] &&
           !editors[block.id].isDestroyed
