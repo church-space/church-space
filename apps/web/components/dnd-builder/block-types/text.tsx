@@ -27,26 +27,35 @@ const TextBlock = ({
   const prevLinkColorRef = useRef(linkColor);
   const prevAccentTextColorRef = useRef(accentTextColor);
   const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastContentRef = useRef<string>("");
+  const contentOnFocusRef = useRef<string>("");
 
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
 
-    // Store initial content
-    lastContentRef.current = editor.getHTML();
+    // Add focus event listener to capture initial content state
+    const focusListener = () => {
+      contentOnFocusRef.current = editor.getHTML();
+    };
 
-    // Add an update listener to the editor
+    // Add blur event listener to save content when editor loses focus
+    const blurListener = () => {
+      // Clear any pending debounced updates
+      if (updateTimerRef.current) {
+        clearTimeout(updateTimerRef.current);
+        updateTimerRef.current = null;
+      }
+
+      // Always save on blur if we have changes
+      const currentContent = editor.getHTML();
+      if (currentContent !== contentOnFocusRef.current && onContentChange) {
+        onContentChange(currentContent);
+      }
+    };
+
+    // Add an update listener to the editor for regular typing
     const updateListener = () => {
-      if (!editor.isDestroyed) {
+      if (!editor.isDestroyed && !isUndoRedoOperation) {
         const currentContent = editor.getHTML();
-
-        // Skip if content hasn't changed or if we're in the middle of an undo/redo operation
-        if (currentContent === lastContentRef.current || isUndoRedoOperation) {
-          return;
-        }
-
-        // Update the last content reference
-        lastContentRef.current = currentContent;
 
         // Clear any pending timer
         if (updateTimerRef.current) {
@@ -57,16 +66,26 @@ const TextBlock = ({
         updateTimerRef.current = setTimeout(() => {
           if (onContentChange && !editor.isDestroyed) {
             onContentChange(currentContent);
+            // Update the focus content ref after successful save
+            contentOnFocusRef.current = currentContent;
           }
         }, 500); // 500ms debounce
       }
     };
 
+    // Initialize the content ref
+    contentOnFocusRef.current = editor.getHTML();
+
+    // Set up all listeners
+    editor.on("focus", focusListener);
     editor.on("update", updateListener);
+    editor.on("blur", blurListener);
 
     return () => {
       if (!editor.isDestroyed) {
+        editor.off("focus", focusListener);
         editor.off("update", updateListener);
+        editor.off("blur", blurListener);
       }
       // Clear any pending timer on cleanup
       if (updateTimerRef.current) {
@@ -104,11 +123,10 @@ const TextBlock = ({
     }
   }, [editor, font, textColor, linkColor, accentTextColor]);
 
-  // Update lastContentRef when editor content is set externally (e.g., during undo/redo)
+  // Update contentOnFocusRef when editor content is set externally (e.g., during undo/redo)
   useEffect(() => {
     if (editor && !editor.isDestroyed && isUndoRedoOperation) {
-      // Update the last content reference to match the current editor content
-      lastContentRef.current = editor.getHTML();
+      contentOnFocusRef.current = editor.getHTML();
     }
   }, [editor, isUndoRedoOperation]);
 
