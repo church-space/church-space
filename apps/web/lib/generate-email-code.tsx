@@ -1057,9 +1057,8 @@ const CustomAuthor: React.FC<{
   const finalTextColor = defaultTextColor || "#000000";
   const iconColor = linkColor || finalTextColor;
   const iconColorKey =
-    Object.entries(IconColors).find(
-      ([key, value]) => value === iconColor,
-    )?.[0] || "black";
+    Object.entries(IconColors).find((entry) => entry[1] === iconColor)?.[0] ||
+    "black";
 
   return (
     <table
@@ -1282,7 +1281,7 @@ const CustomFooter: React.FC<{
   // Determine which color key to use for icons based on style
   const getIconColorKey = (color: string) => {
     return (
-      Object.entries(IconColors).find(([key, value]) => value === color)?.[0] ||
+      Object.entries(IconColors).find((entry) => entry[1] === color)?.[0] ||
       "black"
     );
   };
