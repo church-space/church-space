@@ -1,27 +1,7 @@
-import {
-  ChurchSpaceBlack,
-  CircleInfo,
-  LifeRing,
-  LinkIcon,
-  MailFilled,
-  Map,
-  Qrcode,
-  Waypoints,
-} from "@church-space/ui/icons";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@church-space/ui/navigation-menu";
-import Link from "next/link";
-import { ListItem } from "../marketing/header";
-import HeaderButtons from "../marketing/header-buttons";
-import MobileHeaderSheet from "../marketing/mobile-header-sheet";
 import { Button } from "@church-space/ui/button";
+import { ChurchSpaceBlack } from "@church-space/ui/icons";
+import Link from "next/link";
+import MobileHeaderSheet from "../marketing/mobile-header-sheet";
 
 export default function SupportHeader() {
   return (

@@ -466,23 +466,25 @@ export async function createEmail(
     throw error;
   }
 
+  // Try to get default footer, but don't throw if not found
   const { data: defaultFooter, error: defaultFooterError } = await supabase
     .from("email_org_default_footer_values")
     .select("*")
     .eq("organization_id", organizationId)
-    .single();
+    .maybeSingle();
 
   if (defaultFooterError) {
     console.error("Error fetching default footer:", defaultFooterError);
-    throw defaultFooterError;
+    // Continue without default footer values instead of throwing
   }
 
-  const { data: footer, error: footerError } = await supabase
-    .from("email_footers")
-    .insert({
-      email_id: data[0].id,
-      type: "standard",
-      organization_id: organizationId,
+  // Create base footer object with required fields
+  const footerData = {
+    email_id: data[0].id,
+    type: "standard" as const,
+    organization_id: organizationId,
+    // Only include default values if they exist
+    ...(defaultFooter && {
       name: defaultFooter.name,
       subtitle: defaultFooter.subtitle,
       logo: defaultFooter.logo,
@@ -493,7 +495,12 @@ export async function createEmail(
       socials_style: defaultFooter.socials_style,
       socials_color: defaultFooter.socials_color,
       socials_icon_color: defaultFooter.socials_icon_color,
-    });
+    }),
+  };
+
+  const { data: footer, error: footerError } = await supabase
+    .from("email_footers")
+    .insert(footerData);
 
   if (footerError) {
     console.error("Error creating footer:", footerError);
