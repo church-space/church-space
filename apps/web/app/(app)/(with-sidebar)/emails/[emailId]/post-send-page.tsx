@@ -50,7 +50,6 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
-import { getSentEmailStatsAction } from "@/actions/get-sent-email-stats";
 
 export default function PostSendPage({
   initialEmail,
@@ -65,7 +64,6 @@ export default function PostSendPage({
   const supabase = createClient();
 
   // Initialize state from email data
-  const [subject] = useState(email.subject || "");
   const [listId] = useState(email.list_id || "");
 
   // From details
