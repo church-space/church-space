@@ -16,10 +16,8 @@ export default async function Hero() {
   return (
     <section className="overflow-hidden py-16 md:py-32">
       <div className="mx-auto mb-28 max-w-7xl space-y-6 px-6">
-        <h1 className="mx-auto max-w-2xl text-center text-4xl font-bold sm:text-6xl md:text-7xl">
-          Church Comms
-          <br />
-          Made Easy
+        <h1 className="mx-auto max-w-2xl text-balance text-center text-4xl font-bold sm:text-6xl md:text-7xl">
+          Email your church for half the price.
         </h1>
         <div className="mx-auto max-w-2xl text-pretty text-center text-2xl font-semibold">
           Church Space helps you engage
