@@ -14,13 +14,10 @@ const ratelimit = new Ratelimit({
 
 export async function GET(
   request: NextRequest,
-  context: { waitUntil: (promise: Promise<any>) => void },
+  { params }: { params: { qrCodeId: string } },
 ) {
   try {
-    const url = new URL(request.url);
-    const pathParts = url.pathname.split("/");
-    const qrCodeId = pathParts[pathParts.length - 1];
-
+    const qrCodeId = params.qrCodeId;
     const supabase = await createClient();
     const qrCode = await getCachedPublicQRCode(qrCodeId);
 
@@ -36,24 +33,25 @@ export async function GET(
     const response = NextResponse.redirect(qrCode.qr_links.url);
 
     // Handle rate limiting and click recording in the background
-    context.waitUntil(
-      (async () => {
-        try {
-          const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
-          const { success } = await ratelimit.limit(`${ip}-qr-click`);
+    const backgroundTask = async () => {
+      try {
+        const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
+        const { success } = await ratelimit.limit(`${ip}-qr-click`);
 
-          if (success) {
-            await supabase.from("qr_code_clicks").insert([
-              {
-                qr_code_id: qrCodeId,
-              },
-            ]);
-          }
-        } catch (error) {
-          console.error("Background task error:", error);
+        if (success) {
+          await supabase.from("qr_code_clicks").insert([
+            {
+              qr_code_id: qrCodeId,
+            },
+          ]);
         }
-      })(),
-    );
+      } catch (error) {
+        console.error("Background task error:", error);
+      }
+    };
+
+    // Execute background task without waiting
+    backgroundTask();
 
     return response;
   } catch (error) {
