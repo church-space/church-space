@@ -140,79 +140,6 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        <div className="flex items-center gap-2 px-4">
-          <Dialog
-            open={cancelScheduleOpen}
-            onOpenChange={setCancelScheduleOpen}
-          >
-            <DialogTrigger asChild>
-              <Button variant="outline">Cancel Schedule</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Cancel Schedule</DialogTitle>
-              </DialogHeader>
-              <DialogDescription>
-                Are you sure you want to cancel this schedule?
-              </DialogDescription>
-              <DialogFooter>
-                <Button variant="outline">
-                  Close{" "}
-                  <span className="rounded bg-muted px-1 text-xs text-muted-foreground">
-                    Esc
-                  </span>
-                </Button>
-                <Button
-                  onClick={async () => {
-                    setIsLoading(true);
-                    try {
-                      await cancelScheduledEmail({ emailId: email.id });
-                      setCancelScheduleOpen(false);
-                      router.refresh();
-                      window.location.reload();
-                    } catch (error) {
-                      console.error("Failed to cancel schedule", error);
-                    } finally {
-                      setIsLoading(false);
-                    }
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  Cancel Schedule
-                  {isLoading && (
-                    <div className="animate-spin">
-                      <LoaderIcon />
-                    </div>
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Dialog
-            open={previewOpen === "true"}
-            onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
-          >
-            <DialogTrigger asChild>
-              <Button
-                onClick={() => {
-                  setPreviewOpen("true");
-                }}
-              >
-                <span className="hidden md:block">Preview Email</span>
-                <span className="block md:hidden">
-                  <Eye />
-                </span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="h-[95%] min-w-[95%] p-4">
-              <DialogHeader className="sr-only">
-                <DialogTitle>Preview</DialogTitle>
-              </DialogHeader>
-
-              <EmailPreview />
-            </DialogContent>
-          </Dialog>
-        </div>
       </header>
       <h1 className="mx-auto mb-2 mt-8 w-full max-w-3xl items-center text-balance px-5">
         {subject ? (
@@ -293,6 +220,80 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
                 <PaperPlaneClock /> Scheduled For:
               </div>
               <div className="ml-5 text-foreground">{formatDate(sendDate)}</div>
+            </div>
+            <Separator className="my-4" />
+            <div className="flex w-full flex-col items-center gap-2 sm:flex-row">
+              <Dialog
+                open={cancelScheduleOpen}
+                onOpenChange={setCancelScheduleOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button className="w-full" variant="outline">
+                    Cancel Schedule
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Cancel Schedule</DialogTitle>
+                  </DialogHeader>
+                  <DialogDescription>
+                    Are you sure you want to cancel this schedule?
+                  </DialogDescription>
+                  <DialogFooter>
+                    <Button variant="outline">
+                      Close{" "}
+                      <span className="rounded bg-muted px-1 text-xs text-muted-foreground">
+                        Esc
+                      </span>
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        setIsLoading(true);
+                        try {
+                          await cancelScheduledEmail({ emailId: email.id });
+                          setCancelScheduleOpen(false);
+                          router.refresh();
+                          window.location.reload();
+                        } catch (error) {
+                          console.error("Failed to cancel schedule", error);
+                        } finally {
+                          setIsLoading(false);
+                        }
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      Cancel Schedule
+                      {isLoading && (
+                        <div className="animate-spin">
+                          <LoaderIcon />
+                        </div>
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              <Dialog
+                open={previewOpen === "true"}
+                onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    onClick={() => {
+                      setPreviewOpen("true");
+                    }}
+                    className="w-full"
+                  >
+                    Preview Email
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="h-[95%] min-w-[95%] p-4">
+                  <DialogHeader className="sr-only">
+                    <DialogTitle>Preview</DialogTitle>
+                  </DialogHeader>
+
+                  <EmailPreview />
+                </DialogContent>
+              </Dialog>
             </div>
           </CardContent>
         </Card>
