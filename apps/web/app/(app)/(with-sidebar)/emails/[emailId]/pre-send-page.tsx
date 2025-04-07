@@ -806,9 +806,6 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                             "MMMM d, yyyy h:mm a",
                           )}`,
                         });
-
-                        // Refresh the page to show scheduled status
-                        router.refresh();
                       } else {
                         // Send the email immediately
                         const response = await fetch(
@@ -836,9 +833,6 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                           description:
                             "Your email is being sent to recipients.",
                         });
-
-                        // Refresh the page to show sending status
-                        router.refresh();
                       }
                     } catch (err) {
                       toast({
@@ -855,8 +849,6 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                           setTimeout(resolve, 2000),
                         );
                       }
-                      router.refresh();
-                      window.location.reload();
                     }
                   }}
                   disabled={isLoading}
