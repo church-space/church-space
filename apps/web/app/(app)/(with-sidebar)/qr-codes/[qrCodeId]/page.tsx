@@ -425,7 +425,7 @@ export default function Page() {
       // Add the high-res QR code directly to the DOM
       const qrCodeElement = (
         <QRCode
-          value={`churchspace.co/qr/${qrCode.id}`}
+          value={`https://churchspace.co/qr/${qrCode.id}`}
           size={960}
           bgColor={
             qrCode.isTransparent ? "rgba(255, 255, 255, 0)" : qrCode.bgColor
@@ -437,7 +437,7 @@ export default function Page() {
           logoWidth={Math.round(qrCode.logoSize * (960 / 180))}
           logoHeight={Math.round(qrCode.logoSize * (960 / 180))}
           removeQrCodeBehindLogo={true}
-          ecLevel="Q"
+          ecLevel="M"
         />
       );
 
@@ -472,7 +472,7 @@ export default function Page() {
       // If the download fails, we'll try to download without the logo
       const qrCodeWithoutLogo = (
         <QRCode
-          value={`churchspace.co/qr/${qrCode.id}`}
+          value={`https://churchspace.co/qr/${qrCode.id}`}
           size={120}
           bgColor={
             qrCode.isTransparent ? "rgba(255, 255, 255, 0)" : qrCode.bgColor
@@ -481,7 +481,7 @@ export default function Page() {
           qrStyle={qrCode.isRounded ? "fluid" : "squares"}
           eyeRadius={qrCode.isRounded ? 8 : 0}
           removeQrCodeBehindLogo={true}
-          ecLevel="Q"
+          ecLevel="M"
         />
       );
 
@@ -1250,7 +1250,7 @@ export default function Page() {
                   }}
                 >
                   <QRCode
-                    value={`churchspace.co/qr/${qrCode.id}`}
+                    value={`https://churchspace.co/qr/${qrCode.id}`}
                     size={120}
                     bgColor={
                       qrCode.isTransparent
@@ -1268,7 +1268,7 @@ export default function Page() {
                     logoWidth={Math.round(qrCode.logoSize * (120 / 180))}
                     logoHeight={Math.round(qrCode.logoSize * (120 / 180))}
                     removeQrCodeBehindLogo={true}
-                    ecLevel="Q"
+                    ecLevel="M"
                   />
                   <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
                     <Download className="h-8 w-8 text-white" />
@@ -1466,7 +1466,7 @@ export default function Page() {
                     }}
                   >
                     <QRCode
-                      value={`churchspace.co/qr/${editingQRCode.id}`}
+                      value={`https://churchspace.co/qr/${editingQRCode.id}`}
                       size={120}
                       bgColor={
                         editingQRCode.isTransparent
@@ -1488,7 +1488,7 @@ export default function Page() {
                         editingQRCode.logoSize * (120 / 180),
                       )}
                       removeQrCodeBehindLogo={true}
-                      ecLevel="Q"
+                      ecLevel="M"
                     />
                   </div>
                 </div>

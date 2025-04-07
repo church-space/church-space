@@ -5,8 +5,6 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { redirect } from "next/navigation";
 import { getCachedPublicQRCode } from "@church-space/supabase/queries/cached/qr";
 
-export const runtime = "edge";
-
 const ratelimit = new Ratelimit({
   limiter: Ratelimit.fixedWindow(2, "10s"),
   redis: RedisClient,
@@ -14,7 +12,12 @@ const ratelimit = new Ratelimit({
 
 export async function GET(request: NextRequest) {
   try {
-    const qrCodeId = request.nextUrl.pathname.split("/").pop()!;
+    const url = new URL(request.url);
+    const pathParts = url.pathname.split("/");
+    const qrCodeId = pathParts[pathParts.length - 1];
+
+    const supabase = await createClient();
+
     const qrCode = await getCachedPublicQRCode(qrCodeId);
 
     if (
@@ -25,32 +28,27 @@ export async function GET(request: NextRequest) {
       redirect("/qr/not-found");
     }
 
-    // Create the response immediately
-    const response = NextResponse.redirect(qrCode.qr_links.url);
+    // Record the click
+    const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
+    const { success } = await ratelimit.limit(`${ip}-qr-click`);
 
-    // Handle rate limiting and click recording in the background
-    const backgroundTask = async () => {
-      const supabase = await createClient();
-      try {
-        const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
-        const { success } = await ratelimit.limit(`${ip}-qr-click`);
+    if (!success) {
+      return new NextResponse("Too many requests", { status: 429 });
+    }
 
-        if (success) {
-          await supabase.from("qr_code_clicks").insert([
-            {
-              qr_code_id: qrCodeId,
-            },
-          ]);
-        }
-      } catch (error) {
-        console.error("Background task error:", error);
-      }
-    };
+    const { error: clickError } = await supabase.from("qr_code_clicks").insert([
+      {
+        qr_code_id: qrCodeId,
+      },
+    ]);
 
-    // Execute background task without waiting
-    backgroundTask();
+    if (clickError) {
+      console.error("Error recording click:", clickError);
+      // Continue with redirect even if click recording fails
+    }
 
-    return response;
+    // Redirect to the URL
+    return NextResponse.redirect(qrCode.qr_links.url);
   } catch (error) {
     console.error("Error processing QR code:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
