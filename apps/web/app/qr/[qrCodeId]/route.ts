@@ -3,6 +3,8 @@ import { NextResponse, NextRequest } from "next/server";
 import { client as RedisClient } from "@church-space/kv";
 import { Ratelimit } from "@upstash/ratelimit";
 import { redirect } from "next/navigation";
+import { getCachedPublicQRCode } from "@church-space/supabase/queries/cached/qr";
+
 const ratelimit = new Ratelimit({
   limiter: Ratelimit.fixedWindow(2, "10s"),
   redis: RedisClient,
@@ -16,23 +18,9 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Get the QR code and its associated link
-    const { data: qrCode, error: qrError } = await supabase
-      .from("qr_codes")
-      .select(
-        `
-        id,
-        qr_links (
-          url, 
-          status
-        )
-      `,
-      )
-      .eq("id", qrCodeId)
-      .single();
+    const qrCode = await getCachedPublicQRCode(qrCodeId);
 
     if (
-      qrError ||
       !qrCode ||
       !qrCode.qr_links?.url ||
       qrCode.qr_links.status !== "active"

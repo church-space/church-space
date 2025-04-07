@@ -66,6 +66,7 @@
     "./mutations/automations": "./src/mutations/automations.ts",
     "./queries/all/get-pco-connection": "./src/queries/all/get-pco-connection.ts",
     "./queries/all/get-default-footer": "./src/queries/all/get-default-footer.ts",
-    "./queries/all/get-sent-email-stats": "./src/queries/all/get-sent-email-stats.ts"
+    "./queries/all/get-sent-email-stats": "./src/queries/all/get-sent-email-stats.ts",
+    "./queries/cached/qr": "./src/queries/cached/qr.ts"
   }
 }
