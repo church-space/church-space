@@ -95,7 +95,7 @@ export default async function Page({ searchParams }: PageProps) {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbPage>Email</BreadcrumbPage>
+                <BreadcrumbPage>Emails</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

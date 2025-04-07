@@ -60,7 +60,7 @@ function FloatingPaths({ position }: { position: number }) {
 }
 
 export default function SendingPage({
-  title = "Email Is Sending",
+  title = "Your Email Is Sending",
   subject,
 }: {
   title?: string;
@@ -77,7 +77,7 @@ export default function SendingPage({
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Email</BreadcrumbLink>
+                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
 
