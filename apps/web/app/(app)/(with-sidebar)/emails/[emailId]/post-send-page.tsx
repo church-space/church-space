@@ -23,6 +23,12 @@ import {
   EmailComplained,
   EmailOpened,
   EmailUnsubscribed,
+  Users,
+  UserPen,
+  Reply,
+  FountainPen,
+  PaperPlaneClock,
+  LinkIcon,
 } from "@church-space/ui/icons";
 import { Button } from "@church-space/ui/button";
 import {
@@ -42,9 +48,111 @@ import {
   DialogTrigger,
 } from "@church-space/ui/dialog";
 import EmailPreview from "@/components/dnd-builder/email-preview";
+import { createClient } from "@church-space/supabase/client";
+import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
+import { useQuery } from "@tanstack/react-query";
+import { useQueryState } from "nuqs";
+import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
 
-export default function PostSendPage({ email }: { email: any }) {
-  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
+  const [email] = useState<typeof initialEmail>(initialEmail);
+  const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
+
+  const supabase = createClient();
+
+  // Initialize state from email data
+  const [subject] = useState(email.subject || "");
+  const [listId] = useState(email.list_id || "");
+
+  // From details
+  const [fromEmail] = useState(email.from_email || "");
+  const [fromDomain] = useState(email.from_email_domain?.toString() || "");
+  const [fromName] = useState(email.from_name || "");
+  const [replyToEmail] = useState(email.reply_to || "");
+  const [replyToDomain] = useState(email.reply_to_domain?.toString() || "");
+
+  // Fetch list and domain data
+  const { data: listData } = useQuery({
+    queryKey: ["pcoList", listId],
+    queryFn: () => getPcoListQuery(supabase, parseInt(listId || "0")),
+    enabled: !!listId,
+  });
+
+  const { data: domainData } = useQuery({
+    queryKey: ["domain", fromDomain],
+    queryFn: () => getDomainQuery(supabase, parseInt(fromDomain || "0")),
+    enabled: !!fromDomain,
+  });
+
+  const { data: replyToDomainData } = useQuery({
+    queryKey: ["domain", replyToDomain],
+    queryFn: () => getDomainQuery(supabase, parseInt(replyToDomain || "0")),
+    enabled: !!replyToDomain,
+  });
+
+  // Schedule details
+  const [sendDate] = useState<Date | null>(
+    email.scheduled_for ? new Date(email.scheduled_for) : null,
+  );
+
+  const formatDate = (date: Date | null, showTimezone = true) => {
+    if (!date) return "";
+
+    // Format date as "Mar. 3, 2025"
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    };
+
+    // Format time without seconds
+    const timeOptions: Intl.DateTimeFormatOptions = {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    };
+
+    const formattedDate = date.toLocaleDateString("en-US", dateOptions);
+    const formattedTime = date.toLocaleTimeString("en-US", timeOptions);
+
+    if (showTimezone) {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      return `${formattedDate} at ${formattedTime} (${timeZone})`;
+    } else {
+      return `${formattedDate} at ${formattedTime}`;
+    }
+  };
+
+  const emailStats = [
+    {
+      icon: EmailOpened,
+      color: "green",
+      title: "opens",
+      count: 10,
+      rate: 32,
+    },
+    {
+      icon: EmailUnsubscribed,
+      color: "yellow",
+      title: "unsubscribes",
+      count: 1000,
+      rate: 32,
+    },
+    {
+      icon: EmailBounced,
+      color: "red",
+      title: "bounces",
+      count: 10,
+      rate: 32,
+    },
+    {
+      icon: EmailComplained,
+      color: "red",
+      title: "complaints",
+      count: 10,
+      rate: 32,
+    },
+  ];
 
   return (
     <>
@@ -70,40 +178,31 @@ export default function PostSendPage({ email }: { email: any }) {
         <div className="flex items-center gap-2 px-4"></div>
       </header>
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4">
-        <Card className="flex flex-row items-center justify-between">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">
-              {email?.subject}
-            </CardTitle>
-            <CardDescription>
-              <p>Email details</p>
-              <p>Email preview</p>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0 pr-6">
-            <Dialog
-              open={previewOpen}
-              onOpenChange={(open) => setPreviewOpen(open)}
-            >
-              <DialogTrigger asChild>
-                <Button
-                  onClick={() => {
-                    setPreviewOpen(true);
-                  }}
-                >
-                  View Email
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="h-[95%] min-w-[95%] p-4">
-                <DialogHeader className="sr-only">
-                  <DialogTitle>Preview</DialogTitle>
-                </DialogHeader>
+        <div className="mb-4 flex flex-row items-center justify-between">
+          <h1 className="text-2xl font-bold">{email?.subject}</h1>
 
-                <EmailPreview />
-              </DialogContent>
-            </Dialog>
-          </CardContent>
-        </Card>
+          <Dialog
+            open={previewOpen === "true"}
+            onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
+          >
+            <DialogTrigger asChild>
+              <Button
+                onClick={() => {
+                  setPreviewOpen("true");
+                }}
+              >
+                View Email
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="h-[95%] min-w-[95%] p-4">
+              <DialogHeader className="sr-only">
+                <DialogTitle>Preview</DialogTitle>
+              </DialogHeader>
+
+              <EmailPreview />
+            </DialogContent>
+          </Dialog>
+        </div>
         {email.error_message && (
           <Card className="mx-auto w-full border-destructive bg-destructive/10">
             <CardHeader className="pb-2">
@@ -125,60 +224,85 @@ export default function PostSendPage({ email }: { email: any }) {
             </CardFooter>
           </Card>
         )}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="grid grid-cols-2 gap-2">
-            <Card className="flex flex-col gap-2 overflow-hidden p-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-green-500 bg-green-500/10 text-green-500">
-                  <EmailOpened height={"20"} width={"20"} />
-                </div>
-                <p className="text-lg font-bold">10 opens</p>
-              </div>
-              <p className="text-sm text-muted-foreground">32% open rate</p>
-            </Card>
-            <Card className="flex flex-col gap-2 overflow-hidden p-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-yellow-500 bg-yellow-500/10 text-yellow-500">
-                  <EmailUnsubscribed height={"20"} width={"20"} />
-                </div>
-                <p className="text-lg font-bold">1,000 unsubscribes</p>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                32% unsubscribe rate
-              </p>
-            </Card>
-            <Card className="flex flex-col gap-2 overflow-hidden p-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-red-500 bg-red-500/10 text-red-500">
-                  <EmailBounced height={"20"} width={"20"} />
-                </div>
-                <p className="text-lg font-bold">10 bounces</p>
-              </div>
-              <p className="text-sm text-muted-foreground">32% bounce rate</p>
-            </Card>
-            <Card className="flex flex-col gap-2 overflow-hidden p-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-red-500 bg-red-500/10 text-red-500">
-                  <EmailComplained height={"20"} width={"20"} />
-                </div>
-                <p className="text-lg font-bold">10 complaints</p>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                32% complaint rate
-              </p>
-            </Card>
-          </div>
 
+        <div className="grid gap-4 lg:grid-cols-2">
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>
-                Link Clicks{" "}
-                <span className="font-normal text-muted-foreground">
-                  (10 total)
-                </span>
+            <CardHeader className="pb-4">
+              <CardTitle>Details</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2">
+              <div className="flex flex-col items-start font-medium text-primary">
+                <div className="flex items-center gap-1">
+                  <Users /> To:
+                  <div className="text-foreground">
+                    <div className="flex items-baseline gap-2">
+                      {listData?.data?.[0]?.pco_list_description}{" "}
+                      <div className="text-sm text-muted-foreground">
+                        {listData?.data?.[0]?.pco_total_people}{" "}
+                        {listData?.data?.[0]?.pco_total_people === "1"
+                          ? "person"
+                          : "people"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="ml-5 text-foreground">
+                  <div className="text-sm text-muted-foreground">
+                    {listData?.data?.[0]?.pco_list_categories?.pco_name}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col items-start font-medium text-primary">
+                <div className="flex items-center gap-1">
+                  <UserPen /> From:
+                  <div className="text-foreground">{fromName}</div>
+                </div>
+                <div className="ml-5 text-foreground">
+                  <div className="text-sm text-muted-foreground">
+                    {fromEmail}
+                    {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
+                  </div>
+                </div>
+              </div>
+              {replyToEmail && (
+                <div className="flex flex-col items-start font-medium text-primary">
+                  <div className="flex items-center gap-1">
+                    <Reply /> Reply-To:
+                    <div className="text-foreground">
+                      <div className="flex items-baseline gap-2">
+                        {replyToEmail}
+                        {replyToDomain
+                          ? `@${replyToDomainData?.data?.[0]?.domain}`
+                          : ""}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col items-start font-medium text-primary">
+                <div className="flex items-center gap-1">
+                  <PaperPlaneClock /> Sent At:
+                  <div className="text-foreground">{formatDate(sendDate)}</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="px-4 pb-1.5 pt-4">
+              <CardTitle className="flex items-center gap-3 text-lg font-bold">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-blue-500 bg-blue-500/10 text-blue-500">
+                  <LinkIcon height={"20"} width={"20"} />
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  Link Clicks
+                  <span className="font-normal text-muted-foreground">
+                    (10 total)
+                  </span>
+                </div>
               </CardTitle>
             </CardHeader>
-            <CardContent className="max-h-[220px] overflow-y-auto px-4 pr-5">
+            <CardContent className="max-h-[178px] overflow-y-auto px-4 pr-5">
               <Table className="w-full">
                 <TableHeader>
                   <TableRow>
@@ -189,7 +313,7 @@ export default function PostSendPage({ email }: { email: any }) {
                 <TableBody>
                   {Array.from({ length: 10 }).map((_, index) => (
                     <TableRow key={index}>
-                      <TableCell className="max-w-[200px] truncate">
+                      <TableCell className="max-w-[240px] truncate">
                         <span className="block cursor-pointer truncate text-blue-500 hover:overflow-visible hover:text-clip hover:underline">
                           https://www.stefanjudis.com/snippets/turn-off-password-managers/asdfasdf/asdfas
                         </span>
@@ -202,14 +326,47 @@ export default function PostSendPage({ email }: { email: any }) {
             </CardContent>
           </Card>
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recipients</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {emailStats.map((stat, index) => (
+            <Card
+              key={index}
+              className="flex items-center gap-3.5 overflow-hidden p-3"
+            >
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-${stat.color}-500 bg-${stat.color}-500/10 text-${stat.color}-500`}
+              >
+                <stat.icon height={"20"} width={"20"} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-bold leading-none">
+                    {stat.count.toLocaleString()} {stat.title}
+                  </p>
+                </div>
+                <p className="text-sm leading-none text-muted-foreground">
+                  {stat.rate}% {stat.title.slice(0, -1)} rate
+                </p>
+              </div>
+            </Card>
+          ))}
+        </div>
+        <div className="mt-8 flex flex-col gap-4">
+          <div className="flex items-center gap-3 text-lg font-bold">
+            <div className="border-purple -500 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-purple-500/10 text-purple-500">
+              <Users height={"20"} width={"20"} />
+            </div>
+            <h1 className="flex items-baseline gap-1.5">
+              Recipients
+              <span className="font-normal text-muted-foreground">
+                (10 total)
+              </span>
+            </h1>
+          </div>
+
+          <div>
             <p>recipeients (unsubscribed, link clicked, status, etc.)</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </>
   );

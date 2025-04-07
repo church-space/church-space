@@ -48,7 +48,9 @@ export default function Page() {
       {email.data.status === "sending" && (
         <SendingPage subject={email.data.subject} />
       )}
-      {email.data.status === "sent" && <PostSendPage email={email.data} />}
+      {email.data.status === "sent" && (
+        <PostSendPage initialEmail={email.data} />
+      )}
       {(email.data.status === "draft" || email.data.status === "failed") && (
         <PreSendPage email={email.data} />
       )}
