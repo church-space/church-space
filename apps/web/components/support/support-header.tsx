@@ -1,7 +1,6 @@
 import { Button } from "@church-space/ui/button";
 import { ChurchSpaceBlack, Search } from "@church-space/ui/icons";
 import Link from "next/link";
-import MobileHeaderSheet from "../marketing/mobile-header-sheet";
 import {
   TooltipTrigger,
   Tooltip,

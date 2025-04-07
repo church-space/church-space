@@ -2,7 +2,6 @@ import React from "react";
 import { Input } from "@church-space/ui/input";
 import {
   Search as SearchIcon,
-  ChurchSpaceBlack,
   Waypoints,
   Email,
   Robot,
