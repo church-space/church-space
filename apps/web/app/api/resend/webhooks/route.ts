@@ -105,11 +105,20 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
-      await insertEmailLinkClicked(supabase, {
-        resend_email_id: payload.data.email_id,
-        link_clicked: payload.data.click!.link,
-        email_id: clickedIds.email_id,
-      });
+
+      // Only record clicked links that don't start with the email manager URL
+      if (
+        !payload.data.click?.link.startsWith(
+          "https://churchspace.co/email-manager?",
+        )
+      ) {
+        await insertEmailLinkClicked(supabase, {
+          resend_email_id: payload.data.email_id,
+          link_clicked: payload.data.click!.link,
+          email_id: clickedIds.email_id,
+        });
+      }
+
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "opened",
