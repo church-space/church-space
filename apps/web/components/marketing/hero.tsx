@@ -19,10 +19,12 @@ export default async function Hero() {
         <h1 className="mx-auto max-w-2xl text-balance text-center text-4xl font-bold sm:text-6xl md:text-7xl">
           Email your church for half the price.
         </h1>
-        <div className="mx-auto max-w-2xl text-pretty text-center text-2xl font-semibold">
-          Church Space helps you engage
-          <br />
-          your people with craft and ease.
+        <div className="text-md mx-auto max-w-xs text-balance text-center font-semibold text-secondary-foreground sm:max-w-lg sm:text-xl md:max-w-xl md:text-2xl">
+          <span className="hidden md:inline">
+            Church Space helps you engage
+          </span>
+          <span className="inline md:hidden">Engage</span> your people with
+          beautiful emails and organized links.
         </div>
         <div className="mx-auto flex items-center justify-center gap-4">
           {!isLoggedIn ? (
