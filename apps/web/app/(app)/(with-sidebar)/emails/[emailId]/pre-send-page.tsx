@@ -948,7 +948,9 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           </AccordionTrigger>
           <AccordionContent className="space-y-4">
             <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">List</Label>
+              <Label className="ml-0.5">
+                List <span className="text-destructive">*</span>
+              </Label>
               <ListSelector
                 value={listId}
                 onChange={setListId}
@@ -1014,7 +1016,9 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           </AccordionTrigger>
           <AccordionContent className="space-y-3">
             <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">From Email</Label>
+              <Label className="ml-0.5">
+                From Email <span className="text-destructive">*</span>
+              </Label>
               <div className="flex items-center gap-2">
                 <Input
                   placeholder="Enter from"
@@ -1030,7 +1034,9 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">From Name</Label>
+              <Label className="ml-0.5">
+                From Name <span className="text-destructive">*</span>
+              </Label>
               <Input
                 placeholder="Name"
                 value={fromName}
@@ -1086,7 +1092,9 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
           </AccordionTrigger>
           <AccordionContent className="space-y-3">
             <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">Subject</Label>
+              <Label className="ml-0.5">
+                Subject <span className="text-destructive">*</span>
+              </Label>
               <Input
                 placeholder="Enter subject"
                 value={subject}
@@ -1204,7 +1212,10 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
               </TabsList>
               <TabsContent value="schedule" className="space-y-3 pt-2">
                 <div className="flex flex-col gap-2">
-                  <Label className="ml-0.5">Send Date and Time</Label>
+                  <Label className="ml-0.5">
+                    Send Date and Time{" "}
+                    <span className="text-destructive">*</span>
+                  </Label>
                   <DateTimePicker
                     placeholder="Select a date and time"
                     disabledPast
