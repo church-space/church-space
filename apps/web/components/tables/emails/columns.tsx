@@ -103,6 +103,8 @@ export const columns: ColumnDef<Email>[] = [
                 month: "short",
                 day: "numeric",
                 year: "numeric",
+                hour: "numeric",
+                minute: "numeric",
               })}
             </span>
           </div>
@@ -118,6 +120,8 @@ export const columns: ColumnDef<Email>[] = [
                   month: "short",
                   day: "numeric",
                   year: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
                 },
               )}
             </span>
@@ -144,14 +148,16 @@ export const columns: ColumnDef<Email>[] = [
     },
   },
   {
-    header: "Created At",
-    accessorKey: "created_at",
+    header: "Updated At",
+    accessorKey: "updated_at",
     cell: ({ row }) => {
-      return new Date(row.original.created_at).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
+      return row.original.updated_at
+        ? new Date(row.original.updated_at).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : "—";
     },
   },
 ];

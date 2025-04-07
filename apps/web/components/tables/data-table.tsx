@@ -263,7 +263,7 @@ export default function DataTable<TData>({
   return (
     <div className="relative space-y-6">
       {/* Search and Filters */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         {/* Global Search */}
         <div className="min-w-72 flex-1">
           <Label htmlFor="global-search">Search</Label>
