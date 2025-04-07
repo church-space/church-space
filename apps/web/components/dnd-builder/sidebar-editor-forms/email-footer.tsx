@@ -45,6 +45,7 @@ import {
   DialogFooter,
 } from "@church-space/ui/dialog";
 import { updateDefaultEmailFooterAction } from "@/actions/update-default-email-footer";
+import { getDefaultEmailFooter } from "@/actions/get-default-email-footer";
 
 interface Link {
   icon: string;
@@ -401,6 +402,47 @@ export default function EmailFooterForm({
     }
   };
 
+  const handleRevertToDefault = async () => {
+    try {
+      setRevertingToDefault(true);
+      const result = await getDefaultEmailFooter({
+        organizationId: organizationId,
+      });
+
+      const footer = result?.data?.footer;
+      if (footer) {
+        const defaultFooter = {
+          name: footer.name || "",
+          subtitle: footer.subtitle || "",
+          logo: footer.logo || "",
+          address: footer.address || "",
+          reason: footer.reason || "",
+          copyright_name: footer.copyright_name || "",
+          bg_color: "#ffffff", // Default value
+          text_color: "#000000", // Default value
+          secondary_text_color: "#666666", // Default value
+          links: Array.isArray(footer.links) ? footer.links : [],
+          socials_color: footer.socials_color || "#000000",
+          socials_style: footer.socials_style || "icon-only",
+          socials_icon_color: footer.socials_icon_color || "#ffffff",
+        };
+
+        setLocalState(defaultFooter);
+
+        // Trigger UI update and server update through prop
+        if (onFooterChange) {
+          onFooterChange(defaultFooter);
+        }
+      }
+
+      setRevertToDefaultDialogOpen(false);
+    } catch (error) {
+      console.error("Error reverting to default:", error);
+    } finally {
+      setRevertingToDefault(false);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col gap-6 px-1">
@@ -745,7 +787,13 @@ export default function EmailFooterForm({
             >
               Cancel
             </Button>
-            <Button variant="destructive">Revert to Default</Button>
+            <Button
+              variant="destructive"
+              onClick={handleRevertToDefault}
+              disabled={revertingToDefault}
+            >
+              {revertingToDefault ? "Reverting..." : "Revert to Default"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -768,7 +816,9 @@ export default function EmailFooterForm({
             >
               Cancel
             </Button>
-            <Button onClick={handleSaveAsDefault}>Save as Default</Button>
+            <Button onClick={handleSaveAsDefault} disabled={savingAsDefault}>
+              {savingAsDefault ? "Saving..." : "Save as Default"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
