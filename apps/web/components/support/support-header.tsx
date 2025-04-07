@@ -1,5 +1,5 @@
 import { Button } from "@church-space/ui/button";
-import { ChurchSpaceBlack } from "@church-space/ui/icons";
+import { ChurchSpaceBlack, Search } from "@church-space/ui/icons";
 import Link from "next/link";
 import MobileHeaderSheet from "../marketing/mobile-header-sheet";
 
@@ -15,14 +15,15 @@ export default function SupportHeader() {
           Church Space
         </Link>
         <div className="flex items-center gap-2">
-          <Link href="/support">
-            <Button asChild size="sm">
-              <span>Search</span>
+          <Link href="mailto:support@churchspace.co">
+            <Button variant="ghost" asChild size="sm">
+              <span>Contact Support</span>
             </Button>
           </Link>
-          <Link href="mailto:support@churchspace.co">
-            <Button asChild size="sm">
-              <span>Contact Support</span>
+          <Link href="/support">
+            <Button size="sm" className="gap-1">
+              <Search />
+              Search
             </Button>
           </Link>
           <MobileHeaderSheet />

@@ -14,10 +14,15 @@ export default function SupportCTA() {
           </p>
         </div>
 
-        <div className="mt-5 flex flex-wrap justify-center gap-4 md:mt-0">
+        <div className="mt-5 flex flex-row-reverse flex-wrap justify-center gap-4 md:mt-0 md:flex-row">
+          <Link href="mailto:support@churchspace.co">
+            <Button asChild size="lg" variant="outline">
+              <span>Contact Us</span>
+            </Button>
+          </Link>
           <Link href="mailto:support@churchspace.co">
             <Button asChild size="lg">
-              <span>Contact Us</span>
+              <span>Ask the Community</span>
             </Button>
           </Link>
         </div>

@@ -3553,3 +3553,93 @@ export function Save({
     </svg>
   );
 }
+
+export function Robot({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  title = "badge 13",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>{title}</title>
+      <g fill={fill}>
+        <line
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+          x1="2.75"
+          x2="1"
+          y1="11.75"
+          y2="11.75"
+        />
+        <line
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+          x1="15.25"
+          x2="17"
+          y1="11.75"
+          y2="11.75"
+        />
+        <line
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+          x1="9"
+          x2="9"
+          y1="3.75"
+          y2="6.75"
+        />
+        <path
+          d="m15.25,14.25c0,1.1046-.8954,2-2,2H4.75c-1.1046,0-2-.8954-2-2v-5.5c0-1.1046.8954-2,2-2h8.5c1.1046,0,2,.8954,2,2v5.5Z"
+          fill={secondaryfill}
+          opacity=".3"
+          strokeWidth="0"
+        />
+        <path
+          d="m8,12h2c.276,0,.5.224.5.5h0c0,.828-.672,1.5-1.5,1.5h0c-.828,0-1.5-.672-1.5-1.5h0c0-.276.224-.5.5-.5Z"
+          fill={fill}
+          strokeWidth="0"
+        />
+        <path
+          d="m15.25,14.25c0,1.1046-.8954,2-2,2H4.75c-1.1046,0-2-.8954-2-2v-5.5c0-1.1046.8954-2,2-2h8.5c1.1046,0,2,.8954,2,2v5.5Z"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <circle cx="6" cy="11" fill={fill} r="1" strokeWidth="0" />
+        <circle cx="12" cy="11" fill={fill} r="1" strokeWidth="0" />
+        <circle
+          cx="9"
+          cy="2.25"
+          fill="none"
+          r="1.5"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
