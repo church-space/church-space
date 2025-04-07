@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
-import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cancelScheduledEmail } from "@/actions/cancel-schedule-email";
 import { createClient } from "@church-space/supabase/client";

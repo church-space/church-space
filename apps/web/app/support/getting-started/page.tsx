@@ -32,8 +32,11 @@ export default function GettingStarted() {
             information and guides to help you get started.
           </p>
         </div>
-        {Array.from({ length: 3 }).map((_, index) => (
-          <div className="flex flex-col rounded-lg border bg-muted p-4">
+        {Array.from({ length: 3 }).map((_value, index) => (
+          <div
+            key={index}
+            className="flex flex-col rounded-lg border bg-muted p-4"
+          >
             <h2 className="text-lg font-bold">Connect to PCO</h2>
             <p className="text-sm text-muted-foreground">
               Connect your PCO account to Church Space to get started.

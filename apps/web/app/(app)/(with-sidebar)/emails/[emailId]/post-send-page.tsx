@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Separator } from "@church-space/ui/separator";
 import {
@@ -34,7 +34,18 @@ import {
   TableBody,
 } from "@church-space/ui/table";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@church-space/ui/dialog";
+import EmailPreview from "@/components/dnd-builder/email-preview";
+
 export default function PostSendPage({ email }: { email: any }) {
+  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+
   return (
     <>
       <header className="flex h-12 shrink-0 items-center justify-between gap-2">
@@ -70,7 +81,27 @@ export default function PostSendPage({ email }: { email: any }) {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0 pr-6">
-            <Button>View Email</Button>
+            <Dialog
+              open={previewOpen}
+              onOpenChange={(open) => setPreviewOpen(open)}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  onClick={() => {
+                    setPreviewOpen(true);
+                  }}
+                >
+                  View Email
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="h-[95%] min-w-[95%] p-4">
+                <DialogHeader className="sr-only">
+                  <DialogTitle>Preview</DialogTitle>
+                </DialogHeader>
+
+                <EmailPreview />
+              </DialogContent>
+            </Dialog>
           </CardContent>
         </Card>
         {email.error_message && (
