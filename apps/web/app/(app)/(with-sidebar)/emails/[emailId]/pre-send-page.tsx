@@ -108,7 +108,13 @@ function SaveButtons(props: {
   );
 }
 
-export default function PreSendPage({ email: initialEmail }: { email: any }) {
+export default function PreSendPage({
+  email: initialEmail,
+  onStatusChange,
+}: {
+  email: any;
+  onStatusChange: (status: "sending" | "scheduled") => void;
+}) {
   const [email, setEmail] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const { toast } = useToast();
@@ -799,6 +805,14 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                           );
                         }
 
+                        // Optimistically update both local and parent state
+                        setEmail((prev: typeof initialEmail) => ({
+                          ...prev,
+                          status: "scheduled",
+                        }));
+                        onStatusChange("scheduled");
+                        setSendDialogOpen(false);
+
                         toast({
                           title: "Email scheduled",
                           description: `Email will be sent at ${format(
@@ -828,6 +842,14 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                           );
                         }
 
+                        // Optimistically update both local and parent state
+                        setEmail((prev: typeof initialEmail) => ({
+                          ...prev,
+                          status: "sending",
+                        }));
+                        onStatusChange("sending");
+                        setSendDialogOpen(false);
+
                         toast({
                           title: "Email sending started",
                           description:
@@ -844,10 +866,9 @@ export default function PreSendPage({ email: initialEmail }: { email: any }) {
                         variant: "destructive",
                       });
                     } finally {
-                      if (!email.scheduled_for) {
-                        await new Promise((resolve) =>
-                          setTimeout(resolve, 2000),
-                        );
+                      setIsLoading(false);
+                      if (email.scheduled_for) {
+                        setSendDialogOpen(false);
                       }
                     }
                   }}

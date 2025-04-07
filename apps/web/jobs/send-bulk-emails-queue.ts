@@ -129,8 +129,6 @@ export const sendBulkEmails = task({
           ? `${typedEmailData.reply_to}@${typedEmailData.reply_to_domain.domain}`
           : undefined;
 
-      console.log({ replyToAddress: replyToAddress });
-
       // Verify sender domain
       const senderDomain = typedEmailData.from_domain.domain;
 

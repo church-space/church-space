@@ -12,11 +12,14 @@ import PreSendPage from "./pre-send-page";
 import SendingPage from "./sending-page";
 import ScheduledPage from "./scheduled-page";
 import LoadingPage from "./loading-page";
+import { useState, useEffect } from "react";
 
 export default function Page() {
   const params = useParams();
   const emailId = parseInt(params.emailId as string, 10);
   const supabase = createClient();
+
+  const [emailState, setEmailState] = useState<any>(null);
 
   const { data: email, isLoading } = useQuery({
     queryKey: ["email-id-page", emailId],
@@ -26,36 +29,57 @@ export default function Page() {
   const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ["email-stats", emailId],
     queryFn: () => getEmailStatsQuery(supabase, emailId),
-    enabled: email?.data?.status === "sent",
+    enabled: (emailState?.status || email?.data?.status) === "sent",
   });
+
+  // Update emailState when email data changes
+  useEffect(() => {
+    if (email?.data) {
+      setEmailState(email.data);
+    }
+  }, [email?.data]);
 
   console.log(stats);
 
-  if (isLoading || (email?.data?.status === "sent" && isStatsLoading)) {
+  if (
+    isLoading ||
+    ((emailState?.status || email?.data?.status) === "sent" && isStatsLoading)
+  ) {
     return <LoadingPage />;
   }
 
-  if (!email || !email.data) {
+  if (!emailState && !email?.data) {
     return <div>Email not found</div>;
   }
 
-  if (email.data.type === "template") {
+  if ((emailState || email?.data)?.type === "template") {
     redirect(`/emails/${emailId}/editor`);
   }
 
+  const currentEmail = emailState || email?.data;
+
   return (
     <>
-      {email.data.status === "sending" && (
-        <SendingPage subject={email.data.subject} />
+      {currentEmail.status === "sending" && (
+        <SendingPage subject={currentEmail.subject} />
       )}
-      {email.data.status === "sent" && (
-        <PostSendPage initialEmail={email.data} />
+      {currentEmail.status === "sent" && (
+        <PostSendPage initialEmail={currentEmail} />
       )}
-      {(email.data.status === "draft" || email.data.status === "failed") && (
-        <PreSendPage email={email.data} />
+      {(currentEmail.status === "draft" ||
+        currentEmail.status === "failed") && (
+        <PreSendPage
+          email={currentEmail}
+          onStatusChange={(newStatus) => {
+            setEmailState((prev: any) => ({
+              ...prev,
+              status: newStatus,
+            }));
+          }}
+        />
       )}
-      {email.data.status === "scheduled" && (
-        <ScheduledPage email={email.data} />
+      {currentEmail.status === "scheduled" && (
+        <ScheduledPage email={currentEmail} />
       )}
     </>
   );

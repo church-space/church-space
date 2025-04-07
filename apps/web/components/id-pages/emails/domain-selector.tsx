@@ -44,6 +44,9 @@ export default function DomainSelector({
           throw result.error;
         }
         setDomains(result.data || []);
+        if (!value && result.data && result.data.length > 0) {
+          onChange(result.data[0].id.toString());
+        }
       } catch (err) {
         setError(
           err instanceof Error ? err : new Error("Failed to fetch domains"),
@@ -52,7 +55,7 @@ export default function DomainSelector({
     };
 
     fetchDomains();
-  }, [organizationId, supabase]);
+  }, [organizationId, supabase, value, onChange]);
 
   useEffect(() => {
     const fetchSelectedDomain = async () => {

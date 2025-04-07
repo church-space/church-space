@@ -8,6 +8,7 @@ export async function getDomainsQuery(
     .from("domains")
     .select("*")
     .eq("organization_id", organizationId)
+    .order("is_primary", { ascending: false })
     .order("created_at", { ascending: false });
 
   return { data, error };

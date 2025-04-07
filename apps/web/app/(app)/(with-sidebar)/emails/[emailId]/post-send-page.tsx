@@ -163,7 +163,9 @@ export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Email</BreadcrumbLink>
+                <Link href="/emails" prefetch={true}>
+                  Email
+                </Link>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
 
