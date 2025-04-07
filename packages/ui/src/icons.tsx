@@ -3643,3 +3643,251 @@ export function Robot({
     </svg>
   );
 }
+
+export function EmailComplained({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M1.75 5.64296L8.565 9.54C8.84 9.673 9.16 9.673 9.434 9.54L16.25 5.64239V5.25C16.25 4.14543 15.3546 3.25 14.25 3.25H3.75C2.64543 3.25 1.75 4.14543 1.75 5.25V5.64296Z"
+          fill={secondaryfill}
+          fillOpacity="0.3"
+          fillRule="evenodd"
+          stroke="none"
+        />
+        <path
+          d="M1.75 5.75L8.517 9.483C8.818 9.649 9.182 9.649 9.483 9.483L16.25 5.75"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M16.25 9.898V5.25C16.25 4.146 15.355 3.25 14.25 3.25H3.75C2.645 3.25 1.75 4.146 1.75 5.25V12.75C1.75 13.854 2.645 14.75 3.75 14.75H6.75"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M15.5 16.75H15.899C16.694 16.75 17.171 15.867 16.735 15.202L13.836 10.777C13.441 10.174 12.558 10.174 12.163 10.777L9.26399 15.202C8.82799 15.867 9.30499 16.75 10.1 16.75H10.499"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M13 13.25V15.25"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M13 18C13.4142 18 13.75 17.6642 13.75 17.25C13.75 16.8358 13.4142 16.5 13 16.5C12.5858 16.5 12.25 16.8358 12.25 17.25C12.25 17.6642 12.5858 18 13 18Z"
+          fill={fill}
+          stroke="none"
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function EmailUnsubscribed({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill="none">
+        <path
+          d="M1.75 5.64296L8.565 9.54C8.84 9.673 9.16 9.673 9.434 9.54L16.25 5.64239V5.25C16.25 4.14543 15.3546 3.25 14.25 3.25H3.75C2.64543 3.25 1.75 4.14543 1.75 5.25V5.64296Z"
+          fill={fill}
+          fillOpacity=".3"
+          fillRule="evenodd"
+        />
+        <path
+          d="M1.75 5.75L8.517 9.483C8.818 9.649 9.182 9.649 9.483 9.483L16.25 5.75"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M14.5 16L12 13.5L14.5 11"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M16.25 9.264V5.25C16.25 4.146 15.355 3.25 14.25 3.25H3.75C2.645 3.25 1.75 4.146 1.75 5.25V12.75C1.75 13.854 2.645 14.75 3.75 14.75H9.961"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M12.25 13.75L17.25 13.75"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function EmailBounced({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="m14.25,3.25H3.75c-1.1046,0-2,.8954-2,2v.5l6.767,3.733c.3006.1658.6654.1658.966,0l6.767-3.733v-.5c0-1.1046-.8954-2-2-2Z"
+          fill={secondaryfill}
+          opacity=".3"
+          strokeWidth="0"
+        />
+        <path
+          d="m1.75,5.75l6.767,3.733c.301.166.665.166.966,0l6.767-3.733"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="m16.25,8.7089v-3.4589c0-1.1045-.8954-2-2-2H3.75c-1.1046,0-2,.8955-2,2v7.5c0,1.1045.8954,2,2,2h4.549"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <circle
+          cx="14"
+          cy="14"
+          fill="none"
+          r="3.25"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <line
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+          x1="11.7019"
+          x2="16.2924"
+          y1="16.2981"
+          y2="11.7076"
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function EmailOpened({
+  fill = "currentColor",
+  secondaryfill,
+  strokewidth = 1,
+  width = "1em",
+  height = "1em",
+  ...props
+}: IconProps) {
+  secondaryfill = secondaryfill || fill;
+
+  return (
+    <svg
+      height={height}
+      width={width}
+      {...props}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g fill={fill}>
+        <path
+          d="M16.25 9.73688V6.754L16.249 6.75L9.434 10.04C9.16 10.173 8.84 10.173 8.565 10.04L1.75 6.75V13.25C1.75 14.355 2.645 15.25 3.75 15.25H10.056C9.89672 14.548 10.0764 13.782 10.6042 13.2157C11.3835 12.3799 12.6502 12.2705 13.5557 12.9173L15.4602 10.3944C15.6768 10.1075 15.9488 9.88712 16.25 9.73688Z"
+          fill={secondaryfill}
+          fillOpacity="0.3"
+          fillRule="evenodd"
+          stroke="none"
+        />
+        <path
+          d="M1.75 6.75001C1.75 6.02201 2.146 5.38901 2.784 5.03701L8.517 1.87401C8.818 1.70801 9.182 1.70801 9.483 1.87401L15.216 5.03701C15.854 5.38901 16.25 6.02101 16.25 6.75001"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M16.25 9.464V6.75L9.435 10.04C9.16 10.173 8.84 10.173 8.565 10.04L1.75 6.75V13.25C1.75 14.354 2.645 15.25 3.75 15.25H9.806"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M12.25 14.75L13.859 16.25L17.256 11.75"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
