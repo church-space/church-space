@@ -37,6 +37,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import ActionBar from "./action-bar";
 import { Skeleton } from "@church-space/ui/skeleton";
 import { cn } from "@church-space/ui/cn";
+import { useSidebar } from "@church-space/ui/sidebar";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -107,6 +108,8 @@ export default function DataTable<TData>({
   const [rowSelection, setRowSelection] = useState({});
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const { state: sidebarState } = useSidebar();
 
   // Initialize column filters from initialFilters prop
   useEffect(() => {
@@ -263,7 +266,7 @@ export default function DataTable<TData>({
   return (
     <div className="relative space-y-6">
       {/* Search and Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
         {/* Global Search */}
         <div className="min-w-72 flex-1">
           <Label htmlFor="global-search">Search</Label>
@@ -356,102 +359,110 @@ export default function DataTable<TData>({
           ))}
       </div>
 
-      <div ref={containerRef} className="h-full min-h-[calc(100vh-255px)]">
-        <Table className="border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
-          <TableHeader className="backdrop-blur-xs sticky top-0 z-10">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted">
-                {headerGroup.headers.map((header, index) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className={cn(
-                        "relative h-10 select-none border-t",
-                        index === 0 && "rounded-l-lg border-l pl-4",
-                        index === headerGroup.headers.length - 1 &&
-                          "rounded-r-lg border-r pr-2",
-                      )}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading && data.length === 0 ? (
-              // Show skeleton rows while loading
-              Array.from({ length: pageSize }).map((_, index) => (
-                <TableRow key={index} className="group/table-row h-20">
-                  {Array.from({ length: columns.length }).map(
-                    (_, cellIndex) => (
-                      <TableCell key={cellIndex}>
-                        <Skeleton className="h-4 w-3/4" />
-                      </TableCell>
-                    ),
-                  )}
-                </TableRow>
-              ))
-            ) : table.getRowModel().rows?.length ? (
-              <>
-                {table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    className="group/table-row h-20"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
+      <div
+        className={cn(
+          "max-w-[92vw] overflow-auto",
+          sidebarState === "expanded" && "md:max-w-[calc(100vw-17rem)]",
+          sidebarState === "collapsed" && "md:max-w-[calc(100vw-3.5rem)]",
+        )}
+      >
+        <div ref={containerRef} className="h-full min-h-[calc(100vh-255px)]">
+          <Table className="w-full border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
+            <TableHeader className="backdrop-blur-xs sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="bg-muted">
+                  {headerGroup.headers.map((header, index) => {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        className={cn(
+                          "relative h-10 select-none border-t",
+                          index === 0 && "rounded-l-lg border-l pl-4",
+                          index === headerGroup.headers.length - 1 &&
+                            "rounded-r-lg border-r pr-2",
                         )}
-                      </TableCell>
-                    ))}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading && data.length === 0 ? (
+                // Show skeleton rows while loading
+                Array.from({ length: pageSize }).map((_, index) => (
+                  <TableRow key={index} className="group/table-row h-20">
+                    {Array.from({ length: columns.length }).map(
+                      (_, cellIndex) => (
+                        <TableCell key={cellIndex}>
+                          <Skeleton className="h-4 w-3/4" />
+                        </TableCell>
+                      ),
+                    )}
                   </TableRow>
-                ))}
-                {isLoading &&
-                  Array.from({ length: 3 }).map((_, index) => (
+                ))
+              ) : table.getRowModel().rows?.length ? (
+                <>
+                  {table.getRowModel().rows.map((row) => (
                     <TableRow
-                      key={`loading-${index}`}
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
                       className="group/table-row h-20"
                     >
-                      {Array.from({ length: columns.length }).map(
-                        (_, cellIndex) => (
-                          <TableCell key={cellIndex}>
-                            <Skeleton className="h-4 w-3/4" />
-                          </TableCell>
-                        ),
-                      )}
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   ))}
-              </>
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        {/* Sentinel element for intersection observer */}
-        {hasMorePages && !isLoading && (
-          <div
-            className="sentinel h-20 w-full"
-            data-testid="sentinel"
-            style={{ visibility: "hidden" }}
-          />
-        )}
+                  {isLoading &&
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <TableRow
+                        key={`loading-${index}`}
+                        className="group/table-row h-20"
+                      >
+                        {Array.from({ length: columns.length }).map(
+                          (_, cellIndex) => (
+                            <TableCell key={cellIndex}>
+                              <Skeleton className="h-4 w-3/4" />
+                            </TableCell>
+                          ),
+                        )}
+                      </TableRow>
+                    ))}
+                </>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          {/* Sentinel element for intersection observer */}
+          {hasMorePages && !isLoading && (
+            <div
+              className="sentinel h-20 w-full"
+              data-testid="sentinel"
+              style={{ visibility: "hidden" }}
+            />
+          )}
+        </div>
       </div>
 
       {/* Action Bar */}

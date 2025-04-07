@@ -48,16 +48,19 @@ export const columns: ColumnDef<Email>[] = [
     header: "Subject",
     id: "subject",
     accessorKey: "subject",
+    minSize: 300,
     cell: ({ row }) => {
       const email = row.original;
       return (
-        <Link
-          href={`/emails/${email.id}`}
-          className="max-w-40 text-wrap pl-3 font-medium hover:underline"
-          prefetch={true}
-        >
-          {email.subject || "No Subject"}
-        </Link>
+        <div className="min-w-64 text-wrap px-3">
+          <Link
+            href={`/emails/${email.id}`}
+            className="max-w-40 text-wrap font-medium hover:underline"
+            prefetch={true}
+          >
+            {email.subject || "No Subject"}
+          </Link>
+        </div>
       );
     },
   },
@@ -68,22 +71,24 @@ export const columns: ColumnDef<Email>[] = [
     enableHiding: true,
     cell: ({ row }) => {
       return (
-        <Badge
-          variant={
-            row.original.status === "sent"
-              ? "success"
-              : row.original.status === "sending"
-                ? "warning"
-                : row.original.status === "failed"
-                  ? "destructive"
-                  : row.original.status === "scheduled"
-                    ? "default"
-                    : "secondary"
-          }
-          className="capitalize"
-        >
-          {row.original.status}
-        </Badge>
+        <div className="pr-3">
+          <Badge
+            variant={
+              row.original.status === "sent"
+                ? "success"
+                : row.original.status === "sending"
+                  ? "warning"
+                  : row.original.status === "failed"
+                    ? "destructive"
+                    : row.original.status === "scheduled"
+                      ? "default"
+                      : "secondary"
+            }
+            className="capitalize"
+          >
+            {row.original.status}
+          </Badge>
+        </div>
       );
     },
     meta: {
@@ -96,7 +101,7 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => {
       if (row.original.sent_at) {
         return (
-          <div className="flex flex-col">
+          <div className="flex min-w-52 flex-col pr-3">
             <span>Sent at</span>
             <span className="font-semibold">
               {new Date(row.original.sent_at).toLocaleDateString("en-US", {
@@ -111,7 +116,7 @@ export const columns: ColumnDef<Email>[] = [
         );
       } else if (row.original.scheduled_for) {
         return (
-          <div className="flex flex-col">
+          <div className="flex min-w-52 flex-col pr-3">
             <span>Scheduled for</span>
             <span className="font-semibold">
               {new Date(row.original.scheduled_for).toLocaleDateString(
@@ -136,7 +141,7 @@ export const columns: ColumnDef<Email>[] = [
     accessorKey: "from_name",
     cell: ({ row }) => {
       return (
-        <div className="flex flex-col">
+        <div className="flex min-w-64 flex-col pr-3">
           <span className="font-semibold">{row.original.from_name}</span>
           <span className="text-muted-foreground">
             {row.original.from_email && row.original.from_domain
@@ -151,13 +156,21 @@ export const columns: ColumnDef<Email>[] = [
     header: "Updated",
     accessorKey: "updated_at",
     cell: ({ row }) => {
-      return row.original.updated_at
-        ? new Date(row.original.updated_at).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-        : "—";
+      return (
+        <div className="flex min-w-52 flex-col pr-3">
+          <span className="font-semibold">
+            {row.original.updated_at
+              ? new Date(row.original.updated_at).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                })
+              : "—"}
+          </span>
+        </div>
+      );
     },
   },
 ];
