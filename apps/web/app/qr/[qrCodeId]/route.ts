@@ -15,7 +15,6 @@ const ratelimit = new Ratelimit({
 export async function GET(request: NextRequest) {
   try {
     const qrCodeId = request.nextUrl.pathname.split("/").pop()!;
-    const supabase = await createClient();
     const qrCode = await getCachedPublicQRCode(qrCodeId);
 
     if (
@@ -31,6 +30,7 @@ export async function GET(request: NextRequest) {
 
     // Handle rate limiting and click recording in the background
     const backgroundTask = async () => {
+      const supabase = await createClient();
       try {
         const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
         const { success } = await ratelimit.limit(`${ip}-qr-click`);
