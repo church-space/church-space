@@ -25,7 +25,9 @@ export default function ConnectToPco() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Connect to PCO</BreadcrumbPage>
+              <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
+                Connect to PCO but with a much longer name for testing
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
