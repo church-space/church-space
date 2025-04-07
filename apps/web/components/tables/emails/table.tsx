@@ -135,19 +135,22 @@ export default function EmailsTable({
       />
 
       <Dialog open={isNewEmailOpen} onOpenChange={setIsNewEmailOpen}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
+          <DialogHeader className="p-2 pb-0">
             <DialogTitle className="flex items-center gap-2">
               <NewEmailIcon />
               Create New Email
             </DialogTitle>
-            <DialogDescription className="text-pretty">
+            <DialogDescription className="text-pretty text-left">
               What&apos;s the subject of your email? You can always change it
               later.
             </DialogDescription>
           </DialogHeader>
 
-          <NewEmail organizationId={organizationId} />
+          <NewEmail
+            organizationId={organizationId}
+            setIsNewEmailOpen={setIsNewEmailOpen}
+          />
         </DialogContent>
       </Dialog>
     </>

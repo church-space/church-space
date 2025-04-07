@@ -28,8 +28,10 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function NewEmail({
   organizationId,
+  setIsNewEmailOpen,
 }: {
   organizationId: string;
+  setIsNewEmailOpen: (isOpen: boolean) => void;
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -78,15 +80,16 @@ export default function NewEmail({
                     disabled={isLoading}
                     autoFocus
                     inputMode="text"
-                    autoComplete="new-password"
                     autoCorrect="off"
                     autoCapitalize="off"
-                    spellCheck="false"
+                    spellCheck={false}
+                    autoComplete="false"
                     data-form-type="other"
-                    data-lpignore="true"
+                    data-lpignore={true}
                     aria-label="Email subject"
-                    data-1p-ignore="true"
-                    data-icloud-keychain-ignore="true"
+                    data-1p-ignore={true}
+                    data-bwignore={true}
+                    data-icloud-keychain-ignore={true}
                     className="pe-16"
                   />
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -98,7 +101,14 @@ export default function NewEmail({
             </FormItem>
           )}
         />
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsNewEmailOpen(false)}
+          >
+            Cancel
+          </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "Creating..." : "Create Email"}
           </Button>

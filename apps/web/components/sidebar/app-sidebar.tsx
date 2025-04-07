@@ -152,18 +152,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarFooter>
       </Sidebar>
       <Dialog open={newEmailDialogOpen} onOpenChange={setNewEmailDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
+          <DialogHeader className="p-2 pb-0">
             <DialogTitle className="flex items-center gap-2">
               <NewEmailIcon />
               Create New Email
             </DialogTitle>
-            <DialogDescription className="text-pretty">
+            <DialogDescription className="text-pretty text-left">
               What&apos;s the subject of your email? You can always change it
               later.
             </DialogDescription>
           </DialogHeader>
-          <NewEmail organizationId={"43d2f23f-82a8-4eca-b6de-174ca0f9a1a0"} />
+          <NewEmail
+            organizationId={"43d2f23f-82a8-4eca-b6de-174ca0f9a1a0"}
+            setIsNewEmailOpen={setNewEmailDialogOpen}
+          />
         </DialogContent>
       </Dialog>
     </>

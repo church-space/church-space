@@ -148,7 +148,7 @@ export const columns: ColumnDef<Email>[] = [
     },
   },
   {
-    header: "Updated At",
+    header: "Updated",
     accessorKey: "updated_at",
     cell: ({ row }) => {
       return row.original.updated_at
