@@ -1,45 +1,23 @@
 "use client";
-import React, { useState } from "react";
-import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Separator } from "@church-space/ui/separator";
+import EmailPreview from "@/components/dnd-builder/email-preview";
+import { createClient } from "@church-space/supabase/client";
+import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
+import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
 import {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
-  BreadcrumbLink,
+  BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
+import { Button } from "@church-space/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
-import {
-  EmailBounced,
-  EmailComplained,
-  EmailOpened,
-  EmailUnsubscribed,
-  Users,
-  UserPen,
-  Reply,
-  FountainPen,
-  PaperPlaneClock,
-  LinkIcon,
-} from "@church-space/ui/icons";
-import { Button } from "@church-space/ui/button";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableCell,
-  TableBody,
-} from "@church-space/ui/table";
-import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -47,14 +25,40 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
-import EmailPreview from "@/components/dnd-builder/email-preview";
-import { createClient } from "@church-space/supabase/client";
-import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
+import {
+  EmailBounced,
+  EmailComplained,
+  EmailOpened,
+  EmailUnsubscribed,
+  LinkIcon,
+  PaperPlaneClock,
+  Reply,
+  UserPen,
+  Users,
+} from "@church-space/ui/icons";
+import { Separator } from "@church-space/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@church-space/ui/table";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useQueryState } from "nuqs";
-import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
+import { useState } from "react";
+import { getSentEmailStatsAction } from "@/actions/get-sent-email-stats";
 
-export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
+export default function PostSendPage({
+  initialEmail,
+  stats,
+}: {
+  initialEmail: any;
+  stats: any;
+}) {
   const [email] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
 
@@ -128,29 +132,51 @@ export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
       icon: EmailOpened,
       color: "green",
       title: "opens",
-      count: 10,
-      rate: 32,
+      count: stats?.data?.metrics?.total_opens ?? 0,
+      rate: stats?.data?.metrics?.total_sent
+        ? Math.round(
+            (stats.data.metrics.total_opens / stats.data.metrics.total_sent) *
+              100,
+          )
+        : 0,
     },
     {
       icon: EmailUnsubscribed,
       color: "yellow",
       title: "unsubscribes",
-      count: 1000,
-      rate: 32,
+      count: stats?.data?.metrics?.total_unsubscribes ?? 0,
+      rate: stats?.data?.metrics?.total_sent
+        ? Math.round(
+            (stats.data.metrics.total_unsubscribes /
+              stats.data.metrics.total_sent) *
+              100,
+          )
+        : 0,
     },
     {
       icon: EmailBounced,
       color: "red",
       title: "bounces",
-      count: 10,
-      rate: 32,
+      count: stats?.data?.metrics?.total_bounces ?? 0,
+      rate: stats?.data?.metrics?.total_sent
+        ? Math.round(
+            (stats.data.metrics.total_bounces / stats.data.metrics.total_sent) *
+              100,
+          )
+        : 0,
     },
     {
       icon: EmailComplained,
       color: "red",
       title: "complaints",
-      count: 10,
-      rate: 32,
+      count: stats?.data?.metrics?.total_complaints ?? 0,
+      rate: stats?.data?.metrics?.total_sent
+        ? Math.round(
+            (stats.data.metrics.total_complaints /
+              stats.data.metrics.total_sent) *
+              100,
+          )
+        : 0,
     },
   ];
 
@@ -313,16 +339,18 @@ export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {Array.from({ length: 10 }).map((_, index) => (
-                    <TableRow key={index}>
+                  {stats?.data?.linkStats ? (
+                    <TableRow>
                       <TableCell className="max-w-[240px] truncate">
                         <span className="block cursor-pointer truncate text-blue-500 hover:overflow-visible hover:text-clip hover:underline">
-                          https://www.stefanjudis.com/snippets/turn-off-password-managers/asdfasdf/asdfas
+                          {stats.data.linkStats.link_url}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right">{index + 1}</TableCell>
+                      <TableCell className="text-right">
+                        {stats.data.linkStats.total_clicks}
+                      </TableCell>
                     </TableRow>
-                  ))}
+                  ) : null}
                 </TableBody>
               </Table>
             </CardContent>

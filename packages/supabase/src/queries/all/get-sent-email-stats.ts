@@ -1,6 +1,8 @@
 import { Client } from "../../types";
 
 export async function getSentEmailStats(supabase: Client, emailId: number) {
+  console.log("emailId", emailId);
+
   const [metricsResponse, linkStatsResponse] = await Promise.all([
     supabase
       .from("email_metrics")
@@ -32,13 +34,17 @@ export async function getSentEmailStats(supabase: Client, emailId: number) {
   ]);
 
   if (metricsResponse.error) {
-    throw metricsResponse.error;
+    console.log("Metrics response error:", metricsResponse.error);
+    metricsResponse.data = null;
   }
 
   if (linkStatsResponse.error) {
-    throw linkStatsResponse.error;
+    console.log("Link stats response error:", linkStatsResponse.error);
+    linkStatsResponse.data = null;
   }
 
+  console.log("Metrics data:", metricsResponse.data);
+  console.log("Link stats data:", linkStatsResponse.data);
   return {
     metrics: metricsResponse.data,
     linkStats: linkStatsResponse.data,

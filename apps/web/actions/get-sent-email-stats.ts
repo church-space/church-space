@@ -6,7 +6,7 @@ import { z } from "zod";
 import { authActionClient } from "./safe-action";
 
 const getSentEmailStatsSchema = z.object({
-  emailId: z.string(),
+  emailId: z.number(),
 });
 
 export const getSentEmailStatsAction = authActionClient
@@ -15,12 +15,13 @@ export const getSentEmailStatsAction = authActionClient
     name: "getSentEmailStats",
   })
   .action(async ({ parsedInput }) => {
+    console.log("parsedInput", parsedInput);
     const supabase = await createClient();
 
     // Get emails data
     const { metrics, linkStats } = await getSentEmailStats(
       supabase,
-      parseInt(parsedInput.emailId),
+      parsedInput.emailId,
     );
 
     return {
