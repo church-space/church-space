@@ -18,7 +18,10 @@ import { createEmailAction } from "@/actions/create-email";
 import { useState } from "react";
 
 const formSchema = z.object({
-  subject: z.string().min(1, "Subject is required"),
+  subject: z
+    .string()
+    .min(1, "Subject is required")
+    .max(60, "Subject must be 60 characters or less"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -67,23 +70,29 @@ export default function NewEmail({
             <FormItem>
               <FormLabel className="ml-1">Email Subject</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Email subject..."
-                  {...field}
-                  type="text"
-                  disabled={isLoading}
-                  autoFocus
-                  inputMode="text"
-                  autoComplete="new-password"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck="false"
-                  data-form-type="other"
-                  data-lpignore="true"
-                  aria-label="Email subject"
-                  data-1p-ignore="true"
-                  data-icloud-keychain-ignore="true"
-                />
+                <div className="relative">
+                  <Input
+                    placeholder="Email subject..."
+                    {...field}
+                    type="text"
+                    disabled={isLoading}
+                    autoFocus
+                    inputMode="text"
+                    autoComplete="new-password"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
+                    data-form-type="other"
+                    data-lpignore="true"
+                    aria-label="Email subject"
+                    data-1p-ignore="true"
+                    data-icloud-keychain-ignore="true"
+                    className="pe-16"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    {field.value.length} / 60
+                  </span>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
