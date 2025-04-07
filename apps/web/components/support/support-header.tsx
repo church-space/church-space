@@ -2,6 +2,11 @@ import { Button } from "@church-space/ui/button";
 import { ChurchSpaceBlack, Search } from "@church-space/ui/icons";
 import Link from "next/link";
 import MobileHeaderSheet from "../marketing/mobile-header-sheet";
+import {
+  TooltipTrigger,
+  Tooltip,
+  TooltipContent,
+} from "@church-space/ui/tooltip";
 
 export default function SupportHeader() {
   return (
@@ -15,18 +20,26 @@ export default function SupportHeader() {
           Church Space
         </Link>
         <div className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="sm"
+                className="h-8 w-8 gap-1 px-0 py-0"
+                variant="outline"
+              >
+                <Search strokewidth={1.5} height={"20"} width={"20"} />
+                <span className="sr-only">Search</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="border">
+              Search for articles
+            </TooltipContent>
+          </Tooltip>
           <Link href="mailto:support@churchspace.co">
-            <Button variant="ghost" asChild size="sm">
+            <Button asChild size="sm">
               <span>Contact Support</span>
             </Button>
           </Link>
-          <Link href="/support">
-            <Button size="sm" className="gap-1">
-              <Search />
-              Search
-            </Button>
-          </Link>
-          <MobileHeaderSheet />
         </div>
       </div>
     </header>
