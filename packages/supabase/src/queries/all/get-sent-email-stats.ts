@@ -29,8 +29,7 @@ export async function getSentEmailStats(supabase: Client, emailId: number) {
         updated_at
       `
       )
-      .eq("email_id", emailId)
-      .single(),
+      .eq("email_id", emailId),
   ]);
 
   if (metricsResponse.error) {

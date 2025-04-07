@@ -323,7 +323,7 @@ export default function PostSendPage({
                 <div className="flex items-baseline gap-1.5">
                   Link Clicks
                   <span className="font-normal text-muted-foreground">
-                    (10 total)
+                    ({stats?.data?.metrics?.total_clicks || 0} total)
                   </span>
                 </div>
               </CardTitle>
@@ -337,18 +337,23 @@ export default function PostSendPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {stats?.data?.linkStats ? (
-                    <TableRow>
-                      <TableCell className="max-w-[240px] truncate">
-                        <span className="block cursor-pointer truncate text-blue-500 hover:overflow-visible hover:text-clip hover:underline">
-                          {stats.data.linkStats.link_url}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {stats.data.linkStats.total_clicks}
-                      </TableCell>
-                    </TableRow>
-                  ) : null}
+                  {stats?.data?.linkStats?.map(
+                    (
+                      linkStat: { link_url: string; total_clicks: number },
+                      index: number,
+                    ) => (
+                      <TableRow key={index}>
+                        <TableCell className="max-w-[240px] truncate">
+                          <span className="block cursor-pointer truncate text-blue-500 hover:overflow-visible hover:text-clip hover:underline">
+                            {linkStat.link_url}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {linkStat.total_clicks}
+                        </TableCell>
+                      </TableRow>
+                    ),
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
