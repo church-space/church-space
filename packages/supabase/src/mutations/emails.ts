@@ -562,3 +562,28 @@ export async function deleteEmail(supabase: Client, emailId: number) {
   }
   return { data, error };
 }
+
+export async function updateDefaultEmailFooter(
+  supabase: Client,
+  organizationId: string,
+  footer: Database["public"]["Tables"]["email_org_default_footer_values"]["Update"]
+) {
+  const { data, error } = await supabase
+    .from("email_org_default_footer_values")
+    .upsert(
+      {
+        ...footer,
+        organization_id: organizationId,
+      },
+      {
+        onConflict: "organization_id",
+      }
+    )
+    .select();
+
+  if (error) {
+    console.error("Error updating default email footer:", error);
+    throw error;
+  }
+  return { data, error };
+}

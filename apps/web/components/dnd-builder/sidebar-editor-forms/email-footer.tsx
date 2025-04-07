@@ -44,6 +44,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@church-space/ui/dialog";
+import { updateDefaultEmailFooterAction } from "@/actions/update-default-email-footer";
 
 interface Link {
   icon: string;
@@ -69,6 +70,9 @@ export default function EmailFooterForm({
   const { organizationId } = useUser();
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
   const colorTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [savingAsDefault, setSavingAsDefault] = useState(false);
+  const [revertingToDefault, setRevertingToDefault] = useState(false);
 
   const [revertToDefaultDialogOpen, setRevertToDefaultDialogOpen] =
     useState(false);
@@ -376,6 +380,26 @@ export default function EmailFooterForm({
   }, []);
 
   if (!organizationId) return null;
+
+  const handleSaveAsDefault = async () => {
+    try {
+      setSavingAsDefault(true);
+      console.log("Saving footer as default:", {
+        organization_id: organizationId,
+        footer_data: localState,
+      });
+      await updateDefaultEmailFooterAction({
+        organization_id: organizationId,
+        footer_data: localState,
+      });
+      console.log("Successfully saved footer as default");
+      setSaveAsDefaultDialogOpen(false);
+    } catch (error) {
+      console.error("Error saving footer as default:", error);
+    } finally {
+      setSavingAsDefault(false);
+    }
+  };
 
   return (
     <>
@@ -715,7 +739,12 @@ export default function EmailFooterForm({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline">Cancel</Button>
+            <Button
+              variant="outline"
+              onClick={() => setRevertToDefaultDialogOpen(false)}
+            >
+              Cancel
+            </Button>
             <Button variant="destructive">Revert to Default</Button>
           </DialogFooter>
         </DialogContent>
@@ -733,8 +762,13 @@ export default function EmailFooterForm({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline">Cancel</Button>
-            <Button>Save as Default</Button>
+            <Button
+              variant="outline"
+              onClick={() => setSaveAsDefaultDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSaveAsDefault}>Save as Default</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
