@@ -12,15 +12,9 @@ const ratelimit = new Ratelimit({
   redis: RedisClient,
 });
 
-type RouteContext = {
-  params: {
-    qrCodeId: string;
-  };
-};
-
-export async function GET(request: NextRequest, context: RouteContext) {
+export async function GET(request: NextRequest) {
   try {
-    const qrCodeId = context.params.qrCodeId;
+    const qrCodeId = request.nextUrl.pathname.split("/").pop()!;
     const supabase = await createClient();
     const qrCode = await getCachedPublicQRCode(qrCodeId);
 
