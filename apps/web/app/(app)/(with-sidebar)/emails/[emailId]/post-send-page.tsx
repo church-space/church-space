@@ -337,15 +337,20 @@ export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
               >
                 <stat.icon height={"20"} width={"20"} />
               </div>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <p className="text-lg font-bold leading-none">
-                    {stat.count.toLocaleString()} {stat.title}
+              <div className="flex w-full flex-col gap-1">
+                <div className="flex w-full items-center justify-between gap-2">
+                  <p className="text-sm capitalize leading-none text-muted-foreground">
+                    {stat.title}
+                  </p>
+                  <p className="text-sm leading-none text-green-500">
+                    {stat.rate}%
                   </p>
                 </div>
-                <p className="text-sm leading-none text-muted-foreground">
-                  {stat.rate}% {stat.title.slice(0, -1)} rate
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xl font-bold leading-none">
+                    {stat.count.toLocaleString()}
+                  </p>
+                </div>
               </div>
             </Card>
           ))}
