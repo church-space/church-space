@@ -1,52 +1,62 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createClient } from "@church-space/supabase/client";
-import {
-  getAllQrLinks,
-  getQrLinksCount,
-} from "@church-space/supabase/queries/all/get-all-qr-links";
+import { getQrLinks } from "../actions/get-qr-links";
+import { QrLink } from "@/components/tables/qr-codes/columns";
 
-const ITEMS_PER_PAGE = 25;
+interface UseQrLinksOptions {
+  initialData?: {
+    pages: Array<{
+      data: QrLink[];
+      count: number;
+      nextPage: number | undefined;
+    }>;
+    pageParams: number[];
+  };
+}
 
-export function useQrCodes(
+export function useQrLinks(
   organizationId: string,
   searchTerm?: string,
   status?: string,
+  options?: UseQrLinksOptions,
 ) {
-  const supabase = createClient();
-
   return useInfiniteQuery({
-    queryKey: ["qr-codes", organizationId, searchTerm, status],
+    queryKey: ["qr-links", organizationId, searchTerm, status],
     queryFn: async ({ pageParam = 0 }) => {
-      const from = pageParam * ITEMS_PER_PAGE;
-      const to = from + ITEMS_PER_PAGE - 1;
-
-      // Get QR links data
-      const { data, error } = await getAllQrLinks(supabase, organizationId, {
-        start: from,
-        end: to,
+      const result = await getQrLinks({
+        organizationId,
+        page: pageParam,
         searchTerm,
-        status: status ? [status as any] : undefined,
+        status,
       });
 
-      if (error) throw error;
+      if (!result) {
+        throw new Error("Failed to fetch QR links");
+      }
 
-      // Get total count
-      const { count } = await getQrLinksCount(supabase, organizationId, {
-        searchTerm,
-        status: status ? [status as any] : undefined,
-      });
+      if (result.validationErrors) {
+        throw new Error(Object.values(result.validationErrors).join(", "));
+      }
 
-      const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+      if (!result.data) {
+        throw new Error("No data returned from server");
+      }
 
       return {
-        data: data ?? [],
-        nextPage: hasNextPage ? pageParam + 1 : undefined,
-        count,
+        data:
+          (result.data.data?.map((qrLink) => ({
+            ...qrLink,
+          })) as QrLink[]) ?? [],
+        count: result.data.count ?? 0,
+        nextPage: result.data.nextPage,
       };
     },
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    getNextPageParam: (lastPage) => lastPage?.nextPage,
     initialPageParam: 0,
+    initialData: options?.initialData,
     staleTime: 60000,
     gcTime: 60000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 }

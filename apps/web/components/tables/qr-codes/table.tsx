@@ -12,9 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@church-space/ui/dialog";
-
-import { useQrCodes } from "@/hooks/use-qr-codes";
+import { useQrLinks } from "@/hooks/use-qr-codes";
 import NewQRCode from "@/components/forms/new-qr-code";
+import { Skeleton } from "@church-space/ui/skeleton";
 interface QrCodesTableProps {
   organizationId: string;
 }
@@ -24,11 +24,8 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
   const [status, setStatus] = useQueryState("status");
   const [isNewQrCodeOpen, setIsNewQrCodeOpen] = useState(false);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useQrCodes(
-    organizationId,
-    search ?? undefined,
-    status ?? undefined,
-  );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useQrLinks(organizationId, search ?? undefined, status ?? undefined);
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -50,10 +47,12 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
 
   return (
     <>
-      <div className="flex w-full items-center justify-between">
-        <h1 className="mb-6 text-2xl font-bold">
-          <span className="font-normal text-muted-foreground">{count}</span> QR
-          Codes
+      <div className="mb-6 flex w-full items-center justify-between">
+        <h1 className="flex items-center gap-1.5 text-3xl font-bold">
+          <span className="font-normal text-muted-foreground">
+            {isLoading ? <Skeleton className="h-7 w-6" /> : count}
+          </span>{" "}
+          {count === 1 ? "QR Code" : "QR Codes"}
         </h1>
         <Button onClick={() => setIsNewQrCodeOpen(true)}>New QR Code</Button>
       </div>
@@ -83,7 +82,7 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
         initialFilters={{
           status: status ?? undefined,
         }}
-        isLoading={isFetchingNextPage}
+        isLoading={isFetchingNextPage || isLoading}
       />
 
       <Dialog open={isNewQrCodeOpen} onOpenChange={setIsNewQrCodeOpen}>
