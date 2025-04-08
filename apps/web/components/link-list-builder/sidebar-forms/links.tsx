@@ -147,9 +147,9 @@ function SortableAccordionItem({
               </span>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="grid grid-cols-3 items-center gap-x-2 gap-y-2 py-1 pr-2">
+              <div className="grid grid-cols-4 items-center gap-x-2 gap-y-2 py-1 pr-2">
                 <Label>Type</Label>
-                <div className="col-span-2 flex">
+                <div className="col-span-3 flex">
                   <Select
                     value={link.type}
                     onValueChange={(value) => updateLink(index, "type", value)}
@@ -173,13 +173,13 @@ function SortableAccordionItem({
                 </div>
                 <Label>Text</Label>
                 <Input
-                  className="col-span-2"
+                  className="col-span-3"
                   value={link.text}
                   onChange={(e) => updateLink(index, "text", e.target.value)}
                   placeholder="Link text"
                 />
                 <Label>{link.type === "mail" ? "Email" : "URL"}</Label>
-                <div className="col-span-2 flex flex-col gap-1">
+                <div className="col-span-3 flex flex-col gap-1">
                   <Input
                     className={
                       linkErrors[index] && !typingLinks[index]
@@ -200,7 +200,7 @@ function SortableAccordionItem({
                 <Button
                   variant="outline"
                   onClick={() => removeLink(index)}
-                  className="col-span-3 mt-3 h-7 w-full hover:bg-destructive hover:text-white"
+                  className="col-span-4 mt-3 h-7 w-full hover:bg-destructive hover:text-white"
                 >
                   Remove Link
                 </Button>
@@ -607,7 +607,7 @@ export default function LinksForm({
             strategy={verticalListSortingStrategy}
           >
             <div className="w-full">
-              {localLinks.map((link, index) => (
+              {localLinks.map((link: Link, index: number) => (
                 <SortableAccordionItem
                   key={index}
                   link={link}

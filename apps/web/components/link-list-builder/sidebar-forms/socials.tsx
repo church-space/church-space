@@ -161,9 +161,9 @@ function SortableSocialItem({
               </span>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="grid grid-cols-3 items-center gap-x-2 gap-y-2 py-1 pr-2">
+              <div className="grid grid-cols-4 items-center gap-x-2 gap-y-2 py-1 pr-2">
                 <Label>Icon</Label>
-                <div className="col-span-2 flex">
+                <div className="col-span-3 flex">
                   <Select
                     value={link.icon}
                     onValueChange={(value) => updateLink(index, "icon", value)}
@@ -226,7 +226,7 @@ function SortableSocialItem({
                   </Select>
                 </div>
                 <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
-                <div className="col-span-2 flex flex-col gap-1">
+                <div className="col-span-3 flex flex-col gap-1">
                   <Input
                     className={
                       linkErrors[index] && !typingLinks[index]
@@ -248,7 +248,7 @@ function SortableSocialItem({
               <Button
                 variant="outline"
                 onClick={() => removeLink(index)}
-                className="col-span-3 mt-3 h-7 w-full hover:bg-destructive hover:text-white"
+                className="col-span-4 mt-3 h-7 w-full hover:bg-destructive hover:text-white"
               >
                 Remove Link
               </Button>
@@ -506,10 +506,10 @@ export default function SocialsForm({
     const newLinks = [...localSocialLinks];
     newLinks[index] = { ...newLinks[index], [field]: value };
 
-    // Update local state immediately for responsive UI
+    // Always update local state immediately for responsive UI
     setLocalSocialLinks(newLinks);
 
-    // For URL field, validate but don't immediately update parent
+    // For URL field, handle validation and parent updates
     if (field === "url") {
       // Mark this link as being typed
       setTypingLinks((prev) => ({ ...prev, [index]: true }));
@@ -524,30 +524,28 @@ export default function SocialsForm({
         // Clear typing flag
         setTypingLinks((prev) => ({ ...prev, [index]: false }));
 
-        // IMPORTANT: Use the current newLinks (not stale localSocialLinks)
-        // Validate the URL/email value
-        validateLink(newLinks[index].url, newLinks[index].icon, index);
+        // Validate the URL/email value using the newLinks that contain the latest changes
+        const isValid = validateLink(
+          newLinks[index].url,
+          newLinks[index].icon,
+          index,
+        );
 
-        // Only update parent after typing has stopped
-        setSocialLinks(newLinks);
+        // Only update parent after typing has stopped and validation passes
+        if (isValid) {
+          setSocialLinks(newLinks);
+        }
       }, 800);
     } else {
-      // For non-URL fields, still debounce parent updates
+      // For non-URL fields, update parent state with a shorter debounce
       if (linkTimersRef.current[index]) {
         clearTimeout(linkTimersRef.current[index]);
       }
 
       linkTimersRef.current[index] = setTimeout(() => {
-        // Clear typing flag
-        setTypingLinks((prev) => ({ ...prev, [index]: false }));
-
-        // IMPORTANT: Use the current newLinks (not stale localSocialLinks)
-        // Only update parent after typing has stopped
         setSocialLinks(newLinks);
       }, 400);
     }
-
-    // DO NOT update parent state on every keystroke - this would cause thousands of writes
   };
 
   // Remove a social link at specified index

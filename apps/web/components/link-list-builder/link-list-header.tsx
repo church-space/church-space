@@ -85,7 +85,7 @@ export default function LinkListHeader({
         </div>
       )}
 
-      <div className="relative z-10 mx-auto max-w-md space-y-12">
+      <div className="relative z-10 mx-auto w-full max-w-md space-y-12">
         {(headerName || logoUrl) && (
           <div className="flex items-center gap-2">
             {logoUrl && (

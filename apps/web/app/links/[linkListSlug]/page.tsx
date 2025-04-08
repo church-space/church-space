@@ -6,19 +6,19 @@ import LinkListSocials, {
 import LinkListLinks, {
   LinkListLink,
 } from "@/components/link-list-builder/link-list-links";
-import { getLinkListQuery } from "@church-space/supabase/queries/all/get-link-list";
+import { getLinkListBySlugQuery } from "@church-space/supabase/queries/all/get-link-list";
 import { createClient } from "@church-space/supabase/server";
 
 export default async function LinkListPage({
   params,
 }: {
-  params: Promise<{ linkListId: string }>;
+  params: Promise<{ linkListSlug: string }>;
 }) {
-  const { linkListId } = await params;
+  const { linkListSlug } = await params;
   const supabase = await createClient();
-  const { data: linkList, error } = await getLinkListQuery(
+  const { data: linkList, error } = await getLinkListBySlugQuery(
     supabase,
-    parseInt(linkListId),
+    linkListSlug,
   );
   if (error) throw error;
   const headerBgColor = linkList?.style?.headerBgColor;
