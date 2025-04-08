@@ -7,6 +7,12 @@ import { createClient } from "@church-space/supabase/client";
 import Image from "next/image";
 import { cn } from "@church-space/ui/cn";
 
+const ensureHttps = (url: string) => {
+  if (!url) return "#";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `https://${url}`;
+};
+
 interface LinkListHeaderProps {
   headerBgColor: string;
   headerTextColor: string;
@@ -106,7 +112,7 @@ export default function LinkListHeader({
 
         <div
           className={cn(
-            "flex flex-col gap-2",
+            "flex w-full flex-col gap-2",
             (!headerName || !logoUrl) && "mt-4",
           )}
         >
@@ -120,7 +126,7 @@ export default function LinkListHeader({
           )}
           {headerDescription && (
             <div
-              className="mt-1 text-pretty"
+              className="mt-1 w-full text-pretty"
               style={{ color: headerSecondaryTextColor }}
             >
               {headerDescription}
@@ -131,7 +137,7 @@ export default function LinkListHeader({
         {headerButtonText &&
           headerButtonText.trim() !== "" &&
           mode === "live" && (
-            <Link href={headerButtonLink || "#"} target="_blank">
+            <Link href={ensureHttps(headerButtonLink)} target="_blank">
               <Button
                 className="mt-8 h-fit min-h-12 w-full text-balance rounded-full font-semibold shadow-sm"
                 style={{

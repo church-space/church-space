@@ -112,6 +112,7 @@ export default function NewLinkList({
                   data-form-type="other"
                   data-lpignore="true"
                   aria-label="Link list name"
+                  maxLength={80}
                 />
               </FormControl>
               <FormMessage />

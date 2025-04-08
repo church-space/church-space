@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { z } from "zod";
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import FileUpload from "@/components/dnd-builder/file-upload";
 import { useUser } from "@/stores/use-user";
@@ -75,6 +76,80 @@ export default function HeaderForm({
   const [localDescription, setLocalDescription] = useState(headerDescription);
   const [localButtonText, setLocalButtonText] = useState(headerButtonText);
   const [localButtonLink, setLocalButtonLink] = useState(headerButtonLink);
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Define the Zod schema for URL validation
+  const urlSchema = z.string().superRefine((url, ctx) => {
+    // Empty string is valid
+    if (url === "") return;
+
+    // Domain and TLD pattern without requiring https://
+    const urlPattern =
+      /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
+    if (!urlPattern.test(url)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
+      });
+      return;
+    }
+  });
+
+  const validateUrl = (url: string): boolean => {
+    try {
+      urlSchema.parse(url);
+      setLinkError(null);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setLinkError(error.errors[0].message);
+        return false;
+      }
+      return true;
+    }
+  };
+
+  const handleButtonLinkChange = (value: string) => {
+    // Remove any spaces from the input
+    const valueWithoutSpaces = value.replace(/\s/g, "");
+    setLocalButtonLink(valueWithoutSpaces);
+    setIsTyping(true);
+
+    // Clear any existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Set a new timer to validate after typing stops
+    debounceTimerRef.current = setTimeout(() => {
+      setIsTyping(false);
+      const isValid = validateUrl(valueWithoutSpaces);
+
+      // Only update parent if valid
+      if (isValid) {
+        handleTextChange("headerButtonLink", valueWithoutSpaces);
+      }
+    }, 800); // 800ms debounce
+  };
+
+  const handleButtonLinkBlur = () => {
+    // When input loses focus, clear typing state and validate
+    if (isTyping) {
+      setIsTyping(false);
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+
+      const isValid = validateUrl(localButtonLink);
+      if (isValid) {
+        handleTextChange("headerButtonLink", localButtonLink);
+      }
+    }
+  };
 
   // Update local state when props change
   useEffect(() => {
@@ -170,13 +245,16 @@ export default function HeaderForm({
       Object.values(updateTimerRef.current).forEach((timer) => {
         if (timer) clearTimeout(timer);
       });
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
     };
   }, []);
 
   if (!organizationId) return null;
 
   return (
-    <div className="grid grid-cols-3 items-center gap-2 pr-0.5">
+    <div className="grid grid-cols-3 items-center gap-2 pb-12 pr-1">
       <Label className="font-medium">Background Color</Label>
       <ColorPicker
         value={headerBgColor}
@@ -203,15 +281,17 @@ export default function HeaderForm({
         onRemove={() => setHeaderImage("")}
         bucket="link-list-assets"
       />
-
-      <Label className="font-medium">Background Blur</Label>
-      <div className="col-span-2 flex items-center gap-2">
-        <Switch
-          checked={headerBlur}
-          onCheckedChange={(checked) => setHeaderBlur(checked)}
-        />
-      </div>
-
+      {headerImage && (
+        <>
+          <Label className="font-medium">Background Blur</Label>
+          <div className="col-span-2 flex items-center gap-2">
+            <Switch
+              checked={headerBlur}
+              onCheckedChange={(checked) => setHeaderBlur(checked)}
+            />
+          </div>
+        </>
+      )}
       <Separator className="col-span-3 my-4" />
       <Label className="font-medium">Logo</Label>
       <FileUpload
@@ -229,7 +309,9 @@ export default function HeaderForm({
           setLocalName(e.target.value);
           handleTextChange("headerName", e.target.value);
         }}
-        className="col-span-2"
+        className="col-span-2 bg-background"
+        placeholder="Name"
+        maxLength={80}
       />
       <Separator className="col-span-3 my-4" />
       <Label className="font-medium">Title</Label>
@@ -240,6 +322,8 @@ export default function HeaderForm({
           handleTextChange("headerTitle", e.target.value);
         }}
         className="col-span-2"
+        placeholder="Title"
+        maxLength={100}
       />
       <Label className="font-medium">Description</Label>
       <AutosizeTextarea
@@ -249,6 +333,8 @@ export default function HeaderForm({
           handleTextChange("headerDescription", e.target.value);
         }}
         className="col-span-2"
+        placeholder="Description"
+        maxLength={500}
       />
       <Separator className="col-span-3 my-4" />
       <Label className="font-medium">Button Text</Label>
@@ -258,17 +344,25 @@ export default function HeaderForm({
           setLocalButtonText(e.target.value);
           handleTextChange("headerButtonText", e.target.value);
         }}
-        className="col-span-2"
+        className="col-span-2 bg-background"
+        placeholder="Button Text"
+        maxLength={120}
       />
       <Label className="font-medium">Button Link</Label>
-      <Input
-        value={localButtonLink}
-        onChange={(e) => {
-          setLocalButtonLink(e.target.value);
-          handleTextChange("headerButtonLink", e.target.value);
-        }}
-        className="col-span-2"
-      />
+      <div className="col-span-2">
+        <Input
+          value={localButtonLink}
+          onChange={(e) => handleButtonLinkChange(e.target.value)}
+          onBlur={handleButtonLinkBlur}
+          placeholder="https://www.example.com"
+          className={`w-full bg-background ${linkError && !isTyping ? "border-red-500" : ""}`}
+        />
+        {linkError && !isTyping && (
+          <p className="mt-1 text-sm text-red-500" role="alert">
+            {linkError}
+          </p>
+        )}
+      </div>
       <Label className="font-medium">Button Color</Label>
       <ColorPicker
         value={headerButtonColor}
