@@ -24,7 +24,7 @@ type DatabaseQRLink = {
   qr_codes: DatabaseQRCode[];
 };
 
-type DateFilter = {
+export type DateFilter = {
   year: number;
   month: number | null;
   day: number | null;
