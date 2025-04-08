@@ -1366,8 +1366,10 @@ export default function Page() {
                   className="h-12 w-full items-center justify-between"
                   onClick={() => setEditingQRCode({ ...qrCode })}
                 >
-                  <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 p-0">
-                    <CardTitle className="text-lg">{qrCode.name}</CardTitle>
+                  <CardHeader className="flex w-full flex-row items-center justify-between gap-2 space-y-0 p-0">
+                    <CardTitle className="flex-1 truncate text-left text-base">
+                      {qrCode.name}
+                    </CardTitle>
 
                     <Edit className="h-4 w-4" />
                   </CardHeader>
@@ -1421,7 +1423,7 @@ export default function Page() {
                   Create a new QR code for your link.
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 py-4">
+              <div className="space-y-4 pb-2">
                 <div className="space-y-2">
                   <Label htmlFor="new-qr-name">QR Code Name</Label>
                   <Input
@@ -1429,6 +1431,7 @@ export default function Page() {
                     value={newQRCodeName}
                     onChange={(e) => setNewQRCodeName(e.target.value)}
                     placeholder="e.g., Flyer QR Code, Business Card"
+                    maxLength={60}
                   />
                 </div>
                 <div className="flex justify-end space-x-2 pt-4">
@@ -1470,6 +1473,7 @@ export default function Page() {
                         })
                       }
                       placeholder="Enter a name for this QR code"
+                      maxLength={60}
                     />
                   </div>
 
@@ -1488,6 +1492,7 @@ export default function Page() {
                             })
                           }
                           className="h-10 w-10 p-1"
+                          maxLength={6}
                         />
                       </div>
                     </div>
@@ -1524,6 +1529,7 @@ export default function Page() {
                             })
                           }
                           className="h-10 w-10 p-1"
+                          maxLength={6}
                         />
                       </div>
                     </div>
