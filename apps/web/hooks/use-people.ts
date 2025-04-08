@@ -72,5 +72,7 @@ export function usePeople(
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
+    staleTime: 60000,
+    gcTime: 60000,
   });
 }
