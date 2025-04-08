@@ -586,7 +586,7 @@ export default function LinkListBuilder() {
           </TabsList>
           <TabsContent value="content" className="mt-2">
             <div className="relative flex-1">
-              <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col overflow-y-auto rounded-md border shadow-md">
+              <div className="mx-auto flex h-auto max-h-[calc(100vh-7.3rem)] w-full flex-col overflow-y-auto rounded-md border shadow-md lg:max-h-[calc(100vh-5rem)] lg:max-w-sm">
                 {isLoading && (
                   <Skeleton className="h-[calc(100vh-20rem)] w-full bg-muted" />
                 )}

@@ -234,7 +234,7 @@ export default function LinkListBuilderSidebar({
   return (
     <div
       className={cn(
-        "sticky top-16 h-[calc(100vh-5rem)] w-full flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm lg:w-[400px]",
+        "sticky top-16 h-[calc(100vh-7.3rem)] w-full flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm lg:h-[calc(100vh-5rem)] lg:w-[400px]",
         className,
       )}
     >
@@ -356,7 +356,7 @@ export default function LinkListBuilderSidebar({
                 </div>
                 <ChevronRight />
               </div>
-              <div className="mt-4 flex flex-col gap-4 border-t pt-4">
+              <div className="mt-4 flex flex-col gap-4 border-t px-1 pt-4">
                 <div className="text-md font-medium">Settings</div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="name">Name</Label>
@@ -373,6 +373,7 @@ export default function LinkListBuilderSidebar({
                     aria-describedby={
                       privateNameError ? "private-name-error" : undefined
                     }
+                    maxLength={80}
                   />
                   {privateNameError && (
                     <p
