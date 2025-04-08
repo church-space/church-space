@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
+import { cn } from "@church-space/ui/cn";
 import {
   Dialog,
   DialogContent,
@@ -375,7 +376,38 @@ export default function PostSendPage({
                   <p className="text-sm capitalize leading-none text-muted-foreground">
                     {stat.title}
                   </p>
-                  <p className="text-sm leading-none text-green-500">
+                  <p
+                    className={cn(
+                      "text-sm leading-none",
+                      // Open rate thresholds
+                      stat.title === "opens"
+                        ? stat.rate > 25
+                          ? "text-green-500"
+                          : stat.rate >= 15
+                            ? "text-yellow-500"
+                            : "text-red-500"
+                        : // Unsubscribe rate thresholds
+                          stat.title === "unsubscribes"
+                          ? stat.rate < 0.2
+                            ? "text-green-500"
+                            : stat.rate <= 0.5
+                              ? "text-yellow-500"
+                              : "text-red-500"
+                          : // Bounce rate thresholds
+                            stat.title === "bounces"
+                            ? stat.rate < 0.5
+                              ? "text-green-500"
+                              : stat.rate <= 1
+                                ? "text-yellow-500"
+                                : "text-red-500"
+                            : // Complaint rate thresholds
+                              stat.rate < 0.01
+                              ? "text-green-500"
+                              : stat.rate <= 0.05
+                                ? "text-yellow-500"
+                                : "text-red-500",
+                    )}
+                  >
                     {stat.rate}%
                   </p>
                 </div>
@@ -388,6 +420,9 @@ export default function PostSendPage({
             </Card>
           ))}
         </div>
+        <div className="flex -translate-y-2 justify-end text-xs text-muted-foreground">
+          * Stats updated every hour for the first week after sending.
+        </div>
         <div className="mt-8 flex flex-col gap-4">
           <div className="flex items-center gap-3 text-lg font-bold">
             <div className="border-purple -500 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-purple-500/10 text-purple-500">
@@ -396,7 +431,7 @@ export default function PostSendPage({
             <h1 className="flex items-baseline gap-1.5">
               Recipients
               <span className="font-normal text-muted-foreground">
-                (10 total)
+                ({stats?.data?.metrics?.total_sent} total)
               </span>
             </h1>
           </div>
