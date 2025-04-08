@@ -14,6 +14,17 @@ import {
   Youtube,
 } from "@church-space/ui/icons";
 
+const ensureHttps = (url: string, icon: keyof typeof socialIcons) => {
+  if (!url) return "#";
+  if (url.startsWith("mailto:")) return url;
+  if (icon === "mail") {
+    if (url.startsWith("mailto:")) return url;
+    return `mailto:${url}`;
+  }
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `https://${url}`;
+};
+
 export const socialIcons = {
   instagram: Instagram,
   tiktok: TikTok,
@@ -78,7 +89,7 @@ export default function LinkListSocials({
 
             return mode === "live" ? (
               <a
-                href={link.url}
+                href={ensureHttps(link.url, link.icon)}
                 key={index}
                 target="_blank"
                 rel="noopener noreferrer"

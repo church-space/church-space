@@ -120,7 +120,7 @@ function DraggableBlock({
   const BlockContent = ({ className }: { className?: string }) => (
     <div
       className={cn(
-        "flex cursor-grab flex-col items-center gap-1 rounded-md border bg-accent p-3 shadow-sm hover:bg-accent/80",
+        "flex cursor-grab flex-col items-center gap-1 rounded-md border bg-background p-3 shadow-sm hover:bg-accent/80",
         className,
       )}
     >
@@ -332,7 +332,7 @@ export default function DndBuilderSidebar({
                       {type === "email" && (
                         <>
                           <div
-                            className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
+                            className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-background py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                             onClick={() => setActiveForm("email-style")}
                           >
                             <div className="flex items-center gap-2">
@@ -342,7 +342,7 @@ export default function DndBuilderSidebar({
                             <ChevronRight />
                           </div>
                           <div
-                            className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
+                            className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-background py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                             onClick={() => setActiveForm("email-footer")}
                           >
                             <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export default function DndBuilderSidebar({
                         </>
                       )}
                       <div
-                        className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
+                        className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-background py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                         onClick={() => setActiveForm("email-templates")}
                       >
                         <div className="flex items-center gap-2">
@@ -433,7 +433,7 @@ export default function DndBuilderSidebar({
                   <div
                     key={block.type}
                     className={cn(
-                      "flex flex-col items-center gap-1 rounded-md border bg-accent p-5 shadow-sm",
+                      "flex flex-col items-center gap-1 rounded-md border bg-background p-5 shadow-sm",
                       className,
                     )}
                   >

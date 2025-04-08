@@ -168,7 +168,7 @@ function SortableSocialItem({
                     value={link.icon}
                     onValueChange={(value) => updateLink(index, "icon", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Icon" />
                     </SelectTrigger>
                     <SelectContent className="min-w-20">
@@ -504,7 +504,22 @@ export default function SocialsForm({
   ) => {
     // Create updated social links array
     const newLinks = [...localSocialLinks];
-    newLinks[index] = { ...newLinks[index], [field]: value };
+
+    // If changing icon type, clear the URL field if switching between mail and non-mail
+    if (field === "icon") {
+      const oldType = newLinks[index].icon;
+      const newType = value as keyof typeof socialIcons;
+      if (
+        (oldType === "mail" && newType !== "mail") ||
+        (oldType !== "mail" && newType === "mail")
+      ) {
+        newLinks[index] = { ...newLinks[index], url: "", icon: newType };
+      } else {
+        newLinks[index] = { ...newLinks[index], icon: newType };
+      }
+    } else {
+      newLinks[index] = { ...newLinks[index], [field]: value };
+    }
 
     // Always update local state immediately for responsive UI
     setLocalSocialLinks(newLinks);
@@ -652,7 +667,7 @@ export default function SocialsForm({
           value={socialsStyle}
           onValueChange={(value) => handleChange("socials_style", value)}
         >
-          <SelectTrigger className="col-span-2">
+          <SelectTrigger className="col-span-2 bg-background">
             <SelectValue placeholder="Select icon style" />
           </SelectTrigger>
           <SelectContent>

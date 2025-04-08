@@ -327,7 +327,7 @@ export default function LinkListBuilderSidebar({
             <div className="flex flex-col gap-4">
               <div className="text-lg font-medium">Editor</div>
               <div
-                className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
+                className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-background py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                 onClick={() => setActiveForm("header")}
               >
                 <div className="flex items-center gap-2">
@@ -337,7 +337,7 @@ export default function LinkListBuilderSidebar({
                 <ChevronRight />
               </div>
               <div
-                className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
+                className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-background py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                 onClick={() => setActiveForm("socials")}
               >
                 <div className="flex items-center gap-2">
@@ -347,7 +347,7 @@ export default function LinkListBuilderSidebar({
                 <ChevronRight />
               </div>
               <div
-                className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-accent py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
+                className="flex w-full cursor-pointer items-center justify-between rounded-md border bg-background py-3 pl-3 pr-2 text-sm shadow-sm transition-colors hover:bg-accent/80"
                 onClick={() => setActiveForm("links")}
               >
                 <div className="flex items-center gap-2">

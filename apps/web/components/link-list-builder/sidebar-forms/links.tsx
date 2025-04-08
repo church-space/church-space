@@ -154,7 +154,7 @@ function SortableAccordionItem({
                     value={link.type}
                     onValueChange={(value) => updateLink(index, "type", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-background">
                       <SelectValue placeholder="type" />
                     </SelectTrigger>
                     <SelectContent className="min-w-20">

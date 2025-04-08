@@ -9,6 +9,7 @@ import { cn } from "@church-space/ui/cn";
 
 const ensureHttps = (url: string) => {
   if (!url) return "#";
+  if (url.startsWith("mailto:")) return url;
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
   return `https://${url}`;
 };

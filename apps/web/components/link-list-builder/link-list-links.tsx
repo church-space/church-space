@@ -1,6 +1,13 @@
 import { LinkFilled } from "@church-space/ui/icons";
 import React from "react";
 
+const ensureHttps = (url: string) => {
+  if (!url) return "#";
+  if (url.startsWith("mailto:")) return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `https://${url}`;
+};
+
 export interface LinkListLink {
   type: string;
   url: string;
@@ -42,7 +49,7 @@ export default function LinkListLinks({
 
         return mode === "live" ? (
           <a
-            href={link.url}
+            href={ensureHttps(link.url)}
             key={index}
             target="_blank"
             rel="noopener noreferrer"
