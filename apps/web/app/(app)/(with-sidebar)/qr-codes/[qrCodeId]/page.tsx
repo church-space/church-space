@@ -914,7 +914,7 @@ export default function Page() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>
+                <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
                   {qrLinkData?.name || "Loading..."}
                 </BreadcrumbPage>
               </BreadcrumbItem>
