@@ -73,7 +73,7 @@ interface LinkListBuilderSidebarProps {
 
 const isValidSlug = (slug: string): boolean => {
   if (!slug) return false;
-  return /^[a-zA-Z0-9-]+$/.test(slug);
+  return /^[a-zA-Z0-9-]+$/.test(slug) && !slug.endsWith("-");
 };
 
 export default function LinkListBuilderSidebar({
@@ -175,7 +175,7 @@ export default function LinkListBuilderSidebar({
   }, [urlSlugErrorProp]);
 
   const handleUrlSlugChange = (value: string) => {
-    const cleanedValue = value.toLowerCase();
+    const cleanedValue = value.toLowerCase().replace(/\s/g, "");
     setLocalUrlSlug(cleanedValue);
     setUrlSlugFormatError(null);
 
@@ -189,7 +189,9 @@ export default function LinkListBuilderSidebar({
         setUrlSlugFormatError("URL slug cannot be empty.");
       } else if (!isValidSlug(cleanedValue)) {
         setUrlSlugFormatError(
-          "Invalid format: use letters, numbers, or hyphens.",
+          cleanedValue.endsWith("-")
+            ? "URL cannot end with a dash."
+            : "Invalid format: use letters, numbers, or hyphens.",
         );
       } else {
         setUrlSlug(cleanedValue);
