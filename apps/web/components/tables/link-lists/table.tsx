@@ -5,11 +5,7 @@ import DataTable from "../data-table";
 import { columns, LinkList } from "./columns";
 import { useQueryState } from "nuqs";
 import { Button } from "@church-space/ui/button";
-import {
-  getLinkListFilterConfig,
-  LinkListStatus,
-  LINK_LIST_STATUS_OPTIONS,
-} from "./filters";
+import { LinkListStatus, LINK_LIST_STATUS_OPTIONS } from "./filters";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +15,7 @@ import {
 import { useLinkLists } from "@/hooks/use-link-lists";
 import NewLinkList from "@/components/forms/new-link-list";
 import { Skeleton } from "@church-space/ui/skeleton";
+import { LinkFilled } from "@church-space/ui/icons";
 
 interface LinkListsTableProps {
   organizationId: string;
@@ -149,9 +146,11 @@ export default function LinkListsTable({
       />
 
       <Dialog open={isNewLinkListOpen} onOpenChange={setIsNewLinkListOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Link List</DialogTitle>
+        <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
+          <DialogHeader className="p-2 pb-0">
+            <DialogTitle className="flex items-center gap-1">
+              <LinkFilled height={"20"} width={"20"} /> Create New Link List
+            </DialogTitle>
           </DialogHeader>
           <NewLinkList
             organizationId={organizationId}

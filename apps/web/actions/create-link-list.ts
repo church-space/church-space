@@ -40,6 +40,7 @@ export const createLinkListAction = authActionClient
         organization_id: parsedInput.parsedInput.organization_id,
         url_slug: parsedInput.parsedInput.url_slug,
         private_name: parsedInput.parsedInput.private_name,
+        is_public: false,
       })) as { data: LinkList[] | null; error: PostgrestError | null };
 
       if (error) {

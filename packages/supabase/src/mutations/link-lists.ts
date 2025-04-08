@@ -4,7 +4,10 @@ export async function createLinkList(
   supabase: Client,
   linkList: Database["public"]["Tables"]["link_lists"]["Insert"]
 ) {
-  const { data, error } = await supabase.from("link_lists").insert(linkList);
+  const { data, error } = await supabase
+    .from("link_lists")
+    .insert(linkList)
+    .select();
   return { data, error };
 }
 
