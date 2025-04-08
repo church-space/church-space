@@ -414,31 +414,35 @@ export default function LinkListBuilderSidebar({
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-3 pt-2">
-                  <Switch
-                    id="is-public"
-                    checked={isPublic}
-                    onCheckedChange={setIsPublic}
-                  />
-                  <Label htmlFor="is-public">Make Public</Label>
+                <div className="flex h-10 items-center justify-between">
+                  <div className="flex items-center gap-3 pt-2">
+                    <Switch
+                      id="is-public"
+                      checked={isPublic}
+                      onCheckedChange={setIsPublic}
+                    />
+                    <Label htmlFor="is-public">Make Public</Label>
+                  </div>
+                  {isPublic && (
+                    <Link
+                      href={localUrlSlug ? `/links/${localUrlSlug}` : "#"}
+                      target="_blank"
+                      passHref
+                      legacyBehavior
+                    >
+                      <a
+                        className={cn(
+                          !localUrlSlug && "pointer-events-none opacity-50",
+                        )}
+                        aria-disabled={!localUrlSlug}
+                      >
+                        <Button variant="outline" disabled={!localUrlSlug}>
+                          View Live Page
+                        </Button>
+                      </a>
+                    </Link>
+                  )}
                 </div>
-                <Link
-                  href={localUrlSlug ? `/links/${localUrlSlug}` : "#"}
-                  target="_blank"
-                  passHref
-                  legacyBehavior
-                >
-                  <a
-                    className={cn(
-                      !localUrlSlug && "pointer-events-none opacity-50",
-                    )}
-                    aria-disabled={!localUrlSlug}
-                  >
-                    <Button variant="outline" disabled={!localUrlSlug}>
-                      View Live Page
-                    </Button>
-                  </a>
-                </Link>
               </div>
             </div>
           </motion.div>
