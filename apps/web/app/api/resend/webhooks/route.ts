@@ -21,6 +21,7 @@ type ResendWebhookEvent = {
     | "email.opened";
   data: {
     email_id: string;
+    to: string[];
     click?: {
       link: string;
     };
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
         status: "opened",
         email_id: clickedIds.email_id,
         people_email_id: clickedIds.people_email_id,
+        email_address: payload.data.to[0],
       });
       break;
     case "email.sent":
@@ -139,6 +141,7 @@ export async function POST(request: NextRequest) {
         status: "sent",
         email_id: sentIds.email_id,
         people_email_id: sentIds.people_email_id,
+        email_address: payload.data.to[0],
       });
       break;
     case "email.delivered":
@@ -154,6 +157,7 @@ export async function POST(request: NextRequest) {
         status: "delivered",
         email_id: deliveredIds.email_id,
         people_email_id: deliveredIds.people_email_id,
+        email_address: payload.data.to[0],
       });
       break;
     case "email.delivery_delayed":
@@ -169,6 +173,7 @@ export async function POST(request: NextRequest) {
         status: "delivery_delayed",
         email_id: delayedIds.email_id,
         people_email_id: delayedIds.people_email_id,
+        email_address: payload.data.to[0],
       });
       break;
     case "email.complained":
@@ -185,6 +190,7 @@ export async function POST(request: NextRequest) {
         status: "complained",
         email_id: ids.email_id,
         people_email_id: ids.people_email_id,
+        email_address: payload.data.to[0],
       });
       break;
     case "email.bounced":
@@ -201,6 +207,7 @@ export async function POST(request: NextRequest) {
           status: "bounced",
           email_id: bouncedIds.email_id,
           people_email_id: bouncedIds.people_email_id,
+          email_address: payload.data.to[0],
         }),
         updatePeopleEmailStatus(supabase, {
           people_email_id: bouncedIds.people_email_id,
@@ -222,6 +229,7 @@ export async function POST(request: NextRequest) {
         status: "opened",
         email_id: openedIds.email_id,
         people_email_id: openedIds.people_email_id,
+        email_address: payload.data.to[0],
       });
       break;
   }

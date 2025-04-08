@@ -7,11 +7,13 @@ export async function upsertEmailRecipient(
     status,
     email_id,
     people_email_id,
+    email_address,
   }: {
     resend_email_id: string;
     status: Database["public"]["Enums"]["email_delivery_status"];
     email_id: number;
     people_email_id: number;
+    email_address: string;
   }
 ) {
   return supabase.from("email_recipients").upsert(
@@ -20,6 +22,7 @@ export async function upsertEmailRecipient(
       status,
       email_id,
       people_email_id,
+      email_address,
     },
     { onConflict: "resend_email_id" }
   );

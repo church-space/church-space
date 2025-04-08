@@ -1,7 +1,6 @@
 "use client";
 
 import { useEmailRecipients } from "@/hooks/use-email-recipients";
-import { Skeleton } from "@church-space/ui/skeleton";
 import { useQueryState } from "nuqs";
 import { useCallback } from "react";
 import DataTable from "../data-table";
