@@ -66,13 +66,13 @@ export default function LinkListSocials({
   return (
     <>
       {filteredLinks.length > 0 && (
-        <div className="mx-auto flex w-fit items-center justify-between gap-3 px-6">
+        <div className="mx-auto flex w-fit items-center justify-between gap-3 px-6 hover:cursor-pointer">
           {filteredLinks.map((link, index) => {
             const IconComponent = socialIcons[link.icon] || socialIcons.link;
             const iconElement = (
               <div
                 key={index}
-                className="flex h-10 w-10 items-center justify-center rounded-full"
+                className="flex h-10 w-10 items-center justify-center rounded-full transition-opacity hover:opacity-80"
                 style={{
                   backgroundColor: style === "filled" ? color : "transparent",
                   color: iconColor,

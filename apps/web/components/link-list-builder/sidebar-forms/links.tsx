@@ -177,6 +177,7 @@ function SortableAccordionItem({
                   value={link.text}
                   onChange={(e) => updateLink(index, "text", e.target.value)}
                   placeholder="Link text"
+                  maxLength={80}
                 />
                 <Label>{link.type === "mail" ? "Email" : "URL"}</Label>
                 <div className="col-span-3 flex flex-col gap-1">
