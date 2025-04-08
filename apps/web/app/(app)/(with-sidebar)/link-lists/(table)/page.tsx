@@ -15,8 +15,6 @@ import {
   getAllLinkLists,
   getLinkListsCount,
 } from "@church-space/supabase/queries/all/get-all-link-lists";
-import { Suspense } from "react";
-import DataTableSkeleton from "@/components/tables/data-table-skeleton";
 
 interface PageProps {
   params: Promise<{ slug?: string }>;

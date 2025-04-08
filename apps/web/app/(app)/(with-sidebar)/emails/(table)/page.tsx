@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Separator } from "@church-space/ui/separator";
 import {
@@ -17,7 +17,6 @@ import {
 } from "@church-space/supabase/queries/all/get-emails";
 import type { EmailStatus } from "@/components/tables/emails/filters";
 import type { Email } from "@/components/tables/emails/columns";
-import DataTableSkeleton from "@/components/tables/data-table-skeleton";
 
 interface PageProps {
   params: Promise<{ slug?: string }>;
