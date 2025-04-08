@@ -15,7 +15,10 @@ import {
 } from "@church-space/ui/form";
 import { Input } from "@church-space/ui/input";
 import { createLinkListAction } from "@/actions/create-link-list";
+import type { LinkListResponse } from "@/actions/create-link-list";
+import type { ActionResponse } from "@/types/action";
 import { useState } from "react";
+import { cn } from "@church-space/ui/cn";
 
 const formSchema = z.object({
   private_name: z.string().min(1, "Name is required"),
@@ -28,8 +31,10 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function NewLinkList({
   organizationId,
+  setIsNewLinkListOpen,
 }: {
   organizationId: string;
+  setIsNewLinkListOpen: (isOpen: boolean) => void;
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +48,8 @@ export default function NewLinkList({
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
+    form.clearErrors();
+
     try {
       const result = await createLinkListAction({
         private_name: values.private_name,
@@ -50,13 +57,24 @@ export default function NewLinkList({
         organization_id: organizationId,
       });
 
-      if (result?.data?.success && result?.data?.data) {
+      console.log("Link list creation result:", result);
+
+      if (!result?.data?.error) {
         await router.push(
-          `/link-lists/${result.data.data.id}/editor?newList=true`,
+          `/link-lists/${result?.data?.data?.id}/editor?newList=true`,
         );
+      } else if (result?.data?.error) {
+        form.setError("url_slug", {
+          type: "manual",
+          message: result.data.error,
+        });
       }
     } catch (error) {
       console.error("Failed to create link list:", error);
+      form.setError("url_slug", {
+        type: "manual",
+        message: "Failed to create link list. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -109,15 +127,29 @@ export default function NewLinkList({
                   data-form-type="other"
                   data-lpignore="true"
                   aria-label="URL slug"
+                  className={cn(
+                    form.formState.errors.url_slug &&
+                      "ring-2 ring-destructive ring-offset-2",
+                  )}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create Link List"}
-        </Button>
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="secondary"
+            type="button"
+            disabled={isLoading}
+            onClick={() => setIsNewLinkListOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Creating..." : "Create Link List"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

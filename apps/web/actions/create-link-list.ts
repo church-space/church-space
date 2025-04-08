@@ -51,6 +51,7 @@ export const createLinkListAction = authActionClient
             error: "This URL is already taken. Please choose another.",
           };
         }
+        console.error("Error creating link list:", pgError);
         return {
           success: false,
           error: pgError.message || "Failed to create link list",

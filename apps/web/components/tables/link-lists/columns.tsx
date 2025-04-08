@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox } from "@church-space/ui/checkbox";
+import { Badge } from "@church-space/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
@@ -15,45 +15,49 @@ export type LinkList = {
 
 export const columns: ColumnDef<LinkList>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
     accessorKey: "private_name",
     header: "Name",
     cell: ({ row }) => {
       const name = row.getValue("private_name") as string | null;
-      return <div className="font-medium">{name || "Untitled"}</div>;
+      return (
+        <Link href={`/link-lists/${row.original.id}`} prefetch={true}>
+          <div className="font-semibold hover:underline">
+            {name || "Untitled"}
+          </div>
+        </Link>
+      );
     },
   },
   {
     accessorKey: "url_slug",
-    header: "URL Slug",
+    header: "URL",
     cell: ({ row }) => {
       const urlSlug = row.getValue("url_slug") as string | null;
-      return (
-        <Link href={`/link-lists/${row.original.id}`} prefetch={true}>
-          /{urlSlug || ""}
+      return urlSlug ? (
+        <Link
+          className="hover:underline"
+          href={`https://churchspace.co/links/${urlSlug}`}
+          prefetch={true}
+        >
+          <span className="font-light text-muted-foreground">
+            https://churchspace.co/links/
+          </span>
+          <span className="font-medium">{urlSlug}</span>
         </Link>
+      ) : (
+        <span className="text-muted-foreground">No URL</span>
+      );
+    },
+  },
+  {
+    accessorKey: "is_public",
+    header: "Public",
+    cell: ({ row }) => {
+      const isPublic = row.getValue("is_public") as boolean;
+      return (
+        <Badge variant={isPublic ? "default" : "secondary"} className="w-fit">
+          {isPublic ? "Public" : "Private"}
+        </Badge>
       );
     },
   },

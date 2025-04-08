@@ -98,7 +98,10 @@ export default function LinkListsTable({
           <DialogHeader>
             <DialogTitle>Create New Link List</DialogTitle>
           </DialogHeader>
-          <NewLinkList organizationId={organizationId} />
+          <NewLinkList
+            organizationId={organizationId}
+            setIsNewLinkListOpen={setIsNewLinkListOpen}
+          />
         </DialogContent>
       </Dialog>
     </>
