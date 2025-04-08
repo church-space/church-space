@@ -53,7 +53,7 @@ export const columns: ColumnDef<LinkList>[] = [
   },
   {
     accessorKey: "is_public",
-    header: "Public",
+    header: "Visibility",
     cell: ({ row }) => {
       const isPublic = row.getValue("is_public") as boolean;
       return (
@@ -61,6 +61,15 @@ export const columns: ColumnDef<LinkList>[] = [
           {isPublic ? "Public" : "Private"}
         </Badge>
       );
+    },
+    meta: {
+      filterVariant: "select",
+      enumValues: ["true", "false"],
+    },
+    filterFn: (row, id, filterValue) => {
+      if (filterValue === "all") return true;
+      const value = row.getValue(id) as boolean;
+      return value === (filterValue === "true");
     },
   },
   {

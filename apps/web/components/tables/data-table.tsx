@@ -59,6 +59,7 @@ export interface FilterConfig {
     type: "select" | "text" | "range";
     options?: FilterOption[];
     defaultValue?: string;
+    label?: string;
   };
 }
 
@@ -297,7 +298,7 @@ export default function DataTable<TData>({
               return (
                 <div key={key} className="w-auto min-w-36">
                   <Label htmlFor={`filter-${key}`}>
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                    {config.label ?? key.charAt(0).toUpperCase() + key.slice(1)}
                   </Label>
                   <Select
                     value={currentFilterValue ?? config.defaultValue ?? "all"}

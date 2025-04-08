@@ -5,7 +5,11 @@ import DataTable from "../data-table";
 import { columns, LinkList } from "./columns";
 import { useQueryState } from "nuqs";
 import { Button } from "@church-space/ui/button";
-import { getLinkListFilterConfig, LinkListStatus } from "./filters";
+import {
+  getLinkListFilterConfig,
+  LinkListStatus,
+  LINK_LIST_STATUS_OPTIONS,
+} from "./filters";
 import {
   Dialog,
   DialogContent,
@@ -123,12 +127,22 @@ export default function LinkListsTable({
         hasNextPage={hasNextPage}
         searchQuery={effectiveSearch || ""}
         onSearch={handleSearch}
-        filterConfig={getLinkListFilterConfig()}
+        filterConfig={{
+          is_public: {
+            type: "select",
+            options: LINK_LIST_STATUS_OPTIONS.map((opt) => ({
+              label: opt.label,
+              value: opt.value,
+            })),
+            defaultValue: "all",
+            label: "Visibility",
+          },
+        }}
         onFilterChange={{
-          visibility: handleStatusChange,
+          is_public: handleStatusChange,
         }}
         initialFilters={{
-          visibility: effectiveVisibility ?? undefined,
+          is_public: effectiveVisibility ?? "all",
         }}
         searchPlaceholderText="Search by name..."
         isLoading={isLoading || isFetchingNextPage}
