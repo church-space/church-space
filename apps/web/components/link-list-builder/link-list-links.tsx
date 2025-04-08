@@ -4,7 +4,7 @@ import React from "react";
 const ensureHttps = (url: string, type: string) => {
   if (!url) return "#";
   if (url.startsWith("mailto:")) return url;
-  if (type === "email") {
+  if (type === "mail") {
     if (url.startsWith("mailto:")) return url;
     return `mailto:${url}`;
   }
