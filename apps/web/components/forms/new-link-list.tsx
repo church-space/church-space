@@ -15,8 +15,6 @@ import {
 } from "@church-space/ui/form";
 import { Input } from "@church-space/ui/input";
 import { createLinkListAction } from "@/actions/create-link-list";
-import type { LinkListResponse } from "@/actions/create-link-list";
-import type { ActionResponse } from "@/types/action";
 import { useState } from "react";
 import { cn } from "@church-space/ui/cn";
 
