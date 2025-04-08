@@ -19,64 +19,31 @@ import { LinkFilled } from "@church-space/ui/icons";
 
 interface LinkListsTableProps {
   organizationId: string;
-  initialData: LinkList[];
-  initialCount: number;
-  initialSearch?: string;
-  initialVisibility?: LinkListStatus;
 }
 
 export default function LinkListsTable({
   organizationId,
-  initialData,
-  initialCount,
-  initialSearch,
-  initialVisibility,
 }: LinkListsTableProps) {
-  const [search, setSearch] = useQueryState("search", {
-    parse: (value) => value,
-    serialize: (value) => value ?? null,
-    history: "push",
-  });
+  const [search, setSearch] = useQueryState("search");
   const [visibility, setVisibility] = useQueryState<LinkListStatus>(
     "visibility",
     {
-      parse: (value): LinkListStatus | null => {
+      parse: (value): LinkListStatus => {
         if (value === "true" || value === "false" || value === "all") {
           return value;
         }
-        return null;
+        return "all";
       },
-      serialize: (value) => value || "all",
-      history: "push",
+      serialize: (value) => value,
     },
   );
   const [isNewLinkListOpen, setIsNewLinkListOpen] = useState(false);
 
-  // Initialize search and status if they're not set and we have initial values
-  const effectiveSearch = search ?? initialSearch;
-  const effectiveVisibility = visibility ?? initialVisibility;
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useLinkLists(
       organizationId,
-      effectiveSearch ?? undefined,
-      effectiveVisibility === "true"
-        ? true
-        : effectiveVisibility === "false"
-          ? false
-          : undefined,
-      {
-        initialData:
-          effectiveSearch === initialSearch &&
-          effectiveVisibility === initialVisibility
-            ? {
-                pages: [
-                  { data: initialData, count: initialCount, nextPage: 1 },
-                ],
-                pageParams: [0],
-              }
-            : undefined,
-      },
+      search ?? undefined,
+      visibility === "true" ? true : visibility === "false" ? false : undefined,
     );
 
   const handleSearch = useCallback(
@@ -122,7 +89,7 @@ export default function LinkListsTable({
           };
         }}
         hasNextPage={hasNextPage}
-        searchQuery={effectiveSearch || ""}
+        searchQuery={search || ""}
         onSearch={handleSearch}
         filterConfig={{
           is_public: {
@@ -139,7 +106,7 @@ export default function LinkListsTable({
           is_public: handleStatusChange,
         }}
         initialFilters={{
-          is_public: effectiveVisibility ?? "all",
+          is_public: visibility ?? "all",
         }}
         searchPlaceholderText="Search by name..."
         isLoading={isLoading || isFetchingNextPage}

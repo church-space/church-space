@@ -20,19 +20,9 @@ import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 
 interface EmailsTableProps {
   organizationId: string;
-  initialData: Email[];
-  initialCount: number;
-  initialSearch?: string;
-  initialStatus?: EmailStatus;
 }
 
-export default function EmailsTable({
-  organizationId,
-  initialData,
-  initialCount,
-  initialSearch,
-  initialStatus,
-}: EmailsTableProps) {
+export default function EmailsTable({ organizationId }: EmailsTableProps) {
   const [search, setSearch] = useQueryState("search", {
     parse: (value) => value,
     serialize: (value) => value ?? null,
@@ -57,8 +47,8 @@ export default function EmailsTable({
   const [isNewEmailOpen, setIsNewEmailOpen] = useState(false);
 
   // Initialize search and status if they're not set and we have initial values
-  const effectiveSearch = search ?? initialSearch;
-  const effectiveStatus = status ?? initialStatus;
+  const effectiveSearch = search;
+  const effectiveStatus = status;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useEmails(
@@ -67,11 +57,9 @@ export default function EmailsTable({
       effectiveStatus ?? undefined,
       {
         initialData:
-          effectiveSearch === initialSearch && effectiveStatus === initialStatus
+          effectiveSearch === search && effectiveStatus === status
             ? {
-                pages: [
-                  { data: initialData, count: initialCount, nextPage: 1 },
-                ],
+                pages: [{ data: [], count: 0, nextPage: 1 }],
                 pageParams: [0],
               }
             : undefined,
