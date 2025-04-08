@@ -103,15 +103,13 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
       </header>
       <div className="p-6">
-        <Suspense fallback={<DataTableSkeleton title="Emails" />}>
-          <EmailsTable
-            organizationId={organizationId}
-            initialData={emails}
-            initialCount={count ?? 0}
-            initialSearch={searchValue}
-            initialStatus={validStatus}
-          />
-        </Suspense>
+        <EmailsTable
+          organizationId={organizationId}
+          initialData={emails}
+          initialCount={count ?? 0}
+          initialSearch={searchValue}
+          initialStatus={validStatus}
+        />
       </div>
     </>
   );
