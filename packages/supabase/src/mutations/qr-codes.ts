@@ -54,7 +54,20 @@ export async function createQRLink(
     .from("qr_links")
     .insert(qrLink)
     .select();
-  return { data, error };
+
+  if (!data || !data[0]) {
+    return { data: null, error: "No data returned from QR link creation" };
+  }
+
+  const { data: qrCodeData, error: qrCodeError } = await supabase
+    .from("qr_codes")
+    .insert({
+      title: qrLink.name,
+      qr_link_id: data[0].id,
+    })
+    .select();
+
+  return { data, error, qrCodeData, qrCodeError };
 }
 
 export async function deleteQRLink(supabase: Client, qrLinkId: number) {

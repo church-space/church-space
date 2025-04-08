@@ -18,23 +18,47 @@ import { createQRLinkAction } from "@/actions/create-qr-link";
 import { useState } from "react";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  url: z.string().url("Must be a valid URL"),
+  subject: z
+    .string()
+    .min(1, "Name is required")
+    .max(60, "Name must be 60 characters or less"),
+  url: z
+    .string()
+    .min(1, "URL is required")
+    .transform((val) => {
+      if (!val.startsWith("http://") && !val.startsWith("https://")) {
+        return `https://${val}`;
+      }
+      return val;
+    })
+    .refine(
+      (val) => {
+        try {
+          new URL(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      { message: "Must be a valid URL" },
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function NewQRCode({
   organizationId,
+  setIsNewQRCodeOpen,
 }: {
   organizationId: string;
+  setIsNewQRCodeOpen: (isOpen: boolean) => void;
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      subject: "",
       url: "",
     },
   });
@@ -43,18 +67,18 @@ export default function NewQRCode({
     setIsLoading(true);
     try {
       const result = await createQRLinkAction({
-        name: values.name,
+        name: values.subject,
         url: values.url,
         organization_id: organizationId,
       });
 
-      if (result && "data" in result && result.data && "id" in result.data) {
-        await router.push(`/qr-codes/${result.data.id}`);
+      console.log(result);
+
+      if (result?.data?.success && result?.data?.data) {
+        await router.push(`/qr-codes/${result.data.data.id}?newQRCode=true`);
       }
     } catch (error) {
       console.error("Failed to create QR code:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -63,24 +87,35 @@ export default function NewQRCode({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="name"
+          name="subject"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel className="ml-1">Name</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Enter QR code name..."
-                  {...field}
-                  type="text"
-                  disabled={isLoading}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck="false"
-                  data-form-type="other"
-                  data-lpignore="true"
-                  aria-label="QR code name"
-                />
+                <div className="relative">
+                  <Input
+                    placeholder="QR Code name..."
+                    {...field}
+                    type="text"
+                    disabled={isLoading}
+                    autoFocus
+                    inputMode="text"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    autoComplete="false"
+                    data-form-type="other"
+                    data-lpignore={true}
+                    aria-label="QR Code name"
+                    data-1p-ignore={true}
+                    data-bwignore={true}
+                    data-icloud-keychain-ignore={true}
+                    className="pe-16"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    {field.value.length} / 60
+                  </span>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -91,29 +126,26 @@ export default function NewQRCode({
           name="url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>URL</FormLabel>
+              <FormLabel className="ml-1">URL</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Enter URL to encode..."
-                  {...field}
-                  type="url"
-                  disabled={isLoading}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck="false"
-                  data-form-type="other"
-                  data-lpignore="true"
-                  aria-label="QR code URL"
-                />
+                <Input placeholder="Enter URL..." {...field} type="text" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create QR Code"}
-        </Button>
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsNewQRCodeOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Creating..." : "Create QR Code"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

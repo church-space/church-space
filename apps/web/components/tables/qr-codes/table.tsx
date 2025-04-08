@@ -15,6 +15,7 @@ import {
 import { useQrLinks } from "@/hooks/use-qr-codes";
 import NewQRCode from "@/components/forms/new-qr-code";
 import { Skeleton } from "@church-space/ui/skeleton";
+import { Qrcode } from "@church-space/ui/icons";
 interface QrCodesTableProps {
   organizationId: string;
 }
@@ -86,11 +87,16 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
       />
 
       <Dialog open={isNewQrCodeOpen} onOpenChange={setIsNewQrCodeOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New QR Code</DialogTitle>
+        <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
+          <DialogHeader className="p-2 pb-0">
+            <DialogTitle className="flex items-center gap-1">
+              <Qrcode height={"20"} width={"20"} /> Create New QR Code
+            </DialogTitle>
           </DialogHeader>
-          <NewQRCode organizationId={organizationId} />
+          <NewQRCode
+            organizationId={organizationId}
+            setIsNewQRCodeOpen={setIsNewQrCodeOpen}
+          />
         </DialogContent>
       </Dialog>
     </>
