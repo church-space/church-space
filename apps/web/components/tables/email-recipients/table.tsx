@@ -1,0 +1,162 @@
+"use client";
+
+import { useEmailRecipients } from "@/hooks/use-email-recipients";
+import { Skeleton } from "@church-space/ui/skeleton";
+import { useQueryState } from "nuqs";
+import { useCallback } from "react";
+import DataTable from "../data-table";
+import { columns, type EmailRecipient } from "./columns";
+import {
+  getEmailCategoryFilterConfig,
+  type EmailRecipientStatus,
+} from "./filters";
+
+interface EmailRecipientsTableProps {
+  emailId: number;
+  initialData: EmailRecipient[];
+  initialCount: number;
+  initialSearch?: string;
+  initialStatus?: EmailRecipientStatus;
+}
+
+export default function EmailRecipientsTable({
+  emailId,
+  initialData,
+  initialCount,
+  initialSearch,
+  initialStatus,
+}: EmailRecipientsTableProps) {
+  console.log("EmailRecipientsTable props:", {
+    emailId,
+    initialData,
+    initialCount,
+    initialSearch,
+    initialStatus,
+  });
+
+  const [search, setSearch] = useQueryState("search", {
+    parse: (value) => value,
+    serialize: (value) => value ?? null,
+    history: "push",
+  });
+  const [status, setStatus] = useQueryState<EmailRecipientStatus | null>(
+    "status",
+    {
+      parse: (value): EmailRecipientStatus | null => {
+        if (
+          value === "all" ||
+          value === "sent" ||
+          value === "delivered" ||
+          value === "bounced" ||
+          value === "opened" ||
+          value === "complained" ||
+          value === "pending" ||
+          value === "did-not-send"
+        ) {
+          return value;
+        }
+        return null;
+      },
+      serialize: (value) => value || "all",
+      history: "push",
+    },
+  );
+
+  // Initialize search and status if they're not set and we have initial values
+  const effectiveSearch = search ?? initialSearch ?? "";
+  const effectiveStatus = status ?? initialStatus ?? "all";
+
+  console.log("Query state:", { effectiveSearch, effectiveStatus });
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useEmailRecipients(
+      emailId,
+      effectiveSearch || undefined,
+      effectiveStatus === "all" ? undefined : effectiveStatus,
+      {
+        initialData: initialData?.length
+          ? {
+              pages: [
+                {
+                  data: initialData.map((recipient) => ({
+                    ...recipient,
+                    person: recipient.person || null,
+                  })),
+                  count: initialCount,
+                  nextPage: initialData.length >= 25 ? 1 : undefined,
+                },
+              ],
+              pageParams: [0],
+            }
+          : undefined,
+      },
+    );
+
+  console.log("useEmailRecipients result:", {
+    data,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+  });
+
+  const handleSearch = useCallback(
+    async (value: string | null) => {
+      await setSearch(value);
+    },
+    [setSearch],
+  );
+
+  const handleStatusChange = useCallback(
+    async (value: EmailRecipientStatus) => {
+      await setStatus(value === "all" ? null : value);
+    },
+    [setStatus],
+  );
+
+  // Flatten all pages of data and cast to Email type
+  const emails = (
+    data?.pages.flatMap((page) => page?.data ?? []) ??
+    initialData ??
+    []
+  ).map((recipient) => ({
+    ...recipient,
+    person: recipient.person || null,
+  })) as EmailRecipient[];
+  const count = data?.pages[0]?.count ?? initialCount ?? 0;
+
+  console.log("Rendered data:", { emails, count });
+
+  return (
+    <>
+      <DataTable
+        columns={columns}
+        data={emails}
+        pageSize={25}
+        loadMore={async () => {
+          const result = await fetchNextPage();
+          const nextPageData = (
+            result.data?.pages[result.data.pages.length - 1]?.data ?? []
+          ).map((recipient) => ({
+            ...recipient,
+            person: recipient.person || null,
+          })) as EmailRecipient[];
+          return {
+            data: nextPageData,
+          };
+        }}
+        hasNextPage={hasNextPage}
+        searchQuery={effectiveSearch}
+        onSearch={handleSearch}
+        filterConfig={getEmailCategoryFilterConfig()}
+        onFilterChange={{
+          status: handleStatusChange,
+        }}
+        initialFilters={{
+          status: effectiveStatus === "all" ? undefined : effectiveStatus,
+        }}
+        searchPlaceholderText="Search by email address..."
+        isLoading={isLoading || isFetchingNextPage}
+      />
+    </>
+  );
+}

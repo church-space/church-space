@@ -1,5 +1,7 @@
 "use client";
 import EmailPreview from "@/components/dnd-builder/email-preview";
+import { EmailRecipientStatus } from "@/components/tables/email-recipients/filters";
+import EmailRecipientsTable from "@/components/tables/email-recipients/table";
 import { createClient } from "@church-space/supabase/client";
 import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
 import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
@@ -51,6 +53,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
+import { getEmailRecipientsAction } from "@/actions/get-email-recipients";
 
 export default function PostSendPage({
   initialEmail,
@@ -61,6 +64,14 @@ export default function PostSendPage({
 }) {
   const [email] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
+  const [search] = useQueryState("search", {
+    parse: (value) => value,
+    serialize: (value) => value ?? null,
+  });
+  const [status] = useQueryState<EmailRecipientStatus | null>("status", {
+    parse: (value) => value as EmailRecipientStatus | null,
+    serialize: (value) => value || "all",
+  });
 
   const supabase = createClient();
 
@@ -178,6 +189,37 @@ export default function PostSendPage({
         : 0,
     },
   ];
+
+  const { data: recipients } = useQuery({
+    queryKey: ["emailRecipients", email.id],
+    queryFn: () => getEmailRecipientsAction({ emailId: email.id }),
+  });
+
+  console.log("Raw recipients data:", recipients?.data?.data);
+
+  // Transform the recipients data to match the expected type
+  const transformedRecipients =
+    recipients?.data?.data?.map((recipient: any) => {
+      console.log("Processing recipient:", recipient);
+      return {
+        id: recipient.id,
+        email_address:
+          recipient.email_address || recipient.person?.email || null,
+        status: recipient.status,
+        created_at: recipient.created_at,
+        updated_at: recipient.updated_at,
+        person:
+          recipient.person &&
+          (recipient.person.first_name || recipient.person.last_name)
+            ? {
+                first_name: recipient.person.first_name || null,
+                last_name: recipient.person.last_name || null,
+              }
+            : null,
+      };
+    }) || [];
+
+  console.log("Transformed recipients:", transformedRecipients);
 
   return (
     <>
@@ -436,9 +478,13 @@ export default function PostSendPage({
             </h1>
           </div>
 
-          <div>
-            <p>recipeients (unsubscribed, link clicked, status, etc.)</p>
-          </div>
+          <EmailRecipientsTable
+            emailId={email.id}
+            initialData={transformedRecipients}
+            initialCount={recipients?.data?.count ?? 0}
+            initialSearch={search ?? ""}
+            initialStatus={status ?? "all"}
+          />
         </div>
       </div>
     </>
