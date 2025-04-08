@@ -27,6 +27,12 @@ export const getQrLinks = authActionClient
     const from = parsedInput.page * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
 
+    // Transform status into array format if it exists and isn't 'all'
+    const statusArray =
+      parsedInput.status && parsedInput.status !== "all"
+        ? [parsedInput.status as "active" | "inactive"]
+        : undefined;
+
     // Get emails data
     const { data, error } = await getAllQrLinks(
       supabase,
@@ -35,7 +41,7 @@ export const getQrLinks = authActionClient
         start: from,
         end: to,
         searchTerm: parsedInput.searchTerm,
-        status: parsedInput.status as any,
+        status: statusArray,
       },
     );
 
@@ -47,7 +53,7 @@ export const getQrLinks = authActionClient
       parsedInput.organizationId,
       {
         searchTerm: parsedInput.searchTerm,
-        status: parsedInput.status as any,
+        status: statusArray,
       },
     );
 
