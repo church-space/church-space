@@ -27,6 +27,16 @@ import {
   TabsList,
   TabsTrigger,
 } from "@church-space/ui/tabs";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { Separator } from "@church-space/ui/separator";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@church-space/ui/breadcrumb";
 
 export interface Link {
   type: string;
@@ -577,436 +587,93 @@ export default function LinkListBuilder() {
   }
 
   return (
-    <div className="relative flex p-2 pt-0 lg:gap-4 lg:p-4 lg:pt-0">
-      <div className="w-full lg:hidden">
-        <Tabs defaultValue="settings" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-          </TabsList>
-          <TabsContent value="content" className="mt-2">
-            <div className="relative flex-1">
-              <div className="mx-auto flex h-auto max-h-[calc(100vh-7.3rem)] w-full flex-col overflow-y-auto rounded-md border shadow-md lg:max-h-[calc(100vh-5rem)] lg:max-w-sm">
-                {isLoading && (
-                  <Skeleton className="h-[calc(100vh-20rem)] w-full bg-muted" />
-                )}
-                {!isLoading && (
-                  <>
-                    <LinkListHeader
-                      headerBgColor={headerBgColor}
-                      headerTextColor={headerTextColor}
-                      headerSecondaryTextColor={headerSecondaryTextColor}
-                      headerTitle={headerTitle}
-                      headerDescription={headerDescription}
-                      headerName={headerName}
-                      headerButtonText={headerButtonText}
-                      headerButtonLink={headerButtonLink}
-                      headerButtonColor={headerButtonColor}
-                      headerButtonTextColor={headerButtonTextColor}
-                      headerImage={headerImage}
-                      logoImage={logoImage}
-                      mode="builder"
-                      headerBlur={headerBlur}
-                    />
-                    <div
-                      className="flex flex-col gap-6 py-6"
-                      style={{ backgroundColor: bgColor }}
-                    >
-                      <LinkListSocials
-                        style={socialsStyle}
-                        color={socialsColor}
-                        iconColor={socialsIconColor}
-                        links={socialLinks}
+    <>
+      <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center gap-2 rounded-t-lg bg-background">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/link-lists">Link Lists</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
+                  {linkList?.data?.title}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </header>
+      <div className="relative flex p-2 pt-0 lg:gap-4 lg:p-4 lg:pt-0">
+        <div className="w-full lg:hidden">
+          <Tabs defaultValue="settings" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="content">Content</TabsTrigger>
+            </TabsList>
+            <TabsContent value="content" className="mt-2">
+              <div className="relative flex-1 overflow-y-auto">
+                <div className="mx-auto flex h-auto max-h-[calc(100vh-7.3rem)] max-w-sm flex-col rounded-md border shadow-md lg:max-h-[calc(100vh-5rem)]">
+                  {isLoading && (
+                    <Skeleton className="h-[calc(100vh-20rem)] w-full bg-muted" />
+                  )}
+                  {!isLoading && (
+                    <>
+                      <LinkListHeader
+                        headerBgColor={headerBgColor}
+                        headerTextColor={headerTextColor}
+                        headerSecondaryTextColor={headerSecondaryTextColor}
+                        headerTitle={headerTitle}
+                        headerDescription={headerDescription}
+                        headerName={headerName}
+                        headerButtonText={headerButtonText}
+                        headerButtonLink={headerButtonLink}
+                        headerButtonColor={headerButtonColor}
+                        headerButtonTextColor={headerButtonTextColor}
+                        headerImage={headerImage}
+                        logoImage={logoImage}
                         mode="builder"
+                        headerBlur={headerBlur}
                       />
-                      <LinkListLinks
-                        links={links}
-                        buttonColor={buttonColor}
-                        buttonTextColor={buttonTextColor}
-                        mode="builder"
-                      />
-                    </div>
-                  </>
-                )}
+                      <div
+                        className="flex flex-col gap-6 py-6"
+                        style={{ backgroundColor: bgColor }}
+                      >
+                        <LinkListSocials
+                          style={socialsStyle}
+                          color={socialsColor}
+                          iconColor={socialsIconColor}
+                          links={socialLinks}
+                          mode="builder"
+                        />
+                        <LinkListLinks
+                          links={links}
+                          buttonColor={buttonColor}
+                          buttonTextColor={buttonTextColor}
+                          mode="builder"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="settings" className="mt-2">
-            <LinkListBuilderSidebar
-              links={links}
-              urlSlug={urlSlug}
-              isPublic={isPublic}
-              privateName={privateName}
-              bgColor={bgColor}
-              buttonColor={buttonColor}
-              buttonTextColor={buttonTextColor}
-              socialsStyle={socialsStyle}
-              socialsColor={socialsColor}
-              socialsIconColor={socialsIconColor}
-              socialLinks={socialLinks}
-              headerBgColor={headerBgColor}
-              headerTextColor={headerTextColor}
-              headerSecondaryTextColor={headerSecondaryTextColor}
-              headerTitle={headerTitle}
-              headerDescription={headerDescription}
-              headerName={headerName}
-              headerButtonText={headerButtonText}
-              headerButtonLink={headerButtonLink}
-              headerButtonColor={headerButtonColor}
-              headerButtonTextColor={headerButtonTextColor}
-              headerImage={headerImage}
-              logoImage={logoImage}
-              headerBlur={headerBlur}
-              urlSlugErrorProp={urlSlugError}
-              setBgColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setBgColor(color);
-                // Also update our centralized style reference
-                latestStyleRef.current.backgroundColor = color;
-                // Debounce the server update
-                handleStyleUpdate({ backgroundColor: color });
-              }}
-              setUrlSlug={(slug) => {
-                // Immediately update UI state for responsive feedback
-                setUrlSlug(slug);
-                // Debounce the server update
-                handleTextUpdate({ url_slug: slug });
-              }}
-              setIsPublic={(isPublic) => {
-                // Immediately update UI state for responsive feedback
-                setIsPublic(isPublic);
-                // Debounce the server update
-                handleTextUpdate({ is_public: isPublic });
-              }}
-              setPrivateName={(name) => {
-                // Immediately update UI state for responsive feedback
-                setPrivateName(name);
-                // Debounce the server update
-                handleTextUpdate({ private_name: name });
-              }}
-              setButtonColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setButtonColor(color);
-                // Also update our centralized style reference
-                latestStyleRef.current.buttonColor = color;
-                // Debounce the server update
-                handleStyleUpdate({ buttonColor: color });
-              }}
-              setButtonTextColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setButtonTextColor(color);
-                // Also update our centralized style reference
-                latestStyleRef.current.buttonTextColor = color;
-                // Debounce the server update
-                handleStyleUpdate({ buttonTextColor: color });
-              }}
-              setSocialsStyle={(styleValue) => {
-                // Immediately update UI state for responsive feedback
-                setSocialsStyle(styleValue);
-                // Also update our centralized style reference
-                latestStyleRef.current.socialsStyle = styleValue;
-                // Debounce the server update
-                handleStyleUpdate({ socialsStyle: styleValue });
-              }}
-              setSocialsColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setSocialsColor(color);
-                // Also update our centralized style reference
-                latestStyleRef.current.socialsColor = color;
-                // Debounce the server update
-                handleStyleUpdate({ socialsColor: color });
-              }}
-              setSocialsIconColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setSocialsIconColor(color);
-                // Also update our centralized style reference
-                latestStyleRef.current.socialsIconColor = color;
-                // Debounce the server update
-                handleStyleUpdate({ socialsIconColor: color });
-              }}
-              setSocialLinks={handleSocialLinksUpdate}
-              setHeaderBgColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderBgColor(color);
-                // Also update our centralized style reference
-                latestStyleRef.current.headerBgColor = color;
-                // Debounce the server update
-                handleStyleUpdate({ headerBgColor: color });
-              }}
-              setHeaderBlur={(blur) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderBlur(blur);
-                // Also update our centralized style reference
-                latestStyleRef.current.headerBlur = blur;
-                // Debounce the server update
-                handleStyleUpdate({ headerBlur: blur });
-              }}
-              setHeaderTextColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderTextColor(color);
-                // Also update our centralized style reference
-                latestStyleRef.current.headerTextColor = color;
-                // Debounce the server update
-                handleStyleUpdate({ headerTextColor: color });
-              }}
-              setHeaderSecondaryTextColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderSecondaryTextColor(color);
-                // Also update our centralized style reference
-                latestStyleRef.current.headerSecondaryTextColor = color;
-                // Debounce the server update
-                handleStyleUpdate({ headerSecondaryTextColor: color });
-              }}
-              setHeaderTitle={(title) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderTitle(title);
-                // Debounce the server update
-                handleTextUpdate({ title });
-              }}
-              setHeaderDescription={(description) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderDescription(description);
-                // Debounce the server update
-                handleTextUpdate({ description });
-              }}
-              setHeaderName={(name) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderName(name);
-                // Debounce the server update
-                handleTextUpdate({ name });
-              }}
-              setHeaderButtonText={(text) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderButtonText(text);
-                // Debounce the server update - explicitly pass the text even if empty
-                handlePrimaryButtonUpdate({ text });
-              }}
-              setHeaderButtonLink={(url) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderButtonLink(url);
-                // Debounce the server update - explicitly pass the url even if empty
-                handlePrimaryButtonUpdate({ url });
-              }}
-              setHeaderButtonColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderButtonColor(color);
-                // Debounce the server update
-                handlePrimaryButtonUpdate({ color });
-              }}
-              setHeaderButtonTextColor={(color) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderButtonTextColor(color);
-                // Debounce the server update
-                handlePrimaryButtonUpdate({ textColor: color });
-              }}
-              setLinks={handleSetLinks}
-              setHeaderImage={(image) => {
-                // Immediately update UI state for responsive feedback
-                setHeaderImage(image);
-                // Debounce the server update
-                handleTextUpdate({ bg_image: image });
-              }}
-              setLogoImage={(image) => {
-                // Immediately update UI state for responsive feedback
-                setLogoImage(image);
-                // Debounce the server update
-                handleTextUpdate({ logo_asset: image });
-              }}
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
-      <div className="hidden lg:block">
-        <LinkListBuilderSidebar
-          urlSlug={urlSlug}
-          isPublic={isPublic}
-          privateName={privateName}
-          links={links}
-          bgColor={bgColor}
-          buttonColor={buttonColor}
-          buttonTextColor={buttonTextColor}
-          socialsStyle={socialsStyle}
-          socialsColor={socialsColor}
-          socialsIconColor={socialsIconColor}
-          socialLinks={socialLinks}
-          headerBgColor={headerBgColor}
-          headerTextColor={headerTextColor}
-          headerSecondaryTextColor={headerSecondaryTextColor}
-          headerTitle={headerTitle}
-          headerDescription={headerDescription}
-          headerName={headerName}
-          headerButtonText={headerButtonText}
-          headerButtonLink={headerButtonLink}
-          headerButtonColor={headerButtonColor}
-          headerButtonTextColor={headerButtonTextColor}
-          headerImage={headerImage}
-          logoImage={logoImage}
-          headerBlur={headerBlur}
-          urlSlugErrorProp={urlSlugError}
-          setBgColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setBgColor(color);
-            // Also update our centralized style reference
-            latestStyleRef.current.backgroundColor = color;
-            // Debounce the server update
-            handleStyleUpdate({ backgroundColor: color });
-          }}
-          setUrlSlug={(slug) => {
-            // Immediately update UI state for responsive feedback
-            setUrlSlug(slug);
-            // Debounce the server update
-            handleTextUpdate({ url_slug: slug });
-          }}
-          setIsPublic={(isPublic) => {
-            // Immediately update UI state for responsive feedback
-            setIsPublic(isPublic);
-            // Debounce the server update
-            handleTextUpdate({ is_public: isPublic });
-          }}
-          setPrivateName={(name) => {
-            // Immediately update UI state for responsive feedback
-            setPrivateName(name);
-            // Debounce the server update
-            handleTextUpdate({ private_name: name });
-          }}
-          setButtonColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setButtonColor(color);
-            // Also update our centralized style reference
-            latestStyleRef.current.buttonColor = color;
-            // Debounce the server update
-            handleStyleUpdate({ buttonColor: color });
-          }}
-          setButtonTextColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setButtonTextColor(color);
-            // Also update our centralized style reference
-            latestStyleRef.current.buttonTextColor = color;
-            // Debounce the server update
-            handleStyleUpdate({ buttonTextColor: color });
-          }}
-          setSocialsStyle={(styleValue) => {
-            // Immediately update UI state for responsive feedback
-            setSocialsStyle(styleValue);
-            // Also update our centralized style reference
-            latestStyleRef.current.socialsStyle = styleValue;
-            // Debounce the server update
-            handleStyleUpdate({ socialsStyle: styleValue });
-          }}
-          setSocialsColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setSocialsColor(color);
-            // Also update our centralized style reference
-            latestStyleRef.current.socialsColor = color;
-            // Debounce the server update
-            handleStyleUpdate({ socialsColor: color });
-          }}
-          setSocialsIconColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setSocialsIconColor(color);
-            // Also update our centralized style reference
-            latestStyleRef.current.socialsIconColor = color;
-            // Debounce the server update
-            handleStyleUpdate({ socialsIconColor: color });
-          }}
-          setSocialLinks={handleSocialLinksUpdate}
-          setHeaderBgColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderBgColor(color);
-            // Also update our centralized style reference
-            latestStyleRef.current.headerBgColor = color;
-            // Debounce the server update
-            handleStyleUpdate({ headerBgColor: color });
-          }}
-          setHeaderBlur={(blur) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderBlur(blur);
-            // Also update our centralized style reference
-            latestStyleRef.current.headerBlur = blur;
-            // Debounce the server update
-            handleStyleUpdate({ headerBlur: blur });
-          }}
-          setHeaderTextColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderTextColor(color);
-            // Also update our centralized style reference
-            latestStyleRef.current.headerTextColor = color;
-            // Debounce the server update
-            handleStyleUpdate({ headerTextColor: color });
-          }}
-          setHeaderSecondaryTextColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderSecondaryTextColor(color);
-            // Also update our centralized style reference
-            latestStyleRef.current.headerSecondaryTextColor = color;
-            // Debounce the server update
-            handleStyleUpdate({ headerSecondaryTextColor: color });
-          }}
-          setHeaderTitle={(title) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderTitle(title);
-            // Debounce the server update
-            handleTextUpdate({ title });
-          }}
-          setHeaderDescription={(description) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderDescription(description);
-            // Debounce the server update
-            handleTextUpdate({ description });
-          }}
-          setHeaderName={(name) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderName(name);
-            // Debounce the server update
-            handleTextUpdate({ name });
-          }}
-          setHeaderButtonText={(text) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderButtonText(text);
-            // Debounce the server update - explicitly pass the text even if empty
-            handlePrimaryButtonUpdate({ text });
-          }}
-          setHeaderButtonLink={(url) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderButtonLink(url);
-            // Debounce the server update - explicitly pass the url even if empty
-            handlePrimaryButtonUpdate({ url });
-          }}
-          setHeaderButtonColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderButtonColor(color);
-            // Debounce the server update
-            handlePrimaryButtonUpdate({ color });
-          }}
-          setHeaderButtonTextColor={(color) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderButtonTextColor(color);
-            // Debounce the server update
-            handlePrimaryButtonUpdate({ textColor: color });
-          }}
-          setLinks={handleSetLinks}
-          setHeaderImage={(image) => {
-            // Immediately update UI state for responsive feedback
-            setHeaderImage(image);
-            // Debounce the server update
-            handleTextUpdate({ bg_image: image });
-          }}
-          setLogoImage={(image) => {
-            // Immediately update UI state for responsive feedback
-            setLogoImage(image);
-            // Debounce the server update
-            handleTextUpdate({ logo_asset: image });
-          }}
-        />
-      </div>
-      <div className="relative hidden flex-1 lg:block">
-        <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col overflow-y-auto rounded-md border shadow-md">
-          {isLoading && (
-            <Skeleton className="h-[calc(100vh-20rem)] w-full bg-muted" />
-          )}
-          {!isLoading && (
-            <>
-              <LinkListHeader
+            </TabsContent>
+            <TabsContent value="settings" className="mt-2">
+              <LinkListBuilderSidebar
+                links={links}
+                urlSlug={urlSlug}
+                isPublic={isPublic}
+                privateName={privateName}
+                bgColor={bgColor}
+                buttonColor={buttonColor}
+                buttonTextColor={buttonTextColor}
+                socialsStyle={socialsStyle}
+                socialsColor={socialsColor}
+                socialsIconColor={socialsIconColor}
+                socialLinks={socialLinks}
                 headerBgColor={headerBgColor}
                 headerTextColor={headerTextColor}
                 headerSecondaryTextColor={headerSecondaryTextColor}
@@ -1019,31 +686,395 @@ export default function LinkListBuilder() {
                 headerButtonTextColor={headerButtonTextColor}
                 headerImage={headerImage}
                 logoImage={logoImage}
-                mode="builder"
                 headerBlur={headerBlur}
+                urlSlugErrorProp={urlSlugError}
+                setBgColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setBgColor(color);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.backgroundColor = color;
+                  // Debounce the server update
+                  handleStyleUpdate({ backgroundColor: color });
+                }}
+                setUrlSlug={(slug) => {
+                  // Immediately update UI state for responsive feedback
+                  setUrlSlug(slug);
+                  // Debounce the server update
+                  handleTextUpdate({ url_slug: slug });
+                }}
+                setIsPublic={(isPublic) => {
+                  // Immediately update UI state for responsive feedback
+                  setIsPublic(isPublic);
+                  // Debounce the server update
+                  handleTextUpdate({ is_public: isPublic });
+                }}
+                setPrivateName={(name) => {
+                  // Immediately update UI state for responsive feedback
+                  setPrivateName(name);
+                  // Debounce the server update
+                  handleTextUpdate({ private_name: name });
+                }}
+                setButtonColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setButtonColor(color);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.buttonColor = color;
+                  // Debounce the server update
+                  handleStyleUpdate({ buttonColor: color });
+                }}
+                setButtonTextColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setButtonTextColor(color);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.buttonTextColor = color;
+                  // Debounce the server update
+                  handleStyleUpdate({ buttonTextColor: color });
+                }}
+                setSocialsStyle={(styleValue) => {
+                  // Immediately update UI state for responsive feedback
+                  setSocialsStyle(styleValue);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.socialsStyle = styleValue;
+                  // Debounce the server update
+                  handleStyleUpdate({ socialsStyle: styleValue });
+                }}
+                setSocialsColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setSocialsColor(color);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.socialsColor = color;
+                  // Debounce the server update
+                  handleStyleUpdate({ socialsColor: color });
+                }}
+                setSocialsIconColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setSocialsIconColor(color);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.socialsIconColor = color;
+                  // Debounce the server update
+                  handleStyleUpdate({ socialsIconColor: color });
+                }}
+                setSocialLinks={handleSocialLinksUpdate}
+                setHeaderBgColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderBgColor(color);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.headerBgColor = color;
+                  // Debounce the server update
+                  handleStyleUpdate({ headerBgColor: color });
+                }}
+                setHeaderBlur={(blur) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderBlur(blur);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.headerBlur = blur;
+                  // Debounce the server update
+                  handleStyleUpdate({ headerBlur: blur });
+                }}
+                setHeaderTextColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderTextColor(color);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.headerTextColor = color;
+                  // Debounce the server update
+                  handleStyleUpdate({ headerTextColor: color });
+                }}
+                setHeaderSecondaryTextColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderSecondaryTextColor(color);
+                  // Also update our centralized style reference
+                  latestStyleRef.current.headerSecondaryTextColor = color;
+                  // Debounce the server update
+                  handleStyleUpdate({ headerSecondaryTextColor: color });
+                }}
+                setHeaderTitle={(title) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderTitle(title);
+                  // Debounce the server update
+                  handleTextUpdate({ title });
+                }}
+                setHeaderDescription={(description) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderDescription(description);
+                  // Debounce the server update
+                  handleTextUpdate({ description });
+                }}
+                setHeaderName={(name) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderName(name);
+                  // Debounce the server update
+                  handleTextUpdate({ name });
+                }}
+                setHeaderButtonText={(text) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderButtonText(text);
+                  // Debounce the server update - explicitly pass the text even if empty
+                  handlePrimaryButtonUpdate({ text });
+                }}
+                setHeaderButtonLink={(url) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderButtonLink(url);
+                  // Debounce the server update - explicitly pass the url even if empty
+                  handlePrimaryButtonUpdate({ url });
+                }}
+                setHeaderButtonColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderButtonColor(color);
+                  // Debounce the server update
+                  handlePrimaryButtonUpdate({ color });
+                }}
+                setHeaderButtonTextColor={(color) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderButtonTextColor(color);
+                  // Debounce the server update
+                  handlePrimaryButtonUpdate({ textColor: color });
+                }}
+                setLinks={handleSetLinks}
+                setHeaderImage={(image) => {
+                  // Immediately update UI state for responsive feedback
+                  setHeaderImage(image);
+                  // Debounce the server update
+                  handleTextUpdate({ bg_image: image });
+                }}
+                setLogoImage={(image) => {
+                  // Immediately update UI state for responsive feedback
+                  setLogoImage(image);
+                  // Debounce the server update
+                  handleTextUpdate({ logo_asset: image });
+                }}
               />
-              <div
-                className="flex flex-col gap-6 py-6"
-                style={{ backgroundColor: bgColor }}
-              >
-                <LinkListSocials
-                  style={socialsStyle}
-                  color={socialsColor}
-                  iconColor={socialsIconColor}
-                  links={socialLinks}
+            </TabsContent>
+          </Tabs>
+        </div>
+        <div className="hidden lg:block">
+          <LinkListBuilderSidebar
+            urlSlug={urlSlug}
+            isPublic={isPublic}
+            privateName={privateName}
+            links={links}
+            bgColor={bgColor}
+            buttonColor={buttonColor}
+            buttonTextColor={buttonTextColor}
+            socialsStyle={socialsStyle}
+            socialsColor={socialsColor}
+            socialsIconColor={socialsIconColor}
+            socialLinks={socialLinks}
+            headerBgColor={headerBgColor}
+            headerTextColor={headerTextColor}
+            headerSecondaryTextColor={headerSecondaryTextColor}
+            headerTitle={headerTitle}
+            headerDescription={headerDescription}
+            headerName={headerName}
+            headerButtonText={headerButtonText}
+            headerButtonLink={headerButtonLink}
+            headerButtonColor={headerButtonColor}
+            headerButtonTextColor={headerButtonTextColor}
+            headerImage={headerImage}
+            logoImage={logoImage}
+            headerBlur={headerBlur}
+            urlSlugErrorProp={urlSlugError}
+            setBgColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setBgColor(color);
+              // Also update our centralized style reference
+              latestStyleRef.current.backgroundColor = color;
+              // Debounce the server update
+              handleStyleUpdate({ backgroundColor: color });
+            }}
+            setUrlSlug={(slug) => {
+              // Immediately update UI state for responsive feedback
+              setUrlSlug(slug);
+              // Debounce the server update
+              handleTextUpdate({ url_slug: slug });
+            }}
+            setIsPublic={(isPublic) => {
+              // Immediately update UI state for responsive feedback
+              setIsPublic(isPublic);
+              // Debounce the server update
+              handleTextUpdate({ is_public: isPublic });
+            }}
+            setPrivateName={(name) => {
+              // Immediately update UI state for responsive feedback
+              setPrivateName(name);
+              // Debounce the server update
+              handleTextUpdate({ private_name: name });
+            }}
+            setButtonColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setButtonColor(color);
+              // Also update our centralized style reference
+              latestStyleRef.current.buttonColor = color;
+              // Debounce the server update
+              handleStyleUpdate({ buttonColor: color });
+            }}
+            setButtonTextColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setButtonTextColor(color);
+              // Also update our centralized style reference
+              latestStyleRef.current.buttonTextColor = color;
+              // Debounce the server update
+              handleStyleUpdate({ buttonTextColor: color });
+            }}
+            setSocialsStyle={(styleValue) => {
+              // Immediately update UI state for responsive feedback
+              setSocialsStyle(styleValue);
+              // Also update our centralized style reference
+              latestStyleRef.current.socialsStyle = styleValue;
+              // Debounce the server update
+              handleStyleUpdate({ socialsStyle: styleValue });
+            }}
+            setSocialsColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setSocialsColor(color);
+              // Also update our centralized style reference
+              latestStyleRef.current.socialsColor = color;
+              // Debounce the server update
+              handleStyleUpdate({ socialsColor: color });
+            }}
+            setSocialsIconColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setSocialsIconColor(color);
+              // Also update our centralized style reference
+              latestStyleRef.current.socialsIconColor = color;
+              // Debounce the server update
+              handleStyleUpdate({ socialsIconColor: color });
+            }}
+            setSocialLinks={handleSocialLinksUpdate}
+            setHeaderBgColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderBgColor(color);
+              // Also update our centralized style reference
+              latestStyleRef.current.headerBgColor = color;
+              // Debounce the server update
+              handleStyleUpdate({ headerBgColor: color });
+            }}
+            setHeaderBlur={(blur) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderBlur(blur);
+              // Also update our centralized style reference
+              latestStyleRef.current.headerBlur = blur;
+              // Debounce the server update
+              handleStyleUpdate({ headerBlur: blur });
+            }}
+            setHeaderTextColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderTextColor(color);
+              // Also update our centralized style reference
+              latestStyleRef.current.headerTextColor = color;
+              // Debounce the server update
+              handleStyleUpdate({ headerTextColor: color });
+            }}
+            setHeaderSecondaryTextColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderSecondaryTextColor(color);
+              // Also update our centralized style reference
+              latestStyleRef.current.headerSecondaryTextColor = color;
+              // Debounce the server update
+              handleStyleUpdate({ headerSecondaryTextColor: color });
+            }}
+            setHeaderTitle={(title) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderTitle(title);
+              // Debounce the server update
+              handleTextUpdate({ title });
+            }}
+            setHeaderDescription={(description) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderDescription(description);
+              // Debounce the server update
+              handleTextUpdate({ description });
+            }}
+            setHeaderName={(name) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderName(name);
+              // Debounce the server update
+              handleTextUpdate({ name });
+            }}
+            setHeaderButtonText={(text) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderButtonText(text);
+              // Debounce the server update - explicitly pass the text even if empty
+              handlePrimaryButtonUpdate({ text });
+            }}
+            setHeaderButtonLink={(url) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderButtonLink(url);
+              // Debounce the server update - explicitly pass the url even if empty
+              handlePrimaryButtonUpdate({ url });
+            }}
+            setHeaderButtonColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderButtonColor(color);
+              // Debounce the server update
+              handlePrimaryButtonUpdate({ color });
+            }}
+            setHeaderButtonTextColor={(color) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderButtonTextColor(color);
+              // Debounce the server update
+              handlePrimaryButtonUpdate({ textColor: color });
+            }}
+            setLinks={handleSetLinks}
+            setHeaderImage={(image) => {
+              // Immediately update UI state for responsive feedback
+              setHeaderImage(image);
+              // Debounce the server update
+              handleTextUpdate({ bg_image: image });
+            }}
+            setLogoImage={(image) => {
+              // Immediately update UI state for responsive feedback
+              setLogoImage(image);
+              // Debounce the server update
+              handleTextUpdate({ logo_asset: image });
+            }}
+          />
+        </div>
+        <div className="relative hidden flex-1 overflow-y-auto lg:block">
+          <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col rounded-md border shadow-md">
+            {isLoading && (
+              <Skeleton className="h-[calc(100vh-20rem)] w-full bg-muted" />
+            )}
+            {!isLoading && (
+              <>
+                <LinkListHeader
+                  headerBgColor={headerBgColor}
+                  headerTextColor={headerTextColor}
+                  headerSecondaryTextColor={headerSecondaryTextColor}
+                  headerTitle={headerTitle}
+                  headerDescription={headerDescription}
+                  headerName={headerName}
+                  headerButtonText={headerButtonText}
+                  headerButtonLink={headerButtonLink}
+                  headerButtonColor={headerButtonColor}
+                  headerButtonTextColor={headerButtonTextColor}
+                  headerImage={headerImage}
+                  logoImage={logoImage}
                   mode="builder"
+                  headerBlur={headerBlur}
                 />
-                <LinkListLinks
-                  links={links}
-                  buttonColor={buttonColor}
-                  buttonTextColor={buttonTextColor}
-                  mode="builder"
-                />
-              </div>
-            </>
-          )}
+                <div
+                  className="flex flex-col gap-6 py-6"
+                  style={{ backgroundColor: bgColor }}
+                >
+                  <LinkListSocials
+                    style={socialsStyle}
+                    color={socialsColor}
+                    iconColor={socialsIconColor}
+                    links={socialLinks}
+                    mode="builder"
+                  />
+                  <LinkListLinks
+                    links={links}
+                    buttonColor={buttonColor}
+                    buttonTextColor={buttonTextColor}
+                    mode="builder"
+                  />
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -2540,7 +2540,7 @@ export default function EmailDndProvider({
               <BreadcrumbItem>
                 <BreadcrumbLink
                   href={`/emails/${emailId}`}
-                  className="truncate"
+                  className="max-w-32 truncate sm:max-w-sm"
                 >
                   {(emailData?.email as any)?.subject || "Email Subject"}
                 </BreadcrumbLink>
