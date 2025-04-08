@@ -660,7 +660,7 @@ export default function SocialsForm({
   };
 
   return (
-    <div className="flex w-full flex-col gap-8 px-1">
+    <div className="flex w-full flex-col gap-8 px-1 pb-12">
       <div className="grid w-full grid-cols-3 items-center gap-2">
         <Label className="font-medium">Icon Style</Label>
         <Select
