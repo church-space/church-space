@@ -1073,6 +1073,7 @@ export default function Page() {
                       placeholder="Enter a name for this link"
                       autoFocus
                       className={linkErrors.name ? "border-destructive" : ""}
+                      maxLength={80}
                     />
                     {linkErrors.name && (
                       <p className="mt-1 text-sm text-destructive">
@@ -1090,6 +1091,7 @@ export default function Page() {
                       onChange={(e) => setEditedLinkUrl(e.target.value)}
                       placeholder="Enter the destination URL"
                       className={linkErrors.url ? "border-destructive" : ""}
+                      maxLength={500}
                     />
                     {linkErrors.url && (
                       <p className="mt-1 text-sm text-destructive">

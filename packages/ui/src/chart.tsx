@@ -387,7 +387,6 @@ export const ResponsiveContainer = RechartsResponsiveContainer;
 export const CustomChartTooltip = ({
   active,
   payload,
-  label,
 }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     // Calculate total for stacked bar
@@ -397,9 +396,8 @@ export const CustomChartTooltip = ({
     );
 
     return (
-      <div className="bg-background border rounded-md shadow-md p-3">
-        <p className="font-medium">{label}</p>
-        <div className="mt-2 space-y-1">
+      <div className="bg-background border rounded-md shadow-md p-3 space-y-2">
+        <div className=" space-y-1">
           {payload.map((entry, index) => (
             <div key={`item-${index}`} className="flex items-center">
               <div
@@ -411,7 +409,7 @@ export const CustomChartTooltip = ({
               </span>
             </div>
           ))}
-          <div className="pt-1 mt-1 border-t">
+          <div className="pt-2 mt-2 border-t">
             <span className="text-sm font-medium">Total: {total}</span>
           </div>
         </div>

@@ -128,7 +128,12 @@ export default function NewQRCode({
             <FormItem>
               <FormLabel className="ml-1">URL</FormLabel>
               <FormControl>
-                <Input placeholder="Enter URL..." {...field} type="text" />
+                <Input
+                  placeholder="Enter URL..."
+                  {...field}
+                  type="text"
+                  maxLength={500}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
