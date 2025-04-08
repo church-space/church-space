@@ -15,6 +15,8 @@ import {
   getAllLinkLists,
   getLinkListsCount,
 } from "@church-space/supabase/queries/all/get-all-link-lists";
+import { Suspense } from "react";
+import DataTableSkeleton from "@/components/tables/data-table-skeleton";
 
 interface PageProps {
   params: Promise<{ slug?: string }>;
@@ -96,13 +98,15 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
       </header>
       <div className="p-6">
-        <LinkListsTable
-          organizationId={organizationId}
-          initialData={linkListsData ?? []}
-          initialCount={count ?? 0}
-          initialSearch={searchValue}
-          initialVisibility={validvisibility}
-        />
+        <Suspense fallback={<DataTableSkeleton title="Link Lists" />}>
+          <LinkListsTable
+            organizationId={organizationId}
+            initialData={linkListsData ?? []}
+            initialCount={count ?? 0}
+            initialSearch={searchValue}
+            initialVisibility={validvisibility}
+          />
+        </Suspense>
       </div>
     </>
   );

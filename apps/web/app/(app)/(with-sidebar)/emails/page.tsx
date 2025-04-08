@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Separator } from "@church-space/ui/separator";
 import {
@@ -17,6 +17,7 @@ import {
 } from "@church-space/supabase/queries/all/get-emails";
 import type { EmailStatus } from "@/components/tables/emails/filters";
 import type { Email } from "@/components/tables/emails/columns";
+import DataTableSkeleton from "@/components/tables/data-table-skeleton";
 
 interface PageProps {
   params: Promise<{ slug?: string }>;
@@ -102,13 +103,15 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
       </header>
       <div className="p-6">
-        <EmailsTable
-          organizationId={organizationId}
-          initialData={emails}
-          initialCount={count ?? 0}
-          initialSearch={searchValue}
-          initialStatus={validStatus}
-        />
+        <Suspense fallback={<DataTableSkeleton title="Emails" />}>
+          <EmailsTable
+            organizationId={organizationId}
+            initialData={emails}
+            initialCount={count ?? 0}
+            initialSearch={searchValue}
+            initialStatus={validStatus}
+          />
+        </Suspense>
       </div>
     </>
   );
