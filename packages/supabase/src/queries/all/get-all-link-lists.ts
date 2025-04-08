@@ -53,6 +53,7 @@ export async function getAllLinkLists(
       url_slug
     `
     )
+    .order("created_at", { ascending: false })
     .order("private_name", { ascending: true })
     .eq("organization_id", organizationId);
 
