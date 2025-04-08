@@ -409,6 +409,7 @@ export default function LinkListBuilderSidebar({
                       aria-describedby={
                         urlSlugError ? "url-slug-error" : undefined
                       }
+                      maxLength={80}
                     />
                   </div>
                   {urlSlugError && (
