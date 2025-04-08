@@ -55,15 +55,6 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
       organizationId,
       effectiveSearch ?? undefined,
       effectiveStatus ?? undefined,
-      {
-        initialData:
-          effectiveSearch === search && effectiveStatus === status
-            ? {
-                pages: [{ data: [], count: 0, nextPage: 1 }],
-                pageParams: [0],
-              }
-            : undefined,
-      },
     );
 
   const handleSearch = useCallback(
