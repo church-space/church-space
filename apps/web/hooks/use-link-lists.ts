@@ -1,50 +1,63 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createClient } from "@church-space/supabase/client";
-import {
-  getAllLinkLists,
-  getLinkListsCount,
-} from "@church-space/supabase/queries/all/get-all-link-lists";
+import { getLinkLists } from "@/actions/get-link-lists";
+import type { LinkList } from "@/components/tables/link-lists/columns";
 
-const ITEMS_PER_PAGE = 25;
+interface UseLinkListsOptions {
+  initialData?: {
+    pages: Array<{
+      data: LinkList[];
+      count: number;
+      nextPage: number | undefined;
+    }>;
+    pageParams: number[];
+  };
+}
 
 export function useLinkLists(
   organizationId: string,
   searchTerm?: string,
   isPublic?: boolean,
+  options?: UseLinkListsOptions,
 ) {
-  const supabase = createClient();
-
   return useInfiniteQuery({
     queryKey: ["link-lists", organizationId, searchTerm, isPublic],
     queryFn: async ({ pageParam = 0 }) => {
-      const from = pageParam * ITEMS_PER_PAGE;
-      const to = from + ITEMS_PER_PAGE - 1;
-
-      // Get Link Lists data
-      const { data, error } = await getAllLinkLists(supabase, organizationId, {
-        start: from,
-        end: to,
+      const result = await getLinkLists({
+        organizationId,
+        page: pageParam,
         searchTerm,
         isPublic,
       });
 
-      if (error) throw error;
+      if (!result) {
+        throw new Error("Failed to fetch emails");
+      }
 
-      // Get total count
-      const { count } = await getLinkListsCount(supabase, organizationId, {
-        searchTerm,
-        isPublic,
-      });
+      if (result.validationErrors) {
+        throw new Error(Object.values(result.validationErrors).join(", "));
+      }
 
-      const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+      if (!result.data) {
+        throw new Error("No data returned from server");
+      }
 
       return {
-        data: data ?? [],
-        nextPage: hasNextPage ? pageParam + 1 : undefined,
-        count,
+        data:
+          (result.data.data?.map((linkList) => ({
+            ...linkList,
+          })) as LinkList[]) ?? [],
+        count: result.data.count ?? 0,
+        nextPage: result.data.nextPage,
       };
     },
+
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
+    initialData: options?.initialData,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 }

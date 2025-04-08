@@ -14,31 +14,69 @@ import {
 } from "@church-space/ui/dialog";
 import { useLinkLists } from "@/hooks/use-link-lists";
 import NewLinkList from "@/components/forms/new-link-list";
+import { Skeleton } from "@church-space/ui/skeleton";
 
 interface LinkListsTableProps {
   organizationId: string;
+  initialData: LinkList[];
+  initialCount: number;
+  initialSearch?: string;
+  initialVisibility?: LinkListStatus;
 }
 
 export default function LinkListsTable({
   organizationId,
+  initialData,
+  initialCount,
+  initialSearch,
+  initialVisibility,
 }: LinkListsTableProps) {
-  const [search, setSearch] = useQueryState("search");
-  const [isPublic, setIsPublic] = useQueryState<LinkListStatus>("isPublic", {
-    parse: (value) => {
-      if (value === "true" || value === "false" || value === "all") {
-        return value;
-      }
-      return "all";
-    },
-    serialize: (value) => value,
+  const [search, setSearch] = useQueryState("search", {
+    parse: (value) => value,
+    serialize: (value) => value ?? null,
+    history: "push",
   });
+  const [visibility, setVisibility] = useQueryState<LinkListStatus>(
+    "visibility",
+    {
+      parse: (value): LinkListStatus | null => {
+        if (value === "true" || value === "false" || value === "all") {
+          return value;
+        }
+        return null;
+      },
+      serialize: (value) => value || "all",
+      history: "push",
+    },
+  );
   const [isNewLinkListOpen, setIsNewLinkListOpen] = useState(false);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useLinkLists(
-    organizationId,
-    search ?? undefined,
-    isPublic === "true" ? true : isPublic === "false" ? false : undefined,
-  );
+  // Initialize search and status if they're not set and we have initial values
+  const effectiveSearch = search ?? initialSearch;
+  const effectiveVisibility = visibility ?? initialVisibility;
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useLinkLists(
+      organizationId,
+      effectiveSearch ?? undefined,
+      effectiveVisibility === "true"
+        ? true
+        : effectiveVisibility === "false"
+          ? false
+          : undefined,
+      {
+        initialData:
+          effectiveSearch === initialSearch &&
+          effectiveVisibility === initialVisibility
+            ? {
+                pages: [
+                  { data: initialData, count: initialCount, nextPage: 1 },
+                ],
+                pageParams: [0],
+              }
+            : undefined,
+      },
+    );
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -48,10 +86,10 @@ export default function LinkListsTable({
   );
 
   const handleStatusChange = useCallback(
-    async (value: string) => {
-      await setIsPublic(value === "all" ? null : (value as LinkListStatus));
+    async (value: LinkListStatus) => {
+      await setVisibility(value === "all" ? null : value);
     },
-    [setIsPublic],
+    [setVisibility],
   );
 
   // Flatten all pages of data
@@ -61,10 +99,12 @@ export default function LinkListsTable({
 
   return (
     <>
-      <div className="flex w-full items-center justify-between">
-        <h1 className="mb-6 text-2xl font-bold">
-          <span className="font-normal text-muted-foreground">{count}</span>{" "}
-          Link Lists
+      <div className="mb-6 flex w-full items-center justify-between">
+        <h1 className="flex items-center gap-1.5 text-3xl font-bold">
+          <span className="font-normal text-muted-foreground">
+            {isLoading ? <Skeleton className="h-7 w-6" /> : count}
+          </span>{" "}
+          {count === 1 ? "Link List" : "Link Lists"}
         </h1>
         <Button onClick={() => setIsNewLinkListOpen(true)}>
           New Link List
@@ -81,16 +121,17 @@ export default function LinkListsTable({
           };
         }}
         hasNextPage={hasNextPage}
-        searchQuery={search || ""}
+        searchQuery={effectiveSearch || ""}
         onSearch={handleSearch}
         filterConfig={getLinkListFilterConfig()}
         onFilterChange={{
-          isPublic: handleStatusChange,
+          visibility: handleStatusChange,
         }}
         initialFilters={{
-          isPublic: isPublic || "all",
+          visibility: effectiveVisibility ?? undefined,
         }}
-        isLoading={isFetchingNextPage}
+        searchPlaceholderText="Search by name..."
+        isLoading={isLoading || isFetchingNextPage}
       />
 
       <Dialog open={isNewLinkListOpen} onOpenChange={setIsNewLinkListOpen}>

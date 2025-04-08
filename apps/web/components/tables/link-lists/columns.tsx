@@ -2,6 +2,7 @@
 
 import { Badge } from "@church-space/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 // Define the type based on the SQL schema
@@ -35,7 +36,7 @@ export const columns: ColumnDef<LinkList>[] = [
       const urlSlug = row.getValue("url_slug") as string | null;
       return urlSlug ? (
         <Link
-          className="hover:underline"
+          className="flex items-center gap-1 hover:underline"
           href={`https://churchspace.co/links/${urlSlug}`}
           prefetch={true}
         >
@@ -43,6 +44,7 @@ export const columns: ColumnDef<LinkList>[] = [
             https://churchspace.co/links/
           </span>
           <span className="font-medium">{urlSlug}</span>
+          <ExternalLink className="h-3 w-3" />
         </Link>
       ) : (
         <span className="text-muted-foreground">No URL</span>

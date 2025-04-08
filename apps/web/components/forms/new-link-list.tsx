@@ -137,7 +137,7 @@ export default function NewLinkList({
         />
         <div className="flex items-center justify-end gap-2">
           <Button
-            variant="secondary"
+            variant="outline"
             type="button"
             disabled={isLoading}
             onClick={() => setIsNewLinkListOpen(false)}
