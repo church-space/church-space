@@ -38,7 +38,7 @@ export const columns: ColumnDef<LinkList>[] = [
         <Link
           className="flex items-center gap-1 hover:underline"
           href={`https://churchspace.co/links/${urlSlug}`}
-          prefetch={true}
+          prefetch={false}
         >
           <span className="font-light text-muted-foreground">
             https://churchspace.co/links/
