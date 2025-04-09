@@ -33,6 +33,7 @@ import {
 import { updatePersonSubscriptionStatusAction } from "@/actions/update-person-subscription-status";
 import { deleteCategoryUnsubscribeAction } from "@/actions/delete-category-unsubscribe";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type Person = {
   id: number;
@@ -74,6 +75,7 @@ const NameCell = ({ person }: { person: Person }) => {
     status?: "subscribed" | "unsubscribed" | "pco_blocked" | "cleaned";
     categoryUnsubscribes?: number[];
   }>({});
+  const queryClient = useQueryClient();
 
   const [isCategroyResubOpen, setIsCategroyResubOpen] = useState(false);
   const [isUnsubscribeAllOpen, setIsUnsubscribeAllOpen] = useState(false);
@@ -95,6 +97,8 @@ const NameCell = ({ person }: { person: Person }) => {
         emailId: person.people_emails?.[0]?.id,
         status: newStatus,
       });
+      // Invalidate the people query to refresh the table data
+      await queryClient.invalidateQueries({ queryKey: ["people"] });
     } catch (error) {
       // Revert optimistic update on error
       setOptimisticStatus({});
@@ -118,6 +122,8 @@ const NameCell = ({ person }: { person: Person }) => {
         emailId: person.people_emails?.[0]?.id,
         categoryId,
       });
+      // Invalidate the people query to refresh the table data
+      await queryClient.invalidateQueries({ queryKey: ["people"] });
     } catch (error) {
       // Revert optimistic update on error
       setOptimisticStatus((prev) => ({
