@@ -1,48 +1,57 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createClient } from "@church-space/supabase/client";
-import {
-  getAllEmailTemplates,
-  getEmailTemplatesCount,
-} from "@church-space/supabase/queries/all/get-all-email-templates";
+import { getEmailTemplates } from "../actions/get-email-templates";
+import type { EmailTemplate } from "@/components/tables/email-templates/columns";
 
-const ITEMS_PER_PAGE = 25;
+interface UseEmailTemplatesOptions {
+  initialData?: {
+    pages: Array<{
+      data: EmailTemplate[];
+      count: number;
+      nextPage: number | undefined;
+    }>;
+    pageParams: number[];
+  };
+}
 
-export function useEmailTemplates(organizationId: string, searchTerm?: string) {
-  const supabase = createClient();
-
+export function useEmailTemplates(
+  organizationId: string,
+  searchTerm?: string,
+  options?: UseEmailTemplatesOptions,
+) {
   return useInfiniteQuery({
-    queryKey: ["emails", organizationId, searchTerm],
+    queryKey: ["email-templates", organizationId, searchTerm],
     queryFn: async ({ pageParam = 0 }) => {
-      const from = pageParam * ITEMS_PER_PAGE;
-      const to = from + ITEMS_PER_PAGE - 1;
-
-      // Get emails data
-      const { data, error } = await getAllEmailTemplates(
-        supabase,
+      const result = await getEmailTemplates({
         organizationId,
-        {
-          start: from,
-          end: to,
-          searchTerm,
-        },
-      );
-
-      if (error) throw error;
-
-      // Get total count
-      const { count } = await getEmailTemplatesCount(supabase, organizationId, {
+        page: pageParam,
         searchTerm,
       });
 
-      const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+      if (!result) {
+        throw new Error("Failed to fetch email templates");
+      }
+
+      if (result.validationErrors) {
+        throw new Error(Object.values(result.validationErrors).join(", "));
+      }
+
+      if (!result.data) {
+        throw new Error("No data returned from server");
+      }
 
       return {
-        data: data ?? [],
-        nextPage: hasNextPage ? pageParam + 1 : undefined,
-        count,
+        data: result.data.data ?? [],
+        count: result.data.count ?? 0,
+        nextPage: result.data.nextPage,
       };
     },
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    getNextPageParam: (lastPage) => lastPage?.nextPage,
     initialPageParam: 0,
+    initialData: options?.initialData,
+    staleTime: 60000,
+    gcTime: 60000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 }
