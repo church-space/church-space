@@ -19,25 +19,9 @@ export default function EmailCategoriesTable({
   organizationId,
 }: EmailCategoriesTableProps) {
   const [search, setSearch] = useQueryState("search");
-  const [visibility, setVisibility] = useQueryState<EmailCategoryStatus>(
-    "visibility",
-    {
-      parse: (value): EmailCategoryStatus => {
-        if (value === "true" || value === "false" || value === "all") {
-          return value;
-        }
-        return "all";
-      },
-      serialize: (value) => value,
-    },
-  );
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useEmailCategories(
-      organizationId,
-      search ?? undefined,
-      visibility === "true" ? true : visibility === "false" ? false : undefined,
-    );
+    useEmailCategories(organizationId, search ?? undefined);
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -46,27 +30,11 @@ export default function EmailCategoriesTable({
     [setSearch],
   );
 
-  const handleStatusChange = useCallback(
-    async (value: EmailCategoryStatus) => {
-      await setVisibility(value === "all" ? null : value);
-    },
-    [setVisibility],
-  );
-
   // Flatten all pages of data
   const categories = (data?.pages.flatMap((page) => page.data) ??
     []) as EmailCategory[];
   const count = data?.pages[0]?.count ?? 0;
 
-  console.log("Table data:", {
-    visibility,
-    categoriesCount: categories.length,
-    totalCount: count,
-    pages: data?.pages.length,
-    isLoading,
-    categories: categories,
-    isFetchingNextPage,
-  });
   return (
     <>
       <div className="mb-5 flex w-full flex-col justify-between gap-3">
@@ -114,23 +82,6 @@ export default function EmailCategoriesTable({
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
-        filterConfig={{
-          is_public: {
-            type: "select",
-            options: EMAIL_CATEGORY_STATUS_OPTIONS.map((opt) => ({
-              label: opt.label,
-              value: opt.value,
-            })),
-            defaultValue: "all",
-            label: "Visibility",
-          },
-        }}
-        onFilterChange={{
-          is_public: handleStatusChange,
-        }}
-        initialFilters={{
-          is_public: visibility || "all",
-        }}
         searchPlaceholderText="Search by name..."
         isLoading={isFetchingNextPage || isLoading}
       />

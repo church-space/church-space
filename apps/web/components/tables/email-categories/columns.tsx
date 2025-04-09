@@ -9,6 +9,8 @@ import {
   SelectItem,
 } from "@church-space/ui/select";
 import { cn } from "@church-space/ui/cn";
+import { updateEmailCategoryVisibilityAction } from "@/actions/update-email-category-visibility";
+import { useState } from "react";
 
 // Define the type based on the SQL schema
 export type EmailCategory = {
@@ -39,25 +41,28 @@ export const columns: ColumnDef<EmailCategory>[] = [
     cell: ({ row }) => {
       const isPublic = row.getValue("is_public") as boolean;
       const id = row.original.id;
+      const [selectedValue, setSelectedValue] = useState(
+        isPublic ? "public" : "hidden",
+      );
 
       const handleValueChange = (value: string) => {
-        // Here you would update the value in your database
-        console.log(
-          `Updating email category ${id} to ${value === "public" ? true : false}`,
-        );
-        // You might want to add API call here to update the value
+        setSelectedValue(value);
+        updateEmailCategoryVisibilityAction({
+          emailCategoryId: id,
+          isPublic: value === "public",
+        });
       };
 
       return (
         <div>
           <Select
-            defaultValue={isPublic ? "public" : "hidden"}
+            defaultValue={selectedValue}
             onValueChange={handleValueChange}
           >
             <SelectTrigger
               className={cn(
                 "h-7 w-[100px] rounded-lg bg-transparent px-3 shadow-sm transition-all",
-                isPublic
+                selectedValue === "public"
                   ? "border border-green-500 bg-green-100 dark:bg-green-900"
                   : "bg-muted",
               )}

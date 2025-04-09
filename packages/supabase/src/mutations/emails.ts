@@ -587,3 +587,21 @@ export async function updateDefaultEmailFooter(
   }
   return { data, error };
 }
+
+export async function updateEmailCategory(
+  supabase: Client,
+  emailCategoryId: number,
+  emailCategory: Database["public"]["Tables"]["pco_list_categories"]["Update"]
+) {
+  const { data, error } = await supabase
+    .from("pco_list_categories")
+    .update(emailCategory)
+    .eq("id", emailCategoryId)
+    .select();
+
+  if (error) {
+    console.error("Error updating email category:", error);
+    throw error;
+  }
+  return { data, error };
+}
