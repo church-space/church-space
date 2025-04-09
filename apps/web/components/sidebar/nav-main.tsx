@@ -10,6 +10,7 @@ import {
 } from "@church-space/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function NavMain({
   items,
@@ -18,13 +19,24 @@ export function NavMain({
     title: string;
     url: string;
     icon: React.ElementType;
+    prefetchQueryKey?: string[];
     submenu?: {
       title: string;
       url: string;
+      prefetchQueryKey?: string[];
     }[];
   }[];
 }) {
   const pathname = usePathname();
+  const queryClient = useQueryClient();
+
+  const handleMouseEnter = (prefetchQueryKey?: string[]) => {
+    if (prefetchQueryKey) {
+      queryClient.prefetchQuery({
+        queryKey: prefetchQueryKey,
+      });
+    }
+  };
 
   return (
     <SidebarGroup>
@@ -51,7 +63,11 @@ export function NavMain({
                   !isActive && "hover:bg-transparent",
                 )}
               >
-                <Link href={item.url} prefetch={true}>
+                <Link
+                  href={item.url}
+                  prefetch={true}
+                  onMouseEnter={() => handleMouseEnter(item.prefetchQueryKey)}
+                >
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>
@@ -65,9 +81,6 @@ export function NavMain({
                         tooltip={submenuItem.title}
                         className={cn(
                           "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
-                          // For Settings, only exact matches
-                          // For Email, handle special cases
-                          // For other items, match exact path or subpaths
                           (item.title === "Settings"
                             ? pathname === submenuItem.url
                             : item.title === "Email"
@@ -85,7 +98,13 @@ export function NavMain({
                             "text-foreground",
                         )}
                       >
-                        <Link href={submenuItem.url} prefetch={true}>
+                        <Link
+                          href={submenuItem.url}
+                          prefetch={true}
+                          onMouseEnter={() =>
+                            handleMouseEnter(submenuItem.prefetchQueryKey)
+                          }
+                        >
                           <span>{submenuItem.title}</span>
                         </Link>
                       </SidebarMenuButton>
