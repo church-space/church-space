@@ -67,13 +67,6 @@ export default function EmailAutomationBuilder({
     }));
   };
 
-  const emailTemplates = [
-    "Welcome Email",
-    "Thank You",
-    "Follow Up",
-    "Newsletter",
-  ];
-
   return (
     <>
       <SheetHeader>
