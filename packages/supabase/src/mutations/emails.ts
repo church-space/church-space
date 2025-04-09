@@ -451,6 +451,43 @@ export async function unsubscribeEmail(supabase: Client, emailId: number) {
   return data;
 }
 
+export async function updateEmailStatus(
+  supabase: Client,
+  emailId: number,
+  status: "unsubscribed" | "pco_blocked" | "subscribed" | "cleaned"
+) {
+  const { data, error } = await supabase
+    .from("people_emails")
+    .update({ status: status })
+    .eq("id", emailId)
+    .select();
+
+  if (error) {
+    console.error("Error updating email status:", error);
+    throw error;
+  }
+  return data;
+}
+
+export async function deleteEmailCategoryUnsubscribe(
+  supabase: Client,
+  emailId: number,
+  categoryId: number
+) {
+  const { data, error } = await supabase
+    .from("email_list_category_unsubscribes")
+    .delete()
+    .eq("unsub_email_id", emailId)
+    .eq("pco_list_category", categoryId)
+    .select();
+
+  if (error) {
+    console.error("Error deleting email category unsubscribe:", error);
+    throw error;
+  }
+  return { data, error };
+}
+
 export async function createEmail(
   supabase: Client,
   email: Database["public"]["Tables"]["emails"]["Insert"],

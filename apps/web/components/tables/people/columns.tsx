@@ -30,6 +30,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
+import { updatePersonSubscriptionStatusAction } from "@/actions/update-person-subscription-status";
+import { deleteCategoryUnsubscribeAction } from "@/actions/delete-category-unsubscribe";
 
 export type Person = {
   id: number;
@@ -54,6 +56,7 @@ export type Person = {
     email_address: string;
     pco_list_category: number;
     pco_list_categories: {
+      id: number;
       pco_name: string;
       pco_id: string;
     };
@@ -65,7 +68,7 @@ const NameCell = ({ person }: { person: Person }) => {
   return (
     <Sheet>
       <SheetTrigger className="min-w-44 px-2 text-left">
-        <div className="font-medium hover:underline">
+        <div className="text-base font-medium hover:underline">
           {person.first_name} {person.last_name}
         </div>
         {person.nickname && (
@@ -84,16 +87,20 @@ const NameCell = ({ person }: { person: Person }) => {
             <Badge
               className="w-fit -translate-x-0.5 capitalize"
               variant={
-                person.email_list_category_unsubscribes.length > 0
-                  ? "default"
-                  : person.people_emails?.[0]?.status === "subscribed"
-                    ? "success"
-                    : "outline"
+                person.people_emails?.[0]?.status === "unsubscribed"
+                  ? "outline"
+                  : person.email_list_category_unsubscribes.length > 0
+                    ? "default"
+                    : person.people_emails?.[0]?.status === "subscribed"
+                      ? "success"
+                      : "outline"
               }
             >
-              {person.email_list_category_unsubscribes.length > 0
-                ? "Partially Subscribed"
-                : person.people_emails?.[0]?.status}
+              {person.people_emails?.[0]?.status === "unsubscribed"
+                ? "unsubscribed"
+                : person.email_list_category_unsubscribes.length > 0
+                  ? "Partially Subscribed"
+                  : person.people_emails?.[0]?.status}
             </Badge>
           </SheetTitle>
 
@@ -106,24 +113,39 @@ const NameCell = ({ person }: { person: Person }) => {
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="w-full">
-                  {person.email_list_category_unsubscribes.length > 0
-                    ? "Unsubscribe from All"
-                    : person.people_emails?.[0]?.status === "subscribed"
-                      ? "Unsubscribe"
-                      : "Resubscribe"}
+                  {person.people_emails?.[0]?.status === "unsubscribed"
+                    ? "Resubscribe"
+                    : person.email_list_category_unsubscribes.length > 0
+                      ? "Unsubscribe from All"
+                      : person.people_emails?.[0]?.status === "subscribed"
+                        ? "Unsubscribe"
+                        : "Resubscribe"}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    {person.email_list_category_unsubscribes.length > 0
-                      ? "Unsubscribe from All"
-                      : person.people_emails?.[0]?.status === "subscribed"
-                        ? "Unsubscribe"
-                        : "Resubscribe"}
+                    {person.people_emails?.[0]?.status === "unsubscribed"
+                      ? "Resubscribe"
+                      : person.email_list_category_unsubscribes.length > 0
+                        ? "Unsubscribe from All"
+                        : person.people_emails?.[0]?.status === "subscribed"
+                          ? "Unsubscribe"
+                          : "Resubscribe"}
                   </DialogTitle>
                   <DialogDescription>
-                    {person.email_list_category_unsubscribes.length > 0 ? (
+                    {person.people_emails?.[0]?.status === "unsubscribed" ? (
+                      <span>
+                        Are you sure you want to resubscribe{" "}
+                        <b>
+                          <u>{person.people_emails?.[0]?.email}</u>
+                        </b>{" "}
+                        to all emails? Please make sure you have explicit
+                        permission to resubscribe this person. Otherwise, you
+                        risk being marked as spam which will hurt your email
+                        deliverability.
+                      </span>
+                    ) : person.email_list_category_unsubscribes.length > 0 ? (
                       <span>
                         Are you sure you want to unsubscribe{" "}
                         <b>
@@ -158,18 +180,37 @@ const NameCell = ({ person }: { person: Person }) => {
                     </DialogClose>
                     <Button
                       variant={
-                        person.email_list_category_unsubscribes.length > 0
-                          ? "destructive"
-                          : person.people_emails?.[0]?.status === "subscribed"
+                        person.people_emails?.[0]?.status === "unsubscribed"
+                          ? "default"
+                          : person.email_list_category_unsubscribes.length > 0
                             ? "destructive"
-                            : "default"
+                            : person.people_emails?.[0]?.status === "subscribed"
+                              ? "destructive"
+                              : "default"
+                      }
+                      onClick={() =>
+                        updatePersonSubscriptionStatusAction({
+                          emailId: person.people_emails?.[0]?.id,
+                          status:
+                            person.people_emails?.[0]?.status === "unsubscribed"
+                              ? "subscribed"
+                              : person.email_list_category_unsubscribes.length >
+                                  0
+                                ? "unsubscribed"
+                                : person.people_emails?.[0]?.status ===
+                                    "subscribed"
+                                  ? "unsubscribed"
+                                  : "subscribed",
+                        })
                       }
                     >
-                      {person.email_list_category_unsubscribes.length > 0
-                        ? "Unsubscribe from All"
-                        : person.people_emails?.[0]?.status === "subscribed"
-                          ? "Unsubscribe"
-                          : "Resubscribe"}
+                      {person.people_emails?.[0]?.status === "unsubscribed"
+                        ? "Resubscribe"
+                        : person.email_list_category_unsubscribes.length > 0
+                          ? "Unsubscribe from All"
+                          : person.people_emails?.[0]?.status === "subscribed"
+                            ? "Unsubscribe"
+                            : "Resubscribe"}
                     </Button>
                   </DialogFooter>
                 </DialogHeader>
@@ -186,50 +227,66 @@ const NameCell = ({ person }: { person: Person }) => {
             </Link>
           </div>
 
-          {person.email_list_category_unsubscribes.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <Label>Unsubscribed from:</Label>
-              {person.email_list_category_unsubscribes.map((unsubscribe) => (
-                <div
-                  key={unsubscribe.id}
-                  className="flex items-center justify-between rounded-md border bg-muted p-2 px-2.5 text-sm"
-                >
-                  {unsubscribe.pco_list_categories.pco_name}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        Resubscribe
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>
-                          Resubscribe to{" "}
-                          {unsubscribe.pco_list_categories.pco_name}
-                        </DialogTitle>
-                        <DialogDescription>
-                          Are you sure you want to resubscribe{" "}
-                          <b>
-                            <u>{person.people_emails?.[0]?.email}</u>
-                          </b>{" "}
-                          to {unsubscribe.pco_list_categories.pco_name}? Please
-                          make sure you have explicit permission to resubscribe
-                          this person. Otherwise, you risk being marked as spam
-                          which will hurt your email deliverability.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter>
-                        <DialogClose asChild>
-                          <Button variant="outline">Cancel</Button>
-                        </DialogClose>
-                        <Button variant="default">Resubscribe</Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              ))}
-            </div>
-          )}
+          {person.email_list_category_unsubscribes.length > 0 &&
+            person.people_emails?.[0]?.status !== "unsubscribed" && (
+              <div className="flex flex-col gap-2">
+                <Label>Unsubscribed from:</Label>
+                {person.email_list_category_unsubscribes.map((unsubscribe) => (
+                  <div
+                    key={unsubscribe.id}
+                    className="flex items-center justify-between rounded-md border bg-muted p-2 px-2.5 text-sm"
+                  >
+                    {unsubscribe.pco_list_categories.pco_name}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          Resubscribe
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>
+                            Resubscribe to{" "}
+                            {unsubscribe.pco_list_categories.pco_name}
+                          </DialogTitle>
+                          <DialogDescription>
+                            Are you sure you want to resubscribe{" "}
+                            <b>
+                              <u>{person.people_emails?.[0]?.email}</u>
+                            </b>{" "}
+                            to {unsubscribe.pco_list_categories.pco_name}?
+                            Please make sure you have explicit permission to
+                            resubscribe this person. Otherwise, you risk being
+                            marked as spam which will hurt your email
+                            deliverability.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                          </DialogClose>
+                          <Button
+                            variant="default"
+                            onClick={() => {
+                              console.log(
+                                unsubscribe.pco_list_categories.id,
+                                person.people_emails?.[0]?.id,
+                              );
+                              deleteCategoryUnsubscribeAction({
+                                emailId: person.people_emails?.[0]?.id,
+                                categoryId: unsubscribe.pco_list_categories.id,
+                              });
+                            }}
+                          >
+                            Resubscribe
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                ))}
+              </div>
+            )}
         </div>
       </SheetContent>
     </Sheet>

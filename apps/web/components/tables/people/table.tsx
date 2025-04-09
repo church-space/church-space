@@ -88,7 +88,7 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
-        isLoading={isFetchingNextPage}
+        isLoading={isFetchingNextPage || isLoading}
       />
     </>
   );
