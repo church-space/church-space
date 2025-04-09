@@ -636,7 +636,7 @@ export default function PreSendPage({
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Email</BreadcrumbLink>
+                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
 

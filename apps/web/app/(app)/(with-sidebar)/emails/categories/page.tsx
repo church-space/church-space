@@ -2,8 +2,10 @@ import EmailCategoriesTable from "@/components/tables/email-categories/table";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
@@ -26,8 +28,15 @@ export default async function Page() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+
               <BreadcrumbItem>
-                <BreadcrumbPage>Link Lists</BreadcrumbPage>
+                <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
+                  Email Categories
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

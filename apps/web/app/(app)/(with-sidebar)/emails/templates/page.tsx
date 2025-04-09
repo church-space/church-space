@@ -2,7 +2,9 @@ import EmailTemplatesTable from "@/components/tables/email-templates/table";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbSeparator,
   BreadcrumbPage,
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
@@ -26,8 +28,15 @@ export default async function Page() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+
               <BreadcrumbItem>
-                <BreadcrumbPage>Link Lists</BreadcrumbPage>
+                <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
+                  Email Templates
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

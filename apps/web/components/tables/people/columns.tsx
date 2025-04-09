@@ -13,6 +13,12 @@ import { Button } from "@church-space/ui/button";
 import Link from "next/link";
 import { ExternalLinkIcon } from "lucide-react";
 import { Badge } from "@church-space/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
+
 export type Person = {
   id: number;
   pco_id: string;
@@ -31,7 +37,15 @@ export type Person = {
     protected_from_cleaning: boolean;
     reason: string | null;
   }>;
-  email_list_category_unsubscribes: Array<any>;
+  email_list_category_unsubscribes: Array<{
+    id: number;
+    email_address: string;
+    pco_list_category: number;
+    pco_list_categories: {
+      pco_name: string;
+      pco_id: string;
+    };
+  }>;
 };
 
 export const columns: ColumnDef<Person>[] = [
@@ -116,7 +130,61 @@ export const columns: ColumnDef<Person>[] = [
         firstEmail.status === "subscribed" &&
         row.original.email_list_category_unsubscribes?.length > 0
       ) {
-        return <Badge className="w-fit capitalize">Partially Subscribed</Badge>;
+        return (
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge className="w-fit capitalize">Partially Subscribed</Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              {row.original.email_list_category_unsubscribes.length > 0 && (
+                <div className="max-w-[300px]">
+                  <p className="mb-1 font-medium">Unsubscribed from:</p>
+                  {row.original.email_list_category_unsubscribes.map(
+                    (unsubscribe) => (
+                      <p key={unsubscribe.id} className="line-clamp-1 text-sm">
+                        {unsubscribe.pco_list_categories.pco_name}
+                      </p>
+                    ),
+                  )}
+                </div>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        );
+      }
+      if (firstEmail.status === "cleaned") {
+        return (
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant={"outline"} className="w-fit capitalize">
+                Cleaned
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[300px]">
+              {firstEmail.reason === "three bounces" ? (
+                <p>
+                  This email has marked your emails as{" "}
+                  <u>
+                    <b>spam</b>
+                  </u>{" "}
+                  three times, so we are excluding it from email list in order
+                  to help your email deliverability.
+                </p>
+              ) : firstEmail.reason === "email bounced" ? (
+                <p>
+                  An email sent to this address{" "}
+                  <u>
+                    <b>bounced</b>
+                  </u>
+                  , so we are excluding it from email list in order to help your
+                  email deliverability.
+                </p>
+              ) : (
+                <p>Cleaned</p>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        );
       }
 
       return (
