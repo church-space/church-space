@@ -9,14 +9,8 @@ import {
   SelectItem,
 } from "@church-space/ui/select";
 import { cn } from "@church-space/ui/cn";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@church-space/ui/sheet";
 import { Button } from "@church-space/ui/button";
+
 // Define the type based on the SQL schema
 export type EmailCategory = {
   id: number;
@@ -34,25 +28,8 @@ export const columns: ColumnDef<EmailCategory>[] = [
     cell: ({ row }) => {
       const name = row.getValue("pco_name") as string | null;
       return (
-        <div className="ml-1 font-medium">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                className="text-normal w-full justify-start p-0 px-2 text-left"
-              >
-                <span>{name || "Untitled"}</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>{name || "Untitled"}</SheetTitle>
-              </SheetHeader>
-              <div className="p-4">
-                <h2 className="text-lg font-bold">{name || "Untitled"}</h2>
-              </div>
-            </SheetContent>
-          </Sheet>
+        <div className="ml-1 text-base font-medium">
+          <span>{name || "Untitled"}</span>
         </div>
       );
     },

@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@church-space/ui/badge";
-import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";
@@ -18,35 +17,14 @@ export type QrLink = {
 
 export const columns: ColumnDef<QrLink>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
       return (
         <Link href={`/qr-codes/${row.original.id}`} prefetch={true}>
-          {row.getValue("name")}
+          <div className="min-w-32 truncate text-base font-semibold hover:underline">
+            {row.getValue("name")}
+          </div>
         </Link>
       );
     },
@@ -63,9 +41,11 @@ export const columns: ColumnDef<QrLink>[] = [
           target="_blank"
           className="flex items-center gap-1 hover:underline"
         >
-          {/* Display a shortened or relevant part of the URL if needed */}
-          {url.length > 50 ? `${url.substring(0, 50)}...` : url}
-          <ExternalLinkIcon className="ml-1 inline-block h-3 w-3" />
+          <div className="min-w-32 truncate hover:underline">
+            {/* Display a shortened or relevant part of the URL if needed */}
+            {url.length > 50 ? `${url.substring(0, 50)}...` : url}
+            <ExternalLinkIcon className="ml-1 inline-block h-3 w-3" />
+          </div>
         </Link>
       );
     },

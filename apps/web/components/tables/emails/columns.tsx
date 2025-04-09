@@ -52,10 +52,10 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => {
       const email = row.original;
       return (
-        <div className="min-w-64 text-wrap px-3">
+        <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap px-3">
           <Link
             href={`/emails/${email.id}`}
-            className="max-w-40 text-wrap font-medium hover:underline"
+            className="w-full text-base font-medium hover:underline"
             prefetch={true}
           >
             {email.subject || "No Subject"}

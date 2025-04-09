@@ -9,6 +9,7 @@ import DataTable from "../data-table";
 import { columns, EmailCategory } from "./columns";
 import { EmailCategoryStatus, getEmailCategoryFilterConfig } from "./filters";
 import { CircleInfo } from "@church-space/ui/icons";
+import { Skeleton } from "@church-space/ui/skeleton";
 
 interface EmailCategoriesTableProps {
   organizationId: string;
@@ -61,12 +62,15 @@ export default function EmailCategoriesTable({
 
   return (
     <>
-      <div className="mb-5 flex w-full flex-col items-center justify-between gap-3">
+      <div className="mb-5 flex w-full flex-col justify-between gap-3">
         <div className="flex w-full flex-row items-center justify-between gap-2">
-          <h1 className="text-2xl font-bold">
-            <span className="font-normal text-muted-foreground">{count}</span>{" "}
+          <h1 className="flex items-center gap-1.5 text-xl font-bold md:text-3xl">
+            <span className="font-normal text-muted-foreground">
+              {isLoading ? <Skeleton className="h-7 w-5" /> : count}
+            </span>{" "}
             Email {count === 1 ? "Category" : "Categories"}
           </h1>
+
           <Link
             href="https://people.planningcenteronline.com/list_categories"
             target="_blank"
@@ -74,18 +78,20 @@ export default function EmailCategoriesTable({
             <Button>Manage in PCO</Button>
           </Link>
         </div>
-        <div className="flex items-center gap-3 rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
+        <div className="flex w-full items-center gap-3 rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
           <div className="flex-shrink-0">
             <CircleInfo height={"20"} width={"20"} />
           </div>
-          <p>
-            Categories are the types of emails you send—like
-            &quot;General,&quot; &quot;Events,&quot; or &quot;Students.&quot;
-            They let people subscribe to what they care about, reducing full
-            unsubscribes. These categories are created through your List
-            Categories in Planning Center People. To make a category emailable,
-            set it to &quot;public.&quot;
-          </p>
+          <div className="flex flex-col gap-2">
+            <p className="text-sm">
+              Categories help people subscribe to the types of emails they care
+              about (like &quot;General,&quot; &quot;Events,&quot; or
+              &quot;Students&quot;)—reducing full unsubscribes. Create
+              categories in Planning Center People, set them to
+              &quot;public,&quot; in Church Space, and then send emails to lists
+              in that category.
+            </p>
+          </div>
         </div>
       </div>
       <DataTable<EmailCategory>

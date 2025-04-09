@@ -1,7 +1,7 @@
 export const EMAIL_CATEGORY_STATUS_OPTIONS = [
   { label: "All", value: "all" },
   { label: "Public", value: "true" },
-  { label: "Private", value: "false" },
+  { label: "Hidden", value: "false" },
 ] as const;
 
 export type EmailCategoryStatus =
