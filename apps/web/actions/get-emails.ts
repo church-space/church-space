@@ -36,6 +36,7 @@ export const getEmails = authActionClient
         end: to,
         searchTerm: parsedInput.searchTerm,
         status: parsedInput.status as any,
+        type: ["standard"],
       },
     );
 

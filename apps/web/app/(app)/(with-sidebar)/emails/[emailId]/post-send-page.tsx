@@ -1,4 +1,5 @@
 "use client";
+
 import EmailPreview from "@/components/dnd-builder/email-preview";
 import { EmailRecipientStatus } from "@/components/tables/email-recipients/filters";
 import EmailRecipientsTable from "@/components/tables/email-recipients/table";
@@ -463,7 +464,7 @@ export default function PostSendPage({
           ))}
         </div>
         <div className="flex -translate-y-2 justify-end text-xs text-muted-foreground">
-          * Stats updated every hour for the first week after sending.
+          * Stats updated once per hour for the first week after sending.
         </div>
         <div className="mt-8 flex flex-col gap-4">
           <div className="flex items-center gap-3 text-lg font-bold">

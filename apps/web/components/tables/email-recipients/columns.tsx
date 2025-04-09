@@ -17,6 +17,26 @@ export type EmailRecipient = {
 
 export const columns: ColumnDef<EmailRecipient>[] = [
   {
+    header: "Name",
+    accessorKey: "person",
+    cell: ({ row }) => {
+      const person = row.original.person;
+      return (
+        <div className="flex min-w-52 flex-col pr-3">
+          {person && (person.first_name || person.last_name) ? (
+            <span className="font-semibold">
+              {[person.first_name, person.last_name]
+                .filter(Boolean)
+                .join(" ") || "No Name"}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">No Name</span>
+          )}
+        </div>
+      );
+    },
+  },
+  {
     header: "Email Address",
     id: "email_address",
     accessorKey: "email_address",
@@ -40,11 +60,11 @@ export const columns: ColumnDef<EmailRecipient>[] = [
           <Badge
             variant={
               row.original.status === "sent"
-                ? "success"
+                ? "successOutline"
                 : row.original.status === "opened"
                   ? "success"
                   : row.original.status === "delivered"
-                    ? "success"
+                    ? "successOutline"
                     : row.original.status === "bounced"
                       ? "destructive"
                       : row.original.status === "complained"
@@ -52,7 +72,7 @@ export const columns: ColumnDef<EmailRecipient>[] = [
                         : row.original.status === "pending"
                           ? "warning"
                           : row.original.status === "did-not-send"
-                            ? "secondary"
+                            ? "destructive"
                             : "secondary"
             }
             className="capitalize"
@@ -64,26 +84,6 @@ export const columns: ColumnDef<EmailRecipient>[] = [
     },
     meta: {
       filterVariant: "select",
-    },
-  },
-  {
-    header: "Name",
-    accessorKey: "person",
-    cell: ({ row }) => {
-      const person = row.original.person;
-      return (
-        <div className="flex min-w-52 flex-col pr-3">
-          {person && (person.first_name || person.last_name) ? (
-            <span className="font-semibold">
-              {[person.first_name, person.last_name]
-                .filter(Boolean)
-                .join(" ") || "No Name"}
-            </span>
-          ) : (
-            <span className="text-muted-foreground">No Name</span>
-          )}
-        </div>
-      );
     },
   },
 ];
