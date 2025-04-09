@@ -7,7 +7,6 @@ import { useQueryState } from "nuqs";
 import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, EmailCategory } from "./columns";
-import { EMAIL_CATEGORY_STATUS_OPTIONS, EmailCategoryStatus } from "./filters";
 import { CircleInfo } from "@church-space/ui/icons";
 import { Skeleton } from "@church-space/ui/skeleton";
 
