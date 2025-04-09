@@ -101,7 +101,7 @@ const NameCell = ({ person }: { person: Person }) => {
             {person.people_emails?.[0]?.email}
           </SheetDescription>
         </SheetHeader>
-        <div className="mt-8 space-y-8">
+        <div className="mt-8 space-y-8 overflow-y-auto">
           <div className="flex gap-2">
             <Dialog>
               <DialogTrigger asChild>
