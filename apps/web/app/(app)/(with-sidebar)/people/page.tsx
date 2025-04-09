@@ -1,7 +1,4 @@
-"use client";
-
 import PeopleTable from "@/components/tables/people/table";
-import { useUser } from "@/stores/use-user";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,10 +7,12 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default function Page() {
-  const { organizationId } = useUser();
+export default async function Page() {
+  const cookiesStore = await cookies();
+  const organizationId = cookiesStore.get("organizationId")?.value;
 
   if (!organizationId) {
     redirect("/onboarding");
