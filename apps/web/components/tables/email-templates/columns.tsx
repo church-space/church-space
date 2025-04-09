@@ -12,34 +12,11 @@ export type EmailTemplate = {
 
 export const columns: ColumnDef<EmailTemplate>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
     accessorKey: "subject",
     header: "Subject",
     cell: ({ row }) => {
       const subject = row.getValue("subject") as string;
-      return <div className="font-medium">{subject}</div>;
+      return <div className="pl-2 text-base font-medium">{subject}</div>;
     },
   },
   {

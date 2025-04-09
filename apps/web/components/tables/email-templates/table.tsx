@@ -13,6 +13,7 @@ import {
 } from "@church-space/ui/dialog";
 import { useEmailTemplates } from "@/hooks/use-email-templates";
 import NewEmailTemplate from "@/components/forms/new-email-template";
+import { Skeleton } from "@church-space/ui/skeleton";
 
 interface EmailTemplatesTableProps {
   organizationId: string;
@@ -24,7 +25,7 @@ export default function EmailTemplatesTable({
   const [search, setSearch] = useQueryState("search");
   const [isNewEmailTemplateOpen, setIsNewEmailTemplateOpen] = useState(false);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useEmailTemplates(organizationId, search ?? undefined);
 
   const handleSearch = useCallback(
@@ -41,14 +42,23 @@ export default function EmailTemplatesTable({
 
   return (
     <>
-      <div className="flex w-full items-center justify-between">
-        <h1 className="mb-6 text-2xl font-bold">
-          <span className="font-normal text-muted-foreground">{count}</span>{" "}
-          Email Templates
-        </h1>
-        <Button onClick={() => setIsNewEmailTemplateOpen(true)}>
-          New Email Template
-        </Button>
+      <div className="mb-5 flex w-full flex-col justify-between gap-3">
+        <div className="flex w-full flex-row items-center justify-between gap-2">
+          <h1 className="flex items-center gap-1.5 text-xl font-bold md:text-2xl lg:text-3xl">
+            <span className="font-normal text-muted-foreground">
+              {isLoading ? <Skeleton className="h-7 w-5" /> : count}
+            </span>{" "}
+            Email {count === 1 ? "Template" : "Templates"}
+          </h1>
+          <div className="flex flex-row items-center gap-2">
+            <Button className="hidden md:block" variant="outline">
+              Deafult Footer
+            </Button>
+            <Button onClick={() => setIsNewEmailTemplateOpen(true)}>
+              New Template
+            </Button>
+          </div>
+        </div>
       </div>
       <DataTable<EmailTemplate>
         columns={columns}
@@ -68,7 +78,7 @@ export default function EmailTemplatesTable({
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
-        isLoading={isFetchingNextPage}
+        isLoading={isFetchingNextPage || isLoading}
       />
 
       <Dialog
