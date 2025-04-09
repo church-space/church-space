@@ -17,14 +17,12 @@ import { cn } from "@church-space/ui/cn";
 import { ChevronsUpDown } from "lucide-react";
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  getPublicPcoListsQuery,
-  getPcoListQuery,
-} from "@church-space/supabase/queries/all/get-pco-lists";
+import { getEmailTemplatesQuery } from "@church-space/supabase/queries/all/get-email-templates";
+import { getEmailTemplateQuery } from "@church-space/supabase/queries/all/get-email-templates";
 import { createClient } from "@church-space/supabase/client";
 import { useDebounce } from "@/hooks/use-debounce";
 
-export default function ListSelector({
+export default function EmailTemplateSelector({
   value,
   onChange,
   organizationId,
@@ -38,27 +36,30 @@ export default function ListSelector({
   const debouncedSearch = useDebounce(searchInput, 300);
   const supabase = createClient();
 
-  const { data: pcoLists, isLoading } = useQuery({
-    queryKey: ["pcoLists", debouncedSearch],
+  const { data: emailTemplatesData, isLoading } = useQuery({
+    queryKey: ["emailTemplates", debouncedSearch],
     queryFn: () =>
-      getPublicPcoListsQuery(supabase, organizationId, debouncedSearch),
+      getEmailTemplatesQuery(supabase, organizationId, {
+        searchTerm: debouncedSearch,
+      }),
     staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // Cache is kept for 10 minutes
   });
 
-  // Fetch the selected list if value is provided
-  const { data: selectedListData } = useQuery({
-    queryKey: ["pcoList", value],
-    queryFn: () => getPcoListQuery(supabase, parseInt(value)),
+  // Fetch the selected template if value is provided
+  const { data: selectedEmailTemplateData } = useQuery({
+    queryKey: ["emailTemplate", value],
+    queryFn: () =>
+      getEmailTemplateQuery(supabase, organizationId, parseInt(value)),
     enabled: !!value, // Only run this query if value exists
     staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // Cache is kept for 10 minutes
   });
 
-  const lists = pcoLists?.data || [];
-  const selectedList =
-    selectedListData?.data?.[0] ||
-    lists.find((list) => list.id.toString() === value);
+  const emailTemplates = emailTemplatesData?.data || [];
+  const selectedEmailTemplate =
+    selectedEmailTemplateData?.data?.[0] ||
+    emailTemplates.find((template) => template.id.toString() === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -69,7 +70,7 @@ export default function ListSelector({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {selectedList?.pco_list_description || "Select a list..."}
+          {selectedEmailTemplate?.subject || "Select a template..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -79,43 +80,32 @@ export default function ListSelector({
       >
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="Search lists..."
+            placeholder="Search templates..."
             className="h-9"
             value={searchInput}
             onValueChange={setSearchInput}
           />
           <CommandList>
             <CommandEmpty className="py-6 text-center text-sm">
-              {isLoading ? "Loading..." : "No list found."}
+              {isLoading ? "Loading..." : "No template found."}
             </CommandEmpty>
-            {lists.length > 0 && (
+            {emailTemplates.length > 0 && (
               <CommandGroup>
-                {lists.map((list) => (
+                {emailTemplates.map((template) => (
                   <CommandItem
-                    key={list.id}
-                    value={list.pco_list_description}
+                    key={template.id}
+                    value={template.subject || ""}
                     onSelect={() => {
-                      onChange(list.id.toString());
+                      onChange(template.id.toString());
                       setOpen(false);
                     }}
                   >
-                    <div className="flex flex-col">
-                      <div className="flex flex-row items-baseline gap-2">
-                        <span>{list.pco_list_description} </span>
-                        <span className="text-xs text-muted-foreground">
-                          {list.pco_total_people}{" "}
-                          {list.pco_total_people === "1" ? "person" : "people"}
-                        </span>
-                      </div>
+                    <span>{template.subject} </span>
 
-                      <span className="text-xs text-muted-foreground">
-                        {list.pco_list_categories?.pco_name}
-                      </span>
-                    </div>
                     <Check
                       className={cn(
                         "ml-auto",
-                        value === list.id.toString()
+                        value === template.id.toString()
                           ? "opacity-100"
                           : "opacity-0",
                       )}

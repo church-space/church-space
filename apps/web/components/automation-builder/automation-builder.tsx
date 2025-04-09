@@ -16,14 +16,19 @@ import { Textarea } from "@church-space/ui/textarea";
 import { Switch } from "@church-space/ui/switch";
 import { AnimatePresence, motion } from "framer-motion";
 import { SheetTitle, SheetHeader, SheetFooter } from "@church-space/ui/sheet";
+import ListSelector from "../id-pages/emails/list-selector";
+import EmailTemplateSelector from "./email-template-selector";
 
-type TriggerType = "person_added" | "person_removed" | "form_submitted";
+type TriggerType = "person_added" | "person_removed";
 type ActionType = "notify_admin" | "wait" | "send_email";
 
-export default function EmailAutomationBuilder() {
+export default function EmailAutomationBuilder({
+  organizationId,
+}: {
+  organizationId: string;
+}) {
   const [trigger, setTrigger] = useState<TriggerType | null>(null);
   const [selectedList, setSelectedList] = useState<string>("");
-  const [selectedForm, setSelectedForm] = useState<string>("");
 
   const [actions, setActions] = useState({
     notify_admin: { enabled: false, email: "", subject: "", message: "" },
@@ -61,13 +66,6 @@ export default function EmailAutomationBuilder() {
     }));
   };
 
-  const lists = ["Newsletter", "Customers", "Prospects", "VIP"];
-  const forms = [
-    "Contact Form",
-    "Newsletter Signup",
-    "Feedback Form",
-    "Support Request",
-  ];
   const emailTemplates = [
     "Welcome Email",
     "Thank You",
@@ -104,9 +102,6 @@ export default function EmailAutomationBuilder() {
                   <SelectItem value="person_removed">
                     When a person is removed from a list
                   </SelectItem>
-                  <SelectItem value="form_submitted">
-                    When a form is submitted
-                  </SelectItem>
                 </SelectContent>
               </Select>
 
@@ -121,51 +116,11 @@ export default function EmailAutomationBuilder() {
                     className="overflow-hidden"
                   >
                     <div className="mt-3">
-                      <Select
+                      <ListSelector
                         value={selectedList}
-                        onValueChange={setSelectedList}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a list" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {lists.map((list) => (
-                            <SelectItem key={list} value={list}>
-                              {list}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <AnimatePresence>
-                {trigger === "form_submitted" && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mt-3">
-                      <Select
-                        value={selectedForm}
-                        onValueChange={setSelectedForm}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a form" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {forms.map((form) => (
-                            <SelectItem key={form} value={form}>
-                              {form}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onChange={setSelectedList}
+                        organizationId={organizationId}
+                      />
                     </div>
                   </motion.div>
                 )}
@@ -192,19 +147,22 @@ export default function EmailAutomationBuilder() {
             )}
           >
             <CardContent className="p-0">
-              <div className="flex h-14 items-center px-4">
-                <div className="flex items-center gap-2">
+              <div className="flex h-14 w-full items-center px-4">
+                <div className="flex w-full items-center gap-2">
                   <Switch
                     checked={actions.notify_admin.enabled}
                     onCheckedChange={() => toggleAction("notify_admin")}
                   />
                   <span
                     className={cn(
-                      "font-medium",
+                      "flex-1 cursor-pointer font-medium",
                       actions.notify_admin.enabled
                         ? "text-foreground"
                         : "text-muted-foreground",
                     )}
+                    onClick={() => {
+                      toggleAction("notify_admin");
+                    }}
                   >
                     Notify Admin
                   </span>
@@ -280,19 +238,22 @@ export default function EmailAutomationBuilder() {
             )}
           >
             <CardContent className="p-0">
-              <div className="flex h-14 items-center px-4">
-                <div className="flex items-center gap-2">
+              <div className="flex h-14 w-full items-center px-4">
+                <div className="flex w-full items-center gap-2">
                   <Switch
                     checked={actions.wait.enabled}
                     onCheckedChange={() => toggleAction("wait")}
                   />
                   <span
                     className={cn(
-                      "font-medium",
+                      "flex-1 cursor-pointer font-medium",
                       actions.wait.enabled
                         ? "text-foreground"
                         : "text-muted-foreground",
                     )}
+                    onClick={() => {
+                      toggleAction("wait");
+                    }}
                   >
                     Wait
                   </span>
@@ -355,19 +316,22 @@ export default function EmailAutomationBuilder() {
             )}
           >
             <CardContent className="p-0">
-              <div className="flex h-14 items-center px-4">
-                <div className="flex items-center gap-2">
+              <div className="flex h-14 w-full items-center px-4">
+                <div className="flex w-full items-center gap-2">
                   <Switch
                     checked={actions.send_email.enabled}
                     onCheckedChange={() => toggleAction("send_email")}
                   />
                   <span
                     className={cn(
-                      "font-medium",
+                      "flex-1 cursor-pointer font-medium",
                       actions.send_email.enabled
                         ? "text-foreground"
                         : "text-muted-foreground",
                     )}
+                    onClick={() => {
+                      toggleAction("send_email");
+                    }}
                   >
                     Send Email
                   </span>
@@ -386,23 +350,13 @@ export default function EmailAutomationBuilder() {
                     <div className="space-y-3 px-4 pb-4">
                       <div>
                         <div className="mb-1 text-xs">Email Template</div>
-                        <Select
+                        <EmailTemplateSelector
                           value={actions.send_email.template}
-                          onValueChange={(value) =>
+                          onChange={(value) =>
                             updateActionField("send_email", "template", value)
                           }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a template" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {emailTemplates.map((template) => (
-                              <SelectItem key={template} value={template}>
-                                {template}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          organizationId={organizationId}
+                        />
                       </div>
                       <div>
                         <div className="mb-1 text-xs">From Name</div>

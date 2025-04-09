@@ -35,6 +35,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import AutomationBuilder from "@/components/automation-builder/automation-builder";
 import { DisableLink } from "@church-space/ui/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
+import { useUser } from "@/stores/use-user";
 
 export default function Page() {
   const [isEditingLink] = useState(false);
@@ -48,6 +49,8 @@ export default function Page() {
   const [isDeletingLink, setIsDeletingLink] = useState(false);
   const [isUpdatingStatus] = useState(false);
   const [isDeleting] = useState(false);
+
+  const { organizationId } = useUser();
 
   const isMobile = useIsMobile();
 
@@ -256,7 +259,7 @@ export default function Page() {
                 className="h-[95%] w-full md:h-full md:max-w-3xl"
                 side={isMobile ? "bottom" : "right"}
               >
-                <AutomationBuilder />
+                <AutomationBuilder organizationId={organizationId ?? ""} />
               </SheetContent>
             </>
           </Sheet>

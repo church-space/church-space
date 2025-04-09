@@ -118,6 +118,7 @@ export default async function Page() {
                   defaultValue="Church Space"
                   placeholder="Enter organization name"
                   className="w-full"
+                  maxLength={255}
                 />
               </SettingsRowAction>
             </SettingsRow>
@@ -134,6 +135,7 @@ export default async function Page() {
                     defaultValue="contact"
                     placeholder="Enter email prefix"
                     className="w-full"
+                    maxLength={255}
                   />
                   <span className="flex items-center">@</span>
                   <Select defaultValue={domainsList[0]?.domain || ""}>

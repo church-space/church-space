@@ -111,6 +111,7 @@ export default function SettingsUserName({
             onChange={handleFirstNameChange}
             placeholder="Enter your first name"
             className="w-full"
+            maxLength={255}
           />
         </SettingsRowAction>
       </SettingsRow>
@@ -122,6 +123,7 @@ export default function SettingsUserName({
             onChange={handleLastNameChange}
             placeholder="Enter your last name"
             className="w-full"
+            maxLength={255}
           />
         </SettingsRowAction>
       </SettingsRow>

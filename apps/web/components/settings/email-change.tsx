@@ -115,6 +115,7 @@ export default function EmailChange({ email }: { email: string }) {
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 disabled={isLoading}
+                maxLength={255}
               />
             </div>
             <div className="mt-4 flex justify-end gap-2">

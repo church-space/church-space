@@ -23,3 +23,19 @@ export async function getEmailTemplatesQuery(
   const { data, error } = await query;
   return { data, error };
 }
+
+export async function getEmailTemplateQuery(
+  supabase: Client,
+  organizationId: string,
+  templateId: number
+) {
+  let query = supabase
+    .from("emails")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .eq("type", "template")
+    .eq("id", templateId);
+
+  const { data, error } = await query;
+  return { data, error };
+}
