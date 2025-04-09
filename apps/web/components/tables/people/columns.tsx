@@ -32,6 +32,7 @@ import {
 } from "@church-space/ui/dialog";
 import { updatePersonSubscriptionStatusAction } from "@/actions/update-person-subscription-status";
 import { deleteCategoryUnsubscribeAction } from "@/actions/delete-category-unsubscribe";
+import { useState } from "react";
 
 export type Person = {
   id: number;
@@ -65,6 +66,79 @@ export type Person = {
 
 const NameCell = ({ person }: { person: Person }) => {
   const isMobile = useIsMobile();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCategoryLoading, setIsCategoryLoading] = useState<number | null>(
+    null,
+  );
+  const [optimisticStatus, setOptimisticStatus] = useState<{
+    status?: "subscribed" | "unsubscribed" | "pco_blocked" | "cleaned";
+    categoryUnsubscribes?: number[];
+  }>({});
+
+  const [isCategroyResubOpen, setIsCategroyResubOpen] = useState(false);
+  const [isUnsubscribeAllOpen, setIsUnsubscribeAllOpen] = useState(false);
+
+  const handleStatusUpdate = async (
+    newStatus: "subscribed" | "unsubscribed" | "pco_blocked" | "cleaned",
+  ) => {
+    setIsLoading(true);
+    setOptimisticStatus({
+      status: newStatus,
+      categoryUnsubscribes:
+        newStatus === "unsubscribed"
+          ? []
+          : person.email_list_category_unsubscribes.map((u) => u.id),
+    });
+
+    try {
+      await updatePersonSubscriptionStatusAction({
+        emailId: person.people_emails?.[0]?.id,
+        status: newStatus,
+      });
+    } catch (error) {
+      // Revert optimistic update on error
+      setOptimisticStatus({});
+    } finally {
+      setIsUnsubscribeAllOpen(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleCategoryResubscribe = async (categoryId: number) => {
+    setIsCategoryLoading(categoryId);
+    setOptimisticStatus((prev) => ({
+      ...prev,
+      categoryUnsubscribes: prev.categoryUnsubscribes?.filter(
+        (id) => id !== categoryId,
+      ),
+    }));
+
+    try {
+      await deleteCategoryUnsubscribeAction({
+        emailId: person.people_emails?.[0]?.id,
+        categoryId,
+      });
+    } catch (error) {
+      // Revert optimistic update on error
+      setOptimisticStatus((prev) => ({
+        ...prev,
+        categoryUnsubscribes: [
+          ...(prev.categoryUnsubscribes || []),
+          categoryId,
+        ],
+      }));
+    } finally {
+      setIsCategroyResubOpen(false);
+      setIsCategoryLoading(null);
+    }
+  };
+
+  const currentStatus =
+    optimisticStatus.status ?? person.people_emails?.[0]?.status;
+  const currentCategoryUnsubscribes =
+    optimisticStatus.categoryUnsubscribes ??
+    person.email_list_category_unsubscribes.map((u) => u.id);
+
   return (
     <Sheet>
       <SheetTrigger className="min-w-44 px-2 text-left">
@@ -87,20 +161,20 @@ const NameCell = ({ person }: { person: Person }) => {
             <Badge
               className="w-fit -translate-x-0.5 capitalize"
               variant={
-                person.people_emails?.[0]?.status === "unsubscribed"
+                currentStatus === "unsubscribed"
                   ? "outline"
-                  : person.email_list_category_unsubscribes.length > 0
+                  : currentCategoryUnsubscribes.length > 0
                     ? "default"
-                    : person.people_emails?.[0]?.status === "subscribed"
+                    : currentStatus === "subscribed"
                       ? "success"
                       : "outline"
               }
             >
-              {person.people_emails?.[0]?.status === "unsubscribed"
+              {currentStatus === "unsubscribed"
                 ? "unsubscribed"
-                : person.email_list_category_unsubscribes.length > 0
+                : currentCategoryUnsubscribes.length > 0
                   ? "Partially Subscribed"
-                  : person.people_emails?.[0]?.status}
+                  : currentStatus}
             </Badge>
           </SheetTitle>
 
@@ -110,14 +184,17 @@ const NameCell = ({ person }: { person: Person }) => {
         </SheetHeader>
         <div className="mt-8 space-y-8 overflow-y-auto">
           <div className="flex gap-2">
-            <Dialog>
+            <Dialog
+              open={isUnsubscribeAllOpen}
+              onOpenChange={setIsUnsubscribeAllOpen}
+            >
               <DialogTrigger asChild>
-                <Button className="w-full">
-                  {person.people_emails?.[0]?.status === "unsubscribed"
+                <Button className="w-full" disabled={isLoading}>
+                  {currentStatus === "unsubscribed"
                     ? "Resubscribe"
-                    : person.email_list_category_unsubscribes.length > 0
+                    : currentCategoryUnsubscribes.length > 0
                       ? "Unsubscribe from All"
-                      : person.people_emails?.[0]?.status === "subscribed"
+                      : currentStatus === "subscribed"
                         ? "Unsubscribe"
                         : "Resubscribe"}
                 </Button>
@@ -125,16 +202,16 @@ const NameCell = ({ person }: { person: Person }) => {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    {person.people_emails?.[0]?.status === "unsubscribed"
+                    {currentStatus === "unsubscribed"
                       ? "Resubscribe"
-                      : person.email_list_category_unsubscribes.length > 0
+                      : currentCategoryUnsubscribes.length > 0
                         ? "Unsubscribe from All"
-                        : person.people_emails?.[0]?.status === "subscribed"
+                        : currentStatus === "subscribed"
                           ? "Unsubscribe"
                           : "Resubscribe"}
                   </DialogTitle>
                   <DialogDescription>
-                    {person.people_emails?.[0]?.status === "unsubscribed" ? (
+                    {currentStatus === "unsubscribed" ? (
                       <span>
                         Are you sure you want to resubscribe{" "}
                         <b>
@@ -145,7 +222,7 @@ const NameCell = ({ person }: { person: Person }) => {
                         risk being marked as spam which will hurt your email
                         deliverability.
                       </span>
-                    ) : person.email_list_category_unsubscribes.length > 0 ? (
+                    ) : currentCategoryUnsubscribes.length > 0 ? (
                       <span>
                         Are you sure you want to unsubscribe{" "}
                         <b>
@@ -153,7 +230,7 @@ const NameCell = ({ person }: { person: Person }) => {
                         </b>{" "}
                         from all email categories?
                       </span>
-                    ) : person.people_emails?.[0]?.status === "subscribed" ? (
+                    ) : currentStatus === "subscribed" ? (
                       <span>
                         Are you sure you want to unsubscribe{" "}
                         <b>
@@ -180,37 +257,41 @@ const NameCell = ({ person }: { person: Person }) => {
                     </DialogClose>
                     <Button
                       variant={
-                        person.people_emails?.[0]?.status === "unsubscribed"
+                        currentStatus === "unsubscribed"
                           ? "default"
-                          : person.email_list_category_unsubscribes.length > 0
+                          : currentCategoryUnsubscribes.length > 0
                             ? "destructive"
-                            : person.people_emails?.[0]?.status === "subscribed"
+                            : currentStatus === "subscribed"
                               ? "destructive"
                               : "default"
                       }
+                      disabled={isLoading}
                       onClick={() =>
-                        updatePersonSubscriptionStatusAction({
-                          emailId: person.people_emails?.[0]?.id,
-                          status:
-                            person.people_emails?.[0]?.status === "unsubscribed"
-                              ? "subscribed"
-                              : person.email_list_category_unsubscribes.length >
-                                  0
+                        handleStatusUpdate(
+                          currentStatus === "unsubscribed"
+                            ? "subscribed"
+                            : currentCategoryUnsubscribes.length > 0
+                              ? "unsubscribed"
+                              : currentStatus === "subscribed"
                                 ? "unsubscribed"
-                                : person.people_emails?.[0]?.status ===
-                                    "subscribed"
-                                  ? "unsubscribed"
-                                  : "subscribed",
-                        })
+                                : "subscribed",
+                        )
                       }
                     >
-                      {person.people_emails?.[0]?.status === "unsubscribed"
-                        ? "Resubscribe"
-                        : person.email_list_category_unsubscribes.length > 0
-                          ? "Unsubscribe from All"
-                          : person.people_emails?.[0]?.status === "subscribed"
-                            ? "Unsubscribe"
-                            : "Resubscribe"}
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          Processing...
+                        </div>
+                      ) : currentStatus === "unsubscribed" ? (
+                        "Resubscribe"
+                      ) : currentCategoryUnsubscribes.length > 0 ? (
+                        "Unsubscribe from All"
+                      ) : currentStatus === "subscribed" ? (
+                        "Unsubscribe"
+                      ) : (
+                        "Resubscribe"
+                      )}
                     </Button>
                   </DialogFooter>
                 </DialogHeader>
@@ -227,64 +308,83 @@ const NameCell = ({ person }: { person: Person }) => {
             </Link>
           </div>
 
-          {person.email_list_category_unsubscribes.length > 0 &&
-            person.people_emails?.[0]?.status !== "unsubscribed" && (
+          {currentCategoryUnsubscribes.length > 0 &&
+            currentStatus !== "unsubscribed" && (
               <div className="flex flex-col gap-2">
                 <Label>Unsubscribed from:</Label>
-                {person.email_list_category_unsubscribes.map((unsubscribe) => (
-                  <div
-                    key={unsubscribe.id}
-                    className="flex items-center justify-between rounded-md border bg-muted p-2 px-2.5 text-sm"
-                  >
-                    {unsubscribe.pco_list_categories.pco_name}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          Resubscribe
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>
-                            Resubscribe to{" "}
-                            {unsubscribe.pco_list_categories.pco_name}
-                          </DialogTitle>
-                          <DialogDescription>
-                            Are you sure you want to resubscribe{" "}
-                            <b>
-                              <u>{person.people_emails?.[0]?.email}</u>
-                            </b>{" "}
-                            to {unsubscribe.pco_list_categories.pco_name}?
-                            Please make sure you have explicit permission to
-                            resubscribe this person. Otherwise, you risk being
-                            marked as spam which will hurt your email
-                            deliverability.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                          </DialogClose>
+                {person.email_list_category_unsubscribes
+                  .filter((u) => currentCategoryUnsubscribes.includes(u.id))
+                  .map((unsubscribe) => (
+                    <div
+                      key={unsubscribe.id}
+                      className="flex items-center justify-between rounded-md border bg-muted p-2 px-2.5 text-sm"
+                    >
+                      {unsubscribe.pco_list_categories.pco_name}
+                      <Dialog
+                        open={isCategroyResubOpen}
+                        onOpenChange={setIsCategroyResubOpen}
+                      >
+                        <DialogTrigger asChild>
                           <Button
-                            variant="default"
-                            onClick={() => {
-                              console.log(
-                                unsubscribe.pco_list_categories.id,
-                                person.people_emails?.[0]?.id,
-                              );
-                              deleteCategoryUnsubscribeAction({
-                                emailId: person.people_emails?.[0]?.id,
-                                categoryId: unsubscribe.pco_list_categories.id,
-                              });
-                            }}
+                            variant="outline"
+                            size="sm"
+                            disabled={isCategoryLoading === unsubscribe.id}
                           >
-                            Resubscribe
+                            {isCategoryLoading === unsubscribe.id ? (
+                              <div className="flex items-center gap-2">
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                Processing...
+                              </div>
+                            ) : (
+                              "Resubscribe"
+                            )}
                           </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                ))}
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Resubscribe to{" "}
+                              {unsubscribe.pco_list_categories.pco_name}
+                            </DialogTitle>
+                            <DialogDescription>
+                              Are you sure you want to resubscribe{" "}
+                              <b>
+                                <u>{person.people_emails?.[0]?.email}</u>
+                              </b>{" "}
+                              to {unsubscribe.pco_list_categories.pco_name}?
+                              Please make sure you have explicit permission to
+                              resubscribe this person. Otherwise, you risk being
+                              marked as spam which will hurt your email
+                              deliverability.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <DialogClose asChild>
+                              <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <Button
+                              variant="default"
+                              disabled={isCategoryLoading === unsubscribe.id}
+                              onClick={() => {
+                                handleCategoryResubscribe(
+                                  unsubscribe.pco_list_categories.id,
+                                );
+                              }}
+                            >
+                              {isCategoryLoading === unsubscribe.id ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                  Processing...
+                                </div>
+                              ) : (
+                                "Resubscribe"
+                              )}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  ))}
               </div>
             )}
         </div>
