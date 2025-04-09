@@ -35,9 +35,6 @@ import {
   EmailOpened,
   EmailUnsubscribed,
   LinkIcon,
-  PaperPlaneClock,
-  Reply,
-  UserPen,
   Users,
 } from "@church-space/ui/icons";
 import { Separator } from "@church-space/ui/separator";
