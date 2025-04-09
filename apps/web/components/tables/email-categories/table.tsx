@@ -7,7 +7,11 @@ import { useQueryState } from "nuqs";
 import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, EmailCategory } from "./columns";
-import { EmailCategoryStatus, getEmailCategoryFilterConfig } from "./filters";
+import {
+  EMAIL_CATEGORY_STATUS_OPTIONS,
+  EmailCategoryStatus,
+  getEmailCategoryFilterConfig,
+} from "./filters";
 import { CircleInfo } from "@church-space/ui/icons";
 import { Skeleton } from "@church-space/ui/skeleton";
 
@@ -58,6 +62,15 @@ export default function EmailCategoriesTable({
     []) as EmailCategory[];
   const count = data?.pages[0]?.count ?? 0;
 
+  console.log("Table data:", {
+    visibility,
+    categoriesCount: categories.length,
+    totalCount: count,
+    pages: data?.pages.length,
+    isLoading,
+    categories: categories,
+    isFetchingNextPage,
+  });
   return (
     <>
       <div className="mb-5 flex w-full flex-col justify-between gap-3">
@@ -105,13 +118,24 @@ export default function EmailCategoriesTable({
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
-        filterConfig={getEmailCategoryFilterConfig()}
+        filterConfig={{
+          is_public: {
+            type: "select",
+            options: EMAIL_CATEGORY_STATUS_OPTIONS.map((opt) => ({
+              label: opt.label,
+              value: opt.value,
+            })),
+            defaultValue: "all",
+            label: "Visibility",
+          },
+        }}
         onFilterChange={{
           is_public: handleStatusChange,
         }}
         initialFilters={{
           is_public: visibility || "all",
         }}
+        searchPlaceholderText="Search by name..."
         isLoading={isFetchingNextPage || isLoading}
       />
     </>

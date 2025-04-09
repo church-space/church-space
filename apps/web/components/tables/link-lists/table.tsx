@@ -108,7 +108,7 @@ export default function LinkListsTable({
         initialFilters={{
           is_public: visibility ?? "all",
         }}
-        searchPlaceholderText="Search by name..."
+        searchPlaceholderText="Search by name or URL slug..."
         isLoading={isLoading || isFetchingNextPage}
       />
 

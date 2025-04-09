@@ -9,7 +9,6 @@ import {
   SelectItem,
 } from "@church-space/ui/select";
 import { cn } from "@church-space/ui/cn";
-import { Button } from "@church-space/ui/button";
 
 // Define the type based on the SQL schema
 export type EmailCategory = {
