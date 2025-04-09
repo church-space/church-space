@@ -7,7 +7,7 @@ export interface QueryParams {
   searchTerm?: string;
 }
 
-export async function getLinkListsCount(
+export async function getEmailCategoriesCount(
   supabase: Client,
   organizationId: string,
   params?: QueryParams
@@ -37,7 +37,7 @@ export async function getLinkListsCount(
   return { count, error };
 }
 
-export async function getAllLinkLists(
+export async function getAllEmailCategories(
   supabase: Client,
   organizationId: string,
   params?: QueryParams

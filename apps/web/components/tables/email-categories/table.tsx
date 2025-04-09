@@ -8,6 +8,7 @@ import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, EmailCategory } from "./columns";
 import { EmailCategoryStatus, getEmailCategoryFilterConfig } from "./filters";
+import { CircleInfo } from "@church-space/ui/icons";
 
 interface EmailCategoriesTableProps {
   organizationId: string;
@@ -30,7 +31,7 @@ export default function EmailCategoriesTable({
     },
   );
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useEmailCategories(
       organizationId,
       search ?? undefined,
@@ -73,15 +74,19 @@ export default function EmailCategoriesTable({
             <Button>Manage in PCO</Button>
           </Link>
         </div>
-        <p className="rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
-          Think of Categories as the types of emails you send. For example, you
-          might have &quot;General Emails&quot;, &quot;Events&quot;,
-          &quot;Giving&quot;, &quot;Youth&quot;, etc. This allows people to
-          subscribe to only the types of emails they want. The categories that
-          you see here are your List Categories in Planning Center People. To
-          send an email to a type of List Category, set the category to
-          &quot;public&quot;.
-        </p>
+        <div className="flex items-center gap-3 rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
+          <div className="flex-shrink-0">
+            <CircleInfo height={"20"} width={"20"} />
+          </div>
+          <p>
+            Categories are the types of emails you send—like
+            &quot;General,&quot; &quot;Events,&quot; or &quot;Students.&quot;
+            They let people subscribe to what they care about, reducing full
+            unsubscribes. These categories are created through your List
+            Categories in Planning Center People. To make a category emailable,
+            set it to &quot;public.&quot;
+          </p>
+        </div>
       </div>
       <DataTable<EmailCategory>
         columns={columns}
@@ -98,12 +103,12 @@ export default function EmailCategoriesTable({
         onSearch={handleSearch}
         filterConfig={getEmailCategoryFilterConfig()}
         onFilterChange={{
-          isPublic: handleStatusChange,
+          is_public: handleStatusChange,
         }}
         initialFilters={{
-          isPublic: isPublic || "all",
+          is_public: isPublic || "all",
         }}
-        isLoading={isFetchingNextPage}
+        isLoading={isFetchingNextPage || isLoading}
       />
     </>
   );

@@ -10,13 +10,14 @@ export type EmailCategoryStatus =
 // This is used for the UI display of filter options
 export const getEmailCategoryFilterConfig = () => {
   return {
-    isPublic: {
+    is_public: {
       type: "select" as const,
       options: EMAIL_CATEGORY_STATUS_OPTIONS.map((opt) => ({
         label: opt.label,
         value: opt.value,
       })),
-      defaultValue: "",
+      defaultValue: "all",
+      label: "Visibility",
     },
   };
 };

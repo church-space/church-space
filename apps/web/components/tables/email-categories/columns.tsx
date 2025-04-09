@@ -59,7 +59,7 @@ export const columns: ColumnDef<EmailCategory>[] = [
   },
   {
     accessorKey: "is_public",
-    header: "Public",
+    header: "Visibility",
     cell: ({ row }) => {
       const isPublic = row.getValue("is_public") as boolean;
       const id = row.original.id;
@@ -80,7 +80,7 @@ export const columns: ColumnDef<EmailCategory>[] = [
           >
             <SelectTrigger
               className={cn(
-                "h-7 w-[100px] border-none bg-transparent px-2 shadow-none transition-all hover:border hover:bg-background hover:shadow-sm",
+                "h-7 w-[100px] rounded-lg bg-transparent px-3 shadow-sm transition-all",
                 isPublic
                   ? "border border-green-500 bg-green-100 dark:bg-green-900"
                   : "bg-muted",

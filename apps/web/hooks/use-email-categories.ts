@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createClient } from "@church-space/supabase/client";
 import {
-  getAllLinkLists,
-  getLinkListsCount,
+  getAllEmailCategories,
+  getEmailCategoriesCount,
 } from "@church-space/supabase/queries/all/get-all-email-categories";
 
 const ITEMS_PER_PAGE = 25;
@@ -21,20 +21,28 @@ export function useEmailCategories(
       const to = from + ITEMS_PER_PAGE - 1;
 
       // Get email categories data
-      const { data, error } = await getAllLinkLists(supabase, organizationId, {
-        start: from,
-        end: to,
-        searchTerm,
-        isPublic,
-      });
+      const { data, error } = await getAllEmailCategories(
+        supabase,
+        organizationId,
+        {
+          start: from,
+          end: to,
+          searchTerm,
+          isPublic,
+        },
+      );
 
       if (error) throw error;
 
       // Get total count
-      const { count } = await getLinkListsCount(supabase, organizationId, {
-        searchTerm,
-        isPublic,
-      });
+      const { count } = await getEmailCategoriesCount(
+        supabase,
+        organizationId,
+        {
+          searchTerm,
+          isPublic,
+        },
+      );
 
       const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
 
