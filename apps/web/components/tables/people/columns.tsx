@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -18,6 +19,17 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@church-space/ui/dialog";
 
 export type Person = {
   id: number;
@@ -56,9 +68,10 @@ export const columns: ColumnDef<Person>[] = [
       `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(),
     cell: ({ row }) => {
       const person = row.original;
+      const isMobile = useIsMobile();
       return (
         <Sheet>
-          <SheetTrigger className="px-2">
+          <SheetTrigger className="min-w-44 px-2 text-left">
             <div className="font-medium hover:underline">
               {person.first_name} {person.last_name}
             </div>
@@ -68,32 +81,138 @@ export const columns: ColumnDef<Person>[] = [
               </div>
             )}
           </SheetTrigger>
-          <SheetContent>
-            <SheetHeader className="flex flex-row items-center justify-between gap-2">
-              <SheetTitle>
+          <SheetContent
+            className="h-[95%] w-full md:h-full md:max-w-lg"
+            side={isMobile ? "bottom" : "right"}
+          >
+            <SheetHeader className="flex flex-col space-y-0">
+              <SheetTitle className="flex flex-row items-center gap-2">
                 {person.first_name} {person.last_name}
-              </SheetTitle>
-              <Link
-                href={`https://people.planningcenteronline.com/people/AC${person.pco_id}`}
-                target="_blank"
-              >
-                <Button variant="outline">View in PCO</Button>
-              </Link>
-            </SheetHeader>
-            <div className="mt-8 space-y-4">
-              <div className="flex flex-col gap-1">
-                <Label>Status</Label>
-                <Badge className="w-fit capitalize">
+                <Badge
+                  className="w-fit -translate-x-0.5 capitalize"
+                  variant={
+                    person.email_list_category_unsubscribes.length > 0
+                      ? "default"
+                      : person.people_emails?.[0]?.status === "subscribed"
+                        ? "success"
+                        : "outline"
+                  }
+                >
                   {person.email_list_category_unsubscribes.length > 0
                     ? "Partially Subscribed"
-                    : person.people_emails?.[0]?.status || "No status"}
+                    : person.people_emails?.[0]?.status}
                 </Badge>
+              </SheetTitle>
+
+              <SheetDescription>
+                {person.people_emails?.[0]?.email}
+              </SheetDescription>
+            </SheetHeader>
+            <div className="mt-8 space-y-8">
+              <div className="flex gap-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="w-full">
+                      {person.email_list_category_unsubscribes.length > 0
+                        ? "Unsubscribe from All"
+                        : person.people_emails?.[0]?.status === "subscribed"
+                          ? "Unsubscribe"
+                          : "Resubscribe"}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
+                        {person.email_list_category_unsubscribes.length > 0
+                          ? "Unsubscribe from All"
+                          : person.people_emails?.[0]?.status === "subscribed"
+                            ? "Unsubscribe"
+                            : "Resubscribe"}
+                      </DialogTitle>
+                      <DialogDescription>
+                        {person.email_list_category_unsubscribes.length > 0 ? (
+                          <span>
+                            Are you sure you want to unsubscribe{" "}
+                            <b>
+                              <u>{person.people_emails?.[0]?.email}</u>
+                            </b>{" "}
+                            from all email categories?
+                          </span>
+                        ) : person.people_emails?.[0]?.status ===
+                          "subscribed" ? (
+                          <span>
+                            Are you sure you want to unsubscribe{" "}
+                            <b>
+                              <u>{person.people_emails?.[0]?.email}</u>
+                            </b>{" "}
+                            from all emails?
+                          </span>
+                        ) : (
+                          <span>
+                            Are you sure you want to resubscribe{" "}
+                            <b>
+                              <u>{person.people_emails?.[0]?.email}</u>
+                            </b>{" "}
+                            to all emails? Please make sure you have explicit
+                            permission to resubscribe this person. Otherwise,
+                            you risk being marked as spam which will hurt your
+                            email deliverability.
+                          </span>
+                        )}
+                      </DialogDescription>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <Button
+                          variant={
+                            person.email_list_category_unsubscribes.length > 0
+                              ? "destructive"
+                              : person.people_emails?.[0]?.status ===
+                                  "subscribed"
+                                ? "destructive"
+                                : "default"
+                          }
+                        >
+                          {person.email_list_category_unsubscribes.length > 0
+                            ? "Unsubscribe from All"
+                            : person.people_emails?.[0]?.status === "subscribed"
+                              ? "Unsubscribe"
+                              : "Resubscribe"}
+                        </Button>
+                      </DialogFooter>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
+                <Link
+                  href={`https://people.planningcenteronline.com/people/AC${person.pco_id}`}
+                  target="_blank"
+                  className="w-full"
+                >
+                  <Button variant="outline" className="w-full">
+                    View in PCO
+                  </Button>
+                </Link>
               </div>
-              {person.email_list_category_unsubscribes.map((unsubscribe) => (
-                <div key={unsubscribe.id}>
-                  {unsubscribe.pco_list_categories.pco_name}
+
+              {person.email_list_category_unsubscribes.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <Label>Unsubscribed from:</Label>
+                  {person.email_list_category_unsubscribes.map(
+                    (unsubscribe) => (
+                      <div
+                        key={unsubscribe.id}
+                        className="flex items-center justify-between rounded-md border bg-muted p-2 px-2.5 text-sm"
+                      >
+                        {unsubscribe.pco_list_categories.pco_name}
+                        <Button variant="outline" size="sm">
+                          Resubscribe
+                        </Button>
+                      </div>
+                    ),
+                  )}
                 </div>
-              ))}
+              )}
             </div>
           </SheetContent>
         </Sheet>
