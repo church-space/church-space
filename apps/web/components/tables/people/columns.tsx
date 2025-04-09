@@ -13,7 +13,6 @@ import { Button } from "@church-space/ui/button";
 import Link from "next/link";
 import { ExternalLinkIcon } from "lucide-react";
 import { Badge } from "@church-space/ui/badge";
-import { Checkbox } from "@church-space/ui/checkbox";
 export type Person = {
   id: number;
   pco_id: string;
@@ -29,33 +28,13 @@ export type Person = {
     status: "subscribed" | "unsubscribed" | "pco_blocked" | "cleaned";
     pco_person_id: string;
     organization_id: string;
+    protected_from_cleaning: boolean;
+    reason: string | null;
   }>;
   email_list_category_unsubscribes: Array<any>;
 };
 
 export const columns: ColumnDef<Person>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
-      />
-    ),
-    enableSorting: false,
-  },
   {
     header: "Name",
     id: "name",

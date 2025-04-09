@@ -73,12 +73,13 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
         email,
         status,
         pco_person_id,
-        organization_id
+        organization_id,
+        reason, 
+        protected_from_cleaning
       ),
       email_list_category_unsubscribes(
         id,
         email_address,
-        reason,
         pco_list_category,
         pco_list_categories(
           id,

@@ -39,6 +39,16 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
   const people = data?.pages.flatMap((page) => page.data) ?? [];
   const count = data?.pages[0]?.count ?? 0;
 
+  console.log("Table data:", {
+    peopleCount: people.length,
+    totalCount: count,
+    pages: data?.pages.length,
+    isFetchingNextPage,
+    emailStatus,
+    search,
+    people,
+  });
+
   return (
     <>
       <h1 className="mb-6 text-2xl font-bold">
