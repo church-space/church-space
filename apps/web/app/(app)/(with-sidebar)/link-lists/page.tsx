@@ -1,4 +1,7 @@
+"use client";
+
 import LinkListsTable from "@/components/tables/link-lists/table";
+import { useUser } from "@/stores/use-user";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,16 +10,15 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function Page() {
-  const cookiesStore = await cookies();
-  const organizationId = cookiesStore.get("organizationId")?.value;
+export default function Page() {
+  const { organizationId } = useUser();
 
   if (!organizationId) {
     redirect("/onboarding");
   }
+
   return (
     <div className="relative">
       <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center gap-2 rounded-t-lg bg-background">

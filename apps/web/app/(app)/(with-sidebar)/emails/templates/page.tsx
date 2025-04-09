@@ -1,3 +1,5 @@
+"use client";
+
 import EmailTemplatesTable from "@/components/tables/email-templates/table";
 import {
   Breadcrumb,
@@ -9,12 +11,11 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { cookies } from "next/headers";
+import { useUser } from "@/stores/use-user";
 import { redirect } from "next/navigation";
 
-export default async function Page() {
-  const cookiesStore = await cookies();
-  const organizationId = cookiesStore.get("organizationId")?.value;
+export default function Page() {
+  const { organizationId } = useUser();
 
   if (!organizationId) {
     redirect("/onboarding");
