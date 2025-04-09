@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SheetTitle, SheetHeader, SheetFooter } from "@church-space/ui/sheet";
 import ListSelector from "../id-pages/emails/list-selector";
 import EmailTemplateSelector from "./email-template-selector";
+import DomainSelector from "../id-pages/emails/domain-selector";
 
 type TriggerType = "person_added" | "person_removed";
 type ActionType = "notify_admin" | "wait" | "send_email";
@@ -374,17 +375,31 @@ export default function EmailAutomationBuilder({
                       </div>
                       <div>
                         <div className="mb-1 text-xs">From Email</div>
-                        <Input
-                          placeholder="you@example.com"
-                          value={actions.send_email.fromEmail}
-                          onChange={(e) =>
-                            updateActionField(
-                              "send_email",
-                              "fromEmail",
-                              e.target.value,
-                            )
-                          }
-                        />
+                        <div className="flex items-center gap-2">
+                          <Input
+                            placeholder="Enter from"
+                            value={actions.send_email.fromEmail}
+                            onChange={(e) =>
+                              updateActionField(
+                                "send_email",
+                                "fromEmail",
+                                e.target.value,
+                              )
+                            }
+                          />
+                          <span className="mb-1 leading-none">@</span>
+                          <DomainSelector
+                            organizationId={organizationId}
+                            onChange={(value) =>
+                              updateActionField(
+                                "send_email",
+                                "fromEmail",
+                                value,
+                              )
+                            }
+                            value={actions.send_email.fromEmail}
+                          />
+                        </div>
                       </div>
                       <div>
                         <div className="mb-1 text-xs">Subject</div>
