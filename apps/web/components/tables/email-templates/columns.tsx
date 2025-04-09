@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox } from "@church-space/ui/checkbox";
+import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 
 // Define the type based on the SQL schema
@@ -16,7 +16,13 @@ export const columns: ColumnDef<EmailTemplate>[] = [
     header: "Subject",
     cell: ({ row }) => {
       const subject = row.getValue("subject") as string;
-      return <div className="pl-2 text-base font-medium">{subject}</div>;
+      return (
+        <Link href={`/emails/${row.original.id}/editor`}>
+          <div className="pl-2 text-base font-medium hover:underline">
+            {subject}
+          </div>
+        </Link>
+      );
     },
   },
   {

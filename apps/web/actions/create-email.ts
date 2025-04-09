@@ -17,6 +17,7 @@ export const createEmailAction = authActionClient
     z.object({
       subject: z.string(),
       organization_id: z.string(),
+      type: z.enum(["standard", "template"]),
     }),
   )
   .metadata({
@@ -31,7 +32,7 @@ export const createEmailAction = authActionClient
         {
           subject: parsedInput.parsedInput.subject,
           organization_id: parsedInput.parsedInput.organization_id,
-          type: "standard",
+          type: parsedInput.parsedInput.type,
         },
         parsedInput.parsedInput.organization_id,
       );

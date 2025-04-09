@@ -8,12 +8,14 @@ import { Button } from "@church-space/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@church-space/ui/dialog";
 import { useEmailTemplates } from "@/hooks/use-email-templates";
-import NewEmailTemplate from "@/components/forms/new-email-template";
 import { Skeleton } from "@church-space/ui/skeleton";
+import NewEmailTemplate from "@/components/forms/new-email-template";
+import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 
 interface EmailTemplatesTableProps {
   organizationId: string;
@@ -85,11 +87,21 @@ export default function EmailTemplatesTable({
         open={isNewEmailTemplateOpen}
         onOpenChange={setIsNewEmailTemplateOpen}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Email Template</DialogTitle>
+        <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
+          <DialogHeader className="p-2 pb-0">
+            <DialogTitle className="flex items-center gap-2">
+              <NewEmailIcon />
+              Create New Template
+            </DialogTitle>
+            <DialogDescription className="text-pretty text-left">
+              What&apos;s the name of your template?
+            </DialogDescription>
           </DialogHeader>
-          <NewEmailTemplate organizationId={organizationId} />
+
+          <NewEmailTemplate
+            organizationId={organizationId}
+            setIsNewEmailTemplateOpen={setIsNewEmailTemplateOpen}
+          />
         </DialogContent>
       </Dialog>
     </>

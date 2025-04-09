@@ -48,6 +48,7 @@ export default function NewEmail({
       const result = await createEmailAction({
         subject: values.subject,
         organization_id: organizationId,
+        type: "standard",
       });
 
       console.log(result);

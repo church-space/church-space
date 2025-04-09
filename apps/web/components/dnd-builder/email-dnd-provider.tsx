@@ -1225,8 +1225,13 @@ export default function EmailDndProvider({
       // Refresh the email data to get the latest block IDs
       queryClient.invalidateQueries({ queryKey: ["email", emailId] });
 
-      // Navigate to the emails page with the emailId
-      router.push(`/emails/${emailId}`);
+      if (emailData?.email?.type === "template") {
+        // Navigate to the emails page with the emailId
+        router.push(`/emails/templates`);
+      } else {
+        // Navigate to the emails page with the emailId
+        router.push(`/emails/${emailId}`);
+      }
 
       // Note: We don't set isSaving to false here because we want the button
       // to remain in loading state during navigation
@@ -2534,12 +2539,16 @@ export default function EmailDndProvider({
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Email</BreadcrumbLink>
+                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbLink
-                  href={`/emails/${emailId}`}
+                  href={
+                    emailData?.email?.type === "template"
+                      ? `/emails/templates`
+                      : `/emails/${emailId}`
+                  }
                   className="max-w-32 truncate sm:max-w-sm"
                 >
                   {(emailData?.email as any)?.subject || "Email Subject"}
@@ -2547,7 +2556,13 @@ export default function EmailDndProvider({
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbPage>Designer</BreadcrumbPage>
+                <BreadcrumbPage>
+                  {emailData?.email?.type === "template" ? (
+                    <span>Template Editor</span>
+                  ) : (
+                    <span>Designer</span>
+                  )}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
