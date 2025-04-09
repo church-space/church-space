@@ -11,6 +11,8 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { getEmails } from "@/actions/get-emails";
+import { useUser } from "@/stores/use-user";
 
 export function NavMain({
   items,
@@ -30,10 +32,48 @@ export function NavMain({
   const pathname = usePathname();
   const queryClient = useQueryClient();
 
-  const handleMouseEnter = (prefetchQueryKey?: string[]) => {
+  const { organizationId } = useUser();
+
+  const handleMouseEnter = (prefetchQueryKey?: string[], url?: string) => {
+    if (url && (pathname === url || pathname.startsWith(url + "/"))) {
+      return;
+    }
+
     if (prefetchQueryKey) {
+      const dataType = prefetchQueryKey[0];
+
       queryClient.prefetchQuery({
         queryKey: prefetchQueryKey,
+        queryFn: async () => {
+          switch (dataType) {
+            case "emails":
+              const result = await getEmails({
+                organizationId: organizationId ?? "",
+                page: 0,
+              });
+
+              if (!result?.data) {
+                throw new Error("Failed to fetch emails");
+              }
+
+              return {
+                data:
+                  result.data.data?.map((email) => ({
+                    ...email,
+                    from_domain: email.from_domain as unknown as {
+                      domain: string;
+                    } | null,
+                    reply_to_domain: email.reply_to_domain as unknown as {
+                      domain: string;
+                    } | null,
+                  })) ?? [],
+                count: result.data.count ?? 0,
+                nextPage: result.data.nextPage,
+              };
+            default:
+              throw new Error(`Unsupported data type: ${dataType}`);
+          }
+        },
       });
     }
   };
@@ -66,7 +106,9 @@ export function NavMain({
                 <Link
                   href={item.url}
                   prefetch={true}
-                  onMouseEnter={() => handleMouseEnter(item.prefetchQueryKey)}
+                  onMouseEnter={() =>
+                    handleMouseEnter(item.prefetchQueryKey, item.url)
+                  }
                 >
                   <item.icon />
                   <span>{item.title}</span>
@@ -102,7 +144,10 @@ export function NavMain({
                           href={submenuItem.url}
                           prefetch={true}
                           onMouseEnter={() =>
-                            handleMouseEnter(submenuItem.prefetchQueryKey)
+                            handleMouseEnter(
+                              submenuItem.prefetchQueryKey,
+                              submenuItem.url,
+                            )
                           }
                         >
                           <span>{submenuItem.title}</span>
