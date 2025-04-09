@@ -4,6 +4,7 @@ export const EMAIL_STATUS_OPTIONS = [
   { label: "Partially Subscribed", value: "partially subscribed" },
   { label: "Unsubscribed", value: "unsubscribed" },
   { label: "PCO Blocked", value: "pco_blocked" },
+  { label: "Cleaned", value: "cleaned" },
 ] as const;
 
 export type EmailStatus = (typeof EMAIL_STATUS_OPTIONS)[number]["value"];

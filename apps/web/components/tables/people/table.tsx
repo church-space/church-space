@@ -4,7 +4,6 @@ import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns } from "./columns";
 import { useQueryState } from "nuqs";
-import { getPeopleFilterConfig, type EmailStatus } from "./filters";
 import { usePeople } from "@/hooks/use-people";
 import { Skeleton } from "@church-space/ui/skeleton";
 import { CircleInfo } from "@church-space/ui/icons";
@@ -16,10 +15,9 @@ interface PeopleTableProps {
 
 export default function PeopleTable({ organizationId }: PeopleTableProps) {
   const [search, setSearch] = useQueryState("search");
-  const [emailStatus, setEmailStatus] = useQueryState("emailStatus");
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    usePeople(organizationId, search ?? undefined, emailStatus ?? undefined);
+    usePeople(organizationId, search ?? undefined);
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -28,26 +26,9 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
     [setSearch],
   );
 
-  const handleEmailStatusChange = useCallback(
-    async (value: EmailStatus) => {
-      await setEmailStatus(value === "all" ? null : value);
-    },
-    [setEmailStatus],
-  );
-
   // Flatten all pages of data
   const people = data?.pages.flatMap((page) => page.data) ?? [];
   const count = data?.pages[0]?.count ?? 0;
-
-  console.log("Table data:", {
-    peopleCount: people.length,
-    totalCount: count,
-    pages: data?.pages.length,
-    isFetchingNextPage,
-    emailStatus,
-    search,
-    people,
-  });
 
   return (
     <>
@@ -107,13 +88,6 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
-        filterConfig={getPeopleFilterConfig()}
-        onFilterChange={{
-          emailStatus: handleEmailStatusChange,
-        }}
-        initialFilters={{
-          emailStatus: emailStatus ?? undefined,
-        }}
         isLoading={isFetchingNextPage}
       />
     </>

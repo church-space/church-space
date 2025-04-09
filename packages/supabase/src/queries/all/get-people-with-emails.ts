@@ -3,7 +3,13 @@ import { Client } from "../../types";
 export interface QueryParams {
   start?: number;
   end?: number;
-  emailStatus?: ("subscribed" | "pco_blocked" | "unsubscribed")[];
+  emailStatus?: (
+    | "subscribed"
+    | "partially subscribed"
+    | "pco_blocked"
+    | "unsubscribed"
+    | "cleaned"
+  )[];
   searchTerm?: string;
   unsubscribedCategories?: number[];
 }
@@ -18,7 +24,8 @@ export async function getPeopleCount(
     .select(
       `
       id,
-      people_emails!inner(status)
+      people_emails!inner(status),
+      email_list_category_unsubscribes(id)
     `,
       { count: "exact", head: true }
     )
@@ -26,7 +33,25 @@ export async function getPeopleCount(
 
   // Apply filters if provided
   if (params?.emailStatus && params.emailStatus.length > 0) {
-    query = query.in("people_emails.status", params.emailStatus);
+    // For partially subscribed, we need to check both status and unsubscribes
+    if (params.emailStatus.includes("partially subscribed")) {
+      query = query.eq("people_emails.status", "subscribed");
+      query = query.not("email_list_category_unsubscribes.id", "is", null);
+    } else {
+      // Filter out "partially subscribed" from the status array since it's not a valid database status
+      const validStatuses = params.emailStatus.filter(
+        (
+          status
+        ): status is
+          | "subscribed"
+          | "unsubscribed"
+          | "pco_blocked"
+          | "cleaned" => status !== "partially subscribed"
+      );
+      if (validStatuses.length > 0) {
+        query = query.in("people_emails.status", validStatuses);
+      }
+    }
   }
 
   if (params?.searchTerm) {
@@ -94,7 +119,25 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
 
   // Apply filters if provided
   if (params?.emailStatus && params.emailStatus.length > 0) {
-    query = query.in("people_emails.status", params.emailStatus);
+    // For partially subscribed, we need to check both status and unsubscribes
+    if (params.emailStatus.includes("partially subscribed")) {
+      query = query.eq("people_emails.status", "subscribed");
+      query = query.not("email_list_category_unsubscribes.id", "is", null);
+    } else {
+      // Filter out "partially subscribed" from the status array since it's not a valid database status
+      const validStatuses = params.emailStatus.filter(
+        (
+          status
+        ): status is
+          | "subscribed"
+          | "unsubscribed"
+          | "pco_blocked"
+          | "cleaned" => status !== "partially subscribed"
+      );
+      if (validStatuses.length > 0) {
+        query = query.in("people_emails.status", validStatuses);
+      }
+    }
   }
 
   if (params?.searchTerm) {
