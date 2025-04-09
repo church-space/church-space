@@ -19,10 +19,10 @@ export default function EmailCategoriesTable({
   organizationId,
 }: EmailCategoriesTableProps) {
   const [search, setSearch] = useQueryState("search");
-  const [isPublic, setIsPublic] = useQueryState<EmailCategoryStatus>(
-    "isPublic",
+  const [visibility, setVisibility] = useQueryState<EmailCategoryStatus>(
+    "visibility",
     {
-      parse: (value) => {
+      parse: (value): EmailCategoryStatus => {
         if (value === "true" || value === "false" || value === "all") {
           return value;
         }
@@ -36,7 +36,7 @@ export default function EmailCategoriesTable({
     useEmailCategories(
       organizationId,
       search ?? undefined,
-      isPublic === "true" ? true : isPublic === "false" ? false : undefined,
+      visibility === "true" ? true : visibility === "false" ? false : undefined,
     );
 
   const handleSearch = useCallback(
@@ -47,12 +47,10 @@ export default function EmailCategoriesTable({
   );
 
   const handleStatusChange = useCallback(
-    async (value: string) => {
-      await setIsPublic(
-        value === "all" ? null : (value as EmailCategoryStatus),
-      );
+    async (value: EmailCategoryStatus) => {
+      await setVisibility(value === "all" ? null : value);
     },
-    [setIsPublic],
+    [setVisibility],
   );
 
   // Flatten all pages of data
@@ -112,7 +110,7 @@ export default function EmailCategoriesTable({
           is_public: handleStatusChange,
         }}
         initialFilters={{
-          is_public: isPublic || "all",
+          is_public: visibility || "all",
         }}
         isLoading={isFetchingNextPage || isLoading}
       />

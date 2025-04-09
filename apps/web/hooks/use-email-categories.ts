@@ -30,7 +30,7 @@ export function useEmailCategories(
       });
 
       if (!result) {
-        throw new Error("Failed to fetch emails");
+        throw new Error("Failed to fetch email categories");
       }
 
       if (result.validationErrors) {
@@ -42,10 +42,7 @@ export function useEmailCategories(
       }
 
       return {
-        data:
-          (result.data.data?.map((emailCategory) => ({
-            ...emailCategory,
-          })) as EmailCategory[]) ?? [],
+        data: result.data.data ?? [],
         count: result.data.count ?? 0,
         nextPage: result.data.nextPage,
       };
