@@ -151,7 +151,7 @@ export default function EmailRecipientsTable({
           status: handleStatusChange,
         }}
         initialFilters={{
-          status: effectiveStatus === "all" ? "undefined" : effectiveStatus,
+          status: effectiveStatus === "all" ? undefined : effectiveStatus,
         }}
         searchPlaceholderText="Search by email address..."
         isLoading={isLoading || isFetchingNextPage}

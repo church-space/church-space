@@ -107,7 +107,7 @@ export default function PostSendPage({
 
   // Schedule details
   const [sendDate] = useState<Date | null>(
-    email.scheduled_for ? new Date(email.scheduled_for) : null,
+    email.sent_at ? new Date(email.sent_at) : null,
   );
 
   const formatDate = (date: Date | null, showTimezone = true) => {
@@ -303,7 +303,7 @@ export default function PostSendPage({
             <CardContent className="flex flex-col gap-2">
               <div className="flex flex-col items-start font-medium text-primary">
                 <div className="flex items-center gap-1">
-                  <Users /> To:
+                  To:
                   <div className="text-foreground">
                     <div className="flex items-baseline gap-2">
                       {listData?.data?.[0]?.pco_list_description}{" "}
@@ -316,7 +316,7 @@ export default function PostSendPage({
                     </div>
                   </div>
                 </div>
-                <div className="ml-5 text-foreground">
+                <div className="text-foreground">
                   <div className="text-sm text-muted-foreground">
                     {listData?.data?.[0]?.pco_list_categories?.pco_name}
                   </div>
@@ -324,10 +324,10 @@ export default function PostSendPage({
               </div>
               <div className="flex flex-col items-start font-medium text-primary">
                 <div className="flex items-center gap-1">
-                  <UserPen /> From:
+                  From:
                   <div className="text-foreground">{fromName}</div>
                 </div>
-                <div className="ml-5 text-foreground">
+                <div className="text-foreground">
                   <div className="text-sm text-muted-foreground">
                     {fromEmail}
                     {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
@@ -337,7 +337,7 @@ export default function PostSendPage({
               {replyToEmail && (
                 <div className="flex flex-col items-start font-medium text-primary">
                   <div className="flex items-center gap-1">
-                    <Reply /> Reply-To:
+                    Reply-To:
                     <div className="text-foreground">
                       <div className="flex items-baseline gap-2">
                         {replyToEmail}
@@ -352,7 +352,7 @@ export default function PostSendPage({
 
               <div className="flex flex-col items-start font-medium text-primary">
                 <div className="flex items-center gap-1">
-                  <PaperPlaneClock /> Sent At:
+                  Sent At:
                   <div className="text-foreground">{formatDate(sendDate)}</div>
                 </div>
               </div>
