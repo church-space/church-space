@@ -205,9 +205,38 @@ export const columns: ColumnDef<Person>[] = [
                         className="flex items-center justify-between rounded-md border bg-muted p-2 px-2.5 text-sm"
                       >
                         {unsubscribe.pco_list_categories.pco_name}
-                        <Button variant="outline" size="sm">
-                          Resubscribe
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              Resubscribe
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Resubscribe to{" "}
+                                {unsubscribe.pco_list_categories.pco_name}
+                              </DialogTitle>
+                              <DialogDescription>
+                                Are you sure you want to resubscribe{" "}
+                                <b>
+                                  <u>{person.people_emails?.[0]?.email}</u>
+                                </b>{" "}
+                                to {unsubscribe.pco_list_categories.pco_name}?
+                                Please make sure you have explicit permission to
+                                resubscribe this person. Otherwise, you risk
+                                being marked as spam which will hurt your email
+                                deliverability.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                              </DialogClose>
+                              <Button variant="default">Resubscribe</Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     ),
                   )}
