@@ -99,7 +99,7 @@ const NameCell = ({ person }: { person: Person }) => {
       });
       // Invalidate the people query to refresh the table data
       await queryClient.invalidateQueries({ queryKey: ["people"] });
-    } catch (error) {
+    } catch {
       // Revert optimistic update on error
       setOptimisticStatus({});
     } finally {
@@ -124,7 +124,7 @@ const NameCell = ({ person }: { person: Person }) => {
       });
       // Invalidate the people query to refresh the table data
       await queryClient.invalidateQueries({ queryKey: ["people"] });
-    } catch (error) {
+    } catch {
       // Revert optimistic update on error
       setOptimisticStatus((prev) => ({
         ...prev,
