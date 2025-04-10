@@ -2,6 +2,7 @@
 
 import { Badge } from "@church-space/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 
 export type EmailAutomation = {
   id: number;
@@ -26,7 +27,13 @@ export const columns: ColumnDef<EmailAutomation>[] = [
     header: "Name",
     cell: ({ row }) => {
       const name = row.getValue("name") as string;
-      return <div className="pl-2 text-base font-medium">{name}</div>;
+      return (
+        <Link href={`/emails/automations/${row.original.id}`}>
+          <div className="pl-2 text-base font-medium hover:underline">
+            {name}
+          </div>
+        </Link>
+      );
     },
   },
   {
