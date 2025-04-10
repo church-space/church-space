@@ -12,7 +12,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { getEmails } from "@/actions/get-emails";
+import { getLinkLists } from "@/actions/get-link-lists";
+import { getPeopleWithEmails } from "@/actions/get-people-with-emails";
 import { useUser } from "@/stores/use-user";
+import { useInView } from "react-intersection-observer";
+import { useCallback, useEffect } from "react";
 
 export function NavMain({
   items,
@@ -30,46 +34,133 @@ export function NavMain({
 }) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
-
   const { organizationId } = useUser();
 
-  const handleMouseEnter = (url?: string) => {
-    if (url && (pathname === url || pathname.startsWith(url + "/"))) {
-      return;
-    }
+  const { ref: inViewRef, inView } = useInView({
+    threshold: 0.1,
+  });
 
-    if (url === "/emails") {
-      queryClient.prefetchInfiniteQuery({
-        queryKey: ["emails", organizationId, undefined, undefined],
-        queryFn: async ({ pageParam = 0 }) => {
-          const result = await getEmails({
-            organizationId: organizationId ?? "",
-            page: pageParam,
-          });
+  const prefetchEmails = useCallback(async () => {
+    return queryClient.prefetchInfiniteQuery({
+      queryKey: ["emails", organizationId, undefined, undefined],
+      queryFn: async ({ pageParam = 0 }) => {
+        const result = await getEmails({
+          organizationId: organizationId ?? "",
+          page: pageParam,
+        });
 
-          if (!result?.data) {
-            throw new Error("Failed to fetch emails");
-          }
+        if (!result?.data) {
+          throw new Error("Failed to fetch emails");
+        }
 
-          return {
-            data:
-              result.data.data?.map((email) => ({
-                ...email,
-                from_domain: email.from_domain as unknown as {
-                  domain: string;
-                } | null,
-                reply_to_domain: email.reply_to_domain as unknown as {
-                  domain: string;
-                } | null,
-              })) ?? [],
-            count: result.data.count ?? 0,
-            nextPage: result.data.nextPage,
-          };
-        },
-        initialPageParam: 0,
+        return {
+          data:
+            result.data.data?.map((email) => ({
+              ...email,
+              from_domain: email.from_domain as unknown as {
+                domain: string;
+              } | null,
+              reply_to_domain: email.reply_to_domain as unknown as {
+                domain: string;
+              } | null,
+            })) ?? [],
+          count: result.data.count ?? 0,
+          nextPage: result.data.nextPage,
+        };
+      },
+      initialPageParam: 0,
+    });
+  }, [organizationId, queryClient]);
+
+  const prefetchLinkLists = useCallback(async () => {
+    return queryClient.prefetchInfiniteQuery({
+      queryKey: ["link-lists", organizationId, undefined, undefined],
+      queryFn: async ({ pageParam = 0 }) => {
+        const result = await getLinkLists({
+          organizationId: organizationId ?? "",
+          page: pageParam,
+        });
+
+        if (!result?.data) {
+          throw new Error("Failed to fetch link lists");
+        }
+
+        return {
+          data:
+            result.data.data?.map((linkList) => ({
+              ...linkList,
+            })) ?? [],
+          count: result.data.count ?? 0,
+          nextPage: result.data.nextPage,
+        };
+      },
+      initialPageParam: 0,
+    });
+  }, [organizationId, queryClient]);
+
+  const prefetchPeople = useCallback(async () => {
+    return queryClient.prefetchInfiniteQuery({
+      queryKey: ["people", organizationId, undefined, undefined],
+      queryFn: async ({ pageParam = 0 }) => {
+        const result = await getPeopleWithEmails({
+          organizationId: organizationId ?? "",
+          page: pageParam,
+        });
+
+        if (!result?.data) {
+          throw new Error("Failed to fetch people");
+        }
+
+        return {
+          data:
+            result.data.data?.map((person) => ({
+              ...person,
+            })) ?? [],
+          count: result.data.count ?? 0,
+          nextPage: result.data.nextPage,
+        };
+      },
+      initialPageParam: 0,
+    });
+  }, [organizationId, queryClient]);
+
+  const prefetchData = useCallback(
+    async (url?: string) => {
+      if (!url || !organizationId || (url && pathname === url)) {
+        return;
+      }
+
+      try {
+        if (url === "/emails") {
+          await prefetchEmails();
+        } else if (url === "/link-lists") {
+          await prefetchLinkLists();
+        } else if (url === "/people") {
+          await prefetchPeople();
+        }
+      } catch (error) {
+        console.error("Error prefetching data:", error);
+      }
+    },
+    [
+      organizationId,
+      pathname,
+      prefetchEmails,
+      prefetchLinkLists,
+      prefetchPeople,
+    ],
+  );
+
+  useEffect(() => {
+    if (inView) {
+      items.forEach((item) => {
+        prefetchData(item.url);
+        item.submenu?.forEach((submenuItem) => {
+          prefetchData(submenuItem.url);
+        });
       });
     }
-  };
+  }, [inView, items, prefetchData]);
 
   return (
     <SidebarGroup>
@@ -96,11 +187,7 @@ export function NavMain({
                   !isActive && "hover:bg-transparent",
                 )}
               >
-                <Link
-                  href={item.url}
-                  prefetch={true}
-                  onMouseEnter={() => handleMouseEnter(item.url)}
-                >
+                <Link href={item.url} prefetch={true} ref={inViewRef}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>
@@ -134,7 +221,7 @@ export function NavMain({
                         <Link
                           href={submenuItem.url}
                           prefetch={true}
-                          onMouseEnter={() => handleMouseEnter(submenuItem.url)}
+                          ref={inViewRef}
                         >
                           <span>{submenuItem.title}</span>
                         </Link>

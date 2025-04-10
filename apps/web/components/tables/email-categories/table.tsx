@@ -2,7 +2,6 @@
 
 import { useEmailCategories } from "@/hooks/use-email-categories";
 import { Button } from "@church-space/ui/button";
-import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useCallback } from "react";
 import DataTable from "../data-table";
@@ -45,12 +44,12 @@ export default function EmailCategoriesTable({
             Email {count === 1 ? "Category" : "Categories"}
           </h1>
 
-          <Link
+          <a
             href="https://people.planningcenteronline.com/list_categories"
             target="_blank"
           >
             <Button>Manage in PCO</Button>
-          </Link>
+          </a>
         </div>
         <div className="flex w-full items-center gap-3 rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
           <div className="flex-shrink-0">

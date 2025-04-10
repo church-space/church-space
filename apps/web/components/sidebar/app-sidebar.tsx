@@ -47,7 +47,7 @@ const data = {
         },
         {
           title: "Templates",
-          url: "/emails/templates",
+          url: "/ ",
         },
         {
           title: "Automations",
