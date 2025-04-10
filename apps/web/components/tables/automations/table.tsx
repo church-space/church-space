@@ -93,7 +93,7 @@ export default function AutomationsTable({
           <span className="font-normal text-muted-foreground">
             {showLoading ? <Skeleton className="h-7 w-6" /> : count}
           </span>{" "}
-          {count === 1 ? "Email" : "Emails"}
+          {count === 1 ? "Automation" : "Automations"}
         </h1>
         <Button onClick={() => setIsNewEmailAutomationOpen(true)}>
           New Automation
@@ -121,7 +121,7 @@ export default function AutomationsTable({
         initialFilters={{
           status: effectiveStatus ?? undefined,
         }}
-        searchPlaceholderText="Search by subject..."
+        searchPlaceholderText="Search by name..."
         isLoading={showLoading || isFetchingNextPage}
       />
 

@@ -72,6 +72,8 @@ export function NavMain({
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { organizationId } = useUser();
+  // Track which routes we've already prefetched
+  const prefetchedRoutes = React.useRef(new Set<string>());
 
   const prefetchEmails = useCallback(async () => {
     try {
@@ -313,9 +315,17 @@ export function NavMain({
 
   const prefetchData = useCallback(
     (url?: string) => {
-      if (!url || !organizationId || (url && pathname === url)) {
+      if (
+        !url ||
+        !organizationId ||
+        (url && pathname === url) ||
+        prefetchedRoutes.current.has(url)
+      ) {
         return;
       }
+
+      // Mark this route as prefetched
+      prefetchedRoutes.current.add(url);
 
       // Fire and forget prefetching - don't await the results
       if (url === "/emails") {
@@ -344,6 +354,7 @@ export function NavMain({
       prefetchEmailAutomations,
       prefetchEmailCategories,
       prefetchQrCodes,
+      prefetchedRoutes,
     ],
   );
 
