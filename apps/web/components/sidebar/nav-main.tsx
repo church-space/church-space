@@ -347,13 +347,6 @@ export function NavMain({
     ],
   );
 
-  const handleMouseEnter = useCallback(
-    (url: string) => {
-      prefetchData(url);
-    },
-    [prefetchData],
-  );
-
   return (
     <NavContext.Provider value={{ prefetchData }}>
       <SidebarGroup>
