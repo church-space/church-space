@@ -19,8 +19,7 @@ import { getEmailAutomations } from "@/actions/get-email-automations";
 import { getEmailCategories } from "@/actions/get-all-email-categories";
 import { getQrLinks } from "@/actions/get-qr-links";
 import { useUser } from "@/stores/use-user";
-import { useInView } from "react-intersection-observer";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 
 export function NavMain({
   items,
@@ -39,10 +38,6 @@ export function NavMain({
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { organizationId } = useUser();
-
-  const { ref: inViewRef, inView } = useInView({
-    threshold: 0.1,
-  });
 
   const prefetchEmails = useCallback(async () => {
     try {
@@ -321,16 +316,12 @@ export function NavMain({
     ],
   );
 
-  useEffect(() => {
-    if (inView) {
-      items.forEach((item) => {
-        prefetchData(item.url);
-        item.submenu?.forEach((submenuItem) => {
-          prefetchData(submenuItem.url);
-        });
-      });
-    }
-  }, [inView, items, prefetchData]);
+  const handleMouseEnter = useCallback(
+    (url: string) => {
+      prefetchData(url);
+    },
+    [prefetchData],
+  );
 
   return (
     <SidebarGroup>
@@ -357,7 +348,11 @@ export function NavMain({
                   !isActive && "hover:bg-transparent",
                 )}
               >
-                <Link href={item.url} prefetch={true} ref={inViewRef}>
+                <Link
+                  href={item.url}
+                  prefetch={true}
+                  onMouseEnter={() => handleMouseEnter(item.url)}
+                >
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>
@@ -391,7 +386,7 @@ export function NavMain({
                         <Link
                           href={submenuItem.url}
                           prefetch={true}
-                          ref={inViewRef}
+                          onMouseEnter={() => handleMouseEnter(submenuItem.url)}
                         >
                           <span>{submenuItem.title}</span>
                         </Link>
