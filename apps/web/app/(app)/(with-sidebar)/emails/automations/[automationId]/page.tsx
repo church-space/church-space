@@ -38,7 +38,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 import { useUser } from "@/stores/use-user";
 
 export default function Page() {
-  const [isEditingLink] = useState(false);
+  const [isEditingLink, setIsEditingLink] = useState(false);
   const [editedLinkName, setEditedLinkName] = useState("Testing Automation");
   const [linkErrors] = useState({
     name: null,
@@ -63,14 +63,17 @@ export default function Page() {
   };
 
   const cancelEditingLink = () => {
+    setIsEditingLink(false);
     // TODO: Implement cancel editing link
   };
 
   const saveEditedLink = () => {
+    setIsEditingLink(false);
     // TODO: Implement save edited link
   };
 
   const startEditingLink = () => {
+    setIsEditingLink(true);
     // TODO: Implement start editing link
   };
 
