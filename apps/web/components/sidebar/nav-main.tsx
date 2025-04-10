@@ -278,29 +278,26 @@ export function NavMain({
   }, [organizationId, queryClient]);
 
   const prefetchData = useCallback(
-    async (url?: string) => {
+    (url?: string) => {
       if (!url || !organizationId || (url && pathname === url)) {
         return;
       }
 
-      try {
-        if (url === "/emails") {
-          await prefetchEmails();
-        } else if (url === "/link-lists") {
-          await prefetchLinkLists();
-        } else if (url === "/people") {
-          await prefetchPeople();
-        } else if (url === "/emails/templates") {
-          await prefetchEmailTemplates();
-        } else if (url === "/emails/automations") {
-          await prefetchEmailAutomations();
-        } else if (url === "/emails/categories") {
-          await prefetchEmailCategories();
-        } else if (url === "/qr-codes") {
-          await prefetchQrCodes();
-        }
-      } catch (error) {
-        console.error("Error prefetching data:", error);
+      // Fire and forget prefetching - don't await the results
+      if (url === "/emails") {
+        prefetchEmails().catch(console.error);
+      } else if (url === "/link-lists") {
+        prefetchLinkLists().catch(console.error);
+      } else if (url === "/people") {
+        prefetchPeople().catch(console.error);
+      } else if (url === "/emails/templates") {
+        prefetchEmailTemplates().catch(console.error);
+      } else if (url === "/emails/automations") {
+        prefetchEmailAutomations().catch(console.error);
+      } else if (url === "/emails/categories") {
+        prefetchEmailCategories().catch(console.error);
+      } else if (url === "/qr-codes") {
+        prefetchQrCodes().catch(console.error);
       }
     },
     [
