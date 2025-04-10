@@ -1067,6 +1067,7 @@ export default function PreSendPage({
                   placeholder="Enter from"
                   value={fromEmail}
                   onChange={handleFromEmailChange}
+                  maxLength={50}
                 />
                 <span className="mb-1 leading-none">@</span>
                 <DomainSelector
@@ -1080,11 +1081,18 @@ export default function PreSendPage({
               <Label className="ml-0.5">
                 From Name <span className="text-destructive">*</span>
               </Label>
-              <Input
-                placeholder="Name"
-                value={fromName}
-                onChange={(e) => setFromName(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  placeholder="Name"
+                  className="pr-8"
+                  value={fromName}
+                  onChange={(e) => setFromName(e.target.value)}
+                  maxLength={50}
+                />
+                <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                  {fromName.length} / 50
+                </span>
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <Label className="ml-0.5">Reply To</Label>
@@ -1093,6 +1101,7 @@ export default function PreSendPage({
                   placeholder="Enter reply to"
                   value={replyToEmail}
                   onChange={handleReplyToEmailChange}
+                  maxLength={50}
                 />
                 <span className="mb-1 leading-none">@</span>
                 <DomainSelector
