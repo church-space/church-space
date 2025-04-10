@@ -14,6 +14,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getEmails } from "@/actions/get-emails";
 import { getLinkLists } from "@/actions/get-link-lists";
 import { getPeopleWithEmails } from "@/actions/get-people-with-emails";
+import { getEmailTemplates } from "@/actions/get-email-templates";
+import { getEmailAutomations } from "@/actions/get-email-automations";
+import { getEmailCategories } from "@/actions/get-all-email-categories";
+import { getQrLinks } from "@/actions/get-qr-links";
 import { useUser } from "@/stores/use-user";
 import { useInView } from "react-intersection-observer";
 import { useCallback, useEffect } from "react";
@@ -124,6 +128,104 @@ export function NavMain({
     });
   }, [organizationId, queryClient]);
 
+  const prefetchEmailTemplates = useCallback(async () => {
+    return queryClient.prefetchInfiniteQuery({
+      queryKey: ["email-templates", organizationId, undefined],
+      queryFn: async ({ pageParam = 0 }) => {
+        const result = await getEmailTemplates({
+          organizationId: organizationId ?? "",
+          page: pageParam,
+        });
+
+        if (!result?.data) {
+          throw new Error("Failed to fetch email templates");
+        }
+
+        return {
+          data: result.data.data ?? [],
+          count: result.data.count ?? 0,
+          nextPage: result.data.nextPage,
+        };
+      },
+      initialPageParam: 0,
+    });
+  }, [organizationId, queryClient]);
+
+  const prefetchEmailAutomations = useCallback(async () => {
+    return queryClient.prefetchInfiniteQuery({
+      queryKey: ["email-automations", organizationId, undefined, undefined],
+      queryFn: async ({ pageParam = 0 }) => {
+        const result = await getEmailAutomations({
+          organizationId: organizationId ?? "",
+          page: pageParam,
+        });
+
+        if (!result?.data) {
+          throw new Error("Failed to fetch email automations");
+        }
+
+        return {
+          data:
+            result.data.data?.map((emailAutomation) => ({
+              ...emailAutomation,
+            })) ?? [],
+          count: result.data.count ?? 0,
+          nextPage: result.data.nextPage,
+        };
+      },
+      initialPageParam: 0,
+    });
+  }, [organizationId, queryClient]);
+
+  const prefetchEmailCategories = useCallback(async () => {
+    return queryClient.prefetchInfiniteQuery({
+      queryKey: ["email-categories", organizationId, undefined, undefined],
+      queryFn: async ({ pageParam = 0 }) => {
+        const result = await getEmailCategories({
+          organizationId: organizationId ?? "",
+          page: pageParam,
+        });
+
+        if (!result?.data) {
+          throw new Error("Failed to fetch email categories");
+        }
+
+        return {
+          data: result.data.data ?? [],
+          count: result.data.count ?? 0,
+          nextPage: result.data.nextPage,
+        };
+      },
+      initialPageParam: 0,
+    });
+  }, [organizationId, queryClient]);
+
+  const prefetchQrCodes = useCallback(async () => {
+    return queryClient.prefetchInfiniteQuery({
+      queryKey: ["qr-links", organizationId, undefined, undefined],
+      queryFn: async ({ pageParam = 0 }) => {
+        const result = await getQrLinks({
+          organizationId: organizationId ?? "",
+          page: pageParam,
+        });
+
+        if (!result?.data) {
+          throw new Error("Failed to fetch QR codes");
+        }
+
+        return {
+          data:
+            result.data.data?.map((qrLink) => ({
+              ...qrLink,
+            })) ?? [],
+          count: result.data.count ?? 0,
+          nextPage: result.data.nextPage,
+        };
+      },
+      initialPageParam: 0,
+    });
+  }, [organizationId, queryClient]);
+
   const prefetchData = useCallback(
     async (url?: string) => {
       if (!url || !organizationId || (url && pathname === url)) {
@@ -137,6 +239,14 @@ export function NavMain({
           await prefetchLinkLists();
         } else if (url === "/people") {
           await prefetchPeople();
+        } else if (url === "/emails/templates") {
+          await prefetchEmailTemplates();
+        } else if (url === "/emails/automations") {
+          await prefetchEmailAutomations();
+        } else if (url === "/emails/categories") {
+          await prefetchEmailCategories();
+        } else if (url === "/qr-codes") {
+          await prefetchQrCodes();
         }
       } catch (error) {
         console.error("Error prefetching data:", error);
@@ -148,6 +258,10 @@ export function NavMain({
       prefetchEmails,
       prefetchLinkLists,
       prefetchPeople,
+      prefetchEmailTemplates,
+      prefetchEmailAutomations,
+      prefetchEmailCategories,
+      prefetchQrCodes,
     ],
   );
 
