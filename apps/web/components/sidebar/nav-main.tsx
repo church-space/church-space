@@ -45,185 +45,241 @@ export function NavMain({
   });
 
   const prefetchEmails = useCallback(async () => {
-    return queryClient.prefetchInfiniteQuery({
-      queryKey: ["emails", organizationId, undefined, undefined],
-      queryFn: async ({ pageParam = 0 }) => {
-        const result = await getEmails({
-          organizationId: organizationId ?? "",
-          page: pageParam,
-        });
+    try {
+      const result = await getEmails({
+        organizationId: organizationId ?? "",
+        page: 0,
+      });
 
-        if (!result?.data) {
-          throw new Error("Failed to fetch emails");
-        }
+      if (!result?.data) {
+        throw new Error("Failed to fetch emails");
+      }
 
-        return {
-          data:
-            result.data.data?.map((email) => ({
-              ...email,
-              from_domain: email.from_domain as unknown as {
-                domain: string;
-              } | null,
-              reply_to_domain: email.reply_to_domain as unknown as {
-                domain: string;
-              } | null,
-            })) ?? [],
-          count: result.data.count ?? 0,
-          nextPage: result.data.nextPage,
-        };
-      },
-      initialPageParam: 0,
-    });
+      const data = {
+        pages: [
+          {
+            data:
+              result.data.data?.map((email) => ({
+                ...email,
+                from_domain: email.from_domain as unknown as {
+                  domain: string;
+                } | null,
+                reply_to_domain: email.reply_to_domain as unknown as {
+                  domain: string;
+                } | null,
+              })) ?? [],
+            count: result.data.count ?? 0,
+            nextPage: result.data.nextPage,
+          },
+        ],
+        pageParams: [0],
+      };
+
+      queryClient.setQueryData(
+        ["emails", organizationId, undefined, undefined],
+        data,
+      );
+    } catch (error) {
+      console.error("Error prefetching emails:", error);
+    }
   }, [organizationId, queryClient]);
 
   const prefetchLinkLists = useCallback(async () => {
-    return queryClient.prefetchInfiniteQuery({
-      queryKey: ["link-lists", organizationId, undefined, undefined],
-      queryFn: async ({ pageParam = 0 }) => {
-        const result = await getLinkLists({
-          organizationId: organizationId ?? "",
-          page: pageParam,
-        });
+    try {
+      const result = await getLinkLists({
+        organizationId: organizationId ?? "",
+        page: 0,
+      });
 
-        if (!result?.data) {
-          throw new Error("Failed to fetch link lists");
-        }
+      if (!result?.data) {
+        throw new Error("Failed to fetch link lists");
+      }
 
-        return {
-          data:
-            result.data.data?.map((linkList) => ({
-              ...linkList,
-            })) ?? [],
-          count: result.data.count ?? 0,
-          nextPage: result.data.nextPage,
-        };
-      },
-      initialPageParam: 0,
-    });
+      const data = {
+        pages: [
+          {
+            data:
+              result.data.data?.map((linkList) => ({
+                ...linkList,
+              })) ?? [],
+            count: result.data.count ?? 0,
+            nextPage: result.data.nextPage,
+          },
+        ],
+        pageParams: [0],
+      };
+
+      queryClient.setQueryData(
+        ["link-lists", organizationId, undefined, undefined],
+        data,
+      );
+    } catch (error) {
+      console.error("Error prefetching link lists:", error);
+    }
   }, [organizationId, queryClient]);
 
   const prefetchPeople = useCallback(async () => {
-    return queryClient.prefetchInfiniteQuery({
-      queryKey: ["people", organizationId, undefined, undefined],
-      queryFn: async ({ pageParam = 0 }) => {
-        const result = await getPeopleWithEmails({
-          organizationId: organizationId ?? "",
-          page: pageParam,
-        });
+    try {
+      const result = await getPeopleWithEmails({
+        organizationId: organizationId ?? "",
+        page: 0,
+      });
 
-        if (!result?.data) {
-          throw new Error("Failed to fetch people");
-        }
+      if (!result?.data) {
+        throw new Error("Failed to fetch people");
+      }
 
-        return {
-          data:
-            result.data.data?.map((person) => ({
-              ...person,
-            })) ?? [],
-          count: result.data.count ?? 0,
-          nextPage: result.data.nextPage,
-        };
-      },
-      initialPageParam: 0,
-    });
+      const data = {
+        pages: [
+          {
+            data:
+              result.data.data?.map((person) => ({
+                ...person,
+              })) ?? [],
+            count: result.data.count ?? 0,
+            nextPage: result.data.nextPage,
+          },
+        ],
+        pageParams: [0],
+      };
+
+      queryClient.setQueryData(
+        ["people", organizationId, undefined, undefined],
+        data,
+      );
+    } catch (error) {
+      console.error("Error prefetching people:", error);
+    }
   }, [organizationId, queryClient]);
 
   const prefetchEmailTemplates = useCallback(async () => {
-    return queryClient.prefetchInfiniteQuery({
-      queryKey: ["email-templates", organizationId, undefined],
-      queryFn: async ({ pageParam = 0 }) => {
-        const result = await getEmailTemplates({
-          organizationId: organizationId ?? "",
-          page: pageParam,
-        });
+    try {
+      const result = await getEmailTemplates({
+        organizationId: organizationId ?? "",
+        page: 0,
+      });
 
-        if (!result?.data) {
-          throw new Error("Failed to fetch email templates");
-        }
+      if (!result?.data) {
+        throw new Error("Failed to fetch email templates");
+      }
 
-        return {
-          data: result.data.data ?? [],
-          count: result.data.count ?? 0,
-          nextPage: result.data.nextPage,
-        };
-      },
-      initialPageParam: 0,
-    });
+      const data = {
+        pages: [
+          {
+            data: result.data.data ?? [],
+            count: result.data.count ?? 0,
+            nextPage: result.data.nextPage,
+          },
+        ],
+        pageParams: [0],
+      };
+
+      queryClient.setQueryData(
+        ["email-templates", organizationId, undefined],
+        data,
+      );
+    } catch (error) {
+      console.error("Error prefetching email templates:", error);
+    }
   }, [organizationId, queryClient]);
 
   const prefetchEmailAutomations = useCallback(async () => {
-    return queryClient.prefetchInfiniteQuery({
-      queryKey: ["email-automations", organizationId, undefined, undefined],
-      queryFn: async ({ pageParam = 0 }) => {
-        const result = await getEmailAutomations({
-          organizationId: organizationId ?? "",
-          page: pageParam,
-        });
+    try {
+      const result = await getEmailAutomations({
+        organizationId: organizationId ?? "",
+        page: 0,
+      });
 
-        if (!result?.data) {
-          throw new Error("Failed to fetch email automations");
-        }
+      if (!result?.data) {
+        throw new Error("Failed to fetch email automations");
+      }
 
-        return {
-          data:
-            result.data.data?.map((emailAutomation) => ({
-              ...emailAutomation,
-            })) ?? [],
-          count: result.data.count ?? 0,
-          nextPage: result.data.nextPage,
-        };
-      },
-      initialPageParam: 0,
-    });
+      const data = {
+        pages: [
+          {
+            data:
+              result.data.data?.map((emailAutomation) => ({
+                ...emailAutomation,
+              })) ?? [],
+            count: result.data.count ?? 0,
+            nextPage: result.data.nextPage,
+          },
+        ],
+        pageParams: [0],
+      };
+
+      queryClient.setQueryData(
+        ["email-automations", organizationId, undefined, undefined],
+        data,
+      );
+    } catch (error) {
+      console.error("Error prefetching email automations:", error);
+    }
   }, [organizationId, queryClient]);
 
   const prefetchEmailCategories = useCallback(async () => {
-    return queryClient.prefetchInfiniteQuery({
-      queryKey: ["email-categories", organizationId, undefined, undefined],
-      queryFn: async ({ pageParam = 0 }) => {
-        const result = await getEmailCategories({
-          organizationId: organizationId ?? "",
-          page: pageParam,
-        });
+    try {
+      const result = await getEmailCategories({
+        organizationId: organizationId ?? "",
+        page: 0,
+      });
 
-        if (!result?.data) {
-          throw new Error("Failed to fetch email categories");
-        }
+      if (!result?.data) {
+        throw new Error("Failed to fetch email categories");
+      }
 
-        return {
-          data: result.data.data ?? [],
-          count: result.data.count ?? 0,
-          nextPage: result.data.nextPage,
-        };
-      },
-      initialPageParam: 0,
-    });
+      const data = {
+        pages: [
+          {
+            data: result.data.data ?? [],
+            count: result.data.count ?? 0,
+            nextPage: result.data.nextPage,
+          },
+        ],
+        pageParams: [0],
+      };
+
+      queryClient.setQueryData(
+        ["email-categories", organizationId, undefined, undefined],
+        data,
+      );
+    } catch (error) {
+      console.error("Error prefetching email categories:", error);
+    }
   }, [organizationId, queryClient]);
 
   const prefetchQrCodes = useCallback(async () => {
-    return queryClient.prefetchInfiniteQuery({
-      queryKey: ["qr-links", organizationId, undefined, undefined],
-      queryFn: async ({ pageParam = 0 }) => {
-        const result = await getQrLinks({
-          organizationId: organizationId ?? "",
-          page: pageParam,
-        });
+    try {
+      const result = await getQrLinks({
+        organizationId: organizationId ?? "",
+        page: 0,
+      });
 
-        if (!result?.data) {
-          throw new Error("Failed to fetch QR codes");
-        }
+      if (!result?.data) {
+        throw new Error("Failed to fetch QR codes");
+      }
 
-        return {
-          data:
-            result.data.data?.map((qrLink) => ({
-              ...qrLink,
-            })) ?? [],
-          count: result.data.count ?? 0,
-          nextPage: result.data.nextPage,
-        };
-      },
-      initialPageParam: 0,
-    });
+      const data = {
+        pages: [
+          {
+            data:
+              result.data.data?.map((qrLink) => ({
+                ...qrLink,
+              })) ?? [],
+            count: result.data.count ?? 0,
+            nextPage: result.data.nextPage,
+          },
+        ],
+        pageParams: [0],
+      };
+
+      queryClient.setQueryData(
+        ["qr-links", organizationId, undefined, undefined],
+        data,
+      );
+    } catch (error) {
+      console.error("Error prefetching QR codes:", error);
+    }
   }, [organizationId, queryClient]);
 
   const prefetchData = useCallback(
