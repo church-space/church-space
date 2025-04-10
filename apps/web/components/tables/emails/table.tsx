@@ -50,12 +50,18 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
   const effectiveSearch = search;
   const effectiveStatus = status;
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useEmails(
-      organizationId,
-      effectiveSearch ?? undefined,
-      effectiveStatus ?? undefined,
-    );
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isFetching,
+  } = useEmails(
+    organizationId,
+    effectiveSearch ?? undefined,
+    effectiveStatus ?? undefined,
+  );
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -76,12 +82,15 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
     []) as Email[];
   const count = data?.pages[0]?.count ?? 0;
 
+  // Show loading state during both initial load and navigation
+  const showLoading = isLoading || isFetching;
+
   return (
     <>
       <div className="mb-6 flex w-full items-center justify-between">
         <h1 className="flex items-center gap-1.5 text-3xl font-bold">
           <span className="font-normal text-muted-foreground">
-            {isLoading ? <Skeleton className="h-7 w-6" /> : count}
+            {showLoading ? <Skeleton className="h-7 w-6" /> : count}
           </span>{" "}
           {count === 1 ? "Email" : "Emails"}
         </h1>
@@ -110,7 +119,7 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
           status: effectiveStatus ?? undefined,
         }}
         searchPlaceholderText="Search by subject..."
-        isLoading={isLoading || isFetchingNextPage}
+        isLoading={showLoading || isFetchingNextPage}
       />
 
       <Dialog open={isNewEmailOpen} onOpenChange={setIsNewEmailOpen}>
