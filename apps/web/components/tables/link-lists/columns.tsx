@@ -21,7 +21,7 @@ export const columns: ColumnDef<LinkList>[] = [
     cell: ({ row }) => {
       const name = row.getValue("private_name") as string | null;
       return (
-        <Link href={`/link-lists/${row.original.id}`} prefetch={true}>
+        <Link href={`/link-lists/${row.original.id}`} prefetch={false}>
           <div className="min-w-32 truncate text-base font-semibold hover:underline">
             {name || "Untitled"}
           </div>

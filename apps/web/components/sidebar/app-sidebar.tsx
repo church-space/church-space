@@ -39,7 +39,6 @@ const data = {
     {
       title: "Email",
       url: "/emails",
-      prefetchQueryKey: ["emails"],
       icon: Mail,
       submenu: [
         {

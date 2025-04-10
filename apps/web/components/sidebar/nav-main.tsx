@@ -21,7 +21,6 @@ export function NavMain({
     title: string;
     url: string;
     icon: React.ElementType;
-    prefetchQueryKey?: string[];
     submenu?: {
       title: string;
       url: string;
@@ -34,46 +33,40 @@ export function NavMain({
 
   const { organizationId } = useUser();
 
-  const handleMouseEnter = (prefetchQueryKey?: string[], url?: string) => {
+  const handleMouseEnter = (url?: string) => {
     if (url && (pathname === url || pathname.startsWith(url + "/"))) {
       return;
     }
 
-    if (prefetchQueryKey) {
-      const dataType = prefetchQueryKey[0];
+    if (url === "/emails") {
+      queryClient.prefetchInfiniteQuery({
+        queryKey: ["emails", organizationId, undefined, undefined],
+        queryFn: async ({ pageParam = 0 }) => {
+          const result = await getEmails({
+            organizationId: organizationId ?? "",
+            page: pageParam,
+          });
 
-      queryClient.prefetchQuery({
-        queryKey: prefetchQueryKey,
-        queryFn: async () => {
-          switch (dataType) {
-            case "emails":
-              const result = await getEmails({
-                organizationId: organizationId ?? "",
-                page: 0,
-              });
-
-              if (!result?.data) {
-                throw new Error("Failed to fetch emails");
-              }
-
-              return {
-                data:
-                  result.data.data?.map((email) => ({
-                    ...email,
-                    from_domain: email.from_domain as unknown as {
-                      domain: string;
-                    } | null,
-                    reply_to_domain: email.reply_to_domain as unknown as {
-                      domain: string;
-                    } | null,
-                  })) ?? [],
-                count: result.data.count ?? 0,
-                nextPage: result.data.nextPage,
-              };
-            default:
-              throw new Error(`Unsupported data type: ${dataType}`);
+          if (!result?.data) {
+            throw new Error("Failed to fetch emails");
           }
+
+          return {
+            data:
+              result.data.data?.map((email) => ({
+                ...email,
+                from_domain: email.from_domain as unknown as {
+                  domain: string;
+                } | null,
+                reply_to_domain: email.reply_to_domain as unknown as {
+                  domain: string;
+                } | null,
+              })) ?? [],
+            count: result.data.count ?? 0,
+            nextPage: result.data.nextPage,
+          };
         },
+        initialPageParam: 0,
       });
     }
   };
@@ -106,9 +99,7 @@ export function NavMain({
                 <Link
                   href={item.url}
                   prefetch={true}
-                  onMouseEnter={() =>
-                    handleMouseEnter(item.prefetchQueryKey, item.url)
-                  }
+                  onMouseEnter={() => handleMouseEnter(item.url)}
                 >
                   <item.icon />
                   <span>{item.title}</span>
@@ -143,12 +134,7 @@ export function NavMain({
                         <Link
                           href={submenuItem.url}
                           prefetch={true}
-                          onMouseEnter={() =>
-                            handleMouseEnter(
-                              submenuItem.prefetchQueryKey,
-                              submenuItem.url,
-                            )
-                          }
+                          onMouseEnter={() => handleMouseEnter(submenuItem.url)}
                         >
                           <span>{submenuItem.title}</span>
                         </Link>
