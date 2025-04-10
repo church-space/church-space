@@ -253,7 +253,7 @@ export default function DndBuilderCanvas({
                   transition={{ duration: 0.2 }}
                 />
               )}
-            <div className="h-4" />
+            <div className="h-1.5" />
           </>
         )}
       </div>
