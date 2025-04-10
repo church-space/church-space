@@ -10,16 +10,7 @@ import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function Page() {
-  const cookiesStore = await cookies();
-  const organizationId = cookiesStore.get("organizationId")?.value;
-
-  if (!organizationId) {
-    redirect("/onboarding");
-  }
-
-  // Get the first value if it's an array, or the value itself if it's a string
-
+function EmailsContent({ organizationId }: { organizationId: string }) {
   return (
     <div className="relative">
       <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center gap-2 rounded-t-lg bg-background">
@@ -40,4 +31,15 @@ export default async function Page() {
       </div>
     </div>
   );
+}
+
+export default async function Page() {
+  const cookiesStore = await cookies();
+  const organizationId = cookiesStore.get("organizationId")?.value;
+
+  if (!organizationId) {
+    redirect("/onboarding");
+  }
+
+  return <EmailsContent organizationId={organizationId} />;
 }

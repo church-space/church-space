@@ -349,6 +349,8 @@ export function NavMain({
                   href={item.url}
                   prefetch={true}
                   onMouseEnter={() => handleMouseEnter(item.url)}
+                  scroll={false}
+                  shallow={true}
                 >
                   <item.icon />
                   <span>{item.title}</span>
@@ -384,6 +386,8 @@ export function NavMain({
                           href={submenuItem.url}
                           prefetch={true}
                           onMouseEnter={() => handleMouseEnter(submenuItem.url)}
+                          scroll={false}
+                          shallow={true}
                         >
                           <span>{submenuItem.title}</span>
                         </Link>
