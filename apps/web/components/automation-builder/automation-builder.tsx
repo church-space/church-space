@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@church-space/ui/cn";
 import { Button } from "@church-space/ui/button";
 import { Card, CardContent } from "@church-space/ui/card";
@@ -25,23 +25,89 @@ type ActionType = "notify_admin" | "wait" | "send_email";
 
 export default function EmailAutomationBuilder({
   organizationId,
+  onChangesPending,
 }: {
   organizationId: string;
+  onChangesPending: (hasPendingChanges: boolean) => void;
 }) {
   const [trigger, setTrigger] = useState<TriggerType | null>(null);
   const [selectedList, setSelectedList] = useState<string>("");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const [actions, setActions] = useState({
-    notify_admin: { enabled: false, email: "", subject: "", message: "" },
-    wait: { enabled: false, unit: "days", value: 1 },
-    send_email: {
-      enabled: false,
-      template: "",
-      fromName: "",
-      fromEmail: "",
-      subject: "",
+  // Store initial state for comparison
+  const initialState = useRef({
+    trigger: null as TriggerType | null,
+    selectedList: "",
+    actions: {
+      notify_admin: { enabled: false, email: "", subject: "", message: "" },
+      wait: { enabled: false, unit: "days", value: 1 },
+      send_email: {
+        enabled: false,
+        template: "",
+        fromName: "",
+        fromEmail: "",
+        subject: "",
+      },
     },
   });
+
+  const [actions, setActions] = useState(initialState.current.actions);
+
+  // Function to check if current state differs from initial state
+  const checkForChanges = useCallback(() => {
+    const hasChanges =
+      trigger !== initialState.current.trigger ||
+      selectedList !== initialState.current.selectedList ||
+      JSON.stringify(actions) !== JSON.stringify(initialState.current.actions);
+
+    setHasUnsavedChanges(hasChanges);
+    onChangesPending(hasChanges);
+  }, [trigger, selectedList, actions, onChangesPending]);
+
+  // Track changes whenever state updates
+  useEffect(() => {
+    checkForChanges();
+  }, [trigger, selectedList, actions, checkForChanges]);
+
+  // Add beforeunload event listener
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue =
+          "You have unsaved changes. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
+  // Update save button to clear unsaved changes
+  const handleSave = () => {
+    // Update initial state to current state after saving
+    initialState.current = {
+      trigger,
+      selectedList,
+      actions,
+    };
+    setHasUnsavedChanges(false);
+    onChangesPending(false);
+    // TODO: Implement actual save functionality
+  };
+
+  // Update cancel button to reset to initial state
+  const handleCancel = () => {
+    // Reset to initial state
+    setTrigger(initialState.current.trigger);
+    setSelectedList(initialState.current.selectedList);
+    setActions(initialState.current.actions);
+    setHasUnsavedChanges(false);
+    onChangesPending(false);
+  };
 
   const toggleAction = (action: ActionType) => {
     setActions((prev) => ({
@@ -419,8 +485,10 @@ export default function EmailAutomationBuilder({
 
       {/* Footer */}
       <SheetFooter className="flex items-center justify-end gap-2 border-t p-4">
-        <Button variant="outline">Cancel</Button>
-        <Button>Save</Button>
+        <Button variant="outline" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button onClick={handleSave}>Save</Button>
       </SheetFooter>
     </>
   );

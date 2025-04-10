@@ -39,12 +39,16 @@ import { useUser } from "@/stores/use-user";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
+import { useToast } from "@church-space/ui/use-toast";
 
 export default function Page() {
   const params = useParams();
   const automationId = parseInt(params.automationId as string, 10);
   const { organizationId } = useUser();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const { data: automationResponse, isLoading: isLoadingAutomation } = useQuery(
     {
@@ -77,6 +81,21 @@ export default function Page() {
       setEditedLinkDescription(automation.data?.description || "");
     }
   }, [automation]);
+
+  // Function to handle sheet close attempt
+  const handleSheetClose = () => {
+    if (hasUnsavedChanges) {
+      // Show warning toast
+      toast({
+        title: "Unsaved Changes",
+        description: "Please save or cancel your changes before closing.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    setIsSheetOpen(false);
+    return true;
+  };
 
   if (isLoadingAutomation) {
     return <div>Loading...</div>;
@@ -271,10 +290,25 @@ export default function Page() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <Sheet>
+          <Sheet
+            open={isSheetOpen}
+            onOpenChange={(open) => {
+              if (!open) {
+                // If trying to close
+                if (handleSheetClose()) {
+                  setIsSheetOpen(false);
+                }
+              } else {
+                setIsSheetOpen(true);
+              }
+            }}
+          >
             <>
               <SheetTrigger asChild>
-                <Button className="h-fit w-full cursor-pointer bg-foreground text-background transition-colors hover:bg-foreground/90">
+                <Button
+                  className="h-fit w-full cursor-pointer bg-foreground text-background transition-colors hover:bg-foreground/90"
+                  onClick={() => setIsSheetOpen(true)}
+                >
                   <div className="flex w-full flex-row items-center justify-between space-y-0 px-3 py-6 pl-6 text-left">
                     <div className="p-0">
                       <div className="text-lg font-medium">
@@ -291,10 +325,15 @@ export default function Page() {
                 </Button>
               </SheetTrigger>
               <SheetContent
-                className="h-[95%] w-full md:h-full md:max-w-3xl"
+                className="h-[95%] w-full overflow-y-auto md:h-full md:max-w-3xl"
                 side={isMobile ? "bottom" : "right"}
               >
-                <AutomationBuilder organizationId={organizationId ?? ""} />
+                <AutomationBuilder
+                  organizationId={organizationId ?? ""}
+                  onChangesPending={(hasPendingChanges) =>
+                    setHasUnsavedChanges(hasPendingChanges)
+                  }
+                />
               </SheetContent>
             </>
           </Sheet>
