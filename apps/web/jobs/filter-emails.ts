@@ -79,6 +79,31 @@ export const filterEmailRecipients = task({
         );
       }
 
+      // Validate that the from_email is not a no-reply address
+      if (
+        emailData.from_email.toLowerCase().includes("no-reply") ||
+        emailData.from_email.toLowerCase().includes("noreply") ||
+        emailData.from_email.toLowerCase().includes("no_reply") ||
+        (emailData.reply_to &&
+          (emailData.reply_to.toLowerCase().includes("no-reply") ||
+            emailData.reply_to.toLowerCase().includes("noreply") ||
+            emailData.reply_to.toLowerCase().includes("no_reply")))
+      ) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message:
+              "Cannot send emails from or reply to no-reply addresses",
+          })
+          .eq("id", emailId);
+
+        throw new Error(
+          "Cannot send emails from or reply to no-reply addresses",
+        );
+      }
+
       // Validate subject
       if (!emailData.subject) {
         await supabase

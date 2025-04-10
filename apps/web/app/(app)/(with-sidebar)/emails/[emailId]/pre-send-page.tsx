@@ -180,6 +180,21 @@ export default function PreSendPage({
 
   const handleFromEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
+
+    // Check for no-reply variations
+    if (
+      value.includes("noreply") ||
+      value.includes("no-reply") ||
+      value.includes("no_reply")
+    ) {
+      toast({
+        title: "Invalid email address",
+        description: "No-reply email addresses are not allowed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (isValidEmailLocalPart(value)) {
       setFromEmail(value);
     }
@@ -187,6 +202,21 @@ export default function PreSendPage({
 
   const handleReplyToEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
+
+    // Check for no-reply variations
+    if (
+      value.includes("noreply") ||
+      value.includes("no-reply") ||
+      value.includes("no_reply")
+    ) {
+      toast({
+        title: "Invalid email address",
+        description: "No-reply email addresses are not allowed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (isValidEmailLocalPart(value)) {
       setReplyToEmail(value);
     }
