@@ -61,18 +61,18 @@ const data = {
     },
     {
       title: "Links",
-      url: "/link-lists",
+      url: "/qr-codes",
       icon: Link,
       submenu: [
-        {
-          title: "Link Lists",
-          url: "/link-lists",
-          icon: List,
-        },
         {
           title: "QR Codes",
           url: "/qr-codes",
           icon: QrCode,
+        },
+        {
+          title: "Link Lists",
+          url: "/link-lists",
+          icon: List,
         },
       ],
     },

@@ -1,6 +1,6 @@
 import type { Client, Database } from "../types";
 
-export async function createAutomation(
+export async function createEmailAutomation(
   supabase: Client,
   automation: Database["public"]["Tables"]["email_automations"]["Insert"]
 ) {

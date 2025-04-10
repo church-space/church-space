@@ -14,20 +14,24 @@ import {
   FormMessage,
 } from "@church-space/ui/form";
 import { Input } from "@church-space/ui/input";
-import { createAutomationAction } from "@/actions/create-automation";
+import { createEmailAutomationAction } from "@/actions/create-email-automation";
 import { useState } from "react";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(60, "Name must be 60 characters or less"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function NewAutomation({
+export default function NewEmailAutomation({
   organizationId,
+  setIsNewEmailAutomationOpen,
 }: {
   organizationId: string;
+  setIsNewEmailAutomationOpen: (isOpen: boolean) => void;
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -35,28 +39,26 @@ export default function NewAutomation({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      description: "",
     },
   });
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
-      const result = await createAutomationAction({
+      const result = await createEmailAutomationAction({
         name: values.name,
-        description: values.description,
         organization_id: organizationId,
       });
 
+      console.log(result);
+
       if (result?.data?.success && result?.data?.data) {
         await router.push(
-          `/automation/${result.data.data.id}/editor?newAutomation=true`,
+          `/emails/automations/${result.data.data.id}?newAutomation=true`,
         );
       }
     } catch (error) {
       console.error("Failed to create automation:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -68,56 +70,49 @@ export default function NewAutomation({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel className="ml-1">Email Automation Name</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Enter automation name..."
-                  {...field}
-                  type="text"
-                  disabled={isLoading}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck="false"
-                  data-form-type="other"
-                  data-lpignore="true"
-                  name="automation_name_field"
-                  aria-label="Automation name"
-                />
+                <div className="relative">
+                  <Input
+                    placeholder="Email automation name..."
+                    {...field}
+                    type="text"
+                    disabled={isLoading}
+                    autoFocus
+                    inputMode="text"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    autoComplete="false"
+                    data-form-type="other"
+                    data-lpignore={true}
+                    aria-label="Email automation name"
+                    data-1p-ignore={true}
+                    data-bwignore={true}
+                    data-icloud-keychain-ignore={true}
+                    className="pe-16"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    {field.value.length} / 60
+                  </span>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter automation description..."
-                  {...field}
-                  type="text"
-                  disabled={isLoading}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck="false"
-                  data-form-type="other"
-                  data-lpignore="true"
-                  name="automation_description_field"
-                  aria-label="Automation description"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create Automation"}
-        </Button>
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsNewEmailAutomationOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Creating..." : "Create Automation"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
