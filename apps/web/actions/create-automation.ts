@@ -1,7 +1,7 @@
 "use server";
 
 import type { ActionResponse } from "@/types/action";
-import { createAutomation } from "@church-space/supabase/mutations/automations";
+import { createEmailAutomation } from "@church-space/supabase/mutations/automations";
 import { createClient } from "@church-space/supabase/server";
 
 import { z } from "zod";
@@ -33,7 +33,7 @@ export const createAutomationAction = authActionClient
     try {
       const supabase = await createClient();
 
-      const { data, error } = (await createAutomation(supabase, {
+      const { data, error } = (await createEmailAutomation(supabase, {
         organization_id: parsedInput.parsedInput.organization_id,
         name: parsedInput.parsedInput.name,
         description: parsedInput.parsedInput.description,
