@@ -1,60 +1,63 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createClient } from "@church-space/supabase/client";
-import {
-  getAllEmailAutomations,
-  getEmailAutomationsCount,
-} from "@church-space/supabase/queries/all/get-all-email-automations";
+import { getEmailAutomations } from "@/actions/get-email-automations";
+import type { EmailAutomation } from "@/components/tables/automations/columns";
 
-const ITEMS_PER_PAGE = 25;
+interface UseEmailAutomationsOptions {
+  initialData?: {
+    pages: Array<{
+      data: EmailAutomation[];
+      count: number;
+      nextPage: number | undefined;
+    }>;
+    pageParams: number[];
+  };
+}
 
 export function useEmailAutomations(
   organizationId: string,
   searchTerm?: string,
   isActive?: boolean,
+  options?: UseEmailAutomationsOptions,
 ) {
-  const supabase = createClient();
-
   return useInfiniteQuery({
     queryKey: ["email-automations", organizationId, searchTerm, isActive],
     queryFn: async ({ pageParam = 0 }) => {
-      const from = pageParam * ITEMS_PER_PAGE;
-      const to = from + ITEMS_PER_PAGE - 1;
-
-      // Get email automations data
-      const { data, error } = await getAllEmailAutomations(
-        supabase,
+      const result = await getEmailAutomations({
         organizationId,
-        {
-          start: from,
-          end: to,
-          searchTerm,
-          isActive,
-        },
-      );
+        page: pageParam,
+        searchTerm,
+        isActive,
+      });
 
-      if (error) throw error;
+      if (!result) {
+        throw new Error("Failed to fetch emails");
+      }
 
-      // Get total count
-      const { count } = await getEmailAutomationsCount(
-        supabase,
-        organizationId,
-        {
-          searchTerm,
-          isActive,
-        },
-      );
+      if (result.validationErrors) {
+        throw new Error(Object.values(result.validationErrors).join(", "));
+      }
 
-      const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+      if (!result.data) {
+        throw new Error("No data returned from server");
+      }
 
       return {
-        data: data ?? [],
-        nextPage: hasNextPage ? pageParam + 1 : undefined,
-        count,
+        data:
+          (result.data.data?.map((emailAutomation) => ({
+            ...emailAutomation,
+          })) as EmailAutomation[]) ?? [],
+        count: result.data.count ?? 0,
+        nextPage: result.data.nextPage,
       };
     },
+
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
+    initialData: options?.initialData,
     staleTime: 60000,
     gcTime: 60000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 }
