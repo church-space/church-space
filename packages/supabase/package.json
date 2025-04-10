@@ -68,6 +68,7 @@
     "./queries/all/get-default-footer": "./src/queries/all/get-default-footer.ts",
     "./queries/all/get-sent-email-stats": "./src/queries/all/get-sent-email-stats.ts",
     "./queries/cached/qr": "./src/queries/cached/qr.ts",
-    "./queries/all/get-email-recipients": "./src/queries/all/get-email-recipients.ts"
+    "./queries/all/get-email-recipients": "./src/queries/all/get-email-recipients.ts",
+    "./queries/all/get-email-automation": "./src/queries/all/get-email-automation.ts"
   }
 }

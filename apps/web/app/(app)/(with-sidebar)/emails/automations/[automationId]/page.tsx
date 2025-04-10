@@ -30,29 +30,61 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Edit, Ellipsis, LinkIcon, LoaderIcon, Trash } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import AutomationBuilder from "@/components/automation-builder/automation-builder";
 import { DisableLink } from "@church-space/ui/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 import { useUser } from "@/stores/use-user";
+import { getEmailAutomationAction } from "@/actions/get-email-automation";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 
 export default function Page() {
+  const params = useParams();
+  const automationId = parseInt(params.automationId as string, 10);
+  const { organizationId } = useUser();
+  const isMobile = useIsMobile();
+
+  const { data: automationResponse, isLoading: isLoadingAutomation } = useQuery(
+    {
+      queryKey: ["email-automation", automationId],
+      queryFn: () =>
+        getEmailAutomationAction({
+          automationId: automationId,
+        }),
+    },
+  );
+
+  const automation = automationResponse?.data;
+
   const [isEditingLink, setIsEditingLink] = useState(false);
-  const [editedLinkName, setEditedLinkName] = useState("Testing Automation");
+  const [editedLinkName, setEditedLinkName] = useState("");
   const [linkErrors] = useState({
     name: null,
     url: null,
   });
   const [editedLinkStatus] = useState("active");
-  const [editedLinkDescription, setEditedLinkDescription] = useState("Testing");
+  const [editedLinkDescription, setEditedLinkDescription] = useState("");
   const [isDeletingLink, setIsDeletingLink] = useState(false);
   const [isUpdatingStatus] = useState(false);
   const [isDeleting] = useState(false);
 
-  const { organizationId } = useUser();
+  // Update the state when automation data is loaded
+  useEffect(() => {
+    if (automation) {
+      setEditedLinkName(automation.data?.name || "");
+      setEditedLinkDescription(automation.data?.description || "");
+    }
+  }, [automation]);
 
-  const isMobile = useIsMobile();
+  if (isLoadingAutomation) {
+    return <div>Loading...</div>;
+  }
+
+  if (!automation) {
+    return <div>Automation not found</div>;
+  }
 
   const handleStatusToggle = () => {
     // TODO: Implement status toggle
@@ -92,7 +124,7 @@ export default function Page() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Automation Name</BreadcrumbPage>
+                <BreadcrumbPage>{automation.data?.name}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -157,7 +189,7 @@ export default function Page() {
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
                     <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
-                      {editedLinkName}
+                      {automation.data?.name}
                     </h2>
                     {editedLinkStatus === "inactive" && (
                       <Badge variant="outline">Disabled</Badge>
@@ -166,7 +198,7 @@ export default function Page() {
                   <Edit className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
                 <p className="mt-1 text-muted-foreground">
-                  {editedLinkDescription}
+                  {automation.data?.description}
                 </p>
               </div>
             )}
