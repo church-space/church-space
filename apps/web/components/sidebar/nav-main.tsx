@@ -20,6 +20,40 @@ import { getEmailCategories } from "@/actions/get-all-email-categories";
 import { getQrLinks } from "@/actions/get-qr-links";
 import { useUser } from "@/stores/use-user";
 import { useCallback } from "react";
+import { useInView } from "react-intersection-observer";
+import React from "react";
+
+// NavItem wrapper component that handles intersection observer
+function NavItem({
+  url,
+  children,
+}: {
+  url: string;
+  children: React.ReactNode;
+}) {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+  const { prefetchData } = NavMain.useNavContext();
+
+  // Prefetch data when item comes into view
+  React.useEffect(() => {
+    if (inView) {
+      prefetchData(url);
+    }
+  }, [inView, url, prefetchData]);
+
+  return <div ref={ref}>{children}</div>;
+}
+
+// Context for sharing prefetchData function
+const NavContext = React.createContext<{ prefetchData: (url: string) => void }>(
+  { prefetchData: () => {} },
+);
+
+// Custom hook to use nav context
+NavMain.useNavContext = () => React.useContext(NavContext);
 
 export function NavMain({
   items,
@@ -321,85 +355,94 @@ export function NavMain({
   );
 
   return (
-    <SidebarGroup>
-      <SidebarMenu>
-        {items.map((item) => {
-          const isActive =
-            pathname === item.url ||
-            pathname.startsWith(item.url + "/") ||
-            (item.submenu?.some(
-              (sub) =>
-                pathname === sub.url || pathname.startsWith(sub.url + "/"),
-            ) ??
-              false);
+    <NavContext.Provider value={{ prefetchData }}>
+      <SidebarGroup>
+        <SidebarMenu>
+          {items.map((item) => {
+            const isActive =
+              pathname === item.url ||
+              pathname.startsWith(item.url + "/") ||
+              (item.submenu?.some(
+                (sub) =>
+                  pathname === sub.url || pathname.startsWith(sub.url + "/"),
+              ) ??
+                false);
 
-          return (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                tooltip={item.title}
-                className={cn(
-                  "rounded-lg text-muted-foreground hover:text-foreground",
-                  isActive &&
-                    "border border-muted-foreground/20 bg-background text-foreground shadow-sm",
-                  !isActive && "hover:bg-transparent",
+            return (
+              <SidebarMenuItem key={item.title}>
+                <NavItem url={item.url}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    className={cn(
+                      "rounded-lg text-muted-foreground hover:text-foreground",
+                      isActive &&
+                        "border border-muted-foreground/20 bg-background text-foreground shadow-sm",
+                      !isActive && "hover:bg-transparent",
+                    )}
+                  >
+                    <Link
+                      href={item.url}
+                      prefetch={true}
+                      scroll={false}
+                      shallow={true}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </NavItem>
+                {item.submenu && isActive && (
+                  <SidebarMenuSub className="gap-0">
+                    {item.submenu?.map((submenuItem) => (
+                      <SidebarMenuItem key={submenuItem.title}>
+                        <NavItem url={submenuItem.url}>
+                          <SidebarMenuButton
+                            asChild
+                            tooltip={submenuItem.title}
+                            className={cn(
+                              "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
+                              (item.title === "Settings"
+                                ? pathname === submenuItem.url
+                                : item.title === "Email"
+                                  ? submenuItem.url === "/emails"
+                                    ? pathname === "/emails" ||
+                                      (pathname.startsWith("/emails/") &&
+                                        !pathname.startsWith(
+                                          "/emails/templates",
+                                        ) &&
+                                        !pathname.startsWith(
+                                          "/emails/automations",
+                                        ) &&
+                                        !pathname.startsWith(
+                                          "/emails/categories",
+                                        ))
+                                    : pathname.startsWith(submenuItem.url)
+                                  : pathname === submenuItem.url ||
+                                    pathname.startsWith(
+                                      submenuItem.url + "/",
+                                    )) && "text-foreground",
+                            )}
+                          >
+                            <Link
+                              href={submenuItem.url}
+                              prefetch={true}
+                              scroll={false}
+                              shallow={true}
+                            >
+                              <span>{submenuItem.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </NavItem>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenuSub>
                 )}
-              >
-                <Link
-                  href={item.url}
-                  prefetch={true}
-                  onMouseEnter={() => handleMouseEnter(item.url)}
-                  scroll={false}
-                  shallow={true}
-                >
-                  <item.icon />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-              {item.submenu && isActive && (
-                <SidebarMenuSub className="gap-0">
-                  {item.submenu?.map((submenuItem) => (
-                    <SidebarMenuItem key={submenuItem.title}>
-                      <SidebarMenuButton
-                        asChild
-                        tooltip={submenuItem.title}
-                        className={cn(
-                          "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
-                          (item.title === "Settings"
-                            ? pathname === submenuItem.url
-                            : item.title === "Email"
-                              ? submenuItem.url === "/emails"
-                                ? pathname === "/emails" ||
-                                  (pathname.startsWith("/emails/") &&
-                                    !pathname.startsWith("/emails/templates") &&
-                                    !pathname.startsWith(
-                                      "/emails/automations",
-                                    ) &&
-                                    !pathname.startsWith("/emails/categories"))
-                                : pathname.startsWith(submenuItem.url)
-                              : pathname === submenuItem.url ||
-                                pathname.startsWith(submenuItem.url + "/")) &&
-                            "text-foreground",
-                        )}
-                      >
-                        <Link
-                          href={submenuItem.url}
-                          prefetch={true}
-                          onMouseEnter={() => handleMouseEnter(submenuItem.url)}
-                          scroll={false}
-                          shallow={true}
-                        >
-                          <span>{submenuItem.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenuSub>
-              )}
-            </SidebarMenuItem>
-          );
-        })}
-      </SidebarMenu>
-    </SidebarGroup>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroup>
+    </NavContext.Provider>
   );
 }
