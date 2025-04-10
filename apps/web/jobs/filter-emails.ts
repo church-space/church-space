@@ -288,10 +288,13 @@ export const filterEmailRecipients = task({
         ) || [],
       );
 
-      // Step 7: Filter out unsubscribed emails
+      // Step 7: Filter out unsubscribed emails and no-reply addresses
       const filteredEmails = peopleEmails.filter(
         (emailRecord) =>
-          !unsubscribedEmails.has(emailRecord.email.toLowerCase()),
+          !unsubscribedEmails.has(emailRecord.email.toLowerCase()) &&
+          !emailRecord.email.toLowerCase().includes("no-reply") &&
+          !emailRecord.email.toLowerCase().includes("noreply") &&
+          !emailRecord.email.toLowerCase().includes("no_reply"),
       );
 
       if (filteredEmails.length === 0) {
