@@ -430,16 +430,7 @@ export default function DndBuilderSidebar({
             >
               <div className="grid grid-cols-3 gap-2 p-4">
                 {blockTypes.map((block) => (
-                  <div
-                    key={block.type}
-                    className={cn(
-                      "flex flex-col items-center gap-1 rounded-md border bg-background p-5 shadow-sm",
-                      className,
-                    )}
-                  >
-                    <block.icon />
-                    <span>{block.label}</span>
-                  </div>
+                  <DraggableBlock key={block.type} block={block} />
                 ))}
               </div>
             </PopoverContent>

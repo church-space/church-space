@@ -586,8 +586,10 @@ export default function EmailDndProvider({
                 updateBlocksHistory(updatedBlocks);
               }
 
-              // Set the newly created block as the selected block
-              setSelectedBlockId(result.id.toString());
+              if (!isMobile) {
+                // Set the newly created block as the selected block
+                setSelectedBlockId(result.id.toString());
+              }
 
               // Update the order of all blocks in the database to match their position in the UI
               // This ensures blocks after the insertion point have their order properly updated
