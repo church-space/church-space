@@ -962,8 +962,10 @@ export default function PreSendPage({
       </motion.div>
       {email.status === "failed" && (
         <motion.div
-          className="mx-auto mt-4 w-full max-w-3xl px-4"
+          initial="hidden"
+          animate="visible"
           variants={itemVariants}
+          className="mx-auto mt-4 w-full max-w-3xl px-4"
         >
           <Card className="mx-auto w-full rounded-md border-destructive bg-destructive/10 shadow-sm">
             <CardHeader className="pb-2">

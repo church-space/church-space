@@ -301,7 +301,11 @@ export default function PostSendPage({
           </Dialog>
         </motion.div>
         {email.error_message && (
-          <motion.div variants={itemVariants}>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={itemVariants}
+          >
             <Card className="mx-auto w-full border-destructive bg-destructive/10">
               <CardHeader className="pb-2">
                 <CardTitle className="text-foreground">
