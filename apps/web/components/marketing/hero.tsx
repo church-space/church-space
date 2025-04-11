@@ -6,6 +6,7 @@ import {
   Waypoints,
 } from "@church-space/ui/icons";
 import { createClient } from "@church-space/supabase/server";
+import Link from "next/link";
 
 export default async function Hero() {
   const supabase = await createClient();
@@ -29,11 +30,16 @@ export default async function Hero() {
         <div className="mx-auto flex items-center justify-center gap-4">
           {!isLoggedIn ? (
             <>
-              <Button>Get Started</Button>
+              <Link href="/signup">
+                <Button>Get Started</Button>
+              </Link>
+
               <Button variant="outline">Learn More</Button>
             </>
           ) : (
-            <Button>Go to Dashboard</Button>
+            <Link href="/emails">
+              <Button>Go to Dashboard</Button>
+            </Link>
           )}
         </div>
       </div>
