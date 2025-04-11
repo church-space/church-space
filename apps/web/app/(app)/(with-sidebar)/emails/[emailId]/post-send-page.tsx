@@ -52,6 +52,28 @@ import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
 import { getEmailRecipientsAction } from "@/actions/get-email-recipients";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.25,
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.25 },
+  },
+};
 
 export default function PostSendPage({
   initialEmail,
@@ -244,8 +266,16 @@ export default function PostSendPage({
         </div>
         <div className="flex items-center gap-2 px-4"></div>
       </header>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4">
-        <div className="mb-4 flex flex-row items-center justify-between">
+      <motion.div
+        className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        <motion.div
+          className="mb-4 flex flex-row items-center justify-between"
+          variants={itemVariants}
+        >
           <h1 className="text-2xl font-bold">{email?.subject}</h1>
 
           <Dialog
@@ -269,30 +299,35 @@ export default function PostSendPage({
               <EmailPreview />
             </DialogContent>
           </Dialog>
-        </div>
+        </motion.div>
         {email.error_message && (
-          <Card className="mx-auto w-full border-destructive bg-destructive/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-foreground">
-                Email Sent with an Error
-              </CardTitle>
-            </CardHeader>
-            {email.error_message && (
-              <CardContent className="mx-6 mb-4 mt-2 rounded-md border border-destructive bg-muted px-3 pb-2 pt-2 font-mono text-sm">
-                {email.error_message}
-              </CardContent>
-            )}
-            <CardFooter>
-              <Link
-                href={`mailto:support@churchspace.co?subject=Email%20Failed%20to%20Send&body=My%20email%20failed%20to%20send.%20Can%20you%20please%20investigate%20and%20let%20me%20know%20what%20to%20do%3F%0A%0AEmail%20ID%3A%20${email.id}${email.error_message ? `%0A%0AError%20Message%3A%20${encodeURIComponent(email.error_message)}` : ""}%0A%0AThanks!`}
-              >
-                <Button variant="outline">Contact Support</Button>
-              </Link>
-            </CardFooter>
-          </Card>
+          <motion.div variants={itemVariants}>
+            <Card className="mx-auto w-full border-destructive bg-destructive/10">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-foreground">
+                  Email Sent with an Error
+                </CardTitle>
+              </CardHeader>
+              {email.error_message && (
+                <CardContent className="mx-6 mb-4 mt-2 rounded-md border border-destructive bg-muted px-3 pb-2 pt-2 font-mono text-sm">
+                  {email.error_message}
+                </CardContent>
+              )}
+              <CardFooter>
+                <Link
+                  href={`mailto:support@churchspace.co?subject=Email%20Failed%20to%20Send&body=My%20email%20failed%20to%20send.%20Can%20you%20please%20investigate%20and%20let%20me%20know%20what%20to%20do%3F%0A%0AEmail%20ID%3A%20${email.id}${email.error_message ? `%0A%0AError%20Message%3A%20${encodeURIComponent(email.error_message)}` : ""}%0A%0AThanks!`}
+                >
+                  <Button variant="outline">Contact Support</Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          </motion.div>
         )}
 
-        <div className="grid gap-4 lg:grid-cols-2">
+        <motion.div
+          className="grid gap-4 lg:grid-cols-2"
+          variants={itemVariants}
+        >
           <Card>
             <CardHeader className="pb-4">
               <CardTitle>Details</CardTitle>
@@ -399,8 +434,11 @@ export default function PostSendPage({
               </Table>
             </CardContent>
           </Card>
-        </div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        </motion.div>
+        <motion.div
+          className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4"
+          variants={itemVariants}
+        >
           {emailStats.map((stat, index) => (
             <Card
               key={index}
@@ -459,11 +497,17 @@ export default function PostSendPage({
               </div>
             </Card>
           ))}
-        </div>
-        <div className="flex -translate-y-2 justify-end text-xs text-muted-foreground">
+        </motion.div>
+        <motion.div
+          className="flex -translate-y-2 justify-end text-xs text-muted-foreground"
+          variants={itemVariants}
+        >
           * Stats updated once per hour for the first week after sending.
-        </div>
-        <div className="mt-8 flex flex-col gap-4">
+        </motion.div>
+        <motion.div
+          className="mt-8 flex flex-col gap-4"
+          variants={itemVariants}
+        >
           <div className="flex items-center gap-3 text-lg font-bold">
             <div className="border-purple -500 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-purple-500/10 text-purple-500">
               <Users height={"20"} width={"20"} />
@@ -483,8 +527,8 @@ export default function PostSendPage({
             initialSearch={search ?? ""}
             initialStatus={status ?? "all"}
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </>
   );
 }
