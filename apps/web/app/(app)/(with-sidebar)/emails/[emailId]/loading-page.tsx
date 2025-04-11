@@ -39,15 +39,7 @@ export default function LoadingPage() {
         </div>
       </header>
       <div className="mx-auto mb-6 mt-8 flex w-full max-w-3xl items-center justify-between px-5">
-        <div className="text-2xl font-bold text-muted-foreground">
-          Loading...
-        </div>
-      </div>
-      <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-between gap-4 px-5">
-        <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-16 w-full" />
+        <div className="text-muted-foreground">Loading...</div>
       </div>
     </>
   );

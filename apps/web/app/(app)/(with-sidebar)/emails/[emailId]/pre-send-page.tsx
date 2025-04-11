@@ -27,6 +27,7 @@ import {
   LoaderIcon,
 } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 import DomainSelector from "@/components/id-pages/emails/domain-selector";
 import ListSelector from "@/components/id-pages/emails/list-selector";
@@ -107,6 +108,28 @@ function SaveButtons(props: {
     </div>
   );
 }
+
+// Add this after the imports
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5 },
+  },
+};
 
 export default function PreSendPage({
   email: initialEmail,
@@ -918,17 +941,30 @@ export default function PreSendPage({
           </Dialog>
         </div>
       </header>
-      <div className="mx-auto mb-2 mt-8 flex w-full max-w-3xl items-center justify-between px-5">
+      <motion.div
+        className="mx-auto mb-2 mt-8 flex w-full max-w-3xl items-center justify-between px-5"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
         {subject ? (
-          <div className="text-2xl font-bold">{subject}</div>
+          <motion.div className="text-2xl font-bold" variants={itemVariants}>
+            {subject}
+          </motion.div>
         ) : (
-          <div className="text-2xl font-bold text-muted-foreground">
+          <motion.div
+            className="text-2xl font-bold text-muted-foreground"
+            variants={itemVariants}
+          >
             Subject
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
       {email.status === "failed" && (
-        <div className="mx-auto mt-4 w-full max-w-3xl px-4">
+        <motion.div
+          className="mx-auto mt-4 w-full max-w-3xl px-4"
+          variants={itemVariants}
+        >
           <Card className="mx-auto w-full rounded-md border-destructive bg-destructive/10 shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-foreground">
@@ -948,442 +984,461 @@ export default function PreSendPage({
               </Link>
             </CardFooter>
           </Card>
-        </div>
+        </motion.div>
       )}
-      <Accordion
-        type="single"
-        collapsible
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
         className="mx-auto w-full max-w-3xl space-y-4 px-4 py-4"
-        value={activeAccordion || undefined}
-        onValueChange={handleAccordionChange}
       >
-        <AccordionItem
-          value="to"
-          className={cn(
-            accordionWithPreventedClose === "to" &&
-              "rounded-lg ring-2 ring-destructive",
-          )}
+        <Accordion
+          type="single"
+          collapsible
+          value={activeAccordion || undefined}
+          onValueChange={handleAccordionChange}
+          className="space-y-4"
         >
-          <AccordionTrigger className="text-md font-semibold">
-            <div className="flex items-center gap-3">
-              {email.list_id ? (
-                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
-              ) : (
-                <CircleDashed height={"24"} width={"24"} />
+          <motion.div variants={itemVariants}>
+            <AccordionItem
+              value="to"
+              className={cn(
+                accordionWithPreventedClose === "to" &&
+                  "rounded-lg ring-2 ring-destructive",
               )}
-              <div className="flex flex-col">
-                <span>To</span>
-                <span className="text-sm font-normal text-muted-foreground">
-                  <span className="font-medium">
-                    {listId
-                      ? `${listData?.data?.[0]?.pco_list_description || "Loading..."}`
-                      : ""}
-                  </span>{" "}
-                  {listId &&
-                    (listData?.data?.[0]?.pco_total_people || "Loading...") +
-                      " " +
-                      (listData?.data?.[0]?.pco_total_people === "1"
-                        ? "person"
-                        : "people")}
-                </span>
-              </div>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="space-y-4">
-            <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">
-                List <span className="text-destructive">*</span>
-              </Label>
-              <ListSelector
-                value={listId}
-                onChange={setListId}
-                organizationId={email.organization_id}
-              />
-              <div className="flex flex-col px-2">
-                {listData?.data?.[0]?.pco_list_categories?.pco_name && (
-                  <span className="text-sm text-muted-foreground">
-                    <span className="font-semibold">Category:</span>{" "}
-                    {listData?.data?.[0]?.pco_list_categories?.pco_name}
-                  </span>
-                )}
-                {listData?.data?.[0]?.pco_total_people && (
-                  <span className="text-sm text-muted-foreground">
-                    <span className="font-semibold">Total People:</span>{" "}
-                    {listData?.data?.[0]?.pco_total_people}{" "}
-                  </span>
-                )}
-              </div>
-              <p className="px-2 text-xs text-muted-foreground">
-                Select the list from PCO that you would like to send this email
-                to. If they are unsubscribed from the PCO List Cateogry, the
-                person will not recieve the email. Learn more about how
-                unsubscribes work here.
-              </p>
-            </div>
-            <SaveButtons
-              isSaving={toIsSaving}
-              hasChanges={toHasChanges}
-              setIsSaving={setToIsSaving}
-              onSave={saveToSection}
-              onCancel={resetToSection}
-            />
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem
-          value="from"
-          className={cn(
-            accordionWithPreventedClose === "from" &&
-              "rounded-lg ring-2 ring-destructive",
-          )}
-        >
-          <AccordionTrigger className="text-md font-semibold">
-            <div className="flex items-center gap-3">
-              {email.from_name &&
-              email.from_email &&
-              email.from_email_domain ? (
-                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
-              ) : (
-                <CircleDashed height={"24"} width={"24"} />
-              )}
-              <div className="flex flex-col">
-                <span>From</span>
-                <span className="text-sm font-normal text-muted-foreground">
-                  {fromName
-                    ? `${fromName} <${fromEmail}@${fromDomainData?.data?.[0]?.domain || ""}>`
-                    : fromEmail && fromDomain
-                      ? `${fromEmail}@${fromDomainData?.data?.[0]?.domain || ""}`
-                      : "No sender information"}
-                </span>
-              </div>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="space-y-3">
-            <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">
-                From Email <span className="text-destructive">*</span>
-              </Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Enter from"
-                  value={fromEmail}
-                  onChange={handleFromEmailChange}
-                  maxLength={50}
-                />
-                <span className="mb-1 leading-none">@</span>
-                <DomainSelector
-                  organizationId={email.organization_id}
-                  onChange={(value) => setFromDomain(value)}
-                  value={fromDomain}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">
-                From Name <span className="text-destructive">*</span>
-              </Label>
-              <div className="relative">
-                <Input
-                  placeholder="Name"
-                  className="pr-8"
-                  value={fromName}
-                  onChange={(e) => setFromName(e.target.value)}
-                  maxLength={50}
-                />
-                <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
-                  {fromName.length} / 50
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">Reply To</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Enter reply to"
-                  value={replyToEmail}
-                  onChange={handleReplyToEmailChange}
-                  maxLength={50}
-                />
-                <span className="mb-1 leading-none">@</span>
-                <DomainSelector
-                  organizationId={email.organization_id}
-                  onChange={(value) => setReplyToDomain(value)}
-                  value={replyToDomain}
-                />
-              </div>
-            </div>
-            <SaveButtons
-              isSaving={fromIsSaving}
-              hasChanges={fromHasChanges}
-              setIsSaving={setFromIsSaving}
-              onSave={saveFromSection}
-              onCancel={resetFromSection}
-            />
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem
-          value="subject"
-          className={cn(
-            accordionWithPreventedClose === "subject" &&
-              "rounded-lg ring-2 ring-destructive",
-          )}
-        >
-          <AccordionTrigger className="text-md font-semibold">
-            <div className="flex items-center gap-3">
-              {email.subject ? (
-                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
-              ) : (
-                <CircleDashed height={"24"} width={"24"} />
-              )}
-              <div className="flex flex-col">
-                <span>Subject</span>
-                <span className="text-sm font-normal text-muted-foreground">
-                  {subject || "No subject set"}
-                </span>
-              </div>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="space-y-3">
-            <div className="flex flex-col gap-2">
-              <Label className="ml-0.5">
-                Subject <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                placeholder="Enter subject"
-                value={subject}
-                maxLength={60}
-                onChange={(e) => setSubject(e.target.value.slice(0, 60))}
-              />
-              {subject && (
-                <div
-                  className={cn(
-                    "flex flex-col gap-1 rounded-md border px-4 py-2.5",
-                    hasWarnings
-                      ? "border-amber-500 bg-amber-500/10"
-                      : "border-green-500 bg-green-500/10",
-                  )}
-                >
-                  {tooManyWords && (
-                    <span className="text-amber-600">
-                      Warning: Subject has {wordCount} words. Consider using 9
-                      or fewer words.
-                    </span>
-                  )}
-                  {tooManyChars && (
-                    <span className="text-amber-600">
-                      Warning: Subject has {charCount} characters. Consider
-                      keeping it under 60 characters.
-                    </span>
-                  )}
-                  {tooManyEmojis && (
-                    <span className="text-amber-600">
-                      Warning: Subject has {emojiCount} emojis. Consider using 2
-                      or fewer emojis.
-                    </span>
-                  )}
-                  {tooManyPunctuations && (
-                    <span className="text-amber-600">
-                      Warning: Subject has {punctuationCount} punctuation marks.
-                      Consider using 2 or fewer.
-                    </span>
-                  )}
-                  {!hasWarnings && (
-                    <span className="text-green-600">
-                      Good! Your subject meets all recommended guidelines.
-                    </span>
-                  )}
-                  <span className="text-xs text-muted-foreground">
-                    {wordCount} words | {charCount}/60 characters | {emojiCount}{" "}
-                    emojis | {punctuationCount} punctuation marks
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <SaveButtons
-              isSaving={subjectIsSaving}
-              hasChanges={subjectHasChanges}
-              setIsSaving={setSubjectIsSaving}
-              onSave={saveSubjectSection}
-              onCancel={resetSubjectSection}
-            />
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem
-          value="schedule"
-          className={cn(
-            accordionWithPreventedClose === "schedule" &&
-              "rounded-lg ring-2 ring-destructive",
-          )}
-        >
-          <AccordionTrigger className="text-md font-semibold">
-            <div className="flex items-center gap-3">
-              {email.scheduled_for || email.send_now ? (
-                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
-              ) : (
-                <CircleDashed height={"24"} width={"24"} />
-              )}
-              <div className="flex flex-col">
-                <span>Send Time</span>
-                <span className="text-sm font-normal text-muted-foreground">
-                  {email.scheduled_for
-                    ? `Schedule for ${format(new Date(email.scheduled_for), "MMMM d, yyyy h:mm a")} in ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`
-                    : email.send_now
-                      ? "Send this email by clicking the send button in the top right corner of this page."
-                      : "No send time selected"}
-                </span>
-              </div>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent>
-            <Tabs
-              defaultValue=""
-              onValueChange={(value) => {
-                setIsScheduled(value as "schedule" | "send-now" | "");
-                if (value === "send-now") {
-                  setSendDate(null);
-                  setSendNow(true);
-                  setScheduleHasChanges(true);
-                } else if (value === "schedule") {
-                  setSendNow(false);
-                  setScheduleHasChanges(true);
-                } else {
-                  setSendDate(null);
-                  setSendNow(false);
-                  setScheduleHasChanges(true);
-                }
-              }}
-              value={isScheduled}
             >
-              <TabsList className="h-10 w-full">
-                <TabsTrigger className="h-full w-full" value="schedule">
-                  Schedule
-                </TabsTrigger>
-                <TabsTrigger className="h-full w-full" value="send-now">
-                  Send Now
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="schedule" className="space-y-3 pt-2">
+              <AccordionTrigger className="text-md font-semibold">
+                <div className="flex items-center gap-3">
+                  {email.list_id ? (
+                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                  ) : (
+                    <CircleDashed height={"24"} width={"24"} />
+                  )}
+                  <div className="flex flex-col">
+                    <span>To</span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      <span className="font-medium">
+                        {listId
+                          ? `${listData?.data?.[0]?.pco_list_description || "Loading..."}`
+                          : ""}
+                      </span>{" "}
+                      {listId &&
+                        (listData?.data?.[0]?.pco_total_people ||
+                          "Loading...") +
+                          " " +
+                          (listData?.data?.[0]?.pco_total_people === "1"
+                            ? "person"
+                            : "people")}
+                    </span>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-4">
                 <div className="flex flex-col gap-2">
                   <Label className="ml-0.5">
-                    Send Date and Time{" "}
-                    <span className="text-destructive">*</span>
+                    List <span className="text-destructive">*</span>
                   </Label>
-                  <DateTimePicker
-                    placeholder="Select a date and time"
-                    disabledPast
-                    minFutureMinutes={10}
-                    granularity="minute"
-                    yearRange={1}
-                    hourCycle={12}
-                    onChange={(date) => {
-                      if (date) {
-                        // Validate that the date is not more than a year in the future
-                        const now = new Date();
-                        const oneYearFromNow = new Date();
-                        oneYearFromNow.setFullYear(now.getFullYear() + 1);
-
-                        if (date > oneYearFromNow) {
-                          toast({
-                            title: "Invalid schedule time",
-                            description:
-                              "Email cannot be scheduled more than a year in the future.",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-
-                        setSendDate(date);
-                      }
-                    }}
-                    value={sendDate ?? undefined}
+                  <ListSelector
+                    value={listId}
+                    onChange={setListId}
+                    organizationId={email.organization_id}
                   />
-                </div>
-                {sendDate && (
-                  <div className="mt-1 text-sm text-muted-foreground">
-                    This email will be sent at{" "}
-                    {format(sendDate, "MMMM d, yyyy h:mm a")} in{" "}
-                    <span className="text-primary underline">
-                      {Intl.DateTimeFormat().resolvedOptions().timeZone}
-                    </span>{" "}
-                    time.
+                  <div className="flex flex-col px-2">
+                    {listData?.data?.[0]?.pco_list_categories?.pco_name && (
+                      <span className="text-sm text-muted-foreground">
+                        <span className="font-semibold">Category:</span>{" "}
+                        {listData?.data?.[0]?.pco_list_categories?.pco_name}
+                      </span>
+                    )}
+                    {listData?.data?.[0]?.pco_total_people && (
+                      <span className="text-sm text-muted-foreground">
+                        <span className="font-semibold">Total People:</span>{" "}
+                        {listData?.data?.[0]?.pco_total_people}{" "}
+                      </span>
+                    )}
                   </div>
-                )}
-                <div className="rounded-md border bg-muted p-3 text-sm text-muted-foreground">
-                  The email will not be offically scheduled until you hit the
-                  &quot;Schedule&quot; button in the top right corner of this
-                  page.
+                  <p className="px-2 text-xs text-muted-foreground">
+                    Select the list from PCO that you would like to send this
+                    email to. If they are unsubscribed from the PCO List
+                    Cateogry, the person will not recieve the email. Learn more
+                    about how unsubscribes work here.
+                  </p>
                 </div>
-              </TabsContent>
-              <TabsContent
-                value="send-now"
-                className="mt-4 text-sm text-muted-foreground"
-              >
-                This email will be sent once the click the send button in the
-                top right corner.
-              </TabsContent>
-            </Tabs>
-            <SaveButtons
-              isSaving={scheduleIsSaving}
-              hasChanges={scheduleHasChanges}
-              setIsSaving={setScheduleIsSaving}
-              onSave={saveScheduleSection}
-              onCancel={resetScheduleSection}
-            />
-          </AccordionContent>
-        </AccordionItem>
-        <div className="flex flex-1 cursor-pointer items-center justify-between rounded-lg border bg-card py-4 pl-6 pr-5 text-left font-medium transition-all hover:bg-accent/50">
-          <ProtectedLink
-            href={`/emails/${email.id}/editor`}
-            className="group/link flex w-full items-center gap-3"
-          >
-            <span className="text-muted-foreground">
-              {emailBlockCount > 0 ? (
-                <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
-              ) : (
-                <CircleDashed height={"24"} width={"24"} />
+                <SaveButtons
+                  isSaving={toIsSaving}
+                  hasChanges={toHasChanges}
+                  setIsSaving={setToIsSaving}
+                  onSave={saveToSection}
+                  onCancel={resetToSection}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <AccordionItem
+              value="from"
+              className={cn(
+                accordionWithPreventedClose === "from" &&
+                  "rounded-lg ring-2 ring-destructive",
               )}
-            </span>
-            <div className="flex flex-col">
-              <span className="text-md font-semibold">Content</span>
-              <span className="text-sm font-normal text-muted-foreground">
-                {emailBlockCount > 0
-                  ? `${emailBlockCount} block${emailBlockCount === 1 ? "" : "s"}`
-                  : "No content created yet"}
-              </span>
-            </div>
-          </ProtectedLink>
-          <div className="flex items-center gap-1">
-            <Dialog
-              open={previewOpen === "true"}
-              onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
             >
-              <DialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setPreviewOpen("true");
-                  }}
-                >
-                  <span className="hidden md:block">Preview</span>
-                  <span className="block md:hidden">
-                    <Eye />
-                  </span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="h-[95%] min-w-[95%] p-4">
-                <DialogHeader className="sr-only">
-                  <DialogTitle>Preview</DialogTitle>
-                </DialogHeader>
+              <AccordionTrigger className="text-md font-semibold">
+                <div className="flex items-center gap-3">
+                  {email.from_name &&
+                  email.from_email &&
+                  email.from_email_domain ? (
+                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                  ) : (
+                    <CircleDashed height={"24"} width={"24"} />
+                  )}
+                  <div className="flex flex-col">
+                    <span>From</span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {fromName
+                        ? `${fromName} <${fromEmail}@${fromDomainData?.data?.[0]?.domain || ""}>`
+                        : fromEmail && fromDomain
+                          ? `${fromEmail}@${fromDomainData?.data?.[0]?.domain || ""}`
+                          : "No sender information"}
+                    </span>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-3">
+                <div className="flex flex-col gap-2">
+                  <Label className="ml-0.5">
+                    From Email <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Enter from"
+                      value={fromEmail}
+                      onChange={handleFromEmailChange}
+                      maxLength={50}
+                    />
+                    <span className="mb-1 leading-none">@</span>
+                    <DomainSelector
+                      organizationId={email.organization_id}
+                      onChange={(value) => setFromDomain(value)}
+                      value={fromDomain}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label className="ml-0.5">
+                    From Name <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Name"
+                      className="pr-8"
+                      value={fromName}
+                      onChange={(e) => setFromName(e.target.value)}
+                      maxLength={50}
+                    />
+                    <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                      {fromName.length} / 50
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label className="ml-0.5">Reply To</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Enter reply to"
+                      value={replyToEmail}
+                      onChange={handleReplyToEmailChange}
+                      maxLength={50}
+                    />
+                    <span className="mb-1 leading-none">@</span>
+                    <DomainSelector
+                      organizationId={email.organization_id}
+                      onChange={(value) => setReplyToDomain(value)}
+                      value={replyToDomain}
+                    />
+                  </div>
+                </div>
+                <SaveButtons
+                  isSaving={fromIsSaving}
+                  hasChanges={fromHasChanges}
+                  setIsSaving={setFromIsSaving}
+                  onSave={saveFromSection}
+                  onCancel={resetFromSection}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <AccordionItem
+              value="subject"
+              className={cn(
+                accordionWithPreventedClose === "subject" &&
+                  "rounded-lg ring-2 ring-destructive",
+              )}
+            >
+              <AccordionTrigger className="text-md font-semibold">
+                <div className="flex items-center gap-3">
+                  {email.subject ? (
+                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                  ) : (
+                    <CircleDashed height={"24"} width={"24"} />
+                  )}
+                  <div className="flex flex-col">
+                    <span>Subject</span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {subject || "No subject set"}
+                    </span>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-3">
+                <div className="flex flex-col gap-2">
+                  <Label className="ml-0.5">
+                    Subject <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    placeholder="Enter subject"
+                    value={subject}
+                    maxLength={60}
+                    onChange={(e) => setSubject(e.target.value.slice(0, 60))}
+                  />
+                  {subject && (
+                    <div
+                      className={cn(
+                        "flex flex-col gap-1 rounded-md border px-4 py-2.5",
+                        hasWarnings
+                          ? "border-amber-500 bg-amber-500/10"
+                          : "border-green-500 bg-green-500/10",
+                      )}
+                    >
+                      {tooManyWords && (
+                        <span className="text-amber-600">
+                          Warning: Subject has {wordCount} words. Consider using
+                          9 or fewer words.
+                        </span>
+                      )}
+                      {tooManyChars && (
+                        <span className="text-amber-600">
+                          Warning: Subject has {charCount} characters. Consider
+                          keeping it under 60 characters.
+                        </span>
+                      )}
+                      {tooManyEmojis && (
+                        <span className="text-amber-600">
+                          Warning: Subject has {emojiCount} emojis. Consider
+                          using 2 or fewer emojis.
+                        </span>
+                      )}
+                      {tooManyPunctuations && (
+                        <span className="text-amber-600">
+                          Warning: Subject has {punctuationCount} punctuation
+                          marks. Consider using 2 or fewer.
+                        </span>
+                      )}
+                      {!hasWarnings && (
+                        <span className="text-green-600">
+                          Good! Your subject meets all recommended guidelines.
+                        </span>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        {wordCount} words | {charCount}/60 characters |{" "}
+                        {emojiCount} emojis | {punctuationCount} punctuation
+                        marks
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-                <EmailPreview />
-              </DialogContent>
-            </Dialog>
-            <Button variant="outline" className="cursor-pointer px-5">
-              Edit
-            </Button>
-          </div>
-        </div>
-      </Accordion>
+                <SaveButtons
+                  isSaving={subjectIsSaving}
+                  hasChanges={subjectHasChanges}
+                  setIsSaving={setSubjectIsSaving}
+                  onSave={saveSubjectSection}
+                  onCancel={resetSubjectSection}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <AccordionItem
+              value="schedule"
+              className={cn(
+                accordionWithPreventedClose === "schedule" &&
+                  "rounded-lg ring-2 ring-destructive",
+              )}
+            >
+              <AccordionTrigger className="text-md font-semibold">
+                <div className="flex items-center gap-3">
+                  {email.scheduled_for || email.send_now ? (
+                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                  ) : (
+                    <CircleDashed height={"24"} width={"24"} />
+                  )}
+                  <div className="flex flex-col">
+                    <span>Send Time</span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {email.scheduled_for
+                        ? `Schedule for ${format(new Date(email.scheduled_for), "MMMM d, yyyy h:mm a")} in ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`
+                        : email.send_now
+                          ? "Send this email by clicking the send button in the top right corner of this page."
+                          : "No send time selected"}
+                    </span>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <Tabs
+                  defaultValue=""
+                  onValueChange={(value) => {
+                    setIsScheduled(value as "schedule" | "send-now" | "");
+                    if (value === "send-now") {
+                      setSendDate(null);
+                      setSendNow(true);
+                      setScheduleHasChanges(true);
+                    } else if (value === "schedule") {
+                      setSendNow(false);
+                      setScheduleHasChanges(true);
+                    } else {
+                      setSendDate(null);
+                      setSendNow(false);
+                      setScheduleHasChanges(true);
+                    }
+                  }}
+                  value={isScheduled}
+                >
+                  <TabsList className="h-10 w-full">
+                    <TabsTrigger className="h-full w-full" value="schedule">
+                      Schedule
+                    </TabsTrigger>
+                    <TabsTrigger className="h-full w-full" value="send-now">
+                      Send Now
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="schedule" className="space-y-3 pt-2">
+                    <div className="flex flex-col gap-2">
+                      <Label className="ml-0.5">
+                        Send Date and Time{" "}
+                        <span className="text-destructive">*</span>
+                      </Label>
+                      <DateTimePicker
+                        placeholder="Select a date and time"
+                        disabledPast
+                        minFutureMinutes={10}
+                        granularity="minute"
+                        yearRange={1}
+                        hourCycle={12}
+                        onChange={(date) => {
+                          if (date) {
+                            // Validate that the date is not more than a year in the future
+                            const now = new Date();
+                            const oneYearFromNow = new Date();
+                            oneYearFromNow.setFullYear(now.getFullYear() + 1);
+
+                            if (date > oneYearFromNow) {
+                              toast({
+                                title: "Invalid schedule time",
+                                description:
+                                  "Email cannot be scheduled more than a year in the future.",
+                                variant: "destructive",
+                              });
+                              return;
+                            }
+
+                            setSendDate(date);
+                          }
+                        }}
+                        value={sendDate ?? undefined}
+                      />
+                    </div>
+                    {sendDate && (
+                      <div className="mt-1 text-sm text-muted-foreground">
+                        This email will be sent at{" "}
+                        {format(sendDate, "MMMM d, yyyy h:mm a")} in{" "}
+                        <span className="text-primary underline">
+                          {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                        </span>{" "}
+                        time.
+                      </div>
+                    )}
+                    <div className="rounded-md border bg-muted p-3 text-sm text-muted-foreground">
+                      The email will not be offically scheduled until you hit
+                      the &quot;Schedule&quot; button in the top right corner of
+                      this page.
+                    </div>
+                  </TabsContent>
+                  <TabsContent
+                    value="send-now"
+                    className="mt-4 text-sm text-muted-foreground"
+                  >
+                    This email will be sent once the click the send button in
+                    the top right corner.
+                  </TabsContent>
+                </Tabs>
+                <SaveButtons
+                  isSaving={scheduleIsSaving}
+                  hasChanges={scheduleHasChanges}
+                  setIsSaving={setScheduleIsSaving}
+                  onSave={saveScheduleSection}
+                  onCancel={resetScheduleSection}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <div className="flex flex-1 cursor-pointer items-center justify-between rounded-lg border bg-card py-4 pl-6 pr-5 text-left font-medium transition-all hover:bg-accent/50">
+              <ProtectedLink
+                href={`/emails/${email.id}/editor`}
+                className="group/link flex w-full items-center gap-3"
+              >
+                <span className="text-muted-foreground">
+                  {emailBlockCount > 0 ? (
+                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                  ) : (
+                    <CircleDashed height={"24"} width={"24"} />
+                  )}
+                </span>
+                <div className="flex flex-col">
+                  <span className="text-md font-semibold">Content</span>
+                  <span className="text-sm font-normal text-muted-foreground">
+                    {emailBlockCount > 0
+                      ? `${emailBlockCount} block${emailBlockCount === 1 ? "" : "s"}`
+                      : "No content created yet"}
+                  </span>
+                </div>
+              </ProtectedLink>
+              <div className="flex items-center gap-1">
+                <Dialog
+                  open={previewOpen === "true"}
+                  onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
+                >
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setPreviewOpen("true");
+                      }}
+                    >
+                      <span className="hidden md:block">Preview</span>
+                      <span className="block md:hidden">
+                        <Eye />
+                      </span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="h-[95%] min-w-[95%] p-4">
+                    <DialogHeader className="sr-only">
+                      <DialogTitle>Preview</DialogTitle>
+                    </DialogHeader>
+
+                    <EmailPreview />
+                  </DialogContent>
+                </Dialog>
+                <Button variant="outline" className="cursor-pointer px-5">
+                  Edit
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </Accordion>
+      </motion.div>
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
