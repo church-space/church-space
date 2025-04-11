@@ -8,17 +8,17 @@ export type EmailAutomation = {
   id: number;
   created_at: string;
   name: string;
-  trigger_type: string;
-  pco_list_id: string | null;
-  pco_form_id: string | null;
-  notify_admin: boolean;
-  wait: number | null;
-  email_details: any;
-  email_template_id: string | null;
-  list_id: string | null;
-  form_id: string | null;
+  trigger_type: string | null;
+  notify_admin: any | null;
+  wait: any | null;
+  email_details: any | null;
+  email_template_id: number | null;
+  list_id: number | null;
   description: string | null;
+  organization_id: string;
   is_active: boolean;
+  from_email_domain: number | null;
+  updated_at: string | null;
 };
 
 export const columns: ColumnDef<EmailAutomation>[] = [
@@ -28,7 +28,7 @@ export const columns: ColumnDef<EmailAutomation>[] = [
     cell: ({ row }) => {
       const name = row.getValue("name") as string;
       return (
-        <Link href={`/emails/automations/${row.original.id}`}>
+        <Link href={`/emails/automations/${row.original.id}`} prefetch={true}>
           <div className="pl-2 text-base font-medium hover:underline">
             {name}
           </div>

@@ -40,6 +40,10 @@ import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
+import type {
+  EmailAutomation,
+  TriggerType,
+} from "@/components/automation-builder/automation-builder";
 
 export default function Page() {
   const params = useParams();
@@ -62,6 +66,88 @@ export default function Page() {
 
   const automation = automationResponse?.data;
 
+  // Transform the automation data to match EmailAutomation type
+  const transformedAutomation: EmailAutomation | undefined =
+    automation?.data && organizationId
+      ? {
+          id: automation.data.id,
+          created_at: automation.data.created_at,
+          name: automation.data.name || "",
+          trigger_type: (automation.data.trigger_type as TriggerType) || null,
+          notify_admin:
+            automation.data.notify_admin &&
+            typeof automation.data.notify_admin === "object" &&
+            !Array.isArray(automation.data.notify_admin)
+              ? {
+                  enabled: Boolean(
+                    (automation.data.notify_admin as Record<string, unknown>)
+                      .enabled,
+                  ),
+                  email: String(
+                    (automation.data.notify_admin as Record<string, unknown>)
+                      .email || "",
+                  ),
+                  subject: String(
+                    (automation.data.notify_admin as Record<string, unknown>)
+                      .subject || "",
+                  ),
+                  message: String(
+                    (automation.data.notify_admin as Record<string, unknown>)
+                      .message || "",
+                  ),
+                }
+              : null,
+          wait:
+            automation.data.wait &&
+            typeof automation.data.wait === "object" &&
+            !Array.isArray(automation.data.wait)
+              ? {
+                  enabled: Boolean(
+                    (automation.data.wait as Record<string, unknown>).enabled,
+                  ),
+                  unit:
+                    ((automation.data.wait as Record<string, unknown>).unit as
+                      | "days"
+                      | "hours") || "days",
+                  value: Number(
+                    (automation.data.wait as Record<string, unknown>).value ||
+                      1,
+                  ),
+                }
+              : null,
+          email_details:
+            automation.data.email_details &&
+            typeof automation.data.email_details === "object" &&
+            !Array.isArray(automation.data.email_details)
+              ? {
+                  enabled: Boolean(
+                    (automation.data.email_details as Record<string, unknown>)
+                      .enabled,
+                  ),
+                  fromName: String(
+                    (automation.data.email_details as Record<string, unknown>)
+                      .fromName || "",
+                  ),
+                  fromEmail: String(
+                    (automation.data.email_details as Record<string, unknown>)
+                      .fromEmail || "",
+                  ),
+                  subject: String(
+                    (automation.data.email_details as Record<string, unknown>)
+                      .subject || "",
+                  ),
+                }
+              : null,
+          email_template_id: automation.data.email_template_id || null,
+          list_id: automation.data.list_id || null,
+          description: automation.data.description || null,
+          organization_id: organizationId,
+          is_active: automation.data.is_active || false,
+          from_email_domain: automation.data.from_email_domain || null,
+          updated_at: automation.data.updated_at || null,
+        }
+      : undefined;
+
   const [isEditingLink, setIsEditingLink] = useState(false);
   const [editedLinkName, setEditedLinkName] = useState("");
   const [linkErrors] = useState({
@@ -76,11 +162,11 @@ export default function Page() {
 
   // Update the state when automation data is loaded
   useEffect(() => {
-    if (automation) {
-      setEditedLinkName(automation.data?.name || "");
-      setEditedLinkDescription(automation.data?.description || "");
+    if (transformedAutomation) {
+      setEditedLinkName(transformedAutomation.name || "");
+      setEditedLinkDescription(transformedAutomation.description || "");
     }
-  }, [automation]);
+  }, [transformedAutomation]);
 
   // Function to handle sheet close attempt
   const handleSheetClose = () => {
@@ -101,7 +187,7 @@ export default function Page() {
     return <div>Loading...</div>;
   }
 
-  if (!automation) {
+  if (!transformedAutomation) {
     return <div>Automation not found</div>;
   }
 
@@ -143,7 +229,7 @@ export default function Page() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>{automation.data?.name}</BreadcrumbPage>
+                <BreadcrumbPage>{transformedAutomation.name}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -208,7 +294,7 @@ export default function Page() {
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
                     <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
-                      {automation.data?.name}
+                      {transformedAutomation.name}
                     </h2>
                     {editedLinkStatus === "inactive" && (
                       <Badge variant="outline">Disabled</Badge>
@@ -217,7 +303,7 @@ export default function Page() {
                   <Edit className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
                 <p className="mt-1 text-muted-foreground">
-                  {automation.data?.description}
+                  {transformedAutomation.description}
                 </p>
               </div>
             )}
@@ -333,6 +419,7 @@ export default function Page() {
                   onChangesPending={(hasPendingChanges) =>
                     setHasUnsavedChanges(hasPendingChanges)
                   }
+                  automation={transformedAutomation}
                 />
               </SheetContent>
             </>

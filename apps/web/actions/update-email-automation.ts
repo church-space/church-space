@@ -16,7 +16,6 @@ export const updateEmailAutomationAction = authActionClient
           created_at: z.string(),
           name: z.string(),
           trigger_type: z.string().nullable(),
-          pco_list_id: z.string().nullable(),
           notify_admin: z.any().nullable(),
           wait: z.any().nullable(),
           email_details: z.any().nullable(),
@@ -24,6 +23,8 @@ export const updateEmailAutomationAction = authActionClient
           description: z.string().nullable(),
           organization_id: z.string(),
           is_active: z.boolean(),
+          email_template_id: z.number().nullable(),
+          from_email_domain: z.number().nullable(),
         })
         .partial(),
     }),

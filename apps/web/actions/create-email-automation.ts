@@ -29,6 +29,7 @@ export const createEmailAutomationAction = authActionClient
         const { data, error } = await createEmailAutomation(supabase, {
           name: parsedInput.parsedInput.name,
           organization_id: parsedInput.parsedInput.organization_id,
+          is_active: false,
         });
 
         if (error) {

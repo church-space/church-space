@@ -50,16 +50,15 @@ export async function getAllEmailAutomations(
       created_at,
       name,
       trigger_type,
-      pco_list_id,
-      pco_form_id,
       notify_admin,
       wait,
       email_details,
       email_template_id,
       list_id,
-      form_id,
       description,
-      is_active
+      is_active,
+      from_email_domain,
+      updated_at
     `
     )
     .order("name", { ascending: true })
