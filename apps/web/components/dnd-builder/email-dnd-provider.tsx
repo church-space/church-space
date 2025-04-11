@@ -73,7 +73,14 @@ export default function EmailDndProvider({
   const params = useParams();
   const router = useRouter();
   const isMobile = useIsMobile();
-  const [showMobileWarning, setShowMobileWarning] = useState(true);
+  const [showMobileWarning, setShowMobileWarning] = useState(() => {
+    // Check if we're in a browser environment
+    if (typeof window !== "undefined") {
+      const hasSeenWarning = localStorage.getItem("mobile_warning_dismissed");
+      return hasSeenWarning !== "true";
+    }
+    return true;
+  });
   const emailId = params.emailId
     ? parseInt(params.emailId as string, 10)
     : undefined;
@@ -2513,7 +2520,12 @@ export default function EmailDndProvider({
     <div className="relative flex h-full flex-col">
       <Dialog
         open={isMobile && showMobileWarning}
-        onOpenChange={setShowMobileWarning}
+        onOpenChange={(open) => {
+          if (!open) {
+            localStorage.setItem("mobile_warning_dismissed", "true");
+          }
+          setShowMobileWarning(open);
+        }}
       >
         <DialogContent className="max-w-[94%] rounded-lg">
           <DialogHeader>
@@ -2530,7 +2542,12 @@ export default function EmailDndProvider({
             </p>
           </div>
           <DialogFooter>
-            <Button onClick={() => setShowMobileWarning(false)}>
+            <Button
+              onClick={() => {
+                localStorage.setItem("mobile_warning_dismissed", "true");
+                setShowMobileWarning(false);
+              }}
+            >
               I understand
             </Button>
           </DialogFooter>
