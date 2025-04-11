@@ -21,6 +21,7 @@ import EmailTemplateSelector from "./email-template-selector";
 import DomainSelector from "../id-pages/emails/domain-selector";
 import { useToast } from "@church-space/ui/use-toast";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export type TriggerType = "person_added" | "person_removed";
 type ActionType = "notify_admin" | "wait" | "send_email";
@@ -60,10 +61,12 @@ export default function EmailAutomationBuilder({
   organizationId,
   onChangesPending,
   automation,
+  closeSheet,
 }: {
   organizationId: string;
   onChangesPending: (hasPendingChanges: boolean) => void;
   automation: EmailAutomation;
+  closeSheet: () => void;
 }) {
   const [trigger, setTrigger] = useState<TriggerType | null>(
     automation?.trigger_type || null,
@@ -73,25 +76,73 @@ export default function EmailAutomationBuilder({
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { mutate: updateAutomation, isPending: isSaving } = useMutation({
+    mutationFn: updateEmailAutomationAction,
+    onSuccess: (result) => {
+      // Handle the nested response format
+      const responseData = Array.isArray(result) ? result[1] : result;
+      if (responseData?.data?.success === false) {
+        toast({
+          title: "Error",
+          description: responseData.data.error || "Failed to update automation",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update initial state to current state after saving
+      initialState.current = {
+        trigger,
+        selectedList,
+        actions,
+      };
+
+      setHasUnsavedChanges(false);
+      onChangesPending(false);
+      closeSheet();
+
+      toast({
+        title: "Success",
+        description: "Automation updated successfully",
+      });
+
+      // Invalidate the query to refresh the data
+      queryClient.invalidateQueries({
+        queryKey: ["email-automation", automation.id],
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update automation",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Store initial state for comparison
   const initialState = useRef({
     trigger: automation?.trigger_type || (null as TriggerType | null),
     selectedList: automation?.list_id?.toString() || "",
     actions: {
-      notify_admin: automation?.notify_admin || {
-        enabled: false,
-        email: "",
-        subject: "",
-        message: "",
+      notify_admin: {
+        enabled: automation?.notify_admin?.enabled ?? false,
+        email: automation?.notify_admin?.email || "",
+        subject: automation?.notify_admin?.subject || "",
+        message: automation?.notify_admin?.message || "",
       },
-      wait: automation?.wait || {
-        enabled: false,
-        unit: "days",
-        value: 1,
+      wait: {
+        enabled: automation?.wait?.enabled ?? false,
+        unit: automation?.wait?.unit || "days",
+        value: automation?.wait?.value || 1,
       },
       send_email: {
-        enabled: !!automation?.email_details,
+        enabled: automation?.email_details?.enabled ?? false,
         template: automation?.email_template_id?.toString() || "",
         fromName: automation?.email_details?.fromName || "",
         fromEmail: automation?.email_details?.fromEmail || "",
@@ -137,65 +188,39 @@ export default function EmailAutomationBuilder({
   }, [hasUnsavedChanges]);
 
   const handleSave = async () => {
-    try {
-      const automationData = {
-        automation_id: automation.id,
-        automation_data: {
-          id: automation.id,
-          trigger_type: trigger,
-          list_id: selectedList ? parseInt(selectedList) : null,
-          notify_admin: actions.notify_admin.enabled
-            ? {
-                email: actions.notify_admin.email,
-                subject: actions.notify_admin.subject,
-                message: actions.notify_admin.message,
-              }
-            : null,
-          wait: actions.wait.enabled
-            ? {
-                unit: actions.wait.unit,
-                value: actions.wait.value,
-              }
-            : null,
-          email_details: actions.send_email.enabled
-            ? {
-                fromName: actions.send_email.fromName,
-                fromEmail: actions.send_email.fromEmail,
-                subject: actions.send_email.subject,
-              }
-            : null,
-          email_template_id: actions.send_email.template
-            ? parseInt(actions.send_email.template)
-            : null,
-          from_email_domain: actions.send_email.fromDomain
-            ? parseInt(actions.send_email.fromDomain)
-            : null,
+    const automationData = {
+      automation_id: automation.id,
+      automation_data: {
+        id: automation.id,
+        trigger_type: trigger,
+        list_id: selectedList ? parseInt(selectedList) : null,
+        notify_admin: {
+          enabled: actions.notify_admin.enabled,
+          email: actions.notify_admin.email,
+          subject: actions.notify_admin.subject,
+          message: actions.notify_admin.message,
         },
-      };
+        wait: {
+          enabled: actions.wait.enabled,
+          unit: actions.wait.unit,
+          value: actions.wait.value,
+        },
+        email_details: {
+          enabled: actions.send_email.enabled,
+          fromName: actions.send_email.fromName,
+          fromEmail: actions.send_email.fromEmail,
+          subject: actions.send_email.subject,
+        },
+        email_template_id: actions.send_email.template
+          ? parseInt(actions.send_email.template)
+          : null,
+        from_email_domain: actions.send_email.fromDomain
+          ? parseInt(actions.send_email.fromDomain)
+          : null,
+      },
+    };
 
-      await updateEmailAutomationAction(automationData);
-
-      // Update initial state to current state after saving
-      initialState.current = {
-        trigger,
-        selectedList,
-        actions,
-      };
-
-      setHasUnsavedChanges(false);
-      onChangesPending(false);
-
-      toast({
-        title: "Success",
-        description: "Automation updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update automation",
-        variant: "destructive",
-      });
-    }
+    updateAutomation(automationData);
   };
 
   // Update cancel button to reset to initial state
@@ -587,7 +612,9 @@ export default function EmailAutomationBuilder({
         <Button variant="outline" onClick={handleCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving ? "Saving..." : "Save"}
+        </Button>
       </SheetFooter>
     </>
   );

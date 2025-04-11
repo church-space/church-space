@@ -10,7 +10,8 @@ import {
   getDomainQuery,
 } from "@church-space/supabase/queries/all/get-domains";
 import { createClient } from "@church-space/supabase/client";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import React from "react";
 
 interface Domain {
   id: number;
@@ -32,59 +33,46 @@ export default function DomainSelector({
   value: string;
 }) {
   const supabase = createClient();
-  const [domains, setDomains] = useState<Domain[]>([]);
-  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
-  const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const fetchDomains = async () => {
-      try {
+  const { data: domains = [], error: domainsError } = useQuery<Domain[], Error>(
+    {
+      queryKey: ["domains", organizationId],
+      queryFn: async () => {
         const result = await getDomainsQuery(supabase, organizationId);
-        if (result.error) {
-          throw result.error;
-        }
-        setDomains(result.data || []);
-        if (!value && result.data && result.data.length > 0) {
-          onChange(result.data[0].id.toString());
-        }
-      } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch domains"),
-        );
-      }
-    };
+        if (result.error) throw result.error;
+        return result.data || [];
+      },
+    },
+  );
 
-    fetchDomains();
-  }, [organizationId, supabase, value, onChange]);
+  // Set initial value if needed
+  React.useEffect(() => {
+    if (!value && domains.length > 0) {
+      onChange(domains[0].id.toString());
+    }
+  }, [domains, value, onChange]);
 
-  useEffect(() => {
-    const fetchSelectedDomain = async () => {
-      if (value) {
-        try {
-          const result = await getDomainQuery(supabase, parseInt(value));
-          if (result.error) {
-            throw result.error;
-          }
-          if (result.data && result.data.length > 0) {
-            setSelectedDomain(result.data[0]);
-          }
-        } catch (err) {
-          setError(
-            err instanceof Error
-              ? err
-              : new Error("Failed to fetch selected domain"),
-          );
-        }
-      } else {
-        setSelectedDomain(null);
-      }
-    };
+  const { data: selectedDomain, error: selectedDomainError } = useQuery<
+    Domain | null,
+    Error
+  >({
+    queryKey: ["domain", value],
+    queryFn: async () => {
+      if (!value) return null;
+      const result = await getDomainQuery(supabase, parseInt(value));
+      if (result.error) throw result.error;
+      return result.data?.[0] || null;
+    },
+    enabled: !!value,
+  });
 
-    fetchSelectedDomain();
-  }, [value, supabase]);
-
+  const error = domainsError || selectedDomainError;
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return (
+      <div>
+        Error: {error instanceof Error ? error.message : "An error occurred"}
+      </div>
+    );
   }
 
   return (

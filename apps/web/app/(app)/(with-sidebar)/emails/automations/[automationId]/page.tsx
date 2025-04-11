@@ -420,6 +420,7 @@ export default function Page() {
                     setHasUnsavedChanges(hasPendingChanges)
                   }
                   automation={transformedAutomation}
+                  closeSheet={() => setIsSheetOpen(false)}
                 />
               </SheetContent>
             </>
