@@ -27,7 +27,7 @@ import {
   LoaderIcon,
 } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 import DomainSelector from "@/components/id-pages/emails/domain-selector";
 import ListSelector from "@/components/id-pages/emails/list-selector";
