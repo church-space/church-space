@@ -258,12 +258,12 @@ export default function EmailAutomationBuilder({
   };
 
   return (
-    <>
+    <div className="flex h-full flex-col">
       <SheetHeader>
         <SheetTitle>Automation Steps</SheetTitle>
       </SheetHeader>
 
-      <div className="space-y-6 p-4">
+      <div className="flex-1 space-y-6 overflow-y-auto sm:p-4">
         {/* Trigger Section */}
         <div className="space-y-2">
           <div className="text-sm font-medium text-muted-foreground">
@@ -608,14 +608,16 @@ export default function EmailAutomationBuilder({
       </div>
 
       {/* Footer */}
-      <SheetFooter className="flex items-center justify-end gap-2 border-t p-4">
-        <Button variant="outline" onClick={handleCancel}>
-          Cancel
-        </Button>
-        <Button onClick={handleSave} disabled={isSaving}>
-          {isSaving ? "Saving..." : "Save"}
-        </Button>
-      </SheetFooter>
-    </>
+      <div className="sticky bottom-0 mt-auto border-t bg-background">
+        <SheetFooter className="flex flex-row justify-end gap-2 p-4 pb-0 sm:items-center">
+          <Button variant="outline" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+        </SheetFooter>
+      </div>
+    </div>
   );
 }

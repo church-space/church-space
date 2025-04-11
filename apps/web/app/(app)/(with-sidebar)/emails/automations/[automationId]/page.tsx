@@ -411,7 +411,7 @@ export default function Page() {
                 </Button>
               </SheetTrigger>
               <SheetContent
-                className="h-[95%] w-full overflow-y-auto md:h-full md:max-w-3xl"
+                className="flex h-[95%] w-full flex-col overflow-hidden md:h-full md:max-w-3xl"
                 side={isMobile ? "bottom" : "right"}
               >
                 <AutomationBuilder
