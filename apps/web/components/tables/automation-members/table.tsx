@@ -5,7 +5,6 @@ import DataTable from "../data-table";
 import { columns, EmailAutomationMember } from "./columns";
 import { useQueryState } from "nuqs";
 import { Button } from "@church-space/ui/button";
-import { getStepFilterConfig, StepStatus } from "./filters";
 import {
   Dialog,
   DialogContent,
@@ -22,32 +21,16 @@ export default function AutomationMembersTable({
   organizationId,
 }: AutomationMembersTableProps) {
   const [search, setSearch] = useQueryState("search");
-  const [status, setStatus] = useQueryState<StepStatus>("status", {
-    parse: (value) => {
-      if (value === "waiting" || value === "completed" || value === "all") {
-        return value;
-      }
-      return "all";
-    },
-    serialize: (value) => value,
-  });
   const [isNewLinkListOpen, setIsNewLinkListOpen] = useState(false);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useEmailAutomationMembers(Number(organizationId), status || "all");
+    useEmailAutomationMembers(Number(organizationId));
 
   const handleSearch = useCallback(
     async (value: string | null) => {
       await setSearch(value);
     },
     [setSearch],
-  );
-
-  const handleStatusChange = useCallback(
-    async (value: string) => {
-      await setStatus(value === "all" ? null : (value as StepStatus));
-    },
-    [setStatus],
   );
 
   // Filter the data based on step status
@@ -79,13 +62,6 @@ export default function AutomationMembersTable({
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
-        filterConfig={getStepFilterConfig()}
-        onFilterChange={{
-          status: handleStatusChange,
-        }}
-        initialFilters={{
-          status: status || "all",
-        }}
         isLoading={isFetchingNextPage}
       />
 
