@@ -458,6 +458,30 @@ export default function EmailAutomationBuilder({
   // Function to add a new step
   const addStep = (type: ActionType) => {
     setSteps((prev) => {
+      // Check if we've reached the maximum number of steps
+      if (prev.length >= 10) {
+        toast({
+          title: "Maximum steps reached",
+          description: "You cannot add more than 10 steps to an automation.",
+          variant: "destructive",
+        });
+        return prev;
+      }
+
+      // For wait steps, check if the previous step was also a wait
+      if (
+        type === "wait" &&
+        prev.length > 0 &&
+        prev[prev.length - 1].type === "wait"
+      ) {
+        toast({
+          title: "Invalid step",
+          description: "You cannot add consecutive wait steps.",
+          variant: "destructive",
+        });
+        return prev;
+      }
+
       const newOrder =
         prev.length > 0 ? Math.max(...prev.map((s) => s.order || 0)) + 1 : 0;
       const newStep: AutomationStep = {
@@ -599,7 +623,6 @@ export default function EmailAutomationBuilder({
         const reorderedSteps = [...prev];
         const [movedItem] = reorderedSteps.splice(oldIndex, 1);
         reorderedSteps.splice(newIndex, 0, movedItem);
-
         return reorderedSteps.map((step, index) => ({
           ...step,
           order: index,
@@ -609,6 +632,32 @@ export default function EmailAutomationBuilder({
   };
 
   const handleSave = async () => {
+    // Check for consecutive wait steps
+    const hasConsecutiveWaits = steps.some(
+      (step, index) =>
+        step.type === "wait" && steps[index + 1]?.type === "wait",
+    );
+
+    if (hasConsecutiveWaits) {
+      toast({
+        title: "Invalid automation",
+        description:
+          "You cannot have consecutive wait steps. Please separate wait steps with other actions.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if total steps exceed limit
+    if (steps.length > 10) {
+      toast({
+        title: "Too many steps",
+        description: "Automation cannot have more than 10 steps.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate all wait steps
     const waitSteps = steps.filter(isWaitStep);
     for (const step of waitSteps) {
