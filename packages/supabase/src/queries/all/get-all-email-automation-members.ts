@@ -8,13 +8,13 @@ export interface QueryParams {
 export interface EmailAutomationMember {
   id: number;
   created_at: string;
-  step: string;
+  last_completed_step_id: number;
   automation_id: number;
   person_id: number;
 }
 
 export interface EmailAutomationMemberParams {
-  step?: string;
+  step?: number;
 }
 
 export async function getEmailAutomationMembersCount(
