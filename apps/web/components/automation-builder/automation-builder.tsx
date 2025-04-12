@@ -25,7 +25,6 @@ import ListSelector from "../id-pages/emails/list-selector";
 import EmailTemplateSelector from "./email-template-selector";
 import DomainSelector from "../id-pages/emails/domain-selector";
 import { useToast } from "@church-space/ui/use-toast";
-import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 import { updateEmailAutomationStepAction } from "@/actions/update-email-automation-step";
 import { deleteEmailAutomationStepAction } from "@/actions/delete-email-automation-step";
 import { createEmailAutomationStepAction } from "@/actions/create-email-automation-step";
@@ -64,6 +63,7 @@ interface EmailStepValues {
 
 interface AutomationStep {
   id?: number;
+  tempId?: string;
   type: ActionType;
   values: WaitStepValues | EmailStepValues;
   order: number | null;
@@ -181,7 +181,7 @@ function SortableStep(props: SortableStepProps) {
     : undefined;
 
   // Generate a stable ID for the accordion item
-  const stepId = `step-${step.order}-${index}`;
+  const stepId = step.id ? `step-${step.id}` : step.tempId || `temp-${index}`;
 
   return (
     <div
@@ -487,6 +487,7 @@ export default function EmailAutomationBuilder({
       const newStep: AutomationStep = {
         type,
         order: newOrder,
+        tempId: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         values:
           type === "wait"
             ? { unit: "days", value: 1 }
@@ -494,8 +495,8 @@ export default function EmailAutomationBuilder({
       };
       const newSteps = [...prev, newStep];
 
-      // Set the new step to be open
-      setOpenStep(`step-${newOrder}-${prev.length}`);
+      // Set the new step to be open using its tempId
+      setOpenStep(newStep.tempId);
 
       return newSteps;
     });
