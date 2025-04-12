@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import React from "react";
 import { cn } from "@church-space/ui/cn";
 import { Button } from "@church-space/ui/button";
 import { Card, CardContent } from "@church-space/ui/card";
@@ -14,12 +15,35 @@ import {
 import { Input } from "@church-space/ui/input";
 import { AnimatePresence, motion } from "framer-motion";
 import { SheetTitle, SheetHeader, SheetFooter } from "@church-space/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@church-space/ui/accordion";
 import ListSelector from "../id-pages/emails/list-selector";
 import EmailTemplateSelector from "./email-template-selector";
 import DomainSelector from "../id-pages/emails/domain-selector";
 import { useToast } from "@church-space/ui/use-toast";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
 
 export type TriggerType = "person_added" | "person_removed";
 type ActionType = "wait" | "send_email";
@@ -92,6 +116,247 @@ function getInitialStepValues(
   }
 }
 
+// Override accordion trigger styles for this component
+const CustomAccordionTrigger = React.forwardRef<
+  React.ElementRef<typeof AccordionTrigger>,
+  React.ComponentPropsWithoutRef<typeof AccordionTrigger>
+>((props, ref) => (
+  <AccordionTrigger
+    ref={ref}
+    className={cn(
+      "flex w-full flex-1 items-center justify-between px-3 py-4 font-medium transition-all [&[data-state=open]>svg]:rotate-180",
+      props.className,
+    )}
+  >
+    <span className="truncate pr-2 text-sm">{props.children}</span>
+  </AccordionTrigger>
+));
+CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
+
+// Add SortableStep component before the main EmailAutomationBuilder component
+function SortableStep({
+  step,
+  index,
+  steps,
+  updateStep,
+  removeStep,
+  validateWaitTime,
+  waitTimeError,
+  organizationId,
+  openItem,
+  setOpenItem,
+}: {
+  step: AutomationStep;
+  index: number;
+  steps: AutomationStep[];
+  updateStep: (index: number, updates: Partial<AutomationStep>) => void;
+  removeStep: (index: number) => void;
+  validateWaitTime: (value: number, unit: "days" | "hours") => boolean;
+  waitTimeError: string | null;
+  organizationId: string;
+  openItem: string | undefined;
+  setOpenItem: (value: string | undefined) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: index.toString() });
+
+  const style = transform
+    ? {
+        transform: CSS.Transform.toString(transform),
+        transition: isDragging ? undefined : transition,
+        zIndex: isDragging ? 10 : 1,
+      }
+    : undefined;
+
+  // Generate a stable ID for the accordion item
+  const stepId = `step-${step.order}-${index}`;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "mb-2 w-full rounded-md border",
+        isDragging ? "border-dashed bg-accent opacity-50" : "",
+      )}
+    >
+      <div className="flex w-full items-center p-0.5 pr-1">
+        <div
+          className="flex cursor-grab touch-none items-center justify-center px-3 py-4"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full"
+          value={openItem === stepId ? stepId : undefined}
+          onValueChange={(value) => setOpenItem(value)}
+        >
+          <AccordionItem value={stepId} className="border-0">
+            <CustomAccordionTrigger>
+              {step.type === "wait" ? "Wait" : "Send Email"}
+            </CustomAccordionTrigger>
+            <AccordionContent>
+              {step.type === "wait" && isWaitStep(step) && (
+                <div className="grid grid-cols-4 items-center gap-x-2 gap-y-2 py-1 pr-2">
+                  <div className="col-span-4 flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                      <Input
+                        type="number"
+                        className={cn(
+                          "w-20",
+                          waitTimeError && "border-destructive",
+                        )}
+                        value={step.values.value}
+                        onChange={(e) => {
+                          const value =
+                            e.target.value === "" ? 0 : Number(e.target.value);
+                          updateStep(index, {
+                            values: {
+                              ...step.values,
+                              value,
+                            },
+                          });
+                        }}
+                      />
+                      <Select
+                        value={step.values.unit}
+                        onValueChange={(value: "days" | "hours") => {
+                          updateStep(index, {
+                            values: {
+                              ...step.values,
+                              unit: value,
+                            },
+                          });
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="days">Days</SelectItem>
+                          <SelectItem value="hours">Hours</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {waitTimeError && (
+                      <p className="text-sm text-destructive">
+                        {waitTimeError}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => removeStep(index)}
+                    className="col-span-4 mt-3 h-7 w-full hover:bg-destructive hover:text-white"
+                  >
+                    Remove Step
+                  </Button>
+                </div>
+              )}
+
+              {step.type === "send_email" && isEmailStep(step) && (
+                <div className="grid grid-cols-4 items-center gap-x-2 gap-y-2 py-1 pr-2">
+                  <div className="col-span-4">
+                    <div className="mb-1 text-xs">Email Template</div>
+                    <EmailTemplateSelector
+                      value={step.email_template?.toString() || ""}
+                      onChange={(value) => {
+                        updateStep(index, {
+                          email_template: value ? parseInt(value) : null,
+                        });
+                      }}
+                      organizationId={organizationId}
+                    />
+                  </div>
+                  <div className="col-span-4">
+                    <div className="mb-1 text-xs">From Name</div>
+                    <Input
+                      placeholder="Your Name"
+                      value={step.values.fromName}
+                      onChange={(e) => {
+                        updateStep(index, {
+                          values: {
+                            ...step.values,
+                            fromName: e.target.value,
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-4">
+                    <div className="mb-1 text-xs">From Email</div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Enter from"
+                        value={step.values.fromEmail}
+                        onChange={(e) => {
+                          updateStep(index, {
+                            values: {
+                              ...step.values,
+                              fromEmail: e.target.value,
+                            },
+                          });
+                        }}
+                      />
+                      <span className="mb-1 leading-none">@</span>
+                      <DomainSelector
+                        organizationId={organizationId}
+                        onChange={(value) => {
+                          updateStep(index, {
+                            from_email_domain: value ? parseInt(value) : null,
+                          });
+                        }}
+                        value={step.from_email_domain?.toString() || ""}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-span-4">
+                    <div className="mb-1 text-xs">Subject</div>
+                    <Input
+                      placeholder="Email Subject"
+                      value={step.values.subject}
+                      onChange={(e) => {
+                        updateStep(index, {
+                          values: {
+                            ...step.values,
+                            subject: e.target.value,
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => removeStep(index)}
+                    className="col-span-4 mt-3 h-7 w-full hover:bg-destructive hover:text-white"
+                  >
+                    Remove Step
+                  </Button>
+                </div>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+
+      {index < steps.length - 1 && (
+        <div className="absolute -bottom-4 left-1/2 z-10 -ml-0.5 h-4 w-0.5 bg-border"></div>
+      )}
+    </div>
+  );
+}
+
 export default function EmailAutomationBuilder({
   organizationId,
   onChangesPending,
@@ -115,6 +380,7 @@ export default function EmailAutomationBuilder({
       values: getInitialStepValues(step),
     })) || [],
   );
+  const [openStep, setOpenStep] = useState<string | undefined>(undefined);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -203,7 +469,12 @@ export default function EmailAutomationBuilder({
             ? { unit: "days", value: 1 }
             : { fromName: "", fromEmail: "", subject: "" },
       };
-      return [...prev, newStep];
+      const newSteps = [...prev, newStep];
+
+      // Set the new step to be open
+      setOpenStep(`step-${newOrder}-${prev.length}`);
+
+      return newSteps;
     });
   };
 
@@ -275,6 +546,39 @@ export default function EmailAutomationBuilder({
     };
   }, [hasUnsavedChanges]);
 
+  // Add DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  // Add handleDragEnd function
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = parseInt(active.id.toString());
+      const newIndex = parseInt(over.id.toString());
+
+      setSteps((prev) => {
+        const reorderedSteps = [...prev];
+        const [movedItem] = reorderedSteps.splice(oldIndex, 1);
+        reorderedSteps.splice(newIndex, 0, movedItem);
+
+        return reorderedSteps.map((step, index) => ({
+          ...step,
+          order: index,
+        }));
+      });
+    }
+  };
+
   const handleSave = async () => {
     // Validate all wait steps
     const waitSteps = steps.filter(isWaitStep);
@@ -333,6 +637,7 @@ export default function EmailAutomationBuilder({
     setSteps(initialState.current.steps);
     setHasUnsavedChanges(false);
     onChangesPending(false);
+    closeSheet();
   };
 
   return (
@@ -419,216 +724,42 @@ export default function EmailAutomationBuilder({
             </div>
           </div>
 
-          {/* Steps */}
-          {steps.map((step, index) => (
-            <Card
-              key={step.id || index}
-              className="relative border-dashed border-border"
+          {/* Steps with DnD */}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            modifiers={[
+              (args) => ({
+                ...args.transform,
+                scaleX: 1,
+                scaleY: 1,
+              }),
+            ]}
+          >
+            <SortableContext
+              items={steps.map((_, i) => i.toString())}
+              strategy={verticalListSortingStrategy}
             >
-              <CardContent className="p-0">
-                {step.type === "wait" && isWaitStep(step) && (
-                  <div className="space-y-4">
-                    <div className="flex h-14 w-full items-center justify-between px-4">
-                      <div className="flex w-full items-center gap-2">
-                        <span className="flex-1 font-medium text-foreground">
-                          Wait
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveStep(index, "up")}
-                          disabled={index === 0}
-                        >
-                          ↑
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveStep(index, "down")}
-                          disabled={index === steps.length - 1}
-                        >
-                          ↓
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeStep(index)}
-                        >
-                          ×
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="px-4 pb-4">
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-3">
-                          <Input
-                            type="number"
-                            className={cn(
-                              "w-20",
-                              waitTimeError && "border-destructive",
-                            )}
-                            value={step.values.value}
-                            onChange={(e) => {
-                              const value =
-                                e.target.value === ""
-                                  ? 0
-                                  : Number(e.target.value);
-                              updateStep(index, {
-                                values: {
-                                  ...step.values,
-                                  value,
-                                },
-                              });
-                            }}
-                          />
-                          <Select
-                            value={step.values.unit}
-                            onValueChange={(value: "days" | "hours") => {
-                              updateStep(index, {
-                                values: {
-                                  ...step.values,
-                                  unit: value,
-                                },
-                              });
-                            }}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="days">Days</SelectItem>
-                              <SelectItem value="hours">Hours</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        {waitTimeError && (
-                          <p className="text-sm text-destructive">
-                            {waitTimeError}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {step.type === "send_email" && isEmailStep(step) && (
-                  <div className="space-y-4">
-                    <div className="flex h-14 w-full items-center justify-between px-4">
-                      <span className="flex-1 font-medium text-foreground">
-                        Send Email
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveStep(index, "up")}
-                          disabled={index === 0}
-                        >
-                          ↑
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveStep(index, "down")}
-                          disabled={index === steps.length - 1}
-                        >
-                          ↓
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeStep(index)}
-                        >
-                          ×
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 px-4 pb-4">
-                      <div>
-                        <div className="mb-1 text-xs">Email Template</div>
-                        <EmailTemplateSelector
-                          value={step.email_template?.toString() || ""}
-                          onChange={(value) => {
-                            updateStep(index, {
-                              email_template: value ? parseInt(value) : null,
-                            });
-                          }}
-                          organizationId={organizationId}
-                        />
-                      </div>
-                      <div>
-                        <div className="mb-1 text-xs">From Name</div>
-                        <Input
-                          placeholder="Your Name"
-                          value={step.values.fromName}
-                          onChange={(e) => {
-                            updateStep(index, {
-                              values: {
-                                ...step.values,
-                                fromName: e.target.value,
-                              },
-                            });
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <div className="mb-1 text-xs">From Email</div>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            placeholder="Enter from"
-                            value={step.values.fromEmail}
-                            onChange={(e) => {
-                              updateStep(index, {
-                                values: {
-                                  ...step.values,
-                                  fromEmail: e.target.value,
-                                },
-                              });
-                            }}
-                          />
-                          <span className="mb-1 leading-none">@</span>
-                          <DomainSelector
-                            organizationId={organizationId}
-                            onChange={(value) => {
-                              updateStep(index, {
-                                from_email_domain: value
-                                  ? parseInt(value)
-                                  : null,
-                              });
-                            }}
-                            value={step.from_email_domain?.toString() || ""}
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="mb-1 text-xs">Subject</div>
-                        <Input
-                          placeholder="Email Subject"
-                          value={step.values.subject}
-                          onChange={(e) => {
-                            updateStep(index, {
-                              values: {
-                                ...step.values,
-                                subject: e.target.value,
-                              },
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-
-              {index < steps.length - 1 && (
-                <div className="absolute -bottom-4 left-1/2 z-10 -ml-0.5 h-4 w-0.5 bg-border"></div>
-              )}
-            </Card>
-          ))}
+              <div className="space-y-4">
+                {steps.map((step, index) => (
+                  <SortableStep
+                    key={step.id || index}
+                    step={step}
+                    index={index}
+                    steps={steps}
+                    updateStep={updateStep}
+                    removeStep={removeStep}
+                    validateWaitTime={validateWaitTime}
+                    waitTimeError={waitTimeError}
+                    organizationId={organizationId}
+                    openItem={openStep}
+                    setOpenItem={setOpenStep}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
 
