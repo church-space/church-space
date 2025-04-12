@@ -65,16 +65,13 @@ export async function deleteEmailAutomationStep(
 
 export async function updateEmailAutomationStep(
   supabase: Client,
-  step: Database["public"]["Tables"]["email_automation_steps"]["Update"]
+  step: Database["public"]["Tables"]["email_automation_steps"]["Update"],
+  stepId: number
 ) {
-  if (!step.id) {
-    throw new Error("Step ID is required");
-  }
-
   const { data, error } = await supabase
     .from("email_automation_steps")
     .update(step)
-    .eq("id", step.id)
+    .eq("id", stepId)
     .select();
   return { data, error };
 }

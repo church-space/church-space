@@ -660,7 +660,14 @@ export default function EmailAutomationBuilder({
             // Update existing step
             const result = await updateStepMutation({
               id: step.id,
-              automation_data: baseStepData,
+              automation_data: {
+                type: baseStepData.type,
+                order: baseStepData.order,
+                from_email_domain: baseStepData.from_email_domain,
+                email_template: baseStepData.email_template,
+                automation_id: baseStepData.automation_id,
+                values: baseStepData.values,
+              },
             });
             return result?.data ? { ...step, ...result.data } : step;
           } else {

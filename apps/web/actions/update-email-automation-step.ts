@@ -38,6 +38,7 @@ export const updateEmailAutomationStepAction = authActionClient
           const { data, error } = await updateEmailAutomationStep(
             supabase,
             parsedInput.parsedInput.automation_data,
+            parsedInput.parsedInput.id,
           );
 
           if (error) {
