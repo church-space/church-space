@@ -170,7 +170,7 @@ function SortableStep(props: SortableStepProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: index.toString() });
+  } = useSortable({ id: step.id?.toString() || step.tempId || "" });
 
   const style = {
     transform: CSS.Transform.toString(
@@ -464,31 +464,17 @@ export default function EmailAutomationBuilder({
 
   // Function to add a new step
   const addStep = (type: ActionType) => {
+    // Check if we've reached the maximum number of steps before state update
+    if (steps.length >= 10) {
+      toast({
+        title: "Maximum steps reached",
+        description: "You cannot add more than 10 steps to an automation.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSteps((prev) => {
-      // Check if we've reached the maximum number of steps
-      if (prev.length >= 10) {
-        toast({
-          title: "Maximum steps reached",
-          description: "You cannot add more than 10 steps to an automation.",
-          variant: "destructive",
-        });
-        return prev;
-      }
-
-      // For wait steps, check if the previous step was also a wait
-      if (
-        type === "wait" &&
-        prev.length > 0 &&
-        prev[prev.length - 1].type === "wait"
-      ) {
-        toast({
-          title: "Invalid step",
-          description: "You cannot add consecutive wait steps.",
-          variant: "destructive",
-        });
-        return prev;
-      }
-
       const newOrder =
         prev.length > 0 ? Math.max(...prev.map((s) => s.order || 0)) + 1 : 0;
       const newStep: AutomationStep = {
@@ -624,18 +610,24 @@ export default function EmailAutomationBuilder({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id.toString());
-      const newIndex = parseInt(over.id.toString());
+      const oldIndex = steps.findIndex(
+        (step) => (step.id?.toString() || step.tempId) === active.id,
+      );
+      const newIndex = steps.findIndex(
+        (step) => (step.id?.toString() || step.tempId) === over.id,
+      );
 
-      setSteps((prev) => {
-        const reorderedSteps = [...prev];
-        const [movedItem] = reorderedSteps.splice(oldIndex, 1);
-        reorderedSteps.splice(newIndex, 0, movedItem);
-        return reorderedSteps.map((step, index) => ({
-          ...step,
-          order: index,
-        }));
-      });
+      if (oldIndex !== -1 && newIndex !== -1) {
+        setSteps((prev) => {
+          const reorderedSteps = [...prev];
+          const [movedItem] = reorderedSteps.splice(oldIndex, 1);
+          reorderedSteps.splice(newIndex, 0, movedItem);
+          return reorderedSteps.map((step, index) => ({
+            ...step,
+            order: index,
+          }));
+        });
+      }
     }
   };
 
@@ -871,13 +863,15 @@ export default function EmailAutomationBuilder({
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={steps.map((_, i) => i.toString())}
+              items={steps.map(
+                (step) => step.id?.toString() || step.tempId || "",
+              )}
               strategy={verticalListSortingStrategy}
             >
               <div className="space-y-4">
                 {steps.map((step, index) => (
                   <SortableStep
-                    key={step.id || index}
+                    key={step.id?.toString() || step.tempId}
                     step={step}
                     index={index}
                     steps={steps}
