@@ -37,7 +37,7 @@ import { DisableLink } from "@church-space/ui/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 import { useUser } from "@/stores/use-user";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
 import type {
@@ -138,6 +138,8 @@ export default function Page() {
   const [isUpdatingStatus] = useState(false);
   const [isDeleting] = useState(false);
 
+  const queryClient = useQueryClient();
+
   // Update the state when automation data is loaded
   useEffect(() => {
     if (transformedAutomation) {
@@ -170,13 +172,56 @@ export default function Page() {
   }
 
   const handleStatusToggle = () => {
+    // Optimistically update the UI
+    queryClient.setQueryData(
+      ["email-automation", automationId],
+      (old: any) => ({
+        ...old,
+        data: {
+          ...old.data,
+          data: {
+            ...old.data.data,
+            is_active: !transformedAutomation.is_active,
+          },
+        },
+      }),
+    );
+
+    // Make the API call
     updateEmailAutomationAction({
       automation_id: automationId,
       automation_data: {
         id: automationId,
         is_active: !transformedAutomation.is_active,
       },
-    });
+    })
+      .then(() => {
+        // Refetch to ensure we have the latest data
+        queryClient.invalidateQueries({
+          queryKey: ["email-automation", automationId],
+        });
+      })
+      .catch(() => {
+        // Revert on error
+        queryClient.setQueryData(
+          ["email-automation", automationId],
+          (old: any) => ({
+            ...old,
+            data: {
+              ...old.data,
+              data: {
+                ...old.data.data,
+                is_active: transformedAutomation.is_active,
+              },
+            },
+          }),
+        );
+        toast({
+          title: "Error",
+          description: "Failed to update automation status. Please try again.",
+          variant: "destructive",
+        });
+      });
   };
 
   const handleDeleteLink = () => {
@@ -185,11 +230,31 @@ export default function Page() {
 
   const cancelEditingLink = () => {
     setIsEditingLink(false);
+    setEditedLinkName(transformedAutomation.name || "");
+    setEditedLinkDescription(transformedAutomation.description || "");
     // TODO: Implement cancel editing link
   };
 
   const saveEditedLink = () => {
     setIsEditingLink(false);
+
+    // Optimistically update the UI
+    queryClient.setQueryData(
+      ["email-automation", automationId],
+      (old: any) => ({
+        ...old,
+        data: {
+          ...old.data,
+          data: {
+            ...old.data.data,
+            name: editedLinkName,
+            description: editedLinkDescription,
+          },
+        },
+      }),
+    );
+
+    // Make the API call
     updateEmailAutomationAction({
       automation_id: automationId,
       automation_data: {
@@ -197,7 +262,35 @@ export default function Page() {
         name: editedLinkName,
         description: editedLinkDescription,
       },
-    });
+    })
+      .then(() => {
+        // Refetch to ensure we have the latest data
+        queryClient.invalidateQueries({
+          queryKey: ["email-automation", automationId],
+        });
+      })
+      .catch(() => {
+        // Revert on error
+        queryClient.setQueryData(
+          ["email-automation", automationId],
+          (old: any) => ({
+            ...old,
+            data: {
+              ...old.data,
+              data: {
+                ...old.data.data,
+                name: transformedAutomation.name,
+                description: transformedAutomation.description,
+              },
+            },
+          }),
+        );
+        toast({
+          title: "Error",
+          description: "Failed to update automation details. Please try again.",
+          variant: "destructive",
+        });
+      });
   };
 
   const startEditingLink = () => {
