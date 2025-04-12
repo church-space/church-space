@@ -517,10 +517,37 @@ export default function EmailAutomationBuilder({
 
   // Function to check if current state differs from initial state
   const checkForChanges = useCallback(() => {
+    // Helper function to normalize step for comparison
+    const normalizeStep = (step: AutomationStep) => ({
+      id: step.id,
+      type: step.type,
+      order: step.order,
+      from_email_domain: step.from_email_domain || null,
+      email_template: step.email_template || null,
+      values: isWaitStep(step)
+        ? {
+            unit: step.values.unit,
+            value: step.values.value,
+          }
+        : isEmailStep(step)
+          ? {
+              fromName: step.values.fromName,
+              fromEmail: step.values.fromEmail,
+              subject: step.values.subject,
+            }
+          : step.values,
+    });
+
+    // Normalize and stringify both arrays for comparison
+    const normalizedCurrentSteps = steps.map(normalizeStep);
+    const normalizedInitialSteps =
+      initialState.current.steps.map(normalizeStep);
+
     const hasChanges =
       trigger !== initialState.current.trigger ||
       selectedList !== initialState.current.selectedList ||
-      JSON.stringify(steps) !== JSON.stringify(initialState.current.steps);
+      JSON.stringify(normalizedCurrentSteps) !==
+        JSON.stringify(normalizedInitialSteps);
 
     setHasUnsavedChanges(hasChanges);
     onChangesPending(hasChanges);
@@ -607,7 +634,7 @@ export default function EmailAutomationBuilder({
       );
 
       // Update or create steps
-      await Promise.all(
+      const updatedSteps = await Promise.all(
         steps.map(async (step) => {
           const baseStepData = {
             type: step.type,
@@ -631,23 +658,28 @@ export default function EmailAutomationBuilder({
 
           if (step.id) {
             // Update existing step
-            await updateStepMutation({
+            const result = await updateStepMutation({
               id: step.id,
               automation_data: baseStepData,
             });
+            return result?.data ? { ...step, ...result.data } : step;
           } else {
             // Create new step
-            await createStep(baseStepData);
+            const result = await createStep(baseStepData);
+            return result?.data ? { ...step, ...result.data } : step;
           }
         }),
       );
 
-      // Update initial state to current state after saving
+      // Update initial state to current state after saving, with server-assigned IDs
       initialState.current = {
         trigger,
         selectedList,
-        steps,
+        steps: updatedSteps,
       };
+
+      // Update the current steps state with server-assigned IDs
+      setSteps(updatedSteps);
 
       setHasUnsavedChanges(false);
       onChangesPending(false);
