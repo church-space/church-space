@@ -39,3 +39,42 @@ export async function updateEmailAutomation(
     .select();
   return { data, error };
 }
+
+export async function createEmailAutomationStep(
+  supabase: Client,
+  step: Database["public"]["Tables"]["email_automation_steps"]["Insert"]
+) {
+  const { data, error } = await supabase
+    .from("email_automation_steps")
+    .insert(step)
+    .select();
+  return { data, error };
+}
+
+export async function deleteEmailAutomationStep(
+  supabase: Client,
+  stepId: number
+) {
+  const { data, error } = await supabase
+    .from("email_automation_steps")
+    .delete()
+    .eq("id", stepId)
+    .select();
+  return { data, error };
+}
+
+export async function updateEmailAutomationStep(
+  supabase: Client,
+  step: Database["public"]["Tables"]["email_automation_steps"]["Update"]
+) {
+  if (!step.id) {
+    throw new Error("Step ID is required");
+  }
+
+  const { data, error } = await supabase
+    .from("email_automation_steps")
+    .update(step)
+    .eq("id", step.id)
+    .select();
+  return { data, error };
+}

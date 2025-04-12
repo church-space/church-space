@@ -50,13 +50,9 @@ export async function getAllEmailAutomations(
       created_at,
       name,
       trigger_type,
-      wait,
-      email_details,
-      email_template_id,
       list_id,
       description,
       is_active,
-      from_email_domain,
       updated_at
     `
     )

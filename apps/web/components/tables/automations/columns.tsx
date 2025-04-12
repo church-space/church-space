@@ -9,14 +9,10 @@ export type EmailAutomation = {
   created_at: string;
   name: string;
   trigger_type: string | null;
-  wait: any | null;
-  email_details: any | null;
-  email_template_id: number | null;
   list_id: number | null;
   description: string | null;
   organization_id: string;
   is_active: boolean;
-  from_email_domain: number | null;
   updated_at: string | null;
 };
 

@@ -6,7 +6,21 @@ export async function getEmailAutomationQuery(
 ) {
   const { data, error } = await supabase
     .from("email_automations")
-    .select("*")
+    .select(
+      `
+      *,
+      steps:email_automation_steps(
+        id,
+        created_at,
+        type,
+        values,
+        order,
+        from_email_domain,
+        email_template,
+        updated_at
+      )
+    `
+    )
     .eq("id", automationId)
     .single();
 

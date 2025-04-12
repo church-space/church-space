@@ -40,11 +40,33 @@ import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
-import type {
-  EmailAutomation,
-  TriggerType,
-} from "@/components/automation-builder/automation-builder";
+import type { TriggerType } from "@/components/automation-builder/automation-builder";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
+
+// Types for the new schema
+interface AutomationStep {
+  id: number;
+  created_at: string;
+  type: "wait" | "send_email";
+  values: any;
+  order: number | null;
+  from_email_domain: number | null;
+  email_template: number | null;
+  updated_at: string | null;
+}
+
+interface EmailAutomation {
+  id: number;
+  created_at: string;
+  name: string;
+  trigger_type: TriggerType | null;
+  list_id: number | null;
+  description: string | null;
+  organization_id: string;
+  is_active: boolean;
+  updated_at: string | null;
+  steps: AutomationStep[];
+}
 
 export default function Page() {
   const params = useParams();
@@ -75,54 +97,22 @@ export default function Page() {
           created_at: automation.data.created_at,
           name: automation.data.name || "",
           trigger_type: (automation.data.trigger_type as TriggerType) || null,
-          wait:
-            automation.data.wait &&
-            typeof automation.data.wait === "object" &&
-            !Array.isArray(automation.data.wait)
-              ? {
-                  enabled: Boolean(
-                    (automation.data.wait as Record<string, unknown>).enabled,
-                  ),
-                  unit:
-                    ((automation.data.wait as Record<string, unknown>).unit as
-                      | "days"
-                      | "hours") || "days",
-                  value: Number(
-                    (automation.data.wait as Record<string, unknown>).value ||
-                      1,
-                  ),
-                }
-              : null,
-          email_details:
-            automation.data.email_details &&
-            typeof automation.data.email_details === "object" &&
-            !Array.isArray(automation.data.email_details)
-              ? {
-                  enabled: Boolean(
-                    (automation.data.email_details as Record<string, unknown>)
-                      .enabled,
-                  ),
-                  fromName: String(
-                    (automation.data.email_details as Record<string, unknown>)
-                      .fromName || "",
-                  ),
-                  fromEmail: String(
-                    (automation.data.email_details as Record<string, unknown>)
-                      .fromEmail || "",
-                  ),
-                  subject: String(
-                    (automation.data.email_details as Record<string, unknown>)
-                      .subject || "",
-                  ),
-                }
-              : null,
-          email_template_id: automation.data.email_template_id || null,
           list_id: automation.data.list_id || null,
           description: automation.data.description || null,
           organization_id: organizationId,
           is_active: automation.data.is_active || false,
-          from_email_domain: automation.data.from_email_domain || null,
           updated_at: automation.data.updated_at || null,
+          steps:
+            automation.data.steps?.map((step) => ({
+              id: step.id,
+              created_at: step.created_at,
+              type: step.type as "wait" | "send_email",
+              values: step.values,
+              order: step.order,
+              from_email_domain: step.from_email_domain,
+              email_template: step.email_template,
+              updated_at: step.updated_at,
+            })) || [],
         }
       : undefined;
 

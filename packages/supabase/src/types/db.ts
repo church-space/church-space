@@ -52,22 +52,25 @@ export type Database = {
           automation_id: number
           created_at: string
           id: number
+          last_completed_step_id: number
           person_id: number
-          step: string
+          updated_at: string | null
         }
         Insert: {
           automation_id: number
           created_at?: string
           id?: number
+          last_completed_step_id: number
           person_id: number
-          step: string
+          updated_at?: string | null
         }
         Update: {
           automation_id?: number
           created_at?: string
           id?: number
+          last_completed_step_id?: number
           person_id?: number
-          step?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -75,6 +78,13 @@ export type Database = {
             columns: ["automation_id"]
             isOneToOne: false
             referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_automation_step_members_last_completed_step_id_fkey"
+            columns: ["last_completed_step_id"]
+            isOneToOne: false
+            referencedRelation: "email_automation_steps"
             referencedColumns: ["id"]
           },
           {
@@ -86,13 +96,68 @@ export type Database = {
           },
         ]
       }
+      email_automation_steps: {
+        Row: {
+          automation_id: number
+          created_at: string
+          email_template: number | null
+          from_email_domain: number | null
+          id: number
+          order: number | null
+          type: string
+          updated_at: string | null
+          values: Json | null
+        }
+        Insert: {
+          automation_id: number
+          created_at?: string
+          email_template?: number | null
+          from_email_domain?: number | null
+          id?: number
+          order?: number | null
+          type: string
+          updated_at?: string | null
+          values?: Json | null
+        }
+        Update: {
+          automation_id?: number
+          created_at?: string
+          email_template?: number | null
+          from_email_domain?: number | null
+          id?: number
+          order?: number | null
+          type?: string
+          updated_at?: string | null
+          values?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_automation_steps_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_automation_steps_email_template_fkey"
+            columns: ["email_template"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_automation_steps_from_email_domain_fkey"
+            columns: ["from_email_domain"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_automations: {
         Row: {
           created_at: string
           description: string | null
-          email_details: Json | null
-          email_template_id: number | null
-          from_email_domain: number | null
           id: number
           is_active: boolean
           list_id: number | null
@@ -100,14 +165,10 @@ export type Database = {
           organization_id: string
           trigger_type: string | null
           updated_at: string | null
-          wait: Json | null
         }
         Insert: {
           created_at?: string
           description?: string | null
-          email_details?: Json | null
-          email_template_id?: number | null
-          from_email_domain?: number | null
           id?: number
           is_active?: boolean
           list_id?: number | null
@@ -115,14 +176,10 @@ export type Database = {
           organization_id: string
           trigger_type?: string | null
           updated_at?: string | null
-          wait?: Json | null
         }
         Update: {
           created_at?: string
           description?: string | null
-          email_details?: Json | null
-          email_template_id?: number | null
-          from_email_domain?: number | null
           id?: number
           is_active?: boolean
           list_id?: number | null
@@ -130,23 +187,8 @@ export type Database = {
           organization_id?: string
           trigger_type?: string | null
           updated_at?: string | null
-          wait?: Json | null
         }
         Relationships: [
-          {
-            foreignKeyName: "email_automations_email_template_id_fkey"
-            columns: ["email_template_id"]
-            isOneToOne: false
-            referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_automations_from_email_domain_fkey"
-            columns: ["from_email_domain"]
-            isOneToOne: false
-            referencedRelation: "domains"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "email_automations_list_id_fkey"
             columns: ["list_id"]
