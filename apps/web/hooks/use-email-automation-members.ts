@@ -7,14 +7,11 @@ import {
 
 const ITEMS_PER_PAGE = 25;
 
-export function useEmailAutomationMembers(
-  automationId: number,
-  status?: string,
-) {
+export function useEmailAutomationMembers(automationId: number, step?: number) {
   const supabase = createClient();
 
   return useInfiniteQuery({
-    queryKey: ["email-automation-members", automationId, status],
+    queryKey: ["email-automation-members", automationId, step],
     queryFn: async ({ pageParam = 0 }) => {
       const from = pageParam * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
@@ -24,7 +21,7 @@ export function useEmailAutomationMembers(
         supabase,
         automationId,
         {
-          step: status === "all" ? undefined : status,
+          step: step,
         },
       );
 
@@ -35,7 +32,7 @@ export function useEmailAutomationMembers(
         supabase,
         automationId,
         {
-          step: status === "all" ? undefined : status,
+          step: step,
         },
       );
 
