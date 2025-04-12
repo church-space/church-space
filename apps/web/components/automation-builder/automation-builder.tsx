@@ -172,13 +172,20 @@ function SortableStep(props: SortableStepProps) {
     isDragging,
   } = useSortable({ id: index.toString() });
 
-  const style = transform
-    ? {
-        transform: CSS.Transform.toString(transform),
-        transition: isDragging ? undefined : transition,
-        zIndex: isDragging ? 10 : 1,
-      }
-    : undefined;
+  const style = {
+    transform: CSS.Transform.toString(
+      transform
+        ? {
+            x: transform.x,
+            y: transform.y,
+            scaleX: 1,
+            scaleY: 1,
+          }
+        : null,
+    ),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+  };
 
   // Generate a stable ID for the accordion item
   const stepId = step.id ? `step-${step.id}` : step.tempId || `temp-${index}`;
@@ -862,13 +869,6 @@ export default function EmailAutomationBuilder({
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
-            modifiers={[
-              (args) => ({
-                ...args.transform,
-                scaleX: 1,
-                scaleY: 1,
-              }),
-            ]}
           >
             <SortableContext
               items={steps.map((_, i) => i.toString())}
