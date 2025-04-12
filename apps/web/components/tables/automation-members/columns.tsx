@@ -7,9 +7,10 @@ import { ColumnDef } from "@tanstack/react-table";
 export type EmailAutomationMember = {
   id: number;
   created_at: string;
-  step: string;
+  last_completed_step_id: number;
   automation_id: number;
   person_id: number;
+  updated_at: string;
 };
 
 export const columns: ColumnDef<EmailAutomationMember>[] = [

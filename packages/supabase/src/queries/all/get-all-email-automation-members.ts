@@ -11,6 +11,7 @@ export interface EmailAutomationMember {
   last_completed_step_id: number;
   automation_id: number;
   person_id: number;
+  updated_at: string;
 }
 
 export interface EmailAutomationMemberParams {
@@ -53,5 +54,5 @@ export async function getEmailAutomationMembers(
 
   const { data, error } = await query;
 
-  return { data, error };
+  return { data: data as EmailAutomationMember[], error };
 }
