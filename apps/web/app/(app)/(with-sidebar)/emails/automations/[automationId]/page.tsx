@@ -37,13 +37,14 @@ import { DisableLink } from "@church-space/ui/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 import { useUser } from "@/stores/use-user";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
 import type {
   EmailAutomation,
   TriggerType,
 } from "@/components/automation-builder/automation-builder";
+import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 
 export default function Page() {
   const params = useParams();
@@ -74,29 +75,6 @@ export default function Page() {
           created_at: automation.data.created_at,
           name: automation.data.name || "",
           trigger_type: (automation.data.trigger_type as TriggerType) || null,
-          notify_admin:
-            automation.data.notify_admin &&
-            typeof automation.data.notify_admin === "object" &&
-            !Array.isArray(automation.data.notify_admin)
-              ? {
-                  enabled: Boolean(
-                    (automation.data.notify_admin as Record<string, unknown>)
-                      .enabled,
-                  ),
-                  email: String(
-                    (automation.data.notify_admin as Record<string, unknown>)
-                      .email || "",
-                  ),
-                  subject: String(
-                    (automation.data.notify_admin as Record<string, unknown>)
-                      .subject || "",
-                  ),
-                  message: String(
-                    (automation.data.notify_admin as Record<string, unknown>)
-                      .message || "",
-                  ),
-                }
-              : null,
           wait:
             automation.data.wait &&
             typeof automation.data.wait === "object" &&
@@ -192,7 +170,13 @@ export default function Page() {
   }
 
   const handleStatusToggle = () => {
-    // TODO: Implement status toggle
+    updateEmailAutomationAction({
+      automation_id: automationId,
+      automation_data: {
+        id: automationId,
+        is_active: !transformedAutomation.is_active,
+      },
+    });
   };
 
   const handleDeleteLink = () => {
@@ -206,7 +190,14 @@ export default function Page() {
 
   const saveEditedLink = () => {
     setIsEditingLink(false);
-    // TODO: Implement save edited link
+    updateEmailAutomationAction({
+      automation_id: automationId,
+      automation_data: {
+        id: automationId,
+        name: editedLinkName,
+        description: editedLinkDescription,
+      },
+    });
   };
 
   const startEditingLink = () => {
@@ -247,6 +238,7 @@ export default function Page() {
                   <Label htmlFor="edit-link-name" className="mb-2 block">
                     Automation Name
                   </Label>
+
                   <Input
                     id="edit-link-name"
                     value={editedLinkName}
@@ -293,9 +285,22 @@ export default function Page() {
               >
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
-                      {transformedAutomation.name}
-                    </h2>
+                    <div className="flex flex-row items-center gap-2">
+                      <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
+                        {transformedAutomation.name}
+                      </h2>
+                      <Badge
+                        variant={
+                          transformedAutomation.is_active
+                            ? "default"
+                            : "outline"
+                        }
+                      >
+                        {transformedAutomation.is_active
+                          ? "Active"
+                          : "Disabled"}
+                      </Badge>
+                    </div>
                     {editedLinkStatus === "inactive" && (
                       <Badge variant="outline">Disabled</Badge>
                     )}

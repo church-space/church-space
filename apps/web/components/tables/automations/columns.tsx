@@ -9,7 +9,6 @@ export type EmailAutomation = {
   created_at: string;
   name: string;
   trigger_type: string | null;
-  notify_admin: any | null;
   wait: any | null;
   email_details: any | null;
   email_template_id: number | null;

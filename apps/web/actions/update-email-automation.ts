@@ -16,7 +16,6 @@ export const updateEmailAutomationAction = authActionClient
           created_at: z.string(),
           name: z.string(),
           trigger_type: z.string().nullable(),
-          notify_admin: z.any().nullable(),
           wait: z.any().nullable(),
           email_details: z.any().nullable(),
           list_id: z.number().nullable(),

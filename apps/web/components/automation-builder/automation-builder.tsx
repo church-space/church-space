@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@church-space/ui/select";
 import { Input } from "@church-space/ui/input";
-import { Textarea } from "@church-space/ui/textarea";
+
 import { Switch } from "@church-space/ui/switch";
 import { AnimatePresence, motion } from "framer-motion";
 import { SheetTitle, SheetHeader, SheetFooter } from "@church-space/ui/sheet";
@@ -24,18 +24,12 @@ import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export type TriggerType = "person_added" | "person_removed";
-type ActionType = "notify_admin" | "wait" | "send_email";
+type ActionType = "wait" | "send_email";
 
 export interface EmailAutomation {
   id: number;
   name: string;
   trigger_type: TriggerType | null;
-  notify_admin: {
-    enabled: boolean;
-    email: string;
-    subject: string;
-    message: string;
-  } | null;
   wait: {
     enabled: boolean;
     unit: "days" | "hours";
@@ -130,19 +124,13 @@ export default function EmailAutomationBuilder({
     trigger: automation?.trigger_type || (null as TriggerType | null),
     selectedList: automation?.list_id?.toString() || "",
     actions: {
-      notify_admin: {
-        enabled: automation?.notify_admin?.enabled ?? false,
-        email: automation?.notify_admin?.email || "",
-        subject: automation?.notify_admin?.subject || "",
-        message: automation?.notify_admin?.message || "",
-      },
       wait: {
         enabled: automation?.wait?.enabled ?? false,
         unit: automation?.wait?.unit || "days",
         value: automation?.wait?.value || 1,
       },
       send_email: {
-        enabled: automation?.email_details?.enabled ?? false,
+        enabled: true,
         template: automation?.email_template_id?.toString() || "",
         fromName: automation?.email_details?.fromName || "",
         fromEmail: automation?.email_details?.fromEmail || "",
@@ -153,13 +141,53 @@ export default function EmailAutomationBuilder({
   });
 
   const [actions, setActions] = useState(initialState.current.actions);
+  const [waitTimeError, setWaitTimeError] = useState<string | null>(null);
+
+  // Function to validate wait time and update error state
+  const validateWaitTime = useCallback(
+    (value: number, unit: "days" | "hours") => {
+      if ((unit === "hours" && value > 24) || (unit === "days" && value > 31)) {
+        setWaitTimeError(
+          `Maximum wait time is ${unit === "hours" ? "24 hours" : "31 days"}`,
+        );
+        return false;
+      }
+      setWaitTimeError(null);
+      return true;
+    },
+    [],
+  );
+
+  // Update validation whenever wait time changes
+  useEffect(() => {
+    if (actions.wait.enabled && actions.wait.value) {
+      validateWaitTime(actions.wait.value, actions.wait.unit);
+    } else {
+      setWaitTimeError(null);
+    }
+  }, [
+    actions.wait.value,
+    actions.wait.unit,
+    actions.wait.enabled,
+    validateWaitTime,
+  ]);
 
   // Function to check if current state differs from initial state
   const checkForChanges = useCallback(() => {
     const hasChanges =
       trigger !== initialState.current.trigger ||
       selectedList !== initialState.current.selectedList ||
-      JSON.stringify(actions) !== JSON.stringify(initialState.current.actions);
+      JSON.stringify({
+        ...actions,
+        send_email: { ...actions.send_email, enabled: true },
+      }) !==
+        JSON.stringify({
+          ...initialState.current.actions,
+          send_email: {
+            ...initialState.current.actions.send_email,
+            enabled: true,
+          },
+        });
 
     setHasUnsavedChanges(hasChanges);
     onChangesPending(hasChanges);
@@ -188,25 +216,26 @@ export default function EmailAutomationBuilder({
   }, [hasUnsavedChanges]);
 
   const handleSave = async () => {
+    // Validate wait time before saving
+    if (actions.wait.enabled) {
+      if (!validateWaitTime(actions.wait.value, actions.wait.unit)) {
+        return;
+      }
+    }
+
     const automationData = {
       automation_id: automation.id,
       automation_data: {
         id: automation.id,
         trigger_type: trigger,
         list_id: selectedList ? parseInt(selectedList) : null,
-        notify_admin: {
-          enabled: actions.notify_admin.enabled,
-          email: actions.notify_admin.email,
-          subject: actions.notify_admin.subject,
-          message: actions.notify_admin.message,
-        },
         wait: {
           enabled: actions.wait.enabled,
           unit: actions.wait.unit,
           value: actions.wait.value,
         },
         email_details: {
-          enabled: actions.send_email.enabled,
+          enabled: true,
           fromName: actions.send_email.fromName,
           fromEmail: actions.send_email.fromEmail,
           subject: actions.send_email.subject,
@@ -323,97 +352,6 @@ export default function EmailAutomationBuilder({
             Actions
           </div>
 
-          {/* Notify Admin Action */}
-          <Card
-            className={cn(
-              "relative border-dashed",
-              actions.notify_admin.enabled ? "border-primary" : "border-border",
-            )}
-          >
-            <CardContent className="p-0">
-              <div className="flex h-14 w-full items-center px-4">
-                <div className="flex w-full items-center gap-2">
-                  <Switch
-                    checked={actions.notify_admin.enabled}
-                    onCheckedChange={() => toggleAction("notify_admin")}
-                  />
-                  <span
-                    className={cn(
-                      "flex-1 cursor-pointer font-medium",
-                      actions.notify_admin.enabled
-                        ? "text-foreground"
-                        : "text-muted-foreground",
-                    )}
-                    onClick={() => {
-                      toggleAction("notify_admin");
-                    }}
-                  >
-                    Notify Admin
-                  </span>
-                </div>
-              </div>
-
-              <AnimatePresence>
-                {actions.notify_admin.enabled && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="space-y-3 px-4 pb-4">
-                      <div>
-                        <div className="mb-1 text-xs">Admin Email</div>
-                        <Input
-                          placeholder="admin@example.com"
-                          value={actions.notify_admin.email}
-                          onChange={(e) =>
-                            updateActionField(
-                              "notify_admin",
-                              "email",
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </div>
-                      <div>
-                        <div className="mb-1 text-xs">Subject</div>
-                        <Input
-                          placeholder="Notification Subject"
-                          value={actions.notify_admin.subject}
-                          onChange={(e) =>
-                            updateActionField(
-                              "notify_admin",
-                              "subject",
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </div>
-                      <div>
-                        <div className="mb-1 text-xs">Message</div>
-                        <Textarea
-                          placeholder="Notification message..."
-                          className="min-h-[80px]"
-                          value={actions.notify_admin.message}
-                          onChange={(e) =>
-                            updateActionField(
-                              "notify_admin",
-                              "message",
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </CardContent>
-            <div className="absolute -bottom-4 left-1/2 z-10 -ml-0.5 h-4 w-0.5 bg-border"></div>
-          </Card>
-
           {/* Wait Action */}
           <Card
             className={cn(
@@ -454,35 +392,47 @@ export default function EmailAutomationBuilder({
                     className="overflow-hidden"
                   >
                     <div className="px-4 pb-4">
-                      <div className="flex items-center gap-3">
-                        <Input
-                          type="number"
-                          min={1}
-                          max={actions.wait.unit === "days" ? 31 : 23}
-                          className="w-20"
-                          value={actions.wait.value}
-                          onChange={(e) =>
-                            updateActionField(
-                              "wait",
-                              "value",
-                              Number.parseInt(e.target.value) || 1,
-                            )
-                          }
-                        />
-                        <Select
-                          value={actions.wait.unit}
-                          onValueChange={(value) =>
-                            updateActionField("wait", "unit", value)
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="days">Days</SelectItem>
-                            <SelectItem value="hours">Hours</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-3">
+                          <Input
+                            type="number"
+                            className={cn(
+                              "w-20",
+                              waitTimeError && "border-destructive",
+                            )}
+                            value={
+                              actions.wait.value === null
+                                ? ""
+                                : actions.wait.value
+                            }
+                            onChange={(e) => {
+                              const value =
+                                e.target.value === ""
+                                  ? ""
+                                  : Number(e.target.value);
+                              updateActionField("wait", "value", value);
+                            }}
+                          />
+                          <Select
+                            value={actions.wait.unit}
+                            onValueChange={(value: "days" | "hours") => {
+                              updateActionField("wait", "unit", value);
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="days">Days</SelectItem>
+                              <SelectItem value="hours">Hours</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {waitTimeError && (
+                          <p className="text-sm text-destructive">
+                            {waitTimeError}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -493,115 +443,76 @@ export default function EmailAutomationBuilder({
           </Card>
 
           {/* Send Email Action */}
-          <Card
-            className={cn(
-              "relative border-dashed",
-              actions.send_email.enabled ? "border-primary" : "border-border",
-            )}
-          >
+          <Card className={cn("relative border-dashed border-primary")}>
             <CardContent className="p-0">
               <div className="flex h-14 w-full items-center px-4">
                 <div className="flex w-full items-center gap-2">
-                  <Switch
-                    checked={actions.send_email.enabled}
-                    onCheckedChange={() => toggleAction("send_email")}
-                  />
-                  <span
-                    className={cn(
-                      "flex-1 cursor-pointer font-medium",
-                      actions.send_email.enabled
-                        ? "text-foreground"
-                        : "text-muted-foreground",
-                    )}
-                    onClick={() => {
-                      toggleAction("send_email");
-                    }}
-                  >
+                  <span className="flex-1 font-medium text-foreground">
                     Send Email
                   </span>
                 </div>
               </div>
 
-              <AnimatePresence>
-                {actions.send_email.enabled && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="space-y-3 px-4 pb-4">
-                      <div>
-                        <div className="mb-1 text-xs">Email Template</div>
-                        <EmailTemplateSelector
-                          value={actions.send_email.template}
-                          onChange={(value) =>
-                            updateActionField("send_email", "template", value)
-                          }
-                          organizationId={organizationId}
-                        />
-                      </div>
-                      <div>
-                        <div className="mb-1 text-xs">From Name</div>
-                        <Input
-                          placeholder="Your Name"
-                          value={actions.send_email.fromName}
-                          onChange={(e) =>
-                            updateActionField(
-                              "send_email",
-                              "fromName",
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </div>
-                      <div>
-                        <div className="mb-1 text-xs">From Email</div>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            placeholder="Enter from"
-                            value={actions.send_email.fromEmail}
-                            onChange={(e) =>
-                              updateActionField(
-                                "send_email",
-                                "fromEmail",
-                                e.target.value,
-                              )
-                            }
-                          />
-                          <span className="mb-1 leading-none">@</span>
-                          <DomainSelector
-                            organizationId={organizationId}
-                            onChange={(value) =>
-                              updateActionField(
-                                "send_email",
-                                "fromEmail",
-                                value,
-                              )
-                            }
-                            value={actions.send_email.fromEmail}
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="mb-1 text-xs">Subject</div>
-                        <Input
-                          placeholder="Email Subject"
-                          value={actions.send_email.subject}
-                          onChange={(e) =>
-                            updateActionField(
-                              "send_email",
-                              "subject",
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <div className="space-y-3 px-4 pb-4">
+                <div>
+                  <div className="mb-1 text-xs">Email Template</div>
+                  <EmailTemplateSelector
+                    value={actions.send_email.template}
+                    onChange={(value) =>
+                      updateActionField("send_email", "template", value)
+                    }
+                    organizationId={organizationId}
+                  />
+                </div>
+                <div>
+                  <div className="mb-1 text-xs">From Name</div>
+                  <Input
+                    placeholder="Your Name"
+                    value={actions.send_email.fromName}
+                    onChange={(e) =>
+                      updateActionField(
+                        "send_email",
+                        "fromName",
+                        e.target.value,
+                      )
+                    }
+                  />
+                </div>
+                <div>
+                  <div className="mb-1 text-xs">From Email</div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Enter from"
+                      value={actions.send_email.fromEmail}
+                      onChange={(e) =>
+                        updateActionField(
+                          "send_email",
+                          "fromEmail",
+                          e.target.value,
+                        )
+                      }
+                    />
+                    <span className="mb-1 leading-none">@</span>
+                    <DomainSelector
+                      organizationId={organizationId}
+                      onChange={(value) =>
+                        updateActionField("send_email", "fromDomain", value)
+                      }
+                      value={actions.send_email.fromDomain}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-1 text-xs">Subject</div>
+                  <Input
+                    placeholder="Email Subject"
+                    value={actions.send_email.subject}
+                    onChange={(e) =>
+                      updateActionField("send_email", "subject", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

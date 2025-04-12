@@ -97,7 +97,6 @@ export type Database = {
           is_active: boolean
           list_id: number | null
           name: string
-          notify_admin: Json | null
           organization_id: string
           trigger_type: string | null
           updated_at: string | null
@@ -113,7 +112,6 @@ export type Database = {
           is_active?: boolean
           list_id?: number | null
           name: string
-          notify_admin?: Json | null
           organization_id: string
           trigger_type?: string | null
           updated_at?: string | null
@@ -129,7 +127,6 @@ export type Database = {
           is_active?: boolean
           list_id?: number | null
           name?: string
-          notify_admin?: Json | null
           organization_id?: string
           trigger_type?: string | null
           updated_at?: string | null
