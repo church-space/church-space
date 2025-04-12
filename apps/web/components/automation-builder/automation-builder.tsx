@@ -26,6 +26,9 @@ import EmailTemplateSelector from "./email-template-selector";
 import DomainSelector from "../id-pages/emails/domain-selector";
 import { useToast } from "@church-space/ui/use-toast";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
+import { updateEmailAutomationStepAction } from "@/actions/update-email-automation-step";
+import { deleteEmailAutomationStepAction } from "@/actions/delete-email-automation-step";
+import { createEmailAutomationStepAction } from "@/actions/create-email-automation-step";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   closestCenter,
@@ -133,19 +136,7 @@ const CustomAccordionTrigger = React.forwardRef<
 ));
 CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
 
-// Add SortableStep component before the main EmailAutomationBuilder component
-function SortableStep({
-  step,
-  index,
-  steps,
-  updateStep,
-  removeStep,
-  validateWaitTime,
-  waitTimeError,
-  organizationId,
-  openItem,
-  setOpenItem,
-}: {
+type SortableStepProps = {
   step: AutomationStep;
   index: number;
   steps: AutomationStep[];
@@ -156,7 +147,22 @@ function SortableStep({
   organizationId: string;
   openItem: string | undefined;
   setOpenItem: (value: string | undefined) => void;
-}) {
+};
+
+function SortableStep(props: SortableStepProps) {
+  const {
+    step,
+    index,
+    steps,
+    updateStep: updateStepInState,
+    removeStep,
+    validateWaitTime,
+    waitTimeError,
+    organizationId,
+    openItem,
+    setOpenItem,
+  } = props;
+
   const {
     attributes,
     listeners,
@@ -221,7 +227,7 @@ function SortableStep({
                         onChange={(e) => {
                           const value =
                             e.target.value === "" ? 0 : Number(e.target.value);
-                          updateStep(index, {
+                          updateStepInState(index, {
                             values: {
                               ...step.values,
                               value,
@@ -232,7 +238,7 @@ function SortableStep({
                       <Select
                         value={step.values.unit}
                         onValueChange={(value: "days" | "hours") => {
-                          updateStep(index, {
+                          updateStepInState(index, {
                             values: {
                               ...step.values,
                               unit: value,
@@ -272,7 +278,7 @@ function SortableStep({
                     <EmailTemplateSelector
                       value={step.email_template?.toString() || ""}
                       onChange={(value) => {
-                        updateStep(index, {
+                        updateStepInState(index, {
                           email_template: value ? parseInt(value) : null,
                         });
                       }}
@@ -285,7 +291,7 @@ function SortableStep({
                       placeholder="Your Name"
                       value={step.values.fromName}
                       onChange={(e) => {
-                        updateStep(index, {
+                        updateStepInState(index, {
                           values: {
                             ...step.values,
                             fromName: e.target.value,
@@ -301,7 +307,7 @@ function SortableStep({
                         placeholder="Enter from"
                         value={step.values.fromEmail}
                         onChange={(e) => {
-                          updateStep(index, {
+                          updateStepInState(index, {
                             values: {
                               ...step.values,
                               fromEmail: e.target.value,
@@ -313,7 +319,7 @@ function SortableStep({
                       <DomainSelector
                         organizationId={organizationId}
                         onChange={(value) => {
-                          updateStep(index, {
+                          updateStepInState(index, {
                             from_email_domain: value ? parseInt(value) : null,
                           });
                         }}
@@ -327,7 +333,7 @@ function SortableStep({
                       placeholder="Email Subject"
                       value={step.values.subject}
                       onChange={(e) => {
-                        updateStep(index, {
+                        updateStepInState(index, {
                           values: {
                             ...step.values,
                             subject: e.target.value,
@@ -385,52 +391,45 @@ export default function EmailAutomationBuilder({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { mutate: updateAutomation, isPending: isSaving } = useMutation({
-    mutationFn: updateEmailAutomationAction,
-    onSuccess: (result) => {
-      // Handle the nested response format
-      const responseData = Array.isArray(result) ? result[1] : result;
-      if (responseData?.data?.success === false) {
+  // Create mutations for each step action
+  const { mutateAsync: updateStepMutation, isPending: isUpdating } =
+    useMutation({
+      mutationFn: updateEmailAutomationStepAction,
+      onError: (error) => {
         toast({
           title: "Error",
-          description: responseData.data.error || "Failed to update automation",
+          description:
+            error instanceof Error ? error.message : "Failed to update step",
           variant: "destructive",
         });
-        return;
-      }
+      },
+    });
 
-      // Update initial state to current state after saving
-      initialState.current = {
-        trigger,
-        selectedList,
-        steps,
-      };
-
-      setHasUnsavedChanges(false);
-      onChangesPending(false);
-      closeSheet();
-
-      toast({
-        title: "Success",
-        description: "Automation updated successfully",
-      });
-
-      // Invalidate the query to refresh the data
-      queryClient.invalidateQueries({
-        queryKey: ["email-automation", automation.id],
-      });
-    },
+  const { mutateAsync: createStep, isPending: isCreating } = useMutation({
+    mutationFn: createEmailAutomationStepAction,
     onError: (error) => {
       toast({
         title: "Error",
         description:
-          error instanceof Error
-            ? error.message
-            : "Failed to update automation",
+          error instanceof Error ? error.message : "Failed to create step",
         variant: "destructive",
       });
     },
   });
+
+  const { mutateAsync: deleteStep, isPending: isDeleting } = useMutation({
+    mutationFn: deleteEmailAutomationStepAction,
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to delete step",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const isSaving = isUpdating || isCreating || isDeleting;
 
   // Store initial state for comparison
   const initialState = useRef({
@@ -479,7 +478,10 @@ export default function EmailAutomationBuilder({
   };
 
   // Function to update a step
-  const updateStep = (index: number, updates: Partial<AutomationStep>) => {
+  const updateStepInState = (
+    index: number,
+    updates: Partial<AutomationStep>,
+  ) => {
     setSteps((prev) => {
       const newSteps = [...prev];
       newSteps[index] = { ...newSteps[index], ...updates };
@@ -588,46 +590,88 @@ export default function EmailAutomationBuilder({
       }
     }
 
-    const automationData = {
-      automation_id: automation.id,
-      automation_data: {
-        id: automation.id,
-        trigger_type: trigger,
-        list_id: selectedList ? parseInt(selectedList) : null,
-        steps: steps.map((step) => {
-          const baseStep = {
-            id: step.id || undefined,
-            order: step.order,
+    try {
+      // Find deleted steps by comparing with initial state
+      const deletedSteps = initialState.current.steps.filter(
+        (initialStep) =>
+          initialStep.id && !steps.find((s) => s.id === initialStep.id),
+      );
+
+      // Delete removed steps
+      await Promise.all(
+        deletedSteps.map((step) =>
+          deleteStep({
+            stepId: step.id!,
+          }),
+        ),
+      );
+
+      // Update or create steps
+      await Promise.all(
+        steps.map(async (step) => {
+          const baseStepData = {
             type: step.type,
+            order: step.order,
             from_email_domain: step.from_email_domain || null,
             email_template: step.email_template || null,
+            automation_id: automation.id,
+            values: isWaitStep(step)
+              ? {
+                  unit: step.values.unit,
+                  value: step.values.value,
+                }
+              : isEmailStep(step)
+                ? {
+                    fromName: step.values.fromName,
+                    fromEmail: step.values.fromEmail,
+                    subject: step.values.subject,
+                  }
+                : null,
           };
 
-          if (isWaitStep(step)) {
-            return {
-              ...baseStep,
-              values: {
-                unit: step.values.unit,
-                value: step.values.value,
-              } as WaitStepValues,
-            };
-          } else if (isEmailStep(step)) {
-            return {
-              ...baseStep,
-              values: {
-                fromName: step.values.fromName,
-                fromEmail: step.values.fromEmail,
-                subject: step.values.subject,
-              } as EmailStepValues,
-            };
+          if (step.id) {
+            // Update existing step
+            await updateStepMutation({
+              id: step.id,
+              automation_data: baseStepData,
+            });
           } else {
-            throw new Error(`Invalid step type: ${step.type}`);
+            // Create new step
+            await createStep(baseStepData);
           }
         }),
-      },
-    };
+      );
 
-    updateAutomation(automationData);
+      // Update initial state to current state after saving
+      initialState.current = {
+        trigger,
+        selectedList,
+        steps,
+      };
+
+      setHasUnsavedChanges(false);
+      onChangesPending(false);
+      closeSheet();
+
+      toast({
+        title: "Success",
+        description: "Automation steps updated successfully",
+      });
+
+      // Invalidate the query to refresh the data
+      queryClient.invalidateQueries({
+        queryKey: ["email-automation", automation.id],
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update automation steps",
+        variant: "destructive",
+      });
+    }
   };
 
   // Update cancel button to reset to initial state
@@ -748,7 +792,7 @@ export default function EmailAutomationBuilder({
                     step={step}
                     index={index}
                     steps={steps}
-                    updateStep={updateStep}
+                    updateStep={updateStepInState}
                     removeStep={removeStep}
                     validateWaitTime={validateWaitTime}
                     waitTimeError={waitTimeError}
