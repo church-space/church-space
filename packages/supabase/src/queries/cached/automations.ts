@@ -24,7 +24,7 @@ export const getCachedEmailAutomationsByPCOId = async (
       if (!response.data) return null;
       return response;
     },
-    [`email_automations_${pcoListId}_${organizationId}`],
+    [`email_automations_${pcoListId}_${organizationId}_${triggerType}`],
     {
       revalidate: 1,
     }
@@ -36,9 +36,9 @@ export const getCachedEmailAutomationsByPCOId = async (
     async () => {
       return response;
     },
-    [`email_automations_${pcoListId}_${organizationId}`],
+    [`email_automations_${pcoListId}_${organizationId}_${triggerType}`],
     {
-      tags: [`email_automations_${pcoListId}_${organizationId}`],
+      tags: [`email_automations_${pcoListId}_${organizationId}_${triggerType}`],
     }
   )();
 };
