@@ -26,3 +26,23 @@ export async function getEmailAutomationQuery(
 
   return { data, error };
 }
+
+export type TriggerType = "person_added" | "person_removed";
+
+export async function getEmailAutomationsByPCOIdQuery(
+  supabase: Client,
+  pcoListId: string,
+  organizationId: string,
+  triggerType: TriggerType
+) {
+  const { data, error } = await supabase
+    .from("email_automations")
+    .select(`*, pco_list:pco_lists!inner(pco_list_id)`)
+    .eq("pco_lists.pco_list_id", pcoListId)
+    .eq("organization_id", organizationId)
+    .eq("trigger_type", triggerType)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+
+  return { data, error };
+}

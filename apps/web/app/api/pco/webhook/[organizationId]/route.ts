@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@church-space/supabase/job";
 import crypto from "crypto";
+import { getCachedEmailAutomationsByPCOId } from "@church-space/supabase/queries/cached/automations";
 
 // Helper function to wait for specified milliseconds
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -283,6 +284,14 @@ export async function POST(
           console.error("Error inserting list member:", insertError);
           //  Don't return here. Keep processing.
         }
+        const automations = await getCachedEmailAutomationsByPCOId(
+          pcoListId,
+          organizationId,
+          supabase,
+          "person_added",
+        );
+
+        console.log("automations", automations);
       }
       break;
     }
@@ -312,7 +321,17 @@ export async function POST(
           console.error("Error deleting list member:", deleteError);
           // Don't return here. Keep processing.
         }
+
+        const automations = await getCachedEmailAutomationsByPCOId(
+          pcoListId,
+          organizationId,
+          supabase,
+          "person_removed",
+        );
+
+        console.log("automations", automations);
       }
+
       break;
     }
     case "people.v2.events.email.created":

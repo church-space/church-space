@@ -46,6 +46,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
+import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 
 export type TriggerType = "person_added" | "person_removed";
 type ActionType = "wait" | "send_email";
@@ -142,7 +143,6 @@ type SortableStepProps = {
   steps: AutomationStep[];
   updateStep: (index: number, updates: Partial<AutomationStep>) => void;
   removeStep: (index: number) => void;
-  validateWaitTime: (value: number, unit: "days" | "hours") => boolean;
   waitTimeError: string | null;
   organizationId: string;
   openItem: string | undefined;
@@ -156,7 +156,6 @@ function SortableStep(props: SortableStepProps) {
     steps,
     updateStep: updateStepInState,
     removeStep,
-    validateWaitTime,
     waitTimeError,
     organizationId,
     openItem,
@@ -436,6 +435,20 @@ export default function EmailAutomationBuilder({
     },
   });
 
+  const { mutateAsync: updateAutomation } = useMutation({
+    mutationFn: updateEmailAutomationAction,
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update automation",
+        variant: "destructive",
+      });
+    },
+  });
+
   const isSaving = isUpdating || isCreating || isDeleting;
 
   // Store initial state for comparison
@@ -446,21 +459,6 @@ export default function EmailAutomationBuilder({
   });
 
   const [waitTimeError, setWaitTimeError] = useState<string | null>(null);
-
-  // Function to validate wait time and update error state
-  const validateWaitTime = useCallback(
-    (value: number, unit: "days" | "hours") => {
-      if ((unit === "hours" && value > 24) || (unit === "days" && value > 31)) {
-        setWaitTimeError(
-          `Maximum wait time is ${unit === "hours" ? "24 hours" : "31 days"}`,
-        );
-        return false;
-      }
-      setWaitTimeError(null);
-      return true;
-    },
-    [],
-  );
 
   // Function to add a new step
   const addStep = (type: ActionType) => {
@@ -491,7 +489,7 @@ export default function EmailAutomationBuilder({
       // Set the new step to be open using its tempId
       setOpenStep(newStep.tempId);
 
-      return newSteps;
+      return newSteps.map((step, i) => ({ ...step, order: i }));
     });
   };
 
@@ -512,23 +510,6 @@ export default function EmailAutomationBuilder({
     setSteps((prev) => {
       const newSteps = prev.filter((_, i) => i !== index);
       // Reorder remaining steps
-      return newSteps.map((step, i) => ({ ...step, order: i }));
-    });
-  };
-
-  // Function to move a step up or down
-  const moveStep = (index: number, direction: "up" | "down") => {
-    setSteps((prev) => {
-      const newSteps = [...prev];
-      const newIndex = direction === "up" ? index - 1 : index + 1;
-      if (newIndex < 0 || newIndex >= newSteps.length) return prev;
-
-      // Swap steps
-      [newSteps[index], newSteps[newIndex]] = [
-        newSteps[newIndex],
-        newSteps[index],
-      ];
-      // Update orders
       return newSteps.map((step, i) => ({ ...step, order: i }));
     });
   };
@@ -661,12 +642,41 @@ export default function EmailAutomationBuilder({
     // Validate all wait steps
     const waitSteps = steps.filter(isWaitStep);
     for (const step of waitSteps) {
-      if (!validateWaitTime(step.values.value, step.values.unit)) {
+      if (
+        !(
+          (step.values.unit === "hours" && step.values.value <= 24) ||
+          (step.values.unit === "days" && step.values.value <= 31)
+        )
+      ) {
+        setWaitTimeError(
+          `Maximum wait time is ${step.values.unit === "hours" ? "24 hours" : "31 days"}`,
+        );
         return;
       }
     }
+    setWaitTimeError(null);
 
     try {
+      // First update the automation details if trigger or list has changed
+      if (
+        trigger !== initialState.current.trigger ||
+        selectedList !== initialState.current.selectedList
+      ) {
+        await updateAutomation({
+          automation_id: automation.id,
+          automation_data: {
+            id: automation.id,
+            trigger_type: trigger,
+            list_id: selectedList ? parseInt(selectedList) : null,
+            organization_id: automation.organization_id,
+            created_at: automation.created_at,
+            name: automation.name,
+            is_active: automation.is_active,
+            updated_at: new Date().toISOString(),
+          },
+        });
+      }
+
       // Find deleted steps by comparing with initial state
       const deletedSteps = initialState.current.steps.filter(
         (initialStep) =>
@@ -743,7 +753,7 @@ export default function EmailAutomationBuilder({
 
       toast({
         title: "Success",
-        description: "Automation steps updated successfully",
+        description: "Automation updated successfully",
       });
 
       // Invalidate the query to refresh the data
@@ -756,7 +766,7 @@ export default function EmailAutomationBuilder({
         description:
           error instanceof Error
             ? error.message
-            : "Failed to update automation steps",
+            : "Failed to update automation",
         variant: "destructive",
       });
     }
@@ -877,7 +887,6 @@ export default function EmailAutomationBuilder({
                     steps={steps}
                     updateStep={updateStepInState}
                     removeStep={removeStep}
-                    validateWaitTime={validateWaitTime}
                     waitTimeError={waitTimeError}
                     organizationId={organizationId}
                     openItem={openStep}
