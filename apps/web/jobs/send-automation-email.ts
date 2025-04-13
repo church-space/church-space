@@ -1,4 +1,4 @@
-import { task, queue } from "@trigger.dev/sdk/v3";
+import { task, queue, runs } from "@trigger.dev/sdk/v3";
 import { Resend } from "resend";
 import { createClient } from "@church-space/supabase/job";
 import { SignJWT } from "jose";
@@ -30,6 +30,7 @@ interface SendAutomationEmailPayload {
   subject: string;
   automationId: number; // Assuming this might be needed for tracking/logging
   personId: number;
+  triggerAutomationRunId: string;
 }
 
 // Interface for email data
@@ -77,6 +78,7 @@ export const sendAutomationEmail = task({
       organizationId,
       automationId,
       personId,
+      triggerAutomationRunId,
     } = payload;
     const supabase = createClient();
 
@@ -106,7 +108,7 @@ export const sendAutomationEmail = task({
           `
           *,
           blocks:email_blocks(*),
-          footer:email_footers(*),
+          footer:email_footers(*)
         `,
         )
         .eq("id", emailId)
@@ -313,23 +315,6 @@ export const sendAutomationEmail = task({
         }
       }
 
-      // Update the status of the main email record (template)
-      // This might need refinement. Should the template status change on every send?
-      // Perhaps this update should only happen if it's the *first* send, or based on overall automation status?
-      // For now, updating based on this single send result.
-      await supabase
-        .from("emails")
-        .update({
-          // What should the status be? 'sent' implies the whole campaign/template is done.
-          // Maybe add a 'last_send_status' or similar? Or leave status unchanged?
-          // Let's leave status unchanged for now, as it's a template.
-          // status: emailSentSuccessfully ? "sent" : "failed",
-          updated_at: new Date().toISOString(),
-          // Clear or set error message based on this specific send? Maybe not appropriate here.
-          // error_message: errorMessage,
-        })
-        .eq("id", emailId);
-
       return {
         emailId,
         recipientEmail: recipient.email,
@@ -368,6 +353,8 @@ export const sendAutomationEmail = task({
               updated_at: new Date().toISOString(),
             })
             .eq("id", automationMember.id);
+
+          await runs.cancel(triggerAutomationRunId);
         }
       } catch (updateError) {
         console.error(

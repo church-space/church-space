@@ -150,6 +150,7 @@ export const filterAutomationEmails = task({
           // The loop below starts at index 0, processing this first step correctly.
           last_completed_step_id: steps[0].id,
           status: "in-progress",
+          trigger_dev_id: ctx.run.id,
         })
         .select("id") // Select only the ID
         .single();
@@ -358,6 +359,7 @@ export const filterAutomationEmails = task({
             subject: (step.values as EmailStepValues).subject || "",
             automationId: automationId,
             personId: internalPersonId,
+            triggerAutomationRunId: ctx.run.id,
           });
           console.log(
             `sendAutomationEmail triggered successfully for step ${step.id}.`,
