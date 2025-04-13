@@ -297,6 +297,12 @@ export default function Page() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
+                <Link prefetch={true} href="/emails">
+                  Emails
+                </Link>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem className="hidden md:block">
                 <Link prefetch={true} href="/emails/automations">
                   Automations
                 </Link>

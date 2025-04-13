@@ -176,7 +176,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
           </div>
           <div className="ml-7 hidden translate-y-0.5 text-sm text-muted-foreground md:block">
-            Click "?" for Support
+            Click &quot;?&quot; for Support
           </div>
         </SidebarFooter>
       </Sidebar>
