@@ -1,10 +1,5 @@
 import { Button } from "@church-space/ui/button";
-import {
-  Email,
-  FilledCircleQuestion,
-  LifeRing,
-  Search,
-} from "@church-space/ui/icons";
+import { Email, FilledCircleQuestion, Search } from "@church-space/ui/icons";
 import React from "react";
 import {
   DropdownMenu,
