@@ -1,6 +1,6 @@
 import { task, wait } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
-import { sendBulkEmails } from "./send-bulk-emails-queue";
+import { sendAutomationEmail } from "./send-automation-email";
 
 // Interface for the payload
 interface FilterAutomationEmailsPayload {
@@ -18,6 +18,7 @@ interface WaitStepValues {
 interface EmailStepValues {
   fromName: string | null;
   fromEmail: string | null;
+
   subject: string | null;
 }
 
@@ -28,7 +29,7 @@ interface AutomationStep {
   values: WaitStepValues | EmailStepValues | null;
   order: number | null;
   from_email_domain: number | null;
-  email_template: number | null; // Corresponds to an 'emails' table ID (template)
+  email_template: number | null;
   automation_id: number;
 }
 
@@ -325,15 +326,41 @@ export const filterAutomationEmails = task({
           };
 
           console.log(
-            `Triggering sendBulkEmails for template ${emailTemplateId}...`,
+            `Triggering sendAutomationEmail for template ${emailTemplateId}...`,
           );
-          await sendBulkEmails.trigger({
+
+          if (!step.from_email_domain) {
+            await supabase
+              .from("email_automation_members")
+              .update({
+                status: "canceled",
+                reason: "Invalid email step configuration",
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", currentMemberRecordId);
+            throw new Error(
+              `Invalid email step configuration for step ID ${step.id}: Missing from_email_domain.`,
+            );
+          }
+
+          await sendAutomationEmail.trigger({
             emailId: emailTemplateId,
-            recipients: recipients,
+            recipient: {
+              pcoPersonId: pcoPersonId,
+              email: recipientEmail,
+              firstName: firstName,
+              lastName: lastName,
+            },
             organizationId: organizationId,
+            fromEmail: (step.values as EmailStepValues).fromEmail || "",
+            fromEmailDomain: step.from_email_domain,
+            fromName: (step.values as EmailStepValues).fromName || "",
+            subject: (step.values as EmailStepValues).subject || "",
+            automationId: automationId,
+            personId: internalPersonId,
           });
           console.log(
-            `sendBulkEmails triggered successfully for step ${step.id}.`,
+            `sendAutomationEmail triggered successfully for step ${step.id}.`,
           );
 
           // d) Update last completed step ID after successful trigger

@@ -10,7 +10,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Create a queue for email sending
 const emailQueue = queue({
   name: "bulk-email-queue",
-  concurrencyLimit: 5,
+  concurrencyLimit: 18,
 });
 
 // Interface for the payload
