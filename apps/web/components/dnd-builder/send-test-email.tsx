@@ -256,6 +256,7 @@ export default function SendTestEmail() {
               handleSendTestEmail();
             }
           }}
+          maxLength={500}
         />
         <DialogFooter>
           <Button variant="outline" onClick={() => setIsOpen(false)}>

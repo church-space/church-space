@@ -377,7 +377,8 @@ const CustomImage: React.FC<{
   link: string;
   centered: boolean;
   isRounded?: boolean;
-}> = ({ image, size, link, centered, isRounded }) => {
+  altText?: string;
+}> = ({ image, size, link, centered, isRounded, altText }) => {
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${image}`;
 
   if (image === "") {
@@ -394,7 +395,7 @@ const CustomImage: React.FC<{
   const ImageComponent = (
     <Img
       src={imageUrl}
-      alt="Email content"
+      alt={altText || "Email content"}
       width={`${size}%`}
       style={imageStyle}
     />

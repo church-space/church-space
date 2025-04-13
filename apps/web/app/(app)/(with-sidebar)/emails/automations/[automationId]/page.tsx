@@ -334,6 +334,7 @@ export default function Page() {
                     onChange={(e) => setEditedLinkName(e.target.value)}
                     placeholder="Enter a name for this automation"
                     autoFocus
+                    maxLength={150}
                     className={linkErrors.name ? "border-destructive" : ""}
                   />
                   {linkErrors.name && (
@@ -352,6 +353,7 @@ export default function Page() {
                     onChange={(e) => setEditedLinkDescription(e.target.value)}
                     placeholder="Enter the automation description"
                     className={linkErrors.url ? "border-destructive" : ""}
+                    maxLength={500}
                   />
                   {linkErrors.url && (
                     <p className="mt-1 text-sm text-destructive">

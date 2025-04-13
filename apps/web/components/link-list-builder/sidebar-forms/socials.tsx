@@ -239,6 +239,7 @@ function SortableSocialItem({
                     placeholder={
                       link.icon === "mail" ? "email@example.com" : "https://"
                     }
+                    maxLength={500}
                   />
                   {linkErrors[index] && !typingLinks[index] && (
                     <p className="text-xs text-red-500">{linkErrors[index]}</p>

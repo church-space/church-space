@@ -64,6 +64,7 @@ export default function ColorPicker({
             // Color picker input always provides valid hex, so clear any errors
             setError(null);
           }}
+          maxLength={6}
         />
         <div className="relative">
           <Input

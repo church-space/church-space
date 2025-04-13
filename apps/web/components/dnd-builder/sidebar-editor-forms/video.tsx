@@ -76,6 +76,7 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
               className={
                 error ? "border-red-500 bg-background" : "bg-background"
               }
+              maxLength={500}
             />
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>

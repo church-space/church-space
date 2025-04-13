@@ -90,6 +90,7 @@ export default function NewEmailTemplate({
                     data-bwignore={true}
                     data-icloud-keychain-ignore={true}
                     className="pe-16"
+                    maxLength={60}
                   />
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                     {field.value.length} / 60

@@ -27,6 +27,7 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
     size: block.data?.size || 33,
     link: block.data?.link || "",
     centered: block.data?.centered || false,
+    altText: block.data?.altText || "",
   });
   const [linkError, setLinkError] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -172,11 +173,29 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
               value={localState.link}
               onChange={(e) => handleChange("link", e.target.value)}
               onBlur={handleBlur}
+              maxLength={500}
             />
             {linkError && !isTyping && (
               <p className="text-xs text-red-500">{linkError}</p>
             )}
           </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Label className="flex items-center gap-1">
+                Alt Text <CircleInfo />
+              </Label>
+            </TooltipTrigger>
+            <TooltipContent>
+              Describe the image for people using screen readers.
+            </TooltipContent>
+          </Tooltip>
+          <Input
+            placeholder="Describe the image"
+            value={localState.altText}
+            onChange={(e) => handleChange("altText", e.target.value)}
+            maxLength={150}
+            className="col-span-2 bg-background"
+          />
           <Label>Size</Label>
           <Slider
             value={[localState.size]}

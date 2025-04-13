@@ -76,6 +76,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             value={localState.title}
             placeholder="List Title"
             onChange={(e) => handleChange("title", e.target.value)}
+            maxLength={150}
           />
           <Label>Subtitle</Label>
           <AutosizeTextarea
@@ -83,7 +84,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             value={localState.subtitle}
             placeholder="List Subtitle"
             onChange={(e) => handleChange("subtitle", e.target.value)}
-            maxHeight={150}
+            maxHeight={1000}
           />
 
           <>
@@ -113,6 +114,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
               value={item.title}
               placeholder="Item Title"
               onChange={(e) => updateItem(index, "title", e.target.value)}
+              maxLength={150}
             />
             <Label>Description</Label>
             <AutosizeTextarea
@@ -120,7 +122,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
               value={item.description}
               placeholder="Item Description"
               onChange={(e) => updateItem(index, "description", e.target.value)}
-              maxHeight={150}
+              maxHeight={1000}
             />
             <Button
               variant="ghost"

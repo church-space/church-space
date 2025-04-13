@@ -4,6 +4,7 @@ import { cn } from "@church-space/ui/cn";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Image as ImageIcon } from "@church-space/ui/icons";
+
 interface ImageBlockProps {
   data?: ImageBlockData;
   isRounded?: boolean;
@@ -39,7 +40,7 @@ export default function ImageBlock({ data, isRounded }: ImageBlockProps) {
       {imageUrl ? (
         <Image
           src={imageUrl}
-          alt="Uploaded content"
+          alt={data?.altText || "Uploaded content"}
           className="h-full w-full object-contain"
           width={1000}
           height={1000}

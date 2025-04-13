@@ -490,12 +490,14 @@ export default function EmailFooterForm({
             className="col-span-2 bg-background"
             value={localState.name}
             onChange={(e) => handleChange("name", e.target.value)}
+            maxLength={200}
           />
           <Label>Subtitle</Label>
           <AutosizeTextarea
             className="col-span-2 bg-background"
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
+            maxLength={1000}
           />
           <Separator className="col-span-3 my-4" />
           <Label className="font-medium">Title Color</Label>
@@ -527,6 +529,7 @@ export default function EmailFooterForm({
               }
               placeholder="Enter address (required)"
               required
+              maxLength={1000}
             />
             {fieldErrors.address && (
               <p className="text-xs text-red-500">{fieldErrors.address}</p>
@@ -545,6 +548,7 @@ export default function EmailFooterForm({
               onBlur={() => validateRequiredField("reason", localState.reason)}
               placeholder="Enter reason for contact (required)"
               required
+              maxLength={1000}
             />
             {fieldErrors.reason && (
               <p className="text-xs text-red-500">{fieldErrors.reason}</p>
@@ -568,6 +572,7 @@ export default function EmailFooterForm({
               }
               placeholder="Enter copyright name (required)"
               required
+              maxLength={150}
             />
             {fieldErrors.copyright_name && (
               <p className="text-xs text-red-500">
@@ -757,6 +762,7 @@ export default function EmailFooterForm({
                   placeholder={
                     link.icon === "mail" ? "email@example.com" : "https://"
                   }
+                  maxLength={500}
                 />
                 {fieldErrors[link.icon] && !linkTimersRef.current[index] && (
                   <p className="text-xs text-red-500">

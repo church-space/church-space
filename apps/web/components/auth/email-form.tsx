@@ -103,6 +103,7 @@ export function EmailForm({ onSubmit, showLastUsed = false }: EmailFormProps) {
                           inputMode="email"
                           autoComplete="email"
                           autoCapitalize="off"
+                          maxLength={255}
                         />
                       </FormControl>
                       <FormMessage />

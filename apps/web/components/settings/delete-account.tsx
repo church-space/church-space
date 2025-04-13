@@ -169,6 +169,7 @@ export default function DeleteAccount({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={userEmail}
+              maxLength={100}
             />
           </div>
 
@@ -187,6 +188,7 @@ export default function DeleteAccount({
                 value={inputOrgName}
                 onChange={(e) => setInputOrgName(e.target.value)}
                 placeholder={orgName}
+                maxLength={200}
               />
               <p className="text-sm text-muted-foreground">
                 Warning: Since you are the only owner, this will also delete

@@ -65,6 +65,7 @@ export default function FileDownloadForm({
             value={localState.title}
             onChange={(e) => handleChange("title", e.target.value)}
             placeholder="File Name"
+            maxLength={150}
           />
           <Label>BG Color</Label>
           <ColorPicker

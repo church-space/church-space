@@ -436,6 +436,7 @@ const Toolbar = ({
               placeholder="Enter URL"
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
+              maxLength={500}
             />
             <Button onClick={setLink}>
               {editor.isActive("link") ? "Update Link" : "Add Link"}

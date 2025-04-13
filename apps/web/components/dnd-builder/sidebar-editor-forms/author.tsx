@@ -270,6 +270,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             value={localState.name}
             placeholder="Name"
             onChange={(e) => handleChange("name", e.target.value)}
+            maxLength={150}
           />
           <Label>Title</Label>
           <Input
@@ -277,6 +278,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
             value={localState.subtitle}
             placeholder="Pastor, Deacon, etc."
             onChange={(e) => handleChange("subtitle", e.target.value)}
+            maxLength={150}
           />
 
           <Label className="font-medium">Icon Color</Label>
@@ -431,6 +433,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
                 placeholder={
                   link.icon === "mail" ? "email@example.com" : "https://"
                 }
+                maxLength={500}
               />
               {linkErrors[index] && !typingLinks[index] && (
                 <p className="text-xs text-red-500">{linkErrors[index]}</p>

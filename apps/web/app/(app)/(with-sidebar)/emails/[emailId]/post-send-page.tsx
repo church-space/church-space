@@ -503,10 +503,16 @@ export default function PostSendPage({
           ))}
         </motion.div>
         <motion.div
-          className="flex -translate-y-2 justify-end text-xs text-muted-foreground"
+          className="flex w-full -translate-y-2 flex-col items-end justify-end text-xs text-muted-foreground xl:flex-row xl:justify-between"
           variants={itemVariants}
         >
-          * Stats updated once per hour for the first week after sending.
+          <p>
+            {stats?.data?.metrics?.updated_at &&
+              `Last updated: ${formatDate(
+                new Date(stats?.data?.metrics?.updated_at),
+              )}`}
+          </p>
+          <p>* Stats updated once per hour for the first week after sending.</p>
         </motion.div>
         <motion.div
           className="mt-8 flex flex-col gap-4"

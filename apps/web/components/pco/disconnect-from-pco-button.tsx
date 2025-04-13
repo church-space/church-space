@@ -56,6 +56,7 @@ export default function DisconnectFromPcoButton() {
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             autoFocus
+            maxLength={10}
           />
         </div>
         <DialogFooter>

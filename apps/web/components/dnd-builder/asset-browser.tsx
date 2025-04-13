@@ -319,6 +319,7 @@ export default function AssetBrowserModal({
                 className="pl-8"
                 value={searchQuery}
                 onChange={handleSearchChange}
+                maxLength={150}
               />
             </div>
 

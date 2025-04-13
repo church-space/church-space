@@ -993,6 +993,7 @@ export default function DomainManagement({
                         value={deleteConfirmInput}
                         placeholder={domain.name}
                         onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                        maxLength={255}
                       />
                     </div>
                     <DialogFooter>
@@ -1058,6 +1059,7 @@ export default function DomainManagement({
                         }}
                         className={validationError ? "border-red-500" : ""}
                         disabled={isAddingDomain || isMaxDomainsReached}
+                        maxLength={255}
                       />
                     </div>
                   </TooltipTrigger>

@@ -323,7 +323,7 @@ export default function HeaderForm({
         }}
         className="col-span-2"
         placeholder="Title"
-        maxLength={100}
+        maxLength={1000}
       />
       <Label className="font-medium">Description</Label>
       <AutosizeTextarea
@@ -334,7 +334,7 @@ export default function HeaderForm({
         }}
         className="col-span-2"
         placeholder="Description"
-        maxLength={500}
+        maxLength={1000}
       />
       <Separator className="col-span-3 my-4" />
       <Label className="font-medium">Button Text</Label>
@@ -356,6 +356,7 @@ export default function HeaderForm({
           onBlur={handleButtonLinkBlur}
           placeholder="https://www.example.com"
           className={`w-full bg-background ${linkError && !isTyping ? "border-red-500" : ""}`}
+          maxLength={500}
         />
         {linkError && !isTyping && (
           <p className="mt-1 text-sm text-red-500" role="alert">

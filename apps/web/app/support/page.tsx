@@ -79,6 +79,7 @@ export default function SupportPage() {
               autoFocus
               className="peer h-12 w-full bg-card ps-10 font-normal text-foreground shadow-lg"
               placeholder="Search for questions, keywords, or topics"
+              maxLength={250}
             />
             <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
               <SearchIcon height={"24"} width={"24"} aria-hidden="true" />

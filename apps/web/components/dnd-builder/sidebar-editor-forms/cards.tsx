@@ -213,6 +213,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             value={localState.title}
             onChange={(e) => handleChange("title", e.target.value)}
             placeholder="Title"
+            maxLength={150}
           />
           <Label>Subtitle</Label>
           <Textarea
@@ -220,6 +221,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             value={localState.subtitle}
             onChange={(e) => handleChange("subtitle", e.target.value)}
             placeholder="Subtitle"
+            maxLength={1000}
           />
 
           <Label>Button Color</Label>
@@ -271,6 +273,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                     onChange={(e) =>
                       updateCard(index, "description", e.target.value)
                     }
+                    maxLength={1000}
                   />
                   <Label>Label</Label>
                   <Input
@@ -278,6 +281,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                     className="col-span-2"
                     value={card.label}
                     onChange={(e) => updateCard(index, "label", e.target.value)}
+                    maxLength={150}
                   />
                   <Label>Image</Label>
                   <div className="col-span-2">
@@ -300,6 +304,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                       updateCard(index, "buttonText", e.target.value)
                     }
                     placeholder="Button Text"
+                    maxLength={100}
                   />
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -327,6 +332,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
                         updateCard(index, "buttonLink", e.target.value)
                       }
                       onBlur={() => handleBlur(index)}
+                      maxLength={500}
                     />
                     {linkErrors[index] && !isTyping[index] && (
                       <p className="text-xs text-red-500">

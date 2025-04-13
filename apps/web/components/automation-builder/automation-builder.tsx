@@ -294,7 +294,7 @@ function SortableStep(props: SortableStepProps) {
                   <div className="col-span-4">
                     <div className="mb-1 text-xs">From Name</div>
                     <Input
-                      placeholder="Your Name"
+                      placeholder="From Name"
                       value={step.values.fromName}
                       onChange={(e) => {
                         updateStepInState(index, {
@@ -304,13 +304,14 @@ function SortableStep(props: SortableStepProps) {
                           },
                         });
                       }}
+                      maxLength={60}
                     />
                   </div>
                   <div className="col-span-4">
                     <div className="mb-1 text-xs">From Email</div>
                     <div className="flex items-center gap-2">
                       <Input
-                        placeholder="Enter from"
+                        placeholder="Enter from email"
                         value={step.values.fromEmail}
                         onChange={(e) => {
                           updateStepInState(index, {
@@ -320,6 +321,7 @@ function SortableStep(props: SortableStepProps) {
                             },
                           });
                         }}
+                        maxLength={60}
                       />
                       <span className="mb-1 leading-none">@</span>
                       <DomainSelector
@@ -346,6 +348,7 @@ function SortableStep(props: SortableStepProps) {
                           },
                         });
                       }}
+                      maxLength={150}
                     />
                   </div>
                   <Button

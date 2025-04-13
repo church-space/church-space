@@ -337,6 +337,7 @@ export default function EmailTemplateForm({
                       className="mb-3 w-full"
                       value={templateName}
                       onChange={(e) => setTemplateName(e.target.value)}
+                      maxLength={60}
                     />
                     <div className="flex justify-end gap-2">
                       <Button
@@ -370,6 +371,7 @@ export default function EmailTemplateForm({
           className="mb-3 w-full"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          maxLength={300}
         />
 
         {isLoading ? (

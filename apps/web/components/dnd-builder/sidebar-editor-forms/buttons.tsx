@@ -164,6 +164,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             placeholder="Button text"
             value={localState.text}
             onChange={(e) => handleChange("text", e.target.value)}
+            maxLength={100}
           />
           <Label>Link</Label>
           <div className="col-span-2 flex flex-col gap-1">
@@ -177,6 +178,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
               value={localState.link}
               onChange={(e) => handleChange("link", e.target.value)}
               onBlur={handleBlur}
+              maxLength={500}
             />
             {linkError && !isTyping && (
               <p className="text-xs text-red-500">{linkError}</p>

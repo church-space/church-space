@@ -70,6 +70,7 @@ export interface ImageBlockData {
   size: number;
   link: string;
   centered: boolean;
+  altText?: string;
 }
 
 export interface CardsBlockData {
