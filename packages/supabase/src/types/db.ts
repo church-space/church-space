@@ -47,13 +47,14 @@ export type Database = {
           },
         ]
       }
-      email_automation_step_members: {
+      email_automation_members: {
         Row: {
           automation_id: number
           created_at: string
           id: number
           last_completed_step_id: number
           person_id: number
+          status: string
           updated_at: string | null
         }
         Insert: {
@@ -62,6 +63,7 @@ export type Database = {
           id?: number
           last_completed_step_id: number
           person_id: number
+          status?: string
           updated_at?: string | null
         }
         Update: {
@@ -70,6 +72,7 @@ export type Database = {
           id?: number
           last_completed_step_id?: number
           person_id?: number
+          status?: string
           updated_at?: string | null
         }
         Relationships: [
@@ -543,9 +546,10 @@ export type Database = {
       }
       email_recipients: {
         Row: {
+          automation_id: number | null
           created_at: string
           email_address: string | null
-          email_id: number
+          email_id: number | null
           id: number
           people_email_id: number | null
           resend_email_id: string | null
@@ -554,9 +558,10 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          automation_id?: number | null
           created_at?: string
           email_address?: string | null
-          email_id: number
+          email_id?: number | null
           id?: number
           people_email_id?: number | null
           resend_email_id?: string | null
@@ -565,9 +570,10 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          automation_id?: number | null
           created_at?: string
           email_address?: string | null
-          email_id?: number
+          email_id?: number | null
           id?: number
           people_email_id?: number | null
           resend_email_id?: string | null
@@ -576,6 +582,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "email_recipients_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "email_recipients_email_id_fkey"
             columns: ["email_id"]

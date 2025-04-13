@@ -629,6 +629,16 @@ export default function EmailAutomationBuilder({
       return;
     }
 
+    // Check if the last step is a wait step
+    if (steps.length > 0 && steps[steps.length - 1].type === "wait") {
+      toast({
+        title: "Invalid final step",
+        description: "The automation cannot end with a wait step.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Check if total steps exceed limit
     if (steps.length > 10) {
       toast({

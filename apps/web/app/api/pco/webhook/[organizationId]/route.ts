@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@church-space/supabase/job";
 import crypto from "crypto";
 import { getCachedEmailAutomationsByPCOId } from "@church-space/supabase/queries/cached/automations";
+import { filterAutomationEmails } from "@/jobs/filter-automation-emails";
 
 // Helper function to wait for specified milliseconds
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -292,6 +293,14 @@ export async function POST(
         );
 
         console.log("automations", automations);
+
+        for (const automation of automations?.data || []) {
+          await filterAutomationEmails.trigger({
+            automationId: automation.id,
+            pcoPersonId: pcoPersonId,
+            organizationId: organizationId,
+          });
+        }
       }
       break;
     }

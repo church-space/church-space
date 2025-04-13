@@ -1,393 +1,409 @@
-// import { task } from "@trigger.dev/sdk/v3";
-// import { createClient } from "@church-space/supabase/job";
-// import { sendBulkEmails } from "./send-bulk-emails-queue";
+import { task, wait } from "@trigger.dev/sdk/v3";
+import { createClient } from "@church-space/supabase/job";
+import { sendBulkEmails } from "./send-bulk-emails-queue";
 
-// // Interface for the payload
-// interface FilterAutomationEmailsPayload {
-//   automationId: number;
-//   pco_person_id: number;
-//   organization_id: number;
-// }
+// Interface for the payload
+interface FilterAutomationEmailsPayload {
+  automationId: number;
+  pcoPersonId: string; // This is the pco_id from the people table
+  organizationId: string;
+}
 
-// export const filterAutomationEmails = task({
-//   id: "filter-automation-emails",
-//   run: async (payload: FilterAutomationEmailsPayload) => {
-//     const { automationId, pco_person_id, organization_id } = payload;
-//     const supabase = createClient();
+// Interface for Automation Step Values
+interface WaitStepValues {
+  unit: "days" | "hours";
+  value: number;
+}
 
-//     try {
-//       // Step 1: Get the email details
-//       const { data: emailData, error: emailError } = await supabase
-//         .from("emails")
-//         .select("*, organization_id, list_id, status")
-//         .eq("id", emailId)
-//         .single();
+interface EmailStepValues {
+  fromName: string | null;
+  fromEmail: string | null;
+  subject: string | null;
+}
 
-//       if (emailError || !emailData) {
-//         throw new Error(
-//           `Failed to fetch email data: ${emailError?.message || "Email not found"}`,
-//         );
-//       }
+// Interface for Automation Step
+interface AutomationStep {
+  id: number;
+  type: "wait" | "send_email";
+  values: WaitStepValues | EmailStepValues | null;
+  order: number | null;
+  from_email_domain: number | null;
+  email_template: number | null; // Corresponds to an 'emails' table ID (template)
+  automation_id: number;
+}
 
-//       if (emailData.status === "sending" || emailData.status === "sent") {
-//         throw new Error(
-//           "This email is already sending or has been sent. Please try again later.",
-//         );
-//       }
+export const filterAutomationEmails = task({
+  id: "filter-automation-emails",
+  run: async (payload: FilterAutomationEmailsPayload, { ctx }) => {
+    const { automationId, pcoPersonId, organizationId } = payload;
+    const supabase = createClient();
+    let currentMemberRecordId: number | null = null;
 
-//       // Add scheduled time validation
-//       if (emailData.scheduled_for) {
-//         const scheduledTime = new Date(emailData.scheduled_for);
-//         const now = new Date();
-//         if (scheduledTime > now) {
-//           await supabase
-//             .from("emails")
-//             .update({
-//               status: "failed",
-//               updated_at: new Date().toISOString(),
-//               error_message: "Email is scheduled for future delivery",
-//             })
-//             .eq("id", emailId);
+    try {
+      console.log(
+        `Starting automation ${automationId} for PCO person ${pcoPersonId} in org ${organizationId}`,
+      );
 
-//           throw new Error("Email is scheduled for future delivery");
-//         }
-//       }
+      // Step 1: Fetch the internal Person ID needed for the members table FK
+      const { data: personData, error: personError } = await supabase
+        .from("people")
+        .select("id") // Select the internal ID
+        .eq("pco_id", pcoPersonId) // Query using the provided pcoPersonId
+        .eq("organization_id", organizationId)
+        .single();
 
-//       await supabase
-//         .from("emails")
-//         .update({
-//           status: "sending",
-//         })
-//         .eq("id", emailId);
+      if (personError || !personData) {
+        throw new Error(
+          `Failed to fetch internal person ID for PCO ID ${pcoPersonId}: ${personError?.message || "Person not found"}`,
+        );
+      }
+      const internalPersonId = personData.id; // This is the ID for the email_automation_members table
 
-//       // Validate required email fields
-//       if (
-//         !emailData.from_email ||
-//         !emailData.from_name ||
-//         !emailData.from_email_domain
-//       ) {
-//         await supabase
-//           .from("emails")
-//           .update({
-//             status: "failed",
-//             updated_at: new Date().toISOString(),
-//             error_message:
-//               "Email must have a from email, from name, and from email domain",
-//           })
-//           .eq("id", emailId);
+      // Step 2: Fetch the automation details, including the list_id
+      const { data: automationData, error: automationError } = await supabase
+        .from("email_automations")
+        .select("id, list_id")
+        .eq("id", automationId)
+        .eq("organization_id", organizationId)
+        .single();
 
-//         throw new Error(
-//           "Email must have a from email, from name, and from email domain",
-//         );
-//       }
+      if (automationError || !automationData) {
+        throw new Error(
+          `Failed to fetch automation data for ID ${automationId}: ${automationError?.message || "Automation not found"}`,
+        );
+      }
+      const automationListId = automationData.list_id;
+      if (!automationListId) {
+        throw new Error(
+          `Automation ${automationId} does not have a list_id configured.`,
+        );
+      }
 
-//       // Validate subject
-//       if (!emailData.subject) {
-//         await supabase
-//           .from("emails")
-//           .update({
-//             status: "failed",
-//             updated_at: new Date().toISOString(),
-//             error_message: "Email must have a subject",
-//           })
-//           .eq("id", emailId);
+      // Step 3: Fetch the associated PCO list category ID
+      const { data: pcoListData, error: pcoListError } = await supabase
+        .from("pco_lists")
+        .select("id, pco_list_category_id")
+        .eq("id", automationListId)
+        .single();
 
-//         throw new Error("Email must have a subject");
-//       }
+      if (pcoListError || !pcoListData) {
+        throw new Error(
+          `Failed to fetch PCO list data for list ID ${automationListId}: ${pcoListError?.message || "List not found"}`,
+        );
+      }
+      const pcoListCategoryId = pcoListData.pco_list_category_id;
+      if (!pcoListCategoryId) {
+        throw new Error(
+          `List ${automationListId} does not have a PCO category ID.`,
+        );
+      }
 
-//       // Step 2: Validate that the email has list_id
-//       if (!emailData.list_id) {
-//         // Update email status to failed
-//         await supabase
-//           .from("emails")
-//           .update({
-//             status: "failed",
-//             updated_at: new Date().toISOString(),
-//             error_message: "Email must have a list to send to",
-//           })
-//           .eq("id", emailId);
+      // Step 4: Fetch the internal list category ID
+      const { data: pcoListCategoryData, error: pcoListCategoryError } =
+        await supabase
+          .from("pco_list_categories")
+          .select("id")
+          .eq("pco_id", pcoListCategoryId)
+          .single();
 
-//         throw new Error("Email must have a list_id");
-//       }
+      if (pcoListCategoryError || !pcoListCategoryData) {
+        throw new Error(
+          `Failed to fetch internal PCO list category data for category PCO ID ${pcoListCategoryId}: ${pcoListCategoryError?.message || "Category not found"}`,
+        );
+      }
+      const internalListCategoryId = pcoListCategoryData.id;
 
-//       // Validate list ownership
-//       const { data: listData, error: listOwnershipError } = await supabase
-//         .from("pco_lists")
-//         .select("organization_id")
-//         .eq("id", emailData.list_id)
-//         .single();
+      // Step 5: Fetch the automation steps, ordered correctly
+      const { data: steps, error: stepsError } = await supabase
+        .from("email_automation_steps")
+        .select("*")
+        .eq("automation_id", automationId)
+        .order("order", { ascending: true });
 
-//       if (
-//         listOwnershipError ||
-//         !listData ||
-//         listData.organization_id !== emailData.organization_id
-//       ) {
-//         await supabase
-//           .from("emails")
-//           .update({
-//             status: "failed",
-//             updated_at: new Date().toISOString(),
-//             error_message: "The list does not belong to your organization",
-//           })
-//           .eq("id", emailId);
+      if (stepsError || !steps) {
+        throw new Error(
+          `Failed to fetch steps for automation ${automationId}: ${stepsError?.message || "Steps query failed"}`,
+        );
+      }
 
-//         throw new Error("List does not belong to the email's organization");
-//       }
+      if (steps.length === 0) {
+        console.log(
+          `Automation ${automationId} has no steps. Cannot start automation.`,
+        );
+        // Consider if we need to create a member record indicating failure/completion immediately
+        // For now, just exit gracefully.
+        return {
+          status: "no_steps",
+          reason: "Automation has no defined steps.",
+        };
+      }
 
-//       // Step 3: Get the PCO list ID from our lists table
-//       const { data: pcoList, error: pcoListError } = await supabase
-//         .from("pco_lists")
-//         .select("pco_list_id, pco_list_category_id")
-//         .eq("id", emailData.list_id)
-//         .eq("organization_id", emailData.organization_id)
-//         .single();
+      // Step 6: Create the NEW automation member record (always start fresh)
+      console.log("Creating new automation member record...");
+      const { data: newMemberData, error: createMemberError } = await supabase
+        .from("email_automation_members")
+        .insert({
+          automation_id: automationId,
+          person_id: internalPersonId, // Use the fetched internal person ID
+          // Set initial last_completed_step_id to the *first* step ID due to NOT NULL constraint.
+          // The loop below starts at index 0, processing this first step correctly.
+          last_completed_step_id: steps[0].id,
+          status: "in-progress",
+        })
+        .select("id") // Select only the ID
+        .single();
 
-//       if (pcoListError || !pcoList) {
-//         // Update email status to failed
-//         await supabase
-//           .from("emails")
-//           .update({
-//             status: "failed",
-//             updated_at: new Date().toISOString(),
-//             error_message: `Failed to fetch PCO list data: ${pcoListError?.message || "List not found"}`,
-//           })
-//           .eq("id", emailId);
+      if (createMemberError || !newMemberData) {
+        throw new Error(
+          `Failed to create automation member record: ${createMemberError?.message || "Insert failed"}`,
+        );
+      }
+      currentMemberRecordId = newMemberData.id;
+      console.log(
+        `Created new member record ${currentMemberRecordId} for person ${internalPersonId} (PCO: ${pcoPersonId}).`,
+      );
 
-//         throw new Error(
-//           `Failed to fetch PCO list data: ${pcoListError?.message || "List not found"}`,
-//         );
-//       }
+      // Step 7: Iterate through ALL steps from the beginning
+      const startIndex = 0; // Always start from the first step
+      console.log(`Starting processing from step index ${startIndex}.`);
 
-//       if (!pcoList.pco_list_category_id) {
-//         throw new Error("List does not have a category");
-//       }
+      for (let i = startIndex; i < steps.length; i++) {
+        const step = steps[i] as AutomationStep;
+        console.log(
+          `Processing step ${i + 1}/${steps.length}: ID ${step.id}, Type: ${step.type}`,
+        );
 
-//       const { data: pcoListCategory, error: pcoListCategoryError } =
-//         await supabase
-//           .from("pco_list_categories")
-//           .select("id")
-//           .eq("pco_id", pcoList.pco_list_category_id)
-//           .single();
+        if (step.type === "wait") {
+          const waitValues = step.values as WaitStepValues;
+          if (!waitValues || !waitValues.unit || !waitValues.value) {
+            throw new Error(
+              `Invalid wait step configuration for step ID ${step.id}: Missing values.`,
+            );
+          }
 
-//       if (pcoListCategoryError) {
-//         throw new Error(
-//           `Failed to fetch PCO list category data: ${pcoListCategoryError.message}`,
-//         );
-//       }
+          console.log(`Waiting for ${waitValues.value} ${waitValues.unit}...`);
 
-//       // Step 4: Get all members of the list
-//       const { data: listMembers, error: listMembersError } = await supabase
-//         .from("pco_list_members")
-//         .select("pco_person_id")
-//         .eq("pco_list_id", pcoList.pco_list_id)
-//         .eq("organization_id", emailData.organization_id);
+          // Use conditional logic instead of computed property for wait.for
+          if (waitValues.unit === "days") {
+            await wait.for({ days: waitValues.value });
+          } else if (waitValues.unit === "hours") {
+            await wait.for({ hours: waitValues.value });
+          } else {
+            // Handle unexpected unit or throw error
+            throw new Error(`Unsupported wait unit: ${waitValues.unit}`);
+          }
+          console.log(`Wait finished for step ${step.id}.`);
 
-//       if (listMembersError) {
-//         throw new Error(
-//           `Failed to fetch list members: ${listMembersError.message}`,
-//         );
-//       }
+          // Update last completed step ID after wait
+          await supabase
+            .from("email_automation_members")
+            .update({
+              last_completed_step_id: step.id,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", currentMemberRecordId);
+          // lastCompletedStepId = step.id; // No longer need to track this locally
+          console.log(
+            `Updated last_completed_step_id to ${step.id} for member ${currentMemberRecordId}`,
+          );
+        } else if (step.type === "send_email") {
+          const emailTemplateId = step.email_template;
 
-//       if (!listMembers || listMembers.length === 0) {
-//         // Update email status to failed
-//         await supabase
-//           .from("emails")
-//           .update({
-//             status: "failed",
-//             updated_at: new Date().toISOString(),
-//             error_message: "No members found in the specified list",
-//           })
-//           .eq("id", emailId);
+          if (!emailTemplateId) {
+            throw new Error(
+              `Invalid email step configuration for step ID ${step.id}: Missing email_template ID.`,
+            );
+          }
 
-//         throw new Error("No members found in the specified list");
-//       }
+          console.log(`Preparing to send email for step ${step.id}...`);
 
-//       // Extract person IDs from list members
-//       const personIds = listMembers.map((member) => member.pco_person_id);
+          // a) Fetch the person's email and subscription status using pcoPersonId
+          const { data: personEmailData, error: personEmailError } =
+            await supabase
+              .from("people_emails")
+              .select("id, email, status, people!inner(first_name, last_name)")
+              .eq("pco_person_id", pcoPersonId) // Use pcoPersonId from payload
+              .eq("organization_id", organizationId)
+              .eq("status", "subscribed")
+              .limit(1)
+              .maybeSingle(); // Use maybeSingle as they might not have a subscribed email
 
-//       // Step 5: Get all emails for these people that are subscribed
-//       const { data: peopleEmails, error: peopleEmailsError } = await supabase
-//         .from("people_emails")
-//         .select(
-//           `
-//           id,
-//           email,
-//           pco_person_id,
-//           people!people_emails_pco_person_id_fkey(
-//             first_name,
-//             last_name
-//           )
-//         `,
-//         )
-//         .in("pco_person_id", personIds)
-//         .eq("organization_id", emailData.organization_id)
-//         .eq("status", "subscribed");
+          if (personEmailError) {
+            // Log the error but treat as not subscribed if error occurs during fetch
+            console.error(
+              `Error fetching email for PCO person ${pcoPersonId}: ${personEmailError.message}`,
+            );
+            // Update member record and stop
+            await supabase
+              .from("email_automation_members")
+              .update({
+                status: "canceled",
+                reason: `Error fetching email: ${personEmailError.message}`,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", currentMemberRecordId);
+            return {
+              status: "canceled",
+              reason: `Error fetching email: ${personEmailError.message}`,
+            };
+          }
 
-//       if (peopleEmailsError) {
-//         throw new Error(
-//           `Failed to fetch people emails: ${peopleEmailsError.message}`,
-//         );
-//       }
+          if (!personEmailData) {
+            // No subscribed email found
+            console.log(
+              `PCO Person ${pcoPersonId} is not subscribed or has no email record. Canceling automation.`,
+            );
+            await supabase
+              .from("email_automation_members")
+              .update({
+                status: "canceled",
+                reason: "Person not subscribed or no email found",
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", currentMemberRecordId);
+            return {
+              status: "canceled",
+              reason: "Person not subscribed or no email found",
+            };
+          }
 
-//       if (!peopleEmails || peopleEmails.length === 0) {
-//         // Update email status to failed
-//         await supabase
-//           .from("emails")
-//           .update({
-//             status: "failed",
-//             updated_at: new Date().toISOString(),
-//             error_message:
-//               "No subscribed email addresses found for people in the list",
-//           })
-//           .eq("id", emailId);
+          const recipientEmail = personEmailData.email;
+          const peopleEmailId = personEmailData.id;
+          const firstName = personEmailData.people?.first_name || undefined;
+          const lastName = personEmailData.people?.last_name || undefined;
 
-//         throw new Error("No subscribed emails found for people in the list");
-//       }
+          console.log(`Found subscribed email: ${recipientEmail}`);
 
-//       // Step 6: Get all email addresses that have unsubscribed from this audience
-//       const { data: listCategoryUnsubscribes, error: unsubscribesError } =
-//         await supabase
-//           .from("email_list_category_unsubscribes")
-//           .select("email_address")
-//           .eq("pco_list_category", pcoListCategory.id)
-//           .eq("organization_id", emailData.organization_id);
+          // b) Check list category unsubscribes
+          const { data: unsubscribeData, error: unsubscribeError } =
+            await supabase
+              .from("email_list_category_unsubscribes")
+              .select("id")
+              .eq("pco_list_category", internalListCategoryId)
+              .eq("organization_id", organizationId)
+              .eq("email_address", recipientEmail)
+              .maybeSingle(); // Check if a record exists
 
-//       if (unsubscribesError) {
-//         throw new Error(
-//           `Failed to fetch audience unsubscribes: ${unsubscribesError.message}`,
-//         );
-//       }
+          if (unsubscribeError) {
+            throw new Error(
+              `Error checking list category unsubscribes for ${recipientEmail}: ${unsubscribeError.message}`,
+            );
+          }
 
-//       // Create a set of unsubscribed email addresses for faster lookup
-//       const unsubscribedEmails = new Set(
-//         listCategoryUnsubscribes?.map((unsub) =>
-//           unsub.email_address.toLowerCase(),
-//         ) || [],
-//       );
+          if (unsubscribeData) {
+            console.log(
+              `Email ${recipientEmail} is unsubscribed from category ${internalListCategoryId}. Canceling automation.`,
+            );
+            await supabase
+              .from("email_automation_members")
+              .update({
+                status: "canceled",
+                reason: "Unsubscribed from list category",
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", currentMemberRecordId);
+            return {
+              status: "canceled",
+              reason: "Unsubscribed from list category",
+            };
+          }
 
-//       // Step 7: Filter out unsubscribed emails
-//       const filteredEmails = peopleEmails.filter(
-//         (emailRecord) =>
-//           !unsubscribedEmails.has(emailRecord.email.toLowerCase()),
-//       );
+          console.log(
+            `Email ${recipientEmail} is subscribed and not unsubscribed from category. Proceeding to send.`,
+          );
 
-//       if (filteredEmails.length === 0) {
-//         // Update email status to failed
-//         await supabase
-//           .from("emails")
-//           .update({
-//             status: "failed",
-//             updated_at: new Date().toISOString(),
-//             error_message:
-//               "All recipients have unsubscribed from this list category",
-//           })
-//           .eq("id", emailId);
+          // c) Trigger sendBulkEmails
+          const recipients: Record<
+            string,
+            { email: string; firstName?: string; lastName?: string }
+          > = {
+            [peopleEmailId.toString()]: {
+              email: recipientEmail,
+              firstName: firstName,
+              lastName: lastName,
+            },
+          };
 
-//         throw new Error(
-//           "All recipients have unsubscribed from this list category",
-//         );
-//       }
+          console.log(
+            `Triggering sendBulkEmails for template ${emailTemplateId}...`,
+          );
+          await sendBulkEmails.trigger({
+            emailId: emailTemplateId,
+            recipients: recipients,
+            organizationId: organizationId,
+          });
+          console.log(
+            `sendBulkEmails triggered successfully for step ${step.id}.`,
+          );
 
-//       // Step 8: Format recipients for the bulk email queue
-//       const recipients: Record<
-//         string,
-//         { email: string; firstName?: string; lastName?: string }
-//       > = {};
-//       filteredEmails.forEach((email: any) => {
-//         recipients[email.id.toString()] = {
-//           email: email.email,
-//           firstName: email.people?.first_name || undefined,
-//           lastName: email.people?.last_name || undefined,
-//         };
-//       });
+          // d) Update last completed step ID after successful trigger
+          await supabase
+            .from("email_automation_members")
+            .update({
+              last_completed_step_id: step.id,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", currentMemberRecordId);
+          // lastCompletedStepId = step.id; // No longer need to track
+          console.log(
+            `Updated last_completed_step_id to ${step.id} for member ${currentMemberRecordId}`,
+          );
+        } else {
+          console.warn(`Unknown step type encountered: ${step.type}`);
+        }
+      }
 
-//       // Step 9: Check organization's email usage limits
-//       const { data: emailUsage, error: emailUsageError } = await supabase
-//         .from("org_email_usage")
-//         .select("sends_remaining, sends_used")
-//         .eq("organization_id", emailData.organization_id)
-//         .single();
+      // Step 8: Mark automation as completed for this member
+      console.log(
+        `All steps processed successfully for member ${currentMemberRecordId}. Marking as completed.`,
+      );
 
-//       if (emailUsageError) {
-//         throw new Error(
-//           `Failed to fetch email usage: ${emailUsageError.message}`,
-//         );
-//       }
+      await supabase
+        .from("email_automation_members")
+        .update({
+          status: "completed",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", currentMemberRecordId);
 
-//       if (!emailUsage) {
-//         throw new Error("No email usage limits found for this organization");
-//       }
+      return { status: "completed", processedSteps: steps.length };
+    } catch (error) {
+      console.error(
+        `Error processing automation ${automationId} for PCO person ${pcoPersonId}:`,
+        error,
+      );
 
-//       const recipientCount = Object.keys(recipients).length;
-//       if (emailUsage.sends_remaining < recipientCount) {
-//         await supabase
-//           .from("emails")
-//           .update({
-//             status: "failed",
-//             updated_at: new Date().toISOString(),
-//             error_message: `Email limit exceeded. Required: ${recipientCount}, Remaining: ${emailUsage.sends_remaining}. If this is a one-off exception and the ammount needed is close to your remaininglimit, email support@churchspace.co and we may increase your limit for this month at no extra charge.`,
-//           })
-//           .eq("id", emailId);
+      // Update member status to failed if we have an ID
+      if (currentMemberRecordId) {
+        try {
+          await supabase
+            .from("email_automation_members")
+            .update({
+              status: "failed",
+              reason:
+                error instanceof Error
+                  ? error.message
+                  : "An unknown error occurred",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", currentMemberRecordId);
+          console.log(
+            `Updated member ${currentMemberRecordId} status to failed.`,
+          );
+        } catch (updateError) {
+          console.error(
+            `Failed to update member ${currentMemberRecordId} status to failed:`,
+            updateError,
+          );
+        }
+      } else {
+        console.error(
+          "Could not update member status to failed as currentMemberRecordId was not established.",
+        );
+      }
 
-//         throw new Error(
-//           `Email limit exceeded. Required: ${recipientCount}, Remaining: ${emailUsage.sends_remaining}`,
-//         );
-//       }
-
-//       // Update the organization's remaining email sends
-//       const { error: updateUsageError } = await supabase
-//         .from("org_email_usage")
-//         .update({
-//           sends_remaining: emailUsage.sends_remaining - recipientCount,
-//           updated_at: new Date().toISOString(),
-//           sends_used: emailUsage.sends_used + recipientCount,
-//         })
-//         .eq("organization_id", emailData.organization_id);
-
-//       if (updateUsageError) {
-//         throw new Error(
-//           `Failed to update email usage: ${updateUsageError.message}`,
-//         );
-//       }
-
-//       // Step 10: Update email status to sending
-//       await supabase
-//         .from("emails")
-//         .update({
-//           status: "sending",
-//           updated_at: new Date().toISOString(),
-//         })
-//         .eq("id", emailId);
-
-//       // Step 11: Send to bulk email queue
-//       const result = await sendBulkEmails.trigger({
-//         emailId,
-//         recipients,
-//       });
-
-//       return {
-//         emailId,
-//         totalRecipients: Object.keys(recipients).length,
-//         status: "sending",
-//         result,
-//       };
-//     } catch (error) {
-//       console.error("Error in filter email recipients job:", error);
-
-//       // Update email status to failed if not already updated
-//       await supabase
-//         .from("emails")
-//         .update({
-//           status: "failed",
-//           updated_at: new Date().toISOString(),
-//           error_message:
-//             error instanceof Error
-//               ? error.message
-//               : "An unknown error occurred",
-//         })
-//         .eq("id", emailId);
-
-//       throw error;
-//     }
-//   },
-// });
+      // Re-throw the error to fail the Trigger.dev run
+      throw error;
+    }
+  },
+});

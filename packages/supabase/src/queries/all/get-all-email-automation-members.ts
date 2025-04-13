@@ -24,7 +24,7 @@ export async function getEmailAutomationMembersCount(
   params?: EmailAutomationMemberParams
 ): Promise<{ count: number | null; error: any }> {
   let query = supabase
-    .from("email_automation_step_members")
+    .from("email_automation_members")
     .select("*", { count: "exact", head: true })
     .eq("automation_id", automationId);
 
@@ -42,7 +42,7 @@ export async function getEmailAutomationMembers(
   params?: EmailAutomationMemberParams
 ): Promise<{ data: EmailAutomationMember[] | null; error: any }> {
   let query = supabase
-    .from("email_automation_step_members")
+    .from("email_automation_members")
     .select("*")
     .eq("automation_id", automationId);
 

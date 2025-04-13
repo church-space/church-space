@@ -27,10 +27,14 @@ import {
   Users,
   Settings,
   Qrcode,
+  HandWave,
+  XIcon,
+  ChevronRight,
 } from "@church-space/ui/icons";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
 } from "@church-space/ui/sidebar";
 import NewEmail from "../forms/new-email";
@@ -155,6 +159,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </DropdownMenu>
           <NavMain items={data.navMain} />
         </SidebarContent>
+        <SidebarFooter className="flex w-full flex-col rounded-md bg-primary/10 p-2">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 font-medium">
+              <HandWave /> Welcome
+            </div>
+            <Button variant="ghost" size="icon">
+              <XIcon />
+            </Button>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex gap-1.5 text-sm">Item One</div>
+            <div className="flex gap-1.5 text-sm">Item One</div>
+            <div className="flex gap-1.5 text-sm">
+              View All <ChevronRight />
+            </div>
+          </div>
+          <div className="ml-7 hidden translate-y-0.5 text-sm text-muted-foreground md:block">
+            Click "?" for Support
+          </div>
+        </SidebarFooter>
       </Sidebar>
       <Dialog open={newEmailDialogOpen} onOpenChange={setNewEmailDialogOpen}>
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
