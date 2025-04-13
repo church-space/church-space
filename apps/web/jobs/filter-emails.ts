@@ -360,22 +360,6 @@ export const filterEmailRecipients = task({
         );
       }
 
-      // Update the organization's remaining email sends
-      const { error: updateUsageError } = await supabase
-        .from("org_email_usage")
-        .update({
-          sends_remaining: emailUsage.sends_remaining - recipientCount,
-          updated_at: new Date().toISOString(),
-          sends_used: emailUsage.sends_used + recipientCount,
-        })
-        .eq("organization_id", emailData.organization_id);
-
-      if (updateUsageError) {
-        throw new Error(
-          `Failed to update email usage: ${updateUsageError.message}`,
-        );
-      }
-
       // Step 10: Update email status to sending
       await supabase
         .from("emails")
@@ -389,6 +373,7 @@ export const filterEmailRecipients = task({
       const result = await sendBulkEmails.trigger({
         emailId,
         recipients,
+        organizationId: emailData.organization_id,
       });
 
       return {

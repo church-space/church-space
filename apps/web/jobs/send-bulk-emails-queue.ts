@@ -24,6 +24,7 @@ interface BulkEmailPayload {
       lastName?: string;
     }
   >;
+  organizationId: string;
 }
 
 // Interface for email data
@@ -309,6 +310,39 @@ export const sendBulkEmails = task({
             }
           }
         }
+      }
+
+      // Get current email usage for the organization
+      const { data: emailUsage, error: emailUsageError } = await supabase
+        .from("org_email_usage")
+        .select("sends_remaining, sends_used")
+        .eq("organization_id", payload.organizationId)
+        .single();
+
+      if (emailUsageError) {
+        throw new Error(
+          `Failed to fetch email usage: ${emailUsageError.message}`,
+        );
+      }
+
+      if (!emailUsage) {
+        throw new Error("No email usage limits found for this organization");
+      }
+
+      // Update the organization's remaining email sends based on actual successful sends
+      const { error: updateUsageError } = await supabase
+        .from("org_email_usage")
+        .update({
+          sends_remaining: emailUsage.sends_remaining - successCount,
+          updated_at: new Date().toISOString(),
+          sends_used: emailUsage.sends_used + successCount,
+        })
+        .eq("organization_id", payload.organizationId);
+
+      if (updateUsageError) {
+        throw new Error(
+          `Failed to update email usage: ${updateUsageError.message}`,
+        );
       }
 
       // Update email status based on results

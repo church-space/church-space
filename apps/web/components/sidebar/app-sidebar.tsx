@@ -22,17 +22,18 @@ import {
   ChurchSpaceBlack,
   NewEmail as NewEmailIcon,
   NewQrCode,
+  Qrcode,
 } from "@church-space/ui/icons";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
 } from "@church-space/ui/sidebar";
 import NewEmail from "../forms/new-email";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
-import SidebarHelpMenu from "./sidebar-help-menu";
+import NewQRCode from "../forms/new-qr-code";
+import { useUser } from "@/stores/use-user";
 
 const data = {
   navMain: [
@@ -110,6 +111,9 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [newEmailDialogOpen, setNewEmailDialogOpen] = useState(false);
+  const [newQrCodeDialogOpen, setNewQrCodeDialogOpen] = useState(false);
+
+  const { organizationId } = useUser();
 
   return (
     <>
@@ -138,18 +142,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="w-full"
-                onClick={() => setNewEmailDialogOpen(true)}
+                onClick={() => setNewQrCodeDialogOpen(true)}
               >
                 <NewQrCode />
-                New QR Link
+                New QR Code
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <NavMain items={data.navMain} />
         </SidebarContent>
-        <SidebarFooter className="flex justify-center text-muted-foreground">
-          <SidebarHelpMenu />
-        </SidebarFooter>
       </Sidebar>
       <Dialog open={newEmailDialogOpen} onOpenChange={setNewEmailDialogOpen}>
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
@@ -164,8 +165,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </DialogDescription>
           </DialogHeader>
           <NewEmail
-            organizationId={"43d2f23f-82a8-4eca-b6de-174ca0f9a1a0"}
+            organizationId={organizationId ?? ""}
             setIsNewEmailOpen={setNewEmailDialogOpen}
+          />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={newQrCodeDialogOpen} onOpenChange={setNewQrCodeDialogOpen}>
+        <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
+          <DialogHeader className="p-2 pb-0">
+            <DialogTitle className="flex items-center gap-1">
+              <Qrcode height={"20"} width={"20"} /> Create New QR Code
+            </DialogTitle>
+          </DialogHeader>
+          <NewQRCode
+            organizationId={organizationId ?? ""}
+            setIsNewQRCodeOpen={setNewQrCodeDialogOpen}
           />
         </DialogContent>
       </Dialog>

@@ -4,6 +4,7 @@ import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-de
 import { createClient } from "@church-space/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import HelpMenu from "@/components/sidebar/help-menu";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -52,7 +53,7 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <>
+    <div className="relative">
       {children}
       <InitUser
         user={user.user}
@@ -65,6 +66,7 @@ export default async function ProtectedLayout({
           access_token: user.pcoConnection?.access_token || null,
         }}
       />
-    </>
+      <HelpMenu />
+    </div>
   );
 }
