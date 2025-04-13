@@ -339,6 +339,14 @@ export async function POST(
         );
 
         console.log("automations", automations);
+
+        for (const automation of automations?.data || []) {
+          await filterAutomationEmails.trigger({
+            automationId: automation.id,
+            pcoPersonId: pcoPersonId,
+            organizationId: organizationId,
+          });
+        }
       }
 
       break;
