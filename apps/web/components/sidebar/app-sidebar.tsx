@@ -1,6 +1,6 @@
 "use client";
 
-import { Link, List, Mail, QrCode, Settings2, User } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 import { useState } from "react";
 
@@ -22,6 +22,10 @@ import {
   ChurchSpaceBlack,
   NewEmail as NewEmailIcon,
   NewQrCode,
+  LinkFilled,
+  Email,
+  Users,
+  Settings,
   Qrcode,
 } from "@church-space/ui/icons";
 import {
@@ -40,7 +44,7 @@ const data = {
     {
       title: "Email",
       url: "/emails",
-      icon: Mail,
+      icon: Email,
       submenu: [
         {
           title: "All Emails",
@@ -63,17 +67,15 @@ const data = {
     {
       title: "Links",
       url: "/qr-codes",
-      icon: Link,
+      icon: LinkFilled,
       submenu: [
         {
           title: "QR Codes",
           url: "/qr-codes",
-          icon: QrCode,
         },
         {
           title: "Link Lists",
           url: "/link-lists",
-          icon: List,
         },
       ],
     },
@@ -81,12 +83,12 @@ const data = {
     {
       title: "People",
       url: "/people",
-      icon: User,
+      icon: Users,
     },
     {
       title: "Settings",
       url: "/settings",
-      icon: Settings2,
+      icon: Settings,
       submenu: [
         {
           title: "Preferences",
@@ -120,10 +122,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <Sidebar variant="inset" {...props}>
         <SidebarHeader>
           <div className="flex w-full items-center justify-between gap-2">
-            <div className="flex items-center gap-0.5">
-              <ChurchSpaceBlack height={"22"} width={"22"} />
-              <span className="text-sm font-bold">ChurchSpace</span>
-            </div>
+            <Link href="/emails" prefetch={true}>
+              <div className="flex items-center gap-0.5">
+                <ChurchSpaceBlack height={"22"} width={"22"} />
+                <span className="text-sm font-bold">ChurchSpace</span>
+              </div>
+            </Link>
             <NavUser />
           </div>
         </SidebarHeader>
