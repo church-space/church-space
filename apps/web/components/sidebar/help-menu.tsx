@@ -19,10 +19,7 @@ export default function HelpMenu() {
     <DropdownMenu>
       <Tooltip>
         <TooltipTrigger asChild>
-          <DropdownMenuTrigger
-            asChild
-            className="absolute bottom-3 left-3 z-50"
-          >
+          <DropdownMenuTrigger asChild className="fixed bottom-3 left-3 z-50">
             <Button
               className="size-6 gap-0 rounded-full p-0 text-muted-foreground [&_svg]:size-6"
               variant="ghost"
