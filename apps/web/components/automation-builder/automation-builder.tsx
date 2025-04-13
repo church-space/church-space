@@ -390,10 +390,12 @@ export default function EmailAutomationBuilder({
     automation?.list_id?.toString() || "",
   );
   const [steps, setSteps] = useState<AutomationStep[]>(
-    automation?.steps?.map((step) => ({
-      ...step,
-      values: getInitialStepValues(step),
-    })) || [],
+    (automation?.steps || [])
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((step) => ({
+        ...step,
+        values: getInitialStepValues(step),
+      })),
   );
   const [openStep, setOpenStep] = useState<string | undefined>(undefined);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
