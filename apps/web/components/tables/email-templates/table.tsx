@@ -16,6 +16,7 @@ import { useEmailTemplates } from "@/hooks/use-email-templates";
 import { Skeleton } from "@church-space/ui/skeleton";
 import NewEmailTemplate from "@/components/forms/new-email-template";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
+import Link from "next/link";
 
 interface EmailTemplatesTableProps {
   organizationId: string;
@@ -47,15 +48,14 @@ export default function EmailTemplatesTable({
       <div className="mb-5 flex w-full flex-col justify-between gap-3">
         <div className="flex w-full flex-row items-center justify-between gap-2">
           <h1 className="flex items-center gap-1.5 text-xl font-bold md:text-2xl lg:text-3xl">
-            <span className="font-normal text-muted-foreground">
-              {isLoading ? <Skeleton className="h-7 w-5" /> : count}
-            </span>{" "}
-            Email {count === 1 ? "Template" : "Templates"}
+            Email Templates
           </h1>
           <div className="flex flex-row items-center gap-2">
-            <Button className="hidden md:block" variant="outline">
-              Deafult Footer
-            </Button>
+            <Link href="/emails/templates/edit-footer">
+              <Button className="hidden md:block" variant="outline">
+                Deafult Footer
+              </Button>
+            </Link>
             <Button onClick={() => setIsNewEmailTemplateOpen(true)}>
               New Template
             </Button>

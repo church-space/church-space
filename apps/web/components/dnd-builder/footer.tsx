@@ -38,6 +38,7 @@ interface FooterProps {
   emailInset: boolean;
   emailBgColor: string;
   defaultFont?: string;
+  showHover: boolean;
 }
 
 const socialIcons = {
@@ -61,6 +62,7 @@ export default function Footer({
   emailInset,
   emailBgColor,
   defaultFont,
+  showHover = true,
 }: FooterProps) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const logo = footerData?.logo || "";
@@ -110,8 +112,9 @@ export default function Footer({
     >
       <div
         className={cn(
-          "mx-auto flex w-full max-w-2xl cursor-pointer flex-col items-center gap-4 rounded-md border border-transparent px-4 pt-5 hover:border-border",
+          "mx-auto flex w-full max-w-2xl cursor-pointer flex-col items-center gap-4 rounded-md border border-transparent px-4 pt-5",
           isActive && "ring-2 ring-blue-500",
+          showHover && "hover:border-border",
         )}
         onClick={onClick}
         style={{ fontFamily: footerFont }}
