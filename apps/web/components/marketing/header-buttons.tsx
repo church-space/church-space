@@ -12,7 +12,7 @@ export default async function HeaderButtons() {
     <div className="flex items-center gap-2">
       {!isLoggedIn ? (
         <>
-          <Link href="/login" legacyBehavior passHref>
+          <Link href="/login" passHref>
             <Button
               variant="ghost"
               className="h-8 rounded-lg px-3 py-0 text-muted-foreground"
@@ -20,14 +20,14 @@ export default async function HeaderButtons() {
               Log in
             </Button>
           </Link>
-          <Link href="/signup" legacyBehavior passHref>
+          <Link href="/signup" passHref>
             <Button className="h-8 rounded-lg bg-foreground/90 px-3 py-0 hover:bg-foreground">
               Sign up
             </Button>
           </Link>
         </>
       ) : (
-        <Link href="/emails" legacyBehavior passHref>
+        <Link href="/emails" passHref>
           <Button className="h-8 gap-1 rounded-lg bg-foreground/90 px-3 py-0 hover:bg-foreground">
             <span className="hidden sm:inline">Go to</span>
             Dashboard

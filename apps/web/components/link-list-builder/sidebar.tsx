@@ -432,7 +432,6 @@ export default function LinkListBuilderSidebar({
                       href={localUrlSlug ? `/links/${localUrlSlug}` : "#"}
                       target="_blank"
                       passHref
-                      legacyBehavior
                     >
                       <a
                         className={cn(
