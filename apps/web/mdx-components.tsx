@@ -37,10 +37,10 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       />
     ),
     ul: ({ className, ...props }) => (
-      <ul className={cn("my-2 ml-12 list-disc", className)} {...props} />
+      <ul className={cn("my-2 list-disc", className)} {...props} />
     ),
     li: ({ className, ...props }) => (
-      <li className={cn("mt-2", className)} {...props} />
+      <li className={cn("ml-4 mt-2", className)} {...props} />
     ),
     a: ({ className, ...props }) => (
       <a

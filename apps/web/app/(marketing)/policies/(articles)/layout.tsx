@@ -4,7 +4,7 @@ import { PropsWithChildren } from "react";
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
-    <div className="mx-auto my-12 flex max-w-2xl flex-col">
+    <div className="mx-auto mb-32 mt-12 flex max-w-3xl flex-col px-5">
       <Link
         href="/policies"
         className="group mb-3 flex -translate-x-px cursor-pointer flex-row items-center gap-1 text-sm font-light text-muted-foreground"
