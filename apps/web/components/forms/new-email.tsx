@@ -80,11 +80,13 @@ export default function NewEmail({
                     type="text"
                     disabled={isLoading}
                     autoFocus
+                    name="subjectLine"
+                    role="none"
                     inputMode="text"
                     autoCorrect="off"
                     autoCapitalize="off"
                     spellCheck={false}
-                    autoComplete="false"
+                    autoComplete="off"
                     data-form-type="other"
                     data-lpignore={true}
                     aria-label="Email subject"
@@ -97,6 +99,13 @@ export default function NewEmail({
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                     {field.value.length} / 60
                   </span>
+                  <input
+                    type="password"
+                    className="absolute left-0 top-0 h-0 w-0 border-0 opacity-0 focus:outline-none"
+                    autoComplete="new-password"
+                    aria-hidden="true"
+                    tabIndex={-1}
+                  />
                 </div>
               </FormControl>
               <FormMessage />
