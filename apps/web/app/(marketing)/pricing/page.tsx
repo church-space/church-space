@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@church-space/ui/button";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@church-space/ui/cn";
@@ -24,6 +24,13 @@ export default function page() {
     price: 8,
   });
   const [isOpen, setIsOpen] = useState(false);
+  const selectedItemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && selectedItemRef.current) {
+      selectedItemRef.current.scrollIntoView({ block: "center" });
+    }
+  }, [isOpen]);
 
   const emailTiers: EmailTier[] = [
     { volume: 5000, price: 8 },
@@ -136,6 +143,11 @@ export default function page() {
                   {emailTiers.map((tier) => (
                     <div
                       key={tier.volume}
+                      ref={
+                        selectedTier.volume === tier.volume
+                          ? selectedItemRef
+                          : null
+                      }
                       className={cn(
                         "cursor-pointer p-4 hover:bg-gray-50",
                         selectedTier.volume === tier.volume
