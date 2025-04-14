@@ -76,6 +76,7 @@ export default function MobileHeaderSheet() {
               height={16}
               width={16}
               className="mr-1"
+              priority
             />
             Planning Center
           </Link>
