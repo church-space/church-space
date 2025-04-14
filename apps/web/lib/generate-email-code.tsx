@@ -118,6 +118,7 @@ interface EmailStyle {
   accentTextColor?: string;
   defaultFont?: string;
   linkColor?: string;
+  blockSpacing?: number;
 }
 
 // Custom components for email blocks
@@ -1613,6 +1614,7 @@ export function generateEmailCode(
     accentTextColor = "#000000",
     defaultFont = "sans-serif",
     linkColor = "#0000ff",
+    blockSpacing = 20,
   } = style;
 
   return (
@@ -1658,11 +1660,13 @@ export function generateEmailCode(
                         }}
                       >
                         {sections.map((section, sectionIndex) => (
-                          <EmailSection key={`section-inset-${sectionIndex}`}>
+                          <EmailSection
+                            key={`section-inset-${sectionIndex}`}
+                            style={{ paddingTop: "16px" }}
+                          >
                             {section.blocks.map((block, blockIndex) => {
                               const blockStyle = {
-                                margin: "8px 0",
-                                padding: "8px 0px 0px 0",
+                                paddingBottom: blockSpacing + 6,
                               };
                               const Component = (() => {
                                 switch (block.type) {
@@ -1676,7 +1680,9 @@ export function generateEmailCode(
                                         cellPadding="0"
                                         cellSpacing="0"
                                         border={0}
-                                        style={blockStyle}
+                                        style={{
+                                          ...blockStyle,
+                                        }}
                                       >
                                         <tr>
                                           <td>

@@ -51,6 +51,7 @@ interface EmailData {
     is_rounded?: boolean;
     default_text_color?: string;
     accent_text_color?: string;
+    block_spacing?: number;
     default_font?: string;
     link_color?: string;
   } | null;

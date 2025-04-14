@@ -9,6 +9,7 @@ interface StyleUpdates {
   is_inset?: boolean;
   bg_color?: string;
   is_rounded?: boolean;
+  block_spacing?: number;
   link_color?: string;
 }
 
@@ -49,6 +50,9 @@ export function useUpdateEmailStyle() {
         }),
         ...(updates.link_color !== undefined && {
           link_color: updates.link_color,
+        }),
+        ...(updates.block_spacing !== undefined && {
+          block_spacing: updates.block_spacing,
         }),
       };
 

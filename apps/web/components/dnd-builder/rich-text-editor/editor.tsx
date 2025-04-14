@@ -56,10 +56,17 @@ const mentionStyle = `
 }
 `;
 
-// Create and inject the style element
-const styleElement = document.createElement("style");
-styleElement.textContent = mentionStyle;
-document.head.appendChild(styleElement);
+// Function to inject styles only in browser environment
+const injectStyles = () => {
+  if (typeof window !== "undefined") {
+    const styleElement = document.createElement("style");
+    styleElement.textContent = mentionStyle;
+    document.head.appendChild(styleElement);
+  }
+};
+
+// Call the function to inject styles
+injectStyles();
 
 interface SuggestionItem {
   label: string;

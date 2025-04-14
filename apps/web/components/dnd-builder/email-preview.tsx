@@ -56,6 +56,7 @@ export default function EmailPreview({
     defaultFont: emailStyle.default_font || "Inter",
     isRounded: emailStyle.is_rounded ?? true,
     linkColor: emailStyle.link_color || "#0000ff",
+    blockSpacing: emailStyle.block_spacing || 20,
   };
 
   useEffect(() => {

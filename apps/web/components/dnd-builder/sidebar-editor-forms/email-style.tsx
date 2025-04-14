@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
+import { Slider } from "@church-space/ui/slider";
 
 interface EmailStyleFormProps {
   bgColor?: string;
@@ -33,6 +34,8 @@ interface EmailStyleFormProps {
   onLinkColorChange?: (color: string) => void;
   accentTextColor?: string;
   onAccentTextColorChange?: (color: string) => void;
+  blockSpacing?: number;
+  onBlockSpacingChange?: (spacing: number) => void;
 }
 
 export default function EmailStyleForm({
@@ -52,6 +55,8 @@ export default function EmailStyleForm({
   onLinkColorChange,
   accentTextColor = "#666666",
   onAccentTextColorChange,
+  blockSpacing = 20,
+  onBlockSpacingChange,
 }: EmailStyleFormProps) {
   return (
     <div className="flex flex-col gap-4 pr-1">
@@ -85,6 +90,17 @@ export default function EmailStyleForm({
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Rounded Corners</Label>
         <Switch checked={isRounded} onCheckedChange={onIsRoundedChange} />
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label>Block Spacing</Label>
+        <Slider
+          max={100}
+          min={10}
+          step={1}
+          className="col-span-2"
+          value={[blockSpacing]}
+          onValueChange={(value) => onBlockSpacingChange?.(value[0])}
+        />
       </div>
       <Separator className="my-4" />
       <Label className="text-lg font-semibold">Text</Label>

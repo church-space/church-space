@@ -74,6 +74,8 @@ interface DndBuilderSidebarProps {
   onAccentTextColorChange?: (color: string) => void;
   emailBgColor?: string;
   onEmailBgColorChange?: (color: string) => void;
+  blockSpacing?: number;
+  onBlockSpacingChange?: (spacing: number) => void;
   activeForm:
     | "default"
     | "block"
@@ -188,6 +190,8 @@ export default function DndBuilderSidebar({
   onIsInsetChange,
   isRounded = false,
   onIsRoundedChange,
+  blockSpacing = 20,
+  onBlockSpacingChange,
   emailBgColor = "#ffffff",
   onEmailBgColorChange,
   activeForm,
@@ -305,6 +309,8 @@ export default function DndBuilderSidebar({
                   onAccentTextColorChange={onAccentTextColorChange}
                   setActiveForm={setActiveForm}
                   organizationId={organizationId}
+                  blockSpacing={blockSpacing}
+                  onBlockSpacingChange={onBlockSpacingChange}
                 />
               </motion.div>
             ) : (

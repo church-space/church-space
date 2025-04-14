@@ -10,6 +10,7 @@ export interface EmailStyles {
   accentTextColor: string;
   defaultFont: string;
   isRounded: boolean;
+  blockSpacing: number;
   linkColor: string;
 }
 
@@ -31,6 +32,7 @@ export function useBlockStateManager(
     defaultFont: "sans-serif",
     isRounded: true,
     linkColor: "#0000ff",
+    blockSpacing: 20,
   },
   initialFooter: any = null, // Add initialFooter parameter
 ) {

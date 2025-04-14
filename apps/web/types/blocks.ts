@@ -136,4 +136,5 @@ export interface EmailStyle {
   bg_color?: string;
   is_rounded?: boolean;
   link_color?: string;
+  block_spacing?: number;
 }

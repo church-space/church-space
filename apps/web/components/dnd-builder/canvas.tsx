@@ -39,6 +39,7 @@ interface CanvasProps {
   linkColor?: string;
   accentTextColor?: string;
   isUndoRedoOperation?: boolean;
+  blockSpacing?: number;
 }
 
 export default function DndBuilderCanvas({
@@ -49,6 +50,7 @@ export default function DndBuilderCanvas({
   isRounded = true,
   emailBgColor = "#ffffff",
   onBlockSelect,
+  blockSpacing = 20,
   selectedBlockId,
   editors,
   onTextContentChange,
@@ -168,13 +170,13 @@ export default function DndBuilderCanvas({
       <div
         ref={setNodeRef}
         className={cn(
-          "mx-auto flex w-full max-w-2xl flex-col gap-3 p-4",
+          "mx-auto flex w-full max-w-2xl flex-col p-4",
           isInset && "mb-2 shadow-md",
           isRounded && "rounded-lg",
           blocks.length === 0 && "min-h-[102px]",
           blocks.length > 0 && "pb-0",
         )}
-        style={{ backgroundColor: bgColor }}
+        style={{ backgroundColor: bgColor, gap: blockSpacing }}
       >
         {blocks.length === 0 ? (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">

@@ -135,6 +135,7 @@ export default function EmailDndProvider({
     defaultTextColor: emailStyle.default_text_color || "#000000",
     defaultFont: emailStyle.default_font || "Inter",
     isRounded: emailStyle.is_rounded ?? true,
+    blockSpacing: emailStyle.block_spacing || 20,
     accentTextColor: emailStyle.accent_text_color || "#666666",
   };
 
@@ -196,6 +197,7 @@ export default function EmailDndProvider({
         default_font: styleObj.defaultFont,
         is_inset: styleObj.isInset,
         is_rounded: styleObj.isRounded,
+        block_spacing: styleObj.blockSpacing,
         bg_color: styleObj.emailBgColor,
         link_color: styleObj.linkColor,
       });
@@ -1155,6 +1157,7 @@ export default function EmailDndProvider({
           default_font: styles.defaultFont,
           is_inset: styles.isInset,
           is_rounded: styles.isRounded,
+          block_spacing: styles.blockSpacing,
           bg_color: styles.emailBgColor,
           link_color: styles.linkColor,
         },
@@ -1259,6 +1262,7 @@ export default function EmailDndProvider({
     styles.defaultFont,
     styles.isInset,
     styles.isRounded,
+    styles.blockSpacing,
     styles.emailBgColor,
     styles.linkColor,
     styles.accentTextColor,
@@ -1519,6 +1523,28 @@ export default function EmailDndProvider({
         if (emailId) {
           debouncedStyleUpdate({
             is_rounded: rounded,
+          });
+        }
+      }, 500);
+    },
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
+  );
+
+  const handleBlockSpacingChange = useCallback(
+    (spacing: number) => {
+      // Update UI immediately - this will add to history
+      updateStylesHistory({ blockSpacing: spacing });
+
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
+      }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        // Update in database if we have an emailId
+        if (emailId) {
+          debouncedStyleUpdate({
+            block_spacing: spacing,
           });
         }
       }, 500);
@@ -2683,6 +2709,8 @@ export default function EmailDndProvider({
             onIsInsetChange={handleIsInsetChange}
             isRounded={styles.isRounded}
             onIsRoundedChange={handleIsRoundedChange}
+            blockSpacing={styles.blockSpacing}
+            onBlockSpacingChange={handleBlockSpacingChange}
             emailBgColor={styles.emailBgColor}
             onEmailBgColorChange={handleEmailBgColorChange}
             selectedBlock={
@@ -2734,6 +2762,7 @@ export default function EmailDndProvider({
                 bgColor={styles.bgColor}
                 isInset={styles.isInset}
                 isRounded={styles.isRounded}
+                blockSpacing={styles.blockSpacing}
                 emailBgColor={styles.emailBgColor}
                 onBlockSelect={setSelectedBlockId}
                 selectedBlockId={selectedBlockId}

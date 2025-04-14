@@ -43,6 +43,7 @@ interface EmailData {
     blocks_bg_color?: string;
     is_inset?: boolean;
     is_rounded?: boolean;
+    block_spacing?: number;
     default_text_color?: string;
     accent_text_color?: string;
     default_font?: string;
