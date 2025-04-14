@@ -41,7 +41,7 @@ function getHeaderValue(
 function validateIds(headers: { name: string; value: string }[]): {
   email_id: number;
   people_email_id: number;
-  automation_id?: string;
+  automation_id?: number;
 } | null {
   const emailIdStr = getHeaderValue(headers, "X-Entity-Email-ID");
   const peopleEmailIdStr = getHeaderValue(headers, "X-Entity-People-Email-ID");
@@ -49,12 +49,17 @@ function validateIds(headers: { name: string; value: string }[]): {
 
   const emailId = emailIdStr ? Number(emailIdStr) : NaN;
   const peopleEmailId = peopleEmailIdStr ? Number(peopleEmailIdStr) : NaN;
-  const automationId = automationIdStr || undefined;
+  const automationId = automationIdStr ? Number(automationIdStr) : undefined;
 
-  if (isNaN(emailId) || isNaN(peopleEmailId)) {
-    console.error("Invalid email_id or people_email_id:", {
+  if (
+    isNaN(emailId) ||
+    isNaN(peopleEmailId) ||
+    (automationIdStr && isNaN(automationId!))
+  ) {
+    console.error("Invalid email_id, people_email_id, or automation_id:", {
       emailIdStr,
       peopleEmailIdStr,
+      automationIdStr,
     });
     return null;
   }

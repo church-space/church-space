@@ -15,7 +15,7 @@ export async function upsertEmailRecipient(
     email_id?: number;
     people_email_id: number;
     email_address: string;
-    automation_id?: string;
+    automation_id?: number;
   }
 ) {
   return supabase.from("email_recipients").upsert(

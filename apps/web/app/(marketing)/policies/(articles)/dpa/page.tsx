@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import Privacy from "@/markdown/policies/privacy.mdx";
+import DPA from "@/markdown/policies/dpa.mdx";
 
 export default function page() {
-  return <Privacy />;
+  return <DPA />;
 }
