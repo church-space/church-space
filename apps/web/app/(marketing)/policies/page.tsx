@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export default function PoliciesPage() {
   return (
-    <div className="mx-auto mb-32 mt-12 flex max-w-3xl flex-col gap-4 px-5">
-      <h1 className="text-3xl font-bold">Policies and Terms</h1>
+    <div className="mx-auto my-32 flex max-w-3xl flex-col gap-4 px-5">
+      <h1 className="text-4xl font-bold">Policies and Terms</h1>
       <p className="text-lg font-medium">
         We try to make our policies and terms as simple as possible. If you have
         any questions, please reach out to us at{" "}

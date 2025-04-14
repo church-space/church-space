@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Button } from "@church-space/ui/button";
 import { Menu } from "lucide-react";
 import Link from "next/link";
@@ -22,8 +24,10 @@ import PCOlogo from "@/public/pco-logo.png";
 import Image from "next/image";
 
 export default function MobileHeaderSheet() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" className="md:hidden">
           <Menu />
@@ -38,6 +42,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/features/emails"
+            onClick={() => setOpen(false)}
           >
             <MailFilled />
             Email
@@ -45,6 +50,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/features/qr"
+            onClick={() => setOpen(false)}
           >
             <Qrcode />
             QR Codes
@@ -52,6 +58,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/features/links"
+            onClick={() => setOpen(false)}
           >
             <LinkIcon />
             Link Lists
@@ -59,6 +66,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/features/automations"
+            onClick={() => setOpen(false)}
           >
             <Waypoints />
             Automations
@@ -69,6 +77,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/integrations"
+            onClick={() => setOpen(false)}
           >
             <Image
               src={PCOlogo}
@@ -87,6 +96,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/pricing"
+            onClick={() => setOpen(false)}
           >
             <CreditCard />
             Pricing
@@ -94,6 +104,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/support"
+            onClick={() => setOpen(false)}
           >
             <LifeRing />
             Support
@@ -101,6 +112,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/getting-started"
+            onClick={() => setOpen(false)}
           >
             <Map />
             Getting Started
@@ -108,6 +120,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="/about"
+            onClick={() => setOpen(false)}
           >
             <CircleInfo />
             About
@@ -115,6 +128,7 @@ export default function MobileHeaderSheet() {
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
             href="mailto:hello@churchspace.co?subject=Question%20about%20Church%20Space&body=NAME%3A%20%0ACHURCH%3A%20%0A%0AQUESTION%3A%20%0A"
+            onClick={() => setOpen(false)}
           >
             <Megaphone />
             Contact

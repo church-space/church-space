@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -16,6 +16,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { signInWithGoogle, signInWithOtp } from "@/app/(auth)/actions";
 import { useToast } from "@church-space/ui/use-toast";
 import { ArrowRight, ChurchSpaceBlack } from "@church-space/ui/icons";
+import { useSearchParams } from "next/navigation";
 
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
@@ -24,6 +25,19 @@ export default function Page() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendCount, setResendCount] = useState(0);
   const toast = useToast();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan");
+  const [selectedPlan, setSelectedPlan] = useState(plan);
+
+  useEffect(() => {
+    if (plan) {
+      setSelectedPlan(plan);
+    } else {
+      setSelectedPlan("free");
+    }
+  }, [plan]);
+
+  console.log(selectedPlan);
 
   const updateLastUsedMethod = (method: string) => {
     localStorage.setItem("lastAuthMethod", method);

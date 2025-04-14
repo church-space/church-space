@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@church-space/ui/button";
 import { ChevronDown } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
 import {
   Users,
@@ -10,7 +11,6 @@ import {
   LinkIcon,
   Qrcode,
   Robot,
-  TemplatesIcon,
 } from "@church-space/ui/icons";
 
 type EmailTier = {
@@ -57,21 +57,32 @@ export default function page() {
   };
 
   return (
-    <div className="mx-auto mb-32 mt-12 w-full max-w-5xl px-5">
-      <div className="rounded-lg bg-muted p-3">
-        <div className="grid w-full grid-cols-1 gap-5 md:grid-cols-2">
-          <div className="w-full space-y-6 p-6">
-            <h2 className="text-3xl font-bold">Free</h2>
-            <div className="flex w-full items-center gap-0.5 rounded-lg bg-background p-4">
-              <p className="text-lg font-semibold">250 emails per month</p>
+    <div className="mx-auto mb-24 mt-16 w-full max-w-5xl px-2">
+      <div className="space-y-6">
+        <div className="text-center text-5xl font-bold">Pricing</div>
+        <p className="mx-auto w-full max-w-lg text-balance pb-4 text-center font-medium leading-tight text-muted-foreground">
+          Pick the plan that works best for your church, or start for free. You
+          can always change your plan later.
+        </p>
+        <div className="grid w-full grid-cols-1 rounded-xl p-3 md:grid-cols-2">
+          <div className="my-4 w-full space-y-6 rounded-lg border bg-secondary/20 p-6 py-10 shadow-sm dark:bg-secondary/10 md:rounded-r-none md:border-r-0 md:py-6">
+            <div className="ml-2 space-y-2">
+              <h2 className="text-3xl font-bold">Free</h2>
+
+              <div className="flex items-baseline gap-1">
+                <h3 className="text-xl font-bold">$0</h3>
+              </div>
+            </div>
+            <div className="flex w-full items-center gap-0.5 rounded-lg border px-4 py-3">
+              <p className="text-lg font-semibold">1000 emails per month</p>
               <div className="mb-1 text-sm text-muted-foreground">*</div>
             </div>
-            <div className="space-y-3 px-3 py-6">
+            <div className="space-y-3 px-3 pb-9 pt-4">
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
                   <Users height={"22"} width={"22"} />
                 </div>
-                <span>Unlimited Contacts</span>
+                <span>Unlimited contacts</span>
               </div>
 
               <div className="flex items-center">
@@ -83,44 +94,43 @@ export default function page() {
 
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
+                  <Robot height={"22"} width={"22"} />
+                </div>
+                <span>Unlimited automations</span>
+              </div>
+
+              <div className="flex items-center">
+                <div className="mr-2.5 text-[#6065FE]">
                   <LinkIcon height={"22"} width={"22"} />
                 </div>
-                <span>Create up to 3 link lists</span>
+                <span>Up to 3 link lists</span>
               </div>
 
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
                   <Qrcode height={"22"} width={"22"} />
                 </div>
-                <span>Create up to 10 active QR codes</span>
-              </div>
-
-              <div className="flex items-center">
-                <div className="mr-2.5 text-[#6065FE]">
-                  <Robot height={"22"} width={"22"} />
-                </div>
-                <span>Create up to 1 active automation</span>
-              </div>
-
-              <div className="flex items-center">
-                <div className="mr-2.5 text-[#6065FE]">
-                  <TemplatesIcon height={"22"} width={"22"} />
-                </div>
-                <span>Unlimited templates</span>
+                <span>Up to 10 active QR codes</span>
               </div>
             </div>
-            <Button variant="outline" className="h-[3.1rem] w-full">
-              Get Started
-            </Button>
+            <Link href={`/signup?plan=free`}>
+              <Button variant="secondary" className="h-12 w-full">
+                Get Started
+              </Button>
+            </Link>
           </div>
-          <div className="w-full space-y-6 rounded-lg bg-background p-6">
-            <div className="ml-2 flex items-baseline gap-1">
-              <h2 className="text-3xl font-bold">${selectedTier.price}</h2>
-              <p className="text-sm text-muted-foreground">/month</p>
+          <div className="w-full space-y-6 rounded-lg border border-primary bg-secondary/50 p-6 py-10 shadow-sm dark:bg-secondary/20">
+            <div className="ml-2 space-y-2">
+              <h2 className="text-3xl font-bold">Pro</h2>
+
+              <div className="flex items-baseline gap-1">
+                <h3 className="text-xl font-bold">${selectedTier.price}</h3>
+                <p className="text-sm text-muted-foreground">/month</p>
+              </div>
             </div>
             <div className="relative">
               <div
-                className="flex cursor-pointer select-none items-center justify-between rounded-lg bg-muted p-4 text-lg"
+                className="flex cursor-pointer select-none items-center justify-between rounded-lg border bg-background px-4 py-3 text-lg"
                 onClick={() => setIsOpen(!isOpen)}
               >
                 <div className="flex items-center gap-1">
@@ -139,7 +149,7 @@ export default function page() {
               </div>
 
               {isOpen && (
-                <div className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-gray-200 bg-white shadow-lg">
+                <div className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-border bg-background shadow-lg">
                   {emailTiers.map((tier) => (
                     <div
                       key={tier.volume}
@@ -149,9 +159,9 @@ export default function page() {
                           : null
                       }
                       className={cn(
-                        "cursor-pointer p-4 hover:bg-gray-50",
+                        "cursor-pointer p-4 hover:bg-secondary/40",
                         selectedTier.volume === tier.volume
-                          ? "bg-[#6065FE]/10"
+                          ? "bg-secondary/40"
                           : "",
                       )}
                       onClick={() => {
@@ -168,14 +178,13 @@ export default function page() {
                 </div>
               )}
             </div>
-            <div className="space-y-3 px-3 py-6">
+            <div className="space-y-3 px-3 pb-9 pt-4">
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
                   <Users height={"22"} width={"22"} />
                 </div>
-                <span>Unlimited Contacts</span>
+                <span>Unlimited contacts</span>
               </div>
-
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
                   <Refresh height={"22"} width={"22"} />
@@ -185,36 +194,31 @@ export default function page() {
 
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
+                  <Robot height={"22"} width={"22"} />
+                </div>
+                <span>Unlimited automations</span>
+              </div>
+
+              <div className="flex items-center">
+                <div className="mr-2.5 text-[#6065FE]">
                   <LinkIcon height={"22"} width={"22"} />
                 </div>
-                <span>Create up to 3 link lists</span>
+                <span>Unlimited link lists</span>
               </div>
 
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
                   <Qrcode height={"22"} width={"22"} />
                 </div>
-                <span>Create up to 10 active QR codes</span>
-              </div>
-
-              <div className="flex items-center">
-                <div className="mr-2.5 text-[#6065FE]">
-                  <Robot height={"22"} width={"22"} />
-                </div>
-                <span>Create up to 1 active automation</span>
-              </div>
-
-              <div className="flex items-center">
-                <div className="mr-2.5 text-[#6065FE]">
-                  <TemplatesIcon height={"22"} width={"22"} />
-                </div>
-                <span>Unlimited templates</span>
+                <span>Unlimited active QR codes</span>
               </div>
             </div>
-            <Button className="h-12 w-full">Get Started</Button>
+            <Link href={`/signup?plan=${selectedTier.volume}`}>
+              <Button className="h-12 w-full">Get Started</Button>
+            </Link>
           </div>
         </div>
-        <p className="p-3 text-xs text-muted-foreground">
+        <p className="p-3 text-sm text-muted-foreground">
           * For example, if you send one email to 1,000 people, that counts as
           1,000 emails sent.
         </p>
