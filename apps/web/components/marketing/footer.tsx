@@ -52,15 +52,15 @@ const links = [
     items: [
       {
         title: "Terms of Service",
-        href: "/policies/terms",
+        href: "https://churchspace.co/policies/terms",
       },
       {
         title: "Privacy Policy",
-        href: "/policies/privacy",
+        href: "https://churchspace.co/policies/privacy",
       },
       {
         title: "All Policies",
-        href: "/policies",
+        href: "https://churchspace.co/policies",
       },
     ],
   },

@@ -35,6 +35,9 @@ interface AutomationStep {
 
 export const filterAutomationEmails = task({
   id: "filter-automation-emails",
+  retry: {
+    maxAttempts: 1,
+  },
   run: async (payload: FilterAutomationEmailsPayload, { ctx }) => {
     const { automationId, pcoPersonId, organizationId } = payload;
     const supabase = createClient();
