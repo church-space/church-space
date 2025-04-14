@@ -38,14 +38,18 @@ function getHeaderValue(
 }
 
 // Add validation helper
-function validateIds(
-  headers: { name: string; value: string }[],
-): { email_id: number; people_email_id: number } | null {
+function validateIds(headers: { name: string; value: string }[]): {
+  email_id: number;
+  people_email_id: number;
+  automation_id?: string;
+} | null {
   const emailIdStr = getHeaderValue(headers, "X-Entity-Email-ID");
   const peopleEmailIdStr = getHeaderValue(headers, "X-Entity-People-Email-ID");
+  const automationIdStr = getHeaderValue(headers, "X-Entity-Automation-ID");
 
   const emailId = emailIdStr ? Number(emailIdStr) : NaN;
   const peopleEmailId = peopleEmailIdStr ? Number(peopleEmailIdStr) : NaN;
+  const automationId = automationIdStr || undefined;
 
   if (isNaN(emailId) || isNaN(peopleEmailId)) {
     console.error("Invalid email_id or people_email_id:", {
@@ -55,7 +59,11 @@ function validateIds(
     return null;
   }
 
-  return { email_id: emailId, people_email_id: peopleEmailId };
+  return {
+    email_id: emailId,
+    people_email_id: peopleEmailId,
+    automation_id: automationId,
+  };
 }
 
 export async function POST(request: NextRequest) {
@@ -126,6 +134,7 @@ export async function POST(request: NextRequest) {
         email_id: clickedIds.email_id,
         people_email_id: clickedIds.people_email_id,
         email_address: payload.data.to[0],
+        automation_id: clickedIds.automation_id,
       });
       break;
     case "email.sent":
@@ -142,6 +151,7 @@ export async function POST(request: NextRequest) {
         email_id: sentIds.email_id,
         people_email_id: sentIds.people_email_id,
         email_address: payload.data.to[0],
+        automation_id: sentIds.automation_id,
       });
       break;
     case "email.delivered":
@@ -158,6 +168,7 @@ export async function POST(request: NextRequest) {
         email_id: deliveredIds.email_id,
         people_email_id: deliveredIds.people_email_id,
         email_address: payload.data.to[0],
+        automation_id: deliveredIds.automation_id,
       });
       break;
     case "email.delivery_delayed":
@@ -174,6 +185,7 @@ export async function POST(request: NextRequest) {
         email_id: delayedIds.email_id,
         people_email_id: delayedIds.people_email_id,
         email_address: payload.data.to[0],
+        automation_id: delayedIds.automation_id,
       });
       break;
     case "email.complained":
@@ -191,6 +203,7 @@ export async function POST(request: NextRequest) {
         email_id: ids.email_id,
         people_email_id: ids.people_email_id,
         email_address: payload.data.to[0],
+        automation_id: ids.automation_id,
       });
       break;
     case "email.bounced":
@@ -208,6 +221,7 @@ export async function POST(request: NextRequest) {
           email_id: bouncedIds.email_id,
           people_email_id: bouncedIds.people_email_id,
           email_address: payload.data.to[0],
+          automation_id: bouncedIds.automation_id,
         }),
         updatePeopleEmailStatus(supabase, {
           people_email_id: bouncedIds.people_email_id,
@@ -230,6 +244,7 @@ export async function POST(request: NextRequest) {
         email_id: openedIds.email_id,
         people_email_id: openedIds.people_email_id,
         email_address: payload.data.to[0],
+        automation_id: openedIds.automation_id,
       });
       break;
   }
