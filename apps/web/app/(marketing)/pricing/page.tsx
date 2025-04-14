@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Button } from "@church-space/ui/button";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
@@ -12,6 +12,12 @@ import {
   Qrcode,
   Robot,
 } from "@church-space/ui/icons";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@church-space/ui/dropdown-menu";
 
 type EmailTier = {
   volume: number;
@@ -24,13 +30,6 @@ export default function page() {
     price: 8,
   });
   const [isOpen, setIsOpen] = useState(false);
-  const selectedItemRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isOpen && selectedItemRef.current) {
-      selectedItemRef.current.scrollIntoView({ block: "center" });
-    }
-  }, [isOpen]);
 
   const emailTiers: EmailTier[] = [
     { volume: 5000, price: 8 },
@@ -129,37 +128,32 @@ export default function page() {
               </div>
             </div>
             <div className="relative">
-              <div
-                className="flex cursor-pointer select-none items-center justify-between rounded-lg border bg-background px-4 py-3 text-lg"
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                <div className="flex items-center gap-1">
-                  <p className="text-lg font-medium">
-                    {formatNumber(selectedTier.volume)} Emails per month
-                  </p>
-                  <div className="text-sm text-muted-foreground">*</div>
-                </div>
-                <ChevronDown
-                  size={24}
-                  className={cn(
-                    "text-gray-700 transition-transform",
-                    isOpen ? "rotate-180" : "",
-                  )}
-                />
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="flex w-full cursor-pointer select-none items-center justify-between rounded-lg border bg-background px-4 py-3 text-lg"
+                  onClick={() => setIsOpen(!isOpen)}
+                >
+                  <div className="flex items-center gap-1">
+                    <p className="text-lg font-medium">
+                      {formatNumber(selectedTier.volume)} Emails per month
+                    </p>
+                    <div className="text-sm text-muted-foreground">*</div>
+                  </div>
+                  <ChevronDown
+                    size={24}
+                    className={cn(
+                      "text-gray-700 transition-transform",
+                      isOpen ? "rotate-180" : "",
+                    )}
+                  />
+                </DropdownMenuTrigger>
 
-              {isOpen && (
-                <div className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-border bg-background shadow-lg">
+                <DropdownMenuContent className="max-h-60 w-[--radix-dropdown-menu-trigger-width] overflow-auto rounded-md border border-border p-2">
                   {emailTiers.map((tier) => (
-                    <div
+                    <DropdownMenuItem
                       key={tier.volume}
-                      ref={
-                        selectedTier.volume === tier.volume
-                          ? selectedItemRef
-                          : null
-                      }
                       className={cn(
-                        "cursor-pointer p-4 hover:bg-secondary/40",
+                        "flex w-full cursor-pointer p-3.5 hover:bg-secondary/40",
                         selectedTier.volume === tier.volume
                           ? "bg-secondary/40"
                           : "",
@@ -169,14 +163,16 @@ export default function page() {
                         setIsOpen(false);
                       }}
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex w-full items-center justify-between">
                         <span>{formatNumber(tier.volume)} Emails</span>
-                        <span className="font-medium">${tier.price}/month</span>
+                        <span className="font-medium text-muted-foreground">
+                          ${tier.price}/month
+                        </span>
                       </div>
-                    </div>
+                    </DropdownMenuItem>
                   ))}
-                </div>
-              )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             <div className="space-y-3 px-3 pb-9 pt-4">
               <div className="flex items-center">
