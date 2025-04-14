@@ -4,7 +4,7 @@ import LinksSection from "@/components/marketing/sections/links";
 import PcoAndAutomationsSection from "@/components/marketing/sections/pco-automations";
 import EmailsSection from "@/components/marketing/sections/emails";
 
-export default function Page() {
+export default function Homepage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Hero />
