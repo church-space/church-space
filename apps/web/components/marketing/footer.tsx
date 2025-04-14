@@ -16,6 +16,10 @@ const links = [
         href: "/features/email",
       },
       {
+        title: "Automations",
+        href: "/features/automations",
+      },
+      {
         title: "QR Codes",
         href: "/features/qr",
       },
@@ -42,7 +46,7 @@ const links = [
       },
       {
         title: "Getting Started",
-        href: "/getting-started",
+        href: "/support/getting-started",
       },
     ],
   },
@@ -70,10 +74,6 @@ const links = [
       {
         title: "About",
         href: "/about",
-      },
-      {
-        title: "Roadmap",
-        href: "/roadmap",
       },
       {
         title: "Contact",

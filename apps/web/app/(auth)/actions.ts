@@ -5,9 +5,9 @@ import { createClient } from "@church-space/supabase/server";
 export async function signInWithOtp(email: string, redirectTo?: string | null) {
   const supabase = await createClient();
 
-  const redirectUrl =
-    `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirectTo=${redirectTo}` ||
-    `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`;
+  const redirectUrl = redirectTo
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirectTo=${redirectTo}`
+    : `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`;
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
@@ -40,9 +40,9 @@ export async function verifyOtp(email: string, token: string) {
 export async function signInWithGoogle(redirectTo?: string | null) {
   const supabase = await createClient();
 
-  const redirectUrl =
-    `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirectTo=${redirectTo}` ||
-    `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`;
+  const redirectUrl = redirectTo
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirectTo=${redirectTo}`
+    : `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

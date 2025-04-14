@@ -5,6 +5,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
@@ -14,7 +15,7 @@ import { InputOTPForm } from "@/components/auth/otp-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { signInWithGoogle, signInWithOtp } from "@/app/(auth)/actions";
 import { useToast } from "@church-space/ui/use-toast";
-import { ArrowRight } from "@church-space/ui/icons";
+import { ArrowRight, ChurchSpaceBlack } from "@church-space/ui/icons";
 
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
@@ -142,15 +143,17 @@ export default function Page() {
             transition={{ duration: 0.2 }}
           >
             <Card className="space-y-6 px-0">
-              <CardHeader className="items-center space-y-8">
-                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-                <CardTitle>Check your email</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-10">
-                <div className="w-full text-center font-light">
+              <CardHeader className="items-center space-y-0">
+                <ChurchSpaceBlack height={"60"} width={"60"} fill="#6065FE" />
+                <CardTitle className="pt-4 text-2xl font-bold">
+                  Check your email
+                </CardTitle>
+                <CardDescription>
                   We&apos;ve sent you a login email. Please check your email at{" "}
                   <span className="font-medium">{email}</span>{" "}
-                </div>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-10">
                 {!showOTPForm && (
                   <div
                     className="flex w-full cursor-pointer justify-center gap-1 text-center text-sm font-light text-muted-foreground transition-colors hover:text-foreground"
@@ -202,10 +205,15 @@ export default function Page() {
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
           >
-            <Card className="space-y-4 px-0">
-              <CardHeader className="items-center space-y-8">
-                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-                <CardTitle>Log in to Church Space</CardTitle>
+            <Card className="space-y-2 px-0">
+              <CardHeader className="items-center space-y-0">
+                <ChurchSpaceBlack height={"60"} width={"60"} fill="#6065FE" />
+                <CardTitle className="pt-4 text-2xl font-bold">
+                  Welcome Back
+                </CardTitle>
+                <CardDescription>
+                  Sign up to Church Space to get started
+                </CardDescription>
               </CardHeader>
               <CardContent className="relative space-y-4">
                 <div className="flex flex-col gap-2">
