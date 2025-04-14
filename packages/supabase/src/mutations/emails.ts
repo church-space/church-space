@@ -1,6 +1,6 @@
+"use server";
 import type { Client, Database } from "../types";
 import { getEmailWithFooterAndBlocksQuery } from "../queries/all/get-email-with-footer-and-blocks";
-import { revalidateTag } from "next/cache";
 
 export async function createEmailTemplateFromEmail(
   supabase: Client,
@@ -544,8 +544,6 @@ export async function createEmail(
     throw footerError;
   }
 
-  revalidateTag(`emails_${organizationId}`);
-
   return { data, error, footer };
 }
 
@@ -580,8 +578,6 @@ export async function createEmailTemplate(
     console.error("Error creating footer:", footerError);
     throw footerError;
   }
-
-  revalidateTag(`emails_${organizationId}`);
 
   return { data, error, footer };
 }

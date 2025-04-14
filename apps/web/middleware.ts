@@ -1,5 +1,5 @@
 import { updateSession } from "@church-space/supabase/middleware";
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   // Clone the request headers

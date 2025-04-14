@@ -1,4 +1,3 @@
-import { revalidateTag } from "next/cache";
 import { getUserQuery } from "../queries/all/get-user";
 import type { Client, Database } from "../types";
 
@@ -18,9 +17,6 @@ export async function deleteDomain(
     .eq("id", domainId)
     .eq("organization_id", organizationId);
 
-  // Invalidate the cache for this specific email
-  if (!result.error) revalidateTag(`domains_${organizationId}`);
-
   return result;
 }
 
@@ -39,11 +35,6 @@ export async function updateDomain(
     .update(domainData)
     .eq("id", domainId)
     .select();
-
-  // Invalidate the cache for this specific domain
-  if (!result.error && result.data?.[0]) {
-    revalidateTag(`domains_${result.data[0].organization_id}`);
-  }
 
   return result;
 }
@@ -113,17 +104,6 @@ export async function addDomain(
     // Perform the insert operation
 
     const result = await supabase.from("domains").insert(insertData).select();
-
-    // Invalidate the cache for domains in this organization
-    if (!result.error) {
-      console.log(`Revalidating tag: domains_${organizationId}`);
-      // Use revalidatePath as well to ensure the page refreshes
-      try {
-        revalidateTag(`domains_${organizationId}`);
-      } catch (error) {
-        console.error("Error revalidating tag:", error);
-      }
-    }
 
     return result;
   } catch (error) {

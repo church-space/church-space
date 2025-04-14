@@ -8,12 +8,12 @@
     "db:generate": "supabase gen types --lang=typescript --project-id dcwieoyzmyesvfugjrxn --schema public > src/types/db.ts"
   },
   "dependencies": {
+    "@church-space/types": "workspace:*",
+    "@church-space/typescript-config": "workspace:*",
     "@supabase-cache-helpers/postgrest-react-query": "^1.11.4",
     "@supabase/postgrest-js": "^1.17.3",
     "@supabase/ssr": "^0.5.2",
-    "@church-space/types": "workspace:*",
-    "@church-space/typescript-config": "workspace:*",
-    "next": "15.1.2",
+    "next": "15.3.0",
     "react": "^19.0.0",
     "server-only": "^0.0.1",
     "supabase": "^2.1.1"
