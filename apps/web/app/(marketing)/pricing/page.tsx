@@ -24,7 +24,7 @@ type EmailTier = {
   price: number;
 };
 
-export default function page() {
+export default function PricingPage() {
   const [selectedTier, setSelectedTier] = useState<EmailTier>({
     volume: 5000,
     price: 8,
