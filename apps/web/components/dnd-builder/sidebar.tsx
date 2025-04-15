@@ -270,7 +270,7 @@ export default function DndBuilderSidebar({
       <div className="hidden md:block">
         <div
           className={cn(
-            "sticky top-16 h-[calc(100vh-5rem)] flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm md:w-[320px] lg:w-[400px]",
+            "sticky top-16 h-[calc(100vh-5rem)] flex-shrink-0 overflow-hidden rounded-md border bg-sidebar shadow-sm md:w-[320px] md:p-1.5 lg:w-[400px] lg:p-4",
             className,
           )}
         >

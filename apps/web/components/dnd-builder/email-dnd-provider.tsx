@@ -2576,15 +2576,23 @@ export default function EmailDndProvider({
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.error || "Failed to delete template",
+          description: result.data.error || "Failed to delete template",
         });
         return;
       }
+
+      // If successful, show success message before redirect
+      toast({
+        title: "Success",
+        description: "Template deleted successfully",
+      });
     } catch (error) {
+      console.error("Error deleting template:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete template",
+        description:
+          error instanceof Error ? error.message : "Failed to delete template",
       });
     }
   };
@@ -2621,7 +2629,6 @@ export default function EmailDndProvider({
       });
     }
   };
-
   return (
     <div className="relative flex h-full flex-col">
       <Dialog

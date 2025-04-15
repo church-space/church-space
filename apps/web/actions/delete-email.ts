@@ -33,6 +33,18 @@ export const deleteEmailAction = authActionClient
 
       if (error) {
         const pgError = error as PostgrestError;
+
+        // Check for foreign key constraint violation from email_automation_steps
+        if (
+          pgError.code === "23503" &&
+          pgError.details?.includes("email_automation_steps")
+        ) {
+          return {
+            success: false,
+            error:
+              "Cannot delete this template because it is being used by one or more automations. Please remove it from all automations first.",
+          };
+        }
         return {
           success: false,
           error: pgError.message || "Failed to delete email",
@@ -59,7 +71,9 @@ export const deleteEmailAction = authActionClient
       return {
         success: false,
         error:
-          error instanceof Error ? error.message : "Failed to delete email",
+          error instanceof Error
+            ? error.message
+            : "Cannot delete this template because it is being used by one or more automations. Please remove it from all automations first.",
       };
     }
   });

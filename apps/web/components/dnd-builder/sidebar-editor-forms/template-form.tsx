@@ -18,7 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { cn } from "@church-space/ui/cn";
 
 export default function TemplateForm({
@@ -36,6 +36,11 @@ export default function TemplateForm({
   const [localName, setLocalName] = useState(name);
   const [nameError, setNameError] = useState<string | null>(null);
   const nameTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setLocalName(name);
+    setNameError(null);
+  }, [name]);
 
   const handleNameChange = (value: string) => {
     setLocalName(value);
@@ -60,9 +65,9 @@ export default function TemplateForm({
       <div className="flex items-center justify-between">
         <div className="text-md font-medium">Template Settings</div>
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogTrigger asChild>
-            <Tooltip>
-              <TooltipTrigger asChild>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
                 <Button
                   variant="outline"
                   size="icon"
@@ -70,10 +75,10 @@ export default function TemplateForm({
                 >
                   <Trash />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>Delete Template</TooltipContent>
-            </Tooltip>
-          </DialogTrigger>
+              </DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Delete Template</TooltipContent>
+          </Tooltip>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Delete Template</DialogTitle>
@@ -93,7 +98,6 @@ export default function TemplateForm({
                 variant="destructive"
                 onClick={() => {
                   onDelete();
-                  setIsDeleteDialogOpen(false);
                 }}
               >
                 Delete

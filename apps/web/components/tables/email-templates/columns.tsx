@@ -8,9 +8,13 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@church-space/ui/context-menu";
+import { Button } from "@church-space/ui/button";
 import {
   Dialog,
+  DialogClose,
+  DialogFooter,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@church-space/ui/dialog";
@@ -67,7 +71,17 @@ export const columns: ColumnDef<EmailTemplate>[] = [
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Delete</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete this template? This action
+                  cannot be undone.
+                </DialogDescription>
               </DialogHeader>
+              <DialogFooter>
+                <DialogClose>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button variant="destructive">Delete</Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </>
