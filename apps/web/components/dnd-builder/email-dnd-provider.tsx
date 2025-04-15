@@ -2625,7 +2625,10 @@ export default function EmailDndProvider({
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update template name",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update template name",
       });
     }
   };

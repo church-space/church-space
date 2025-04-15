@@ -382,7 +382,6 @@ export default function DndBuilderSidebar({
                     {isTemplate && (
                       <TemplateForm
                         name={emailSubject || ""}
-                        id={emailId || 0}
                         onNameChange={onEmailSubjectChange || (() => {})}
                         onDelete={onDeleteTemplate || (() => {})}
                       />

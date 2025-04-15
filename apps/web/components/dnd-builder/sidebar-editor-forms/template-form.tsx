@@ -23,12 +23,10 @@ import { cn } from "@church-space/ui/cn";
 
 export default function TemplateForm({
   name,
-  id,
   onDelete,
   onNameChange,
 }: {
   name: string;
-  id: number;
   onDelete: () => void;
   onNameChange: (name: string) => void;
 }) {
