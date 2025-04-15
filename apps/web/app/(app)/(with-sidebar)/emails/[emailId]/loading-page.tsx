@@ -11,6 +11,7 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Button } from "@church-space/ui/button";
 import { Skeleton } from "@church-space/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 export default function LoadingPage() {
   return (
@@ -38,8 +39,12 @@ export default function LoadingPage() {
           </Button>
         </div>
       </header>
-      <div className="mx-auto mb-6 mt-8 flex w-full max-w-3xl items-center justify-between px-5">
-        <div className="text-muted-foreground">Loading...</div>
+      <div className="min-h-[calc(100vh-10rem)] w-full px-8 pt-3">
+        <Skeleton className="flex min-h-[calc(100vh-7rem)] w-full items-center justify-center bg-secondary/30 px-5">
+          <div className="flex flex-col items-center gap-3">
+            <div className="text-muted-foreground">Getting things ready...</div>
+          </div>
+        </Skeleton>
       </div>
     </>
   );

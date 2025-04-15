@@ -18,6 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@church-space/ui/dropdown-menu";
+import cookies from "js-cookie";
 
 type EmailTier = {
   volume: number;
@@ -30,6 +31,11 @@ export default function PricingPage() {
     price: 8,
   });
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleSignup = (plan: string | number) => {
+    cookies.set("selected_plan", plan.toString(), { expires: 7 }); // Cookie expires in 7 days
+    window.location.href = `/signup?plan=${plan}`;
+  };
 
   const emailTiers: EmailTier[] = [
     { volume: 5000, price: 8 },
@@ -112,11 +118,14 @@ export default function PricingPage() {
                 <span>Up to 10 active QR codes</span>
               </div>
             </div>
-            <Link href={`/signup?plan=free`}>
+            <div
+              onClick={() => handleSignup("free")}
+              className="cursor-pointer"
+            >
               <Button variant="secondary" className="h-12 w-full">
                 Get Started
               </Button>
-            </Link>
+            </div>
           </div>
           <div className="w-full space-y-6 rounded-lg border border-primary bg-secondary/50 p-6 py-10 shadow-sm dark:bg-secondary/20">
             <div className="ml-2 space-y-2">
@@ -209,9 +218,12 @@ export default function PricingPage() {
                 <span>Unlimited active QR codes</span>
               </div>
             </div>
-            <Link href={`/signup?plan=${selectedTier.volume}`}>
+            <div
+              onClick={() => handleSignup(selectedTier.volume)}
+              className="cursor-pointer"
+            >
               <Button className="h-12 w-full">Get Started</Button>
-            </Link>
+            </div>
           </div>
         </div>
         <p className="p-3 text-sm text-muted-foreground">
