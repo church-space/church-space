@@ -99,7 +99,6 @@ export function NavMain({
                   domain: string;
                 } | null,
               })) ?? [],
-            count: result.data.count ?? 0,
             nextPage: result.data.nextPage,
           },
         ],
@@ -133,7 +132,6 @@ export function NavMain({
               result.data.data?.map((linkList) => ({
                 ...linkList,
               })) ?? [],
-            count: result.data.count ?? 0,
             nextPage: result.data.nextPage,
           },
         ],
@@ -167,7 +165,6 @@ export function NavMain({
               result.data.data?.map((person) => ({
                 ...person,
               })) ?? [],
-            count: result.data.count ?? 0,
             nextPage: result.data.nextPage,
           },
         ],
@@ -198,7 +195,6 @@ export function NavMain({
         pages: [
           {
             data: result.data.data ?? [],
-            count: result.data.count ?? 0,
             nextPage: result.data.nextPage,
           },
         ],
@@ -232,7 +228,6 @@ export function NavMain({
               result.data.data?.map((emailAutomation) => ({
                 ...emailAutomation,
               })) ?? [],
-            count: result.data.count ?? 0,
             nextPage: result.data.nextPage,
           },
         ],
@@ -263,7 +258,6 @@ export function NavMain({
         pages: [
           {
             data: result.data.data ?? [],
-            count: result.data.count ?? 0,
             nextPage: result.data.nextPage,
           },
         ],
@@ -297,7 +291,6 @@ export function NavMain({
               result.data.data?.map((qrLink) => ({
                 ...qrLink,
               })) ?? [],
-            count: result.data.count ?? 0,
             nextPage: result.data.nextPage,
           },
         ],

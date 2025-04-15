@@ -10,10 +10,10 @@ import {
 } from "@church-space/ui/dialog";
 import { Input } from "@church-space/ui/input";
 import { useState } from "react";
-import { createClient } from "@church-space/supabase/client";
 import { useToast } from "@church-space/ui/use-toast";
 import { z } from "zod";
 import { Label } from "@church-space/ui/label";
+import { updateUserEmailAddressAction } from "@/actions/update-user-email-address";
 const emailChangeSchema = z.object({
   email: z.string().email(),
 });
@@ -22,7 +22,6 @@ export default function EmailChange({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const supabase = createClient();
   const { toast } = useToast();
 
   const handleEmailChange = async () => {
@@ -47,16 +46,11 @@ export default function EmailChange({ email }: { email: string }) {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser(
-        {
-          email: newEmail,
-        },
-        {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
-        },
-      );
+      const result = await updateUserEmailAddressAction({
+        email: newEmail,
+      });
 
-      if (error) {
+      if (!result?.data?.success) {
         toast({
           title: "An error occurred while updating your email",
           variant: "destructive",
