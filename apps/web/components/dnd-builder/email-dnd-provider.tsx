@@ -377,6 +377,17 @@ export default function EmailDndProvider({
     // Handle new blocks from sidebar
     const newBlockId = crypto.randomUUID();
     const blockType = active.data.current.type;
+
+    // Check block limit before adding a new block
+    if (blocks.length >= 50) {
+      toast({
+        variant: "destructive",
+        title: "Block Limit Reached",
+        description: "You cannot add more than 50 blocks to an email.",
+      });
+      return;
+    }
+
     let newBlocks;
     let newBlockOrder;
 
@@ -809,7 +820,7 @@ export default function EmailDndProvider({
       // Clear the permanently deleted blocks ref when component unmounts
       permanentlyDeletedBlocksRef.current.clear();
     };
-  }, [editors]);
+  }, []);
 
   const handleDragStart = (event: any) => {
     const { active } = event;
@@ -821,6 +832,16 @@ export default function EmailDndProvider({
     (updatedBlock: BlockType, isDuplication: boolean = false) => {
       // For duplications, we need to add the block to the list instead of updating an existing one
       if (isDuplication) {
+        // Check block limit before duplicating
+        if (blocks.length >= 50) {
+          toast({
+            variant: "destructive",
+            title: "Block Limit Reached",
+            description: "You cannot add more than 50 blocks to an email.",
+          });
+          return;
+        }
+
         // Find the original block to determine where to insert the duplicated block
         const originalBlock = blocks.find(
           (block) => block.id === updatedBlock.duplicatedFromId,

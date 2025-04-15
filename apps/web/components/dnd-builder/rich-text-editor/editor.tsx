@@ -9,6 +9,7 @@ import { Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { DynamicColor } from "./dynamic-color-extension";
 import { Mention } from "@tiptap/extension-mention";
+import CharacterCount from "@tiptap/extension-character-count";
 import tippy, {
   Instance,
   Props,
@@ -287,6 +288,9 @@ export const createEditor = (
             };
           },
         },
+      }),
+      CharacterCount.configure({
+        limit: 35000,
       }),
       Color,
       TextStyle,
