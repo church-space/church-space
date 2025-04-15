@@ -454,7 +454,7 @@ export default function LinkListBuilder() {
       setHeaderImage(linkList.data.bg_image || "");
       setLogoImage(linkList.data.logo_asset || "");
     }
-  }, [linkList?.data]);
+  }, [linkList?.data, primaryButton]);
 
   // Update handlers
   const handleStyleUpdate = (newStyle: any) => {

@@ -15,7 +15,6 @@ import NewEmail from "../../forms/new-email";
 import DataTable from "../data-table";
 import { columns, type Email } from "./columns";
 import { getEmailFilterConfig, type EmailStatus } from "./filters";
-import { Skeleton } from "@church-space/ui/skeleton";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 
 interface EmailsTableProps {

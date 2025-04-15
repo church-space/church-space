@@ -60,7 +60,7 @@ export default function LinkListHeader({
     } else {
       setLogoUrl("");
     }
-  }, [logoImage]);
+  }, [logoImage, supabase.storage]);
 
   useEffect(() => {
     if (headerImage) {
@@ -71,7 +71,7 @@ export default function LinkListHeader({
     } else {
       setBgImageUrl("");
     }
-  }, [headerImage]);
+  }, [headerImage, supabase.storage]);
 
   return (
     <div

@@ -13,7 +13,6 @@ import {
   DialogTitle,
 } from "@church-space/ui/dialog";
 import { useEmailTemplates } from "@/hooks/use-email-templates";
-import { Skeleton } from "@church-space/ui/skeleton";
 import NewEmailTemplate from "@/components/forms/new-email-template";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 import Link from "next/link";

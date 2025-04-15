@@ -144,7 +144,7 @@ export default function DataTable<TData>({
         debouncedSearchFn(onSearch, value);
       }
     },
-    [onSearch],
+    [onSearch, debouncedSearchFn],
   );
 
   // Clean up the debounced function on unmount
@@ -152,7 +152,7 @@ export default function DataTable<TData>({
     return () => {
       debouncedSearchFn.cancel();
     };
-  }, []);
+  }, [debouncedSearchFn]);
 
   // Update data when initialData changes
   useEffect(() => {

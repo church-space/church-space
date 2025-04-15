@@ -13,7 +13,6 @@ import { cn } from "@church-space/ui/cn";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Footer from "./footer";
 import { useUpdateOrgDefaultFooter } from "./mutations/use-update-org-default-footer";
@@ -41,7 +40,6 @@ export default function DefaultFooterEditor({
   emailBgColor?: string;
   defaultFont?: string;
 }) {
-  const router = useRouter();
   const [footerData, setFooterData] = useState<FooterData>({
     address: null,
     copyright_name: null,

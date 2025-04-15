@@ -81,7 +81,6 @@ export default function NewEmail({
                     disabled={isLoading}
                     autoFocus
                     name="subjectLine"
-                    role="none"
                     inputMode="text"
                     autoCorrect="off"
                     autoCapitalize="off"
