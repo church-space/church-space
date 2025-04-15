@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   MailFilled,
   Instagram,
@@ -45,11 +45,16 @@ export default function AuthorBlock({
   const name = data?.name || "";
   const subtitle = data?.subtitle || "";
   const avatar = data?.avatar || "";
-  const links = data?.links || [];
   const hideAvatar = data?.hideAvatar || false;
   const linkColor = data?.linkColor || "#000000";
   // Force re-render of the Avatar component when avatar changes
   const [key, setKey] = useState(0);
+
+  // Memoize the links array to prevent it from changing on every render
+  const links = useMemo(() => {
+    const linksArray = data?.links || [];
+    return [...linksArray].sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [data?.links]);
 
   useEffect(() => {
     // Reset the avatar URL when avatar is empty
