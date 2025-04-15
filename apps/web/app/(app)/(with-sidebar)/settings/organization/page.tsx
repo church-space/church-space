@@ -31,6 +31,8 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import { Button } from "@church-space/ui/button";
 import {
@@ -77,21 +79,25 @@ export default async function Page() {
   const pcoConnection = data[1].data || null;
 
   return (
-    <>
-      <header className="flex h-12 shrink-0 items-center gap-2">
+    <div className="relative">
+      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbPage>Settings</BreadcrumbPage>
+                <BreadcrumbLink href="/settings">Settings</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Organization</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-16 p-4 pt-0">
+      <div className="flex flex-1 flex-col gap-16 p-4 pb-24 pt-0">
         <SettingsSection>
           <SettingsHeader>
             <SettingsTitle>Organization</SettingsTitle>
@@ -267,6 +273,6 @@ export default async function Page() {
           </SettingsContent>
         </SettingsSection>
       </div>
-    </>
+    </div>
   );
 }

@@ -31,8 +31,8 @@ export default async function Page() {
   const domains = await getDomainsQuery(supabase, organizationId);
 
   return (
-    <>
-      <header className="flex h-12 shrink-0 items-center gap-2">
+    <div className="relative">
+      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
@@ -61,6 +61,6 @@ export default async function Page() {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -76,10 +76,13 @@ export default function EmailChange({ email }: { email: string }) {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" className="font-normal">
+        <DialogTrigger asChild className="w-full">
+          <Button
+            variant="outline"
+            className="w-full justify-start truncate px-3 font-normal"
+          >
             {email}
           </Button>
         </DialogTrigger>
