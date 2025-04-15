@@ -49,6 +49,7 @@ export interface ListBlockData {
   items: Array<{
     title: string;
     description: string;
+    order: number;
   }>;
 }
 
@@ -60,6 +61,7 @@ export interface AuthorBlockData {
   links: Array<{
     icon: string;
     url: string;
+    order: number;
   }>;
   hideAvatar: boolean;
   linkColor: string;
@@ -86,7 +88,8 @@ export interface CardsBlockData {
     label: string;
     buttonText: string;
     buttonLink: string;
-    image: string; // This will store the Supabase path
+    image: string;
+    order: number;
   }>;
 }
 

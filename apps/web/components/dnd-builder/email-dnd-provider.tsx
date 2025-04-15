@@ -420,6 +420,7 @@ export default function EmailDndProvider({
           {
             title: "",
             description: "",
+            order: 0,
           },
         ],
       };
@@ -439,6 +440,7 @@ export default function EmailDndProvider({
             buttonText: "",
             buttonLink: "",
             image: "",
+            order: 0,
           },
           {
             title: "",
@@ -447,6 +449,7 @@ export default function EmailDndProvider({
             buttonText: "",
             buttonLink: "",
             image: "",
+            order: 0,
           },
         ],
       };

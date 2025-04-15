@@ -18,10 +18,243 @@ import { Tooltip } from "@church-space/ui/tooltip";
 import { TooltipTrigger } from "@church-space/ui/tooltip";
 import { TooltipContent } from "@church-space/ui/tooltip";
 import { CircleInfo } from "@church-space/ui/icons";
+import { cn } from "@church-space/ui/cn";
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
+import React from "react";
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };
   onUpdate: (block: Block) => void;
+}
+
+// Override accordion trigger styles for this component
+const CustomAccordionTrigger = React.forwardRef<
+  React.ElementRef<typeof AccordionTrigger>,
+  React.ComponentPropsWithoutRef<typeof AccordionTrigger>
+>((props, ref) => (
+  <div className="flex w-full flex-1">
+    <button
+      ref={ref}
+      type="button"
+      className={cn(
+        "flex w-full flex-1 items-center justify-between px-3 py-4 font-medium transition-all [&[data-state=open]>svg]:rotate-180",
+        props.className,
+      )}
+      {...props}
+    >
+      <span className="truncate pr-2 text-sm">{props.children}</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-4 w-4 shrink-0 transition-transform duration-200"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </button>
+  </div>
+));
+CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
+
+// Create a sortable accordion item component
+function SortableCardItem({
+  card,
+  index,
+  openItem,
+  setOpenItem,
+  typingLinks,
+  linkErrors,
+  updateCard,
+  removeCard,
+  handleBlur,
+  onImageRemove,
+  organizationId,
+}: {
+  card: any;
+  index: number;
+  openItem: string | undefined;
+  setOpenItem: (value: string | undefined) => void;
+  typingLinks: Record<number, boolean>;
+  linkErrors: Record<number, string | null>;
+  updateCard: (index: number, key: string, value: string) => void;
+  removeCard: (index: number) => void;
+  handleBlur: (index: number) => void;
+  onImageRemove: (index: number) => void;
+  organizationId: string;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: index.toString() });
+
+  const style = transform
+    ? {
+        transform: CSS.Transform.toString(transform),
+        transition: isDragging ? undefined : transition,
+        zIndex: isDragging ? 10 : 1,
+      }
+    : undefined;
+
+  // Generate a stable ID from card properties
+  const cardId = `card-${card.order}-${index}`;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "mb-2 w-full rounded-lg border",
+        isDragging ? "border-dashed bg-accent opacity-50" : "",
+      )}
+    >
+      <div className="flex w-full items-center p-0.5 pr-1">
+        <div
+          className="flex cursor-grab touch-none items-center justify-center px-3 py-4"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full"
+          value={openItem === cardId ? cardId : undefined}
+          onValueChange={(value) => setOpenItem(value)}
+        >
+          <AccordionItem value={cardId} className="border-0">
+            <div
+              onClick={() =>
+                setOpenItem(openItem === cardId ? undefined : cardId)
+              }
+            >
+              <CustomAccordionTrigger>
+                {card.title ? card.title : `Card ${index + 1}`}
+              </CustomAccordionTrigger>
+            </div>
+            <AccordionContent>
+              <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4 py-1 pr-1">
+                <Label>Title</Label>
+                <Input
+                  placeholder="Card Title"
+                  className="col-span-2"
+                  value={card.title}
+                  onChange={(e) => updateCard(index, "title", e.target.value)}
+                />
+                <Label>Description</Label>
+                <Textarea
+                  className="col-span-2"
+                  placeholder="Description"
+                  value={card.description}
+                  onChange={(e) =>
+                    updateCard(index, "description", e.target.value)
+                  }
+                  maxLength={1000}
+                />
+                <Label>Label</Label>
+                <Input
+                  placeholder="Label"
+                  className="col-span-2"
+                  value={card.label}
+                  onChange={(e) => updateCard(index, "label", e.target.value)}
+                  maxLength={150}
+                />
+                <Label>Image</Label>
+                <div className="col-span-2">
+                  <FileUpload
+                    organizationId={organizationId}
+                    onUploadComplete={(path) =>
+                      updateCard(index, "image", path)
+                    }
+                    type="image"
+                    isSmallInput
+                    initialFilePath={card.image}
+                    onRemove={() => onImageRemove(index)}
+                  />
+                </div>
+                <Label>Button Text</Label>
+                <Input
+                  className="col-span-2"
+                  value={card.buttonText}
+                  onChange={(e) =>
+                    updateCard(index, "buttonText", e.target.value)
+                  }
+                  placeholder="Button Text"
+                  maxLength={100}
+                />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Label className="flex items-center gap-1">
+                      Link <CircleInfo />
+                    </Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Add a link that will cover the card (including the button)
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+                <div className="col-span-2 flex flex-col gap-1">
+                  <Input
+                    className={
+                      linkErrors[index] && !typingLinks[index]
+                        ? "border-red-500"
+                        : ""
+                    }
+                    value={card.buttonLink}
+                    placeholder="https://..."
+                    onChange={(e) =>
+                      updateCard(index, "buttonLink", e.target.value)
+                    }
+                    onBlur={() => handleBlur(index)}
+                    maxLength={500}
+                  />
+                  {linkErrors[index] && !typingLinks[index] && (
+                    <p className="text-xs text-red-500">{linkErrors[index]}</p>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  onClick={() => removeCard(index)}
+                  className="col-span-3 hover:bg-destructive hover:text-white"
+                  size="sm"
+                >
+                  Remove Card
+                </Button>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+    </div>
+  );
 }
 
 export default function CardsForm({ block, onUpdate }: CardsFormProps) {
@@ -42,6 +275,42 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     buttonColor: block.data?.buttonColor || "#4274D2",
     buttonTextColor: block.data?.buttonTextColor || "#FFFFFF",
   });
+
+  // Set up DND sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  // Handle drag end event
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = parseInt(active.id.toString());
+      const newIndex = parseInt(over.id.toString());
+
+      // Update the order of the cards
+      const reorderedCards = [...localState.cards];
+      const [movedItem] = reorderedCards.splice(oldIndex, 1);
+      reorderedCards.splice(newIndex, 0, movedItem);
+
+      // Update the order property for each card
+      const updatedCards = reorderedCards.map((card, index) => ({
+        ...card,
+        order: index,
+      }));
+
+      // Update local state and parent
+      handleChange("cards", updatedCards);
+    }
+  };
 
   // URL validation schema using Zod
   const urlSchema = z.string().superRefine((url, ctx) => {
@@ -109,6 +378,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
         buttonText: "",
         buttonLink: "",
         image: "",
+        order: localState.cards.length,
       },
     ];
     handleChange("cards", newCards);
@@ -244,115 +514,35 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             Add Card
           </Button>
         </div>
-        <Accordion
-          type="single"
-          collapsible
-          value={openCard}
-          onValueChange={setOpenCard}
-          className="space-y-2"
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
         >
-          {localState.cards.map((card, index) => (
-            <AccordionItem key={index} value={index.toString()}>
-              <AccordionTrigger>
-                {card.title ? card.title : `Card ${index + 1}`}
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4 py-1 pr-1">
-                  <Label>Title</Label>
-                  <Input
-                    placeholder="Card Title"
-                    className="col-span-2"
-                    value={card.title}
-                    onChange={(e) => updateCard(index, "title", e.target.value)}
-                  />
-                  <Label>Description</Label>
-                  <Textarea
-                    className="col-span-2"
-                    placeholder="Description"
-                    value={card.description}
-                    onChange={(e) =>
-                      updateCard(index, "description", e.target.value)
-                    }
-                    maxLength={1000}
-                  />
-                  <Label>Label</Label>
-                  <Input
-                    placeholder="Label"
-                    className="col-span-2"
-                    value={card.label}
-                    onChange={(e) => updateCard(index, "label", e.target.value)}
-                    maxLength={150}
-                  />
-                  <Label>Image</Label>
-                  <div className="col-span-2">
-                    <FileUpload
-                      organizationId={organizationId}
-                      onUploadComplete={(path) =>
-                        updateCard(index, "image", path)
-                      }
-                      type="image"
-                      isSmallInput
-                      initialFilePath={card.image}
-                      onRemove={() => onImageRemove(index)}
-                    />
-                  </div>
-                  <Label>Button Text</Label>
-                  <Input
-                    className="col-span-2"
-                    value={card.buttonText}
-                    onChange={(e) =>
-                      updateCard(index, "buttonText", e.target.value)
-                    }
-                    placeholder="Button Text"
-                    maxLength={100}
-                  />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Label className="flex items-center gap-1">
-                        Link <CircleInfo />
-                      </Label>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        Add a link that will cover the card (including the
-                        button)
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <div className="col-span-2 flex flex-col gap-1">
-                    <Input
-                      className={
-                        linkErrors[index] && !isTyping[index]
-                          ? "border-red-500"
-                          : ""
-                      }
-                      value={card.buttonLink}
-                      placeholder="https://..."
-                      onChange={(e) =>
-                        updateCard(index, "buttonLink", e.target.value)
-                      }
-                      onBlur={() => handleBlur(index)}
-                      maxLength={500}
-                    />
-                    {linkErrors[index] && !isTyping[index] && (
-                      <p className="text-xs text-red-500">
-                        {linkErrors[index]}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    onClick={() => removeCard(index)}
-                    className="col-span-3 hover:bg-destructive hover:text-white"
-                    size="sm"
-                  >
-                    Remove Card
-                  </Button>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+          <SortableContext
+            items={localState.cards.map((_, i) => i.toString())}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="w-full">
+              {localState.cards.map((card, index) => (
+                <SortableCardItem
+                  key={index}
+                  card={card}
+                  index={index}
+                  openItem={openCard}
+                  setOpenItem={setOpenCard}
+                  typingLinks={isTyping}
+                  linkErrors={linkErrors}
+                  updateCard={updateCard}
+                  removeCard={removeCard}
+                  handleBlur={handleBlur}
+                  onImageRemove={onImageRemove}
+                  organizationId={organizationId}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       </div>
     </div>
   );

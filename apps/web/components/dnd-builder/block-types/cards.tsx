@@ -22,7 +22,10 @@ export default function CardsBlock({
   const subtitle = data?.subtitle;
 
   // Memoize the cards array to prevent it from changing on every render
-  const cards = useMemo(() => data?.cards || [], [data?.cards]);
+  const cards = useMemo(() => {
+    const cardsArray = data?.cards || [];
+    return [...cardsArray].sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [data?.cards]);
 
   useEffect(() => {
     const supabase = createClient();

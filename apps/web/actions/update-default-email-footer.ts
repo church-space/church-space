@@ -23,6 +23,7 @@ export const updateDefaultEmailFooterAction = authActionClient
               z.object({
                 icon: z.string(),
                 url: z.string(),
+                order: z.number(),
               }),
             )
             .nullable(),
