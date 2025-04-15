@@ -22,6 +22,7 @@ import {
 } from "@church-space/ui/icons";
 import PCOlogo from "@/public/pco-logo.png";
 import Image from "next/image";
+import { MarketingLogoutButton } from "../sidebar/logout";
 
 export default function MobileHeaderSheet() {
   const [open, setOpen] = useState(false);
@@ -35,7 +36,7 @@ export default function MobileHeaderSheet() {
       </PopoverTrigger>
       <PopoverContent
         animationsOn={false}
-        className="mt-2.5 h-[calc(100vh-4rem)] w-screen overflow-y-auto rounded-none border-none bg-background/80 p-4 backdrop-blur-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 md:hidden"
+        className="relative mt-2.5 h-[calc(100vh-4rem)] w-screen overflow-y-auto rounded-none border-none bg-background/80 p-4 backdrop-blur-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 md:hidden"
       >
         <div className="flex flex-col gap-3 p-4 text-lg font-semibold">
           <span className="text-sm text-muted-foreground">Features</span>
@@ -133,6 +134,9 @@ export default function MobileHeaderSheet() {
             <Megaphone />
             Contact
           </Link>
+        </div>
+        <div className="flex flex-col gap-3 p-4 text-lg font-semibold">
+          <MarketingLogoutButton showIcon={true} />
         </div>
       </PopoverContent>
     </Popover>
