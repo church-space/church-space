@@ -29,6 +29,30 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import ColorPicker from "../color-picker";
 import FileUpload from "../file-upload";
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
+import { cn } from "@church-space/ui/cn";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@church-space/ui/accordion";
 
 interface Link {
   icon: string;
@@ -43,6 +67,197 @@ const requiredFieldSchema = z.string().min(1, "This field is required");
 interface EmailFooterFormProps {
   footerData?: any;
   onFooterChange?: (data: any) => void;
+}
+
+// Create a sortable link item component
+function SortableLinkItem({
+  link,
+  index,
+  linkErrors,
+  typingLinks,
+  updateLink,
+  removeLink,
+  handleLinkBlur,
+}: {
+  link: any;
+  index: number;
+  linkErrors: Record<string, string | null>;
+  typingLinks: Record<number, boolean>;
+  updateLink: (index: number, key: "icon" | "url", value: string) => void;
+  removeLink: (index: number) => void;
+  handleLinkBlur: (index: number) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: index.toString() });
+
+  const style = transform
+    ? {
+        transform: CSS.Transform.toString(transform),
+        transition: isDragging ? undefined : transition,
+        zIndex: isDragging ? 10 : 1,
+      }
+    : undefined;
+
+  const socialIcons = {
+    mail: MailFilled,
+    link: LinkIcon,
+    facebook: Facebook,
+    youtube: Youtube,
+    instagram: Instagram,
+    tiktok: TikTok,
+    twitter: XTwitter,
+    vimeo: Vimeo,
+    threads: Threads,
+    bluesky: Bluesky,
+    linkedin: Linkedin,
+  };
+
+  const IconComponent = socialIcons[link.icon as keyof typeof socialIcons];
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "mb-2 w-full rounded-lg border",
+        isDragging ? "border-dashed bg-accent opacity-50" : "",
+      )}
+    >
+      <div className="flex w-full items-center p-0.5 pr-1">
+        <div
+          className="flex cursor-grab touch-none items-center justify-center px-3 py-4"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+
+        <AccordionItem value={index.toString()} className="border-0">
+          <AccordionTrigger className="flex w-full items-center justify-between rounded-sm px-2 py-3">
+            <div className="flex items-center gap-2">
+              {IconComponent && <IconComponent height="16" width="16" />}
+              <span className="truncate pr-2 text-sm">
+                {link.icon
+                  ? link.icon.charAt(0).toUpperCase() + link.icon.slice(1)
+                  : "Select Platform"}
+              </span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-4 items-center gap-2">
+                <Label className="col-span-1">Platform</Label>
+                <Select
+                  value={link.icon}
+                  onValueChange={(value) => updateLink(index, "icon", value)}
+                >
+                  <SelectTrigger className="col-span-3 bg-background">
+                    <SelectValue placeholder="Select platform" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mail">
+                      <div className="flex flex-row gap-2">
+                        <MailFilled height={"20"} width={"20"} /> Email
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="link">
+                      <div className="flex flex-row gap-2">
+                        <LinkIcon height={"20"} width={"20"} /> Website
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="facebook">
+                      <div className="flex flex-row gap-2">
+                        <Facebook height={"20"} width={"20"} /> Facebook
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="youtube">
+                      <div className="flex flex-row gap-2">
+                        <Youtube height={"20"} width={"20"} /> Youtube
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="instagram">
+                      <div className="flex flex-row gap-2">
+                        <Instagram height={"20"} width={"20"} /> Instagram
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="tiktok">
+                      <div className="flex flex-row gap-2">
+                        <TikTok height={"20"} width={"20"} /> TikTok
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="twitter">
+                      <div className="flex flex-row gap-2">
+                        <XTwitter height={"20"} width={"20"} /> X
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="vimeo">
+                      <div className="flex flex-row gap-2">
+                        <Vimeo height={"20"} width={"20"} /> Vimeo
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="threads">
+                      <div className="flex flex-row gap-2">
+                        <Threads height={"20"} width={"20"} /> Threads
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="bluesky">
+                      <div className="flex flex-row gap-2">
+                        <Bluesky height={"20"} width={"20"} /> Bluesky
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="linkedin">
+                      <div className="flex flex-row gap-2">
+                        <Linkedin height={"20"} width={"20"} /> LinkedIn
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-2">
+                <Label className="col-span-1">
+                  {link.icon === "mail" ? "Email" : "URL"}
+                </Label>
+                <div className="col-span-3">
+                  <Input
+                    className={
+                      linkErrors[link.icon] && !typingLinks[index]
+                        ? "border-red-500 bg-background"
+                        : "bg-background"
+                    }
+                    value={link.url}
+                    onChange={(e) => updateLink(index, "url", e.target.value)}
+                    onBlur={() => handleLinkBlur(index)}
+                    placeholder={
+                      link.icon === "mail" ? "email@example.com" : "https://"
+                    }
+                    maxLength={500}
+                  />
+                  {linkErrors[link.icon] && !typingLinks[index] && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {linkErrors[link.icon]}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => removeLink(index)}
+                className="mt-3 h-7 w-full hover:bg-destructive hover:text-white"
+              >
+                Remove Link
+              </Button>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </div>
+    </div>
+  );
 }
 
 export default function DefaultEmailFooterForm({
@@ -168,18 +383,49 @@ export default function DefaultEmailFooterForm({
     }, 150);
   };
 
+  // Set up DND sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  // Handle drag end event
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = parseInt(active.id.toString());
+      const newIndex = parseInt(over.id.toString());
+
+      // Update the order of the links
+      const reorderedLinks = [...localState.links];
+      const [movedItem] = reorderedLinks.splice(oldIndex, 1);
+      reorderedLinks.splice(newIndex, 0, movedItem);
+
+      // Update the order property for each link
+      const updatedLinks = reorderedLinks.map((link, index) => ({
+        ...link,
+        order: index,
+      }));
+
+      // Update local state and parent
+      handleChange("links", updatedLinks);
+    }
+  };
+
   const addLink = () => {
     if (localState.links.length < 5) {
-      const newLinks = [...localState.links, { icon: "", url: "" }];
-      const newState = { ...localState, links: newLinks };
-
-      // Update local state
-      setLocalState(newState);
-
-      // Trigger UI update and server update through prop
-      if (onFooterChange) {
-        onFooterChange(newState);
-      }
+      const newLinks = [
+        ...localState.links,
+        { icon: "", url: "", order: localState.links.length },
+      ];
+      handleChange("links", newLinks);
     }
   };
 
@@ -532,111 +778,35 @@ export default function DefaultEmailFooterForm({
               Add Link
             </Button>
           </div>
-          {localState.links.map((link: Link, index: number) => (
-            <div
-              key={index}
-              className="grid grid-cols-3 items-center gap-x-2 gap-y-2"
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={localState.links.map((_: Link, i: number) => i.toString())}
+              strategy={verticalListSortingStrategy}
             >
-              <Label>Icon</Label>
-              <div className="col-span-2 flex">
-                <Select
-                  value={link.icon}
-                  onValueChange={(value) => updateLink(index, "icon", value)}
-                >
-                  <SelectTrigger className="rounded-r-none bg-background">
-                    <SelectValue placeholder="Icon" />
-                  </SelectTrigger>
-                  <SelectContent className="min-w-20">
-                    <SelectItem value="mail">
-                      <div className="flex flex-row gap-2">
-                        <MailFilled height={"20"} width={"20"} /> Email
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="link">
-                      <div className="flex flex-row gap-2">
-                        <LinkIcon height={"20"} width={"20"} /> Website
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="facebook">
-                      <div className="flex flex-row gap-2">
-                        <Facebook height={"20"} width={"20"} /> Facebook
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="youtube">
-                      <div className="flex flex-row gap-2">
-                        <Youtube height={"20"} width={"20"} /> Youtube
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="instagram">
-                      <div className="flex flex-row gap-2">
-                        <Instagram height={"20"} width={"20"} /> Instagram
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="tiktok">
-                      <div className="flex flex-row gap-2">
-                        <TikTok height={"20"} width={"20"} /> TikTok
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="twitter">
-                      <div className="flex flex-row gap-2">
-                        <XTwitter height={"20"} width={"20"} /> X
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="vimeo">
-                      <div className="flex flex-row gap-2">
-                        <Vimeo height={"20"} width={"20"} /> Vimeo
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="threads">
-                      <div className="flex flex-row gap-2">
-                        <Threads height={"20"} width={"20"} /> Threads
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="bluesky">
-                      <div className="flex flex-row gap-2">
-                        <Bluesky height={"20"} width={"20"} /> Bluesky
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="linkedin">
-                      <div className="flex flex-row gap-2">
-                        <Linkedin height={"20"} width={"20"} /> LinkedIn
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="outline"
-                  onClick={() => removeLink(index)}
-                  size="icon"
-                  className="rounded-l-none border-l-0"
-                >
-                  ×
-                </Button>
-              </div>
-              <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
-              <div className="col-span-2 flex flex-col gap-1">
-                <Input
-                  className={
-                    fieldErrors[link.icon] && !linkTimersRef.current[index]
-                      ? "border-red-500 bg-background"
-                      : "bg-background"
-                  }
-                  value={link.url}
-                  onChange={(e) => updateLink(index, "url", e.target.value)}
-                  onBlur={() => handleLinkBlur(index)}
-                  placeholder={
-                    link.icon === "mail" ? "email@example.com" : "https://"
-                  }
-                  maxLength={500}
-                />
-                {fieldErrors[link.icon] && !linkTimersRef.current[index] && (
-                  <p className="text-xs text-red-500">
-                    {fieldErrors[link.icon]}
-                  </p>
-                )}
-              </div>
-            </div>
-          ))}
+              <Accordion type="single" collapsible className="w-full">
+                {localState.links.map((link: Link, index: number) => (
+                  <SortableLinkItem
+                    key={index}
+                    link={link}
+                    index={index}
+                    linkErrors={fieldErrors}
+                    typingLinks={Object.fromEntries(
+                      Object.entries(linkTimersRef.current || {}).map(
+                        ([key]) => [key, true],
+                      ),
+                    )}
+                    updateLink={updateLink}
+                    removeLink={removeLink}
+                    handleLinkBlur={handleLinkBlur}
+                  />
+                ))}
+              </Accordion>
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
     </>

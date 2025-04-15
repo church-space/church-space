@@ -14,7 +14,7 @@ import {
 } from "@church-space/ui/icons";
 import { Separator } from "@church-space/ui/separator";
 import { getYear } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@church-space/supabase/client";
 import Image from "next/image";
 
@@ -78,8 +78,11 @@ export default function Footer({
   const socialIconColor = footerData?.socials_color || "#000000";
   const socialIconTextColor = footerData?.socials_icon_color || "#ffffff"; // For filled icons text
 
-  // Get links from footer data or use empty array
-  const footerLinks = Array.isArray(footerData?.links) ? footerData.links : [];
+  // Get links from footer data and sort by order
+  const footerLinks = useMemo(() => {
+    const links = Array.isArray(footerData?.links) ? footerData.links : [];
+    return [...links].sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [footerData?.links]);
 
   // Get the appropriate icon component
   const getIconComponent = (iconKey: string) => {
