@@ -21,7 +21,7 @@ import {
 import { Ellipsis, Eye } from "lucide-react";
 import Link from "next/link";
 import {
-  CircleDashed,
+  UnfilledCircleDashed,
   CircleCheck,
   Trash,
   LoaderIcon,
@@ -1014,7 +1014,7 @@ export default function PreSendPage({
                   {email.list_id ? (
                     <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
                   ) : (
-                    <CircleDashed height={"24"} width={"24"} />
+                    <UnfilledCircleDashed height={"24"} width={"24"} />
                   )}
                   <div className="flex flex-col">
                     <span>To</span>
@@ -1091,7 +1091,7 @@ export default function PreSendPage({
                   email.from_email_domain ? (
                     <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
                   ) : (
-                    <CircleDashed height={"24"} width={"24"} />
+                    <UnfilledCircleDashed height={"24"} width={"24"} />
                   )}
                   <div className="flex flex-col">
                     <span>From</span>
@@ -1182,7 +1182,7 @@ export default function PreSendPage({
                   {email.subject ? (
                     <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
                   ) : (
-                    <CircleDashed height={"24"} width={"24"} />
+                    <UnfilledCircleDashed height={"24"} width={"24"} />
                   )}
                   <div className="flex flex-col">
                     <span>Subject</span>
@@ -1273,7 +1273,7 @@ export default function PreSendPage({
                   {email.scheduled_for || email.send_now ? (
                     <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
                   ) : (
-                    <CircleDashed height={"24"} width={"24"} />
+                    <UnfilledCircleDashed height={"24"} width={"24"} />
                   )}
                   <div className="flex flex-col">
                     <span>Send Time</span>
@@ -1395,7 +1395,7 @@ export default function PreSendPage({
                   {emailBlockCount > 0 ? (
                     <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
                   ) : (
-                    <CircleDashed height={"24"} width={"24"} />
+                    <UnfilledCircleDashed height={"24"} width={"24"} />
                   )}
                 </span>
                 <div className="flex flex-col">
