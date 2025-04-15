@@ -801,7 +801,7 @@ export default function EmailDndProvider({
       // Clear the permanently deleted blocks ref when component unmounts
       permanentlyDeletedBlocksRef.current.clear();
     };
-  }, []);
+  }, [editors]);
 
   const handleDragStart = (event: any) => {
     const { active } = event;
@@ -1269,6 +1269,8 @@ export default function EmailDndProvider({
     blocks,
     queryClient,
     router,
+    emailData?.email?.type,
+    updateBlocksHistory,
   ]);
 
   // Helper function to check if a block type is valid for the database
@@ -1752,7 +1754,13 @@ export default function EmailDndProvider({
 
       setEditors(newEditors);
     }
-  }, [blocks, styles.defaultFont, styles.defaultTextColor]);
+  }, [
+    blocks,
+    styles.defaultFont,
+    styles.defaultTextColor,
+    editors,
+    styles.accentTextColor,
+  ]);
 
   // Update all text blocks when default font or color changes
   useEffect(() => {
@@ -2307,6 +2315,10 @@ export default function EmailDndProvider({
     setEditors,
     setBlocksBeingDeleted,
     setCurrentState,
+    addEmailBlock,
+    emailId,
+    footer,
+    updateBlockOrdersInDatabase,
   ]);
 
   // Handle redo button click
@@ -2480,6 +2492,7 @@ export default function EmailDndProvider({
     styles.accentTextColor,
     setBlocksBeingDeleted,
     setCurrentState,
+    footer,
   ]);
 
   // UNDO REDO KEY COMMANDS

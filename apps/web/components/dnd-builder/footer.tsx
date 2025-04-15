@@ -16,6 +16,7 @@ import { Separator } from "@church-space/ui/separator";
 import { getYear } from "date-fns";
 import { useState, useEffect } from "react";
 import { createClient } from "@church-space/supabase/client";
+import Image from "next/image";
 
 // Define the type for social icon keys
 type SocialIconKey =
@@ -121,10 +122,12 @@ export default function Footer({
       >
         <div className="flex flex-col items-center gap-2">
           {logoUrl && (
-            <img
+            <Image
               src={logoUrl}
               alt="Logo"
               className="h-28 w-28 rounded-md object-contain"
+              width={112}
+              height={112}
             />
           )}
 

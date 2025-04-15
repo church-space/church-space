@@ -150,6 +150,8 @@ const AssetCard = ({
                 parent.appendChild(iconContainer);
               }
             }}
+            width={112}
+            height={112}
           />
         ) : (
           <FileTypeIcon type={asset.type} />

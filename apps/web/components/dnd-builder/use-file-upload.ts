@@ -170,7 +170,7 @@ export const useFileUpload = (
 
       throw new Error("Upload failed after multiple attempts");
     },
-    [organizationId, supabase],
+    [organizationId, supabase, bucket],
   );
 
   const deleteFile = useCallback(
@@ -186,7 +186,7 @@ export const useFileUpload = (
 
       return true;
     },
-    [supabase],
+    [supabase, bucket],
   );
 
   return { uploadFile, deleteFile };
