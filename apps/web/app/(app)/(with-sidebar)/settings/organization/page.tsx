@@ -1,4 +1,6 @@
 import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
+import DisconnectFromPcoButton from "@/components/pco/disconnect-from-pco-button";
+import OrgMembers from "@/components/settings/org-members";
 import {
   SettingsContent,
   SettingsDescription,
@@ -25,22 +27,15 @@ import {
   AlertDialogTrigger,
 } from "@church-space/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
-import { Badge } from "@church-space/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbLink,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import { Button } from "@church-space/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@church-space/ui/dropdown-menu";
 import { Input } from "@church-space/ui/input";
 import {
   Select,
@@ -51,11 +46,8 @@ import {
 } from "@church-space/ui/select";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { EllipsisVertical } from "lucide-react";
-import { cookies } from "next/headers";
 import { format } from "date-fns";
-import DisconnectFromPcoButton from "@/components/pco/disconnect-from-pco-button";
-import OrgMembers from "@/components/settings/org-members";
+import { cookies } from "next/headers";
 export default async function Page() {
   const cookieStore = await cookies();
   const organizationId = cookieStore.get("organizationId")?.value;
