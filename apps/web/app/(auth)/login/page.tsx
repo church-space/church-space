@@ -142,25 +142,26 @@ export default function Page() {
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
           >
-            <Card className="space-y-6 px-0">
+            <Card className="space-y-4 px-0">
               <CardHeader className="items-center space-y-0">
                 <ChurchSpaceBlack height={"60"} width={"60"} fill="#6065FE" />
-                <CardTitle className="pt-4 text-2xl font-bold">
+                <CardTitle className="py-4 text-2xl font-bold">
                   Check your email
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-center">
                   We&apos;ve sent you a login email. Please check your email at{" "}
                   <span className="font-medium">{email}</span>{" "}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-10">
                 {!showOTPForm && (
-                  <div
-                    className="flex w-full cursor-pointer justify-center gap-1 text-center text-sm font-light text-muted-foreground transition-colors hover:text-foreground"
+                  <Button
+                    variant="secondary"
+                    className="flex w-full text-sm font-normal"
                     onClick={() => setShowOTPForm(true)}
                   >
                     Enter code manually
-                  </div>
+                  </Button>
                 )}
                 <AnimatePresence>
                   {showOTPForm && (
