@@ -46,6 +46,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import React from "react";
 import DndBuilderSidebarForms from "./sidebar-forms";
+import TemplateForm from "./sidebar-editor-forms/template-form";
 
 interface DndBuilderSidebarProps {
   className?: string;
@@ -96,6 +97,10 @@ interface DndBuilderSidebarProps {
   onFooterChange?: (data: any) => void;
   onlineUsers?: Record<string, any>;
   organizationId?: string;
+  isTemplate?: boolean;
+  emailSubject?: string;
+  onEmailSubjectChange?: (subject: string) => void;
+  onDeleteTemplate?: () => void;
 }
 
 function DraggableBlock({
@@ -205,7 +210,11 @@ export default function DndBuilderSidebar({
   accentTextColor,
   onAccentTextColorChange,
   organizationId,
+  isTemplate = false,
   onlineUsers = {},
+  emailSubject,
+  onEmailSubjectChange,
+  onDeleteTemplate,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
 
@@ -370,6 +379,14 @@ export default function DndBuilderSidebar({
                         <ChevronRight />
                       </div>
                     </div>
+                    {isTemplate && (
+                      <TemplateForm
+                        name={emailSubject || ""}
+                        id={emailId || 0}
+                        onNameChange={onEmailSubjectChange || (() => {})}
+                        onDelete={onDeleteTemplate || (() => {})}
+                      />
+                    )}
                   </div>
                   <div className="flex flex-col">
                     {Object.keys(onlineUsers).length > 0 && (

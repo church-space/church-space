@@ -63,6 +63,10 @@ import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
 import { useUpdateEmailFooter } from "./mutations/use-update-email-footer";
 import { DatabaseBlockType, OrderUpdate, ContentUpdate } from "./dnd-types";
 import NewEmailModal from "./new-email-modal";
+import { deleteEmailAction } from "@/actions/delete-email";
+import { updateEmailAction } from "@/actions/update-email";
+import { useToast } from "@church-space/ui/use-toast";
+import type { ActionResponse } from "@/types/action";
 
 export default function EmailDndProvider({
   organizationId,
@@ -113,6 +117,7 @@ export default function EmailDndProvider({
     }),
   );
   const updateEmailFooter = useUpdateEmailFooter();
+  const { toast } = useToast();
 
   // Initialize blocks and styles
   const initialBlocks =
@@ -2558,6 +2563,65 @@ export default function EmailDndProvider({
     }
   }, [blocks, styles, canUndo, canRedo, canUndoValue, canRedoValue]);
 
+  const handleDeleteTemplate = async () => {
+    if (!emailId) return;
+
+    try {
+      const result = (await deleteEmailAction({
+        emailId,
+        isTemplate: true,
+      })) as ActionResponse<any>;
+
+      if (!result.data.success) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to delete template",
+        });
+        return;
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete template",
+      });
+    }
+  };
+
+  const handleEmailSubjectChange = async (subject: string) => {
+    if (!emailId) return;
+
+    try {
+      const result = (await updateEmailAction({
+        email_id: emailId,
+        email_data: {
+          subject,
+        },
+      })) as ActionResponse<any>;
+
+      if (!result.data.success) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to update template name",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Template name updated",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update template name",
+      });
+    }
+  };
+
   return (
     <div className="relative flex h-full flex-col">
       <Dialog
@@ -2747,6 +2811,10 @@ export default function EmailDndProvider({
             accentTextColor={styles.accentTextColor}
             onAccentTextColorChange={handleAccentTextColorChange}
             organizationId={organizationId}
+            isTemplate={emailData?.email?.type === "template"}
+            emailSubject={emailData?.email?.subject || ""}
+            onEmailSubjectChange={handleEmailSubjectChange}
+            onDeleteTemplate={handleDeleteTemplate}
           />
           <div className="relative flex-1">
             <AnimatePresence>

@@ -262,8 +262,8 @@ export default function DndBuilderCanvas({
       {type === "email" && (
         <Footer
           onClick={(e) => {
-            e.stopPropagation();
             onBlockSelect(null);
+            e.stopPropagation();
             setActiveForm("email-footer");
           }}
           isActive={activeForm === "email-footer"}

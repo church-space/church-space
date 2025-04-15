@@ -139,7 +139,7 @@ export default function DndBuilderSidebarForms({
           Back
         </Button>
       </div>
-      <div className="h-full overflow-y-auto py-1">
+      <div className="no-scrollbar h-full overflow-y-auto py-1 pb-12">
         {/* Email specific forms */}
         {formType === "email-style" && (
           <EmailStyleForm

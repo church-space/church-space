@@ -657,6 +657,7 @@ export default function PreSendPage({
         try {
           const response = await deleteEmailAction({
             emailId: email.id,
+            isTemplate: false,
           });
 
           if (!response?.data) {
@@ -1480,6 +1481,7 @@ export default function PreSendPage({
                 try {
                   const response = await deleteEmailAction({
                     emailId: email.id,
+                    isTemplate: false,
                   });
 
                   if (!response?.data) {
