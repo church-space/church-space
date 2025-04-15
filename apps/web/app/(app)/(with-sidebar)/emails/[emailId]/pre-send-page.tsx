@@ -29,7 +29,6 @@ import {
 } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-
 import DomainSelector from "@/components/id-pages/emails/domain-selector";
 import ListSelector from "@/components/id-pages/emails/list-selector";
 import { cn } from "@church-space/ui/cn";
@@ -51,7 +50,7 @@ import { format } from "date-fns";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { useToast } from "@church-space/ui/use-toast";
-import { updateEmail } from "@church-space/supabase/mutations/emails";
+import { updateEmailAction } from "@/actions/update-email";
 import { createClient } from "@church-space/supabase/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
@@ -285,7 +284,10 @@ export default function PreSendPage({
   // Setup the update email mutation using TanStack Query
   const updateEmailMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await updateEmail(supabase, email.id, data);
+      return await updateEmailAction({
+        email_id: parseInt(email.id),
+        email_data: data,
+      });
     },
     onSuccess: () => {
       toast({
@@ -343,7 +345,7 @@ export default function PreSendPage({
   const saveToSection = async () => {
     try {
       await updateEmailMutation.mutateAsync({
-        list_id: listId,
+        list_id: listId ? parseInt(listId) : null,
       });
       setToIsSaving(false);
       setToHasChanges(false);
@@ -351,7 +353,7 @@ export default function PreSendPage({
       // Update local email state
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
-        list_id: listId,
+        list_id: listId ? parseInt(listId) : null,
       }));
     } catch (error) {
       console.error("Error saving To section:", error);
