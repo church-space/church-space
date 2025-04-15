@@ -80,6 +80,13 @@ export const verifyDomainAction = authActionClient
         // First, trigger domain verification with Resend
         await resend.domains.verify(parsedInput.parsedInput.resend_domain_id);
 
+        // Enable open and click tracking for the domain
+        await resend.domains.update({
+          id: parsedInput.parsedInput.resend_domain_id,
+          openTracking: true,
+          clickTracking: true,
+        });
+
         // Wait for 10 seconds to ensure the domain is verified
         await new Promise((resolve) => setTimeout(resolve, 2000));
         // Then, get the updated domain details including DNS status
