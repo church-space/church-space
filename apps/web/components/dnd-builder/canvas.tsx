@@ -271,6 +271,7 @@ export default function DndBuilderCanvas({
           emailInset={isInset}
           emailBgColor={emailBgColor}
           defaultFont={defaultFont}
+          showHover
         />
       )}
     </div>
