@@ -1,5 +1,6 @@
 import type { ListBlockData } from "@/types/blocks";
 import { cn } from "@church-space/ui/cn";
+import { useMemo } from "react";
 
 interface ListBlockProps {
   data?: ListBlockData;
@@ -16,7 +17,12 @@ export default function ListBlock({
   const subtitle = data?.subtitle || "";
   const bulletColor = data?.bulletColor || "#000000";
   const bulletType = "number";
-  const items = data?.items || [];
+
+  // Memoize the items array to prevent it from changing on every render
+  const items = useMemo(() => {
+    const itemsArray = data?.items || [];
+    return [...itemsArray].sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [data?.items]);
 
   return (
     <div
