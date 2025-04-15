@@ -1,4 +1,5 @@
 "use server";
+
 import type { Client, Database } from "../types";
 import { getEmailWithFooterAndBlocksQuery } from "../queries/all/get-email-with-footer-and-blocks";
 

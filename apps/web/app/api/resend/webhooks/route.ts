@@ -39,7 +39,7 @@ function getHeaderValue(
 
 // Add validation helper
 function validateIds(headers: { name: string; value: string }[]): {
-  email_id: number;
+  email_id?: number;
   people_email_id: number;
   automation_id?: number;
 } | null {
@@ -47,12 +47,12 @@ function validateIds(headers: { name: string; value: string }[]): {
   const peopleEmailIdStr = getHeaderValue(headers, "X-Entity-People-Email-ID");
   const automationIdStr = getHeaderValue(headers, "X-Entity-Automation-ID");
 
-  const emailId = emailIdStr ? Number(emailIdStr) : NaN;
+  const emailId = emailIdStr ? Number(emailIdStr) : undefined;
   const peopleEmailId = peopleEmailIdStr ? Number(peopleEmailIdStr) : NaN;
   const automationId = automationIdStr ? Number(automationIdStr) : undefined;
 
   if (
-    isNaN(emailId) ||
+    (emailIdStr && isNaN(emailId!)) ||
     isNaN(peopleEmailId) ||
     (automationIdStr && isNaN(automationId!))
   ) {
@@ -120,6 +120,11 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Return success if no email_id
+      if (!clickedIds.email_id) {
+        return NextResponse.json({ success: true });
+      }
+
       // Only record clicked links that don't start with the email manager URL
       if (
         !payload.data.click?.link.startsWith(
@@ -150,6 +155,12 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
+
+      // Return success if no email_id
+      if (!sentIds.email_id) {
+        return NextResponse.json({ success: true });
+      }
+
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "sent",
@@ -167,6 +178,12 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
+
+      // Return success if no email_id
+      if (!deliveredIds.email_id) {
+        return NextResponse.json({ success: true });
+      }
+
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "delivered",
@@ -184,6 +201,12 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
+
+      // Return success if no email_id
+      if (!delayedIds.email_id) {
+        return NextResponse.json({ success: true });
+      }
+
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "delivery_delayed",
@@ -200,6 +223,11 @@ export async function POST(request: NextRequest) {
           "Invalid email_id or people_email_id in headers",
           { status: 400 },
         );
+      }
+
+      // Return success if no email_id
+      if (!ids.email_id) {
+        return NextResponse.json({ success: true });
       }
 
       await upsertEmailRecipient(supabase, {
@@ -219,6 +247,12 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
+
+      // Return success if no email_id
+      if (!bouncedIds.email_id) {
+        return NextResponse.json({ success: true });
+      }
+
       await Promise.all([
         upsertEmailRecipient(supabase, {
           resend_email_id: payload.data.email_id,
@@ -243,6 +277,12 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
+
+      // Return success if no email_id
+      if (!openedIds.email_id) {
+        return NextResponse.json({ success: true });
+      }
+
       await upsertEmailRecipient(supabase, {
         resend_email_id: payload.data.email_id,
         status: "opened",

@@ -25,6 +25,7 @@ import {
   CircleCheck,
   Trash,
   LoaderIcon,
+  Email,
 } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -948,7 +949,13 @@ export default function PreSendPage({
         variants={containerVariants}
       >
         {subject ? (
-          <motion.div className="text-2xl font-bold" variants={itemVariants}>
+          <motion.div
+            className="flex items-center gap-2 text-2xl font-bold"
+            variants={itemVariants}
+          >
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-primary bg-secondary/80 text-primary">
+              <Email height={"20"} width={"20"} />
+            </div>
             {subject}
           </motion.div>
         ) : (
@@ -1019,18 +1026,26 @@ export default function PreSendPage({
                   <div className="flex flex-col">
                     <span>To</span>
                     <span className="text-sm font-normal text-muted-foreground">
-                      <span className="font-medium">
-                        {listId
-                          ? `${listData?.data?.[0]?.pco_list_description || "Loading..."}`
-                          : ""}
-                      </span>{" "}
-                      {listId &&
-                        (listData?.data?.[0]?.pco_total_people ||
-                          "Loading...") +
-                          " " +
-                          (listData?.data?.[0]?.pco_total_people === "1"
-                            ? "person"
-                            : "people")}
+                      {listId ? (
+                        <>
+                          <span className="font-medium">
+                            {listId
+                              ? `${listData?.data?.[0]?.pco_list_description || "Loading..."}`
+                              : ""}
+                          </span>{" "}
+                          (
+                          {listId &&
+                            (listData?.data?.[0]?.pco_total_people ||
+                              "Loading...") +
+                              " " +
+                              (listData?.data?.[0]?.pco_total_people === "1"
+                                ? "person"
+                                : "people")}
+                          )
+                        </>
+                      ) : (
+                        "No list selected"
+                      )}
                     </span>
                   </div>
                 </div>
