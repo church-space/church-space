@@ -53,7 +53,7 @@ export default function Page() {
     if (resendCooldown > 0) return;
 
     try {
-      await signInWithOtp(email);
+      await signInWithOtp(email, "/onboarding?plan=" + selectedPlan);
       setResendCount((prev) => prev + 1);
       setResendCooldown(60);
 
@@ -74,7 +74,7 @@ export default function Page() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const result = await signInWithGoogle();
+      const result = await signInWithGoogle("/onboarding?plan=" + selectedPlan);
 
       if (result?.url) {
         updateLastUsedMethod("google");
