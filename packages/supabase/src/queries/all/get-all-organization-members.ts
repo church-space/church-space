@@ -1,15 +1,8 @@
 import { Client } from "../../types";
 
-export interface QueryParams {
-  start?: number;
-  end?: number;
-  role?: "owner" | "admin";
-}
-
 export async function getAllOrganizationMembers(
   supabase: Client,
-  organizationId: string,
-  params?: QueryParams
+  organizationId: string
 ) {
   let query = supabase
     .from("organization_memberships")
@@ -30,14 +23,6 @@ export async function getAllOrganizationMembers(
     )
     .order("created_at", { ascending: true })
     .eq("organization_id", organizationId);
-
-  if (params?.role) {
-    query = query.eq("role", params.role);
-  }
-
-  if (params?.start !== undefined && params?.end !== undefined) {
-    query = query.range(params.start, params.end);
-  }
 
   const { data, error } = await query;
 

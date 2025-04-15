@@ -53,6 +53,7 @@ import { EllipsisVertical } from "lucide-react";
 import { cookies } from "next/headers";
 import { format } from "date-fns";
 import DisconnectFromPcoButton from "@/components/pco/disconnect-from-pco-button";
+import OrgMembers from "@/components/settings/org-members";
 export default async function Page() {
   const cookieStore = await cookies();
   const organizationId = cookieStore.get("organizationId")?.value;
@@ -217,41 +218,7 @@ export default async function Page() {
           </SettingsHeader>
 
           <SettingsContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg p-4">
-                <div className="flex items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src="/user-avatar.png" alt="User" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <div className="font-medium">John Doe</div>
-                      <Badge className="w-fit text-xs">Owner</Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      john@example.com
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="text-sm text-muted-foreground">
-                    Added Mar 23, 2024
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <EllipsisVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Make Owner</DropdownMenuItem>
-                      <DropdownMenuItem>Remove</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            </div>
+            <OrgMembers organizationId={organizationId} />
           </SettingsContent>
         </SettingsSection>
 
