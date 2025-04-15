@@ -1118,7 +1118,7 @@ export default function Page() {
                         {qrLinkData?.name || "Loading..."}
                       </h2>
                       {qrLinkData?.status === "inactive" && (
-                        <Badge variant="outline">Disabled</Badge>
+                        <Badge variant="outline">Inactive</Badge>
                       )}
                     </div>
                     <Edit className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -1136,17 +1136,27 @@ export default function Page() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
+                    onClick={() => {
+                      setEditedLinkName(qrLinkData?.name || "");
+                      setEditedLinkUrl(qrLinkData?.url || "");
+                      setIsEditingLink(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Edit className="h-4 w-4" /> Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
                     onClick={handleStatusToggle}
                     disabled={isUpdatingStatus}
                     className="cursor-pointer"
                   >
                     {qrLinkData?.status === "active" ? (
                       <>
-                        <DisableLink /> Disable
+                        <DisableLink /> Set Inactive
                       </>
                     ) : (
                       <>
-                        <LinkIcon /> Enable
+                        <LinkIcon /> Set Active
                       </>
                     )}
                   </DropdownMenuItem>
@@ -1203,15 +1213,15 @@ export default function Page() {
 
             {/* Analytics Section */}
             <div>
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="mb-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
+                <div className="flex w-fit items-center justify-between gap-2 md:justify-start">
                   <h3 className="text-xl font-semibold">Analytics</h3>
                   {dateFilter.month !== null && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleBackClick}
-                      className="h-8 px-2"
+                      className="hidden h-8 px-2 lg:flex"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -1231,80 +1241,86 @@ export default function Page() {
                     </Button>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-end justify-center md:w-full md:justify-end">
                   <Button
                     variant="outline"
                     size="icon"
+                    className="hidden rounded-r-none border-r-0 sm:flex"
                     onClick={handleNavigateBack}
                   >
                     <ChevronLeft />
                   </Button>
-                  <div className="flex items-center gap-2">
-                    <Select
-                      value={dateFilter.year.toString()}
-                      onValueChange={handleYearChange}
-                    >
-                      <SelectTrigger id="year-filter" className="w-[100px]">
-                        <SelectValue placeholder="Year" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getAvailableYears().map((year) => (
-                          <SelectItem key={year} value={year.toString()}>
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
 
-                  <div className="flex items-center gap-2">
-                    <Select
-                      value={dateFilter.month?.toString() || "all"}
-                      onValueChange={handleMonthChange}
+                  <Select
+                    value={dateFilter.year.toString()}
+                    onValueChange={handleYearChange}
+                  >
+                    <SelectTrigger
+                      id="year-filter"
+                      className="w-[100px] rounded-r-none sm:rounded-none"
                     >
-                      <SelectTrigger id="month-filter" className="w-[120px]">
-                        <SelectValue placeholder="All Months" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Months</SelectItem>
-                        {getAvailableMonths().map((month) => (
-                          <SelectItem key={month} value={month.toString()}>
-                            {new Date(2000, month - 1, 1).toLocaleDateString(
-                              "en-US",
-                              { month: "long" },
-                            )}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      <SelectValue placeholder="Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableYears().map((year) => (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={dateFilter.month?.toString() || "all"}
+                    onValueChange={handleMonthChange}
+                  >
+                    <SelectTrigger
+                      id="month-filter"
+                      className="w-[120px] rounded-none border-l-0"
+                    >
+                      <SelectValue placeholder="All Months" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Months</SelectItem>
+                      {getAvailableMonths().map((month) => (
+                        <SelectItem key={month} value={month.toString()}>
+                          {new Date(2000, month - 1, 1).toLocaleDateString(
+                            "en-US",
+                            { month: "long" },
+                          )}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
                   {dateFilter.month !== null && (
-                    <div className="flex items-center gap-2">
-                      <Select
-                        value={dateFilter.day?.toString() || "all"}
-                        onValueChange={handleDayChange}
+                    <Select
+                      value={dateFilter.day?.toString() || "all"}
+                      onValueChange={handleDayChange}
+                    >
+                      <SelectTrigger
+                        id="day-filter"
+                        className="w-[100px] rounded-l-none rounded-r-md border-l-0 sm:rounded-r-none"
                       >
-                        <SelectTrigger id="day-filter" className="w-[100px]">
-                          <SelectValue placeholder="All Days" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Days</SelectItem>
-                          {getAvailableDays(
-                            dateFilter.year,
-                            dateFilter.month,
-                          ).map((day) => (
-                            <SelectItem key={day} value={day.toString()}>
-                              {day}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                        <SelectValue placeholder="All Days" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Days</SelectItem>
+                        {getAvailableDays(
+                          dateFilter.year,
+                          dateFilter.month,
+                        ).map((day) => (
+                          <SelectItem key={day} value={day.toString()}>
+                            {day}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
                   <Button
                     variant="outline"
                     size="icon"
+                    className="hidden rounded-l-none border-l-0 sm:flex"
                     onClick={handleNavigateForward}
                   >
                     <ChevronRight />
@@ -1353,8 +1369,8 @@ export default function Page() {
           <Separator className="my-12" />
           <div className="mb-4 mt-12 flex items-center justify-between">
             <h2 className="text-2xl font-bold">Your QR Codes</h2>
-            <Button onClick={() => setIsAddingQRCode(true)}>
-              <Plus className="mr-2 h-4 w-4" /> Add QR Code
+            <Button onClick={() => setIsAddingQRCode(true)} className="pl-3">
+              <Plus className="h-4 w-4" /> New QR Code
             </Button>
           </div>
 
