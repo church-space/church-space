@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@church-space/ui/button";
 import {
@@ -30,6 +31,8 @@ import {
   HandWave,
   XIcon,
   ChevronRight,
+  CircleDashed,
+  CircleCheck,
 } from "@church-space/ui/icons";
 import {
   Sidebar,
@@ -42,6 +45,8 @@ import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import NewQRCode from "../forms/new-qr-code";
 import { useUser } from "@/stores/use-user";
+import { cn } from "@church-space/ui/cn";
+import cookies from "js-cookie";
 
 const data = {
   navMain: [
@@ -118,13 +123,28 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [newEmailDialogOpen, setNewEmailDialogOpen] = useState(false);
   const [newQrCodeDialogOpen, setNewQrCodeDialogOpen] = useState(false);
+  const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(false);
+  const { organizationId, welcomeStepsCompleted } = useUser();
 
-  const { organizationId } = useUser();
+  const handleWelcomeDialogClose = () => {
+    setWelcomeDialogOpen(false);
+    cookies.set("welcomeDialogOpen", "false", { expires: 1 });
+  };
+
+  useEffect(() => {
+    if (welcomeStepsCompleted) {
+      setWelcomeDialogOpen(false);
+      return;
+    }
+
+    const welcomeCookie = cookies.get("welcomeDialogOpen");
+    setWelcomeDialogOpen(welcomeCookie !== "false");
+  }, [welcomeStepsCompleted]);
 
   return (
     <>
-      <Sidebar variant="inset" {...props}>
-        <SidebarHeader>
+      <Sidebar variant="inset" className="px-0" {...props}>
+        <SidebarHeader className="px-3 pl-3.5">
           <div className="flex w-full items-center justify-between gap-2">
             <Link href="/emails" prefetch={true}>
               <div className="flex items-center gap-0.5">
@@ -135,7 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <NavUser />
           </div>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="px-1.5">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="mx-2 mt-2 h-8 shadow-md">Create New</Button>
@@ -159,26 +179,81 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </DropdownMenu>
           <NavMain items={data.navMain} />
         </SidebarContent>
-        <SidebarFooter className="flex w-full flex-col rounded-md bg-primary/10 p-2">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 font-medium">
-              <HandWave /> Welcome
-            </div>
-            <Button variant="ghost" size="icon">
-              <XIcon />
-            </Button>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex gap-1.5 text-sm">Item One</div>
-            <div className="flex gap-1.5 text-sm">Item One</div>
-            <div className="flex gap-1.5 text-sm">
-              View All <ChevronRight />
-            </div>
-          </div>
-          <div className="ml-7 hidden translate-y-0.5 text-sm text-muted-foreground md:block">
-            Click &quot;?&quot; for Support
-          </div>
-        </SidebarFooter>
+        <AnimatePresence>
+          {welcomeDialogOpen && !welcomeStepsCompleted ? (
+            <SidebarFooter>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex w-full flex-col rounded-md border border-primary bg-primary/10 p-2"
+              >
+                <div className="flex w-full items-center justify-between gap-2 pb-3">
+                  <div className="flex items-center gap-1.5 text-sm font-medium">
+                    <HandWave height={"16"} width={"16"} /> Welcome
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 p-0"
+                    onClick={() => handleWelcomeDialogClose()}
+                  >
+                    <XIcon />
+                  </Button>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex w-full items-center justify-between gap-1.5 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-green-500">
+                        <CircleCheck />
+                      </span>{" "}
+                      <span className="text-muted-foreground line-through">
+                        Select List Categories
+                      </span>
+                    </div>
+                    <span className="text-muted-foreground">
+                      <ChevronRight height={"12"} width={"12"} />
+                    </span>
+                  </div>
+                  <div className="flex w-full items-center justify-between gap-1.5 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <CircleDashed /> Connect a Domain
+                    </div>
+                    <span className="text-muted-foreground">
+                      <ChevronRight height={"12"} width={"12"} />
+                    </span>
+                  </div>
+                  <div className="flex w-full items-center justify-between gap-1.5 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <CircleDashed /> Design your footer
+                    </div>
+                    <span className="text-muted-foreground">
+                      <ChevronRight height={"12"} width={"12"} />
+                    </span>
+                  </div>
+                  <div className="flex w-full items-center justify-between gap-1.5 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <CircleDashed /> Send your first email
+                    </div>
+                    <span className="text-muted-foreground">
+                      <ChevronRight height={"12"} width={"12"} />
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, delay: 0.1 }}
+                className="ml-8 hidden translate-y-0.5 text-sm text-muted-foreground md:block"
+              >
+                Click &quot;?&quot; for Support
+              </motion.div>
+            </SidebarFooter>
+          ) : null}
+        </AnimatePresence>
       </Sidebar>
       <Dialog open={newEmailDialogOpen} onOpenChange={setNewEmailDialogOpen}>
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">

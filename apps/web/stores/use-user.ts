@@ -9,6 +9,8 @@ interface UserState {
   avatarUrl: string | null;
   email: string | null;
   organizationId: string | null;
+  welcomeStepsCompleted: boolean;
+  setWelcomeStepsCompleted: (completed: boolean) => void;
 }
 
 export const useUser = create<UserState>()((set) => ({
@@ -19,6 +21,9 @@ export const useUser = create<UserState>()((set) => ({
   avatarUrl: null,
   email: null,
   organizationId: null,
+  welcomeStepsCompleted: false,
+  setWelcomeStepsCompleted: (completed: boolean) =>
+    set({ welcomeStepsCompleted: completed }),
 }));
 
 export type UserType = UserState;
