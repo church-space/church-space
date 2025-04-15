@@ -35,10 +35,7 @@ export default function OrganizationMembersTable({
     useState(false);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useOrganizationMembers(
-      organizationId,
-      role === "all" ? undefined : (role as "owner" | "admin" | undefined),
-    );
+    useOrganizationMembers(organizationId);
 
   const handleSearch = useCallback(
     async (value: string | null) => {

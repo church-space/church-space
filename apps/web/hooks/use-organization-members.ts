@@ -6,10 +6,7 @@ interface UsePeopleOptions {
   data: OrganizationMember[];
 }
 
-export function useOrganizationMembers(
-  organizationId: string,
-  options?: UsePeopleOptions,
-) {
+export function useOrganizationMembers(organizationId: string) {
   return useInfiniteQuery({
     queryKey: ["organization-members", organizationId],
     queryFn: async () => {

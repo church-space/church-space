@@ -16,6 +16,13 @@ export async function GET(request: NextRequest) {
     const pathParts = url.pathname.split("/");
     const qrCodeId = pathParts[pathParts.length - 1];
 
+    const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
+    const { success } = await ratelimit.limit(`${ip}-qr-click`);
+
+    if (!success) {
+      return new NextResponse("Too many requests", { status: 429 });
+    }
+
     const supabase = await createClient();
 
     const qrCode = await getCachedPublicQRCode(qrCodeId);
@@ -29,12 +36,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Record the click
-    const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
-    const { success } = await ratelimit.limit(`${ip}-qr-click`);
-
-    if (!success) {
-      return new NextResponse("Too many requests", { status: 429 });
-    }
 
     const { error: clickError } = await supabase.from("qr_code_clicks").insert([
       {

@@ -227,6 +227,8 @@ export default function Page() {
     refetchOnWindowFocus: false,
   });
 
+  console.log(clicksData);
+
   const [linkData, setLinkData] = useState<LinkData>({
     url: "",
     name: "",
