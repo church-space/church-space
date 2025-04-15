@@ -5,7 +5,6 @@ import DataTable from "../data-table";
 import { columns } from "./columns";
 import { useQueryState } from "nuqs";
 import { usePeople } from "@/hooks/use-people";
-import { Skeleton } from "@church-space/ui/skeleton";
 import { CircleInfo } from "@church-space/ui/icons";
 import { Button } from "@church-space/ui/button";
 
@@ -28,16 +27,12 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
 
   // Flatten all pages of data
   const people = data?.pages.flatMap((page) => page.data) ?? [];
-  const count = data?.pages[0]?.count ?? 0;
 
   return (
     <>
       <div className="mb-5 flex w-full flex-col justify-between gap-3">
         <div className="flex w-full flex-row items-center justify-between gap-2">
           <h1 className="flex items-center gap-1.5 text-xl font-bold md:text-3xl">
-            <span className="font-normal text-muted-foreground">
-              {isLoading ? <Skeleton className="h-7 w-5" /> : count}
-            </span>{" "}
             People
           </h1>
         </div>

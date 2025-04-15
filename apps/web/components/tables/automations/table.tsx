@@ -14,7 +14,6 @@ import { useCallback, useState } from "react";
 import DataTable from "../data-table";
 import { columns, type EmailAutomation } from "./columns";
 import { getAutomationFilterConfig, type AutomationStatus } from "./filters";
-import { Skeleton } from "@church-space/ui/skeleton";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 import NewEmailAutomation from "../../forms/new-automation";
 
@@ -81,7 +80,6 @@ export default function AutomationsTable({
   // Flatten all pages of data and cast to Email type
   const automations = (data?.pages.flatMap((page) => page?.data ?? []) ??
     []) as EmailAutomation[];
-  const count = data?.pages[0]?.count ?? 0;
 
   // Show loading state during both initial load and navigation
   const showLoading = isLoading || isFetching;
@@ -90,10 +88,7 @@ export default function AutomationsTable({
     <>
       <div className="mb-6 flex w-full items-center justify-between">
         <h1 className="flex items-center gap-1.5 text-3xl font-bold">
-          <span className="font-normal text-muted-foreground">
-            {showLoading ? <Skeleton className="h-7 w-6" /> : count}
-          </span>{" "}
-          {count === 1 ? "Automation" : "Automations"}
+          Automations
         </h1>
         <Button onClick={() => setIsNewEmailAutomationOpen(true)}>
           New Automation

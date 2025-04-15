@@ -6,7 +6,6 @@ interface UseEmailTemplatesOptions {
   initialData?: {
     pages: Array<{
       data: EmailTemplate[];
-      count: number;
       nextPage: number | undefined;
     }>;
     pageParams: number[];
@@ -41,7 +40,6 @@ export function useEmailTemplates(
 
       return {
         data: result.data.data ?? [],
-        count: result.data.count ?? 0,
         nextPage: result.data.nextPage,
       };
     },

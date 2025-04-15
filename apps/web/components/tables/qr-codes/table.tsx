@@ -14,8 +14,8 @@ import {
 } from "@church-space/ui/dialog";
 import { useQrLinks } from "@/hooks/use-qr-codes";
 import NewQRCode from "@/components/forms/new-qr-code";
-import { Skeleton } from "@church-space/ui/skeleton";
 import { Qrcode } from "@church-space/ui/icons";
+
 interface QrCodesTableProps {
   organizationId: string;
 }
@@ -44,16 +44,12 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
 
   // Flatten all pages of data
   const qrCodes = (data?.pages.flatMap((page) => page.data) ?? []) as QrLink[];
-  const count = data?.pages[0]?.count ?? 0;
 
   return (
     <>
       <div className="mb-6 flex w-full items-center justify-between">
         <h1 className="flex items-center gap-1.5 text-3xl font-bold">
-          <span className="font-normal text-muted-foreground">
-            {isLoading ? <Skeleton className="h-7 w-6" /> : count}
-          </span>{" "}
-          {count === 1 ? "QR Code" : "QR Codes"}
+          QR Codes
         </h1>
         <Button onClick={() => setIsNewQrCodeOpen(true)}>New QR Code</Button>
       </div>

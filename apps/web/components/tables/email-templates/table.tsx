@@ -40,7 +40,6 @@ export default function EmailTemplatesTable({
   // Flatten all pages of data
   const emailTemplates = (data?.pages.flatMap((page) => page.data) ??
     []) as EmailTemplate[];
-  const count = data?.pages[0]?.count ?? 0;
 
   return (
     <>

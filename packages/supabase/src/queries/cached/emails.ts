@@ -4,11 +4,7 @@ import { unstable_cache } from "next/cache";
 import { createClient } from "../../clients/server";
 import { getEmailQuery } from "../all/get-email";
 import { getUserWithDetails } from "./platform";
-import {
-  getEmailsQuery,
-  getEmailsCount,
-  type QueryParams,
-} from "../all/get-emails";
+import { getEmailsQuery, type QueryParams } from "../all/get-emails";
 
 export const getCachedEmail = async (emailId: number) => {
   const supabase = await createClient();
@@ -57,33 +53,6 @@ export const getCachedEmails = async (params?: QueryParams) => {
     async () => {
       const response = await getEmailsQuery(supabase, organizationId, params);
       if (!response.data) return null;
-      return response;
-    },
-    [cacheKey],
-    {
-      tags: [`emails_${organizationId}`],
-      revalidate: 3600,
-    }
-  )();
-};
-
-export const getCachedEmailsCount = async (
-  params?: QueryParams
-): Promise<{ count: number | null; error: any } | null> => {
-  const supabase = await createClient();
-  const user = await getUserWithDetails();
-
-  if (!user) return null;
-  if (!user.organizationMembership) return null;
-
-  const organizationId = user.organizationMembership.organization_id;
-  const cacheKey = `emails_count_${organizationId}_${JSON.stringify(
-    params || {}
-  )}`;
-
-  return unstable_cache(
-    async () => {
-      const response = await getEmailsCount(supabase, organizationId, params);
       return response;
     },
     [cacheKey],

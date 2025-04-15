@@ -6,7 +6,6 @@ interface UseLinkListsOptions {
   initialData?: {
     pages: Array<{
       data: LinkList[];
-      count: number;
       nextPage: number | undefined;
     }>;
     pageParams: number[];
@@ -46,7 +45,6 @@ export function useLinkLists(
           (result.data.data?.map((linkList) => ({
             ...linkList,
           })) as LinkList[]) ?? [],
-        count: result.data.count ?? 0,
         nextPage: result.data.nextPage,
       };
     },

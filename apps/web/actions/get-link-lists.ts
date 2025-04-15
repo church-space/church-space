@@ -1,10 +1,7 @@
 "use server";
 
 import { createClient } from "@church-space/supabase/server";
-import {
-  getAllLinkLists,
-  getLinkListsCount,
-} from "@church-space/supabase/queries/all/get-all-link-lists";
+import { getAllLinkLists } from "@church-space/supabase/queries/all/get-all-link-lists";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 
@@ -27,7 +24,6 @@ export const getLinkLists = authActionClient
     const from = parsedInput.page * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
 
-    // Get emails data
     const { data, error } = await getAllLinkLists(
       supabase,
       parsedInput.organizationId,
@@ -40,22 +36,16 @@ export const getLinkLists = authActionClient
     );
 
     if (error) throw error;
+    if (!data) return { data: [], nextPage: undefined };
 
-    // Get total count
-    const { count } = await getLinkListsCount(
-      supabase,
-      parsedInput.organizationId,
-      {
-        searchTerm: parsedInput.searchTerm,
-        isPublic: parsedInput.isPublic,
-      },
-    );
+    // If we got more items than ITEMS_PER_PAGE, there's a next page
+    const hasNextPage = data.length > ITEMS_PER_PAGE;
 
-    const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+    // Remove the extra item before sending to client
+    const items = hasNextPage ? data.slice(0, -1) : data;
 
     return {
-      data: data ?? [],
+      data: items,
       nextPage: hasNextPage ? parsedInput.page + 1 : undefined,
-      count,
     };
   });

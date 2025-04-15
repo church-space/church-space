@@ -6,7 +6,6 @@ interface UseEmailCategoriesOptions {
   initialData?: {
     pages: Array<{
       data: EmailCategory[];
-      count: number;
       nextPage: number | undefined;
     }>;
     pageParams: number[];
@@ -43,7 +42,6 @@ export function useEmailCategories(
 
       return {
         data: result.data.data ?? [],
-        count: result.data.count ?? 0,
         nextPage: result.data.nextPage,
       };
     },

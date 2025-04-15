@@ -14,68 +14,6 @@ export interface QueryParams {
   unsubscribedCategories?: number[];
 }
 
-export async function getPeopleCount(
-  supabase: Client,
-  organizationId: string,
-  params?: QueryParams
-) {
-  let query = supabase
-    .from("people")
-    .select(
-      `
-      id,
-      people_emails!inner(status),
-      email_list_category_unsubscribes(id)
-    `,
-      { count: "exact", head: true }
-    )
-    .eq("organization_id", organizationId);
-
-  // Apply filters if provided
-  if (params?.emailStatus && params.emailStatus.length > 0) {
-    // For partially subscribed, we need to check both status and unsubscribes
-    if (params.emailStatus.includes("partially subscribed")) {
-      query = query.eq("people_emails.status", "subscribed");
-      query = query.not("email_list_category_unsubscribes.id", "is", null);
-    } else {
-      // Filter out "partially subscribed" from the status array since it's not a valid database status
-      const validStatuses = params.emailStatus.filter(
-        (
-          status
-        ): status is
-          | "subscribed"
-          | "unsubscribed"
-          | "pco_blocked"
-          | "cleaned" => status !== "partially subscribed"
-      );
-      if (validStatuses.length > 0) {
-        query = query.in("people_emails.status", validStatuses);
-      }
-    }
-  }
-
-  if (params?.searchTerm) {
-    const searchTerm = `%${params.searchTerm}%`;
-    query = query.or(
-      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm}`
-    );
-    query = query.filter("people_emails.email", "ilike", searchTerm);
-  }
-
-  if (
-    params?.unsubscribedCategories &&
-    params.unsubscribedCategories.length > 0
-  ) {
-    query = query.in(
-      "email_list_category_unsubscribes.pco_list_category",
-      params.unsubscribedCategories
-    );
-  }
-
-  const { count, error } = await query;
-  return { count, error };
-}
-
 export async function getPeopleWithEmailsAndSubscriptionStatus(
   supabase: Client,
   organizationId: string,
@@ -160,14 +98,11 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
 
   // Apply pagination if provided
   if (params?.start !== undefined && params?.end !== undefined) {
-    query = query.range(params.start, params.end);
+    // Request one extra item to determine if there's a next page
+    query = query.range(params.start, params.end + 1);
   }
 
   const { data, error } = await query;
-
-  console.log(data);
-  console.log(error);
-
   return { data, error };
 }
 

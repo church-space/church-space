@@ -1,10 +1,7 @@
 "use server";
 
 import { createClient } from "@church-space/supabase/server";
-import {
-  getPeopleWithEmailsAndSubscriptionStatus,
-  getPeopleCount,
-} from "@church-space/supabase/queries/all/get-people-with-emails";
+import { getPeopleWithEmailsAndSubscriptionStatus } from "@church-space/supabase/queries/all/get-people-with-emails";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 
@@ -35,7 +32,6 @@ export const getPeopleWithEmails = authActionClient
     const from = parsedInput.page * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
 
-    // Get emails data
     const { data, error } = await getPeopleWithEmailsAndSubscriptionStatus(
       supabase,
       parsedInput.organizationId,
@@ -43,27 +39,23 @@ export const getPeopleWithEmails = authActionClient
         start: from,
         end: to,
         searchTerm: parsedInput.searchTerm,
-        emailStatus: parsedInput.emailStatus as any,
+        emailStatus: parsedInput.emailStatus
+          ? [parsedInput.emailStatus]
+          : undefined,
       },
     );
 
     if (error) throw error;
+    if (!data) return { data: [], nextPage: undefined };
 
-    // Get total count
-    const { count } = await getPeopleCount(
-      supabase,
-      parsedInput.organizationId,
-      {
-        searchTerm: parsedInput.searchTerm,
-        emailStatus: parsedInput.emailStatus as any,
-      },
-    );
+    // If we got more items than ITEMS_PER_PAGE, there's a next page
+    const hasNextPage = data.length > ITEMS_PER_PAGE;
 
-    const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+    // Remove the extra item before sending to client
+    const items = hasNextPage ? data.slice(0, -1) : data;
 
     return {
-      data: data ?? [],
+      data: items,
       nextPage: hasNextPage ? parsedInput.page + 1 : undefined,
-      count,
     };
   });

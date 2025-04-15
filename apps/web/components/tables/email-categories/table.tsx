@@ -7,7 +7,6 @@ import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, EmailCategory } from "./columns";
 import { CircleInfo } from "@church-space/ui/icons";
-import { Skeleton } from "@church-space/ui/skeleton";
 
 interface EmailCategoriesTableProps {
   organizationId: string;
@@ -31,17 +30,13 @@ export default function EmailCategoriesTable({
   // Flatten all pages of data
   const categories = (data?.pages.flatMap((page) => page.data) ??
     []) as EmailCategory[];
-  const count = data?.pages[0]?.count ?? 0;
 
   return (
     <>
       <div className="mb-5 flex w-full flex-col justify-between gap-3">
         <div className="flex w-full flex-row items-center justify-between gap-2">
           <h1 className="flex items-center gap-1.5 text-xl font-bold md:text-3xl">
-            <span className="font-normal text-muted-foreground">
-              {isLoading ? <Skeleton className="h-7 w-5" /> : count}
-            </span>{" "}
-            Email {count === 1 ? "Category" : "Categories"}
+            Email Categories
           </h1>
 
           <a

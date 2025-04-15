@@ -1,10 +1,7 @@
 "use server";
 
 import { createClient } from "@church-space/supabase/server";
-import {
-  getAllEmailAutomations,
-  getEmailAutomationsCount,
-} from "@church-space/supabase/queries/all/get-all-email-automations";
+import { getAllEmailAutomations } from "@church-space/supabase/queries/all/get-all-email-automations";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 
@@ -27,7 +24,6 @@ export const getEmailAutomations = authActionClient
     const from = parsedInput.page * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
 
-    // Get emails data
     const { data, error } = await getAllEmailAutomations(
       supabase,
       parsedInput.organizationId,
@@ -40,22 +36,16 @@ export const getEmailAutomations = authActionClient
     );
 
     if (error) throw error;
+    if (!data) return { data: [], nextPage: undefined };
 
-    // Get total count
-    const { count } = await getEmailAutomationsCount(
-      supabase,
-      parsedInput.organizationId,
-      {
-        searchTerm: parsedInput.searchTerm,
-        isActive: parsedInput.isActive,
-      },
-    );
+    // If we got more items than ITEMS_PER_PAGE, there's a next page
+    const hasNextPage = data.length > ITEMS_PER_PAGE;
 
-    const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+    // Remove the extra item before sending to client
+    const items = hasNextPage ? data.slice(0, -1) : data;
 
     return {
-      data: data ?? [],
+      data: items,
       nextPage: hasNextPage ? parsedInput.page + 1 : undefined,
-      count,
     };
   });

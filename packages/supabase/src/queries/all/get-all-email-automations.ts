@@ -7,36 +7,6 @@ export interface QueryParams {
   searchTerm?: string;
 }
 
-export async function getEmailAutomationsCount(
-  supabase: Client,
-  organizationId: string,
-  params?: QueryParams
-) {
-  let query = supabase
-    .from("email_automations")
-    .select(
-      `
-      id
-    `,
-      { count: "exact", head: true }
-    )
-    .eq("organization_id", organizationId);
-
-  if (params?.isActive !== undefined) {
-    query = query.eq("is_active", params.isActive);
-  }
-
-  if (params?.searchTerm) {
-    const searchTerm = `%${params.searchTerm}%`;
-    query = query.or(
-      `name.ilike.${searchTerm},description.ilike.${searchTerm}`
-    );
-  }
-
-  const { count, error } = await query;
-  return { count, error };
-}
-
 export async function getAllEmailAutomations(
   supabase: Client,
   organizationId: string,
@@ -71,7 +41,7 @@ export async function getAllEmailAutomations(
   }
 
   if (params?.start !== undefined && params?.end !== undefined) {
-    query = query.range(params.start, params.end);
+    query = query.range(params.start, params.end + 1);
   }
 
   const { data, error } = await query;

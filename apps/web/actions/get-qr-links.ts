@@ -1,10 +1,7 @@
 "use server";
 
 import { createClient } from "@church-space/supabase/server";
-import {
-  getAllQrLinks,
-  getQrLinksCount,
-} from "@church-space/supabase/queries/all/get-all-qr-links";
+import { getAllQrLinks } from "@church-space/supabase/queries/all/get-all-qr-links";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 
@@ -33,7 +30,6 @@ export const getQrLinks = authActionClient
         ? [parsedInput.status as "active" | "inactive"]
         : undefined;
 
-    // Get emails data
     const { data, error } = await getAllQrLinks(
       supabase,
       parsedInput.organizationId,
@@ -46,22 +42,16 @@ export const getQrLinks = authActionClient
     );
 
     if (error) throw error;
+    if (!data) return { data: [], nextPage: undefined };
 
-    // Get total count
-    const { count } = await getQrLinksCount(
-      supabase,
-      parsedInput.organizationId,
-      {
-        searchTerm: parsedInput.searchTerm,
-        status: statusArray,
-      },
-    );
+    // If we got more items than ITEMS_PER_PAGE, there's a next page
+    const hasNextPage = data.length > ITEMS_PER_PAGE;
 
-    const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+    // Remove the extra item before sending to client
+    const items = hasNextPage ? data.slice(0, -1) : data;
 
     return {
-      data: data ?? [],
+      data: items,
       nextPage: hasNextPage ? parsedInput.page + 1 : undefined,
-      count,
     };
   });

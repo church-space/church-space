@@ -6,7 +6,6 @@ interface UseQrLinksOptions {
   initialData?: {
     pages: Array<{
       data: QrLink[];
-      count: number;
       nextPage: number | undefined;
     }>;
     pageParams: number[];
@@ -46,7 +45,6 @@ export function useQrLinks(
           (result.data.data?.map((qrLink) => ({
             ...qrLink,
           })) as QrLink[]) ?? [],
-        count: result.data.count ?? 0,
         nextPage: result.data.nextPage,
       };
     },

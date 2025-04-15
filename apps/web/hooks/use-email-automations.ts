@@ -6,7 +6,6 @@ interface UseEmailAutomationsOptions {
   initialData?: {
     pages: Array<{
       data: EmailAutomation[];
-      count: number;
       nextPage: number | undefined;
     }>;
     pageParams: number[];
@@ -46,7 +45,6 @@ export function useEmailAutomations(
           (result.data.data?.map((emailAutomation) => ({
             ...emailAutomation,
           })) as EmailAutomation[]) ?? [],
-        count: result.data.count ?? 0,
         nextPage: result.data.nextPage,
       };
     },

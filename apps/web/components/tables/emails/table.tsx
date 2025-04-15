@@ -79,7 +79,6 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
   // Flatten all pages of data and cast to Email type
   const emails = (data?.pages.flatMap((page) => page?.data ?? []) ??
     []) as Email[];
-  const count = data?.pages[0]?.count ?? 0;
 
   // Show loading state during both initial load and navigation
   const showLoading = isLoading || isFetching;

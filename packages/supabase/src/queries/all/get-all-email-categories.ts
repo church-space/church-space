@@ -7,36 +7,6 @@ export interface QueryParams {
   searchTerm?: string;
 }
 
-export async function getEmailCategoriesCount(
-  supabase: Client,
-  organizationId: string,
-  params?: QueryParams
-) {
-  let query = supabase
-    .from("pco_list_categories")
-    .select(
-      `
-      id
-    `,
-      { count: "exact", head: true }
-    )
-    .eq("organization_id", organizationId);
-
-  if (params?.isPublic !== undefined) {
-    query = query.eq("is_public", params.isPublic);
-  }
-
-  if (params?.searchTerm) {
-    const searchTerm = `%${params.searchTerm}%`;
-    query = query.or(
-      `pco_name.ilike.${searchTerm},description.ilike.${searchTerm}`
-    );
-  }
-
-  const { count, error } = await query;
-  return { count, error };
-}
-
 export async function getAllEmailCategories(
   supabase: Client,
   organizationId: string,
@@ -70,7 +40,7 @@ export async function getAllEmailCategories(
   }
 
   if (params?.start !== undefined && params?.end !== undefined) {
-    query = query.range(params.start, params.end);
+    query = query.range(params.start, params.end + 1);
   }
 
   const { data, error } = await query;

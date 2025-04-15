@@ -7,34 +7,6 @@ export interface QueryParams {
   searchTerm?: string;
 }
 
-export async function getQrLinksCount(
-  supabase: Client,
-  organizationId: string,
-  params?: QueryParams
-) {
-  let query = supabase
-    .from("qr_links")
-    .select(
-      `
-      id
-    `,
-      { count: "exact", head: true }
-    )
-    .eq("organization_id", organizationId);
-
-  if (params?.status && params.status.length > 0) {
-    query = query.in("status", params.status);
-  }
-
-  if (params?.searchTerm) {
-    const searchTerm = `%${params.searchTerm}%`;
-    query = query.or(`name.ilike.${searchTerm},url.ilike.${searchTerm}`);
-  }
-
-  const { count, error } = await query;
-  return { count, error };
-}
-
 export async function getAllQrLinks(
   supabase: Client,
   organizationId: string,
@@ -65,7 +37,7 @@ export async function getAllQrLinks(
   }
 
   if (params?.start !== undefined && params?.end !== undefined) {
-    query = query.range(params.start, params.end);
+    query = query.range(params.start, params.end + 1);
   }
 
   const { data, error } = await query;

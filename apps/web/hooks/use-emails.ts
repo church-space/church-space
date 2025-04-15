@@ -6,7 +6,6 @@ interface UseEmailsOptions {
   initialData?: {
     pages: Array<{
       data: Email[];
-      count: number;
       nextPage: number | undefined;
     }>;
     pageParams: number[];
@@ -52,7 +51,6 @@ export function useEmails(
               domain: string;
             } | null,
           })) as Email[]) ?? [],
-        count: result.data.count ?? 0,
         nextPage: result.data.nextPage,
       };
     },

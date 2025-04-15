@@ -6,7 +6,6 @@ interface UsePeopleOptions {
   initialData?: {
     pages: Array<{
       data: Person[];
-      count: number;
       nextPage: number | undefined;
     }>;
     pageParams: number[];
@@ -46,7 +45,6 @@ export function usePeople(
           (result.data.data?.map((person) => ({
             ...person,
           })) as Person[]) ?? [],
-        count: result.data.count ?? 0,
         nextPage: result.data.nextPage,
       };
     },

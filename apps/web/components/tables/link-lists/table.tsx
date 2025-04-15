@@ -14,7 +14,6 @@ import {
 } from "@church-space/ui/dialog";
 import { useLinkLists } from "@/hooks/use-link-lists";
 import NewLinkList from "@/components/forms/new-link-list";
-import { Skeleton } from "@church-space/ui/skeleton";
 import { LinkFilled } from "@church-space/ui/icons";
 
 interface LinkListsTableProps {
@@ -63,16 +62,12 @@ export default function LinkListsTable({
   // Flatten all pages of data
   const linkLists = (data?.pages.flatMap((page) => page.data) ??
     []) as LinkList[];
-  const count = data?.pages[0]?.count ?? 0;
 
   return (
     <>
       <div className="mb-6 flex w-full items-center justify-between">
         <h1 className="flex items-center gap-1.5 text-3xl font-bold">
-          <span className="font-normal text-muted-foreground">
-            {isLoading ? <Skeleton className="h-7 w-6" /> : count}
-          </span>{" "}
-          {count === 1 ? "Link List" : "Link Lists"}
+          Link Lists
         </h1>
         <Button onClick={() => setIsNewLinkListOpen(true)}>
           New Link List
