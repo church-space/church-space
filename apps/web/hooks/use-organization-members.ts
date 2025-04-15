@@ -1,55 +1,59 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createClient } from "@church-space/supabase/client";
-import {
-  getAllOrganizationMembers,
-  getOrganizationMembersCount,
-} from "@church-space/supabase/queries/all/get-all-organization-members";
+import { getOrganizationMembers } from "@/actions/get-organization-members";
+import type { OrganizationMember } from "@/components/tables/organization-members/columns";
 
-const ITEMS_PER_PAGE = 25;
+interface UsePeopleOptions {
+  initialData?: {
+    pages: Array<{
+      data: OrganizationMember[];
+      nextPage: number | undefined;
+    }>;
+    pageParams: number[];
+  };
+}
 
 export function useOrganizationMembers(
   organizationId: string,
   role?: "owner" | "admin",
+  options?: UsePeopleOptions,
 ) {
-  const supabase = createClient();
-
   return useInfiniteQuery({
     queryKey: ["organization-members", organizationId, role],
     queryFn: async ({ pageParam = 0 }) => {
-      const from = pageParam * ITEMS_PER_PAGE;
-      const to = from + ITEMS_PER_PAGE - 1;
-
-      // Get members data
-      const { data, error } = await getAllOrganizationMembers(
-        supabase,
+      const result = await getOrganizationMembers({
         organizationId,
-        {
-          start: from,
-          end: to,
-          role,
-        },
-      );
+        page: pageParam,
+        role,
+      });
 
-      if (error) throw error;
+      if (!result) {
+        throw new Error("Failed to fetch emails");
+      }
 
-      // Get total count
-      const { count } = await getOrganizationMembersCount(
-        supabase,
-        organizationId,
-        {
-          role,
-        },
-      );
+      if (result.validationErrors) {
+        throw new Error(Object.values(result.validationErrors).join(", "));
+      }
 
-      const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+      if (!result.data) {
+        throw new Error("No data returned from server");
+      }
 
       return {
-        data: data ?? [],
-        nextPage: hasNextPage ? pageParam + 1 : undefined,
-        count,
+        data:
+          (result.data.data?.map((person) => ({
+            ...person,
+          })) as OrganizationMember[]) ?? [],
+        nextPage: result.data.nextPage,
       };
     },
+
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
+    initialData: options?.initialData,
+    staleTime: 60000,
+    gcTime: 60000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 }

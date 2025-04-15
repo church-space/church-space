@@ -57,15 +57,11 @@ export default function OrganizationMembersTable({
   // Flatten all pages of data
   const members = (data?.pages.flatMap((page) => page.data) ??
     []) as OrganizationMember[];
-  const count = data?.pages[0]?.count ?? 0;
 
   return (
     <>
       <div className="flex w-full items-center justify-between">
-        <h1 className="mb-6 text-2xl font-bold">
-          <span className="font-normal text-muted-foreground">{count}</span>{" "}
-          Organization Members
-        </h1>
+        <h1 className="mb-6 text-2xl font-bold">Organization Members</h1>
         <Button onClick={() => setIsNewOrganizationMemberOpen(true)}>
           New Organization Member
         </Button>

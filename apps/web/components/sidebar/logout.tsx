@@ -1,7 +1,7 @@
 "use client";
 
+import { signOutAction } from "@/actions/logout";
 import { useUser } from "@/stores/use-user";
-import { createClient } from "@church-space/supabase/client";
 import { Button } from "@church-space/ui/button";
 import { cn } from "@church-space/ui/cn";
 import { DropdownMenuItem } from "@church-space/ui/dropdown-menu";
@@ -10,7 +10,6 @@ import { toast } from "@church-space/ui/use-toast";
 import Cookies from "js-cookie";
 
 const handleLogout = async () => {
-  const supabase = createClient();
   try {
     useUser.setState({
       user: undefined,
@@ -27,13 +26,10 @@ const handleLogout = async () => {
     Cookies.remove("organizationId");
 
     // Sign out from Supabase
-    const { error } = await supabase.auth.signOut({ scope: "local" });
-    if (error) {
-      throw error;
-    }
+    await signOutAction();
 
     // Redirect to login page
-    window.location.href = "/login";
+    window.location.href = "/homepage";
   } catch (error) {
     console.error("Error logging out:", error);
     toast({

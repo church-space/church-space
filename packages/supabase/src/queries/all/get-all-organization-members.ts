@@ -6,35 +6,6 @@ export interface QueryParams {
   role?: "owner" | "admin";
 }
 
-export async function getOrganizationMembersCount(
-  supabase: Client,
-  organizationId: string,
-  params?: QueryParams
-) {
-  let query = supabase
-    .from("organization_memberships")
-    .select(
-      `
-      id,
-      users!inner (
-        id,
-        first_name,
-        last_name,
-        avatar_url
-      )
-    `,
-      { count: "exact", head: true }
-    )
-    .eq("organization_id", organizationId);
-
-  if (params?.role) {
-    query = query.eq("role", params.role);
-  }
-
-  const { count, error } = await query;
-  return { count, error };
-}
-
 export async function getAllOrganizationMembers(
   supabase: Client,
   organizationId: string,
