@@ -2,23 +2,7 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@church-space/ui/context-menu";
-import { Button } from "@church-space/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogFooter,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@church-space/ui/dialog";
-import { useState } from "react";
+
 // Define the type based on the SQL schema
 export type EmailTemplate = {
   id: number;
@@ -32,58 +16,14 @@ export const columns: ColumnDef<EmailTemplate>[] = [
     header: "Subject",
     cell: ({ row }) => {
       const subject = row.getValue("subject") as string;
-      const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-      const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
 
       return (
         <>
-          <ContextMenu>
-            <ContextMenuTrigger>
-              <Link href={`/emails/${row.original.id}/editor`}>
-                <div className="pl-2 text-base font-medium hover:underline">
-                  {subject}
-                </div>
-              </Link>
-            </ContextMenuTrigger>
-            <ContextMenuContent>
-              <ContextMenuItem onClick={() => setIsRenameDialogOpen(true)}>
-                Rename
-              </ContextMenuItem>
-              <ContextMenuItem onClick={() => setIsDeleteDialogOpen(true)}>
-                Delete
-              </ContextMenuItem>
-            </ContextMenuContent>
-          </ContextMenu>
-          <Dialog
-            open={isRenameDialogOpen}
-            onOpenChange={setIsRenameDialogOpen}
-          >
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Rename</DialogTitle>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
-          <Dialog
-            open={isDeleteDialogOpen}
-            onOpenChange={setIsDeleteDialogOpen}
-          >
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Delete</DialogTitle>
-                <DialogDescription>
-                  Are you sure you want to delete this template? This action
-                  cannot be undone.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <DialogClose>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button variant="destructive">Delete</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Link href={`/emails/${row.original.id}/editor`}>
+            <div className="pl-2 text-base font-medium hover:underline">
+              {subject}
+            </div>
+          </Link>
         </>
       );
     },
