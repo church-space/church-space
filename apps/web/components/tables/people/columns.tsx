@@ -507,9 +507,6 @@ export const columns: ColumnDef<Person>[] = [
     },
     enableHiding: true,
     // This column is hidden by default and only used for filtering
-    meta: {
-      filterVariant: "select",
-    },
   },
   {
     header: "View in PCO",

@@ -129,30 +129,13 @@ export default function DataTable<TData>({
     }
   }, [initialFilters]);
 
-  // Create a debounced search function outside of useCallback
-  const debouncedSearchFn = debounce(
-    (searchFn: (value: string) => void, value: string) => {
-      searchFn(value);
-    },
-    300,
-  );
-
-  // Create a memoized search handler
+  // Create a memoized debounced search handler
   const debouncedSearch = useCallback(
-    (value: string) => {
-      if (onSearch) {
-        debouncedSearchFn(onSearch, value);
-      }
-    },
-    [onSearch, debouncedSearchFn],
+    debounce((value: string) => {
+      onSearch?.(value);
+    }, 300),
+    [onSearch],
   );
-
-  // Clean up the debounced function on unmount
-  useEffect(() => {
-    return () => {
-      debouncedSearchFn.cancel();
-    };
-  }, [debouncedSearchFn]);
 
   // Update data when initialData changes
   useEffect(() => {
@@ -182,6 +165,13 @@ export default function DataTable<TData>({
     },
     [debouncedSearch],
   );
+
+  // Clean up the debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   const setupObserver = useCallback(() => {
     if (!containerRef.current || !loadMore || !hasMorePages) return;

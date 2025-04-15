@@ -1,12 +1,12 @@
 "use client";
 
+import { usePeople } from "@/hooks/use-people";
+import { Button } from "@church-space/ui/button";
+import { useQueryState } from "nuqs";
 import { useCallback } from "react";
 import DataTable from "../data-table";
-import { columns } from "./columns";
-import { useQueryState } from "nuqs";
-import { usePeople } from "@/hooks/use-people";
+import { columns, type Person } from "./columns";
 import { CircleInfo } from "@church-space/ui/icons";
-import { Button } from "@church-space/ui/button";
 
 interface PeopleTableProps {
   organizationId: string;
@@ -26,7 +26,7 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
   );
 
   // Flatten all pages of data
-  const people = data?.pages.flatMap((page) => page.data) ?? [];
+  const people = (data?.pages.flatMap((page) => page.data) ?? []) as Person[];
 
   return (
     <>
@@ -70,7 +70,7 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
           </div>
         </div>
       </div>
-      <DataTable
+      <DataTable<Person>
         columns={columns}
         data={people}
         pageSize={25}
@@ -83,7 +83,8 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
-        isLoading={isFetchingNextPage || isLoading}
+        searchPlaceholderText="Search by name or email..."
+        isLoading={isLoading || isFetchingNextPage}
       />
     </>
   );
