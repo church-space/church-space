@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Button } from "@church-space/ui/button";
 import { ChevronDown } from "lucide-react";
-import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
 import {
   Users,

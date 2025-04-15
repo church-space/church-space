@@ -11,7 +11,6 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Button } from "@church-space/ui/button";
 import { Skeleton } from "@church-space/ui/skeleton";
-import { Loader2 } from "lucide-react";
 
 export default function LoadingPage() {
   return (
