@@ -39,7 +39,7 @@ export default function CardsBlock({
         }));
       }
     });
-  }, [cards]);
+  }, [cards, imageUrls]);
 
   return (
     <div

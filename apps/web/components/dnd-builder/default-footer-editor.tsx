@@ -42,8 +42,6 @@ export default function DefaultFooterEditor({
   defaultFont?: string;
 }) {
   const router = useRouter();
-  const [isSaving, setIsSaving] = useState(false);
-  const [activeForm, setActiveForm] = useState<string>("email-footer");
   const [footerData, setFooterData] = useState<FooterData>({
     address: null,
     copyright_name: null,
@@ -88,18 +86,6 @@ export default function DefaultFooterEditor({
     },
     [organizationId, updateOrgDefaultFooter],
   );
-
-  // Handle save button click
-  const handleSave = useCallback(async () => {
-    setIsSaving(true);
-    try {
-      await updateFooterOnServer(footerData);
-      router.push(`/emails/templates`);
-    } catch (error) {
-      console.error("Error saving footer:", error);
-      setIsSaving(false);
-    }
-  }, [footerData, updateFooterOnServer, router]);
 
   // Create a ref for footer update debouncing
   const debouncedFooterUpdateRef = useRef<NodeJS.Timeout | null>(null);
@@ -162,10 +148,7 @@ export default function DefaultFooterEditor({
         </div>
         <div className="relative flex-1">
           <Footer
-            onClick={(e) => {
-              e.stopPropagation();
-              setActiveForm("email-footer");
-            }}
+            onClick={() => {}}
             isActive={false}
             showHover={false}
             footerData={footerData}

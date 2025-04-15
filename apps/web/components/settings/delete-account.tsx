@@ -79,7 +79,7 @@ export default function DeleteAccount({
       }
     };
     fetchData();
-  }, [organizationId, orgRole]);
+  }, [organizationId, orgRole, toast]);
 
   const handleDelete = async () => {
     try {

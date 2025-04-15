@@ -39,6 +39,7 @@ import {
   X,
   Trash2,
 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState, useCallback, useRef } from "react";
 import debounce from "lodash/debounce";
 import { fetchEmailAssets, type Asset } from "./fetch-email-assets";
@@ -133,7 +134,7 @@ const AssetCard = ({
         onClick={onSelect}
       >
         {asset.type === "image" ? (
-          <img
+          <Image
             src={asset.imageUrl}
             alt={asset.title}
             className="h-full w-full object-contain"
@@ -257,7 +258,13 @@ export default function AssetBrowserModal({
     return () => {
       debouncedLoadAssets.cancel();
     };
-  }, [organizationId, currentPage, searchQuery, selectedType]);
+  }, [
+    organizationId,
+    currentPage,
+    searchQuery,
+    selectedType,
+    debouncedLoadAssets,
+  ]);
 
   // Reset to first page when filters change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -70,7 +70,7 @@ export default function Page() {
       console.error("Failed to resend code:", error);
       // You might want to show an error toast here
     }
-  }, [email, resendCooldown]);
+  }, [email, resendCooldown, selectedPlan]);
 
   const handleGoogleSignIn = async () => {
     try {

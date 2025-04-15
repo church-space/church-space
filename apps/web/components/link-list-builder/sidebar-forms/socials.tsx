@@ -620,14 +620,18 @@ export default function SocialsForm({
 
   // Cleanup timers on unmount
   useEffect(() => {
+    // Capture current ref values at the start of the effect
+    const colorTimers = { ...colorUpdateTimerRef.current };
+    const linkTimers = { ...linkTimersRef.current };
+
     return () => {
-      // Clear any color update timers
-      Object.values(colorUpdateTimerRef.current).forEach((timer) => {
+      // Clear any color update timers using captured values
+      Object.values(colorTimers).forEach((timer) => {
         if (timer) clearTimeout(timer);
       });
 
-      // Clear any link timers
-      Object.values(linkTimersRef.current).forEach((timer) => {
+      // Clear any link timers using captured values
+      Object.values(linkTimers).forEach((timer) => {
         if (timer) clearTimeout(timer);
       });
     };

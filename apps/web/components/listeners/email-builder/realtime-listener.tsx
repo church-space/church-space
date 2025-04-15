@@ -157,7 +157,16 @@ export default function EmailBuilderRealtimeListener({
     return () => {
       channel.unsubscribe();
     };
-  }, [user, emailId, firstName, lastName, avatarUrl, onOnlineUsersChange]);
+  }, [
+    user,
+    emailId,
+    firstName,
+    lastName,
+    avatarUrl,
+    onOnlineUsersChange,
+    onlineUsers,
+    supabase,
+  ]);
 
   return null; // This component doesn't render anything
 }
