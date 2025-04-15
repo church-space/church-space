@@ -26,6 +26,7 @@ export async function getAllEmailAutomations(
       updated_at
     `
     )
+    .order("updated_at", { ascending: false })
     .order("name", { ascending: true })
     .eq("organization_id", organizationId);
 

@@ -13,7 +13,6 @@ import { useQueryState } from "nuqs";
 import { useCallback, useState } from "react";
 import DataTable from "../data-table";
 import { columns, type EmailAutomation } from "./columns";
-import { getAutomationFilterConfig, type AutomationStatus } from "./filters";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 import NewEmailAutomation from "../../forms/new-automation";
 
@@ -29,22 +28,12 @@ export default function AutomationsTable({
     serialize: (value) => value ?? null,
     history: "push",
   });
-  const [status, setStatus] = useQueryState<AutomationStatus | null>("status", {
-    parse: (value): AutomationStatus | null => {
-      if (value === "true" || value === "false" || value === "all") {
-        return value;
-      }
-      return null;
-    },
-    serialize: (value) => value || "all",
-    history: "push",
-  });
+
   const [isNewEmailAutomationOpen, setIsNewEmailAutomationOpen] =
     useState(false);
 
   // Initialize search and status if they're not set and we have initial values
   const effectiveSearch = search;
-  const effectiveStatus = status;
 
   const {
     data,
@@ -53,28 +42,13 @@ export default function AutomationsTable({
     isFetchingNextPage,
     isLoading,
     isFetching,
-  } = useEmailAutomations(
-    organizationId,
-    effectiveSearch ?? undefined,
-    effectiveStatus === "true"
-      ? true
-      : effectiveStatus === "false"
-        ? false
-        : undefined,
-  );
+  } = useEmailAutomations(organizationId, effectiveSearch ?? undefined);
 
   const handleSearch = useCallback(
     async (value: string | null) => {
       await setSearch(value);
     },
     [setSearch],
-  );
-
-  const handleStatusChange = useCallback(
-    async (value: AutomationStatus) => {
-      await setStatus(value === "all" ? null : value);
-    },
-    [setStatus],
   );
 
   // Flatten all pages of data and cast to Email type
@@ -109,13 +83,6 @@ export default function AutomationsTable({
         hasNextPage={hasNextPage}
         searchQuery={effectiveSearch || ""}
         onSearch={handleSearch}
-        filterConfig={getAutomationFilterConfig()}
-        onFilterChange={{
-          status: handleStatusChange,
-        }}
-        initialFilters={{
-          status: effectiveStatus ?? undefined,
-        }}
         searchPlaceholderText="Search by name..."
         isLoading={showLoading || isFetchingNextPage}
       />
