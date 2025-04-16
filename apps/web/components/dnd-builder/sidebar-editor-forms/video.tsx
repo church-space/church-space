@@ -95,6 +95,10 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
             onCheckedChange={(checked) => handleChange("centered", checked)}
           />
         </div>
+        <p className="text-sm text-muted-foreground">
+          When someone clicks on the video thumbnail, they will be redirected to
+          the YouTube video.
+        </p>
       </div>
     </div>
   );

@@ -9,7 +9,6 @@ import {
   Body,
 } from "@react-email/components";
 import * as React from "react";
-import { YoutubeFilled } from "@church-space/ui/icons";
 
 const IconColors = {
   black: "#000000",
@@ -579,30 +578,6 @@ const CustomVideo: React.FC<{
                       borderRadius: isRounded ? "6px" : "0",
                     }}
                   />
-                </td>
-              </tr>
-              <tr>
-                <td style={{ textAlign: "center", marginTop: "-50px" }}>
-                  <table
-                    cellPadding="0"
-                    cellSpacing="0"
-                    border={0}
-                    style={{
-                      width: "100%",
-                      marginTop: `-${size * 2.25}px`,
-                      zIndex: "10",
-                    }}
-                  >
-                    <tr>
-                      <td align="center">
-                        <YoutubeFilled
-                          width={`${size}px`}
-                          height={`${size}px`}
-                          fill="#ff0000"
-                        />
-                      </td>
-                    </tr>
-                  </table>
                 </td>
               </tr>
             </table>

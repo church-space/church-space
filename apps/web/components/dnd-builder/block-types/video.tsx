@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { YoutubeFilled } from "@church-space/ui/icons";
+// import { YoutubeFilled } from "@church-space/ui/icons";
 import { VideoBlockData } from "@/types/blocks";
 import Image from "next/image";
 import { cn } from "@church-space/ui/cn";
@@ -68,12 +68,7 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
   return (
     <div className="relative" style={style}>
       {result.success ? (
-        <div
-          className={cn(
-            "aspect-video bg-background",
-            isRounded && "rounded-md",
-          )}
-        >
+        <div className={cn("aspect-video", isRounded && "rounded-md")}>
           <Image
             src={imageUrl}
             alt="Video Thumbnail"
@@ -90,7 +85,7 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
           className={cn("aspect-video bg-zinc-300", isRounded && "rounded-md")}
         ></div>
       )}
-      <div className="absolute left-0 top-0 flex h-full w-full items-center justify-center">
+      {/* <div className="absolute left-0 top-0 flex h-full w-full items-center justify-center">
         <YoutubeFilled
           height={String(
             data?.size
@@ -105,7 +100,7 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
           fill="#FF0000"
           secondaryfill="#FFFFFF"
         />
-      </div>
+      </div> */}
     </div>
   );
 }
