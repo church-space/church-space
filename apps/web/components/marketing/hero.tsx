@@ -18,14 +18,10 @@ export default async function Hero() {
     <section className="overflow-hidden py-16 md:py-32">
       <div className="mx-auto mb-28 max-w-7xl space-y-6 px-6">
         <h1 className="mx-auto max-w-2xl text-balance text-center text-4xl font-bold sm:text-6xl md:text-7xl">
-          Email your church for half the price.
+          Email your church without the big bill
         </h1>
         <div className="text-md mx-auto max-w-xs text-balance text-center font-semibold text-secondary-foreground sm:max-w-lg sm:text-xl md:max-w-xl md:text-2xl">
-          <span className="hidden md:inline">
-            Church Space helps you engage
-          </span>
-          <span className="inline md:hidden">Engage</span> your people with
-          beautiful emails and organized links.
+          Engage your people with beautiful emails and organized links.
         </div>
         <div className="mx-auto flex items-center justify-center gap-4">
           {!isLoggedIn ? (

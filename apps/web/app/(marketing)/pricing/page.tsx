@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
 } from "@church-space/ui/dropdown-menu";
 import cookies from "js-cookie";
+import { NumberTicker } from "@church-space/ui/number-ticker";
 
 type EmailTier = {
   volume: number;
@@ -131,7 +132,9 @@ export default function PricingPage() {
               <h2 className="text-3xl font-bold">Pro</h2>
 
               <div className="flex items-baseline gap-1">
-                <h3 className="text-xl font-bold">${selectedTier.price}</h3>
+                <h3 className="text-xl font-bold">
+                  $<NumberTicker value={selectedTier.price} startValue={8} />
+                </h3>
                 <p className="text-sm text-muted-foreground">/month</p>
               </div>
             </div>
