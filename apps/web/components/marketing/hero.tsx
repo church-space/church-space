@@ -19,21 +19,26 @@ export default async function Hero() {
   return (
     <section className="overflow-hidden py-16 md:py-32">
       <div className="mx-auto mb-28 flex w-full max-w-7xl flex-col items-center gap-8 lg:flex-row">
-        <div className="flex w-full min-w-[500px] max-w-[680px] flex-col items-center justify-center gap-3 px-6 lg:items-start lg:justify-start lg:gap-6">
-          <h1 className="text-balance text-center text-6xl font-bold lg:text-left lg:text-7xl">
-            The better way to email your church
+        <div className="flex min-w-[500px] flex-col items-center justify-center gap-3 px-6 md:max-w-[690px] lg:items-start lg:justify-start lg:gap-6">
+          <h1 className="text-balance text-center text-4xl font-bold sm:text-6xl lg:text-left lg:text-7xl">
+            <span className="relative z-[2] mb-2 pb-10">The better way to</span>{" "}
+            <span className="relative bg-yellow-300/80 px-2">
+              email your church
+            </span>
           </h1>
           <HeroSubtitle />
-          <div className="flex flex-col items-center justify-center gap-3 pt-2 lg:flex-row lg:gap-4">
+          <div className="flex flex-col items-center justify-center gap-2 pt-2 lg:flex-row lg:gap-4">
             {!isLoggedIn ? (
               <>
                 <Link href="/signup">
-                  <Button>Start Sending</Button>
+                  <Button className="h-10 px-4 text-base sm:h-12 sm:px-6">
+                    Start Sending
+                  </Button>
                 </Link>
 
                 <Button
                   variant="ghost"
-                  className="gap-1 px-2 text-muted-foreground [&_svg]:size-3.5"
+                  className="gap-1 px-2 text-base text-muted-foreground [&_svg]:size-3.5"
                 >
                   Learn More <ChevronRight />
                 </Button>

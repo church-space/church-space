@@ -46,29 +46,25 @@ export default function Header() {
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-1 p-3 md:w-[500px] md:grid-cols-2">
-                  <ListItem
-                    href="/features/emails"
-                    title="Email"
-                    icon={<MailFilled />}
-                  >
+                  <ListItem href="/#email" title="Email" icon={<MailFilled />}>
                     Send beautifully crafted emails to your people
                   </ListItem>
                   <ListItem
-                    href="/features/automations"
+                    href="/#automations"
                     title="Automations"
                     icon={<Waypoints />}
                   >
                     Automate your communications with powerful automation tools
                   </ListItem>
                   <ListItem
-                    href="/features/qr"
+                    href="/#qr-codes"
                     title="QR Codes"
                     icon={<Qrcode />}
                   >
                     Manage, track, and update your QR codes
                   </ListItem>
                   <ListItem
-                    href="/features/links"
+                    href="/#link-lists"
                     title="Link Lists"
                     icon={<LinkIcon />}
                   >
@@ -79,7 +75,7 @@ export default function Header() {
                     Integrations
                   </Label>
                   <ListItem
-                    href="/integrations"
+                    href="/#pco-integration"
                     title="Planning Center"
                     className="bg-blue-500/10"
                     listItemClassName="col-span-2"
