@@ -74,7 +74,9 @@ export default function WelcomePage() {
   return (
     <div className="mx-auto flex h-screen w-full max-w-2xl flex-col gap-2 px-4 pt-20">
       <h1 className="text-4xl font-bold">Welcome to Church Space</h1>
-      <p className="text-lg">Let's get started by setting a few things up.</p>
+      <p className="text-lg">
+        Let&apos;s get started by setting a few things up.
+      </p>
       <div className="mt-4 flex flex-col gap-4">
         {steps.map((step, index) => (
           <Card

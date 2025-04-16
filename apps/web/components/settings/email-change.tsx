@@ -101,8 +101,8 @@ export default function EmailChange({ email }: { email: string }) {
             <>
               <div className="space-y-4">
                 <DialogDescription>
-                  We've sent confirmation emails to both your current and new
-                  email addresses. Please check both emails and follow the
+                  We&apos;ve sent confirmation emails to both your current and
+                  new email addresses. Please check both emails and follow the
                   instructions to complete the email change.
                 </DialogDescription>
                 <Button
