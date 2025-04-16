@@ -458,6 +458,7 @@ const CustomFileDownload: React.FC<{
               textDecoration: "none",
               display: "block",
             }}
+            download={title}
           >
             <table
               style={{
