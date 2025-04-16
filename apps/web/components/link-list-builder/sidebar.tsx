@@ -217,7 +217,7 @@ export default function LinkListBuilderSidebar({
     }, 800);
   };
 
-  const exitX = isSmallScreen ? 800 : 400;
+  const exitX = isSmallScreen ? 800 : 600;
 
   const springConfig = isSmallScreen
     ? {
@@ -236,7 +236,7 @@ export default function LinkListBuilderSidebar({
   return (
     <div
       className={cn(
-        "sticky top-16 h-[calc(100vh-7.3rem)] w-full flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm lg:h-[calc(100vh-5rem)] lg:w-[400px]",
+        "sticky top-16 h-[calc(100vh-7.3rem)] w-full flex-1 flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm lg:h-[calc(100vh-5rem)] lg:w-[600px]",
         className,
       )}
     >
@@ -433,16 +433,9 @@ export default function LinkListBuilderSidebar({
                       target="_blank"
                       passHref
                     >
-                      <a
-                        className={cn(
-                          !localUrlSlug && "pointer-events-none opacity-50",
-                        )}
-                        aria-disabled={!localUrlSlug}
-                      >
-                        <Button variant="outline" disabled={!localUrlSlug}>
-                          View Live Page
-                        </Button>
-                      </a>
+                      <Button variant="outline" disabled={!localUrlSlug}>
+                        View Live Page
+                      </Button>
                     </Link>
                   )}
                 </div>

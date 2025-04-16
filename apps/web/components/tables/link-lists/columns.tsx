@@ -21,7 +21,7 @@ export const columns: ColumnDef<LinkList>[] = [
     cell: ({ row }) => {
       const name = row.getValue("private_name") as string | null;
       return (
-        <Link href={`/link-lists/${row.original.id}`} prefetch={false}>
+        <Link href={`/link-lists/${row.original.id}`} prefetch={true}>
           <div className="min-w-32 truncate text-base font-semibold hover:underline">
             {name || "Untitled"}
           </div>
@@ -39,6 +39,7 @@ export const columns: ColumnDef<LinkList>[] = [
           className="flex items-center gap-1 hover:underline"
           href={`https://churchspace.co/links/${urlSlug}`}
           prefetch={false}
+          target="_blank"
         >
           <span className="font-light text-muted-foreground">
             https://churchspace.co/links/

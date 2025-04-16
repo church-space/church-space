@@ -41,7 +41,7 @@ export default function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem className="hidden sm:block">
-              <NavigationMenuTrigger className="h-8 px-2.5 text-muted-foreground">
+              <NavigationMenuTrigger className="h-8 bg-transparent px-2.5 text-muted-foreground hover:bg-accent data-[state=open]:bg-background data-[state=closed]:text-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-background">
                 Features
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -99,7 +99,7 @@ export default function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem className="hidden md:flex">
-              <NavigationMenuTrigger className="h-8 px-2.5 text-muted-foreground">
+              <NavigationMenuTrigger className="h-8 bg-transparent px-2.5 text-muted-foreground hover:bg-accent data-[state=open]:bg-background data-[state=closed]:text-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-background">
                 Resources
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -120,7 +120,7 @@ export default function Header() {
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
-            <NavigationMenuItem className="hidden h-8 px-2.5 text-muted-foreground sm:block">
+            <NavigationMenuItem className="hidden h-8 bg-transparent px-2.5 text-foreground hover:bg-background sm:block">
               <NavigationMenuLink
                 href="/pricing"
                 className={navigationMenuTriggerStyle()}
@@ -129,7 +129,7 @@ export default function Header() {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            <NavigationMenuItem className="hidden text-muted-foreground md:block">
+            <NavigationMenuItem className="hidden h-8 bg-transparent px-2.5 text-foreground hover:bg-background lg:block">
               <NavigationMenuLink
                 href="mailto:hello@churchspace.co?subject=Question%20about%20Church%20Space&body=NAME%3A%20%0ACHURCH%3A%20%0A%0AQUESTION%3A%20%0A"
                 className={navigationMenuTriggerStyle()}

@@ -66,7 +66,7 @@ export default function ColorPicker({
           }}
           maxLength={6}
         />
-        <div className="relative">
+        <div className="relative w-full">
           <Input
             type="text"
             className={`w-full rounded-l-none bg-background ps-5 ${error && !isTyping ? "border-red-500" : ""}`}
