@@ -176,7 +176,6 @@ export const sendAutomationEmail = task({
       })
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
-        .setExpirationTime("1y") // Consider if expiration time should be configurable
         .sign(new TextEncoder().encode(process.env.UNSUBSCRIBE_JWT_SECRET));
 
       const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;

@@ -1030,7 +1030,7 @@ export default function LinkListBuilder() {
           />
         </div>
         <div className="relative hidden flex-1 overflow-y-auto lg:block">
-          <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col rounded-md border shadow-md">
+          <div className="mx-auto flex h-auto max-h-[calc(100vh-5rem)] max-w-sm flex-col rounded-md shadow-md">
             {isLoading && (
               <Skeleton className="h-[calc(100vh-20rem)] w-full bg-muted" />
             )}

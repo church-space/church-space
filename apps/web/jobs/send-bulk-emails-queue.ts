@@ -201,7 +201,6 @@ export const sendBulkEmails = task({
             })
               .setProtectedHeader({ alg: "HS256" })
               .setIssuedAt()
-              .setExpirationTime("1y")
               .sign(
                 new TextEncoder().encode(process.env.UNSUBSCRIBE_JWT_SECRET),
               );

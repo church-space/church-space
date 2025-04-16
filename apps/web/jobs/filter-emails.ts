@@ -182,20 +182,50 @@ export const filterEmailRecipients = task({
       }
 
       if (!pcoList.pco_list_category_id) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: "The list does not have a category",
+          })
+          .eq("id", emailId);
+
         throw new Error("List does not have a category");
       }
 
       const { data: pcoListCategory, error: pcoListCategoryError } =
         await supabase
           .from("pco_list_categories")
-          .select("id")
+          .select("id, is_public")
           .eq("pco_id", pcoList.pco_list_category_id)
           .single();
 
       if (pcoListCategoryError) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: `Failed to fetch PCO list category data: ${pcoListCategoryError.message}`,
+          })
+          .eq("id", emailId);
+
         throw new Error(
           `Failed to fetch PCO list category data: ${pcoListCategoryError.message}`,
         );
+      }
+
+      if (!pcoListCategory.is_public) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: "List category is not public",
+          })
+          .eq("id", emailId);
+        throw new Error("List category is not public");
       }
 
       // Step 4: Get all members of the list
@@ -206,6 +236,14 @@ export const filterEmailRecipients = task({
         .eq("organization_id", emailData.organization_id);
 
       if (listMembersError) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: `Failed to fetch list members: ${listMembersError.message}`,
+          })
+          .eq("id", emailId);
         throw new Error(
           `Failed to fetch list members: ${listMembersError.message}`,
         );
@@ -247,6 +285,14 @@ export const filterEmailRecipients = task({
         .eq("status", "subscribed");
 
       if (peopleEmailsError) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: `Failed to fetch people emails: ${peopleEmailsError.message}`,
+          })
+          .eq("id", emailId);
         throw new Error(
           `Failed to fetch people emails: ${peopleEmailsError.message}`,
         );
