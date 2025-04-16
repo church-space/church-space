@@ -1,6 +1,5 @@
 "use client";
 
-import { TextAnimate } from "@church-space/ui/text-annimate";
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 

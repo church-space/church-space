@@ -45,7 +45,6 @@ import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import NewQRCode from "../forms/new-qr-code";
 import { useUser } from "@/stores/use-user";
-import { cn } from "@church-space/ui/cn";
 import cookies from "js-cookie";
 
 const data = {
