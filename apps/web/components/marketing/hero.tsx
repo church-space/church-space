@@ -46,7 +46,7 @@ export default async function Hero() {
           </div>
         </div>
         <div className="hidden w-full flex-1 lg:flex lg:pr-4">
-          <div className="h-36 w-full rounded-xl border bg-muted">hi there</div>
+          <div className="h-96 w-full rounded-xl border bg-muted"></div>
         </div>
       </div>
 
