@@ -1,3 +1,4 @@
+import BillingCard from "@/components/settings/billing-card";
 import {
   SettingsContent,
   SettingsDescription,
@@ -10,6 +11,7 @@ import {
   SettingsTitle,
 } from "@/components/settings/settings-settings";
 import SubscribeModal from "@/components/stripe/subscribe-modal";
+import { getOrgSubscriptionQuery } from "@church-space/supabase/queries/all/get-org-subscription";
 import { createClient } from "@church-space/supabase/server";
 import {
   Breadcrumb,
@@ -29,14 +31,6 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { getOrgSubscriptionQuery } from "@church-space/supabase/queries/all/get-org-subscription";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@church-space/ui/card";
-import BillingCard from "@/components/settings/billing-card";
 
 export default async function Page() {
   const cookieStore = await cookies();

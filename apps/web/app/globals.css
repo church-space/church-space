@@ -190,3 +190,7 @@
 .ProseMirror strong {
   font-weight: 700;
 }
+
+.recharts-wrapper * {
+  outline: none;
+}
