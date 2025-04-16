@@ -74,9 +74,33 @@ export const verifyDomainAction = authActionClient
         };
       }
 
+      // Check if domain has already been verified once
+      if (existingDomain.has_clicked_verify) {
+        console.error("Domain verification already initiated");
+        return {
+          success: false,
+          error:
+            "Domain verification has already been initiated. Please wait for the verification process to complete.",
+        };
+      }
+
       console.log("Domain found, verifying with Resend...");
 
       try {
+        // First, update has_clicked_verify to true
+        const { error: updateError } = await supabase
+          .from("domains")
+          .update({ has_clicked_verify: true })
+          .eq("id", parsedInput.parsedInput.domain_id);
+
+        if (updateError) {
+          console.error("Error updating has_clicked_verify:", updateError);
+          return {
+            success: false,
+            error: `Failed to update domain verification status: ${updateError.message}`,
+          };
+        }
+
         // First, trigger domain verification with Resend
         await resend.domains.verify(parsedInput.parsedInput.resend_domain_id);
 

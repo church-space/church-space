@@ -67,3 +67,21 @@ export async function updatePeopleEmailStatus(
     .update({ status, reason })
     .eq("id", people_email_id);
 }
+
+export async function updateDomainVerificationStatus(
+  supabase: Client,
+  {
+    resend_domain_id,
+    is_verified,
+    dns_records,
+  }: {
+    resend_domain_id: string;
+    is_verified: boolean;
+    dns_records: any[];
+  }
+) {
+  return supabase
+    .from("domains")
+    .update({ dns_records, is_verified })
+    .eq("resend_domain_id", resend_domain_id);
+}

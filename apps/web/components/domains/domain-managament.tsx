@@ -95,6 +95,8 @@ type Domain = {
   isRefreshing: boolean;
   resend_domain_id: string | null;
   isPrimary?: boolean;
+  is_verified: boolean;
+  has_clicked_verify: boolean;
 };
 
 // Custom AccordionTrigger that only underlines the domain name
@@ -199,6 +201,8 @@ export default function DomainManagement({
           isRefreshing: false,
           resend_domain_id: domain.resend_domain_id,
           isPrimary: domain.is_primary === true, // Ensure proper boolean conversion
+          is_verified: domain.is_verified === true,
+          has_clicked_verify: domain.has_clicked_verify === true,
         };
       });
     }
@@ -308,23 +312,17 @@ export default function DomainManagement({
 
         console.log("Domain data from server action:", domainData);
 
-        // Add the domain to the local state with ALL records from the response
+        // Add the new domain to the state
         setDomains((prevDomains) => [
           {
             id: domainData.id,
-            name: newDomain,
-            records: [
-              ...domainData.records, // Add all records from the response first
-              // Then add DMARC recommendation if it doesn't exist
-              ...(!domainData.records.some(
-                (r: any) => r.name === "_dmarc" && r.type === "TXT",
-              )
-                ? [getDmarcRecommendation()]
-                : []),
-            ],
+            name: domainData.domain,
+            records: [],
             isRefreshing: false,
             resend_domain_id: domainData.resend_domain_id,
             isPrimary: !!domainData.is_primary || prevDomains.length === 0,
+            is_verified: false,
+            has_clicked_verify: false,
           },
           ...prevDomains,
         ]);
@@ -417,140 +415,78 @@ export default function DomainManagement({
 
   const refreshStatus = async (domainIndex: number) => {
     const domain = domains[domainIndex];
-    const domainId = domain.id;
-
-    // Check if we're in cooldown
-    if (refreshingDomains[domainId]?.cooldown > 0) {
+    if (!domain || !domain.resend_domain_id) {
       toast({
-        title: "Please wait",
-        description: `You can refresh again in ${refreshingDomains[domainId].cooldown} seconds.`,
-        variant: "default",
+        title: "Error",
+        description: "Invalid domain configuration",
+        variant: "destructive",
       });
       return;
     }
 
-    // Set refreshing state
-    setRefreshingDomains((prev) => ({
-      ...prev,
-      [domainId]: { isRefreshing: true, cooldown: 10 },
-    }));
-
     try {
-      // Make sure we have the Resend domain ID
-      if (!domain.resend_domain_id) {
-        throw new Error("No Resend domain ID found for this domain");
-      }
+      // Set refreshing state
+      setRefreshingDomains((prev) => ({
+        ...prev,
+        [domain.id]: {
+          isRefreshing: true,
+          cooldown: 0,
+        },
+      }));
 
-      // Call the verify domain action
+      // Call verify domain action
       const response = await verifyDomainAction({
-        domain_id: domainId,
+        domain_id: domain.id,
         resend_domain_id: domain.resend_domain_id,
       });
 
-      // Cast to any to handle the response structure
-      const result = response as any;
+      const typedResponse = response as ActionResponse;
 
-      if (!result || result.success === false) {
-        throw new Error(result?.error || "Failed to verify domain");
-      }
-
-      // Extract domain data from the response
-      const domainData = result.data?.data.domain;
-      const resendData = result.data?.data.resendData;
-
-      console.log("Domain verification response:", {
-        domain: domainData,
-        resendData: resendData,
-      });
-
-      // Update the domain records in the local state
-      const updatedDomains = [...domains];
-
-      // First try to use resendData if it's available
-      if (resendData?.records && Array.isArray(resendData.records)) {
-        // Map the Resend records to our DomainRecord format
-        const formattedRecords = resendData.records.map((record: any) => ({
-          type: record.type || "TXT",
-          name: record.name || "",
-          value: record.value || "",
-          priority: record.priority !== undefined ? record.priority : null,
-          ttl: record.ttl || "Auto",
-          status: record.status || "not_started",
-        }));
-
-        // Check if DMARC record exists, if not, add recommendation
-        const hasDmarc = formattedRecords.some(
-          (record: DomainRecord) =>
-            record.name === "_dmarc" && record.type === "TXT",
+      if (typedResponse.success) {
+        // Update domains state with the new verification status
+        setDomains((prevDomains) =>
+          prevDomains.map((d) =>
+            d.id === domain.id
+              ? {
+                  ...d,
+                  has_clicked_verify: true,
+                  is_verified: typedResponse.data?.domain?.is_verified || false,
+                }
+              : d,
+          ),
         );
 
-        if (!hasDmarc) {
-          // Add DMARC as a recommendation with required status property
-          formattedRecords.push({
-            ...getDmarcRecommendation(),
-            status: "not_started",
-          });
-        }
-
-        // Update the domain's records
-        updatedDomains[domainIndex].records = formattedRecords;
-        setDomains(updatedDomains);
+        toast({
+          title: "Records added",
+          description: "Please wait for the verification process to complete.",
+        });
+      } else {
+        console.error("Failed to verify domain:", response);
+        const errorMessage =
+          typedResponse && typeof typedResponse.error === "string"
+            ? typedResponse.error
+            : "Failed to verify domain";
+        toast({
+          title: "Error verifying domain",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
-      // Fall back to domain.dns_records if resendData is not available
-      else if (domainData?.dns_records) {
-        try {
-          const parsedRecords = JSON.parse(domainData.dns_records);
-          if (Array.isArray(parsedRecords)) {
-            const formattedRecords = parsedRecords.map((record: any) => ({
-              type: record.type || "TXT",
-              name: record.name || "",
-              value: record.value || "",
-              priority: record.priority !== undefined ? record.priority : null,
-              ttl: record.ttl || "Auto",
-              status: record.status || "not_started",
-            }));
-
-            // Check if DMARC record exists, if not, add recommendation
-            const hasDmarc = formattedRecords.some(
-              (record: DomainRecord) =>
-                record.name === "_dmarc" && record.type === "TXT",
-            );
-
-            if (!hasDmarc) {
-              formattedRecords.push({
-                ...getDmarcRecommendation(),
-                status: "not_started",
-              });
-            }
-
-            // Update the domain's records
-            updatedDomains[domainIndex].records = formattedRecords;
-            setDomains(updatedDomains);
-          }
-        } catch (parseError) {
-          console.error("Error parsing DNS records:", parseError);
-        }
-      }
-
-      toast({
-        title: "Status refreshed",
-        description: `DNS verification status for ${domain.name} has been updated.`,
-      });
     } catch (error) {
-      console.error("Error refreshing domain status:", error);
+      console.error("Error verifying domain:", error);
       toast({
-        title: "Error refreshing status",
-        description:
-          error instanceof Error
-            ? error.message
-            : "An error occurred while refreshing DNS status.",
+        title: "Error verifying domain",
+        description: "Failed to verify domain. Please try again.",
         variant: "destructive",
       });
     } finally {
-      // Set not refreshing and start cooldown
+      // Clear refreshing state
       setRefreshingDomains((prev) => ({
         ...prev,
-        [domainId]: { isRefreshing: false, cooldown: 10 },
+        [domain.id]: {
+          isRefreshing: false,
+          cooldown: 0,
+        },
       }));
     }
   };
@@ -624,17 +560,6 @@ export default function DomainManagement({
       setIsSettingPrimary(false);
       setConfirmPrimaryDomain(null);
     }
-  };
-
-  const areAllRecordsVerified = (records: DomainRecord[]) => {
-    // Only check non-recommendation records for verification
-    const verifiableRecords = records.filter(
-      (record) => !record.isRecommendation,
-    );
-    return (
-      verifiableRecords.length > 0 &&
-      verifiableRecords.every((record) => record.status === "verified")
-    );
   };
 
   const getStatusBadge = (record: DomainRecord) => {
@@ -728,7 +653,7 @@ export default function DomainManagement({
                 )}
 
                 {/* Verification badge */}
-                {areAllRecordsVerified(domain.records) && (
+                {domain.is_verified && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -741,7 +666,7 @@ export default function DomainManagement({
                         </Badge>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>All DNS records are verified</p>
+                        <p>Domain is verified</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -941,25 +866,29 @@ export default function DomainManagement({
                     </Dialog>
                   )}
 
-                  {/* Refresh status button */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => refreshStatus(domainIndex)}
-                    disabled={
-                      refreshingDomains[domain.id]?.isRefreshing ||
-                      refreshingDomains[domain.id]?.cooldown > 0
-                    }
-                  >
-                    <RefreshCw
-                      className={`mr-2 h-4 w-4 ${refreshingDomains[domain.id]?.isRefreshing ? "animate-spin" : ""}`}
-                    />
-                    {refreshingDomains[domain.id]?.isRefreshing
-                      ? "Refreshing..."
-                      : refreshingDomains[domain.id]?.cooldown > 0
-                        ? `Please wait ${refreshingDomains[domain.id].cooldown} seconds`
-                        : "Refresh"}
-                  </Button>
+                  {/* Refresh status button - only show if verification not initiated */}
+                  {!domain.has_clicked_verify ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => refreshStatus(domainIndex)}
+                      disabled={refreshingDomains[domain.id]?.isRefreshing}
+                    >
+                      <RefreshCw
+                        className={`mr-2 h-4 w-4 ${refreshingDomains[domain.id]?.isRefreshing ? "animate-spin" : ""}`}
+                      />
+                      {refreshingDomains[domain.id]?.isRefreshing
+                        ? "Refreshing..."
+                        : "Records added"}
+                    </Button>
+                  ) : (
+                    <div className="w-full rounded-md border border-yellow-300 bg-yellow-100 p-4 text-xs text-muted-foreground">
+                      <p>
+                        <b>Note:</b> It may take a few minutes or hours for the
+                        domain to be fully verified.
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <Dialog
                   onOpenChange={(open) => {
@@ -1024,15 +953,6 @@ export default function DomainManagement({
                   </DialogContent>
                 </Dialog>
               </div>
-              {refreshingDomains[domain.id]?.cooldown > 0 &&
-                !areAllRecordsVerified(domain.records) && (
-                  <div className="mt-2 rounded-md border border-yellow-300 bg-yellow-100 p-4 text-xs text-muted-foreground">
-                    <p>
-                      <b>Note:</b> It may take a few minutes or hours for the
-                      domain to be fully verified.
-                    </p>
-                  </div>
-                )}
             </AccordionContent>
           </AccordionItem>
         ))}

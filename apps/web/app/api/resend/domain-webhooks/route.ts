@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Webhook } from "svix";
+import { createClient } from "@church-space/supabase/job";
+import { updateDomainVerificationStatus } from "@church-space/supabase/mutations/resend";
 
 const secret = process.env.RESEND_DOMAIN_WEBHOOK_SECRET;
 
@@ -68,6 +70,19 @@ export async function POST(request: NextRequest) {
         domain: payload.data.name,
         status: payload.data.status,
         records: payload.data.records,
+      });
+
+      // Check if all records are verified
+      const allRecordsVerified = payload.data.records.every(
+        (record) => record.status === "verified",
+      );
+
+      // Update domain verification status in database
+      const supabase = await createClient();
+      await updateDomainVerificationStatus(supabase, {
+        resend_domain_id: payload.data.id,
+        is_verified: allRecordsVerified,
+        dns_records: payload.data.records,
       });
       break;
   }

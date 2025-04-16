@@ -14,8 +14,10 @@ export type Database = {
           created_at: string
           dns_records: Json | null
           domain: string
+          has_clicked_verify: boolean
           id: number
           is_primary: boolean | null
+          is_verified: boolean
           organization_id: string
           resend_domain_id: string | null
         }
@@ -23,8 +25,10 @@ export type Database = {
           created_at?: string
           dns_records?: Json | null
           domain: string
+          has_clicked_verify?: boolean
           id?: number
           is_primary?: boolean | null
+          is_verified?: boolean
           organization_id: string
           resend_domain_id?: string | null
         }
@@ -32,8 +36,10 @@ export type Database = {
           created_at?: string
           dns_records?: Json | null
           domain?: string
+          has_clicked_verify?: boolean
           id?: number
           is_primary?: boolean | null
+          is_verified?: boolean
           organization_id?: string
           resend_domain_id?: string | null
         }
