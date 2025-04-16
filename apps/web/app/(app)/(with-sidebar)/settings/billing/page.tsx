@@ -36,6 +36,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
+import BillingCard from "@/components/settings/billing-card";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -79,7 +80,7 @@ export default async function Page() {
 
   return (
     <div className="relative">
-      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 bg-background/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
@@ -101,19 +102,7 @@ export default async function Page() {
             </SettingsDescription>
           </SettingsHeader>
 
-          {subscription && (
-            <Card className="rounded-md p-4">
-              <CardHeader>
-                <CardTitle>Your Plan</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>
-                  Show current plan limit, price, payment method, next billing
-                  date, and cancel at period end if there is one.
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          {subscription && <BillingCard subscription={subscription} />}
           <SettingsContent>
             <SettingsRow isFirstRow>
               <div>

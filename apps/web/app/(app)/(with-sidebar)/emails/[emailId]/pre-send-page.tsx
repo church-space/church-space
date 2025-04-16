@@ -306,7 +306,9 @@ export default function PreSendPage({
 
   // Track changes for each section
   useEffect(() => {
-    setToHasChanges(listId !== (email.list_id || ""));
+    const currentListId = listId ? listId.toString() : "";
+    const emailListId = email.list_id ? email.list_id.toString() : "";
+    setToHasChanges(currentListId !== emailListId);
   }, [listId, email.list_id]);
 
   useEffect(() => {
@@ -342,37 +344,73 @@ export default function PreSendPage({
   }, [sendDate, isScheduled, email.scheduled_for, email.send_now, sendNow]);
 
   // Save functions for each section
+  const handleAccordionChange = (value: string) => {
+    // If clicking the active section, check for unsaved changes before closing
+    if (value === activeAccordion) {
+      const hasUnsavedChanges =
+        (activeAccordion === "to" && toHasChanges) ||
+        (activeAccordion === "from" && fromHasChanges) ||
+        (activeAccordion === "subject" && subjectHasChanges) ||
+        (activeAccordion === "schedule" && scheduleHasChanges);
+
+      if (hasUnsavedChanges) {
+        toast({
+          title: "Unsaved Changes",
+          description: "Please save or cancel your changes before closing.",
+          variant: "destructive",
+        });
+        return;
+      }
+      // If no unsaved changes, close the section
+      setActiveAccordion("");
+      return;
+    }
+
+    // If opening a different section, check if current section has unsaved changes
+    if (activeAccordion) {
+      const hasUnsavedChanges =
+        (activeAccordion === "to" && toHasChanges) ||
+        (activeAccordion === "from" && fromHasChanges) ||
+        (activeAccordion === "subject" && subjectHasChanges) ||
+        (activeAccordion === "schedule" && scheduleHasChanges);
+
+      if (hasUnsavedChanges) {
+        toast({
+          title: "Unsaved Changes",
+          description:
+            "Please save or cancel your changes before switching sections.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Safe to switch sections
+    setActiveAccordion(value);
+  };
+
   const saveToSection = async () => {
     try {
       await updateEmailMutation.mutateAsync({
         list_id: listId ? parseInt(listId) : null,
       });
-      setToIsSaving(false);
-      setToHasChanges(false);
-      setAccordionWithPreventedClose(null);
-      // Update local email state
+
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
         list_id: listId ? parseInt(listId) : null,
       }));
+
+      setToHasChanges(false);
+      setToIsSaving(false);
+      setActiveAccordion(""); // Explicitly close after save
     } catch (error) {
       console.error("Error saving To section:", error);
       setToIsSaving(false);
     }
   };
 
-  // Cancel/reset functions for each section
-  const resetToSection = () => {
-    setListId(email.list_id || "");
-    setToHasChanges(false);
-    setToIsSaving(false);
-    setActiveAccordion("");
-    setAccordionWithPreventedClose(null);
-  };
-
   const saveFromSection = async () => {
     try {
-      // Validate email length if provided
       if (fromEmail && fromEmail.length < 2) {
         toast({
           title: "Invalid email",
@@ -393,7 +431,6 @@ export default function PreSendPage({
         return;
       }
 
-      // Convert empty strings to null
       const from_email = fromEmail === "" ? null : fromEmail;
       const from_email_domain = fromDomain ? parseInt(fromDomain) : null;
       const reply_to = replyToEmail === "" ? null : replyToEmail;
@@ -406,10 +443,7 @@ export default function PreSendPage({
         reply_to,
         reply_to_domain,
       });
-      setFromIsSaving(false);
-      setFromHasChanges(false);
-      setAccordionWithPreventedClose(null);
-      // Update local email state
+
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
         from_email,
@@ -418,23 +452,14 @@ export default function PreSendPage({
         reply_to,
         reply_to_domain,
       }));
+
+      setFromIsSaving(false);
+      setFromHasChanges(false);
+      setActiveAccordion(""); // Explicitly close after save
     } catch (error) {
       console.error("Error saving From section:", error);
       setFromIsSaving(false);
     }
-  };
-
-  // Cancel/reset functions for each section
-  const resetFromSection = () => {
-    setFromEmail(email.from_email || "");
-    setFromDomain(email.from_email_domain?.toString() || "");
-    setFromName(email.from_name || "");
-    setReplyToEmail(email.reply_to || "");
-    setReplyToDomain(email.reply_to_domain?.toString() || "");
-    setFromHasChanges(false);
-    setFromIsSaving(false);
-    setActiveAccordion("");
-    setAccordionWithPreventedClose(null);
   };
 
   const saveSubjectSection = async () => {
@@ -442,32 +467,23 @@ export default function PreSendPage({
       await updateEmailMutation.mutateAsync({
         subject,
       });
-      setSubjectIsSaving(false);
-      setSubjectHasChanges(false);
-      setAccordionWithPreventedClose(null);
-      // Update local email state
+
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
         subject,
       }));
+
+      setSubjectIsSaving(false);
+      setSubjectHasChanges(false);
+      setActiveAccordion(""); // Explicitly close after save
     } catch (error) {
       console.error("Error saving Subject section:", error);
       setSubjectIsSaving(false);
     }
   };
 
-  // Cancel/reset functions for each section
-  const resetSubjectSection = () => {
-    setSubject(email.subject || "");
-    setSubjectHasChanges(false);
-    setSubjectIsSaving(false);
-    setActiveAccordion("");
-    setAccordionWithPreventedClose(null);
-  };
-
   const saveScheduleSection = async () => {
     try {
-      // Validate that a date and time are selected when scheduling
       if (isScheduled === "schedule" && !sendDate) {
         toast({
           title: "Invalid schedule time",
@@ -478,7 +494,6 @@ export default function PreSendPage({
         return;
       }
 
-      // Validate that the time is at least 10 minutes in the future if scheduled
       if (isScheduled === "schedule" && sendDate) {
         const now = new Date();
         const minValidTime = new Date(now);
@@ -507,32 +522,19 @@ export default function PreSendPage({
         send_now,
       });
 
-      setScheduleIsSaving(false);
-      setScheduleHasChanges(false);
-      setAccordionWithPreventedClose(null);
-      // Update local email state
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
         scheduled_for,
         send_now,
       }));
+
+      setScheduleIsSaving(false);
+      setScheduleHasChanges(false);
+      setActiveAccordion(""); // Explicitly close after save
     } catch (error) {
       console.error("Error saving Schedule section:", error);
       setScheduleIsSaving(false);
     }
-  };
-
-  // Cancel/reset functions for each section
-  const resetScheduleSection = () => {
-    setSendDate(email.scheduled_for ? new Date(email.scheduled_for) : null);
-    setIsScheduled(
-      email.scheduled_for ? "schedule" : email.send_now ? "send-now" : "",
-    );
-    setSendNow(email.send_now || false);
-    setScheduleHasChanges(false);
-    setScheduleIsSaving(false);
-    setActiveAccordion("");
-    setAccordionWithPreventedClose(null);
   };
 
   // Subject validation functions
@@ -550,38 +552,6 @@ export default function PreSendPage({
   // Check if any warnings exist
   const hasWarnings =
     tooManyWords || tooManyChars || tooManyEmojis || tooManyPunctuations;
-
-  // Prevent closing accordion when there are unsaved changes
-  const handleAccordionChange = (value: string) => {
-    // Reset the prevented close state
-    setAccordionWithPreventedClose(null);
-
-    // If trying to close the current section
-    if (value === "" || value !== activeAccordion) {
-      // Check if current section has unsaved changes
-      const hasUnsavedChangesInSection =
-        (activeAccordion === "to" && toHasChanges) ||
-        (activeAccordion === "from" && fromHasChanges) ||
-        (activeAccordion === "subject" && subjectHasChanges) ||
-        (activeAccordion === "schedule" && scheduleHasChanges);
-
-      if (hasUnsavedChangesInSection) {
-        // Mark this accordion as having prevented close
-        setAccordionWithPreventedClose(activeAccordion);
-        // Show toast notification
-        toast({
-          title: "Unsaved Changes",
-          description:
-            "Please save or cancel your changes before closing this section.",
-          variant: "destructive",
-        });
-        // Don't update the accordion state
-        return;
-      }
-    }
-    // Otherwise, update to the new value
-    setActiveAccordion(value);
-  };
 
   // Add window beforeunload event listener to catch navigation attempts
   useEffect(() => {
@@ -1101,7 +1071,12 @@ export default function PreSendPage({
                   hasChanges={toHasChanges}
                   setIsSaving={setToIsSaving}
                   onSave={saveToSection}
-                  onCancel={resetToSection}
+                  onCancel={() => {
+                    setListId(email.list_id || "");
+                    setToHasChanges(false);
+                    setToIsSaving(false);
+                    setActiveAccordion("");
+                  }}
                 />
               </AccordionContent>
             </AccordionItem>
@@ -1194,7 +1169,16 @@ export default function PreSendPage({
                   hasChanges={fromHasChanges}
                   setIsSaving={setFromIsSaving}
                   onSave={saveFromSection}
-                  onCancel={resetFromSection}
+                  onCancel={() => {
+                    setFromEmail(email.from_email || "");
+                    setFromDomain(email.from_email_domain?.toString() || "");
+                    setFromName(email.from_name || "");
+                    setReplyToEmail(email.reply_to || "");
+                    setReplyToDomain(email.reply_to_domain?.toString() || "");
+                    setFromHasChanges(false);
+                    setFromIsSaving(false);
+                    setActiveAccordion("");
+                  }}
                 />
               </AccordionContent>
             </AccordionItem>
@@ -1285,7 +1269,12 @@ export default function PreSendPage({
                   hasChanges={subjectHasChanges}
                   setIsSaving={setSubjectIsSaving}
                   onSave={saveSubjectSection}
-                  onCancel={resetSubjectSection}
+                  onCancel={() => {
+                    setSubject(email.subject || "");
+                    setSubjectHasChanges(false);
+                    setSubjectIsSaving(false);
+                    setActiveAccordion("");
+                  }}
                 />
               </AccordionContent>
             </AccordionItem>
@@ -1410,7 +1399,24 @@ export default function PreSendPage({
                   hasChanges={scheduleHasChanges}
                   setIsSaving={setScheduleIsSaving}
                   onSave={saveScheduleSection}
-                  onCancel={resetScheduleSection}
+                  onCancel={() => {
+                    setSendDate(
+                      email.scheduled_for
+                        ? new Date(email.scheduled_for)
+                        : null,
+                    );
+                    setIsScheduled(
+                      email.scheduled_for
+                        ? "schedule"
+                        : email.send_now
+                          ? "send-now"
+                          : "",
+                    );
+                    setSendNow(email.send_now || false);
+                    setScheduleHasChanges(false);
+                    setScheduleIsSaving(false);
+                    setActiveAccordion("");
+                  }}
                 />
               </AccordionContent>
             </AccordionItem>

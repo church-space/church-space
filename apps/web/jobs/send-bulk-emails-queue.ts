@@ -260,7 +260,7 @@ export const sendBulkEmails = task({
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
                 "X-Entity-Ref-ID": uuidv4(),
                 "List-Unsubscribe": `<${unsubscribeUrl}>`,
-                "List-Unsubscribe-Post": "One-Click",
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
               },
             });
           } catch (error) {

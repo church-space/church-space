@@ -227,7 +227,7 @@ export const sendAutomationEmail = task({
           "X-Entity-People-Email-ID": `${peopleEmailId}`, // Use ID from payload
           "X-Entity-Ref-ID": uuidv4(), // Unique reference for this specific send
           "List-Unsubscribe": `<${unsubscribeUrl}>`,
-          "List-Unsubscribe-Post": "One-Click",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
       };
 

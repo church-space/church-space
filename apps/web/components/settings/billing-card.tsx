@@ -8,31 +8,22 @@ import {
 import { Card, CardContent } from "@church-space/ui/card";
 import { Badge } from "@church-space/ui/badge";
 import { format } from "date-fns";
+import {
+  Label,
+  PolarGrid,
+  PolarRadiusAxis,
+  RadialBar,
+  RadialBarChart,
+} from "recharts";
+import { ChartConfig, ChartContainer } from "@church-space/ui/chart";
 
-// This would typically come from an API
-const subscriptionData = {
-  id: 18,
-  organization_id: "43d2f23f-82a8-4eca-b6de-174ca0f9a1a0",
-  status: "active",
-  current_period_start: "2025-04-01T22:29:14+00:00",
-  current_period_end: "2025-05-01T22:29:14+00:00",
-  cancel_at_period_end: false,
-  payment_method_brand: "visa",
-  payment_method_last4: "4242",
-  stripe_prices: {
-    amount: 16,
-    currency: "usd",
-    stripe_products: {
-      name: "20,000 Email Sends per Month",
-      send_limit: 20000,
-    },
-    stripe_product_id: "prod_Ry0EMgnmn9yzxB",
-  },
-};
-
-export default function SubscriptionCard() {
-  const emailsSent = 14783;
-  const emailLimit = subscriptionData.stripe_prices.stripe_products.send_limit;
+export default function SubscriptionCard({
+  subscription,
+}: {
+  subscription: any;
+}) {
+  const emailsSent = subscription.email_usage.sends_used;
+  const emailLimit = subscription.stripe_prices.stripe_products.send_limit;
   const emailsRemaining = emailLimit - emailsSent;
 
   return (
@@ -48,7 +39,7 @@ export default function SubscriptionCard() {
               </Badge>
             </div>
             <p className="mb-6 text-muted-foreground">
-              {subscriptionData.stripe_prices.stripe_products.name}
+              {subscription.stripe_prices.stripe_products.name}
             </p>
 
             <div>
@@ -58,11 +49,11 @@ export default function SubscriptionCard() {
               </div>
               <p className="text-lg font-medium">
                 {format(
-                  new Date(subscriptionData.current_period_end),
+                  new Date(subscription.current_period_end),
                   "MMMM d, yyyy",
                 )}{" "}
-                - ${subscriptionData.stripe_prices.amount}/
-                {subscriptionData.stripe_prices.currency.toUpperCase()}
+                - ${subscription.stripe_prices.amount}/
+                {subscription.stripe_prices.currency.toUpperCase()}
               </p>
             </div>
 
@@ -72,8 +63,8 @@ export default function SubscriptionCard() {
                 Payment Method
               </div>
               <p className="text-lg font-medium capitalize">
-                {subscriptionData.payment_method_brand} ••••{" "}
-                {subscriptionData.payment_method_last4}
+                {subscription.payment_method_brand} ••••{" "}
+                {subscription.payment_method_last4}
               </p>
             </div>
 
@@ -83,9 +74,9 @@ export default function SubscriptionCard() {
                 Cancel Date
               </div>
               <p className="text-lg font-medium">
-                {subscriptionData.cancel_at_period_end
+                {subscription.cancel_at_period_end
                   ? format(
-                      new Date(subscriptionData.current_period_end),
+                      new Date(subscription.current_period_end),
                       "MMMM d, yyyy",
                     )
                   : "Not scheduled"}
@@ -96,20 +87,35 @@ export default function SubscriptionCard() {
           <div>
             <div className="mt-6 flex flex-col items-center">
               <div className="relative flex h-[200px] w-[200px] items-center justify-center">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-4xl font-bold">74%</span>
-                </div>
-                <svg width="200" height="200" viewBox="0 0 200 200">
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="80"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="16"
+                <RadialBarChart
+                  width={200}
+                  height={200}
+                  innerRadius="80%"
+                  outerRadius="90%"
+                  barSize={20}
+                  data={[
+                    {
+                      name: "Emails Used",
+                      value: (emailsSent / emailLimit) * 100,
+                      fill: "currentColor",
+                    },
+                  ]}
+                  startAngle={180}
+                  endAngle={-180}
+                  cx="50%"
+                  cy="50%"
+                >
+                  <RadialBar
+                    dataKey="value"
                     className="text-black"
+                    background={{ fill: "#0000000D" }}
                   />
-                </svg>
+                </RadialBarChart>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-4xl font-bold">
+                    {Math.round((emailsSent / emailLimit) * 100)}%
+                  </span>
+                </div>
               </div>
               <div className="mt-4 w-full text-center">
                 <div className="mb-1 flex w-full flex-col items-center justify-center">
