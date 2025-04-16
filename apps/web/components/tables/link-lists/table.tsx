@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, LinkList } from "./columns";
 import { useQueryState } from "nuqs";
@@ -36,8 +36,14 @@ export default function LinkListsTable({
       serialize: (value) => value,
     },
   );
-  const [isNewLinkListOpen, setIsNewLinkListOpen] = useState(false);
-
+  const [isNewLinkListOpen, setIsNewLinkListOpen] = useQueryState(
+    "newLinkListOpen",
+    {
+      parse: (value) => value === "true",
+      serialize: (value) => value?.toString() ?? null,
+      history: "push",
+    },
+  );
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useLinkLists(
       organizationId,
@@ -107,7 +113,10 @@ export default function LinkListsTable({
         isLoading={isLoading || isFetchingNextPage}
       />
 
-      <Dialog open={isNewLinkListOpen} onOpenChange={setIsNewLinkListOpen}>
+      <Dialog
+        open={isNewLinkListOpen ?? false}
+        onOpenChange={setIsNewLinkListOpen}
+      >
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
           <DialogHeader className="p-2 pb-0">
             <DialogTitle className="flex items-center gap-1">

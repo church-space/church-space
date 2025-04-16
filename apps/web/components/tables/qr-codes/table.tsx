@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, type QrLink } from "./columns";
 import { useQueryState } from "nuqs";
@@ -23,8 +23,11 @@ interface QrCodesTableProps {
 export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
   const [search, setSearch] = useQueryState("search");
   const [status, setStatus] = useQueryState("status");
-  const [isNewQrCodeOpen, setIsNewQrCodeOpen] = useState(false);
-
+  const [isNewQrCodeOpen, setIsNewQrCodeOpen] = useQueryState("newQrCodeOpen", {
+    parse: (value) => value === "true",
+    serialize: (value) => value?.toString() ?? null,
+    history: "push",
+  });
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useQrLinks(organizationId, search ?? undefined, status ?? undefined);
 
@@ -82,7 +85,7 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
         isLoading={isFetchingNextPage || isLoading}
       />
 
-      <Dialog open={isNewQrCodeOpen} onOpenChange={setIsNewQrCodeOpen}>
+      <Dialog open={isNewQrCodeOpen ?? false} onOpenChange={setIsNewQrCodeOpen}>
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
           <DialogHeader className="p-2 pb-0">
             <DialogTitle className="flex items-center gap-1">

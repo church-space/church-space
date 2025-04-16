@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@church-space/ui/dialog";
 import { useQueryState } from "nuqs";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, type EmailAutomation } from "./columns";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
@@ -29,8 +29,14 @@ export default function AutomationsTable({
     history: "push",
   });
 
-  const [isNewEmailAutomationOpen, setIsNewEmailAutomationOpen] =
-    useState(false);
+  const [isNewEmailAutomationOpen, setIsNewEmailAutomationOpen] = useQueryState(
+    "newEmailAutomationOpen",
+    {
+      parse: (value) => value === "true",
+      serialize: (value) => value?.toString() ?? null,
+      history: "push",
+    },
+  );
 
   // Initialize search and status if they're not set and we have initial values
   const effectiveSearch = search;
@@ -88,7 +94,7 @@ export default function AutomationsTable({
       />
 
       <Dialog
-        open={isNewEmailAutomationOpen}
+        open={isNewEmailAutomationOpen ?? false}
         onOpenChange={setIsNewEmailAutomationOpen}
       >
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">

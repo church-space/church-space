@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@church-space/ui/dialog";
 import { useQueryState } from "nuqs";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import NewEmail from "../../forms/new-email";
 import DataTable from "../data-table";
 import { columns, type Email } from "./columns";
@@ -43,7 +43,11 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
     serialize: (value) => value || "all",
     history: "push",
   });
-  const [isNewEmailOpen, setIsNewEmailOpen] = useState(false);
+  const [isNewEmailOpen, setIsNewEmailOpen] = useQueryState("newEmailOpen", {
+    parse: (value) => value === "true",
+    serialize: (value) => value?.toString() ?? null,
+    history: "push",
+  });
 
   // Initialize search and status if they're not set and we have initial values
   const effectiveSearch = search;
@@ -115,7 +119,7 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
         isLoading={showLoading || isFetchingNextPage}
       />
 
-      <Dialog open={isNewEmailOpen} onOpenChange={setIsNewEmailOpen}>
+      <Dialog open={isNewEmailOpen ?? false} onOpenChange={setIsNewEmailOpen}>
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
           <DialogHeader className="p-2 pb-0">
             <DialogTitle className="flex items-center gap-2">

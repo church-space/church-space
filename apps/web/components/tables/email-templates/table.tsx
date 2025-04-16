@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, EmailTemplate } from "./columns";
 import { useQueryState } from "nuqs";
@@ -25,8 +25,14 @@ export default function EmailTemplatesTable({
   organizationId,
 }: EmailTemplatesTableProps) {
   const [search, setSearch] = useQueryState("search");
-  const [isNewEmailTemplateOpen, setIsNewEmailTemplateOpen] = useState(false);
-
+  const [isNewEmailTemplateOpen, setIsNewEmailTemplateOpen] = useQueryState(
+    "newEmailTemplateOpen",
+    {
+      parse: (value) => value === "true",
+      serialize: (value) => value?.toString() ?? null,
+      history: "push",
+    },
+  );
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useEmailTemplates(organizationId, search ?? undefined);
 
@@ -82,7 +88,7 @@ export default function EmailTemplatesTable({
       />
 
       <Dialog
-        open={isNewEmailTemplateOpen}
+        open={isNewEmailTemplateOpen ?? false}
         onOpenChange={setIsNewEmailTemplateOpen}
       >
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
