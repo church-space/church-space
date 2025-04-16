@@ -16,10 +16,12 @@ export default function InitUser({
   user,
   userData,
   organization_id,
+  role,
 }: {
   user: User | undefined;
   userData: UserData;
   organization_id: string | null;
+  role: string | null;
 }) {
   const initState = useRef(false);
 
@@ -33,6 +35,7 @@ export default function InitUser({
         avatarUrl: userData.avatar_url,
         email: userData.email,
         organizationId: organization_id,
+        role,
       });
     }
 

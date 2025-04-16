@@ -29,6 +29,13 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { getOrgSubscriptionQuery } from "@church-space/supabase/queries/all/get-org-subscription";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@church-space/ui/card";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -44,6 +51,17 @@ export default async function Page() {
   if (!organizationId) {
     return <div>No organization selected</div>;
   }
+
+  const { data: subscriptionData, error: subscriptionError } =
+    await getOrgSubscriptionQuery(supabase, organizationId);
+
+  if (subscriptionError) {
+    return <div>Error fetching subscription</div>;
+  }
+
+  const subscription = subscriptionData;
+
+  console.log(subscription);
 
   const selectOptions = [
     { label: "Free - 250 Emails Per Month", value: "250" },
@@ -83,6 +101,19 @@ export default async function Page() {
             </SettingsDescription>
           </SettingsHeader>
 
+          {subscription && (
+            <Card className="rounded-md p-4">
+              <CardHeader>
+                <CardTitle>Your Plan</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>
+                  Show current plan limit, price, payment method, next billing
+                  date, and cancel at period end if there is one.
+                </p>
+              </CardContent>
+            </Card>
+          )}
           <SettingsContent>
             <SettingsRow isFirstRow>
               <div>

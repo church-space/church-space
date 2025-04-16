@@ -66,6 +66,7 @@ export function NavMain({
       title: string;
       url: string;
       prefetchQueryKey?: string[];
+      disabled?: boolean;
     }[];
   }[];
 }) {
@@ -391,48 +392,50 @@ export function NavMain({
                 </NavItem>
                 {item.submenu && isActive && (
                   <SidebarMenuSub className="gap-0">
-                    {item.submenu?.map((submenuItem) => (
-                      <SidebarMenuItem key={submenuItem.title}>
-                        <NavItem url={submenuItem.url}>
-                          <SidebarMenuButton
-                            asChild
-                            tooltip={submenuItem.title}
-                            className={cn(
-                              "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
-                              (item.title === "Settings"
-                                ? pathname === submenuItem.url
-                                : item.title === "Email"
-                                  ? submenuItem.url === "/emails"
-                                    ? pathname === "/emails" ||
-                                      (pathname.startsWith("/emails/") &&
-                                        !pathname.startsWith(
-                                          "/emails/templates",
-                                        ) &&
-                                        !pathname.startsWith(
-                                          "/emails/automations",
-                                        ) &&
-                                        !pathname.startsWith(
-                                          "/emails/categories",
-                                        ))
-                                    : pathname.startsWith(submenuItem.url)
-                                  : pathname === submenuItem.url ||
-                                    pathname.startsWith(
-                                      submenuItem.url + "/",
-                                    )) && "text-foreground",
-                            )}
-                          >
-                            <Link
-                              href={submenuItem.url}
-                              prefetch={true}
-                              scroll={false}
-                              shallow={true}
+                    {item.submenu
+                      ?.filter((submenuItem) => !submenuItem.disabled)
+                      .map((submenuItem) => (
+                        <SidebarMenuItem key={submenuItem.title}>
+                          <NavItem url={submenuItem.url}>
+                            <SidebarMenuButton
+                              asChild
+                              tooltip={submenuItem.title}
+                              className={cn(
+                                "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
+                                (item.title === "Settings"
+                                  ? pathname === submenuItem.url
+                                  : item.title === "Email"
+                                    ? submenuItem.url === "/emails"
+                                      ? pathname === "/emails" ||
+                                        (pathname.startsWith("/emails/") &&
+                                          !pathname.startsWith(
+                                            "/emails/templates",
+                                          ) &&
+                                          !pathname.startsWith(
+                                            "/emails/automations",
+                                          ) &&
+                                          !pathname.startsWith(
+                                            "/emails/categories",
+                                          ))
+                                      : pathname.startsWith(submenuItem.url)
+                                    : pathname === submenuItem.url ||
+                                      pathname.startsWith(
+                                        submenuItem.url + "/",
+                                      )) && "text-foreground",
+                              )}
                             >
-                              <span>{submenuItem.title}</span>
-                            </Link>
-                          </SidebarMenuButton>
-                        </NavItem>
-                      </SidebarMenuItem>
-                    ))}
+                              <Link
+                                href={submenuItem.url}
+                                prefetch={true}
+                                scroll={false}
+                                shallow={true}
+                              >
+                                <span>{submenuItem.title}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                          </NavItem>
+                        </SidebarMenuItem>
+                      ))}
                   </SidebarMenuSub>
                 )}
               </SidebarMenuItem>

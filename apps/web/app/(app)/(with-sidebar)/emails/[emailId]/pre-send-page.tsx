@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
-import { Ellipsis, Eye } from "lucide-react";
+import { Ellipsis, Eye, Maximize2 } from "lucide-react";
 import Link from "next/link";
 import {
   UnfilledCircleDashed,
@@ -817,11 +817,23 @@ export default function PreSendPage({
                     </p>
                   </div>
                 )}
-                <div className="rounded-md border bg-muted p-3 text-sm text-muted-foreground">
-                  <div className="flex flex-col gap-2">
-                    <h4 className="font-medium">Preview</h4>
+                <div className="rounded-md border bg-muted px-1 py-2.5 text-sm text-muted-foreground">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex w-full items-center justify-between px-2.5">
+                      <h4 className="font-medium">Preview</h4>
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setPreviewOpen("true");
+                        }}
+                      >
+                        <Maximize2 />
+                      </Button>
+                    </div>
                     <EmailPreview webOnly={true} />
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 px-2.5">
                       <span className="text-xs text-muted-foreground">
                         {emailBlockCount} blocks
                       </span>

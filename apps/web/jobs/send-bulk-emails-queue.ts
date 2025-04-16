@@ -60,6 +60,9 @@ interface EmailData {
 
 export const sendBulkEmails = task({
   id: "send-bulk-emails",
+  retry: {
+    maxAttempts: 1,
+  },
   queue: emailQueue,
   run: async (payload: BulkEmailPayload) => {
     const { emailId, recipients } = payload;

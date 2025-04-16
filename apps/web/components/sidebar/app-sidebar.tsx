@@ -47,83 +47,89 @@ import NewQRCode from "../forms/new-qr-code";
 import { useUser } from "@/stores/use-user";
 import cookies from "js-cookie";
 
-const data = {
-  navMain: [
-    {
-      title: "Email",
-      url: "/emails",
-      icon: Email,
-      submenu: [
-        {
-          title: "All Emails",
-          url: "/emails",
-        },
-        {
-          title: "Templates",
-          url: "/emails/templates",
-        },
-        {
-          title: "Automations",
-          url: "/emails/automations",
-        },
-        {
-          title: "Categories",
-          url: "/emails/categories",
-        },
-      ],
-    },
-    {
-      title: "Links",
-      url: "/qr-codes",
-      icon: LinkFilled,
-      submenu: [
-        {
-          title: "QR Codes",
-          url: "/qr-codes",
-        },
-        {
-          title: "Link Lists",
-          url: "/link-lists",
-        },
-      ],
-    },
+const data = (role: string | null) => {
+  return {
+    navMain: [
+      {
+        title: "Email",
+        url: "/emails",
+        icon: Email,
+        submenu: [
+          {
+            title: "All Emails",
+            url: "/emails",
+          },
+          {
+            title: "Templates",
+            url: "/emails/templates",
+          },
+          {
+            title: "Automations",
+            url: "/emails/automations",
+          },
+          {
+            title: "Categories",
+            url: "/emails/categories",
+          },
+        ],
+      },
+      {
+        title: "Links",
+        url: "/qr-codes",
+        icon: LinkFilled,
+        submenu: [
+          {
+            title: "QR Codes",
+            url: "/qr-codes",
+          },
+          {
+            title: "Link Lists",
+            url: "/link-lists",
+          },
+        ],
+      },
 
-    {
-      title: "People",
-      url: "/people",
-      icon: Users,
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-      submenu: [
-        {
-          title: "Preferences",
-          url: "/settings",
-        },
-        {
-          title: "Organization",
-          url: "/settings/organization",
-        },
-        {
-          title: "Plan and Billing",
-          url: "/settings/billing",
-        },
-        {
-          title: "Domains",
-          url: "/settings/domains",
-        },
-      ],
-    },
-  ],
+      {
+        title: "People",
+        url: "/people",
+        icon: Users,
+      },
+      {
+        title: "Settings",
+        url: "/settings",
+        icon: Settings,
+        submenu: [
+          {
+            title: "Preferences",
+            url: "/settings",
+            disabled: role !== "owner",
+          },
+          {
+            title: "Organization",
+            url: "/settings/organization",
+            disabled: role !== "owner",
+          },
+          {
+            title: "Plan and Billing",
+            url: "/settings/billing",
+            disabled: role !== "owner",
+          },
+          {
+            title: "Domains",
+            url: "/settings/domains",
+            disabled: role !== "owner",
+          },
+        ],
+      },
+    ],
+  };
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [newEmailDialogOpen, setNewEmailDialogOpen] = useState(false);
   const [newQrCodeDialogOpen, setNewQrCodeDialogOpen] = useState(false);
   const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(false);
-  const { organizationId, welcomeStepsCompleted } = useUser();
+  const { organizationId, welcomeStepsCompleted, role } = useUser();
 
   const handleWelcomeDialogClose = () => {
     setWelcomeDialogOpen(false);
@@ -176,7 +182,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <NavMain items={data.navMain} />
+          <NavMain items={data(role).navMain} />
         </SidebarContent>
         <AnimatePresence>
           {welcomeDialogOpen && !welcomeStepsCompleted ? (

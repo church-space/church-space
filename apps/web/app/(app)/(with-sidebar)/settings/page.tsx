@@ -90,7 +90,7 @@ export default async function Page() {
                   <SettingsRowTitle>Profile Picture</SettingsRowTitle>
                   <SettingsRowDescription>
                     Your profile picture is synced from your Planning Center
-                    account. To change it, please update it in PCO.
+                    account. We&apos;ll let you update it here soon.
                   </SettingsRowDescription>
                 </div>
               </div>

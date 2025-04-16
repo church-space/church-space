@@ -11,6 +11,7 @@ interface UserState {
   organizationId: string | null;
   welcomeStepsCompleted: boolean;
   setWelcomeStepsCompleted: (completed: boolean) => void;
+  role: string | null;
 }
 
 export const useUser = create<UserState>()((set) => ({
@@ -24,6 +25,7 @@ export const useUser = create<UserState>()((set) => ({
   welcomeStepsCompleted: false,
   setWelcomeStepsCompleted: (completed: boolean) =>
     set({ welcomeStepsCompleted: completed }),
+  role: null,
 }));
 
 export type UserType = UserState;

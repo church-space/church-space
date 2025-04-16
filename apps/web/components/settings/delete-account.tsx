@@ -190,9 +190,9 @@ export default function DeleteAccount({
                 placeholder={orgName}
                 maxLength={200}
               />
-              <p className="text-sm text-muted-foreground">
-                Warning: Since you are the only owner, this will also delete
-                your organization.
+              <p className="mt-4 rounded-md border border-destructive bg-destructive/20 p-2 text-sm text-foreground">
+                <b>Warning:</b> Since you are the only owner, this will also
+                delete your organization. This action cannot be undone.
               </p>
             </div>
           )}

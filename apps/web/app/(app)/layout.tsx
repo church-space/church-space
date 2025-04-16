@@ -59,6 +59,7 @@ export default async function ProtectedLayout({
         user={user.user}
         userData={user.userDetails[0]}
         organization_id={user.organizationMembership.organization_id}
+        role={user.organizationMembership.role}
       />
       <InitPco
         pcoData={{
