@@ -224,8 +224,6 @@ export const sendBulkEmails = task({
                   "Content-Type": "application/json",
                   "X-Trigger-Secret":
                     process.env.TRIGGER_API_ROUTE_SECRET || "",
-                  "List-Unsubscribe": `<${unsubscribeUrl}>`,
-                  "List-Unsubscribe-Post": "One-Click",
                 },
                 body: JSON.stringify({
                   sections: sections,
@@ -261,6 +259,8 @@ export const sendBulkEmails = task({
                 "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
                 "X-Entity-Ref-ID": uuidv4(),
+                "List-Unsubscribe": `<${unsubscribeUrl}>`,
+                "List-Unsubscribe-Post": "One-Click",
               },
             });
           } catch (error) {

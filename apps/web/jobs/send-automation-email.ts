@@ -189,8 +189,6 @@ export const sendAutomationEmail = task({
           headers: {
             "Content-Type": "application/json",
             "X-Trigger-Secret": process.env.TRIGGER_API_ROUTE_SECRET || "",
-            "List-Unsubscribe": `<${unsubscribeUrl}>`,
-            "List-Unsubscribe-Post": "One-Click",
             "X-Entity-Automation-ID": `${automationId}`,
           },
           body: JSON.stringify({
