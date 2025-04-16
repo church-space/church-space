@@ -759,6 +759,7 @@ export type Database = {
           id: number
           invited_by: string | null
           organization_id: string | null
+          status: string | null
         }
         Insert: {
           created_at?: string
@@ -766,6 +767,7 @@ export type Database = {
           id?: number
           invited_by?: string | null
           organization_id?: string | null
+          status?: string | null
         }
         Update: {
           created_at?: string
@@ -773,6 +775,7 @@ export type Database = {
           id?: number
           invited_by?: string | null
           organization_id?: string | null
+          status?: string | null
         }
         Relationships: [
           {

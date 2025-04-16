@@ -78,7 +78,7 @@ export default function PricingPage() {
               </div>
             </div>
             <div className="flex w-full items-center gap-0.5 rounded-lg border px-4 py-3">
-              <p className="text-lg font-semibold">1000 emails per month</p>
+              <p className="text-lg font-semibold">500 emails per month</p>
               <div className="mb-1 text-sm text-muted-foreground">*</div>
             </div>
             <div className="space-y-3 px-3 pb-9 pt-4">
