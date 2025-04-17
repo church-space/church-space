@@ -69,6 +69,7 @@ const getDmarcRecommendation = () => ({
   ttl: "Auto",
   priority: null,
   isRecommendation: true,
+  record: "DMARC",
 });
 
 // Type definitions
@@ -80,6 +81,7 @@ type DomainRecord = {
   ttl: string;
   status?: string;
   isRecommendation?: boolean;
+  record?: string;
 };
 
 type Domain = {
@@ -142,16 +144,24 @@ export default function DomainManagement({
         // Parse DNS records from database
         if (domain.dns_records) {
           try {
-            const parsedRecords = JSON.parse(domain.dns_records);
+            // Handle both string and object formats
+            const parsedRecords =
+              typeof domain.dns_records === "string"
+                ? JSON.parse(domain.dns_records)
+                : domain.dns_records;
+
             if (Array.isArray(parsedRecords)) {
               records = parsedRecords.map((record: any) => ({
                 type: record.type || "TXT",
                 name: record.name || "",
                 value: record.value || "",
                 priority:
-                  record.priority !== undefined ? record.priority : null,
+                  typeof record.priority !== "undefined"
+                    ? record.priority
+                    : null,
                 ttl: record.ttl || "Auto",
                 status: record.status || "not_started",
+                record: record.record || record.type || "TXT", // Include record field
               }));
 
               // Check if DMARC record exists, if not, add recommendation
@@ -163,6 +173,7 @@ export default function DomainManagement({
                 // Add DMARC as a recommendation
                 records.push({
                   ...getDmarcRecommendation(),
+                  record: "DMARC", // Add record field to recommendation
                 });
               }
             }
@@ -176,6 +187,7 @@ export default function DomainManagement({
             records = [
               {
                 ...getDmarcRecommendation(),
+                record: "DMARC",
               },
             ];
           }
@@ -184,6 +196,7 @@ export default function DomainManagement({
           records = [
             {
               ...getDmarcRecommendation(),
+              record: "DMARC",
             },
           ];
         }
@@ -447,9 +460,11 @@ export default function DomainManagement({
         resend_domain_id: domain.resend_domain_id,
       });
 
+      // Cast response to ActionResponse type
       const typedResponse = response as ActionResponse;
 
-      if (typedResponse.success) {
+      // Simply check if success is true
+      if (typedResponse.success === true) {
         // Update domains state with the new verification status
         setDomains((prevDomains) =>
           prevDomains.map((d) =>
@@ -457,7 +472,9 @@ export default function DomainManagement({
               ? {
                   ...d,
                   has_clicked_verify: true,
-                  is_verified: typedResponse.data?.domain?.is_verified || false,
+                  is_verified:
+                    typedResponse.data?.data?.domain?.[0]?.status ===
+                      "verified" || false,
                 }
               : d,
           ),

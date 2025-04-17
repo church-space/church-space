@@ -168,13 +168,62 @@ export const addDomainAction = authActionClient
       }
 
       try {
+        // Format the Resend records for direct use in the client
+        const formattedRecords = Array.isArray(resendDomainData.records)
+          ? resendDomainData.records.map((record) => ({
+              type: record.type || "TXT",
+              name: record.name || "",
+              value: record.value || "",
+              priority:
+                typeof record.priority !== "undefined" ? record.priority : null,
+              ttl: record.ttl || "Auto",
+              status: record.status || "not_started",
+              record: record.record || "TXT",
+            }))
+          : [];
+
+        // If no records were found or formatting failed, create standard records
+        if (
+          formattedRecords.length === 0 &&
+          resendDomainData.records &&
+          resendDomainData.records.length > 0
+        ) {
+          console.error(
+            "Failed to format records, using direct approach with original data",
+          );
+          // Try a direct approach with original data
+          for (const record of resendDomainData.records) {
+            formattedRecords.push({
+              type: String(record.type || "TXT"),
+              name: String(record.name || ""),
+              value: String(record.value || ""),
+              priority: record.priority ? Number(record.priority) : null,
+              ttl: String(record.ttl || "Auto"),
+              status: String(record.status || "not_started"),
+              record: String(record.record || "TXT"),
+            });
+          }
+        }
+
+        console.log(
+          "Final formatted records:",
+          JSON.stringify(formattedRecords, null, 2),
+        );
+        console.log("Number of records:", formattedRecords.length);
+
+        if (formattedRecords.length === 0) {
+          console.error(
+            "⚠️ WARNING: No DNS records found to return to client!",
+          );
+        }
+
         const result = await addDomain(
           supabase,
           parsedInput.parsedInput.organization_id,
           parsedInput.parsedInput.domain,
           parsedInput.parsedInput.is_primary,
           resendDomainData.id,
-          resendDomainData.records,
+          formattedRecords, // Pass the records directly without stringifying
         );
 
         console.log("Supabase result:", result);
@@ -203,59 +252,6 @@ export const addDomainAction = authActionClient
           "Raw result.data[0]:",
           JSON.stringify(result.data[0], null, 2),
         );
-
-        // Format the Resend records for direct use in the client
-        const formattedRecords = Array.isArray(resendDomainData.records)
-          ? resendDomainData.records.map((record) => {
-              console.log("Processing record:", record);
-              return {
-                // Extract only the fields we need in the exact format the client expects
-                type: record.type || "TXT",
-                name: record.name || "",
-                value: record.value || "",
-                priority:
-                  typeof record.priority !== "undefined"
-                    ? record.priority
-                    : null,
-                ttl: record.ttl || "Auto",
-                status: record.status || "not_started",
-              };
-            })
-          : [];
-
-        // If no records were found or formatting failed, create standard records
-        if (
-          formattedRecords.length === 0 &&
-          resendDomainData.records &&
-          resendDomainData.records.length > 0
-        ) {
-          console.error(
-            "Failed to format records, using direct approach with original data",
-          );
-          // Try a direct approach with original data
-          for (const record of resendDomainData.records) {
-            formattedRecords.push({
-              type: String(record.type || "TXT"),
-              name: String(record.name || ""),
-              value: String(record.value || ""),
-              priority: record.priority ? Number(record.priority) : null,
-              ttl: String(record.ttl || "Auto"),
-              status: String(record.status || "not_started"),
-            });
-          }
-        }
-
-        console.log(
-          "Final formatted records:",
-          JSON.stringify(formattedRecords, null, 2),
-        );
-        console.log("Number of records:", formattedRecords.length);
-
-        if (formattedRecords.length === 0) {
-          console.error(
-            "⚠️ WARNING: No DNS records found to return to client!",
-          );
-        }
 
         // Revalidate the domains query tag
         console.log("Domain added successfully, revalidating...");

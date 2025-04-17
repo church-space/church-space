@@ -155,26 +155,15 @@ export const verifyDomainAction = authActionClient
         // Update the domain in Supabase with the latest DNS records status
         console.log(
           "Sending to Supabase - dns_records:",
-          JSON.stringify(
-            resendDomainData.records
-              ? JSON.stringify(resendDomainData.records)
-              : null,
-            null,
-            2,
-          ),
+          JSON.stringify(resendDomainData.records, null, 2),
         );
 
-        // Ensure we're not double-serializing the records
-        const dnsRecordsForUpdate =
-          typeof resendDomainData.records === "string"
-            ? resendDomainData.records
-            : resendDomainData.records
-              ? JSON.stringify(resendDomainData.records)
-              : null;
+        // Ensure records are properly formatted without double stringification
+        const dnsRecordsForUpdate = resendDomainData.records;
 
         console.log(
           "Final dns_records being sent to Supabase:",
-          dnsRecordsForUpdate,
+          JSON.stringify(dnsRecordsForUpdate, null, 2),
         );
 
         const result = await updateDomain(
