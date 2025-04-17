@@ -857,6 +857,7 @@ export default function DomainManagement({
                             Cancel
                           </Button>
                           <Button
+                            variant="default"
                             onClick={() => setPrimary(domain)}
                             disabled={isSettingPrimary}
                           >
@@ -1029,6 +1030,7 @@ export default function DomainManagement({
                 <TooltipTrigger asChild>
                   <span>
                     <Button
+                      variant="default"
                       type="submit"
                       disabled={isAddingDomain || isMaxDomainsReached}
                     >

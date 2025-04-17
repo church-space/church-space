@@ -163,7 +163,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarContent className="px-1.5">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="mx-2 mt-2 h-8 shadow-md">Create New</Button>
+              <Button className="mx-2 mt-2 h-8 shadow-md" variant="default">
+                Create New
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
               <DropdownMenuItem
