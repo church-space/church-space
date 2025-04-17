@@ -71,10 +71,10 @@ export default function ColorPicker({
             type="text"
             className={`w-full rounded-l-none bg-background ps-5 ${error && !isTyping ? "border-red-500" : ""}`}
             placeholder="ffffff"
-            maxLength={6}
+            maxLength={7}
             value={stripHash(color)}
             onChange={(e) => {
-              const inputValue = e.target.value;
+              const inputValue = e.target.value.replace(/^#/, "");
               const newColor = ensureHash(inputValue);
               setColor(newColor);
 
