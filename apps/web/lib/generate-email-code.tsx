@@ -158,21 +158,23 @@ const CustomText: React.FC<{
     .replace(/class="[^"]*"/g, "")
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(/<h1(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = " font-weight: 600; font-size: 2rem; line-height: 1";
+      const baseStyle = " font-weight: 600; font-size: 2rem; line-height: 0.2";
       if (existingStyle) {
         return `<h1 style="${existingStyle}; ${baseStyle}"`;
       }
       return `<h1 style="${baseStyle}"`;
     })
     .replace(/<h2(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = " font-weight: 700; font-size: 1.5rem; line-height: 1";
+      const baseStyle =
+        " font-weight: 600; font-size: 1.5rem; line-height: 1.3";
       if (existingStyle) {
         return `<h2 style="${existingStyle}; ${baseStyle}"`;
       }
       return `<h2 style="${baseStyle}"`;
     })
     .replace(/<h3(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = "font-weight: 600; font-size: 1.25rem; line-height: 1";
+      const baseStyle =
+        "font-weight: 600; font-size: 1.25rem; line-height: 0.5";
       if (existingStyle) {
         return `<h3 style="${existingStyle}; ${baseStyle}"`;
       }
@@ -181,7 +183,7 @@ const CustomText: React.FC<{
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        "font-weight: 400; line-height: 1.5; font-size: 16px; margin: 0.5em 0";
+        "font-weight: 300; line-height: 1.5; font-size: 16px; margin: 0.5em 0";
       if (existingStyle) {
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
@@ -198,7 +200,7 @@ const CustomText: React.FC<{
     // Handle empty paragraphs for line breaks
     .replace(
       /<p style="[^"]*"><\/p>/g,
-      '<br style="display: block; margin: 0.8em 0;" />',
+      '<p style="display: block; padding-bottom: 0.8em" />',
     )
     // Add font size to list items
     .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"')
@@ -360,8 +362,8 @@ const CustomDivider: React.FC<{
   <Hr
     style={{
       borderTop: `1px solid ${color}`,
-      marginTop: `${margin}px`,
-      marginBottom: `${margin}px`,
+      marginTop: `${margin + 10}px`,
+      marginBottom: `${margin + 10}px`,
       width: "100%",
     }}
   />
@@ -1035,7 +1037,7 @@ const CustomAuthor: React.FC<{
 
   return (
     <table
-      style={{ width: "100%", minHeight: "48px" }}
+      style={{ width: "100%", minHeight: "40px" }}
       cellPadding="0"
       cellSpacing="0"
     >

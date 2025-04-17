@@ -55,23 +55,15 @@ export default function CardsBlock({
             className="text-3xl font-bold"
             style={{ color: defaultTextColor }}
           >
-            {title === "" ? (
-              <span className="text-muted-foreground">Title</span>
-            ) : (
-              title
-            )}
+            {title !== "" && title}
           </span>
         )}
         {subtitle !== undefined && (
           <span
-            className="text-muted-foreground"
+            className="text-md text-muted-foreground"
             style={{ color: defaultTextColor }}
           >
-            {subtitle === "" ? (
-              <span className="text-muted-foreground">Subtitle</span>
-            ) : (
-              subtitle
-            )}
+            {subtitle !== "" && subtitle}
           </span>
         )}
       </div>
