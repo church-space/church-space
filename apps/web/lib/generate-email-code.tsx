@@ -17,6 +17,12 @@ const IconColors = {
   darkGray: "#404040",
 };
 
+// Define social icon keys mapping
+const SocialIconKeys = {
+  x: "x",
+  twitter: "x", // Map twitter to x for backwards compatibility
+} as const;
+
 const IconImages = {
   black: {
     instagram:
@@ -1126,7 +1132,9 @@ const CustomAuthor: React.FC<{
 
                   const iconUrl =
                     IconImages[iconColorKey as keyof typeof IconImages]?.[
-                      link.icon as keyof (typeof IconImages)["black"]
+                      (SocialIconKeys[
+                        link.icon as keyof typeof SocialIconKeys
+                      ] || link.icon) as keyof (typeof IconImages)["black"]
                     ];
                   if (!iconUrl) {
                     return null;
@@ -1276,7 +1284,8 @@ const CustomFooter: React.FC<{
     // Always use socials_icon_color for the icon color
     const colorKey = getIconColorKey(socials_icon_color);
     return IconImages[colorKey as keyof typeof IconImages]?.[
-      icon as keyof (typeof IconImages)["black"]
+      (SocialIconKeys[icon as keyof typeof SocialIconKeys] ||
+        icon) as keyof (typeof IconImages)["black"]
     ];
   };
 
