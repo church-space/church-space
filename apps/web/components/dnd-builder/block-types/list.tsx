@@ -35,11 +35,7 @@ export default function ListBlock({
             className="text-3xl font-bold"
             style={{ color: defaultTextColor }}
           >
-            {title === "" ? (
-              <span className="text-muted-foreground">List Title</span>
-            ) : (
-              title
-            )}
+            {title !== "" && title}
           </span>
         )}
         {subtitle !== undefined && (
@@ -47,15 +43,16 @@ export default function ListBlock({
             className="text-md text-muted-foreground"
             style={{ color: defaultTextColor }}
           >
-            {subtitle ? (
-              subtitle
-            ) : (
-              <span className="text-muted-foreground">List Subtitle</span>
-            )}
+            {subtitle !== "" && subtitle}
           </span>
         )}
       </div>
-      <div className="mt-4 flex flex-col gap-4">
+      <div
+        className={cn(
+          "mt-4 flex flex-col gap-4",
+          title === "" && subtitle === "" ? "mt-0" : "mt-4",
+        )}
+      >
         {items.map((item, index) => (
           <div key={index} className="flex items-start gap-4">
             <div

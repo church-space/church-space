@@ -174,7 +174,7 @@ export default function DndBuilderCanvas({
           isInset && "mb-2 shadow-md",
           isRounded && "rounded-lg",
           blocks.length === 0 && "min-h-[102px]",
-          blocks.length > 0 && "pb-0",
+          // blocks.length > 0 && "pb-0",
         )}
         style={{ backgroundColor: bgColor, gap: blockSpacing }}
       >
@@ -255,7 +255,6 @@ export default function DndBuilderCanvas({
                   transition={{ duration: 0.2 }}
                 />
               )}
-            <div className="h-1.5" />
           </>
         )}
       </div>

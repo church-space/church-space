@@ -23,8 +23,7 @@ const IconImages = {
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/instagram.png",
     tiktok:
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/tik-tok.png",
-    twitter:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/x-twitter.png",
+    x: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/x-twitter.png",
     mail: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/envelope.png",
     link: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/link.png",
     facebook:
@@ -45,8 +44,7 @@ const IconImages = {
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/instagram.png",
     tiktok:
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/tik-tok.png",
-    twitter:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/x-twitter.png",
+    x: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/x-twitter.png",
     mail: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/envelope.png",
     link: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/link.png",
     facebook:
@@ -67,8 +65,7 @@ const IconImages = {
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/instagram.png",
     tiktok:
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/tik-tok.png",
-    twitter:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/x-twitter.png",
+    x: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/x-twitter.png",
     mail: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/envelope.png",
     link: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/link.png",
     facebook:
@@ -89,8 +86,7 @@ const IconImages = {
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/instagram.png",
     tiktok:
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/tik-tok.png",
-    twitter:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/x-twitter.png",
+    x: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/x-twitter.png",
     mail: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/envelope.png",
     link: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/link.png",
     facebook:
@@ -1589,7 +1585,7 @@ export function generateEmailCode(
     accentTextColor = "#000000",
     defaultFont = "sans-serif",
     linkColor = "#0000ff",
-    blockSpacing = 20,
+    blockSpacing = 0,
   } = style;
 
   return (
@@ -1641,7 +1637,7 @@ export function generateEmailCode(
                           >
                             {section.blocks.map((block, blockIndex) => {
                               const blockStyle = {
-                                paddingBottom: blockSpacing + 6,
+                                paddingBottom: blockSpacing - 5,
                               };
                               const Component = (() => {
                                 switch (block.type) {

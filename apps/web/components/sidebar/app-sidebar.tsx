@@ -154,7 +154,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <Link href="/emails" prefetch={true}>
               <div className="flex items-center gap-0.5">
                 <ChurchSpaceBlack height={"22"} width={"22"} />
-                <span className="text-sm font-bold">ChurchSpace</span>
+                <span className="text-sm font-bold">Church Space</span>
               </div>
             </Link>
             <NavUser />
