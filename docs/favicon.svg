@@ -1,23 +1,5 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_391_74)">
-<g filter="url(#filter0_d_391_74)">
-<path d="M15.9062 1.92578H18.4975C18.9368 1.92578 19.2929 2.2819 19.2929 2.72121V21.5331C19.2929 21.9724 18.9368 22.3285 18.4975 22.3285H15.9062V1.92578Z" fill="white"/>
-<path d="M4 4.68225C4 4.34672 4.21129 4.04755 4.52751 3.93536L14.5614 0.375219C15.0772 0.192191 15.6189 0.574757 15.6189 1.12211V23.0118C15.6189 23.5547 15.0855 23.9368 14.5715 23.7622L4.53763 20.3541C4.2162 20.245 4 19.9432 4 19.6037V4.68225Z" fill="white"/>
-</g>
-</g>
-<defs>
-<filter id="filter0_d_391_74" x="1.1126" y="-3.26984" width="24.1273" height="32.9522" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset dx="1.52975" dy="1.14731"/>
-<feGaussianBlur stdDeviation="2.20858"/>
-<feComposite in2="hardAlpha" operator="out"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0"/>
-<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_391_74"/>
-<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_391_74" result="shape"/>
-</filter>
-<clipPath id="clip0_391_74">
-<rect width="24" height="24" fill="white"/>
-</clipPath>
-</defs>
+<svg width="186" height="186" viewBox="0 0 186 186" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="185.122" height="185.122" transform="translate(0.640625 0.640625)" fill="#6065FE"/>
+<path d="M112.992 38.4141H127.453C129.564 38.4141 131.275 40.1252 131.275 42.2361V144.738C131.275 146.849 129.564 148.56 127.453 148.56H112.992V38.4141Z" fill="white"/>
+<path d="M48.7124 52.9629C48.7124 51.3507 49.7277 49.9132 51.2471 49.3741L106.358 29.8205C108.836 28.941 111.439 30.7793 111.439 33.4093V152.906C111.439 155.514 108.876 157.35 106.406 156.512L51.2957 137.793C49.7512 137.268 48.7124 135.818 48.7124 134.187V52.9629Z" fill="white"/>
 </svg>
