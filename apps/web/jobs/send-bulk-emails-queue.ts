@@ -197,8 +197,8 @@ export const sendBulkEmails = task({
       const peopleEmailIds = Object.keys(recipients);
       const batches = [];
 
-      for (let i = 0; i < peopleEmailIds.length; i += 2) {
-        batches.push(peopleEmailIds.slice(i, i + 2));
+      for (let i = 0; i < peopleEmailIds.length; i += 100) {
+        batches.push(peopleEmailIds.slice(i, i + 100));
       }
 
       for (const batch of batches) {
