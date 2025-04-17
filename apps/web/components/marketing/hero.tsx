@@ -29,25 +29,26 @@ export default async function Hero() {
           <HeroSubtitle />
           <div className="flex flex-col items-center justify-center gap-2 pt-2 lg:flex-row lg:gap-4">
             {!isLoggedIn ? (
-              <>
-                <Link href="/signup">
-                  <Button className="h-10 px-4 text-base sm:h-12 sm:px-6">
-                    Start Sending
-                  </Button>
-                </Link>
-
-                <Button
-                  variant="ghost"
-                  className="gap-1 px-2 text-base text-muted-foreground [&_svg]:size-3.5"
-                >
-                  Learn More <ChevronRight />
+              <Link href="/signup">
+                <Button className="h-10 px-4 text-base sm:h-12 sm:px-6">
+                  Start Sending
                 </Button>
-              </>
+              </Link>
             ) : (
               <Link href="/emails">
-                <Button>Go to Dashboard</Button>
+                <Button className="h-10 px-4 text-base sm:h-12 sm:px-6">
+                  Go to Dashboard
+                </Button>
               </Link>
             )}
+            <Link href="https://cal.com/thomasharmond/15min">
+              <Button
+                variant="ghost"
+                className="h-10 gap-1 px-2 text-base text-secondary-foreground sm:h-12 [&_svg]:size-3.5"
+              >
+                Talk to Foudner <ChevronRight />
+              </Button>
+            </Link>
           </div>
         </div>
         <div className="hidden w-full flex-1 lg:flex lg:pr-4">
