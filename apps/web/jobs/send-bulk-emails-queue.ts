@@ -73,12 +73,6 @@ export const sendBulkEmails = task({
     let failureCount = 0;
 
     try {
-      // Update email status to sending
-      await supabase
-        .from("emails")
-        .update({ status: "sending" })
-        .eq("id", emailId);
-
       // Get email data with blocks and footer
       const { data: emailData, error: emailError } = await supabase
         .from("emails")
@@ -113,6 +107,16 @@ export const sendBulkEmails = task({
         throw new Error(
           `Email has invalid status for sending: ${typedEmailData.status}`,
         );
+      }
+
+      try {
+        // Update email status to sending
+        await supabase
+          .from("emails")
+          .update({ status: "sending" })
+          .eq("id", emailId);
+      } catch (error) {
+        console.error("Error updating email status to sending:", error);
       }
 
       // Verify scheduled time if applicable
@@ -193,8 +197,8 @@ export const sendBulkEmails = task({
       const peopleEmailIds = Object.keys(recipients);
       const batches = [];
 
-      for (let i = 0; i < peopleEmailIds.length; i += 100) {
-        batches.push(peopleEmailIds.slice(i, i + 100));
+      for (let i = 0; i < peopleEmailIds.length; i += 2) {
+        batches.push(peopleEmailIds.slice(i, i + 2));
       }
 
       for (const batch of batches) {
