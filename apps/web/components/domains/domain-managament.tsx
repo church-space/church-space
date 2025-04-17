@@ -3,15 +3,7 @@
 import React from "react";
 
 import { useState, useEffect } from "react";
-import {
-  Check,
-  Plus,
-  RefreshCw,
-  Copy,
-  Star,
-  ShieldCheck,
-  Loader2,
-} from "lucide-react";
+import { Check, Plus, Copy, Star, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
@@ -697,8 +689,8 @@ export default function DomainManagement({
               {!domain.has_clicked_verify ? (
                 <div className="mb-4 flex items-center justify-between rounded-md border bg-secondary/50 p-4 text-sm">
                   <p>
-                    Once you have added the domains records, click the "Records
-                    Added" button to verify the domain.
+                    Once you have added the domains records, click the
+                    &quot;Records Added&quot; button to verify the domain.
                   </p>
 
                   <Button
