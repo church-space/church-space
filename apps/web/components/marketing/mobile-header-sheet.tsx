@@ -104,16 +104,18 @@ export default function MobileHeaderSheet() {
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/support"
+            href="https://help.churchspace.co"
             onClick={() => setOpen(false)}
+            target="_blank"
           >
             <LifeRing />
             Support
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/getting-started"
+            href="https://help.churchspace.co/getting-started"
             onClick={() => setOpen(false)}
+            target="_blank"
           >
             <Map />
             Getting Started

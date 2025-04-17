@@ -48,7 +48,11 @@ export default function HelpMenu() {
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
-        <Link href="/support" prefetch={false} target="_blank">
+        <Link
+          href="https://help.churchspace.co"
+          prefetch={false}
+          target="_blank"
+        >
           <DropdownMenuItem>
             <Search />
             Search for Help

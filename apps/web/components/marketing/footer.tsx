@@ -38,7 +38,7 @@ const links = [
     items: [
       {
         title: "Support",
-        href: "/support",
+        href: "https://help.churchspace.co",
       },
       {
         title: "Pricing",
@@ -46,7 +46,7 @@ const links = [
       },
       {
         title: "Getting Started",
-        href: "/support/getting-started",
+        href: "https://help.churchspace.co/getting-started",
       },
     ],
   },

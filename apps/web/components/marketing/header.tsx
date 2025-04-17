@@ -100,13 +100,19 @@ export default function Header() {
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-1 p-3 md:w-[500px] md:grid-cols-2">
-                  <ListItem href="/support" title="Support" icon={<LifeRing />}>
+                  <ListItem
+                    href="https://help.churchspace.co"
+                    title="Support"
+                    icon={<LifeRing />}
+                    target="_blank"
+                  >
                     Search articles and contact the team for help
                   </ListItem>
                   <ListItem
-                    href="/getting-started"
+                    href="https://help.churchspace.co/getting-started"
                     title="Getting Started"
                     icon={<Map />}
+                    target="_blank"
                   >
                     Learn how to make the switch and get started.
                   </ListItem>

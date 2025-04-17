@@ -18,13 +18,13 @@ const topics = [
   {
     title: "Getting Started",
     description: "Begin your journey with the Church Space",
-    link: "/support/getting-started",
+    link: "https://help.churchspace.co/getting-started",
     icon: <Waypoints height={"38"} width={"38"} />,
   },
   {
     title: "Account and Billing",
     description: "Learn how to set up and manage your account",
-    link: "/support/account-and-billing",
+    link: "https://help.churchspace.co/account-and-billing",
     icon: <Organization height={"38"} width={"38"} />,
   },
   {
