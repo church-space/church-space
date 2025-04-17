@@ -4,8 +4,6 @@ import React from "react";
 import Manage from "./manage-page";
 import Unsubscribe from "./unsubscribe-page";
 import { jwtVerify } from "jose";
-import { headers } from "next/headers";
-import { createClient } from "@church-space/supabase/server";
 import { handleUnsubscribe } from "./use-unsubscribe";
 import { handleCategoryUnsubscribe } from "./use-unsub-from-category";
 import { handleCategoryResubscribe } from "./use-resubscribe-to-category";
@@ -33,12 +31,6 @@ export default async function Page({
   const type = params.type;
   const tk = params.tk;
 
-  const supabase = await createClient();
-
-  // Get the request method from headers
-  const headersList = await headers();
-  const method = headersList.get("x-method") || "GET";
-
   let emailId: number | null = null;
   let peopleEmailId: number | null = null;
 
@@ -55,17 +47,6 @@ export default async function Page({
     } catch (error) {
       console.error("Error decoding token:", error);
     }
-  }
-
-  // Handle POST request for one-click unsubscribe
-  if (method === "POST" && type === "unsubscribe" && emailId && peopleEmailId) {
-    // Call the unsubscribe_from_all_emails function
-    await supabase.rpc("unsubscribe_from_all_emails", {
-      p_email_id: emailId,
-      p_person_email_id: peopleEmailId,
-    });
-
-    return new Response(null, { status: 202 });
   }
 
   if (!emailId || !peopleEmailId) {

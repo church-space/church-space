@@ -180,6 +180,7 @@ export const sendAutomationEmail = task({
         .sign(new TextEncoder().encode(process.env.UNSUBSCRIBE_JWT_SECRET));
 
       const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;
+      const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
       const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
 
       // Render the email content via API call
@@ -227,7 +228,7 @@ export const sendAutomationEmail = task({
           "X-Entity-Automation-ID": `${automationId}`,
           "X-Entity-People-Email-ID": `${peopleEmailId}`, // Use ID from payload
           "X-Entity-Ref-ID": uuidv4(), // Unique reference for this specific send
-          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
       };

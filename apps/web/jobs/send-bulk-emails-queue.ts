@@ -214,6 +214,7 @@ export const sendBulkEmails = task({
 
             // Generate unsubscribe and manage preferences URLs
             const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;
+            const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
             const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
 
             // Make API request to render email with personalized URLs
@@ -260,7 +261,7 @@ export const sendBulkEmails = task({
                 "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
                 "X-Entity-Ref-ID": uuidv4(),
-                "List-Unsubscribe": `<${unsubscribeUrl}>`,
+                "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>`,
                 "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
               },
             });
