@@ -54,6 +54,7 @@ import { deleteDomainAction } from "@/actions/delete-domain";
 import { verifyDomainAction } from "@/actions/verify-domain";
 import type { ActionResponse } from "@/types/action";
 import { updateDomainsAction } from "@/actions/update-domains";
+import { CircleCheck } from "@church-space/ui/icons";
 
 // Domain validation schema
 const domainSchema = z.string().refine(
@@ -223,6 +224,9 @@ export default function DomainManagement({
     return "";
   });
 
+  // State to control which accordion item is open
+  const [openAccordionValue, setOpenAccordionValue] = useState<string>("");
+
   const [confirmPrimaryDomain, setConfirmPrimaryDomain] =
     useState<Domain | null>(null);
   const [isSettingPrimary, setIsSettingPrimary] = useState(false);
@@ -339,6 +343,9 @@ export default function DomainManagement({
         if (domains.length === 0) {
           setPrimaryDomain(newDomain);
         }
+
+        // Open the newly added domain's accordion item
+        setOpenAccordionValue("domain-0");
 
         toast({
           title: "Domain added",
@@ -629,7 +636,12 @@ export default function DomainManagement({
 
   return (
     <div className="mx-auto w-full py-3">
-      <Accordion type="single" defaultValue="" className="space-y-4">
+      <Accordion
+        type="single"
+        value={openAccordionValue}
+        onValueChange={setOpenAccordionValue}
+        className="space-y-4"
+      >
         {domains.map((domain, domainIndex) => (
           <AccordionItem
             defaultValue={domain.isPrimary ? "domain-0" : undefined}
@@ -682,6 +694,35 @@ export default function DomainManagement({
               </div>
             </CustomAccordionTrigger>
             <AccordionContent>
+              {!domain.has_clicked_verify ? (
+                <div className="mb-4 flex items-center justify-between rounded-md border bg-secondary/50 p-4 text-sm">
+                  <p>
+                    Once you have added the domains records, click the "Records
+                    Added" button to verify the domain.
+                  </p>
+
+                  <Button
+                    variant="default"
+                    onClick={() => refreshStatus(domainIndex)}
+                    disabled={refreshingDomains[domain.id]?.isRefreshing}
+                  >
+                    <CircleCheck height="24" width="24" />
+                    {refreshingDomains[domain.id]?.isRefreshing
+                      ? "Loading..."
+                      : "Records added"}
+                  </Button>
+                </div>
+              ) : (
+                !domain.is_verified && (
+                  <div className="mb-4 w-full rounded-md border border-yellow-300 bg-yellow-100 p-4 text-sm">
+                    <p>
+                      <b>Note:</b> It may take a few minutes or hours for the
+                      domain to be fully verified.
+                    </p>
+                  </div>
+                )
+              )}
+
               <div className="rounded-md border">
                 <div className="max-h-[400px] overflow-y-auto">
                   <Table>
@@ -821,7 +862,7 @@ export default function DomainManagement({
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {/* Primary domain toggle button */}
-                  {!domain.isPrimary && (
+                  {!domain.isPrimary && domain.is_verified === true && (
                     <Dialog
                       open={confirmPrimaryDomain?.name === domain.name}
                       onOpenChange={(open) => {
@@ -873,30 +914,6 @@ export default function DomainManagement({
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
-                  )}
-
-                  {/* Refresh status button - only show if verification not initiated */}
-                  {!domain.has_clicked_verify ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => refreshStatus(domainIndex)}
-                      disabled={refreshingDomains[domain.id]?.isRefreshing}
-                    >
-                      <RefreshCw
-                        className={`mr-2 h-4 w-4 ${refreshingDomains[domain.id]?.isRefreshing ? "animate-spin" : ""}`}
-                      />
-                      {refreshingDomains[domain.id]?.isRefreshing
-                        ? "Refreshing..."
-                        : "Records added"}
-                    </Button>
-                  ) : (
-                    <div className="w-full rounded-md border border-yellow-300 bg-yellow-100 p-4 text-xs text-muted-foreground">
-                      <p>
-                        <b>Note:</b> It may take a few minutes or hours for the
-                        domain to be fully verified.
-                      </p>
-                    </div>
                   )}
                 </div>
                 <Dialog
