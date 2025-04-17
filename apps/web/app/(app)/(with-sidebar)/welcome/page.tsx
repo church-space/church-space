@@ -55,7 +55,7 @@ const steps = [
     title: "Create a link page",
     description:
       "Create a link page to share important links with your people.",
-    href: "/link-lists?newLinkListOpen=true",
+    href: "/link-pages?newLinkListOpen=true",
     buttonText: "Create Link Page",
     icon: LinkFilled,
     completed: true,

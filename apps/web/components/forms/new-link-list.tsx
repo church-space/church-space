@@ -63,7 +63,7 @@ export default function NewLinkList({
       });
 
       if (!result?.data?.error) {
-        await router.push(`/link-lists/${result?.data?.data?.id}?newList=true`);
+        await router.push(`/link-pages/${result?.data?.data?.id}?newList=true`);
       } else if (result?.data?.error) {
         form.setError("url_slug", {
           type: "manual",
@@ -133,7 +133,7 @@ export default function NewLinkList({
                 <TooltipContent className="max-w-64">
                   <p>
                     This is the part of the link used after
-                    churchspace.com/link-lists/
+                    churchspace.com/links/
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -165,7 +165,7 @@ export default function NewLinkList({
                     maxLength={32}
                   />
                   <span className="absolute left-0 top-1/2 flex h-9 -translate-y-1/2 items-center rounded-l-md border bg-muted px-1.5 text-xs text-muted-foreground">
-                    churchspace.com/link-lists/
+                    churchspace.com/links/
                   </span>
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                     {field.value.length} / 32

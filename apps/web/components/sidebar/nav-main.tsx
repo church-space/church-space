@@ -324,7 +324,7 @@ export function NavMain({
       // Fire and forget prefetching - don't await the results
       if (url === "/emails") {
         prefetchEmails().catch(console.error);
-      } else if (url === "/link-lists") {
+      } else if (url === "/link-pages") {
         prefetchLinkLists().catch(console.error);
       } else if (url === "/people") {
         prefetchPeople().catch(console.error);
