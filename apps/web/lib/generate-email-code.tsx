@@ -1604,7 +1604,7 @@ export function generateEmailCode(
           style={{ width: "100%" }}
         >
           <tr>
-            <td align="center" style={{ padding: isInset ? "10px" : "0" }}>
+            <td align="center" style={{ padding: isInset ? "20px" : "0" }}>
               {/* If inset, we need an inner table with a different background color */}
               {isInset ? (
                 <table
@@ -1619,7 +1619,9 @@ export function generateEmailCode(
                     backgroundColor: bgColor,
                     borderRadius: isRounded ? "12px" : "0",
                     borderCollapse: "separate",
-                    paddingBottom: "10px",
+                    padding: "17px",
+                    paddingTop: "14px",
+                    paddingBottom: "20px",
                   }}
                 >
                   <tr>
@@ -1863,7 +1865,12 @@ export function generateEmailCode(
                   border={0}
                   width="100%"
                   align="center"
-                  style={{ maxWidth: "672px", width: "100%" }}
+                  style={{
+                    maxWidth: "672px",
+                    width: "100%",
+                    paddingLeft: "10px",
+                    paddingRight: "10px",
+                  }}
                 >
                   <tr>
                     <td style={{ padding: "0px 0" }}>

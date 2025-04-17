@@ -171,10 +171,9 @@ export default function DndBuilderCanvas({
         ref={setNodeRef}
         className={cn(
           "mx-auto flex w-full max-w-2xl flex-col p-4",
-          isInset && "mb-2 shadow-md",
+          isInset && "mb-2 p-6 shadow-md",
           isRounded && "rounded-lg",
           blocks.length === 0 && "min-h-[102px]",
-          // blocks.length > 0 && "pb-0",
         )}
         style={{ backgroundColor: bgColor, gap: blockSpacing }}
       >
