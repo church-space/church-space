@@ -52,17 +52,17 @@ const steps = [
     completed: true,
   },
   {
-    title: "Create a link list",
+    title: "Create a link page",
     description:
-      "Create a link list to share important links with your people.",
+      "Create a link page to share important links with your people.",
     href: "/link-lists?newLinkListOpen=true",
-    buttonText: "Create Link List",
+    buttonText: "Create Link Page",
     icon: LinkFilled,
     completed: true,
   },
   {
     title: "Create a QR Code",
-    description: "Create a QR code to share your link list.",
+    description: "Create a QR code to share your link page.",
     href: "/qr-codes?newQrCodeOpen=true",
     buttonText: "Create QR Code",
     icon: Qrcode,

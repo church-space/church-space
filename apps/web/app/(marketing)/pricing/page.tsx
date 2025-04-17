@@ -108,7 +108,7 @@ export default function PricingPage() {
                 <div className="mr-2.5 text-[#6065FE]">
                   <LinkIcon height={"22"} width={"22"} />
                 </div>
-                <span>Up to 3 link lists</span>
+                <span>Up to 3 link pages</span>
               </div>
 
               <div className="flex items-center">
@@ -210,7 +210,7 @@ export default function PricingPage() {
                 <div className="mr-2.5 text-[#6065FE]">
                   <LinkIcon height={"22"} width={"22"} />
                 </div>
-                <span>Unlimited link lists</span>
+                <span>Unlimited link pages</span>
               </div>
 
               <div className="flex items-center">

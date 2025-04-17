@@ -52,17 +52,17 @@ export const createLinkListAction = authActionClient
             error: "This URL is already taken. Please choose another.",
           };
         }
-        console.error("Error creating link list:", pgError);
+        console.error("Error creating link page:", pgError);
         return {
           success: false,
-          error: pgError.message || "Failed to create link list",
+          error: pgError.message || "Failed to create link page",
         };
       }
 
       if (!data || !data[0]) {
         return {
           success: false,
-          error: "No data returned from link list creation",
+          error: "No data returned from link page creation",
         };
       }
 
@@ -71,11 +71,11 @@ export const createLinkListAction = authActionClient
         data: { id: data[0].id },
       };
     } catch (error) {
-      console.error("Error creating link list:", error);
+      console.error("Error creating link page:", error);
       return {
         success: false,
         error:
-          error instanceof Error ? error.message : "Failed to create link list",
+          error instanceof Error ? error.message : "Failed to create link page",
       };
     }
   });

@@ -54,9 +54,9 @@ const topics = [
     ),
   },
   {
-    title: "Link Lists",
-    description: "Create and manage your link lists",
-    link: "/support/link-lists",
+    title: "Link Pages",
+    description: "Create and manage your link pages",
+    link: "/support/link-pages",
     icon: <LinkFilled height={"38"} width={"38"} />,
   },
   {

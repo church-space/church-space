@@ -68,7 +68,7 @@ export default function AutomationMembersTable({
       <Dialog open={isNewLinkListOpen} onOpenChange={setIsNewLinkListOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Link List</DialogTitle>
+            <DialogTitle>Create New Link Page</DialogTitle>
           </DialogHeader>
           <div>Placeholder for NewLinkList form</div>
         </DialogContent>

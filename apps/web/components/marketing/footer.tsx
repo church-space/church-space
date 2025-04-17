@@ -24,8 +24,8 @@ const links = [
         href: "/homepage/#qr-codes",
       },
       {
-        title: "Link Lists",
-        href: "/homepage/#link-lists",
+        title: "Link Pages",
+        href: "/homepage/#link-pages",
       },
       {
         title: "PCO Integration",

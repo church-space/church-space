@@ -83,8 +83,8 @@ const data = (role: string | null) => {
             url: "/qr-codes",
           },
           {
-            title: "Link Lists",
-            url: "/link-lists",
+            title: "Link Pages",
+            url: "/link-pages",
           },
         ],
       },

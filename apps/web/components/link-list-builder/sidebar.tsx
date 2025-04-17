@@ -364,7 +364,7 @@ export default function LinkListBuilderSidebar({
                   <Label htmlFor="name">Name</Label>
                   <Input
                     id="name"
-                    placeholder="Link List Name (private)"
+                    placeholder="Link Page Name (private)"
                     className={cn(
                       "bg-background",
                       privateNameError && "border-destructive",

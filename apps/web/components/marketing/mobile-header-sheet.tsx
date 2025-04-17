@@ -62,7 +62,7 @@ export default function MobileHeaderSheet() {
             onClick={() => setOpen(false)}
           >
             <LinkIcon />
-            Link Lists
+            Link Pages
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"

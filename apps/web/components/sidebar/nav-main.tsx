@@ -123,7 +123,7 @@ export function NavMain({
       });
 
       if (!result?.data) {
-        throw new Error("Failed to fetch link lists");
+        throw new Error("Failed to fetch link pages");
       }
 
       const data = {
@@ -144,7 +144,7 @@ export function NavMain({
         data,
       );
     } catch (error) {
-      console.error("Error prefetching link lists:", error);
+      console.error("Error prefetching link pages:", error);
     }
   }, [organizationId, queryClient]);
 

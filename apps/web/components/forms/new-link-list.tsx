@@ -72,10 +72,10 @@ export default function NewLinkList({
         setIsLoading(false);
       }
     } catch (error) {
-      console.error("Failed to create link list:", error);
+      console.error("Failed to create link page:", error);
       form.setError("url_slug", {
         type: "manual",
-        message: "Failed to create link list. Please try again.",
+        message: "Failed to create link page. Please try again.",
       });
       setIsLoading(false);
     }
@@ -96,7 +96,7 @@ export default function NewLinkList({
                   </FormLabel>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-64">
-                  <p>This is the private name of your link list.</p>
+                  <p>This is the private name of your link page.</p>
                 </TooltipContent>
               </Tooltip>
               <FormControl>
@@ -111,7 +111,7 @@ export default function NewLinkList({
                   spellCheck="false"
                   data-form-type="other"
                   data-lpignore="true"
-                  aria-label="Link list name"
+                  aria-label="Link page name"
                   maxLength={80}
                 />
               </FormControl>
@@ -186,7 +186,7 @@ export default function NewLinkList({
             Cancel
           </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Creating..." : "Create Link List"}
+            {isLoading ? "Creating..." : "Create Link Page"}
           </Button>
         </div>
       </form>

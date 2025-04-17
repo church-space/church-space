@@ -160,7 +160,7 @@ export default function LinkListBuilder() {
       if (error instanceof Error && error.message !== "No rows found") {
         toast({
           title: "Error",
-          description: "Failed to update link list. Please try again.",
+          description: "Failed to update link page. Please try again.",
           variant: "destructive",
         });
       }
@@ -583,7 +583,7 @@ export default function LinkListBuilder() {
 
   // Early return for no linkListId, but now all hooks are declared above
   if (!linkListId) {
-    return <div>No link list ID</div>;
+    return <div>No link page ID</div>;
   }
 
   return (
@@ -595,7 +595,7 @@ export default function LinkListBuilder() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/link-lists">Link Lists</BreadcrumbLink>
+                <BreadcrumbLink href="/link-pages">Link Pages</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>

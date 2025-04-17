@@ -300,7 +300,7 @@ const FileUpload = ({
               <DialogDescription>
                 {bucket === "email_assets"
                   ? "Email assets will become public once sent. Please ensure anything you email is not sensitive information."
-                  : "Link list assets are visible to the public web. Please ensure anything you upload is not sensitive information."}
+                  : "Link page assets are visible to the public web. Please ensure anything you upload is not sensitive information."}
               </DialogDescription>
             </DialogHeader>
             <div className="relative">

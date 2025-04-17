@@ -73,10 +73,10 @@ export default function LinkListsTable({
     <>
       <div className="mb-6 flex w-full items-center justify-between">
         <h1 className="flex items-center gap-1.5 text-3xl font-bold">
-          Link Lists
+          Link Pages
         </h1>
         <Button onClick={() => setIsNewLinkListOpen(true)}>
-          New Link List
+          New Link Page
         </Button>
       </div>
       <DataTable<LinkList>
@@ -120,7 +120,7 @@ export default function LinkListsTable({
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
           <DialogHeader className="p-2 pb-0">
             <DialogTitle className="flex items-center gap-1">
-              <LinkFilled height={"20"} width={"20"} /> Create New Link List
+              <LinkFilled height={"20"} width={"20"} /> Create New Link Page
             </DialogTitle>
           </DialogHeader>
           <NewLinkList

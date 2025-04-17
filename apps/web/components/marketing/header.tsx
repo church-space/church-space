@@ -64,8 +64,8 @@ export default function Header() {
                     Manage, track, and update your QR codes
                   </ListItem>
                   <ListItem
-                    href="/#link-lists"
-                    title="Link Lists"
+                    href="/#link-pages"
+                    title="Link Pages"
                     icon={<LinkIcon />}
                   >
                     Collect and share important links and resources
