@@ -164,7 +164,7 @@ const CustomText: React.FC<{
     .replace(/class="[^"]*"/g, "")
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(/<h1(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = " font-weight: 600; font-size: 2rem; line-height: 0.2";
+      const baseStyle = " font-weight: 600; font-size: 2rem; line-height: 1";
       if (existingStyle) {
         return `<h1 style="${existingStyle}; ${baseStyle}"`;
       }
@@ -180,7 +180,7 @@ const CustomText: React.FC<{
     })
     .replace(/<h3(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        "font-weight: 600; font-size: 1.25rem; line-height: 0.5";
+        "font-weight: 600; font-size: 1.25rem; line-height: 1.1";
       if (existingStyle) {
         return `<h3 style="${existingStyle}; ${baseStyle}"`;
       }
