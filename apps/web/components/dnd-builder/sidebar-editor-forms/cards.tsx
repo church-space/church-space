@@ -129,7 +129,7 @@ function SortableCardItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "mb-2 w-full rounded-lg border",
+        "mb-2 w-full overflow-hidden rounded-lg border",
         isDragging ? "border-dashed bg-accent opacity-50" : "",
       )}
     >
@@ -145,7 +145,7 @@ function SortableCardItem({
         <Accordion
           type="single"
           collapsible
-          className="w-full"
+          className="w-full md:max-w-[226px] lg:max-w-[302px]"
           value={openItem === cardId ? cardId : undefined}
           onValueChange={(value) => setOpenItem(value)}
         >
@@ -159,18 +159,19 @@ function SortableCardItem({
                 {card.title ? card.title : `Card ${index + 1}`}
               </CustomAccordionTrigger>
             </div>
-            <AccordionContent>
-              <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4 py-1 pr-1">
+            <AccordionContent className="!px-0">
+              <div className="flex w-full flex-col gap-2 py-1">
                 <Label>Title</Label>
                 <Input
                   placeholder="Card Title"
-                  className="col-span-2"
+                  className="col-span-2 mb-2"
                   value={card.title}
                   onChange={(e) => updateCard(index, "title", e.target.value)}
                 />
+
                 <Label>Description</Label>
                 <Textarea
-                  className="col-span-2"
+                  className="col-span-2 mb-2"
                   placeholder="Description"
                   value={card.description}
                   onChange={(e) =>
@@ -181,13 +182,13 @@ function SortableCardItem({
                 <Label>Label</Label>
                 <Input
                   placeholder="Label"
-                  className="col-span-2"
+                  className="col-span-2 mb-2"
                   value={card.label}
                   onChange={(e) => updateCard(index, "label", e.target.value)}
                   maxLength={150}
                 />
                 <Label>Image</Label>
-                <div className="col-span-2">
+                <div className="col-span-2 mb-2">
                   <FileUpload
                     organizationId={organizationId}
                     onUploadComplete={(path) =>
@@ -201,7 +202,7 @@ function SortableCardItem({
                 </div>
                 <Label>Button Text</Label>
                 <Input
-                  className="col-span-2"
+                  className="col-span-2 mb-2"
                   value={card.buttonText}
                   onChange={(e) =>
                     updateCard(index, "buttonText", e.target.value)
@@ -221,7 +222,7 @@ function SortableCardItem({
                     </p>
                   </TooltipContent>
                 </Tooltip>
-                <div className="col-span-2 flex flex-col gap-1">
+                <div className="col-span-2 mb-2 flex flex-col gap-1">
                   <Input
                     className={
                       linkErrors[index] && !typingLinks[index]

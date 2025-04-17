@@ -4,14 +4,14 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-],
+  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types", 
-    "dev:web": "turbo dev --filter=@church-space/web"
+    "check-types": "turbo run check-types",
+    "dev:web": "turbo dev --filter=@church-space/web -- --turbopack"
   },
   "devDependencies": {
     "prettier": "^3.5.0",

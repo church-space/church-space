@@ -143,10 +143,10 @@ function SortableListItem({
               </CustomAccordionTrigger>
             </div>
             <AccordionContent>
-              <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4 py-1 pr-1">
+              <div className="flex w-full flex-col gap-y-2 py-1">
                 <Label>Title</Label>
                 <Input
-                  className="col-span-2 bg-background"
+                  className="col-span-2 mb-2 bg-background"
                   value={item.title}
                   placeholder="Item Title"
                   onChange={(e) => updateItem(index, "title", e.target.value)}
@@ -154,7 +154,7 @@ function SortableListItem({
                 />
                 <Label>Description</Label>
                 <AutosizeTextarea
-                  className="col-span-2"
+                  className="col-span-2 mb-2"
                   value={item.description}
                   placeholder="Item Description"
                   onChange={(e) =>
