@@ -420,7 +420,7 @@ export default function EmailDndProvider({
         text: "",
         link: "",
         color: styles.defaultTextColor,
-        textColor: "#FFFFFF",
+        textColor: styles.bgColor,
         style: "filled" as "filled" | "outline",
         size: "fit" as "fit" | "full",
         centered: true,
@@ -444,10 +444,10 @@ export default function EmailDndProvider({
       blockData = {
         title: "",
         subtitle: "",
-        textColor: "#000000",
+        textColor: styles.defaultTextColor,
         labelColor: styles.accentTextColor,
         buttonColor: styles.accentTextColor,
-        buttonTextColor: "#FFFFFF",
+        buttonTextColor: styles.bgColor,
         cards: [
           {
             title: "",
