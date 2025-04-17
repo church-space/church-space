@@ -345,7 +345,16 @@ export const filterEmailRecipients = task({
           !emailRecord.email.toLowerCase().includes("no_reply"),
       );
 
-      if (filteredEmails.length === 0) {
+      // Deduplicate by email address (case-insensitive)
+      const uniqueEmails = new Set<string>();
+      const dedupedEmails = filteredEmails.filter((email: any) => {
+        const lower = email.email.toLowerCase();
+        if (uniqueEmails.has(lower)) return false;
+        uniqueEmails.add(lower);
+        return true;
+      });
+
+      if (dedupedEmails.length === 0) {
         // Update email status to failed
         await supabase
           .from("emails")
@@ -367,7 +376,7 @@ export const filterEmailRecipients = task({
         string,
         { email: string; firstName?: string; lastName?: string }
       > = {};
-      filteredEmails.forEach((email: any) => {
+      dedupedEmails.forEach((email: any) => {
         recipients[email.id.toString()] = {
           email: email.email,
           firstName: email.people?.first_name || undefined,
