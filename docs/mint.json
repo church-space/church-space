@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Help Center",
+  "name": "Church Space Help Center",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -26,11 +26,6 @@
     "url": "https://churchspace.co/emails/"
   },
   "anchors": [
-    {
-      "name": "Help Center",
-      "icon": "book-open-cover",
-      "url": "https://help.churchspace.co/"
-    },
     {
       "name": "Community",
       "icon": "slack",
