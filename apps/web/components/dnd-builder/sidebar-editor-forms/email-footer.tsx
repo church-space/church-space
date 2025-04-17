@@ -169,13 +169,13 @@ function SortableLinkItem({
           </AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-4 items-center gap-2">
+              <div className="flex w-full flex-col gap-y-2">
                 <Label className="col-span-1">Platform</Label>
                 <Select
                   value={link.icon}
                   onValueChange={(value) => updateLink(index, "icon", value)}
                 >
-                  <SelectTrigger className="col-span-3 bg-background">
+                  <SelectTrigger className="col-span-3 mb-2 bg-background">
                     <SelectValue placeholder="Select platform" />
                   </SelectTrigger>
                   <SelectContent>
@@ -236,8 +236,7 @@ function SortableLinkItem({
                     </SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-2">
+
                 <Label className="col-span-1">
                   {link.icon === "mail" ? "Email" : "URL"}
                 </Label>
@@ -264,9 +263,9 @@ function SortableLinkItem({
                 </div>
               </div>
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => removeLink(index)}
-                className="mt-3 h-7 w-full hover:bg-destructive hover:text-white"
+                className="h-7 w-full hover:bg-destructive hover:text-white"
               >
                 Remove Link
               </Button>

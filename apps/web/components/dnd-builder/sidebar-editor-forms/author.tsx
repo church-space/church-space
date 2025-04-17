@@ -194,14 +194,14 @@ function SortableLinkItem({
               </CustomAccordionTrigger>
             </div>
             <AccordionContent>
-              <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4 py-1 pr-1">
+              <div className="flex w-full flex-col gap-y-2 py-1">
                 <Label>Icon</Label>
-                <div className="col-span-2 flex">
+                <div className="col-span-2 mb-2 flex">
                   <Select
                     value={link.icon}
                     onValueChange={(value) => updateLink(index, "icon", value)}
                   >
-                    <SelectTrigger className="rounded-r-none bg-background">
+                    <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Icon" />
                     </SelectTrigger>
                     <SelectContent className="min-w-20">
@@ -262,17 +262,9 @@ function SortableLinkItem({
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button
-                    variant="outline"
-                    onClick={() => removeLink(index)}
-                    size="icon"
-                    className="rounded-l-none border-l-0"
-                  >
-                    ×
-                  </Button>
                 </div>
                 <Label>{link.icon === "mail" ? "Email" : "URL"}</Label>
-                <div className="col-span-2 flex flex-col gap-1">
+                <div className="col-span-2 mb-2 flex flex-col gap-1">
                   <Input
                     className={
                       linkErrors[index] && !typingLinks[index]
@@ -291,6 +283,13 @@ function SortableLinkItem({
                     <p className="text-xs text-red-500">{linkErrors[index]}</p>
                   )}
                 </div>
+                <Button
+                  variant="ghost"
+                  onClick={() => removeLink(index)}
+                  className="h-7 w-full hover:bg-destructive hover:text-white"
+                >
+                  Remove Link
+                </Button>
               </div>
             </AccordionContent>
           </AccordionItem>
