@@ -39,7 +39,14 @@ export async function getEmailsQuery(
       status,
       sent_at,
       from_domain:from_email_domain(domain),
-      reply_to_domain:reply_to_domain(domain)
+      reply_to_domain:reply_to_domain(domain),
+      list:list_id(
+        pco_list_description,
+        pco_list_category:pco_list_category_id(
+          pco_name,
+          description
+        )
+      )
     `
     )
     .order("updated_at", { ascending: false, nullsFirst: false })

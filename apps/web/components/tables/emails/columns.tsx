@@ -19,6 +19,13 @@ export type Email = {
   sent_at: string | null;
   from_domain: { domain: string } | null;
   reply_to_domain: { domain: string } | null;
+  list: {
+    pco_list_description: string | null;
+    pco_list_category: {
+      pco_name: string | null;
+      description: string | null;
+    } | null;
+  } | null;
 };
 
 export const columns: ColumnDef<Email>[] = [
@@ -95,6 +102,7 @@ export const columns: ColumnDef<Email>[] = [
       filterVariant: "select",
     },
   },
+
   {
     header: "Date",
     accessorKey: "sent_at",
@@ -147,6 +155,22 @@ export const columns: ColumnDef<Email>[] = [
             {row.original.from_email && row.original.from_domain
               ? `${row.original.from_email}@${row.original.from_domain.domain}`
               : row.original.from_email || "—"}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    header: "To",
+    accessorKey: "list",
+    cell: ({ row }) => {
+      return (
+        <div className="flex min-w-64 flex-col pr-3">
+          <span className="font-semibold">
+            {row.original.list?.pco_list_description}
+          </span>
+          <span className="text-muted-foreground">
+            {row.original.list?.pco_list_category?.pco_name}
           </span>
         </div>
       );
