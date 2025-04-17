@@ -1,3 +1,4 @@
+import "server-only";
 import { task, queue } from "@trigger.dev/sdk/v3";
 import { Resend } from "resend";
 import { createClient } from "@church-space/supabase/job";

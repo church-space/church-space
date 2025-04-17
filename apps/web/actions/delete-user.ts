@@ -2,7 +2,7 @@
 
 import type { ActionResponse } from "@/types/action";
 import { createClient } from "@church-space/supabase/server";
-import { createClient as createJobClient } from "@church-space/supabase/job";
+import { createClient as createJobClient } from "@church-space/supabase/server";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 import { getOrgOwnersQuery } from "@church-space/supabase/queries/all/get-org-owners";

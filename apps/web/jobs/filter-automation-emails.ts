@@ -1,3 +1,5 @@
+import "server-only";
+
 import { task, wait } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 import { sendAutomationEmail } from "./send-automation-email";

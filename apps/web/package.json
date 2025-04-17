@@ -70,6 +70,7 @@
     "react-scan": "^0.2.4",
     "recharts": "^2.15.1",
     "resend": "^4.1.2",
+    "server-only": "^0.0.1",
     "stripe": "^17.7.0",
     "svix": "^1.62.0",
     "tippy.js": "^6.3.7",

@@ -41,6 +41,7 @@ import {
 import { cn } from "@church-space/ui/cn";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -313,11 +314,18 @@ export default function DomainManagement({
         console.log("Domain data from server action:", domainData);
 
         // Add the new domain to the state
+        let newRecords = domainData.records || [];
+        const hasDmarc = newRecords.some(
+          (r: any) => r.name === "_dmarc" && r.type === "TXT",
+        );
+        if (!hasDmarc) {
+          newRecords = [...newRecords, getDmarcRecommendation()];
+        }
         setDomains((prevDomains) => [
           {
             id: domainData.id,
             name: domainData.domain,
-            records: [],
+            records: newRecords,
             isRefreshing: false,
             resend_domain_id: domainData.resend_domain_id,
             isPrimary: !!domainData.is_primary || prevDomains.length === 0,
@@ -913,43 +921,62 @@ export default function DomainManagement({
                         <b>This action cannot be undone.</b>
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="flex flex-col gap-2">
-                      <div className="rounded-md border bg-card p-4 px-5 text-sm font-semibold text-foreground">
-                        {domain.name}
-                      </div>
-                      <Input
-                        className="mt-2"
-                        value={deleteConfirmInput}
-                        placeholder={domain.name}
-                        onChange={(e) => setDeleteConfirmInput(e.target.value)}
-                        maxLength={255}
-                      />
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setDeleteConfirmInput("")}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleDeleteDomain(domain)}
-                        disabled={
-                          deletingDomainId === domain.id ||
-                          deleteConfirmInput !== domain.name
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (
+                          deleteConfirmInput === domain.name &&
+                          deletingDomainId !== domain.id
+                        ) {
+                          handleDeleteDomain(domain);
                         }
-                      >
-                        {deletingDomainId === domain.id ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Deleting...
-                          </>
-                        ) : (
-                          "Delete"
-                        )}
-                      </Button>
-                    </DialogFooter>
+                      }}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <div className="rounded-md border bg-card p-4 px-5 text-sm font-semibold text-foreground">
+                          {domain.name}
+                        </div>
+                        <Input
+                          className="mt-2"
+                          value={deleteConfirmInput}
+                          placeholder={domain.name}
+                          onChange={(e) =>
+                            setDeleteConfirmInput(e.target.value)
+                          }
+                          maxLength={255}
+                        />
+                      </div>
+                      <DialogFooter className="mt-4">
+                        <DialogClose asChild>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setDeleteConfirmInput("");
+                            }}
+                            type="button"
+                          >
+                            Cancel
+                          </Button>
+                        </DialogClose>
+                        <Button
+                          variant="destructive"
+                          type="submit"
+                          disabled={
+                            deletingDomainId === domain.id ||
+                            deleteConfirmInput !== domain.name
+                          }
+                        >
+                          {deletingDomainId === domain.id ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Deleting...
+                            </>
+                          ) : (
+                            "Delete"
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </form>
                   </DialogContent>
                 </Dialog>
               </div>

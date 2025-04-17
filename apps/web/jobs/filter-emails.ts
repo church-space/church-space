@@ -1,3 +1,5 @@
+import "server-only";
+
 import { task } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 import { sendBulkEmails } from "./send-bulk-emails-queue";

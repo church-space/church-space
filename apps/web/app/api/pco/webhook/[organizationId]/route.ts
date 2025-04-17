@@ -1,3 +1,5 @@
+import "server-only";
+
 import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@church-space/supabase/job";
 import crypto from "crypto";
