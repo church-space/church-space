@@ -195,6 +195,8 @@ export default function AssetBrowserModal({
   const [totalCount, setTotalCount] = useState(0);
   const { deleteFile } = useFileUpload(organizationId, bucket);
 
+  console.log("type", type);
+
   const itemsPerPage = 6;
 
   // Create a ref to store the latest search query for the debounced function

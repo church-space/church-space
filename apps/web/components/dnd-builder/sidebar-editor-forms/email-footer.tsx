@@ -729,6 +729,7 @@ export default function EmailFooterForm({
               initialFilePath={localState.logo}
               onUploadComplete={handleUploadComplete}
               onRemove={handleLogoRemove}
+              type="image"
             />
           </div>
           <Label>Title</Label>

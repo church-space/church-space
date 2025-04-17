@@ -13,7 +13,7 @@ export interface Asset {
 export const getFileType = (filename: string): string => {
   const extension = filename.split(".").pop()?.toLowerCase() || "";
 
-  const imageExtensions = ["jpg", "jpeg", "png", "gif", "svg", "webp"];
+  const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
   const documentExtensions = [
     "pdf",
     "doc",
@@ -23,6 +23,12 @@ export const getFileType = (filename: string): string => {
     "ppt",
     "pptx",
     "txt",
+    "csv",
+    "xlsm",
+    "xlsb",
+    "xltx",
+    "xltm",
+    "svg",
   ];
 
   if (imageExtensions.includes(extension)) return "image";
@@ -100,7 +106,7 @@ export async function fetchQrLinkAssets({
 
     // Filter by type if needed
     if (type === "image") {
-      const imageExtensions = ["jpg", "jpeg", "png", "gif", "svg", "webp"];
+      const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
       filteredFiles = filteredFiles.filter((file) => {
         const extension = file.name.split(".").pop()?.toLowerCase() || "";
         return imageExtensions.includes(extension);

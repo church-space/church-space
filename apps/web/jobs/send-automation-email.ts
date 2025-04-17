@@ -182,6 +182,7 @@ export const sendAutomationEmail = task({
       const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;
       const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
       const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
+      const unsubscribeEmail = `unsubscribe@churchspace.co?subject=unsubscribe&body=emailId%3A%20${emailId}%0AautomationId%3A%20${automationId}%0ApersonEmailId%3A%20${peopleEmailId}`;
 
       // Render the email content via API call
       const renderResponse = await fetch(
@@ -228,8 +229,11 @@ export const sendAutomationEmail = task({
           "X-Entity-Automation-ID": `${automationId}`,
           "X-Entity-People-Email-ID": `${peopleEmailId}`, // Use ID from payload
           "X-Entity-Ref-ID": uuidv4(), // Unique reference for this specific send
-          "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>`,
+          "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>, mailto:${unsubscribeEmail}`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          "X-Mailer": `Church Space Mailer - **Customer ${organizationId}**`,
+          "X-Report-Abuse": `<mailto:report@churchspace.co>`,
+          Precedence: "bulk",
         },
       };
 
