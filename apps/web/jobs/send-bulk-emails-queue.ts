@@ -143,9 +143,19 @@ export const sendBulkEmails = task({
         .from("domains")
         .select("*")
         .eq("organization_id", typedEmailData.organization_id)
-        .eq("domain", senderDomain);
+        .eq("domain", senderDomain)
+        .eq("is_verified", true);
 
       if (domainError || !domainData || domainData.length === 0) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message:
+              "Sender domain is not verified for this organization",
+          })
+          .eq("id", emailId);
         throw new Error(
           `Sender domain ${senderDomain} is not verified for this organization`,
         );

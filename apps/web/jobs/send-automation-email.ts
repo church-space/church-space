@@ -132,9 +132,19 @@ export const sendAutomationEmail = task({
         .select("domain")
         .eq("organization_id", organizationId)
         .eq("id", fromEmailDomain)
+        .eq("is_verified", true)
         .single();
 
       if (domainError || !domainData) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message:
+              "Sender domain is not verified for this organization",
+          })
+          .eq("id", emailId);
         throw new Error(
           `Failed to fetch domain data: ${domainError?.message || "Domain not found"}`,
         );
