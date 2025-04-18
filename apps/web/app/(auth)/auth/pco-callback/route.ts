@@ -132,6 +132,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const { error: pcoOrgError } = await supabase
+      .from("pco_orgs")
+      .insert({
+        organization_id: organization[0].id,
+        pco_org_id: pcoOrganizationData.data.id,
+      })
+      .select("id");
+
+    if (pcoOrgError) {
+      console.error("Supabase error:", pcoOrgError);
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_org_db_error`,
+      );
+    }
+
     // Helper function to delete organization and redirect
     const handleError = async (error: any, errorType: string) => {
       console.error("Supabase error:", error);

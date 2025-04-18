@@ -1323,6 +1323,35 @@ export type Database = {
           },
         ]
       }
+      pco_orgs: {
+        Row: {
+          created_at: string
+          id: number
+          organization_id: string | null
+          pco_org_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          organization_id?: string | null
+          pco_org_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          organization_id?: string | null
+          pco_org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pco_orgs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pco_sync_status: {
         Row: {
           created_at: string
