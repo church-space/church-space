@@ -8,7 +8,6 @@ import SendingPage from "./sending-page";
 import ScheduledPage from "./scheduled-page";
 import LoadingPage from "./loading-page";
 import { useState, useEffect } from "react";
-import { getSentEmailStatsAction } from "@/actions/get-sent-email-stats";
 import { getEmailAction } from "@/actions/get-email";
 
 export default function Page() {
@@ -22,14 +21,7 @@ export default function Page() {
     queryFn: () => getEmailAction({ emailId }),
   });
 
-  const currentEmail = emailState || email?.data?.data;
-  const isEmailSent = currentEmail?.status === "sent";
-
-  const { data: sentStats } = useQuery({
-    queryKey: ["sentEmailStats", emailId],
-    queryFn: () => getSentEmailStatsAction({ emailId }),
-    enabled: isEmailSent,
-  });
+  const currentEmail = emailState || email?.data;
 
   // Update emailState when email data changes
   useEffect(() => {
@@ -38,7 +30,7 @@ export default function Page() {
     }
   }, [email?.data?.data]);
 
-  if (isLoading || isEmailSent) {
+  if (isLoading) {
     return <LoadingPage />;
   }
 
@@ -56,7 +48,7 @@ export default function Page() {
         <SendingPage subject={currentEmail.subject} />
       )}
       {currentEmail.status === "sent" && (
-        <PostSendPage initialEmail={currentEmail} stats={sentStats} />
+        <PostSendPage initialEmail={currentEmail} />
       )}
       {(currentEmail.status === "draft" ||
         currentEmail.status === "failed") && (

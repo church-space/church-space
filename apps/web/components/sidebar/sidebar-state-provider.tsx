@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { SidebarProvider } from "@church-space/ui/sidebar";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
@@ -11,12 +11,12 @@ export function SidebarStateProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState<boolean | undefined>(
-    undefined,
-  );
+  const [mounted, setMounted] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean | undefined>(true);
 
-  // Read cookie on mount
-  useEffect(() => {
+  // Use useLayoutEffect to handle client-side initialization
+  useLayoutEffect(() => {
+    setMounted(true);
     const cookies = document.cookie.split("; ");
     const cookieEntry = cookies.find((cookie) =>
       cookie.startsWith(`${SIDEBAR_COOKIE_NAME}=`),
@@ -25,8 +25,6 @@ export function SidebarStateProvider({
     if (cookieEntry) {
       const value = cookieEntry.split("=")[1];
       setSidebarOpen(value === "true");
-    } else {
-      setSidebarOpen(true); // Default value if cookie doesn't exist
     }
   }, []);
 
@@ -36,8 +34,8 @@ export function SidebarStateProvider({
     document.cookie = `${SIDEBAR_COOKIE_NAME}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
   };
 
-  // Don't render until cookie is read to prevent hydration mismatch
-  if (sidebarOpen === undefined) {
+  // Don't render until mounted to prevent hydration mismatch
+  if (!mounted) {
     return null;
   }
 
