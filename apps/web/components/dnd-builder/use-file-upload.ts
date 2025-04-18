@@ -91,7 +91,7 @@ const compressImage = async (
 
 export const useFileUpload = (
   organizationId: string,
-  bucket: "email_assets" | "link-assets" | "link-list-assets",
+  bucket: "organization-assets",
 ) => {
   const supabase = createClient();
 
@@ -122,10 +122,7 @@ export const useFileUpload = (
 
       // Create the full path including organization folder, ensuring no spaces
       const sanitizedOrgId = organizationId.replace(/\s+/g, "");
-      const filePath =
-        bucket === "email_assets"
-          ? `org/${sanitizedOrgId}/${fileName}`
-          : `${sanitizedOrgId}/${fileName}`;
+      const filePath = `${sanitizedOrgId}/${fileName}`;
 
       // Implement retry logic
       let attempts = 0;

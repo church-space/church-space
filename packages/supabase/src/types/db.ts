@@ -566,7 +566,6 @@ export type Database = {
           people_email_id: number | null
           resend_email_id: string | null
           status: Database["public"]["Enums"]["email_delivery_status"] | null
-          unsubscribe_token: string | null
           updated_at: string | null
         }
         Insert: {
@@ -578,7 +577,6 @@ export type Database = {
           people_email_id?: number | null
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
-          unsubscribe_token?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -590,7 +588,6 @@ export type Database = {
           people_email_id?: number | null
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
-          unsubscribe_token?: string | null
           updated_at?: string | null
         }
         Relationships: [

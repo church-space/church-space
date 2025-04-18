@@ -72,7 +72,7 @@ export default function EmailPreview({
 
   return (
     <Tabs
-      defaultValue={previewType || "web"}
+      defaultValue={webOnly ? "web" : previewType || "web"}
       onValueChange={(value) => setPreviewType(value)}
     >
       <div className="flex items-center justify-between">

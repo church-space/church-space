@@ -312,7 +312,7 @@ export default function EmailTemplateForm({
                   onSelectAsset={() => {}}
                   organizationId={organizationId}
                   handleDelete={() => {}}
-                  bucket="email_assets"
+                  bucket="organization-assets"
                 />
               </TooltipTrigger>
               <TooltipContent>Browse premade templates</TooltipContent>

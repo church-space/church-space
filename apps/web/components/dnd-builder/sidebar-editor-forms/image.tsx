@@ -150,7 +150,7 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
             type="image"
             initialFilePath={localState.image}
             onRemove={onImageRemove}
-            bucket="email_assets"
+            bucket="organization-assets"
           />
           <Tooltip>
             <TooltipTrigger asChild>

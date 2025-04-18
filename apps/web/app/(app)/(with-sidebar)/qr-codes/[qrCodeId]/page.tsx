@@ -409,7 +409,7 @@ export default function Page() {
       // If there's a logo, preload it with CORS headers
       let logoImageUrl = undefined;
       if (qrCode.logoImage) {
-        const logoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${qrCode.logoImage}`;
+        const logoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${qrCode.logoImage}`;
         try {
           const response = await fetch(logoUrl);
           const blob = await response.blob();
@@ -1415,7 +1415,7 @@ export default function Page() {
                       eyeRadius={qrCode.isRounded ? 8 : 0}
                       logoImage={
                         qrCode.logoImage
-                          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${qrCode.logoImage}`
+                          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${qrCode.logoImage}`
                           : undefined
                       }
                       logoWidth={Math.round(qrCode.logoSize * (120 / 180))}
@@ -1585,7 +1585,7 @@ export default function Page() {
                                 logoImage: null,
                               });
                             }}
-                            bucket="link-assets"
+                            bucket="organization-assets"
                           />
                         </>
                       )}
@@ -1640,7 +1640,7 @@ export default function Page() {
                         eyeRadius={editingQRCode.isRounded ? 8 : 0}
                         logoImage={
                           editingQRCode.logoImage
-                            ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/link-assets/${editingQRCode.logoImage}`
+                            ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${editingQRCode.logoImage}`
                             : undefined
                         }
                         logoWidth={Math.round(

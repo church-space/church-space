@@ -188,8 +188,7 @@ const CustomText: React.FC<{
     })
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle =
-        "font-weight: 300; line-height: 1.5; font-size: 16px; margin: 0.5em 0";
+      const baseStyle = "font-weight: 300; line-height: 1.5; margin: 0.5em 0";
       if (existingStyle) {
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
@@ -383,7 +382,7 @@ const CustomImage: React.FC<{
   isRounded?: boolean;
   altText?: string;
 }> = ({ image, size, link, centered, isRounded, altText }) => {
-  const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${image}`;
+  const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${image}`;
 
   if (image === "") {
     return null;
@@ -456,7 +455,7 @@ const CustomFileDownload: React.FC<{
       <tr>
         <td>
           <a
-            href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${file}`}
+            href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${file}`}
             target="_blank"
             style={{
               textDecoration: "none",
@@ -684,7 +683,7 @@ const CustomCards: React.FC<{
                 }}
               >
                 {row.map((card: any, colIndex: number) => {
-                  const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${card.image}`;
+                  const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${card.image}`;
                   const formattedButtonLink = card.buttonLink
                     ? formatUrl(card.buttonLink)
                     : "";
@@ -1032,7 +1031,7 @@ const CustomAuthor: React.FC<{
   linkColor,
 }) => {
   const avatarUrl = avatar
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${avatar}`
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${avatar}`
     : "";
 
   const finalTextColor = defaultTextColor || "#000000";
@@ -1268,7 +1267,7 @@ const CustomFooter: React.FC<{
   } = footerData;
 
   const logoUrl = logo
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/email_assets/${logo}`
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${logo}`
     : "";
 
   // Determine which color key to use for icons based on style

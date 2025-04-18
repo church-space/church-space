@@ -34,7 +34,7 @@ export default function CardsBlock({
     cards.forEach((card) => {
       if (card.image && !imageUrls[card.image]) {
         const { data: urlData } = supabase.storage
-          .from("email_assets")
+          .from("organization-assets")
           .getPublicUrl(card.image);
         setImageUrls((prev) => ({
           ...prev,

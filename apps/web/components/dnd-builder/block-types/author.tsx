@@ -68,7 +68,7 @@ export default function AuthorBlock({
     // Set the avatar URL when avatar is present
     const supabase = createClient();
     const { data: urlData } = supabase.storage
-      .from("email_assets")
+      .from("organization-assets")
       .getPublicUrl(avatar);
     setAvatarUrl(urlData.publicUrl);
     // Force re-render of the Avatar component

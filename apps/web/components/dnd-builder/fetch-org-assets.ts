@@ -28,8 +28,6 @@ export const getFileType = (filename: string): string => {
     "xlsb",
     "xltx",
     "xltm",
-    "xltx",
-    "xltm",
     "svg",
   ];
 
@@ -54,7 +52,7 @@ interface FetchAssetsResult {
   error: string | null;
 }
 
-export async function fetchEmailAssets({
+export async function fetchOrgAssets({
   organizationId,
   currentPage,
   itemsPerPage,
@@ -70,12 +68,12 @@ export async function fetchEmailAssets({
 
   try {
     const sanitizedOrgId = organizationId.replace(/\s+/g, "");
-    const path = `org/${sanitizedOrgId}`;
+    const path = `${sanitizedOrgId}`;
 
     // Get the total count using the RPC function
     const { data: countData, error: countError } = await supabase.rpc(
       "count_direct_storage_items",
-      { bucket_name: "email_assets", folder_path: `${path}/` },
+      { bucket_name: "organization-assets", folder_path: `${path}/` },
     );
 
     console.log("countData", countData);
@@ -92,7 +90,7 @@ export async function fetchEmailAssets({
 
     // Fetch only the files for the current page
     const { data: files, error: filesError } = await supabase.storage
-      .from("email_assets")
+      .from("organization-assets")
       .list(path, {
         limit: itemsPerPage,
         offset: offset,
@@ -139,7 +137,7 @@ export async function fetchEmailAssets({
 
         // Get the public URL
         const { data: publicUrlData } = await supabase.storage
-          .from("email_assets")
+          .from("organization-assets")
           .getPublicUrl(filePath);
 
         // Extract the original filename without timestamp

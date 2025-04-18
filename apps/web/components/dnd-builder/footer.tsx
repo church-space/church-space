@@ -100,7 +100,7 @@ export default function Footer({
     // Set the logo URL when logo is present
     const supabase = createClient();
     const { data: urlData } = supabase.storage
-      .from("email_assets")
+      .from("organization-assets")
       .getPublicUrl(logo);
     setLogoUrl(urlData.publicUrl);
   }, [logo]);

@@ -54,7 +54,7 @@ export default function LinkListHeader({
   useEffect(() => {
     if (logoImage) {
       const { data: urlData } = supabase.storage
-        .from("link-list-assets")
+        .from("organization-assets")
         .getPublicUrl(logoImage);
       setLogoUrl(urlData.publicUrl);
     } else {
@@ -65,7 +65,7 @@ export default function LinkListHeader({
   useEffect(() => {
     if (headerImage) {
       const { data: urlData } = supabase.storage
-        .from("link-list-assets")
+        .from("organization-assets")
         .getPublicUrl(headerImage);
       setBgImageUrl(urlData.publicUrl);
     } else {

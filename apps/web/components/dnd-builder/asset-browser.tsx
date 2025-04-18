@@ -42,9 +42,7 @@ import {
 import Image from "next/image";
 import { useEffect, useState, useCallback, useRef } from "react";
 import debounce from "lodash/debounce";
-import { fetchEmailAssets, type Asset } from "./fetch-email-assets";
-import { fetchQrLinkAssets } from "@/components/link-list-builder/fetch-qr-link-assets";
-import { fetchLinkListAssets } from "@/components/link-list-builder/fetch-link-list-assets";
+import { fetchOrgAssets, type Asset } from "./fetch-org-assets";
 import { Skeleton } from "@church-space/ui/skeleton";
 import { useFileUpload } from "./use-file-upload";
 
@@ -184,7 +182,7 @@ export default function AssetBrowserModal({
   type?: "image" | "any";
   setIsUploadModalOpen?: (open: boolean) => void;
   handleDelete?: (asset: Asset) => void;
-  bucket: "email_assets" | "link-assets" | "link-list-assets";
+  bucket: "organization-assets";
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -193,6 +191,7 @@ export default function AssetBrowserModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
   const { deleteFile } = useFileUpload(organizationId, bucket);
 
   console.log("type", type);
@@ -214,33 +213,14 @@ export default function AssetBrowserModal({
       setError(null);
 
       try {
-        const result =
-          bucket === "email_assets"
-            ? await fetchEmailAssets({
-                organizationId,
-                currentPage,
-                itemsPerPage,
-                searchQuery: searchQueryRef.current,
-                selectedType,
-                type,
-              })
-            : bucket === "link-list-assets"
-              ? await fetchLinkListAssets({
-                  organizationId,
-                  currentPage,
-                  itemsPerPage,
-                  searchQuery: searchQueryRef.current,
-                  selectedType,
-                  type,
-                })
-              : await fetchQrLinkAssets({
-                  organizationId,
-                  currentPage,
-                  itemsPerPage,
-                  searchQuery: searchQueryRef.current,
-                  selectedType,
-                  type,
-                });
+        const result = await fetchOrgAssets({
+          organizationId,
+          currentPage,
+          itemsPerPage,
+          searchQuery: searchQueryRef.current,
+          selectedType,
+          type,
+        });
 
         setAssets(result.assets);
         setTotalCount(result.totalCount);
@@ -309,7 +289,7 @@ export default function AssetBrowserModal({
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button className={buttonClassName} variant="outline">
           {triggerText}
@@ -365,6 +345,7 @@ export default function AssetBrowserModal({
                 className="h-[38px] px-3"
                 onClick={() => {
                   setIsUploadModalOpen(true);
+                  setIsOpen(false);
                 }}
               >
                 Upload

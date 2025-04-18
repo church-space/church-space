@@ -279,7 +279,7 @@ export default function HeaderForm({
         type="image"
         initialFilePath={headerImage}
         onRemove={() => setHeaderImage("")}
-        bucket="link-list-assets"
+        bucket="organization-assets"
       />
       {headerImage && (
         <>
@@ -300,7 +300,7 @@ export default function HeaderForm({
         type="image"
         initialFilePath={logoImage}
         onRemove={() => setLogoImage("")}
-        bucket="link-list-assets"
+        bucket="organization-assets"
       />
       <Label className="font-medium">Name</Label>
       <Input

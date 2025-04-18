@@ -40,7 +40,7 @@ interface FileUploadProps {
   type?: "image" | "any";
   initialFilePath?: string;
   onRemove?: () => void;
-  bucket?: "email_assets" | "link-assets" | "link-list-assets";
+  bucket?: "organization-assets";
   isSmallInput?: boolean;
 }
 
@@ -51,7 +51,7 @@ const FileUpload = ({
   type = "any",
   initialFilePath = "",
   onRemove,
-  bucket = "email_assets",
+  bucket = "organization-assets",
 }: FileUploadProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [filePath, setFilePath] = useState<string>(initialFilePath);
@@ -268,39 +268,26 @@ const FileUpload = ({
             }
           }}
         >
-          <DialogTrigger asChild>
-            <Button
-              className={cn(
-                "justify-start bg-background pl-3 font-normal",
-                file || filePath ? "flex-1 rounded-r-none" : "rounded-l-none",
-              )}
-              variant="outline"
-              disabled={isUploading || isDeleting}
-            >
-              {getDisplayName() ? (
-                <span
-                  className={cn(
-                    "block w-full max-w-[170px] overflow-hidden truncate text-ellipsis",
-                    isSmallInput && "max-w-[135px]",
-                  )}
-                >
-                  {getDisplayName()}
-                </span>
-              ) : (
+          {!file && !filePath ? (
+            <DialogTrigger asChild>
+              <Button
+                className="justify-start rounded-l-none bg-background pl-3 font-normal"
+                variant="outline"
+                disabled={isUploading || isDeleting}
+              >
                 <div className="flex items-center">
                   <CloudUpload />
                 </div>
-              )}
-            </Button>
-          </DialogTrigger>
-
+              </Button>
+            </DialogTrigger>
+          ) : null}
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Upload File</DialogTitle>
               <DialogDescription>
-                {bucket === "email_assets"
-                  ? "Email assets will become public once sent. Please ensure anything you email is not sensitive information."
-                  : "Link page assets are visible to the public web. Please ensure anything you upload is not sensitive information."}
+                Assets you upload are visible to the public web for anyone with
+                a link. Please ensure anything you upload is not sensitive
+                information.
               </DialogDescription>
             </DialogHeader>
             <div className="relative">
@@ -328,6 +315,19 @@ const FileUpload = ({
             <p className="mt-2 text-sm text-gray-500">Max file size: 50MB</p>
           </DialogContent>
         </Dialog>
+
+        {(file || filePath) && (
+          <AssetBrowserModal
+            triggerText={getDisplayName() || ""}
+            buttonClassName="flex-1 rounded-r-none justify-start bg-background pl-3 font-normal"
+            onSelectAsset={handleAssetSelect}
+            organizationId={organizationId}
+            type={type}
+            setIsUploadModalOpen={setIsModalOpen}
+            handleDelete={handleDelete}
+            bucket={bucket}
+          />
+        )}
       </div>
 
       {(file || filePath) && (

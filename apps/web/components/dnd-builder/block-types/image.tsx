@@ -20,7 +20,7 @@ export default function ImageBlock({ data, isRounded }: ImageBlockProps) {
     if (image) {
       const supabase = createClient();
       const { data: urlData } = supabase.storage
-        .from("email_assets")
+        .from("organization-assets")
         .getPublicUrl(image);
       setImageUrl(urlData.publicUrl);
     } else {

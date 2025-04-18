@@ -78,6 +78,10 @@ export default function FileDownloadForm({
             onChange={(color) => handleChange("textColor", color)}
           />
         </div>
+        <div className="text-sm text-muted-foreground">
+          Please ensure that you do not upload and send sensitive data. If it's
+          in an email, treat it as public information.
+        </div>
       </div>
     </div>
   );
