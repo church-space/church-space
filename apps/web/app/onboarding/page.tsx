@@ -26,44 +26,57 @@ export default async function Page() {
 
   if (invite) {
     const verifyInvite = async () => {
-      const { payload } = await jwtVerify(
-        invite.value,
-        new TextEncoder().encode(process.env.INVITE_JWT_SECRET),
-      );
-
-      if (!payload.exp) {
-        throw new Error("No expiration date found in invite token");
-      }
-
-      if (typeof payload.exp !== "number") {
-        throw new Error("Expiration date is not a number");
-      }
-
-      if (typeof payload.organization_id !== "string") {
-        throw new Error("Organization ID is not a string");
-      }
-
-      if (typeof payload.role !== "string") {
-        throw new Error("Role is not a string");
-      }
-
-      if (typeof payload.email !== "string") {
-        throw new Error("Email is not a string");
-      }
-
-      inviteExpires = new Date(payload.exp * 1000);
-      organizationId = payload.organization_id;
-      role = payload.role;
-      emailAddress = payload.email;
-
-      // If the invite has expired, remove it
-      if (inviteExpires && inviteExpires < new Date()) {
+      const jwtSecret = process.env.INVITE_MEMBERS_SECRET;
+      if (!jwtSecret) {
+        console.error("INVITE_MEMBERS_SECRET environment variable is not set");
         cookieStore.delete("invite");
+        return;
       }
-      window.location.reload();
+
+      try {
+        const { payload } = await jwtVerify(
+          invite.value,
+          new TextEncoder().encode(jwtSecret),
+        );
+
+        if (!payload.exp) {
+          throw new Error("No expiration date found in invite token");
+        }
+
+        if (typeof payload.exp !== "number") {
+          throw new Error("Expiration date is not a number");
+        }
+
+        if (typeof payload.organization_id !== "string") {
+          throw new Error("Organization ID is not a string");
+        }
+
+        if (typeof payload.role !== "string") {
+          throw new Error("Role is not a string");
+        }
+
+        if (typeof payload.email !== "string") {
+          throw new Error("Email is not a string");
+        }
+
+        inviteExpires = new Date(payload.exp * 1000);
+        organizationId = payload.organization_id;
+        role = payload.role;
+        emailAddress = payload.email;
+
+        // If the invite has expired, remove it
+        if (inviteExpires && inviteExpires < new Date()) {
+          cookieStore.delete("invite");
+          return;
+        }
+      } catch (error) {
+        console.error("Error verifying invite:", error);
+        cookieStore.delete("invite");
+        return;
+      }
     };
 
-    verifyInvite();
+    await verifyInvite();
   }
 
   if (
