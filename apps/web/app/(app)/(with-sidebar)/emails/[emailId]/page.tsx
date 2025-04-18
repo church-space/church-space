@@ -1,10 +1,5 @@
 "use client";
 
-import { createClient } from "@church-space/supabase/client";
-import {
-  getEmailQuery,
-  getEmailStatsQuery,
-} from "@church-space/supabase/queries/all/get-email";
 import { useQuery } from "@tanstack/react-query";
 import { redirect, useParams } from "next/navigation";
 import PostSendPage from "./post-send-page";
@@ -14,56 +9,46 @@ import ScheduledPage from "./scheduled-page";
 import LoadingPage from "./loading-page";
 import { useState, useEffect } from "react";
 import { getSentEmailStatsAction } from "@/actions/get-sent-email-stats";
+import { getEmailAction } from "@/actions/get-email";
 
 export default function Page() {
   const params = useParams();
   const emailId = parseInt(params.emailId as string, 10);
-  const supabase = createClient();
 
   const [emailState, setEmailState] = useState<any>(null);
 
   const { data: email, isLoading } = useQuery({
     queryKey: ["email-id-page", emailId],
-    queryFn: () => getEmailQuery(supabase, emailId),
+    queryFn: () => getEmailAction({ emailId }),
   });
 
-  const { data: stats, isLoading: isStatsLoading } = useQuery({
-    queryKey: ["email-stats", emailId],
-    queryFn: () => getEmailStatsQuery(supabase, emailId),
-    enabled: (emailState?.status || email?.data?.status) === "sent",
-  });
+  const currentEmail = emailState || email?.data?.data;
+  const isEmailSent = currentEmail?.status === "sent";
 
   const { data: sentStats } = useQuery({
     queryKey: ["sentEmailStats", emailId],
-    queryFn: () => getSentEmailStatsAction({ emailId: emailId }),
-    enabled: (emailState?.status || email?.data?.status) === "sent",
+    queryFn: () => getSentEmailStatsAction({ emailId }),
+    enabled: isEmailSent,
   });
 
   // Update emailState when email data changes
   useEffect(() => {
-    if (email?.data) {
-      setEmailState(email.data);
+    if (email?.data?.data) {
+      setEmailState(email.data.data);
     }
-  }, [email?.data]);
+  }, [email?.data?.data]);
 
-  console.log(stats);
-
-  if (
-    isLoading ||
-    ((emailState?.status || email?.data?.status) === "sent" && isStatsLoading)
-  ) {
+  if (isLoading || isEmailSent) {
     return <LoadingPage />;
   }
 
-  if (!emailState && !email?.data) {
+  if (!currentEmail) {
     return <div>Email not found</div>;
   }
 
-  if ((emailState || email?.data)?.type === "template") {
+  if (currentEmail?.type === "template") {
     redirect(`/emails/${emailId}/editor`);
   }
-
-  const currentEmail = emailState || email?.data;
 
   return (
     <>
