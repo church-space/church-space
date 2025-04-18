@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import { SidebarProvider } from "@church-space/ui/sidebar";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
