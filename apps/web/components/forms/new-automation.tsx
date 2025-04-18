@@ -50,8 +50,6 @@ export default function NewEmailAutomation({
         organization_id: organizationId,
       });
 
-      console.log(result);
-
       if (result?.data?.success && result?.data?.data) {
         await router.push(
           `/emails/automations/${result.data.data.id}?newAutomation=true`,

@@ -43,15 +43,10 @@ export const verifyDomainAction = authActionClient
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
-      console.log("Starting domain verification with:", {
-        domain_id: parsedInput.parsedInput.domain_id,
-        resend_domain_id: parsedInput.parsedInput.resend_domain_id,
-      });
-
       const supabase = await createClient();
 
       // First check if the domain exists
-      console.log("Checking if domain exists...");
+
       const { data: existingDomain, error: domainCheckError } = await supabase
         .from("domains")
         .select("*")
@@ -83,8 +78,6 @@ export const verifyDomainAction = authActionClient
             "Domain verification has already been initiated. Please wait for the verification process to complete.",
         };
       }
-
-      console.log("Domain found, verifying with Resend...");
 
       try {
         // First, update has_clicked_verify to true
@@ -118,11 +111,6 @@ export const verifyDomainAction = authActionClient
           parsedInput.parsedInput.resend_domain_id,
         );
 
-        console.log(
-          "Raw Resend API response:",
-          JSON.stringify(resendResponse, null, 2),
-        );
-
         // Handle different response structures - use any type for flexibility
         const responseAny = resendResponse as any;
         let resendDomainData: ResendDomainResponse;
@@ -136,11 +124,6 @@ export const verifyDomainAction = authActionClient
           resendDomainData = responseAny.id
             ? (responseAny as ResendDomainResponse)
             : (responseAny.data as ResendDomainResponse);
-
-          console.log(
-            "Parsed Resend domain data:",
-            JSON.stringify(resendDomainData, null, 2),
-          );
         } else {
           console.error(
             "Invalid Resend API response structure:",
@@ -153,18 +136,9 @@ export const verifyDomainAction = authActionClient
         }
 
         // Update the domain in Supabase with the latest DNS records status
-        console.log(
-          "Sending to Supabase - dns_records:",
-          JSON.stringify(resendDomainData.records, null, 2),
-        );
 
         // Ensure records are properly formatted without double stringification
         const dnsRecordsForUpdate = resendDomainData.records;
-
-        console.log(
-          "Final dns_records being sent to Supabase:",
-          JSON.stringify(dnsRecordsForUpdate, null, 2),
-        );
 
         const result = await updateDomain(
           supabase,
@@ -172,11 +146,6 @@ export const verifyDomainAction = authActionClient
           {
             dns_records: dnsRecordsForUpdate,
           },
-        );
-
-        console.log(
-          "Result from updateDomain:",
-          JSON.stringify(result, null, 2),
         );
 
         if (result.error) {
@@ -188,7 +157,7 @@ export const verifyDomainAction = authActionClient
         }
 
         // Revalidate the domain query tag
-        console.log("Domain updated successfully, revalidating...");
+
         try {
           revalidateTag(`domains_${existingDomain.organization_id}`);
         } catch (revalidateError) {
@@ -196,7 +165,6 @@ export const verifyDomainAction = authActionClient
           // Continue even if revalidation fails
         }
 
-        console.log("Domain verification complete:", result.data);
         return {
           success: true,
           data: {

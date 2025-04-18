@@ -1,38 +1,84 @@
-"use client";
+import "server-only";
 
-import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
-import { Card, CardContent } from "@church-space/ui/card";
-import { AnimatePresence, motion } from "framer-motion";
+import { getUserQuery } from "@church-space/supabase/get-user";
+import { createClient } from "@church-space/supabase/server";
+import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
+import ClientPage from "./client-page";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return (
-    <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
-      <AnimatePresence mode="wait">
-        <div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mb-6 flex flex-col items-center justify-center gap-2"
-          >
-            <div className="text-3xl font-bold">Link to Planning Center</div>
-            <div className="text-sm text-muted-foreground">
-              Let&apos;s get your account linked to Planning Center
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            <Card className="space-y-6 px-0 pt-4">
-              <CardContent className="space-y-4 pt-4">
-                <ConnectToPcoButton />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </AnimatePresence>
-    </div>
-  );
+export default async function Page() {
+  const cookieStore = await cookies();
+  const invite = cookieStore.get("invite");
+
+  const supabase = await createClient();
+
+  const { data: user, error } = await getUserQuery(supabase);
+
+  if (error) {
+    console.error(error);
+  }
+
+  let inviteExpires: Date | null = null;
+  let organizationId: string | null = null;
+  let role: string | null = null;
+  let emailAddress: string | null = null;
+
+  if (invite) {
+    const verifyInvite = async () => {
+      const { payload } = await jwtVerify(
+        invite.value,
+        new TextEncoder().encode(process.env.INVITE_JWT_SECRET),
+      );
+
+      if (!payload.exp) {
+        throw new Error("No expiration date found in invite token");
+      }
+
+      if (typeof payload.exp !== "number") {
+        throw new Error("Expiration date is not a number");
+      }
+
+      if (typeof payload.organization_id !== "string") {
+        throw new Error("Organization ID is not a string");
+      }
+
+      if (typeof payload.role !== "string") {
+        throw new Error("Role is not a string");
+      }
+
+      if (typeof payload.email !== "string") {
+        throw new Error("Email is not a string");
+      }
+
+      inviteExpires = new Date(payload.exp * 1000);
+      organizationId = payload.organization_id;
+      role = payload.role;
+      emailAddress = payload.email;
+
+      // If the invite has expired, remove it
+      if (inviteExpires && inviteExpires < new Date()) {
+        cookieStore.delete("invite");
+      }
+      window.location.reload();
+    };
+
+    verifyInvite();
+  }
+
+  if (user?.user?.email === emailAddress && user?.user?.id) {
+    const { data, error } = await supabase.rpc("add_user_to_organization", {
+      target_org_id: organizationId,
+      target_user_id: user.user.id,
+      target_role: role,
+    });
+
+    if (error) {
+      console.error("Error adding user:", error);
+    } else {
+      return redirect(`/emails?invite-accepted=true`);
+    }
+  }
+
+  return <ClientPage />;
 }

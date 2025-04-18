@@ -59,8 +59,6 @@ export async function getQRLinkQuery(supabase: Client, qrLinkId: number) {
     .eq("id", qrLinkId)
     .single();
 
-  console.log(data);
-
   return { data: data as DatabaseQRLink | null, error };
 }
 

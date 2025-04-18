@@ -13,13 +13,13 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error("PCO OAuth error:", error);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=${error}`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?error=${error}`,
       );
     }
 
     if (!code) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=no_code`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?error=no_code`,
       );
     }
 
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     if (!tokenResponse.ok) {
       console.error("PCO token error:", tokenData);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=token_error`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?error=token_error`,
       );
     }
 
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=auth_error`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?error=auth_error`,
       );
     }
 
@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
     if (upsertOrganizationError) {
       console.error("Supabase error:", upsertOrganizationError);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=organization_db_error`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?error=organization_db_error`,
       );
     }
 
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
     if (pcoOrgError) {
       console.error("Supabase error:", pcoOrgError);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_org_db_error`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?error=pco_org_db_error`,
       );
     }
 
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
           .eq("id", organization[0].id);
       }
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_SITE_URL}?error=${errorType}`,
+        `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?error=${errorType}`,
       );
     };
 

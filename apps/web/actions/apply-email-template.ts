@@ -20,15 +20,9 @@ export const applyEmailTemplateAction = authActionClient
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
-      console.log("Starting template application with:", {
-        target_email_id: parsedInput.parsedInput.target_email_id,
-        template_email_id: parsedInput.parsedInput.template_email_id,
-      });
-
       const supabase = await createClient();
 
       // First check if the template email exists
-      console.log("Fetching template email...");
       const { data: templateEmail, error: templateError } =
         await getEmailWithFooterAndBlocksQuery(
           supabase,
@@ -51,8 +45,6 @@ export const applyEmailTemplateAction = authActionClient
         };
       }
 
-      console.log("Template email found, applying to target email...");
-
       try {
         const result = await applyEmailTemplate(
           supabase,
@@ -61,7 +53,7 @@ export const applyEmailTemplateAction = authActionClient
         );
 
         // Revalidate the email query tag
-        console.log("Template applied successfully, revalidating...");
+
         try {
           // Revalidate both the email and emailTemplates tags
           revalidateTag(`email-${parsedInput.parsedInput.target_email_id}`);
@@ -71,7 +63,6 @@ export const applyEmailTemplateAction = authActionClient
           // Continue even if revalidation fails
         }
 
-        console.log("Template application complete:", result);
         return {
           success: true,
           data: result,

@@ -26,8 +26,6 @@ export const cancelScheduledEmail = authActionClient
         .eq("id", parsedInput.emailId)
         .single();
 
-      console.log(email);
-
       if (emailError || !email) {
         throw new Error("Email not found");
       }

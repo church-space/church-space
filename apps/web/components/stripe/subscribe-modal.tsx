@@ -221,12 +221,6 @@ export default function SubscribeModal({
     setError(null);
 
     try {
-      console.log("Requesting checkout session with:", {
-        priceId,
-        organizationId,
-        userId,
-      });
-
       const response = await fetch("/api/stripe/create-checkout", {
         method: "POST",
         headers: {
@@ -239,15 +233,9 @@ export default function SubscribeModal({
         }),
       });
 
-      // Log the raw response before parsing
-      console.log("Raw response status:", response.status, response.statusText);
-
       const data = await response.json();
 
-      console.log("Checkout response data:", data);
-
       if (data.url) {
-        console.log("Redirecting to:", data.url);
         window.location.href = data.url;
       } else if (data.error) {
         setError(`Error: ${data.error}`);

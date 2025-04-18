@@ -28,9 +28,6 @@ export function useUpdateEmailStyle() {
       const cachedData = queryClient.getQueryData(["email", emailId]) as any;
       const currentStyle = cachedData?.email?.style || {};
 
-      console.log("Current style:", currentStyle);
-      console.log("Incoming updates:", updates);
-
       // Create the updated style object by merging with current style
       const updatedStyle = {
         ...currentStyle,
@@ -59,8 +56,6 @@ export function useUpdateEmailStyle() {
         }),
       };
 
-      console.log("Updated style object:", updatedStyle);
-
       // Update the style column
       const { data, error } = await supabase
         .from("emails")
@@ -74,11 +69,9 @@ export function useUpdateEmailStyle() {
         throw error;
       }
 
-      console.log("Supabase response data:", data);
       return data;
     },
     onSuccess: (data, variables) => {
-      console.log("Mutation success - updating cache with:", data);
       // Instead of invalidating the query which causes a refetch,
       // update the cached data directly
       queryClient.setQueryData(["email", variables.emailId], (oldData: any) => {

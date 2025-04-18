@@ -215,12 +215,9 @@ export default function PostSendPage({
     queryFn: () => getEmailRecipientsAction({ emailId: email.id }),
   });
 
-  console.log("Raw recipients data:", recipients?.data?.data);
-
   // Transform the recipients data to match the expected type
   const transformedRecipients =
     recipients?.data?.data?.map((recipient: any) => {
-      console.log("Processing recipient:", recipient);
       return {
         id: recipient.id,
         email_address:
@@ -238,8 +235,6 @@ export default function PostSendPage({
             : null,
       };
     }) || [];
-
-  console.log("Transformed recipients:", transformedRecipients);
 
   return (
     <div className="relative">

@@ -15,7 +15,6 @@ export const getEmailAutomationAction = authActionClient
     name: "getEmailAutomation",
   })
   .action(async ({ parsedInput }) => {
-    console.log("parsedInput", parsedInput);
     const supabase = await createClient();
 
     // Get emails data

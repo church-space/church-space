@@ -35,9 +35,6 @@ export const deleteOrganization = task({
         await stripe.subscriptions.cancel(
           stripeSubscription.stripe_subscription_id,
         );
-        console.log(
-          `Cancelled Stripe subscription: ${stripeSubscription.stripe_subscription_id}`,
-        );
       } catch (error) {
         console.error("Error cancelling Stripe subscription:", error);
       }
@@ -53,9 +50,6 @@ export const deleteOrganization = task({
       throw new Error(`Failed to delete organization: ${deleteError.message}`);
     }
 
-    console.log(
-      `Successfully deleted organization: ${payload.organization_id}`,
-    );
     return { success: true };
   },
 });

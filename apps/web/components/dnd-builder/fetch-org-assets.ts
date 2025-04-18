@@ -77,8 +77,6 @@ export async function fetchOrgAssets({
       { bucket_name: "organization-assets", folder_path: `${path}/` },
     );
 
-    console.log("countData", countData);
-
     if (countError) {
       console.error("Count error:", countError);
       throw countError;

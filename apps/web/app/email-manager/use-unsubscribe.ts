@@ -27,5 +27,4 @@ export async function handleUnsubscribe(
     p_email_id: emailId,
     p_person_email_id: peopleEmailId,
   });
-  console.log("unsubscribed");
 }

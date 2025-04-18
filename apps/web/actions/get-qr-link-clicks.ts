@@ -19,8 +19,6 @@ export const getQRLinkClicksAction = authActionClient
     name: "getQRLinkClicks",
   })
   .action(async ({ parsedInput }) => {
-    console.log("parsedInput", parsedInput);
-
     // Get QR link clicks data
     const response = await getCachedQRCodeClicks(
       [parsedInput.qrLinkId.toString()],

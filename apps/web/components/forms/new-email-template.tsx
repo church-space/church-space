@@ -51,8 +51,6 @@ export default function NewEmailTemplate({
         type: "template",
       });
 
-      console.log(result);
-
       if (result?.data?.success && result?.data?.data) {
         await router.push(`/emails/${result.data.data.id}/editor`);
       }

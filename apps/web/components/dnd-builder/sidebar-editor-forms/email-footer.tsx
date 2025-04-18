@@ -630,15 +630,12 @@ export default function EmailFooterForm({
   const handleSaveAsDefault = async () => {
     try {
       setSavingAsDefault(true);
-      console.log("Saving footer as default:", {
-        organization_id: organizationId,
-        footer_data: localState,
-      });
+
       await updateDefaultEmailFooterAction({
         organization_id: organizationId,
         footer_data: localState,
       });
-      console.log("Successfully saved footer as default");
+
       setSaveAsDefaultDialogOpen(false);
     } catch (error) {
       console.error("Error saving footer as default:", error);

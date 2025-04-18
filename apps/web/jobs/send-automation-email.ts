@@ -260,9 +260,6 @@ export const sendAutomationEmail = task({
         errorMessage = `Resend error: ${sendError.message}`;
         emailSentSuccessfully = false;
       } else if (sendData) {
-        console.log(
-          `Email successfully sent to ${recipient.email} via Resend. ID: ${sendData.id}`,
-        );
         emailSentSuccessfully = true;
       } else {
         // Should not happen based on Resend types, but handle defensively

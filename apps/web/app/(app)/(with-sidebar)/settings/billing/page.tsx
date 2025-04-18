@@ -56,8 +56,6 @@ export default async function Page() {
 
   const subscription = subscriptionData;
 
-  console.log(subscription);
-
   const selectOptions = [
     { label: "Free - 250 Emails Per Month", value: "250" },
     { label: "$8 - 5,000 Emails Per Month", value: "5000" },

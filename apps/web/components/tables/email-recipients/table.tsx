@@ -25,14 +25,6 @@ export default function EmailRecipientsTable({
   initialSearch,
   initialStatus,
 }: EmailRecipientsTableProps) {
-  console.log("EmailRecipientsTable props:", {
-    emailId,
-    initialData,
-    initialCount,
-    initialSearch,
-    initialStatus,
-  });
-
   const [search, setSearch] = useQueryState("search", {
     parse: (value) => value,
     serialize: (value) => value ?? null,
@@ -65,8 +57,6 @@ export default function EmailRecipientsTable({
   const effectiveSearch = search ?? initialSearch ?? "";
   const effectiveStatus = status ?? initialStatus ?? "all";
 
-  console.log("Query state:", { effectiveSearch, effectiveStatus });
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useEmailRecipients(
       emailId,
@@ -90,13 +80,6 @@ export default function EmailRecipientsTable({
           : undefined,
       },
     );
-
-  console.log("useEmailRecipients result:", {
-    data,
-    hasNextPage,
-    isLoading,
-    isFetchingNextPage,
-  });
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -122,8 +105,6 @@ export default function EmailRecipientsTable({
     person: recipient.person || null,
   })) as EmailRecipient[];
   const count = data?.pages[0]?.count ?? initialCount ?? 0;
-
-  console.log("Rendered data:", { emails, count });
 
   return (
     <>

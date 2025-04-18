@@ -17,6 +17,9 @@ import { signInWithGoogle, signInWithOtp } from "@/app/(auth)/actions";
 import { useToast } from "@church-space/ui/use-toast";
 import { ArrowRight, ChurchSpaceBlack } from "@church-space/ui/icons";
 import { useSearchParams } from "next/navigation";
+import cookies from "js-cookie";
+import { jwtVerify } from "jose";
+import { addDays } from "date-fns";
 
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
@@ -27,7 +30,37 @@ export default function Page() {
   const toast = useToast();
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan");
+  const invite = searchParams.get("invite");
   const [selectedPlan, setSelectedPlan] = useState(plan);
+
+  let inviteExpires: Date | null = null;
+
+  useEffect(() => {
+    if (invite) {
+      const verifyInvite = async () => {
+        const { payload } = await jwtVerify(
+          invite,
+          new TextEncoder().encode(process.env.INVITE_JWT_SECRET),
+        );
+
+        if (!payload.exp) {
+          throw new Error("No expiration date found in invite token");
+        }
+
+        inviteExpires = new Date(payload.exp * 1000);
+
+        cookies.set("invite", invite, {
+          expires: inviteExpires,
+        });
+      };
+
+      verifyInvite();
+
+      cookies.set("invite", invite, {
+        expires: addDays(new Date(), 30),
+      });
+    }
+  }, [invite]);
 
   useEffect(() => {
     if (plan) {
@@ -36,8 +69,6 @@ export default function Page() {
       setSelectedPlan("free");
     }
   }, [plan]);
-
-  console.log(selectedPlan);
 
   const updateLastUsedMethod = (method: string) => {
     localStorage.setItem("lastAuthMethod", method);

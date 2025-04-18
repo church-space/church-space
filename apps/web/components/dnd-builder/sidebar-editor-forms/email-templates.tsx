@@ -124,27 +124,17 @@ export default function EmailTemplateForm({
 
     setIsSaving(true);
     try {
-      console.log("Saving template:", {
-        subject: templateName,
-        organization_id: organizationId,
-        source_email_id: emailId,
-      });
-
       const result = await createEmailTemplateFromEmailAction({
         subject: templateName,
         organization_id: organizationId,
         source_email_id: emailId,
       });
 
-      console.log("Template save result:", JSON.stringify(result, null, 2));
-
       // Use a type assertion to access the properties
       const resultObj = result as any;
 
       // Check if the result has a data property, which indicates success
       if (resultObj && resultObj.data) {
-        console.log("Template saved successfully:", resultObj.data);
-
         toast({
           title: "Success",
           description: "Email template saved successfully",
@@ -152,12 +142,10 @@ export default function EmailTemplateForm({
 
         // Refresh the templates list
         try {
-          console.log("Refreshing templates list...");
           // Instead of invalidating, refetch the current query
           await queryClient.refetchQueries({
             queryKey: ["emailTemplates", organizationId],
           });
-          console.log("Templates list refreshed");
         } catch (refreshError) {
           console.error("Error refreshing templates list:", refreshError);
           // Continue with the success flow even if refresh fails
@@ -211,22 +199,13 @@ export default function EmailTemplateForm({
 
     setIsApplying(true);
     try {
-      console.log("Applying template:", {
-        target_email_id: emailId,
-        template_email_id: selectedTemplate.id,
-      });
-
       const result = await applyEmailTemplateAction({
         target_email_id: emailId,
         template_email_id: selectedTemplate.id,
       });
 
-      console.log("Template apply result:", JSON.stringify(result, null, 2));
-
       // The response is nested, so we need to check both levels
       if (result && result.data && result.data.success) {
-        console.log("Template applied successfully:", result.data);
-
         // Close the dialog
         setConfirmDialogOpen(false);
         setSelectedTemplate(null);

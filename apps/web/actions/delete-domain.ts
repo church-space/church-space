@@ -24,28 +24,18 @@ export const deleteDomainAction = authActionClient
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
-      console.log("Starting domain deletion with:", {
-        organization_id: parsedInput.parsedInput.organization_id,
-        domain_id: parsedInput.parsedInput.domain_id,
-        resend_domain_id: parsedInput.parsedInput.resend_domain_id,
-      });
-
       // First, delete the domain from Resend if we have a resend_domain_id
       if (parsedInput.parsedInput.resend_domain_id) {
-        console.log("Deleting domain from Resend...");
         try {
           await resend.domains.remove(parsedInput.parsedInput.resend_domain_id);
-          console.log("Domain deleted from Resend successfully");
         } catch (resendError) {
           console.error("Error deleting domain from Resend:", resendError);
           // Continue with database deletion even if Resend deletion fails
-          console.log("Continuing with database deletion despite Resend error");
         }
       }
 
       const supabase = await createClient();
 
-      console.log("Deleting domain from database...");
       try {
         const result = await deleteDomain(
           supabase,
@@ -62,7 +52,7 @@ export const deleteDomainAction = authActionClient
         }
 
         // Check if there's only one domain left for this organization
-        console.log("Checking if there's only one domain left...");
+
         const { data: remainingDomains, error: fetchError } = await supabase
           .from("domains")
           .select("id")
@@ -71,7 +61,6 @@ export const deleteDomainAction = authActionClient
         if (fetchError) {
           console.error("Error fetching remaining domains:", fetchError);
         } else if (remainingDomains && remainingDomains.length === 1) {
-          console.log("Only one domain left, setting it as primary...");
           // Set the remaining domain as primary
           const { error: updateError } = await supabase
             .from("domains")
@@ -81,13 +70,11 @@ export const deleteDomainAction = authActionClient
 
           if (updateError) {
             console.error("Error setting domain as primary:", updateError);
-          } else {
-            console.log("Domain set as primary successfully");
           }
         }
 
         // Revalidate the domains query tag
-        console.log("Domain deleted successfully, revalidating...");
+
         try {
           revalidateTag(`domains_${parsedInput.parsedInput.organization_id}`);
         } catch (revalidateError) {
@@ -95,7 +82,6 @@ export const deleteDomainAction = authActionClient
           // Continue even if revalidation fails
         }
 
-        console.log("Domain deletion complete");
         return {
           success: true,
           data: { id: parsedInput.parsedInput.domain_id },

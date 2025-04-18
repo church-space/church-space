@@ -68,12 +68,6 @@ export async function POST(request: NextRequest) {
   // Handle domain.updated event
   switch (payload.type) {
     case "domain.updated":
-      console.log("Domain updated:", {
-        domain: payload.data.name,
-        status: payload.data.status,
-        records: payload.data.records,
-      });
-
       // Check if all records are verified
       const allRecordsVerified = payload.data.records.every(
         (record) => record.status === "verified",

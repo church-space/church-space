@@ -21,16 +21,9 @@ export const createEmailTemplateFromEmailAction = authActionClient
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
-      console.log("Starting template creation with:", {
-        subject: parsedInput.parsedInput.subject,
-        organization_id: parsedInput.parsedInput.organization_id,
-        source_email_id: parsedInput.parsedInput.source_email_id,
-      });
-
       const supabase = await createClient();
 
       // First check if the source email exists
-      console.log("Fetching source email...");
       const { data: sourceEmail, error: sourceError } =
         await getEmailWithFooterAndBlocksQuery(
           supabase,
@@ -54,7 +47,6 @@ export const createEmailTemplateFromEmailAction = authActionClient
       }
 
       // Check if the footer exists directly
-      console.log("Checking for footer...");
       const { data: footerCheck, error: footerCheckError } = await supabase
         .from("email_footers")
         .select("id")
@@ -63,26 +55,7 @@ export const createEmailTemplateFromEmailAction = authActionClient
 
       if (footerCheckError) {
         console.error("Footer check error:", footerCheckError);
-      } else {
-        console.log(
-          "Footer check result:",
-          footerCheck ? "Footer found" : "No footer found",
-        );
       }
-
-      console.log("Source email found, creating template...");
-      console.log(
-        "Source email has footer:",
-        sourceEmail.email_footers &&
-          Array.isArray(sourceEmail.email_footers) &&
-          sourceEmail.email_footers.length > 0,
-      );
-      console.log(
-        "Source email has blocks:",
-        sourceEmail.email_blocks &&
-          Array.isArray(sourceEmail.email_blocks) &&
-          sourceEmail.email_blocks.length > 0,
-      );
 
       try {
         const data = await createEmailTemplateFromEmail(
@@ -93,7 +66,6 @@ export const createEmailTemplateFromEmailAction = authActionClient
         );
 
         // Revalidate the emailTemplates query tag
-        console.log("Template created successfully, revalidating...");
         try {
           revalidateTag("emailTemplates");
         } catch (revalidateError) {
@@ -102,7 +74,6 @@ export const createEmailTemplateFromEmailAction = authActionClient
         }
 
         if (data) {
-          console.log("Template creation complete:", data);
           return {
             success: true,
             data: data,

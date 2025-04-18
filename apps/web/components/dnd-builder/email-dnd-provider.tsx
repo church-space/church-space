@@ -1518,7 +1518,6 @@ export default function EmailDndProvider({
   // Fix handleIsInsetChange to include history update
   const handleIsInsetChange = useCallback(
     (inset: boolean) => {
-      console.log("handleIsInsetChange called with:", inset);
       // Update UI immediately - this will add to history
       updateStylesHistory({ isInset: inset });
 
@@ -1530,7 +1529,6 @@ export default function EmailDndProvider({
       debouncedStyleUpdateRef.current = setTimeout(() => {
         // Update in database if we have an emailId
         if (emailId) {
-          console.log("Calling debouncedStyleUpdate with is_inset:", inset);
           debouncedStyleUpdate({
             is_inset: inset,
           });

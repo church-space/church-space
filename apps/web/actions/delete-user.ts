@@ -99,7 +99,7 @@ export const deleteUserAction = authActionClient
       }
 
       // Delete from auth first
-      console.log("Deleting user from auth...");
+
       const { error: deleteAuthError } =
         await jobClient.auth.admin.deleteUser(userId);
 

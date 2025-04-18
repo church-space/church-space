@@ -44,21 +44,14 @@ export const addDomainAction = authActionClient
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
-      console.log("Starting domain addition with:", {
-        organization_id: parsedInput.parsedInput.organization_id,
-        domain: parsedInput.parsedInput.domain,
-      });
-
       // First, add the domain to Resend
-      console.log("Adding domain to Resend...");
+
       let resendDomainData: ResendDomainResponse;
       try {
         // The Resend API response structure might be different than expected
         const resendResponse = await resend.domains.create({
           name: parsedInput.parsedInput.domain,
         });
-
-        console.log("Raw Resend API response:", resendResponse);
 
         // Handle different response structures - use any type for flexibility
         const responseAny = resendResponse as any;
@@ -73,18 +66,13 @@ export const addDomainAction = authActionClient
             ? (responseAny as ResendDomainResponse)
             : (responseAny.data as ResendDomainResponse);
 
-          console.log("Parsed Resend domain data:", resendDomainData);
-
           // Enable click tracking and open tracking after domain creation
-          console.log("Enabling click tracking and open tracking...");
           try {
             const updateResponse = await resend.domains.update({
               id: resendDomainData.id,
               openTracking: true,
               clickTracking: true,
             });
-
-            console.log("Domain tracking settings updated:", updateResponse);
           } catch (trackingError) {
             console.error("Error enabling tracking features:", trackingError);
             // Continue even if tracking settings fail - this is not critical
@@ -99,8 +87,6 @@ export const addDomainAction = authActionClient
             error: "Failed to add domain to Resend: Invalid response",
           };
         }
-
-        console.log("Domain added to Resend:", resendDomainData);
       } catch (resendError) {
         console.error("Error adding domain to Resend:", resendError);
         const errorMessage =
@@ -114,7 +100,6 @@ export const addDomainAction = authActionClient
         };
       }
 
-      console.log("Creating Supabase client...");
       let supabase;
       try {
         // Make sure we're using the server-side client with cookies
@@ -139,10 +124,6 @@ export const addDomainAction = authActionClient
             error: "No active session found. Please log in again.",
           };
         }
-
-        console.log(
-          "Supabase client created successfully with authenticated session",
-        );
       } catch (clientError) {
         console.error("Error creating Supabase client:", clientError);
         return {
@@ -205,12 +186,6 @@ export const addDomainAction = authActionClient
           }
         }
 
-        console.log(
-          "Final formatted records:",
-          JSON.stringify(formattedRecords, null, 2),
-        );
-        console.log("Number of records:", formattedRecords.length);
-
         if (formattedRecords.length === 0) {
           console.error(
             "⚠️ WARNING: No DNS records found to return to client!",
@@ -225,8 +200,6 @@ export const addDomainAction = authActionClient
           resendDomainData.id,
           formattedRecords, // Pass the records directly without stringifying
         );
-
-        console.log("Supabase result:", result);
 
         if (result.error) {
           console.error("Error adding domain:", result.error);
@@ -248,17 +221,12 @@ export const addDomainAction = authActionClient
         }
 
         // Log the raw data before formatting
-        console.log(
-          "Raw result.data[0]:",
-          JSON.stringify(result.data[0], null, 2),
-        );
 
         // Revalidate the domains query tag
-        console.log("Domain added successfully, revalidating...");
+
         try {
           // Force revalidation to update the UI
           revalidateTag(`domains_${parsedInput.parsedInput.organization_id}`);
-          console.log("Tag revalidated successfully");
         } catch (revalidateError) {
           console.error("Error revalidating tag:", revalidateError);
           // Continue even if revalidation fails
@@ -272,12 +240,6 @@ export const addDomainAction = authActionClient
           records: formattedRecords,
           resend_domain_id: resendDomainData.id,
         };
-
-        console.log("Response structure:", Object.keys(responseData));
-        console.log(
-          "Final response data:",
-          JSON.stringify(responseData, null, 2),
-        );
 
         return {
           success: true,

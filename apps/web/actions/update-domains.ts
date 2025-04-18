@@ -26,15 +26,10 @@ export const updateDomainsAction = authActionClient
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
-      console.log("Starting domain update with:", {
-        domain_id: parsedInput.parsedInput.domain_id,
-        domain_data: parsedInput.parsedInput.domain_data,
-      });
-
       const supabase = await createClient();
 
       // First check if the domain exists
-      console.log("Checking if domain exists...");
+
       const { data: existingDomain, error: domainCheckError } = await supabase
         .from("domains")
         .select("*")
@@ -59,10 +54,6 @@ export const updateDomainsAction = authActionClient
 
       // Handle primary domain logic
       if (parsedInput.parsedInput.domain_data.is_primary === true) {
-        console.log(
-          "Setting domain as primary, first unsetting old primary domain",
-        );
-
         // Get the organization ID
         const organizationId = existingDomain.organization_id;
 
@@ -88,7 +79,6 @@ export const updateDomainsAction = authActionClient
           currentPrimaryDomain &&
           currentPrimaryDomain.id !== parsedInput.parsedInput.domain_id
         ) {
-          console.log("Unsetting old primary domain:", currentPrimaryDomain.id);
           const unsetResult = await updateDomain(
             supabase,
             currentPrimaryDomain.id,
@@ -104,8 +94,6 @@ export const updateDomainsAction = authActionClient
           }
         }
       }
-
-      console.log("Domain found, updating...");
 
       try {
         const result = await updateDomain(
@@ -123,7 +111,7 @@ export const updateDomainsAction = authActionClient
         }
 
         // Revalidate the domain query tag
-        console.log("Domain updated successfully, revalidating...");
+
         try {
           revalidateTag(`domains_${existingDomain.organization_id}`);
         } catch (revalidateError) {
@@ -131,7 +119,6 @@ export const updateDomainsAction = authActionClient
           // Continue even if revalidation fails
         }
 
-        console.log("Domain update complete:", result.data);
         return {
           success: true,
           data: result.data,

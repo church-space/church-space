@@ -28,17 +28,6 @@ export async function getPublicPcoListsQuery(
 
   const { data, error } = await query;
 
-  console.log("Query params:", {
-    organizationId,
-    search,
-    searchTrimmed: search?.trim(),
-  });
-  console.log("Query results:", {
-    data,
-    error,
-    count: data?.length,
-  });
-
   return { data, error };
 }
 

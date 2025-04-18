@@ -51,8 +51,6 @@ export default function NewEmail({
         type: "standard",
       });
 
-      console.log(result);
-
       if (result?.data?.success && result?.data?.data) {
         await router.push(
           `/emails/${result.data.data.id}/editor?newEmail=true`,

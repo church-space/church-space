@@ -50,8 +50,6 @@ export default async function Page() {
     }[]
   )?.[0];
 
-  console.log(userDetails);
-
   return (
     <div className="relative">
       <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">

@@ -111,9 +111,6 @@ export const useFileUpload = (
       if (file.type.startsWith("image/")) {
         try {
           fileToUpload = await compressImage(file);
-          console.log(
-            `Compressed image from ${(file.size / 1024).toFixed(2)}KB to ${(fileToUpload.size / 1024).toFixed(2)}KB`,
-          );
         } catch (error) {
           console.error("Image compression failed:", error);
           // Continue with the original file if compression fails

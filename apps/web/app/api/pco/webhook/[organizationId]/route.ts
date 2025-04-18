@@ -294,8 +294,6 @@ export async function POST(
           "person_added",
         );
 
-        console.log("automations", automations);
-
         for (const automation of automations?.data || []) {
           await filterAutomationEmails.trigger({
             automationId: automation.id,
@@ -339,8 +337,6 @@ export async function POST(
           supabase,
           "person_removed",
         );
-
-        console.log("automations", automations);
 
         for (const automation of automations?.data || []) {
           await filterAutomationEmails.trigger({

@@ -19,11 +19,7 @@ export async function POST(request: Request) {
     const emailId = payload.email_id as number;
     const peopleEmailId = payload.people_email_id as number;
 
-    console.log("emailId", emailId);
-    console.log("peopleEmailId", peopleEmailId);
-
     if (!emailId || !peopleEmailId) {
-      console.log("Invalid token payload");
       return new Response("Invalid token payload", { status: 400 });
     }
 

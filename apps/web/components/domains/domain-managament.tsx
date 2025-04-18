@@ -288,7 +288,6 @@ export default function DomainManagement({
 
       // Use any type to safely handle different response formats
       const result = response as any;
-      console.log("Server action response:", JSON.stringify(result, null, 2));
 
       // Check if response is successful
       const isSuccess =
@@ -319,8 +318,6 @@ export default function DomainManagement({
       try {
         // Extract data from response
         const domainData = result.data.data;
-
-        console.log("Domain data from server action:", domainData);
 
         // Add the new domain to the state
         let newRecords = domainData.records || [];
@@ -529,8 +526,6 @@ export default function DomainManagement({
         },
       });
 
-      console.log("Set primary response:", response);
-
       // Cast response to ActionResponse type to access expected properties
       const typedResponse = response as ActionResponse;
 
@@ -543,14 +538,11 @@ export default function DomainManagement({
         (typedResponse && typedResponse.data && !typedResponse.error);
 
       if (isSuccess) {
-        console.log(`Setting ${domain.name} as primary`);
-
         // Update the primaryDomain state
         setPrimaryDomain(domain.name);
 
         // Update all domains to reflect the new primary status
         setDomains((prevDomains) => {
-          console.log("Updating domains primary status");
           return prevDomains.map((d) => ({
             ...d,
             isPrimary: d.id === domain.id,

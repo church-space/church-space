@@ -4,8 +4,6 @@ export async function getEmailWithFooterAndBlocksQuery(
   supabase: Client,
   emailId: number
 ) {
-  console.log("Querying email with footer and blocks for email ID:", emailId);
-
   // First get the email
   const { data: emailData, error: emailError } = await supabase
     .from("emails")
@@ -50,12 +48,6 @@ export async function getEmailWithFooterAndBlocksQuery(
     email_blocks: blocks || [],
     email_footers: footer ? [footer] : [],
   };
-
-  console.log("Query result:", {
-    hasEmail: !!emailData,
-    hasBlocks: blocks && blocks.length > 0,
-    hasFooter: !!footer,
-  });
 
   return { data: result, error: null };
 }

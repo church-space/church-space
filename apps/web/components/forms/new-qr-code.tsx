@@ -72,8 +72,6 @@ export default function NewQRCode({
         organization_id: organizationId,
       });
 
-      console.log(result);
-
       if (result?.data?.success && result?.data?.data) {
         await router.push(`/qr-codes/${result.data.data.id}?newQRCode=true`);
       }

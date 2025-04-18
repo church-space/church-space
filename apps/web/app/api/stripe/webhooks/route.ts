@@ -39,18 +39,11 @@ const allowedEvents: Stripe.Event.Type[] = [
 ];
 
 export async function POST(request: NextRequest) {
-  console.log("Stripe webhook received");
-
   try {
     // Log all headers for debugging
-    console.log(
-      "Request headers:",
-      Object.fromEntries(request.headers.entries()),
-    );
 
     // Get the raw request body as a string
     const rawBody = await request.text();
-    console.log("Raw body length:", rawBody.length);
 
     const signature = request.headers.get("stripe-signature");
 
@@ -62,22 +55,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(
-      "Webhook request received with signature:",
-      signature.substring(0, 20) + "...",
-    );
-
     let event: Stripe.Event;
 
     try {
       // Verify the event came from Stripe
-      console.log("Attempting to verify Stripe signature");
+
       event = stripe.webhooks.constructEvent(
         rawBody,
         signature,
         process.env.STRIPE_WEBHOOK_SECRET!,
       );
-      console.log("Webhook signature verified successfully");
     } catch (err) {
       console.error(
         `Webhook signature verification failed: ${(err as Error).message}`,
@@ -125,8 +112,6 @@ export async function POST(request: NextRequest) {
 }
 
 async function processEvent(event: Stripe.Event, supabase: any) {
-  console.log(`Processing event: ${event.type}`);
-
   switch (event.type) {
     case "checkout.session.completed":
       await handleCheckoutSessionCompleted(
@@ -188,12 +173,6 @@ async function handleCheckoutSessionCompleted(
   // Get the metadata from the session
   const { organizationId, userId } = session.metadata || {};
   const customerId = session.customer as string;
-
-  console.log("Checkout session completed", {
-    organizationId,
-    userId,
-    customerId,
-  });
 
   if (!customerId) {
     console.error("No customer ID in checkout session");

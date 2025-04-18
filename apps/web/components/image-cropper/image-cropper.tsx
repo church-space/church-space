@@ -29,8 +29,6 @@ export default function ProfileUploadModal() {
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  console.log(croppedImage);
-
   const validateAndProcessFile = (file: File) => {
     // Check file size - 50MB maximum
     const maxSize = 50 * 1024 * 1024; // 50MB in bytes

@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         stripeCustomerExists = !stripeCustomer.deleted;
       } catch (err) {
         // Customer not found in Stripe or other error
-        console.log("Customer not found in Stripe or deleted:", err);
+
         stripeCustomerExists = false;
       }
     }
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     // Create new customer if needed
     if (!customerId || !stripeCustomerExists) {
       // Create customer in Stripe
-      console.log("Creating new Stripe customer for userId:", userId);
+
       const customer = await stripe.customers.create({
         metadata: {
           userId,
@@ -100,14 +100,6 @@ export async function POST(request: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-    console.log("Creating checkout session with:", {
-      customerId,
-      priceId,
-      organizationId,
-      userId,
-      siteUrl: baseUrl,
-    });
-
     // Create checkout session with the customer ID
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -126,11 +118,6 @@ export async function POST(request: NextRequest) {
         organizationId,
         userId,
       },
-    });
-
-    console.log("Checkout session created:", {
-      sessionId: session.id,
-      url: session.url,
     });
 
     if (!session.url) {

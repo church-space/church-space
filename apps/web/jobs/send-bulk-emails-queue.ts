@@ -207,9 +207,6 @@ export const sendBulkEmails = task({
 
         for (const peopleEmailId of batch) {
           const recipientData = recipients[peopleEmailId];
-          console.log(
-            `Preparing email for recipient: ${recipientData.firstName || "[no first name]"} ${recipientData.lastName || "[no last name]"} <${recipientData.email}>`,
-          );
 
           try {
             // Create JWT token for unsubscribe link
@@ -286,8 +283,6 @@ export const sendBulkEmails = task({
             );
             failureCount++;
           }
-
-          console.log({ emailBatch: emailBatch });
         }
 
         if (emailBatch.length > 0) {
@@ -306,9 +301,6 @@ export const sendBulkEmails = task({
               const emailAddress = recipientData.email;
 
               try {
-                console.log(
-                  `Creating failed recipient record for ${emailAddress}`,
-                );
                 await supabase.from("email_recipients").insert({
                   email_id: emailId,
                   people_email_id: parseInt(peopleEmailId),
@@ -316,9 +308,7 @@ export const sendBulkEmails = task({
                   status: "did-not-send",
                   unsubscribe_token: batchTokens[peopleEmailId] || "",
                 });
-                console.log(
-                  `Successfully created failed recipient record for ${emailAddress}`,
-                );
+
                 failureCount++;
               } catch (insertError) {
                 console.error(

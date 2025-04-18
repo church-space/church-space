@@ -46,8 +46,6 @@ export default function Page() {
     }
   }, [email?.data]);
 
-  console.log(stats);
-
   if (
     isLoading ||
     ((emailState?.status || email?.data?.status) === "sent" && isStatsLoading)

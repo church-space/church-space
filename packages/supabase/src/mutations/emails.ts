@@ -41,7 +41,6 @@ export async function createEmailTemplateFromEmail(
   }
 
   // Directly query for the footer to ensure we have it
-  console.log("Directly querying for footer with email_id:", sourceEmailId);
   const { data: directFooter, error: directFooterError } = await supabase
     .from("email_footers")
     .select("*")
@@ -50,26 +49,9 @@ export async function createEmailTemplateFromEmail(
 
   if (directFooterError) {
     console.error("Error directly querying footer:", directFooterError);
-  } else {
-    console.log("Direct footer query result:", directFooter);
   }
 
-  console.log("Source email found:", {
-    id: sourceEmail.id,
-    subject: sourceEmail.subject,
-    hasFooter:
-      sourceEmail.email_footers &&
-      Array.isArray(sourceEmail.email_footers) &&
-      sourceEmail.email_footers.length > 0,
-    footerData: sourceEmail.email_footers,
-    hasBlocks:
-      sourceEmail.email_blocks &&
-      Array.isArray(sourceEmail.email_blocks) &&
-      sourceEmail.email_blocks.length > 0,
-  });
-
   // Create the new email template
-  console.log("Creating new email template");
   const { data: newEmail, error: emailError } = await supabase
     .from("emails")
     .insert({
@@ -86,8 +68,6 @@ export async function createEmailTemplateFromEmail(
     throw emailError;
   }
 
-  console.log("New email template created:", newEmail);
-
   // Use the direct footer query result if available, otherwise use the one from the email
   const sourceFooter =
     directFooter ||
@@ -99,14 +79,9 @@ export async function createEmailTemplateFromEmail(
 
   // Copy the footer if it exists
   if (sourceFooter) {
-    console.log("Source footer found:", {
-      id: sourceFooter.id,
-      type: sourceFooter.type,
-    });
-
     try {
       // Check if a footer already exists for this email (it shouldn't, but just to be safe)
-      console.log("Checking for existing footer for email ID:", newEmail.id);
+
       const { data: existingFooter, error: checkError } = await supabase
         .from("email_footers")
         .select("id")
@@ -122,7 +97,6 @@ export async function createEmailTemplateFromEmail(
 
       // If a footer already exists, update it instead of creating a new one
       if (existingFooter) {
-        console.log("Existing footer found, updating:", existingFooter);
         const { error: updateError } = await supabase
           .from("email_footers")
           .update({
@@ -151,10 +125,8 @@ export async function createEmailTemplateFromEmail(
             `Error updating existing footer: ${updateError.message}`
           );
         }
-        console.log("Footer updated successfully");
       } else {
         // Create a new footer linked to the new email
-        console.log("Creating new footer for email ID:", newEmail.id);
 
         // Create a clean footer object without any unexpected properties
         const footerData = {
@@ -186,8 +158,6 @@ export async function createEmailTemplateFromEmail(
           secondary_text_color: sourceFooter.secondary_text_color,
         };
 
-        console.log("Footer data to insert:", footerData);
-
         const { error: footerError } = await supabase
           .from("email_footers")
           .insert(footerData);
@@ -196,15 +166,12 @@ export async function createEmailTemplateFromEmail(
           console.error("Error creating new footer:", footerError);
           throw new Error(`Error creating new footer: ${footerError.message}`);
         }
-        console.log("Footer created successfully");
       }
     } catch (error) {
       console.error("Error handling footer:", error);
       // Don't throw here, continue with blocks
       console.warn("Continuing without footer due to error");
     }
-  } else {
-    console.log("No footer found in source email, skipping footer creation");
   }
 
   // Copy the blocks if they exist
@@ -213,7 +180,6 @@ export async function createEmailTemplateFromEmail(
     Array.isArray(sourceEmail.email_blocks) &&
     sourceEmail.email_blocks.length > 0
   ) {
-    console.log("Copying blocks, count:", sourceEmail.email_blocks.length);
     try {
       const blocksToInsert = sourceEmail.email_blocks.map((block) => ({
         type: block.type,
@@ -231,17 +197,13 @@ export async function createEmailTemplateFromEmail(
         console.error("Error inserting blocks:", blocksError);
         throw new Error(`Error inserting blocks: ${blocksError.message}`);
       }
-      console.log("Blocks copied successfully");
     } catch (error) {
       console.error("Error copying blocks:", error);
       // Don't throw here, return the email even if blocks failed
       console.warn("Continuing without blocks due to error");
     }
-  } else {
-    console.log("No blocks found in source email, skipping block creation");
   }
 
-  console.log("Template creation completed successfully");
   return newEmail;
 }
 
@@ -250,13 +212,7 @@ export async function applyEmailTemplate(
   emailId: number,
   templateEmailId: number
 ) {
-  console.log("applyEmailTemplate called with:", {
-    emailId,
-    templateEmailId,
-  });
-
   // Get the template email with its footer and blocks
-  console.log("Fetching template email with ID:", templateEmailId);
   const { data: templateEmail, error: templateError } =
     await getEmailWithFooterAndBlocksQuery(supabase, templateEmailId);
 
@@ -271,7 +227,6 @@ export async function applyEmailTemplate(
   }
 
   // Get the target email to update
-  console.log("Fetching target email with ID:", emailId);
   const { data: targetEmail, error: targetError } = await supabase
     .from("emails")
     .select("*")
@@ -284,7 +239,6 @@ export async function applyEmailTemplate(
   }
 
   // Update the target email style to match the template
-  console.log("Updating target email style");
   const { error: updateStyleError } = await supabase
     .from("emails")
     .update({ style: templateEmail.style })
@@ -296,7 +250,7 @@ export async function applyEmailTemplate(
   }
 
   // Delete all existing blocks from the target email
-  console.log("Deleting existing blocks from target email");
+
   const { error: deleteBlocksError } = await supabase
     .from("email_blocks")
     .delete()
@@ -313,7 +267,6 @@ export async function applyEmailTemplate(
     Array.isArray(templateEmail.email_blocks) &&
     templateEmail.email_blocks.length > 0
   ) {
-    console.log("Copying blocks, count:", templateEmail.email_blocks.length);
     try {
       const blocksToInsert = templateEmail.email_blocks.map((block) => ({
         type: block.type,
@@ -331,13 +284,10 @@ export async function applyEmailTemplate(
         console.error("Error inserting blocks:", blocksError);
         throw new Error(`Error inserting blocks: ${blocksError.message}`);
       }
-      console.log("Blocks copied successfully");
     } catch (error) {
       console.error("Error copying blocks:", error);
       throw error;
     }
-  } else {
-    console.log("No blocks found in template email");
   }
 
   // Handle the footer
@@ -350,8 +300,6 @@ export async function applyEmailTemplate(
       : null;
 
   if (templateFooter) {
-    console.log("Template footer found, updating target email footer");
-
     // Check if the target email already has a footer
     const { data: existingFooter, error: checkFooterError } = await supabase
       .from("email_footers")
@@ -386,7 +334,7 @@ export async function applyEmailTemplate(
 
     if (existingFooter) {
       // Update existing footer
-      console.log("Updating existing footer");
+
       const { error: updateFooterError } = await supabase
         .from("email_footers")
         .update(footerData)
@@ -398,7 +346,7 @@ export async function applyEmailTemplate(
       }
     } else {
       // Create new footer
-      console.log("Creating new footer");
+
       const { error: createFooterError } = await supabase
         .from("email_footers")
         .insert({
@@ -411,12 +359,8 @@ export async function applyEmailTemplate(
         throw createFooterError;
       }
     }
-    console.log("Footer updated successfully");
-  } else {
-    console.log("No footer found in template email");
   }
 
-  console.log("Template application completed successfully");
   return { success: true, emailId };
 }
 

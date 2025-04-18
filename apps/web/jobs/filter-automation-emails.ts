@@ -46,10 +46,6 @@ export const filterAutomationEmails = task({
     let currentMemberRecordId: number | null = null;
 
     try {
-      console.log(
-        `Starting automation ${automationId} for PCO person ${pcoPersonId} in org ${organizationId}`,
-      );
-
       // Step 1: Fetch the internal Person ID needed for the members table FK
       const { data: personData, error: personError } = await supabase
         .from("people")
@@ -133,9 +129,6 @@ export const filterAutomationEmails = task({
       }
 
       if (steps.length === 0) {
-        console.log(
-          `Automation ${automationId} has no steps. Cannot start automation.`,
-        );
         // Consider if we need to create a member record indicating failure/completion immediately
         // For now, just exit gracefully.
         return {
@@ -145,7 +138,7 @@ export const filterAutomationEmails = task({
       }
 
       // Step 6: Create the NEW automation member record (always start fresh)
-      console.log("Creating new automation member record...");
+
       const { data: newMemberData, error: createMemberError } = await supabase
         .from("email_automation_members")
         .insert({
@@ -166,19 +159,12 @@ export const filterAutomationEmails = task({
         );
       }
       currentMemberRecordId = newMemberData.id;
-      console.log(
-        `Created new member record ${currentMemberRecordId} for person ${internalPersonId} (PCO: ${pcoPersonId}).`,
-      );
 
       // Step 7: Iterate through ALL steps from the beginning
       const startIndex = 0; // Always start from the first step
-      console.log(`Starting processing from step index ${startIndex}.`);
 
       for (let i = startIndex; i < steps.length; i++) {
         const step = steps[i] as AutomationStep;
-        console.log(
-          `Processing step ${i + 1}/${steps.length}: ID ${step.id}, Type: ${step.type}`,
-        );
 
         if (step.type === "wait") {
           const waitValues = step.values as WaitStepValues;
@@ -187,8 +173,6 @@ export const filterAutomationEmails = task({
               `Invalid wait step configuration for step ID ${step.id}: Missing values.`,
             );
           }
-
-          console.log(`Waiting for ${waitValues.value} ${waitValues.unit}...`);
 
           // Use conditional logic instead of computed property for wait.for
           if (waitValues.unit === "days") {
@@ -199,7 +183,6 @@ export const filterAutomationEmails = task({
             // Handle unexpected unit or throw error
             throw new Error(`Unsupported wait unit: ${waitValues.unit}`);
           }
-          console.log(`Wait finished for step ${step.id}.`);
 
           // Update last completed step ID after wait
           await supabase
@@ -210,9 +193,6 @@ export const filterAutomationEmails = task({
             })
             .eq("id", currentMemberRecordId);
           // lastCompletedStepId = step.id; // No longer need to track this locally
-          console.log(
-            `Updated last_completed_step_id to ${step.id} for member ${currentMemberRecordId}`,
-          );
         } else if (step.type === "send_email") {
           const emailTemplateId = step.email_template;
 
@@ -221,8 +201,6 @@ export const filterAutomationEmails = task({
               `Invalid email step configuration for step ID ${step.id}: Missing email_template ID.`,
             );
           }
-
-          console.log(`Preparing to send email for step ${step.id}...`);
 
           // a) Fetch the person's email and subscription status using pcoPersonId
           const { data: personEmailData, error: personEmailError } =
@@ -257,9 +235,7 @@ export const filterAutomationEmails = task({
 
           if (!personEmailData) {
             // No subscribed email found
-            console.log(
-              `PCO Person ${pcoPersonId} is not subscribed or has no email record. Canceling automation.`,
-            );
+
             await supabase
               .from("email_automation_members")
               .update({
@@ -279,8 +255,6 @@ export const filterAutomationEmails = task({
           const firstName = personEmailData.people?.first_name || undefined;
           const lastName = personEmailData.people?.last_name || undefined;
 
-          console.log(`Found subscribed email: ${recipientEmail}`);
-
           // b) Check list category unsubscribes
           const { data: unsubscribeData, error: unsubscribeError } =
             await supabase
@@ -298,9 +272,6 @@ export const filterAutomationEmails = task({
           }
 
           if (unsubscribeData) {
-            console.log(
-              `Email ${recipientEmail} is unsubscribed from category ${internalListCategoryId}. Canceling automation.`,
-            );
             await supabase
               .from("email_automation_members")
               .update({
@@ -315,10 +286,6 @@ export const filterAutomationEmails = task({
             };
           }
 
-          console.log(
-            `Email ${recipientEmail} is subscribed and not unsubscribed from category. Proceeding to send.`,
-          );
-
           // c) Trigger sendBulkEmails
           const recipients: Record<
             string,
@@ -330,10 +297,6 @@ export const filterAutomationEmails = task({
               lastName: lastName,
             },
           };
-
-          console.log(
-            `Triggering sendAutomationEmail for template ${emailTemplateId}...`,
-          );
 
           if (!step.from_email_domain) {
             await supabase
@@ -366,9 +329,6 @@ export const filterAutomationEmails = task({
             personId: internalPersonId,
             triggerAutomationRunId: ctx.run.id,
           });
-          console.log(
-            `sendAutomationEmail triggered successfully for step ${step.id}.`,
-          );
 
           // d) Update last completed step ID after successful trigger
           await supabase
@@ -379,18 +339,12 @@ export const filterAutomationEmails = task({
             })
             .eq("id", currentMemberRecordId);
           // lastCompletedStepId = step.id; // No longer need to track
-          console.log(
-            `Updated last_completed_step_id to ${step.id} for member ${currentMemberRecordId}`,
-          );
         } else {
           console.warn(`Unknown step type encountered: ${step.type}`);
         }
       }
 
       // Step 8: Mark automation as completed for this member
-      console.log(
-        `All steps processed successfully for member ${currentMemberRecordId}. Marking as completed.`,
-      );
 
       await supabase
         .from("email_automation_members")
@@ -421,9 +375,6 @@ export const filterAutomationEmails = task({
               updated_at: new Date().toISOString(),
             })
             .eq("id", currentMemberRecordId);
-          console.log(
-            `Updated member ${currentMemberRecordId} status to failed.`,
-          );
         } catch (updateError) {
           console.error(
             `Failed to update member ${currentMemberRecordId} status to failed:`,
