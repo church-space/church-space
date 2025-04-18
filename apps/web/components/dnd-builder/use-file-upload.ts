@@ -89,6 +89,13 @@ const compressImage = async (
   });
 };
 
+const isStorageLimitError = (error: any) => {
+  return (
+    error?.message === "new row violates row-level security policy" &&
+    error?.statusCode === "403"
+  );
+};
+
 export const useFileUpload = (
   organizationId: string,
   bucket: "organization-assets",
@@ -135,6 +142,10 @@ export const useFileUpload = (
             .upload(filePath, fileToUpload);
 
           if (error) {
+            if (isStorageLimitError(error)) {
+              throw new Error("STORAGE_LIMIT_EXCEEDED");
+            }
+
             console.error(`Upload attempt ${attempts + 1} failed:`, error);
             attempts++;
 
@@ -151,6 +162,13 @@ export const useFileUpload = (
 
           return data.path;
         } catch (error) {
+          if (
+            error instanceof Error &&
+            error.message === "STORAGE_LIMIT_EXCEEDED"
+          ) {
+            throw error;
+          }
+
           console.error(`Upload attempt ${attempts + 1} exception:`, error);
           attempts++;
 

@@ -7,6 +7,7 @@ export interface Asset {
   imageUrl: string;
   path: string;
   created_at: string;
+  size: number;
 }
 
 // Helper function to determine file type from extension
@@ -150,6 +151,7 @@ export async function fetchOrgAssets({
           imageUrl: publicUrlData.publicUrl,
           path: filePath,
           created_at: file.created_at || new Date().toISOString(),
+          size: file.metadata?.size || undefined,
         };
       }),
     );

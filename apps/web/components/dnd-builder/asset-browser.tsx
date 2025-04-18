@@ -58,6 +58,17 @@ const FileTypeIcon = ({ type }: { type: string }) => {
   }
 };
 
+// Helper function to format file size
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return "0 B";
+
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+};
+
 const AssetCard = ({
   asset,
   onSelect,
@@ -160,6 +171,9 @@ const AssetCard = ({
       </div>
       <CardFooter className="p-3" onClick={onSelect}>
         <h3 className="w-full truncate text-sm font-medium">{asset.title}</h3>
+        <p className="shrink-0 text-xs text-muted-foreground">
+          {formatFileSize(asset.size)}
+        </p>
       </CardFooter>
     </Card>
   );
@@ -297,7 +311,12 @@ export default function AssetBrowserModal({
       </DialogTrigger>
       <DialogContent className="top-20 flex h-full max-h-[620px] translate-y-0 flex-col justify-start overflow-y-auto sm:max-w-[900px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Asset Library</DialogTitle>
+          <div className="flex items-baseline gap-2">
+            <DialogTitle className="text-xl font-bold">
+              Asset Library
+            </DialogTitle>
+            0/30GB used
+          </div>
         </DialogHeader>
 
         <div className="h-flex-1 flex flex-col space-y-4">

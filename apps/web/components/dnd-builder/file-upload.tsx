@@ -60,6 +60,8 @@ const FileUpload = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSelectingFile, setIsSelectingFile] = useState(false);
+  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastClickTime = useRef<number>(0);
   const { uploadFile, deleteFile } = useFileUpload(organizationId, bucket);
@@ -92,13 +94,26 @@ const FileUpload = ({
           onUploadComplete?.(path || "");
         } catch (error) {
           console.error("Upload failed:", error);
-          alert("Failed to upload file. Please try again.");
+          if (
+            error instanceof Error &&
+            error.message === "STORAGE_LIMIT_EXCEEDED"
+          ) {
+            setErrorMessage(
+              "Your organization's storage limit of 30GB has been reached. Please delete some existing assets before uploading new ones.",
+            );
+          } else {
+            setErrorMessage("Failed to upload file. Please try again.");
+          }
+          setIsErrorDialogOpen(true);
+          setIsModalOpen(false);
         } finally {
           setIsUploading(false);
           setIsSelectingFile(false);
         }
       } else if (selectedFile) {
-        alert("File size exceeds 50MB limit.");
+        setErrorMessage("File size exceeds 50MB limit.");
+        setIsErrorDialogOpen(true);
+        setIsModalOpen(false);
       }
 
       // Reset the input value
@@ -128,7 +143,18 @@ const FileUpload = ({
       onUploadComplete?.(path || "");
     } catch (error) {
       console.error("Upload failed:", error);
-      alert("Failed to upload file. Please try again.");
+      if (
+        error instanceof Error &&
+        error.message === "STORAGE_LIMIT_EXCEEDED"
+      ) {
+        setErrorMessage(
+          "Your organization's storage limit of 30GB has been reached. Please delete some existing assets before uploading new ones.",
+        );
+      } else {
+        setErrorMessage("Failed to upload file. Please try again.");
+      }
+      setIsErrorDialogOpen(true);
+      setIsModalOpen(false);
     } finally {
       setIsUploading(false);
       setIsSelectingFile(false);
@@ -165,10 +191,37 @@ const FileUpload = ({
 
     setIsSelectingFile(true);
     const droppedFile = event.dataTransfer.files[0];
+
     if (droppedFile && droppedFile.size <= 50 * 1024 * 1024) {
-      await handleUpload(droppedFile);
-    } else {
-      alert("File size exceeds 50MB limit.");
+      try {
+        setIsUploading(true);
+        const path = await uploadFile(droppedFile);
+        setFile(droppedFile);
+        setFilePath(path || "");
+        setIsModalOpen(false);
+        onUploadComplete?.(path || "");
+      } catch (error) {
+        console.error("Upload failed:", error);
+        if (
+          error instanceof Error &&
+          error.message === "STORAGE_LIMIT_EXCEEDED"
+        ) {
+          setErrorMessage(
+            "Your organization's storage limit of 30GB has been reached. Please delete some existing assets before uploading new ones.",
+          );
+        } else {
+          setErrorMessage("Failed to upload file. Please try again.");
+        }
+        setIsErrorDialogOpen(true);
+        setIsModalOpen(false);
+      } finally {
+        setIsUploading(false);
+        setIsSelectingFile(false);
+      }
+    } else if (droppedFile) {
+      setErrorMessage("File size exceeds 50MB limit.");
+      setIsErrorDialogOpen(true);
+      setIsModalOpen(false);
       setIsSelectingFile(false);
     }
   };
@@ -312,6 +365,11 @@ const FileUpload = ({
                 </div>
               )}
             </div>
+            {errorMessage && (
+              <div className="mt-2 text-sm text-destructive">
+                {errorMessage}
+              </div>
+            )}
             <p className="mt-2 text-sm text-gray-500">Max file size: 50MB</p>
           </DialogContent>
         </Dialog>
@@ -349,6 +407,24 @@ const FileUpload = ({
               <p>Remove file</p>
             </TooltipContent>
           </Tooltip>
+
+          {/* Error Dialog */}
+          <Dialog open={isErrorDialogOpen} onOpenChange={setIsErrorDialogOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Upload Error</DialogTitle>
+                <DialogDescription className="text-destructive">
+                  {errorMessage}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button onClick={() => setIsErrorDialogOpen(false)}>
+                  Close
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <Dialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
