@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@church-space/ui/button";
-import { cn } from "@church-space/ui/cn";
 import {
   Dialog,
   DialogContent,
@@ -41,12 +40,10 @@ interface FileUploadProps {
   initialFilePath?: string;
   onRemove?: () => void;
   bucket?: "organization-assets";
-  isSmallInput?: boolean;
 }
 
 const FileUpload = ({
   organizationId,
-  isSmallInput = false,
   onUploadComplete,
   type = "any",
   initialFilePath = "",
@@ -132,34 +129,6 @@ const FileUpload = ({
       document.body.removeChild(fileInput);
     };
   }, [type, uploadFile, onUploadComplete]);
-
-  const handleUpload = async (selectedFile: File) => {
-    try {
-      setIsUploading(true);
-      const path = await uploadFile(selectedFile);
-      setFile(selectedFile);
-      setFilePath(path || "");
-      setIsModalOpen(false);
-      onUploadComplete?.(path || "");
-    } catch (error) {
-      console.error("Upload failed:", error);
-      if (
-        error instanceof Error &&
-        error.message === "STORAGE_LIMIT_EXCEEDED"
-      ) {
-        setErrorMessage(
-          "Your organization's storage limit of 30GB has been reached. Please delete some existing assets before uploading new ones.",
-        );
-      } else {
-        setErrorMessage("Failed to upload file. Please try again.");
-      }
-      setIsErrorDialogOpen(true);
-      setIsModalOpen(false);
-    } finally {
-      setIsUploading(false);
-      setIsSelectingFile(false);
-    }
-  };
 
   // Debounced click handler to prevent multiple clicks
   const handleClickUpload = useCallback(

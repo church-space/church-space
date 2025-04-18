@@ -195,7 +195,6 @@ function SortableCardItem({
                       updateCard(index, "image", path)
                     }
                     type="image"
-                    isSmallInput
                     initialFilePath={card.image}
                     onRemove={() => onImageRemove(index)}
                   />
