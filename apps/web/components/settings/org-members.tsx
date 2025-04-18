@@ -106,8 +106,7 @@ export default function OrgMembers({
                   </Badge>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {/* TODO: Get user email */}
-                  john@example.com
+                  {member.users.email}
                 </div>
               </div>
             </div>

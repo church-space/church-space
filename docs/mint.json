@@ -25,13 +25,6 @@
     "name": "Dashboard",
     "url": "https://churchspace.co/emails/"
   },
-  "anchors": [
-    {
-      "name": "Community",
-      "icon": "slack",
-      "url": "https://join.slack.com/t/churchspacecommunity/shared_invite/zt-33yt9zs6r-h_HnMPdW9VT5ScDUr3FkQw"
-    }
-  ],
   "navigation": [
     {
       "group": "Get Started",

@@ -1973,6 +1973,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_user_to_organization: {
+        Args: {
+          target_org_id: string;
+          target_user_id: string;
+          target_role: string;
+        };
+        Returns: undefined;
+      };
       clean_complained_emails: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
@@ -1984,6 +1992,10 @@ export type Database = {
       delete_old_email_history: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
+      };
+      extract_org_id: {
+        Args: { path: string };
+        Returns: string;
       };
       get_public_list_categories_with_unsub_status: {
         Args:
@@ -1999,6 +2011,10 @@ export type Database = {
       get_user_organizations: {
         Args: { user_uuid: string };
         Returns: string[];
+      };
+      org_storage_used_mb: {
+        Args: { org_id: string };
+        Returns: number;
       };
       re_subscribe_and_cleanup: {
         Args: { email_id_input: number; person_email_id_input: number };

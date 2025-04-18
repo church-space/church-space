@@ -171,7 +171,7 @@ async function handleCheckoutSessionCompleted(
   supabase: any,
 ) {
   // Get the metadata from the session
-  const { organizationId, userId } = session.metadata || {};
+  const { userId } = session.metadata || {};
   const customerId = session.customer as string;
 
   if (!customerId) {

@@ -2,10 +2,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { getOrganizationMembers } from "@/actions/get-organization-members";
 import type { OrganizationMember } from "@/components/tables/organization-members/columns";
 
-interface UsePeopleOptions {
-  data: OrganizationMember[];
-}
-
 export function useOrganizationMembers(organizationId: string) {
   return useInfiniteQuery({
     queryKey: ["organization-members", organizationId],

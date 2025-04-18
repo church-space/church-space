@@ -67,6 +67,47 @@ export const inviteMembers = task({
 
     // Process each invite
     for (const member of members) {
+      // Check if user with this email already exists
+      const { data: existingUser, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", member.email)
+        .single();
+
+      if (userError && userError.code !== "PGRST116") {
+        // PGRST116 means no rows returned
+        console.error(
+          `Failed to check existing user for ${member.email}:`,
+          userError,
+        );
+        continue;
+      }
+
+      // If user exists, check if they're already a member of the organization
+      if (existingUser) {
+        const { data: existingMembership, error: membershipError } =
+          await supabase
+            .from("organization_memberships")
+            .select("id")
+            .eq("user_id", existingUser.id)
+            .eq("organization_id", organization_id)
+            .single();
+
+        if (membershipError && membershipError.code !== "PGRST116") {
+          console.error(
+            `Failed to check existing membership for ${member.email}:`,
+            membershipError,
+          );
+          continue;
+        }
+
+        // Skip if user is already a member
+        if (existingMembership) {
+          console.log(`Skipping invite for ${member.email}: already a member`);
+          continue;
+        }
+      }
+
       const expirationDate = add(new Date(), { days: 7 });
 
       // Create JWT token
@@ -102,7 +143,7 @@ export const inviteMembers = task({
 
       try {
         await resend.emails.send({
-          from: "invites@invites.churchspace.co",
+          from: "invites@churchspace.co",
           to: member.email,
           subject: `You've been invited to join ${orgData.name} on Church Space`,
           html: `<!DOCTYPE html>

@@ -66,8 +66,13 @@ export default async function Page() {
     verifyInvite();
   }
 
-  if (user?.user?.email === emailAddress && user?.user?.id) {
-    const { data, error } = await supabase.rpc("add_user_to_organization", {
+  if (
+    user?.user?.email === emailAddress &&
+    user?.user?.id &&
+    organizationId &&
+    role
+  ) {
+    const { error } = await supabase.rpc("add_user_to_organization", {
       target_org_id: organizationId,
       target_user_id: user.user.id,
       target_role: role,
@@ -76,6 +81,8 @@ export default async function Page() {
     if (error) {
       console.error("Error adding user:", error);
     } else {
+      cookieStore.delete("invite");
+      cookieStore.set("organization_id", organizationId);
       return redirect(`/emails?invite-accepted=true`);
     }
   }

@@ -104,7 +104,6 @@ export default function EmailRecipientsTable({
     ...recipient,
     person: recipient.person || null,
   })) as EmailRecipient[];
-  const count = data?.pages[0]?.count ?? initialCount ?? 0;
 
   return (
     <>

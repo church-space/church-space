@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         stripeCustomerExists = !stripeCustomer.deleted;
       } catch (err) {
         // Customer not found in Stripe or other error
-
+        console.error("Stripe customer not found:", err);
         stripeCustomerExists = false;
       }
     }

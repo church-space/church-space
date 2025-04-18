@@ -1,6 +1,7 @@
 import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
 import DisconnectFromPcoButton from "@/components/pco/disconnect-from-pco-button";
 import OrgMembers from "@/components/settings/org-members";
+import { InviteModal } from "@/components/settings/invite-modal";
 import {
   SettingsContent,
   SettingsDescription,
@@ -48,6 +49,7 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { format } from "date-fns";
 import { cookies } from "next/headers";
+
 export default async function Page() {
   const cookieStore = await cookies();
   const organizationId = cookieStore.get("organizationId")?.value;
@@ -212,7 +214,7 @@ export default async function Page() {
                 Manage the people in your organization.
               </SettingsDescription>
             </div>
-            <Button>Invite Member</Button>
+            <InviteModal organizationId={organizationId} />
           </SettingsHeader>
 
           <SettingsContent>

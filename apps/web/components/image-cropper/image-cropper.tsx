@@ -24,7 +24,6 @@ export default function ProfileUploadModal() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -92,8 +91,7 @@ export default function ProfileUploadModal() {
     try {
       if (image && croppedAreaPixels) {
         const croppedImage = await getCroppedImg(image, croppedAreaPixels);
-        setCroppedImage(croppedImage);
-        setImage(null);
+        setImage(croppedImage);
         // Here you would typically upload the cropped image to your server
       }
     } catch (e) {
@@ -114,7 +112,6 @@ export default function ProfileUploadModal() {
 
   const resetState = () => {
     setImage(null);
-    setCroppedImage(null);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
     setError(null);
