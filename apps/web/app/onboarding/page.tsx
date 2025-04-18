@@ -69,6 +69,24 @@ export default async function Page() {
           cookieStore.delete("invite");
           return;
         }
+
+        // Check if invite exists in the database
+        const { data: inviteData, error: inviteError } = await supabase
+          .from("invites")
+          .select("*")
+          .eq("organization_id", organizationId)
+          .eq("email", emailAddress)
+          .eq("status", "pending")
+          .single();
+
+        if (inviteError || !inviteData) {
+          console.error(
+            "Invite not found in database or already used:",
+            inviteError,
+          );
+          cookieStore.delete("invite");
+          return;
+        }
       } catch (error) {
         console.error("Error verifying invite:", error);
         cookieStore.delete("invite");
@@ -94,6 +112,18 @@ export default async function Page() {
     if (error) {
       console.error("Error adding user:", error);
     } else {
+      // Update invite status to 'accepted'
+      const { error: updateError } = await supabase
+        .from("invites")
+        .update({ status: "accepted" })
+        .eq("organization_id", organizationId)
+        .eq("email", emailAddress)
+        .eq("status", "pending");
+
+      if (updateError) {
+        console.error("Error updating invite status:", updateError);
+      }
+
       cookieStore.delete("invite");
       cookieStore.set("organization_id", organizationId);
       return redirect(`/emails?invite-accepted=true`);
