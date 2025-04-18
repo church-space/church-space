@@ -3,6 +3,9 @@
 import EmailPreview from "@/components/dnd-builder/email-preview";
 import { EmailRecipientStatus } from "@/components/tables/email-recipients/filters";
 import EmailRecipientsTable from "@/components/tables/email-recipients/table";
+import { createClient } from "@church-space/supabase/client";
+import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
+import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -50,8 +53,6 @@ import { useQueryState } from "nuqs";
 import { useState } from "react";
 import { getEmailRecipientsAction } from "@/actions/get-email-recipients";
 import { motion } from "framer-motion";
-import { getEmailPostSendExtraDataAction } from "@/actions/get-email-post-send-extra-data";
-import { getSentEmailStatsAction } from "@/actions/get-sent-email-stats";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -74,57 +75,54 @@ const itemVariants = {
   },
 };
 
-export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
+export default function PostSendPage({
+  initialEmail,
+  stats,
+}: {
+  initialEmail: any;
+  stats: any;
+}) {
   const [email] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const [search] = useQueryState("search", {
     parse: (value) => value,
     serialize: (value) => value ?? null,
   });
-
   const [status] = useQueryState<EmailRecipientStatus | null>("status", {
     parse: (value) => value as EmailRecipientStatus | null,
     serialize: (value) => value || "all",
   });
 
-  const { data: stats } = useQuery({
-    queryKey: ["sentEmailStats", email.id],
-    queryFn: () => getSentEmailStatsAction({ emailId: email.id }),
-  });
+  const supabase = createClient();
 
   // Initialize state from email data
-  const [listId] = useState(() => email.list_id);
+  const [listId] = useState(email.list_id || "");
 
   // From details
   const [fromEmail] = useState(email.from_email || "");
-  const [fromDomain] = useState(() => email.from_email_domain);
+  const [fromDomain] = useState(email.from_email_domain?.toString() || "");
   const [fromName] = useState(email.from_name || "");
   const [replyToEmail] = useState(email.reply_to || "");
-  const [replyToDomain] = useState(() => email.reply_to_domain);
-
-  console.log("Debug values:", {
-    listId,
-    fromDomain,
-    replyToDomain,
-    rawEmail: email,
-  });
+  const [replyToDomain] = useState(email.reply_to_domain?.toString() || "");
 
   // Fetch list and domain data
-  const { data: postSendExtraData } = useQuery({
-    queryKey: ["postSendExtraData", listId, fromDomain, replyToDomain],
-    queryFn: () => {
-      // Only call if we have a listId and fromDomain
-      if (!listId || !fromDomain) return null;
-      return getEmailPostSendExtraDataAction({
-        listId,
-        fromDomain,
-        replyToDomain,
-      });
-    },
-    enabled: !!listId && !!fromDomain,
+  const { data: listData } = useQuery({
+    queryKey: ["pcoList", listId],
+    queryFn: () => getPcoListQuery(supabase, parseInt(listId || "0")),
+    enabled: !!listId,
   });
 
-  console.log("postSendExtraData response:", postSendExtraData);
+  const { data: domainData } = useQuery({
+    queryKey: ["domain", fromDomain],
+    queryFn: () => getDomainQuery(supabase, parseInt(fromDomain || "0")),
+    enabled: !!fromDomain,
+  });
+
+  const { data: replyToDomainData } = useQuery({
+    queryKey: ["domain", replyToDomain],
+    queryFn: () => getDomainQuery(supabase, parseInt(replyToDomain || "0")),
+    enabled: !!replyToDomain,
+  });
 
   // Schedule details
   const [sendDate] = useState<Date | null>(
@@ -344,17 +342,10 @@ export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
                   To:
                   <div className="text-foreground">
                     <div className="flex items-baseline gap-2">
-                      {
-                        postSendExtraData?.data?.listData?.[0]
-                          ?.pco_list_description
-                      }{" "}
+                      {listData?.data?.[0]?.pco_list_description}{" "}
                       <div className="text-sm text-muted-foreground">
-                        {
-                          postSendExtraData?.data?.listData?.[0]
-                            ?.pco_total_people
-                        }{" "}
-                        {postSendExtraData?.data?.listData?.[0]
-                          ?.pco_total_people === "1"
+                        {listData?.data?.[0]?.pco_total_people}{" "}
+                        {listData?.data?.[0]?.pco_total_people === "1"
                           ? "person"
                           : "people"}
                       </div>
@@ -363,10 +354,7 @@ export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
                 </div>
                 <div className="text-foreground">
                   <div className="text-sm text-muted-foreground">
-                    {
-                      postSendExtraData?.data?.listData?.[0]
-                        ?.pco_list_categories?.pco_name
-                    }
+                    {listData?.data?.[0]?.pco_list_categories?.pco_name}
                   </div>
                 </div>
               </div>
@@ -378,9 +366,7 @@ export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
                 <div className="text-foreground">
                   <div className="text-sm text-muted-foreground">
                     {fromEmail}
-                    {fromDomain
-                      ? `@${postSendExtraData?.data?.domainData?.[0]?.domain}`
-                      : ""}
+                    {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
                   </div>
                 </div>
               </div>
@@ -392,7 +378,7 @@ export default function PostSendPage({ initialEmail }: { initialEmail: any }) {
                       <div className="flex items-baseline gap-2">
                         {replyToEmail}
                         {replyToDomain
-                          ? `@${postSendExtraData?.data?.replyToDomainData?.[0]?.domain}`
+                          ? `@${replyToDomainData?.data?.[0]?.domain}`
                           : ""}
                       </div>
                     </div>
