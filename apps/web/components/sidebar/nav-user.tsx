@@ -28,7 +28,7 @@ export function NavUser() {
               src={avatarUrl || ""}
               alt={`${firstName} ${lastName}`}
             />
-            <AvatarFallback>
+            <AvatarFallback className="bg-card">
               {firstName?.charAt(0) || ""}
               {lastName?.charAt(0) || ""}
             </AvatarFallback>
