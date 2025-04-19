@@ -1094,11 +1094,13 @@ export default function EmailDndProvider({
   );
 
   // Update activeForm when selectedBlock changes
+
   useEffect(() => {
     if (selectedBlockId) {
       setActiveForm("block");
     } else {
-      setActiveForm("default");
+      // Only revert to the default form if we were showing the block form.
+      setActiveForm((prev) => (prev === "block" ? "default" : prev));
     }
   }, [selectedBlockId]);
 
