@@ -32,6 +32,7 @@ export const columns: ColumnDef<EmailAutomation>[] = [
     },
   },
   {
+    id: "is_active",
     accessorKey: "is_active",
     header: "Status",
     cell: ({ row }) => {
@@ -41,6 +42,15 @@ export const columns: ColumnDef<EmailAutomation>[] = [
           {isActive ? "Active" : "Inactive"}
         </Badge>
       );
+    },
+    meta: {
+      filterVariant: "select",
+      enumValues: ["true", "false"],
+    },
+    filterFn: (row, id, filterValue) => {
+      if (filterValue === "all") return true;
+      const value = row.getValue(id) as boolean;
+      return value === (filterValue === "true");
     },
   },
   {

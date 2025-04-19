@@ -10,13 +10,16 @@ export type AutomationStatus =
 // This is used for the UI display of filter options
 export const getAutomationFilterConfig = () => {
   return {
-    isActive: {
+    // The key **must** match the accessorKey used in columns.tsx ("is_active")
+    // so that DataTable can correctly associate the filter with the column.
+    is_active: {
       type: "select" as const,
       options: AUTOMATION_STATUS_OPTIONS.map((opt) => ({
         label: opt.label,
         value: opt.value,
       })),
-      defaultValue: "",
+      defaultValue: "all",
+      label: "Status",
     },
   };
 };

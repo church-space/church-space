@@ -15,6 +15,7 @@ import DataTable from "../data-table";
 import { columns, type EmailAutomation } from "./columns";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 import NewEmailAutomation from "../../forms/new-automation";
+import { AutomationStatus, getAutomationFilterConfig } from "./filters";
 
 interface AutomationsTableProps {
   organizationId: string;
@@ -38,6 +39,24 @@ export default function AutomationsTable({
     },
   );
 
+  // Status filter (active / inactive / all)
+  const [status, setStatus] = useQueryState<AutomationStatus>("status", {
+    parse: (value): AutomationStatus => {
+      if (value === "true" || value === "false" || value === "all") {
+        return value;
+      }
+      return "all";
+    },
+    serialize: (value) => value,
+  });
+
+  const handleStatusChange = useCallback(
+    async (value: AutomationStatus) => {
+      await setStatus(value === "all" ? null : value);
+    },
+    [setStatus],
+  );
+
   // Initialize search and status if they're not set and we have initial values
   const effectiveSearch = search;
 
@@ -48,7 +67,11 @@ export default function AutomationsTable({
     isFetchingNextPage,
     isLoading,
     isFetching,
-  } = useEmailAutomations(organizationId, effectiveSearch ?? undefined);
+  } = useEmailAutomations(
+    organizationId,
+    effectiveSearch ?? undefined,
+    status === "true" ? true : status === "false" ? false : undefined,
+  );
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -91,6 +114,13 @@ export default function AutomationsTable({
         onSearch={handleSearch}
         searchPlaceholderText="Search by name..."
         isLoading={showLoading || isFetchingNextPage}
+        filterConfig={getAutomationFilterConfig()}
+        onFilterChange={{
+          is_active: handleStatusChange,
+        }}
+        initialFilters={{
+          is_active: status ?? "all",
+        }}
       />
 
       <Dialog
