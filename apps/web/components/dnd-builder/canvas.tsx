@@ -170,12 +170,12 @@ export default function DndBuilderCanvas({
       <div
         ref={setNodeRef}
         className={cn(
-          "mx-auto flex w-full max-w-2xl flex-col p-4",
-          isInset && "mb-2 p-6 shadow-md",
+          "mx-auto flex w-full max-w-2xl flex-col p-4 pb-0",
+          isInset && "mb-2 p-6 pb-0 shadow-md",
           isRounded && "rounded-lg",
           blocks.length === 0 && "min-h-[102px]",
         )}
-        style={{ backgroundColor: bgColor, gap: blockSpacing }}
+        style={{ backgroundColor: bgColor }}
       >
         {blocks.length === 0 ? (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">
@@ -212,9 +212,41 @@ export default function DndBuilderCanvas({
           </div>
         ) : (
           <>
-            {blocks.map((block, index) => (
-              <React.Fragment key={block.id}>
-                {isDragging && isFromSidebar && insertionIndex === index && (
+            <div style={{ gap: blockSpacing }} className="flex w-full flex-col">
+              {blocks.map((block, index) => (
+                <React.Fragment key={block.id}>
+                  {isDragging && isFromSidebar && insertionIndex === index && (
+                    <motion.div
+                      className="mx-auto w-full max-w-2xl rounded-md border border-dashed border-blue-500 bg-blue-500/10"
+                      style={{ height: `${insertionIndicatorHeight}px` }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2 }}
+                    />
+                  )}
+                  <motion.div
+                    animate={{ y: 0 }}
+                    transition={{
+                      type: "spring",
+                      damping: 20,
+                      stiffness: 300,
+                    }}
+                    className={cn("mx-auto w-full max-w-2xl")}
+                    ref={(el) => {
+                      if (el) blockRefs.current[block.id] = el;
+                    }}
+                  >
+                    {activeId === block.id ? (
+                      <div style={{ height: `${heightRef.current}px` }} />
+                    ) : (
+                      renderBlock(block, isRounded)
+                    )}
+                  </motion.div>
+                </React.Fragment>
+              ))}
+              {isDragging &&
+                isFromSidebar &&
+                insertionIndex === blocks.length && (
                   <motion.div
                     className="mx-auto w-full max-w-2xl rounded-md border border-dashed border-blue-500 bg-blue-500/10"
                     style={{ height: `${insertionIndicatorHeight}px` }}
@@ -223,37 +255,12 @@ export default function DndBuilderCanvas({
                     transition={{ duration: 0.2 }}
                   />
                 )}
-                <motion.div
-                  animate={{ y: 0 }}
-                  transition={{
-                    type: "spring",
-                    damping: 20,
-                    stiffness: 300,
-                  }}
-                  className={cn("mx-auto w-full max-w-2xl")}
-                  ref={(el) => {
-                    if (el) blockRefs.current[block.id] = el;
-                  }}
-                >
-                  {activeId === block.id ? (
-                    <div style={{ height: `${heightRef.current}px` }} />
-                  ) : (
-                    renderBlock(block, isRounded)
-                  )}
-                </motion.div>
-              </React.Fragment>
-            ))}
-            {isDragging &&
-              isFromSidebar &&
-              insertionIndex === blocks.length && (
-                <motion.div
-                  className="mx-auto w-full max-w-2xl rounded-md border border-dashed border-blue-500 bg-blue-500/10"
-                  style={{ height: `${insertionIndicatorHeight}px` }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                />
-              )}
+            </div>
+            <div
+              className={cn("h-8 w-full", {
+                "h-6": isInset,
+              })}
+            />
           </>
         )}
       </div>
