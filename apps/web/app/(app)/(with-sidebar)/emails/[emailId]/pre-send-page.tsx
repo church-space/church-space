@@ -141,7 +141,7 @@ export default function PreSendPage({
   const [email, setEmail] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const { toast } = useToast();
-  const [activeAccordion, setActiveAccordion] = useState<string | null>("");
+  const [activeAccordion, setActiveAccordion] = useState<string>("");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
@@ -1025,7 +1025,7 @@ export default function PreSendPage({
         <Accordion
           type="single"
           collapsible
-          value={activeAccordion || undefined}
+          value={activeAccordion}
           onValueChange={handleAccordionChange}
           className="space-y-4"
         >

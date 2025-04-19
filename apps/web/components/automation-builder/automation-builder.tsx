@@ -145,8 +145,8 @@ type SortableStepProps = {
   removeStep: (index: number) => void;
   waitTimeError: string | null;
   organizationId: string;
-  openItem: string | undefined;
-  setOpenItem: (value: string | undefined) => void;
+  openItem: string;
+  setOpenItem: (value: string) => void;
 };
 
 function SortableStep(props: SortableStepProps) {
@@ -211,8 +211,8 @@ function SortableStep(props: SortableStepProps) {
           type="single"
           collapsible
           className="w-full"
-          value={openItem === stepId ? stepId : undefined}
-          onValueChange={(value) => setOpenItem(value)}
+          value={openItem === stepId ? stepId : ""}
+          onValueChange={(value) => setOpenItem(value || "")}
         >
           <AccordionItem value={stepId} className="border-0">
             <CustomAccordionTrigger>
@@ -397,7 +397,7 @@ export default function EmailAutomationBuilder({
         values: getInitialStepValues(step),
       })),
   );
-  const [openStep, setOpenStep] = useState<string | undefined>(undefined);
+  const [openStep, setOpenStep] = useState<string>("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -491,8 +491,8 @@ export default function EmailAutomationBuilder({
       };
       const newSteps = [...prev, newStep];
 
-      // Set the new step to be open using its tempId
-      setOpenStep(newStep.tempId);
+      // Set the new step to be open using its tempId (non-undefined)
+      setOpenStep(newStep.tempId ?? "");
 
       return newSteps.map((step, i) => ({ ...step, order: i }));
     });
