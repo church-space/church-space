@@ -102,6 +102,7 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
   }
 
   const { data, error } = await query;
+
   return { data, error };
 }
 
