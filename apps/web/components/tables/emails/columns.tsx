@@ -26,6 +26,9 @@ export type Email = {
       description: string | null;
     } | null;
   } | null;
+  category: {
+    name: string | null;
+  } | null;
 };
 
 export const columns: ColumnDef<Email>[] = [
@@ -170,7 +173,7 @@ export const columns: ColumnDef<Email>[] = [
             {row.original.list?.pco_list_description}
           </span>
           <span className="text-muted-foreground">
-            {row.original.list?.pco_list_category?.pco_name}
+            {row.original.category?.name}
           </span>
         </div>
       );
