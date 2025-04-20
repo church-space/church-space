@@ -88,6 +88,7 @@ export default async function Page() {
     const { error } = await supabase.rpc("add_user_to_organization", {
       target_org_id: organizationId,
       target_user_id: user.user.id,
+      target_email: emailAddress,
       target_role: role,
     });
 
