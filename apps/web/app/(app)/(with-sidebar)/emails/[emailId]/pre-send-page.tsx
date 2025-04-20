@@ -289,6 +289,7 @@ export default function PreSendPage({
       email.from_email &&
       email.from_email_domain &&
       email.subject &&
+      email.category_id &&
       (email.scheduled_for || email.send_now) &&
       emailBlockCount > 0
     );
