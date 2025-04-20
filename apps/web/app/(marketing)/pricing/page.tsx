@@ -51,10 +51,6 @@ export default function PricingPage() {
     { volume: 100000, price: 160 },
     { volume: 125000, price: 200 },
     { volume: 150000, price: 240 },
-    { volume: 175000, price: 280 },
-    { volume: 200000, price: 320 },
-    { volume: 225000, price: 360 },
-    { volume: 250000, price: 400 },
   ];
 
   const formatNumber = (num: number) => {

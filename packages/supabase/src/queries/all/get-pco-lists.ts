@@ -11,13 +11,11 @@ export async function getPublicPcoListsQuery(
       `
       *,
       pco_list_categories!inner (
-        pco_name,
-        is_public
+        pco_name
       )
     `
     )
-    .eq("organization_id", organizationId)
-    .eq("pco_list_categories.is_public", true);
+    .eq("organization_id", organizationId);
 
   if (search && search.trim() !== "") {
     query = query.ilike("pco_list_description", `%${search.trim()}%`);
@@ -38,8 +36,7 @@ export async function getPcoListQuery(supabase: Client, listId: number) {
       `
       *,
       pco_list_categories!inner (
-        pco_name,
-        is_public
+        pco_name
       )
     `
     )
