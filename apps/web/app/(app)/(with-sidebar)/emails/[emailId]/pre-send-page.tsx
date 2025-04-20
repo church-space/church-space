@@ -70,7 +70,6 @@ import { getEmailBlockCountQuery } from "@church-space/supabase/queries/all/get-
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
@@ -157,7 +156,7 @@ export default function PreSendPage({
   // Initialize state from email data
   const [subject, setSubject] = useState(email.subject || "");
   const [listId, setListId] = useState(email.list_id || "");
-  const [categoryId, setCategoryId] = useState(email.category_id || "");
+  const [categoryId, setCategoryId] = useState(email.email_category || "");
   // From details
   const [fromEmail, setFromEmail] = useState(email.from_email || "");
   const [fromDomain, setFromDomain] = useState(
@@ -289,7 +288,7 @@ export default function PreSendPage({
       email.from_email &&
       email.from_email_domain &&
       email.subject &&
-      email.category_id &&
+      email.email_category &&
       (email.scheduled_for || email.send_now) &&
       emailBlockCount > 0
     );
@@ -323,13 +322,13 @@ export default function PreSendPage({
     const currentListId = listId ? listId.toString() : "";
     const emailListId = email.list_id ? email.list_id.toString() : "";
     const currentCategoryId = categoryId ? categoryId.toString() : "";
-    const emailCategoryId = email.category_id
-      ? email.category_id.toString()
+    const emailCategoryId = email.email_category
+      ? email.email_category.toString()
       : "";
     setToHasChanges(
       currentListId !== emailListId || currentCategoryId !== emailCategoryId,
     );
-  }, [listId, email.list_id, categoryId, email.category_id]);
+  }, [listId, email.list_id, categoryId, email.email_category]);
 
   useEffect(() => {
     setFromHasChanges(
@@ -368,6 +367,7 @@ export default function PreSendPage({
     try {
       await updateEmailMutation.mutateAsync({
         list_id: listId ? parseInt(listId) : null,
+        email_category: categoryId ? parseInt(categoryId) : null,
       });
       setToIsSaving(false);
       setToHasChanges(false);
@@ -1016,23 +1016,21 @@ export default function PreSendPage({
           className="mx-auto mt-4 w-full max-w-3xl px-4"
         >
           <Card className="mx-auto w-full rounded-md border-destructive bg-destructive/10 shadow-sm">
-            <CardHeader className="pb-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 pt-2">
               <CardTitle className="text-foreground">
                 Email Failed to Send
               </CardTitle>
+              <Link
+                href={`mailto:support@churchspace.co?subject=Email%20Failed%20to%20Send&body=My%20email%20failed%20to%20send.%20Can%20you%20please%20investigate%20and%20let%20me%20know%20what%20to%20do%3F%0A%0AEmail%20ID%3A%20${email.id}${email.error_message ? `%0A%0AError%20Message%3A%20${encodeURIComponent(email.error_message)}` : ""}%0A%0AThanks!`}
+              >
+                <Button variant="outline">Contact Support</Button>
+              </Link>
             </CardHeader>
             {email.error_message && (
               <CardContent className="mx-6 mb-4 mt-2 rounded-md border border-destructive bg-muted px-3 pb-2 pt-2 font-mono text-sm">
                 {email.error_message}
               </CardContent>
             )}
-            <CardFooter>
-              <Link
-                href={`mailto:support@churchspace.co?subject=Email%20Failed%20to%20Send&body=My%20email%20failed%20to%20send.%20Can%20you%20please%20investigate%20and%20let%20me%20know%20what%20to%20do%3F%0A%0AEmail%20ID%3A%20${email.id}${email.error_message ? `%0A%0AError%20Message%3A%20${encodeURIComponent(email.error_message)}` : ""}%0A%0AThanks!`}
-              >
-                <Button variant="outline">Contact Support</Button>
-              </Link>
-            </CardFooter>
           </Card>
         </motion.div>
       )}
@@ -1059,7 +1057,7 @@ export default function PreSendPage({
             >
               <AccordionTrigger className="text-md font-semibold">
                 <div className="flex items-center gap-3">
-                  {email.list_id ? (
+                  {email.list_id && categoryId ? (
                     <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
                   ) : (
                     <UnfilledCircleDashed height={"24"} width={"24"} />

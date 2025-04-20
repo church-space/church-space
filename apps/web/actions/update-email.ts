@@ -31,7 +31,7 @@ export const updateEmailAction = authActionClient
           updated_at: z.string().nullable(),
           list_id: z.number().nullable(),
           send_now: z.boolean(),
-          category_id: z.number().nullable(),
+          email_category: z.number().nullable(),
         })
         .partial(),
     }),

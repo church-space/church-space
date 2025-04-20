@@ -1,12 +1,20 @@
 "use client";
 
+import NewEmailCategory from "@/components/forms/new-email-category";
 import { useEmailCategories } from "@/hooks/use-email-categories";
 import { Button } from "@church-space/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@church-space/ui/dialog";
+import { CircleInfo, NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 import { useQueryState } from "nuqs";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import DataTable from "../data-table";
 import { columns, EmailCategory } from "./columns";
-import { CircleInfo } from "@church-space/ui/icons";
 
 interface EmailCategoriesTableProps {
   organizationId: string;
@@ -16,6 +24,8 @@ export default function EmailCategoriesTable({
   organizationId,
 }: EmailCategoriesTableProps) {
   const [search, setSearch] = useQueryState("search");
+
+  const [isNewEmailCategoryOpen, setIsNewEmailCategoryOpen] = useState(false);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useEmailCategories(organizationId, search ?? undefined);
@@ -39,12 +49,9 @@ export default function EmailCategoriesTable({
             Email Categories
           </h1>
 
-          <a
-            href="https://people.planningcenteronline.com/list_categories"
-            target="_blank"
-          >
-            <Button>Manage in PCO</Button>
-          </a>
+          <Button onClick={() => setIsNewEmailCategoryOpen(true)}>
+            New Email Category
+          </Button>
         </div>
         <div className="flex w-full items-center gap-3 rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
           <div className="flex-shrink-0">
@@ -77,6 +84,29 @@ export default function EmailCategoriesTable({
         searchPlaceholderText="Search by name..."
         isLoading={isFetchingNextPage || isLoading}
       />
+
+      <Dialog
+        open={isNewEmailCategoryOpen ?? false}
+        onOpenChange={setIsNewEmailCategoryOpen}
+      >
+        <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
+          <DialogHeader className="p-2 pb-0">
+            <DialogTitle className="flex items-center gap-2">
+              <NewEmailIcon />
+              Create New Email Category
+            </DialogTitle>
+            <DialogDescription className="text-pretty text-left">
+              What&apos;s the name of your email category? You can always change
+              it later.
+            </DialogDescription>
+          </DialogHeader>
+
+          <NewEmailCategory
+            organizationId={organizationId}
+            setIsNewEmailCategoryOpen={setIsNewEmailCategoryOpen}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
