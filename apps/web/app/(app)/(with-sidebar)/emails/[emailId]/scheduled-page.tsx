@@ -44,6 +44,7 @@ import {
   Users,
 } from "@church-space/ui/icons";
 import { motion } from "framer-motion";
+import { getEmailCategoryById } from "@church-space/supabase/queries/all/get-all-email-categories";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -86,6 +87,9 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
   const [fromName] = useState(email.from_name || "");
   const [replyToEmail] = useState(email.reply_to || "");
   const [replyToDomain] = useState(email.reply_to_domain?.toString() || "");
+  const [categoryId] = useState(email.email_category || "");
+
+  console.log("categoryId", categoryId);
 
   // Fetch list and domain data
   const { data: listData } = useQuery({
@@ -93,6 +97,19 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
     queryFn: () => getPcoListQuery(supabase, parseInt(listId || "0")),
     enabled: !!listId,
   });
+
+  const { data: categoryData } = useQuery({
+    queryKey: ["emailCategory", categoryId],
+    queryFn: () =>
+      getEmailCategoryById(
+        supabase,
+        email.organization_id,
+        parseInt(categoryId || "0"),
+      ),
+    enabled: !!categoryId,
+  });
+
+  console.log("categoryData", categoryData);
 
   const { data: domainData } = useQuery({
     queryKey: ["domain", fromDomain],
@@ -222,8 +239,9 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
                         : "people"}
                     </div>
                   </div>
+
                   <div className="text-sm text-muted-foreground">
-                    {listData?.data?.[0]?.pco_list_categories?.pco_name}
+                    {categoryData?.data?.[0]?.name}
                   </div>
                 </div>
               </div>

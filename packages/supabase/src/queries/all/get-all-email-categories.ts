@@ -41,3 +41,17 @@ export async function getAllEmailCategories(
 
   return { data, error };
 }
+
+export async function getEmailCategoryById(
+  supabase: Client,
+  organizationId: string,
+  categoryId: number
+) {
+  const { data, error } = await supabase
+    .from("email_categories")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .eq("id", categoryId);
+
+  return { data, error };
+}

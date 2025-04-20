@@ -10,7 +10,7 @@ export async function getPublicPcoListsQuery(
     .select(
       `
       *,
-      pco_list_categories!inner (
+      pco_list_categories!left (
         pco_name
       )
     `
@@ -35,7 +35,7 @@ export async function getPcoListQuery(supabase: Client, listId: number) {
     .select(
       `
       *,
-      pco_list_categories!inner (
+      pco_list_categories!left (
         pco_name
       )
     `

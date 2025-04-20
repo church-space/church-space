@@ -6,11 +6,12 @@ import { createClient } from "@church-space/supabase/server";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 
-export const updateEmailCategoryVisibilityAction = authActionClient
+export const updateEmailCategoryAction = authActionClient
   .schema(
     z.object({
       emailCategoryId: z.number(),
-      isPublic: z.boolean(),
+      name: z.string(),
+      description: z.string(),
     }),
   )
   .metadata({
@@ -23,7 +24,8 @@ export const updateEmailCategoryVisibilityAction = authActionClient
         supabase,
         parsedInput.parsedInput.emailCategoryId,
         {
-          is_public: parsedInput.parsedInput.isPublic,
+          name: parsedInput.parsedInput.name,
+          description: parsedInput.parsedInput.description,
         },
       );
 

@@ -5,6 +5,8 @@ import { createClient } from "@church-space/supabase/job";
 import { SignJWT } from "jose";
 import { Section, BlockType, BlockData } from "@/types/blocks";
 import { v4 as uuidv4 } from "uuid";
+import { generateEmailCode } from "@/lib/generate-email-code";
+import { render } from "@react-email/render";
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -228,37 +230,60 @@ export const sendBulkEmails = task({
             const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
             const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
 
-            // Make API request to render email with personalized URLs
-            const renderResponse = await fetch(
-              "https://churchspace.co/api/emails/render",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Trigger-Secret":
-                    process.env.TRIGGER_API_ROUTE_SECRET || "",
-                },
-                body: JSON.stringify({
-                  sections: sections,
-                  style: style,
-                  footer: typedEmailData.footer,
-                  unsubscribeUrl,
-                  managePreferencesUrl,
-                  firstName: recipientData.firstName,
-                  lastName: recipientData.lastName,
-                  email: recipientData.email,
-                }),
-              },
+            // Generate email code directly
+            const emailComponent = generateEmailCode(
+              sections,
+              style,
+              typedEmailData.footer,
+              unsubscribeUrl,
+              managePreferencesUrl,
+              recipientData.firstName,
+              recipientData.lastName,
+              recipientData.email,
             );
 
-            if (!renderResponse.ok) {
-              throw new Error(
-                `Failed to render email: ${renderResponse.status} ${renderResponse.statusText}`,
-              );
-            }
+            // Render HTML and plain text versions
+            const rawHtml = await render(emailComponent);
+            const rawText = await render(emailComponent, { plainText: true });
 
-            const { html: personalizedHtml, text: personalizedText } =
-              await renderResponse.json();
+            // Apply email client compatibility enhancements
+            const personalizedHtml = rawHtml
+              .replace(
+                "<html",
+                '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
+              )
+              .replace(
+                "<head>",
+                `<head>
+              <meta name="color-scheme" content="only">
+              <!--[if gte mso 9]>
+              <xml>
+                <o:OfficeDocumentSettings>
+                  <o:AllowPNG/>
+                  <o:PixelsPerInch>96</o:PixelsPerInch>
+                </o:OfficeDocumentSettings>
+              </xml>
+              <![endif]-->`,
+              );
+
+            const personalizedText = rawText
+              .replace(
+                "<html",
+                '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
+              )
+              .replace(
+                "<head>",
+                `<head>
+            <meta name="color-scheme" content="only">
+            <!--[if gte mso 9]>
+            <xml>
+              <o:OfficeDocumentSettings>
+                <o:AllowPNG/>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+              </o:OfficeDocumentSettings>
+                </xml>
+                <![endif]-->`,
+              );
 
             // Add to batch
             emailBatch.push({
@@ -282,6 +307,26 @@ export const sendBulkEmails = task({
               error,
             );
             failureCount++;
+            if (batchTokens[peopleEmailId]) {
+              try {
+                await supabase.from("email_recipients").insert({
+                  email_id: emailId,
+                  people_email_id: parseInt(peopleEmailId),
+                  email_address: recipientData.email,
+                  status: "did-not-send",
+                  unsubscribe_token: batchTokens[peopleEmailId],
+                  error_message:
+                    error instanceof Error
+                      ? error.message
+                      : "Failed to render email",
+                });
+              } catch (insertError) {
+                console.error(
+                  `Failed to create recipient record for ${recipientData.email} after render error:`,
+                  insertError,
+                );
+              }
+            }
           }
         }
 
@@ -295,8 +340,11 @@ export const sendBulkEmails = task({
           } catch (error) {
             console.error("Error sending batch:", error);
 
-            // Create recipient records for failed sends
-            for (const peopleEmailId of batch) {
+            // Create recipient records for failed sends in this batch
+            const peopleEmailIdsInBatch = emailBatch.map(
+              (email) => email.headers["X-Entity-People-Email-ID"],
+            );
+            for (const peopleEmailId of peopleEmailIdsInBatch) {
               const recipientData = recipients[peopleEmailId];
               const emailAddress = recipientData.email;
 

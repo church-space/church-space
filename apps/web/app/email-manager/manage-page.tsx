@@ -14,7 +14,7 @@ import {
 
 type Category = {
   category_id: number;
-  name: string;
+  pco_name: string;
   description: string;
   is_unsubscribed: boolean;
 };
@@ -39,6 +39,7 @@ export default function Manage({
   const [togglingCategories, setTogglingCategories] = useState<Set<number>>(
     new Set(),
   );
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleUnsubscribe = async () => {
     try {
@@ -78,9 +79,24 @@ export default function Manage({
             : c,
         ),
       );
+
+      // Show success message
+      setShowSuccess(true);
     } catch (error) {
       console.error("Failed to toggle category subscription:", error);
+      // If there's an error, don't show success and maybe handle the error display
+      setShowSuccess(false); // Ensure success is not shown on error
+      return; // Exit early on error
     } finally {
+      // Hide success message after 3 seconds, regardless of success or failure of the API call *if* it was shown
+      // This timeout should only be set if the operation was successful
+      if (showSuccess) {
+        // Check if showSuccess was set to true before setting the timeout
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 3000);
+      }
+
       setTogglingCategories((prev) => {
         const newSet = new Set(prev);
         newSet.delete(category.category_id);
@@ -126,7 +142,9 @@ export default function Manage({
                   className="flex w-full items-center justify-between border-b pb-4"
                 >
                   <div className="flex flex-col gap-1">
-                    <h2 className="text-lg font-semibold">{category.name}</h2>
+                    <h2 className="text-lg font-semibold">
+                      {category.pco_name}
+                    </h2>
                     <p className="text-sm text-muted-foreground">
                       {category.description}
                     </p>
@@ -138,6 +156,16 @@ export default function Manage({
                   />
                 </div>
               ))}
+            </div>
+            <div className="mt-2 h-8">
+              <div
+                className={`flex items-center gap-2 text-sm text-green-500 transition-opacity duration-300 ease-in-out ${
+                  showSuccess ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <div className="h-4 w-4 animate-pulse rounded-full bg-green-500" />
+                Saved
+              </div>
             </div>
 
             <p className="mt-10 text-sm text-muted-foreground">

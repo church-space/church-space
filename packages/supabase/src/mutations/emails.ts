@@ -569,16 +569,49 @@ export async function updateDefaultEmailFooter(
 export async function updateEmailCategory(
   supabase: Client,
   emailCategoryId: number,
-  emailCategory: Database["public"]["Tables"]["pco_list_categories"]["Update"]
+  emailCategory: Database["public"]["Tables"]["email_categories"]["Update"]
 ) {
   const { data, error } = await supabase
-    .from("pco_list_categories")
+    .from("email_categories")
     .update(emailCategory)
     .eq("id", emailCategoryId)
     .select();
 
   if (error) {
     console.error("Error updating email category:", error);
+    throw error;
+  }
+  return { data, error };
+}
+
+export async function deleteEmailCategory(
+  supabase: Client,
+  emailCategoryId: number
+) {
+  const { data, error } = await supabase
+    .from("email_categories")
+    .delete()
+    .eq("id", emailCategoryId)
+    .select();
+
+  if (error) {
+    console.error("Error deleting email category:", error);
+    throw error;
+  }
+  return { data, error };
+}
+
+export async function createEmailCategory(
+  supabase: Client,
+  emailCategory: Database["public"]["Tables"]["email_categories"]["Insert"]
+) {
+  const { data, error } = await supabase
+    .from("email_categories")
+    .insert(emailCategory)
+    .select();
+
+  if (error) {
+    console.error("Error creating email category:", error);
     throw error;
   }
   return { data, error };

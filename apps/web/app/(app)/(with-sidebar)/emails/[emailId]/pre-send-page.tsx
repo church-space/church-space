@@ -75,6 +75,7 @@ import {
   CardTitle,
 } from "@church-space/ui/card";
 import { deleteEmailAction } from "@/actions/delete-email";
+import CategorySelector from "@/components/id-pages/emails/category-selector";
 
 function SaveButtons(props: {
   isSaving: boolean;
@@ -155,7 +156,7 @@ export default function PreSendPage({
   // Initialize state from email data
   const [subject, setSubject] = useState(email.subject || "");
   const [listId, setListId] = useState(email.list_id || "");
-
+  const [categoryId, setCategoryId] = useState(email.category_id || "");
   // From details
   const [fromEmail, setFromEmail] = useState(email.from_email || "");
   const [fromDomain, setFromDomain] = useState(
@@ -308,8 +309,14 @@ export default function PreSendPage({
   useEffect(() => {
     const currentListId = listId ? listId.toString() : "";
     const emailListId = email.list_id ? email.list_id.toString() : "";
-    setToHasChanges(currentListId !== emailListId);
-  }, [listId, email.list_id]);
+    const currentCategoryId = categoryId ? categoryId.toString() : "";
+    const emailCategoryId = email.category_id
+      ? email.category_id.toString()
+      : "";
+    setToHasChanges(
+      currentListId !== emailListId || currentCategoryId !== emailCategoryId,
+    );
+  }, [listId, email.list_id, categoryId, email.category_id]);
 
   useEffect(() => {
     setFromHasChanges(
@@ -1101,6 +1108,11 @@ export default function PreSendPage({
                     Cateogry, the person will not recieve the email. Learn more
                     about how unsubscribes work here.
                   </p>
+                  <CategorySelector
+                    value={categoryId}
+                    onChange={setCategoryId}
+                    organizationId={email.organization_id}
+                  />
                 </div>
                 <SaveButtons
                   isSaving={toIsSaving}

@@ -2112,7 +2112,7 @@ export type Database = {
         Args: {
           unsub_email_id: number;
           person_email_id: number;
-          pco_list_category: number;
+          category_id: number;
         };
         Returns: undefined;
       };

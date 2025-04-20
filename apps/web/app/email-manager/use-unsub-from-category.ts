@@ -13,7 +13,7 @@ const ratelimit = new Ratelimit({
 export async function handleCategoryUnsubscribe(
   emailId: number,
   peopleEmailId: number,
-  pcoListCategory: number,
+  emailCategoryId: number,
 ) {
   const ip = (await headers()).get("x-forwarded-for");
 
@@ -28,7 +28,7 @@ export async function handleCategoryUnsubscribe(
   const { error } = await supabase.rpc("unsubscribe_from_email_category", {
     unsub_email_id: emailId,
     person_email_id: peopleEmailId,
-    pco_list_category: pcoListCategory,
+    category_id: emailCategoryId,
   });
 
   if (error) {

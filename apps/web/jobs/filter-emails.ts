@@ -135,6 +135,20 @@ export const filterEmailRecipients = task({
         throw new Error("Email must have a list_id");
       }
 
+      if (!emailData.email_category) {
+        // Update email status to failed
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: "Email must have a category to send to",
+          })
+          .eq("id", emailId);
+
+        throw new Error("Email must have a category to send to");
+      }
+
       // Validate list ownership
       const { data: listData, error: listOwnershipError } = await supabase
         .from("pco_lists")
@@ -159,10 +173,37 @@ export const filterEmailRecipients = task({
         throw new Error("List does not belong to the email's organization");
       }
 
+      // Validate category ownership
+      const { data: categoryData, error: categoryOwnershipError } =
+        await supabase
+          .from("email_categories")
+          .select("organization_id")
+          .eq("id", emailData.email_category)
+          .single();
+
+      if (
+        categoryOwnershipError ||
+        !categoryData ||
+        categoryData.organization_id !== emailData.organization_id
+      ) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: "The category does not belong to your organization",
+          })
+          .eq("id", emailId);
+
+        throw new Error(
+          "The category does not belong to the email's organization",
+        );
+      }
+
       // Step 3: Get the PCO list ID from our lists table
       const { data: pcoList, error: pcoListError } = await supabase
         .from("pco_lists")
-        .select("pco_list_id, pco_list_category_id")
+        .select("pco_list_id")
         .eq("id", emailData.list_id)
         .eq("organization_id", emailData.organization_id)
         .single();
@@ -181,53 +222,6 @@ export const filterEmailRecipients = task({
         throw new Error(
           `Failed to fetch PCO list data: ${pcoListError?.message || "List not found"}`,
         );
-      }
-
-      if (!pcoList.pco_list_category_id) {
-        await supabase
-          .from("emails")
-          .update({
-            status: "failed",
-            updated_at: new Date().toISOString(),
-            error_message: "The list does not have a category",
-          })
-          .eq("id", emailId);
-
-        throw new Error("List does not have a category");
-      }
-
-      const { data: pcoListCategory, error: pcoListCategoryError } =
-        await supabase
-          .from("pco_list_categories")
-          .select("id, is_public")
-          .eq("pco_id", pcoList.pco_list_category_id)
-          .single();
-
-      if (pcoListCategoryError) {
-        await supabase
-          .from("emails")
-          .update({
-            status: "failed",
-            updated_at: new Date().toISOString(),
-            error_message: `Failed to fetch PCO list category data: ${pcoListCategoryError.message}`,
-          })
-          .eq("id", emailId);
-
-        throw new Error(
-          `Failed to fetch PCO list category data: ${pcoListCategoryError.message}`,
-        );
-      }
-
-      if (!pcoListCategory.is_public) {
-        await supabase
-          .from("emails")
-          .update({
-            status: "failed",
-            updated_at: new Date().toISOString(),
-            error_message: "List category is not public",
-          })
-          .eq("id", emailId);
-        throw new Error("List category is not public");
       }
 
       // Step 4: Get all members of the list
@@ -316,11 +310,11 @@ export const filterEmailRecipients = task({
       }
 
       // Step 6: Get all email addresses that have unsubscribed from this audience
-      const { data: listCategoryUnsubscribes, error: unsubscribesError } =
+      const { data: categoryUnsubscribes, error: unsubscribesError } =
         await supabase
-          .from("email_list_category_unsubscribes")
+          .from("email_category_unsubscribes")
           .select("email_address")
-          .eq("pco_list_category", pcoListCategory.id)
+          .eq("category_id", emailData.email_category)
           .eq("organization_id", emailData.organization_id);
 
       if (unsubscribesError) {
@@ -331,7 +325,7 @@ export const filterEmailRecipients = task({
 
       // Create a set of unsubscribed email addresses for faster lookup
       const unsubscribedEmails = new Set(
-        listCategoryUnsubscribes?.map((unsub) =>
+        categoryUnsubscribes?.map((unsub) =>
           unsub.email_address.toLowerCase(),
         ) || [],
       );
@@ -362,12 +356,12 @@ export const filterEmailRecipients = task({
             status: "failed",
             updated_at: new Date().toISOString(),
             error_message:
-              "All recipients have unsubscribed from this list category",
+              "All recipients have unsubscribed from this email category",
           })
           .eq("id", emailId);
 
         throw new Error(
-          "All recipients have unsubscribed from this list category",
+          "All recipients have unsubscribed from this email category",
         );
       }
 

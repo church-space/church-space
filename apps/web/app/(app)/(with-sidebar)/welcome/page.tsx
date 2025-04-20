@@ -35,15 +35,6 @@ const steps = [
     completed: true,
   },
   {
-    title: "Configure PCO List Categories",
-    description:
-      "Select which PCO List Categories you want to be able to email to.",
-    href: "/emails/categories",
-    buttonText: "Email Categories",
-    icon: Users,
-    completed: true,
-  },
-  {
     title: "Create your first email",
     description: "Design your first email.",
     href: "/emails?newEmailOpen=true",
