@@ -46,6 +46,9 @@ export async function getEmailsQuery(
           pco_name,
           description
         )
+      ), 
+      category:email_category(
+        name
       )
     `
     )

@@ -1,74 +1,23 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@church-space/ui/select";
-import { cn } from "@church-space/ui/cn";
-import { updateEmailCategoryVisibilityAction } from "@/actions/update-email-category-visibility";
-import { useState } from "react";
 
 // Define the type based on the SQL schema
 export type EmailCategory = {
   id: number;
   created_at: string;
-  pco_name: string | null;
-  pco_id: string | null;
-  is_public: boolean;
+  name: string | null;
+  organization_id: string | null;
   description: string | null;
-};
-
-const VisibilityCell = ({
-  id,
-  isPublic,
-}: {
-  id: number;
-  isPublic: boolean;
-}) => {
-  const [selectedValue, setSelectedValue] = useState(
-    isPublic ? "public" : "hidden",
-  );
-
-  const handleValueChange = (value: string) => {
-    setSelectedValue(value);
-    updateEmailCategoryVisibilityAction({
-      emailCategoryId: id,
-      isPublic: value === "public",
-    });
-  };
-
-  return (
-    <div>
-      <Select defaultValue={selectedValue} onValueChange={handleValueChange}>
-        <SelectTrigger
-          className={cn(
-            "h-7 w-[100px] rounded-lg bg-transparent px-3 shadow-sm transition-all",
-            selectedValue === "public"
-              ? "border border-green-500 bg-green-100 dark:bg-green-900"
-              : "bg-muted",
-          )}
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="public">Public</SelectItem>
-          <SelectItem value="hidden">Hidden</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-  );
+  updated_at: string | null;
 };
 
 export const columns: ColumnDef<EmailCategory>[] = [
   {
-    accessorKey: "pco_name",
+    accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
-      const name = row.getValue("pco_name") as string | null;
+      const name = row.getValue("name") as string | null;
       return (
         <div className="ml-1 text-base font-medium">
           <span>{name || "Untitled"}</span>
@@ -77,12 +26,29 @@ export const columns: ColumnDef<EmailCategory>[] = [
     },
   },
   {
-    accessorKey: "is_public",
-    header: "Visibility",
+    accessorKey: "description",
+    header: "Description",
     cell: ({ row }) => {
-      const isPublic = row.getValue("is_public") as boolean;
-      const id = row.original.id;
-      return <VisibilityCell id={id} isPublic={isPublic} />;
+      const description = row.getValue("description") as string | null;
+      return (
+        <div className="ml-1 text-base font-medium">
+          <span>{description || "No description"}</span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "updated_at",
+    header: "Updated At",
+    cell: ({ row }) => {
+      const updatedAt = row.getValue("updated_at") as string | null;
+      if (!updatedAt) {
+        return <span>-</span>;
+      }
+      const date = new Date(updatedAt);
+      return (
+        <span>{isNaN(date.getTime()) ? "-" : date.toLocaleDateString()}</span>
+      );
     },
   },
   {

@@ -40,14 +40,13 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
         reason, 
         protected_from_cleaning
       ),
-      email_list_category_unsubscribes(
+      email_category_unsubscribes(
         id,
         email_address,
-        pco_list_category,
-        pco_list_categories(
+        category_id,
+        email_categories(
           id,
-          pco_name, 
-          pco_id
+          name
         )
       )
     `
@@ -60,7 +59,7 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
     // For partially subscribed, we need to check both status and unsubscribes
     if (params.emailStatus.includes("partially subscribed")) {
       query = query.eq("people_emails.status", "subscribed");
-      query = query.not("email_list_category_unsubscribes.id", "is", null);
+      query = query.not("email_category_unsubscribes.id", "is", null);
     } else {
       // Filter out "partially subscribed" from the status array since it's not a valid database status
       const validStatuses = params.emailStatus.filter(
@@ -91,7 +90,7 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
     params.unsubscribedCategories.length > 0
   ) {
     query = query.in(
-      "email_list_category_unsubscribes.pco_list_category",
+      "email_category_unsubscribes.category_id",
       params.unsubscribedCategories
     );
   }

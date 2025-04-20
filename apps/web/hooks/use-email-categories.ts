@@ -15,17 +15,15 @@ interface UseEmailCategoriesOptions {
 export function useEmailCategories(
   organizationId: string,
   searchTerm?: string,
-  isPublic?: boolean,
   options?: UseEmailCategoriesOptions,
 ) {
   return useInfiniteQuery({
-    queryKey: ["email-categories", organizationId, searchTerm, isPublic],
+    queryKey: ["email-categories", organizationId, searchTerm],
     queryFn: async ({ pageParam = 0 }) => {
       const result = await getEmailCategories({
         organizationId,
         page: pageParam,
         searchTerm,
-        isPublic,
       });
 
       if (!result) {

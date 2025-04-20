@@ -11,7 +11,6 @@ const getEmailCategoriesSchema = z.object({
   organizationId: z.string(),
   page: z.number().default(0),
   searchTerm: z.string().optional(),
-  isPublic: z.boolean().optional(),
 });
 
 export const getEmailCategories = authActionClient
@@ -31,7 +30,6 @@ export const getEmailCategories = authActionClient
         start: from,
         end: to,
         searchTerm: parsedInput.searchTerm,
-        isPublic: parsedInput.isPublic,
       },
     );
 
