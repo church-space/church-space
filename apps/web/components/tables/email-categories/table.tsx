@@ -54,10 +54,9 @@ export default function EmailCategoriesTable({
             <p className="text-sm">
               Categories help people subscribe to the types of emails they care
               about (like &quot;General,&quot; &quot;Events,&quot; or
-              &quot;Students&quot;)—reducing full unsubscribes. Create
-              categories in Planning Center People, set them to
-              &quot;public,&quot; in Church Space, and then send emails to lists
-              in that category.
+              &quot;Students&quot;). This reduces full unsubscribes. By default,
+              new people are subscribed to all categories, so make sure your
+              lists in PCO are well defined for the people you want to email.
             </p>
           </div>
         </div>

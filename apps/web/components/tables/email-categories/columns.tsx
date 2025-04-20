@@ -1,7 +1,16 @@
 "use client";
 
+import { cn } from "@church-space/ui/cn";
 import { ColumnDef } from "@tanstack/react-table";
-
+import { Button } from "@church-space/ui/button";
+import { Pencil } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@church-space/ui/dialog";
 // Define the type based on the SQL schema
 export type EmailCategory = {
   id: number;
@@ -19,8 +28,23 @@ export const columns: ColumnDef<EmailCategory>[] = [
     cell: ({ row }) => {
       const name = row.getValue("name") as string | null;
       return (
-        <div className="ml-1 text-base font-medium">
-          <span>{name || "Untitled"}</span>
+        <div className="ml-1 flex flex-shrink-0 items-center gap-1 text-base font-medium">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                className="group w-full items-start justify-normal px-1.5 text-left text-base [&_svg]:size-3"
+              >
+                <span>{name || "Untitled"}</span>
+                <Pencil className="hidden h-3.5 w-3.5 opacity-0 group-hover:opacity-100" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Category</DialogTitle>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </div>
       );
     },
@@ -31,7 +55,12 @@ export const columns: ColumnDef<EmailCategory>[] = [
     cell: ({ row }) => {
       const description = row.getValue("description") as string | null;
       return (
-        <div className="ml-1 text-base font-medium">
+        <div
+          className={cn(
+            "ml-1 text-base font-medium",
+            description ? "" : "text-sm text-muted-foreground",
+          )}
+        >
           <span>{description || "No description"}</span>
         </div>
       );

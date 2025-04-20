@@ -76,6 +76,7 @@ import {
 } from "@church-space/ui/card";
 import { deleteEmailAction } from "@/actions/delete-email";
 import CategorySelector from "@/components/id-pages/emails/category-selector";
+import { getEmailCategoryById } from "@church-space/supabase/queries/all/get-all-email-categories";
 
 function SaveButtons(props: {
   isSaving: boolean;
@@ -173,6 +174,17 @@ export default function PreSendPage({
     queryKey: ["pcoList", listId],
     queryFn: () => getPcoListQuery(supabase, parseInt(listId || "0")),
     enabled: !!listId,
+  });
+
+  const { data: categoryData } = useQuery({
+    queryKey: ["emailCategory", categoryId],
+    queryFn: () =>
+      getEmailCategoryById(
+        supabase,
+        email.organization_id,
+        parseInt(categoryId || "0"),
+      ),
+    enabled: !!categoryId,
   });
 
   const { data: fromDomainData } = useQuery({
@@ -1074,6 +1086,9 @@ export default function PreSendPage({
                       ) : (
                         "No list selected"
                       )}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {categoryData?.data?.[0]?.name}
                     </span>
                   </div>
                 </div>

@@ -53,6 +53,7 @@ import { useQueryState } from "nuqs";
 import { useState } from "react";
 import { getEmailRecipientsAction } from "@/actions/get-email-recipients";
 import { motion } from "framer-motion";
+import { getEmailCategoryById } from "@church-space/supabase/queries/all/get-all-email-categories";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -104,12 +105,24 @@ export default function PostSendPage({
   const [fromName] = useState(email.from_name || "");
   const [replyToEmail] = useState(email.reply_to || "");
   const [replyToDomain] = useState(email.reply_to_domain?.toString() || "");
+  const [categoryId] = useState(email.email_category || "");
 
   // Fetch list and domain data
   const { data: listData } = useQuery({
     queryKey: ["pcoList", listId],
     queryFn: () => getPcoListQuery(supabase, parseInt(listId || "0")),
     enabled: !!listId,
+  });
+
+  const { data: categoryData } = useQuery({
+    queryKey: ["emailCategory", categoryId],
+    queryFn: () =>
+      getEmailCategoryById(
+        supabase,
+        email.organization_id,
+        parseInt(categoryId || "0"),
+      ),
+    enabled: !!categoryId,
   });
 
   const { data: domainData } = useQuery({
@@ -333,23 +346,23 @@ export default function PostSendPage({
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
               <div className="flex flex-col items-start font-medium text-primary">
-                <div className="flex items-center gap-1">
+                <div className="flex items-start gap-1">
                   To:
                   <div className="text-foreground">
-                    <div className="flex items-baseline gap-2">
+                    <div className="items-baseline space-x-2">
                       {listData?.data?.[0]?.pco_list_description}{" "}
-                      <div className="text-sm text-muted-foreground">
+                      <span className="text-sm text-muted-foreground">
                         {listData?.data?.[0]?.pco_total_people}{" "}
                         {listData?.data?.[0]?.pco_total_people === "1"
                           ? "person"
                           : "people"}
-                      </div>
+                      </span>
                     </div>
                   </div>
                 </div>
                 <div className="text-foreground">
                   <div className="text-sm text-muted-foreground">
-                    {listData?.data?.[0]?.pco_list_categories?.pco_name}
+                    {categoryData?.data?.[0]?.name}
                   </div>
                 </div>
               </div>
@@ -382,7 +395,7 @@ export default function PostSendPage({
               )}
 
               <div className="flex flex-col items-start font-medium text-primary">
-                <div className="flex items-center gap-1">
+                <div className="flex flex-shrink-0 items-center gap-1">
                   Sent At:
                   <div className="text-foreground">{formatDate(sendDate)}</div>
                 </div>

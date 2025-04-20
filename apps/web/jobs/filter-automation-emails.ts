@@ -61,10 +61,10 @@ export const filterAutomationEmails = task({
       }
       const internalPersonId = personData.id; // This is the ID for the email_automation_members table
 
-      // Step 2: Fetch the automation details, including the list_id
+      // Step 2: Fetch the automation details, including the email_category_id
       const { data: automationData, error: automationError } = await supabase
         .from("email_automations")
-        .select("id, list_id")
+        .select("id, email_category_id, organization_id")
         .eq("id", automationId)
         .eq("organization_id", organizationId)
         .single();
@@ -74,46 +74,34 @@ export const filterAutomationEmails = task({
           `Failed to fetch automation data for ID ${automationId}: ${automationError?.message || "Automation not found"}`,
         );
       }
-      const automationListId = automationData.list_id;
-      if (!automationListId) {
+      const automationCategoryId = automationData.email_category_id;
+
+      if (!automationCategoryId) {
         throw new Error(
-          `Automation ${automationId} does not have a list_id configured.`,
+          `Automation ${automationId} does not have an email_category_id configured.`,
         );
       }
-
-      // Step 3: Fetch the associated PCO list category ID
-      const { data: pcoListData, error: pcoListError } = await supabase
-        .from("pco_lists")
-        .select("id, pco_list_category_id")
-        .eq("id", automationListId)
-        .single();
-
-      if (pcoListError || !pcoListData) {
-        throw new Error(
-          `Failed to fetch PCO list data for list ID ${automationListId}: ${pcoListError?.message || "List not found"}`,
-        );
-      }
-      const pcoListCategoryId = pcoListData.pco_list_category_id;
-      if (!pcoListCategoryId) {
-        throw new Error(
-          `List ${automationListId} does not have a PCO category ID.`,
-        );
-      }
-
-      // Step 4: Fetch the internal list category ID
-      const { data: pcoListCategoryData, error: pcoListCategoryError } =
+      // Step 3: Fetch the associated email category ID
+      const { data: emailCategoryData, error: emailCategoryError } =
         await supabase
-          .from("pco_list_categories")
+          .from("email_categories")
           .select("id")
-          .eq("pco_id", pcoListCategoryId)
+          .eq("id", automationCategoryId)
+          .eq("organization_id", organizationId)
           .single();
 
-      if (pcoListCategoryError || !pcoListCategoryData) {
+      if (emailCategoryError || !emailCategoryData) {
         throw new Error(
-          `Failed to fetch internal PCO list category data for category PCO ID ${pcoListCategoryId}: ${pcoListCategoryError?.message || "Category not found"}`,
+          `Failed to fetch email category data for category ID ${automationCategoryId}: ${emailCategoryError?.message || "Category not found"}`,
         );
       }
-      const internalListCategoryId = pcoListCategoryData.id;
+
+      const emailCategoryId = emailCategoryData.id;
+      if (!emailCategoryId) {
+        throw new Error(
+          `Category ${automationCategoryId} does not have an email_category_id.`,
+        );
+      }
 
       // Step 5: Fetch the automation steps, ordered correctly
       const { data: steps, error: stepsError } = await supabase
@@ -255,19 +243,19 @@ export const filterAutomationEmails = task({
           const firstName = personEmailData.people?.first_name || undefined;
           const lastName = personEmailData.people?.last_name || undefined;
 
-          // b) Check list category unsubscribes
+          // b) Check email category unsubscribes
           const { data: unsubscribeData, error: unsubscribeError } =
             await supabase
-              .from("email_list_category_unsubscribes")
+              .from("email_category_unsubscribes")
               .select("id")
-              .eq("pco_list_category", internalListCategoryId)
+              .eq("email_category_id", emailCategoryId)
               .eq("organization_id", organizationId)
               .eq("email_address", recipientEmail)
               .maybeSingle(); // Check if a record exists
 
           if (unsubscribeError) {
             throw new Error(
-              `Error checking list category unsubscribes for ${recipientEmail}: ${unsubscribeError.message}`,
+              `Error checking email category unsubscribes for ${recipientEmail}: ${unsubscribeError.message}`,
             );
           }
 
@@ -276,13 +264,13 @@ export const filterAutomationEmails = task({
               .from("email_automation_members")
               .update({
                 status: "canceled",
-                reason: "Unsubscribed from list category",
+                reason: "Unsubscribed from email category",
                 updated_at: new Date().toISOString(),
               })
               .eq("id", currentMemberRecordId);
             return {
               status: "canceled",
-              reason: "Unsubscribed from list category",
+              reason: "Unsubscribed from email category",
             };
           }
 

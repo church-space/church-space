@@ -12,7 +12,6 @@ import {
   Globe,
   LinkFilled,
   Qrcode,
-  Users,
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import { cn } from "@church-space/ui/cn";

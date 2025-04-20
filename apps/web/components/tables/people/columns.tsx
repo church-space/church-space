@@ -53,14 +53,13 @@ export type Person = {
     protected_from_cleaning: boolean;
     reason: string | null;
   }>;
-  email_list_category_unsubscribes: Array<{
+  email_category_unsubscribes: Array<{
     id: number;
     email_address: string;
-    pco_list_category: number;
-    pco_list_categories: {
+    category_id: number;
+    email_categories: {
       id: number;
-      pco_name: string;
-      pco_id: string;
+      name: string;
     };
   }>;
 };
@@ -89,7 +88,7 @@ const NameCell = ({ person }: { person: Person }) => {
       categoryUnsubscribes:
         newStatus === "unsubscribed"
           ? []
-          : person.email_list_category_unsubscribes.map((u) => u.id),
+          : person.email_category_unsubscribes.map((u) => u.id),
     });
 
     try {
@@ -143,7 +142,7 @@ const NameCell = ({ person }: { person: Person }) => {
     optimisticStatus.status ?? person.people_emails?.[0]?.status;
   const currentCategoryUnsubscribes =
     optimisticStatus.categoryUnsubscribes ??
-    person.email_list_category_unsubscribes.map((u) => u.id);
+    person.email_category_unsubscribes.map((u) => u.id);
 
   return (
     <Sheet>
@@ -318,14 +317,14 @@ const NameCell = ({ person }: { person: Person }) => {
             currentStatus !== "unsubscribed" && (
               <div className="flex flex-col gap-2">
                 <Label>Unsubscribed from:</Label>
-                {person.email_list_category_unsubscribes
+                {person.email_category_unsubscribes
                   .filter((u) => currentCategoryUnsubscribes.includes(u.id))
                   .map((unsubscribe) => (
                     <div
                       key={unsubscribe.id}
                       className="flex items-center justify-between rounded-md border bg-muted p-2 px-2.5 text-sm"
                     >
-                      {unsubscribe.pco_list_categories.pco_name}
+                      {unsubscribe.email_categories.name}
                       <Dialog
                         open={isCategroyResubOpen}
                         onOpenChange={setIsCategroyResubOpen}
@@ -349,16 +348,15 @@ const NameCell = ({ person }: { person: Person }) => {
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>
-                              Resubscribe to{" "}
-                              {unsubscribe.pco_list_categories.pco_name}
+                              Resubscribe to {unsubscribe.email_categories.name}
                             </DialogTitle>
                             <DialogDescription>
                               Are you sure you want to resubscribe{" "}
                               <b>
                                 <u>{person.people_emails?.[0]?.email}</u>
                               </b>{" "}
-                              to {unsubscribe.pco_list_categories.pco_name}?
-                              Please make sure you have explicit permission to
+                              to {unsubscribe.email_categories.name}? Please
+                              make sure you have explicit permission to
                               resubscribe this person. Otherwise, you risk being
                               marked as spam which will hurt your email
                               deliverability.
@@ -373,7 +371,7 @@ const NameCell = ({ person }: { person: Person }) => {
                               disabled={isCategoryLoading === unsubscribe.id}
                               onClick={() => {
                                 handleCategoryResubscribe(
-                                  unsubscribe.pco_list_categories.id,
+                                  unsubscribe.email_categories.id,
                                 );
                               }}
                             >
@@ -437,7 +435,7 @@ export const columns: ColumnDef<Person>[] = [
       // If subscribed but has unsubscribe categories, mark as partially subscribed
       if (
         firstEmail.status === "subscribed" &&
-        row.original.email_list_category_unsubscribes?.length > 0
+        row.original.email_category_unsubscribes?.length > 0
       ) {
         return (
           <Tooltip>
@@ -445,13 +443,13 @@ export const columns: ColumnDef<Person>[] = [
               <Badge className="w-fit capitalize">Partially Subscribed</Badge>
             </TooltipTrigger>
             <TooltipContent>
-              {row.original.email_list_category_unsubscribes.length > 0 && (
+              {row.original.email_category_unsubscribes.length > 0 && (
                 <div className="max-w-[300px]">
                   <p className="mb-1 font-medium">Unsubscribed from:</p>
-                  {row.original.email_list_category_unsubscribes.map(
+                  {row.original.email_category_unsubscribes.map(
                     (unsubscribe) => (
                       <p key={unsubscribe.id} className="line-clamp-1 text-sm">
-                        {unsubscribe.pco_list_categories.pco_name}
+                        {unsubscribe.email_categories.name}
                       </p>
                     ),
                   )}

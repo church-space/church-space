@@ -42,9 +42,19 @@ export function usePeople(
 
       return {
         data:
-          (result.data.data?.map((person) => ({
-            ...person,
-          })) as Person[]) ?? [],
+          (result.data.data?.map((person) => {
+            // Make sure email_category_unsubscribes is an array
+            const email_category_unsubscribes = Array.isArray(
+              person.email_category_unsubscribes,
+            )
+              ? person.email_category_unsubscribes
+              : [];
+
+            return {
+              ...person,
+              email_category_unsubscribes,
+            };
+          }) as Person[]) ?? [],
         nextPage: result.data.nextPage,
       };
     },
