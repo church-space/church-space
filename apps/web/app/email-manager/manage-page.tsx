@@ -14,7 +14,7 @@ import {
 
 type Category = {
   category_id: number;
-  pco_name: string;
+  name: string;
   description: string;
   is_unsubscribed: boolean;
 };
@@ -126,9 +126,7 @@ export default function Manage({
                   className="flex w-full items-center justify-between border-b pb-4"
                 >
                   <div className="flex flex-col gap-1">
-                    <h2 className="text-lg font-semibold">
-                      {category.pco_name}
-                    </h2>
+                    <h2 className="text-lg font-semibold">{category.name}</h2>
                     <p className="text-sm text-muted-foreground">
                       {category.description}
                     </p>
