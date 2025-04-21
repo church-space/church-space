@@ -298,14 +298,14 @@ export const sendBulkEmails = task({
                 /<span\s+data-type="mention" data-id="email">@email<\/span>/g,
                 email || "",
               )
-              // Use regex to replace href="#" within the correct <a> tag for manage preferences
+              // Use regex with lookahead to replace href="#" for the correct ID, regardless of attribute order
               .replace(
-                /(<a[^>]*id="manage-preferences-link"[^>]*)href="#"([^>]*>)/g,
+                /(<a(?=[^>]*id="manage-preferences-link")[^>]*?)href="#"([^>]*>)/g,
                 `$1href="${managePreferencesUrl}"$2`,
               )
-              // Use regex to replace href="#" within the correct <a> tag for unsubscribe
+              // Use regex with lookahead to replace href="#" for the correct ID, regardless of attribute order
               .replace(
-                /(<a[^>]*id="unsubscribe-link"[^>]*)href="#"([^>]*>)/g,
+                /(<a(?=[^>]*id="unsubscribe-link")[^>]*?)href="#"([^>]*>)/g,
                 `$1href="${unsubscribeUrl}"$2`,
               );
 
