@@ -277,11 +277,6 @@ export const sendBulkEmails = task({
             const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
 
             // ---- START: Personalize content ----
-            // Add logging before replacement
-            console.log("--- Personalization START ---");
-            console.log("Recipient:", JSON.stringify(recipientData));
-            console.log("Base HTML (start):", baseHtml.substring(0, 500)); // Log start of base HTML
-
             let personalizedHtml = baseHtml
               .replace(
                 // Use \s+ to match one or more spaces after <span
@@ -308,13 +303,6 @@ export const sendBulkEmails = task({
                 /(<a(?=[^>]*id="unsubscribe-link")[^>]*?)href="#"([^>]*>)/g,
                 `$1href="${unsubscribeUrl}"$2`,
               );
-
-            // Add logging after replacement
-            console.log(
-              "Personalized HTML (end):",
-              personalizedHtml.substring(0, 500),
-            ); // Log start of personalized HTML
-            console.log("--- Personalization END ---");
 
             let personalizedText = baseText
               .replace(/@first-name/g, firstName || "")

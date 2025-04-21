@@ -182,6 +182,52 @@ export const sendAutomationEmail = task({
         linkColor: emailStyle.link_color || "#0000ff",
       };
 
+      // ---- START: Render email template once ----
+      let baseHtml: string;
+      let baseText: string;
+
+      try {
+        const renderResponse = await fetch(
+          "https://churchspace.co/api/emails/render",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Trigger-Secret": process.env.TRIGGER_API_ROUTE_SECRET || "",
+            },
+            body: JSON.stringify({
+              sections: sections,
+              style: style,
+              footer: typedEmailData.footer,
+            }),
+          },
+        );
+
+        if (!renderResponse.ok) {
+          const errorBody = await renderResponse.text();
+          throw new Error(
+            `Failed to render email template: ${renderResponse.status} ${renderResponse.statusText} - ${errorBody}`,
+          );
+        }
+
+        const renderedEmail = await renderResponse.json();
+        baseHtml = renderedEmail.html;
+        baseText = renderedEmail.text;
+      } catch (error) {
+        console.error("Error rendering base email template:", error);
+        // Update email status to failed if rendering fails
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: "Failed to render email template",
+          })
+          .eq("id", emailId);
+        throw new Error("Failed to render base email template.");
+      }
+      // ---- END: Render email template once ----
+
       // Generate unsubscribe token
       unsubscribeToken = await new SignJWT({
         email_id: emailId,
@@ -196,32 +242,50 @@ export const sendAutomationEmail = task({
       const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
       const unsubscribeEmail = `unsubscribe@churchspace.co?subject=unsubscribe&body=emailId%3A%20${emailId}%0AautomationId%3A%20${automationId}%0ApersonEmailId%3A%20${peopleEmailId}`;
 
-      // Make API request to render email with personalized URLs
-      const renderResponse = await fetch(
-        "https://churchspace.co/api/emails/render",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Trigger-Secret": process.env.TRIGGER_API_ROUTE_SECRET || "",
-          },
-          body: JSON.stringify({
-            sections: sections,
-            style: style,
-            footer: typedEmailData.footer,
-          }),
-        },
-      );
+      // ---- START: Personalize content ----
+      let personalizedHtml = baseHtml
+        .replace(
+          // Use \s+ to match one or more spaces after <span
+          /<span\s+data-type="mention" data-id="first-name">@first-name<\/span>/g,
+          recipient.firstName || "",
+        )
+        .replace(
+          // Use \s+ to match one or more spaces after <span
+          /<span\s+data-type="mention" data-id="last-name">@last-name<\/span>/g,
+          recipient.lastName || "",
+        )
+        .replace(
+          // Use \s+ to match one or more spaces after <span
+          /<span\s+data-type="mention" data-id="email">@email<\/span>/g,
+          recipient.email || "",
+        )
+        // Use regex with lookahead to replace href="#" for the correct ID, regardless of attribute order
+        .replace(
+          /(<a(?=[^>]*id="manage-preferences-link")[^>]*?)href="#"([^>]*>)/g,
+          `$1href="${managePreferencesUrl}"$2`,
+        )
+        // Use regex with lookahead to replace href="#" for the correct ID, regardless of attribute order
+        .replace(
+          /(<a(?=[^>]*id="unsubscribe-link")[^>]*?)href="#"([^>]*>)/g,
+          `$1href="${unsubscribeUrl}"$2`,
+        );
 
-      const { html, text } = await renderResponse.json();
+      let personalizedText = baseText
+        .replace(/@first-name/g, recipient.firstName || "")
+        .replace(/@last-name/g, recipient.lastName || "")
+        .replace(/@email/g, recipient.email || "");
+
+      // Append unsubscribe/manage links to text version
+      personalizedText += `\n\n---\nUnsubscribe: ${unsubscribeUrl}\nManage Preferences: ${managePreferencesUrl}`;
+      // ---- END: Personalize content ----
 
       // Prepare email data for sending
       const emailSendData = {
         from: `${fromName} <${fromAddress}>`,
         to: recipient.email,
         subject: subject, // Use subject from payload
-        html: html,
-        text: text,
+        html: personalizedHtml,
+        text: personalizedText,
         headers: {
           "X-Entity-Email-ID": `${emailId}`,
           "X-Entity-Automation-ID": `${automationId}`,

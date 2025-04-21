@@ -29,7 +29,6 @@ interface ContentUpdate {
   type?: DatabaseBlockType;
   value?: Json;
   order?: number;
-  linked_file?: string | null;
 }
 
 interface BatchUpdateEmailBlocksParams {

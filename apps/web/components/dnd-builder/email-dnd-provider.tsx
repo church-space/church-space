@@ -565,7 +565,6 @@ export default function EmailDndProvider({
           type: blockType,
           value: blockData,
           order: newBlockOrder,
-          linkedFile: undefined,
         },
         {
           onSuccess: (result) => {
@@ -967,7 +966,6 @@ export default function EmailDndProvider({
               type: updatedBlock.type,
               value: blockValue,
               order: insertIndex,
-              linkedFile: undefined,
             },
             {
               onSuccess: (result) => {
@@ -1212,7 +1210,6 @@ export default function EmailDndProvider({
             type: block.type,
             value: block.data || ({} as BlockData),
             order: block.order,
-            linkedFile: undefined,
           });
 
           // Update the block ID in our local state but keep the same block in the UI
@@ -2061,7 +2058,6 @@ export default function EmailDndProvider({
               type: block.type,
               value: block.data || ({} as BlockData),
               order: block.order,
-              linkedFile: undefined,
             },
             {
               onSuccess: (result) => {
@@ -2218,7 +2214,6 @@ export default function EmailDndProvider({
               type: block.type,
               value: block.data as BlockData,
               order: block.order,
-              linkedFile: undefined,
             },
             {
               onSuccess: (result) => {

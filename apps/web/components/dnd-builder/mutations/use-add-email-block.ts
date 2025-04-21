@@ -7,7 +7,6 @@ interface AddEmailBlockParams {
   type: BlockType;
   value: BlockData;
   order: number;
-  linkedFile?: string;
 }
 
 export function useAddEmailBlock() {
@@ -20,7 +19,6 @@ export function useAddEmailBlock() {
       type,
       value,
       order,
-      linkedFile,
     }: AddEmailBlockParams) => {
       // Explicitly type the insert data
       const insertData: any = {
@@ -29,10 +27,6 @@ export function useAddEmailBlock() {
         value,
         order,
       };
-
-      if (linkedFile) {
-        insertData.linked_file = linkedFile;
-      }
 
       const { data, error } = await supabase
         .from("email_blocks")

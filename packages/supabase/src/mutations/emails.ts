@@ -185,7 +185,6 @@ export async function createEmailTemplateFromEmail(
         type: block.type,
         value: block.value,
         email_id: newEmail.id,
-        linked_file: block.linked_file,
         order: block.order,
       }));
 
@@ -272,7 +271,6 @@ export async function applyEmailTemplate(
         type: block.type,
         value: block.value,
         email_id: emailId,
-        linked_file: block.linked_file,
         order: block.order,
       }));
 

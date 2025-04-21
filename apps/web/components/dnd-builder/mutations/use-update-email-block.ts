@@ -37,10 +37,6 @@ export function useUpdateEmailBlock() {
         updateData.order = order;
       }
 
-      if (linkedFile !== undefined) {
-        updateData.linked_file = linkedFile;
-      }
-
       try {
         const { data, error } = await supabase
           .from("email_blocks")
@@ -70,7 +66,7 @@ export function useUpdateEmailBlock() {
           return {
             ...oldData,
             blocks: oldData.blocks.map((block: any) =>
-              block.id === data.id ? { ...block, ...data } : block
+              block.id === data.id ? { ...block, ...data } : block,
             ),
           };
         });
