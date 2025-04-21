@@ -21,6 +21,7 @@ export const updateEmailAutomationAction = authActionClient
           organization_id: z.string(),
           is_active: z.boolean(),
           updated_at: z.string().nullable(),
+          email_category_id: z.number().nullable(),
         })
         .partial(),
     }),
