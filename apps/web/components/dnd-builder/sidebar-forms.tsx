@@ -166,7 +166,6 @@ export default function DndBuilderSidebarForms({
         {formType === "email-footer" && (
           <EmailFooterForm
             footerData={footerData}
-            emailInset={isInset || false}
             onFooterChange={onFooterChange}
           />
         )}
