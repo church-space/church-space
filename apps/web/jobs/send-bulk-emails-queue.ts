@@ -230,60 +230,25 @@ export const sendBulkEmails = task({
             const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
             const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
 
-            // Generate email code directly
-            const emailComponent = generateEmailCode(
-              sections,
-              style,
-              typedEmailData.footer,
-              unsubscribeUrl,
-              managePreferencesUrl,
-              recipientData.firstName,
-              recipientData.lastName,
-              recipientData.email,
+            // Make API request to render email with personalized URLs
+            const renderResponse = await fetch(
+              "https://churchspace.co/api/emails/render",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Trigger-Secret":
+                    process.env.TRIGGER_API_ROUTE_SECRET || "",
+                },
+                body: JSON.stringify({
+                  sections: sections,
+                  style: style,
+                  footer: typedEmailData.footer,
+                }),
+              },
             );
 
-            // Render HTML and plain text versions
-            const rawHtml = await render(emailComponent);
-            const rawText = await render(emailComponent, { plainText: true });
-
-            // Apply email client compatibility enhancements
-            const personalizedHtml = rawHtml
-              .replace(
-                "<html",
-                '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
-              )
-              .replace(
-                "<head>",
-                `<head>
-              <meta name="color-scheme" content="only">
-              <!--[if gte mso 9]>
-              <xml>
-                <o:OfficeDocumentSettings>
-                  <o:AllowPNG/>
-                  <o:PixelsPerInch>96</o:PixelsPerInch>
-                </o:OfficeDocumentSettings>
-              </xml>
-              <![endif]-->`,
-              );
-
-            const personalizedText = rawText
-              .replace(
-                "<html",
-                '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
-              )
-              .replace(
-                "<head>",
-                `<head>
-            <meta name="color-scheme" content="only">
-            <!--[if gte mso 9]>
-            <xml>
-              <o:OfficeDocumentSettings>
-                <o:AllowPNG/>
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-              </o:OfficeDocumentSettings>
-                </xml>
-                <![endif]-->`,
-              );
+            const { html, text } = await renderResponse.json();
 
             // Add to batch
             emailBatch.push({
@@ -291,8 +256,8 @@ export const sendBulkEmails = task({
               replyTo: replyToAddress,
               to: recipientData.email,
               subject: typedEmailData.subject || "No Subject",
-              html: personalizedHtml,
-              text: personalizedText,
+              html: html,
+              text: text,
               headers: {
                 "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,

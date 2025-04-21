@@ -130,9 +130,6 @@ const CustomText: React.FC<{
   defaultFont?: string;
   defaultTextColor?: string;
   linkColor?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
 }> = ({
   content,
   font,
@@ -140,27 +137,9 @@ const CustomText: React.FC<{
   defaultFont,
   defaultTextColor,
   linkColor,
-  firstName,
-  lastName,
-  email,
 }) => {
-  // Replace mention spans with actual values
-  const personalizedContent = content
-    .replace(
-      /<span class="mention" data-type="mention" data-id="first-name">@first-name<\/span>/g,
-      firstName || "@first-name",
-    )
-    .replace(
-      /<span class="mention" data-type="mention" data-id="last-name">@last-name<\/span>/g,
-      lastName || "@last-name",
-    )
-    .replace(
-      /<span class="mention" data-type="mention" data-id="email">@email<\/span>/g,
-      email || "@email",
-    );
-
   // Parse HTML content and convert to React Email components
-  const sanitizedContent = personalizedContent
+  const sanitizedContent = content
     .replace(/class="[^"]*"/g, "")
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(/<h1(?: style="([^"]*)")?/g, (match, existingStyle) => {
@@ -1237,17 +1216,7 @@ const CustomFooter: React.FC<{
   isInset?: boolean;
   isRounded?: boolean;
   linkColor?: string;
-  unsubscribeUrl?: string;
-  managePreferencesUrl?: string;
-}> = ({
-  footerData,
-  defaultFont,
-  emailBgColor,
-  isInset,
-  isRounded,
-  unsubscribeUrl,
-  managePreferencesUrl,
-}) => {
+}> = ({ footerData, defaultFont, emailBgColor, isInset, isRounded }) => {
   if (!footerData) return null;
 
   const {
@@ -1540,23 +1509,25 @@ const CustomFooter: React.FC<{
                             </span>
                             <span style={{ margin: "0 8px" }}>|</span>
                             <a
-                              href={managePreferencesUrl || "#"}
+                              href={"#"}
                               style={{
                                 color: secondary_text_color,
                                 textDecoration: "underline",
                                 whiteSpace: "nowrap",
                                 display: "inline-block",
                               }}
+                              id="manage-preferences-link"
                             >
                               Update your preferences
                             </a>
                             <span style={{ margin: "0 8px" }}>|</span>
                             <a
-                              href={unsubscribeUrl || "#"}
+                              href={"#"}
                               style={{
                                 color: secondary_text_color,
                                 textDecoration: "underline",
                               }}
+                              id="unsubscribe-link"
                             >
                               Unsubscribe
                             </a>
@@ -1580,11 +1551,6 @@ export function generateEmailCode(
   sections: Section[],
   style: EmailStyle,
   footerData?: any,
-  unsubscribeUrl?: string,
-  managePreferencesUrl?: string,
-  firstName?: string,
-  lastName?: string,
-  email?: string,
 ): React.ReactElement {
   const {
     bgColor = "#ffffff",
@@ -1678,9 +1644,6 @@ export function generateEmailCode(
                                                 defaultTextColor
                                               }
                                               linkColor={linkColor}
-                                              firstName={firstName}
-                                              lastName={lastName}
-                                              email={email}
                                             />
                                           </td>
                                         </tr>
@@ -1914,9 +1877,6 @@ export function generateEmailCode(
                                                 defaultTextColor
                                               }
                                               linkColor={linkColor}
-                                              firstName={firstName}
-                                              lastName={lastName}
-                                              email={email}
                                             />
                                           </td>
                                         </tr>
@@ -2113,8 +2073,6 @@ export function generateEmailCode(
           emailBgColor={emailBgColor}
           isInset={isInset}
           isRounded={isRounded}
-          unsubscribeUrl={unsubscribeUrl}
-          managePreferencesUrl={managePreferencesUrl}
         />
       </Body>
     </Html>

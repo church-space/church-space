@@ -196,68 +196,32 @@ export const sendAutomationEmail = task({
       const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
       const unsubscribeEmail = `unsubscribe@churchspace.co?subject=unsubscribe&body=emailId%3A%20${emailId}%0AautomationId%3A%20${automationId}%0ApersonEmailId%3A%20${peopleEmailId}`;
 
-      // Generate email code directly
-      const emailComponent = generateEmailCode(
-        sections,
-        style,
-        typedEmailData.footer,
-        unsubscribeUrl,
-        managePreferencesUrl,
-        recipient.firstName,
-        recipient.lastName,
-        recipient.email,
+      // Make API request to render email with personalized URLs
+      const renderResponse = await fetch(
+        "https://churchspace.co/api/emails/render",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Trigger-Secret": process.env.TRIGGER_API_ROUTE_SECRET || "",
+          },
+          body: JSON.stringify({
+            sections: sections,
+            style: style,
+            footer: typedEmailData.footer,
+          }),
+        },
       );
 
-      // Render HTML and plain text versions
-      const rawHtml = await render(emailComponent);
-      const rawText = await render(emailComponent, { plainText: true });
-
-      // Apply email client compatibility enhancements
-      const personalizedHtml = rawHtml
-        .replace(
-          "<html",
-          '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
-        )
-        .replace(
-          "<head>",
-          `<head>
-              <meta name="color-scheme" content="only">
-              <!--[if gte mso 9]>
-              <xml>
-                <o:OfficeDocumentSettings>
-                  <o:AllowPNG/>
-                  <o:PixelsPerInch>96</o:PixelsPerInch>
-                </o:OfficeDocumentSettings>
-              </xml>
-              <![endif]-->`,
-        );
-
-      const personalizedText = rawText
-        .replace(
-          "<html",
-          '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"',
-        )
-        .replace(
-          "<head>",
-          `<head>
-            <meta name="color-scheme" content="only">
-            <!--[if gte mso 9]>
-            <xml>
-              <o:OfficeDocumentSettings>
-                <o:AllowPNG/>
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-              </o:OfficeDocumentSettings>
-                </xml>
-                <![endif]-->`,
-        );
+      const { html, text } = await renderResponse.json();
 
       // Prepare email data for sending
       const emailSendData = {
         from: `${fromName} <${fromAddress}>`,
         to: recipient.email,
         subject: subject, // Use subject from payload
-        html: personalizedHtml,
-        text: personalizedText,
+        html: html,
+        text: text,
         headers: {
           "X-Entity-Email-ID": `${emailId}`,
           "X-Entity-Automation-ID": `${automationId}`,
