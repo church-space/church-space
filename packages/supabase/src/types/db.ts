@@ -20,6 +20,7 @@ export type Database = {
           is_verified: boolean
           organization_id: string
           resend_domain_id: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
@@ -31,6 +32,7 @@ export type Database = {
           is_verified?: boolean
           organization_id: string
           resend_domain_id?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
@@ -42,6 +44,7 @@ export type Database = {
           is_verified?: boolean
           organization_id?: string
           resend_domain_id?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -235,27 +238,27 @@ export type Database = {
           created_at: string
           email_id: number
           id: number
-          linked_file: string | null
           order: number | null
           type: Database["public"]["Enums"]["block_types"]
+          updated_at: string | null
           value: Json | null
         }
         Insert: {
           created_at?: string
           email_id: number
           id?: number
-          linked_file?: string | null
           order?: number | null
           type: Database["public"]["Enums"]["block_types"]
+          updated_at?: string | null
           value?: Json | null
         }
         Update: {
           created_at?: string
           email_id?: number
           id?: number
-          linked_file?: string | null
           order?: number | null
           type?: Database["public"]["Enums"]["block_types"]
+          updated_at?: string | null
           value?: Json | null
         }
         Relationships: [
@@ -312,6 +315,7 @@ export type Database = {
           organization_id: string
           person_id: number | null
           unsub_email_id: number | null
+          updated_at: string | null
         }
         Insert: {
           category_id: number
@@ -321,6 +325,7 @@ export type Database = {
           organization_id: string
           person_id?: number | null
           unsub_email_id?: number | null
+          updated_at?: string | null
         }
         Update: {
           category_id?: number
@@ -330,6 +335,7 @@ export type Database = {
           organization_id?: string
           person_id?: number | null
           unsub_email_id?: number | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -347,27 +353,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "email_category_unsubscribes_organization_id_fkey1"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_category_unsubscribes_pco_list_category_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "pco_list_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_category_unsubscribes_person_id_fkey"
-            columns: ["person_id"]
-            isOneToOne: false
-            referencedRelation: "people"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "email_category_unsubscribes_person_id_fkey1"
             columns: ["person_id"]
             isOneToOne: false
@@ -379,13 +364,6 @@ export type Database = {
             columns: ["unsub_email_id"]
             isOneToOne: false
             referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_category_unsubscribes_unsub_email_id_fkey1"
-            columns: ["unsub_email_id"]
-            isOneToOne: false
-            referencedRelation: "people_emails"
             referencedColumns: ["id"]
           },
         ]
@@ -411,6 +389,7 @@ export type Database = {
           template_title: string | null
           text_color: string | null
           type: Database["public"]["Enums"]["email_types"]
+          updated_at: string | null
         }
         Insert: {
           address?: string | null
@@ -432,6 +411,7 @@ export type Database = {
           template_title?: string | null
           text_color?: string | null
           type: Database["public"]["Enums"]["email_types"]
+          updated_at?: string | null
         }
         Update: {
           address?: string | null
@@ -453,6 +433,7 @@ export type Database = {
           template_title?: string | null
           text_color?: string | null
           type?: Database["public"]["Enums"]["email_types"]
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1507,6 +1488,58 @@ export type Database = {
           },
         ]
       }
+      pending_automation_runs: {
+        Row: {
+          automation_id: number
+          created_at: string | null
+          id: number
+          organization_id: string
+          person_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          automation_id: number
+          created_at?: string | null
+          id?: number
+          organization_id: string
+          person_id: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          automation_id?: number
+          created_at?: string | null
+          id?: number
+          organization_id?: string
+          person_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_automation_runs_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_automation_runs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_automation_runs_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["pco_id"]
+          },
+        ]
+      }
       people: {
         Row: {
           created_at: string
@@ -2073,6 +2106,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      block_editable: {
+        Args: { email_block_email_id: number }
+        Returns: boolean
+      }
+      block_visible: {
+        Args: { email_block_email_id: number }
+        Returns: boolean
+      }
       clean_complained_emails: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -2089,6 +2130,14 @@ export type Database = {
         Args: { path: string }
         Returns: string
       }
+      footer_editable: {
+        Args: {
+          _email_id: number
+          _footer_type: Database["public"]["Enums"]["email_types"]
+          _org: string
+        }
+        Returns: boolean
+      }
       get_public_list_categories_with_unsub_status: {
         Args: { input_people_email_id: number; input_email_id: number }
         Returns: {
@@ -2101,6 +2150,14 @@ export type Database = {
       get_user_organizations: {
         Args: { user_uuid: string }
         Returns: string[]
+      }
+      is_org_member: {
+        Args: { org: string }
+        Returns: boolean
+      }
+      is_org_owner: {
+        Args: { org: string }
+        Returns: boolean
       }
       org_storage_used_mb: {
         Args: { org_id: string }
