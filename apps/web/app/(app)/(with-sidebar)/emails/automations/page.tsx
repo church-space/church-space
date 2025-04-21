@@ -35,7 +35,7 @@ export default async function Page() {
 
               <BreadcrumbItem>
                 <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
-                  Email Automations
+                  Automations
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>

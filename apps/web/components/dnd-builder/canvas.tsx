@@ -170,10 +170,10 @@ export default function DndBuilderCanvas({
       <div
         ref={setNodeRef}
         className={cn(
-          "mx-auto flex w-full max-w-2xl flex-col p-4 pb-0",
+          "mx-auto flex w-full max-w-2xl flex-col p-4",
           isInset && "mb-2 p-6 pb-0 shadow-md",
           isRounded && "rounded-lg",
-          blocks.length === 0 && "min-h-[102px]",
+          blocks.length === 0 && "min-h-[102px] pb-6",
         )}
         style={{ backgroundColor: bgColor }}
       >
