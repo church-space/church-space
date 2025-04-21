@@ -80,23 +80,18 @@ export default function Manage({
         ),
       );
 
-      // Show success message
+      // Show success message and set timer to hide it
       setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 3000); // Set timeout here
     } catch (error) {
       console.error("Failed to toggle category subscription:", error);
       // If there's an error, don't show success and maybe handle the error display
       setShowSuccess(false); // Ensure success is not shown on error
       return; // Exit early on error
     } finally {
-      // Hide success message after 3 seconds, regardless of success or failure of the API call *if* it was shown
-      // This timeout should only be set if the operation was successful
-      if (showSuccess) {
-        // Check if showSuccess was set to true before setting the timeout
-        setTimeout(() => {
-          setShowSuccess(false);
-        }, 3000);
-      }
-
+      // Remove category from toggling set
       setTogglingCategories((prev) => {
         const newSet = new Set(prev);
         newSet.delete(category.category_id);
