@@ -83,7 +83,6 @@ const requiredFieldSchema = z.string().min(1, "This field is required");
 
 interface EmailFooterFormProps {
   footerData?: any;
-  emailInset: boolean;
   onFooterChange?: (data: any) => void;
 }
 
@@ -162,7 +161,9 @@ function SortableLinkItem({
               {IconComponent && <IconComponent height="16" width="16" />}
               <span className="truncate pr-2 text-sm">
                 {link.icon
-                  ? link.icon.charAt(0).toUpperCase() + link.icon.slice(1)
+                  ? link.icon === "twitter"
+                    ? "X"
+                    : link.icon.charAt(0).toUpperCase() + link.icon.slice(1)
                   : "Select Platform"}
               </span>
             </div>
@@ -279,7 +280,6 @@ function SortableLinkItem({
 
 export default function EmailFooterForm({
   footerData,
-  emailInset,
   onFooterChange,
 }: EmailFooterFormProps) {
   const { organizationId } = useUser();
@@ -743,20 +743,6 @@ export default function EmailFooterForm({
             maxLength={1000}
           />
           <Separator className="col-span-3 my-4" />
-          <Label className="font-medium">Title Color</Label>
-          <ColorPicker
-            value={localState.text_color}
-            onChange={(color) => handleColorChange("text_color", color)}
-          />
-
-          <Label className="font-medium">Accent Text Color</Label>
-          <ColorPicker
-            value={localState.secondary_text_color}
-            onChange={(color) =>
-              handleColorChange("secondary_text_color", color)
-            }
-          />
-          <Separator className="col-span-3 my-4" />
           <Label>Address</Label>
           <div className="col-span-2 flex flex-col gap-1">
             <Textarea
@@ -823,15 +809,7 @@ export default function EmailFooterForm({
               </p>
             )}
           </div>
-          {!emailInset && (
-            <>
-              <Label className="font-medium">Background Color</Label>
-              <ColorPicker
-                value={localState.bg_color}
-                onChange={(color) => handleChange("bg_color", color)}
-              />
-            </>
-          )}
+
           <Separator className="col-span-3 my-4" />
           <Label className="font-medium">Social Icon Style</Label>
           <Select

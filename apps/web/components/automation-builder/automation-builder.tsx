@@ -47,6 +47,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
+import CategorySelector from "../id-pages/emails/category-selector";
 
 export type TriggerType = "person_added" | "person_removed";
 type ActionType = "wait" | "send_email";
@@ -79,6 +80,7 @@ export interface EmailAutomation {
   name: string;
   trigger_type: TriggerType | null;
   list_id: number | null;
+  email_category_id: number | null;
   is_active: boolean;
   updated_at: string | null;
   created_at: string;
@@ -388,6 +390,9 @@ export default function EmailAutomationBuilder({
   );
   const [selectedList, setSelectedList] = useState<string>(
     automation?.list_id?.toString() || "",
+  );
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    automation?.email_category_id?.toString() || "",
   );
   const [steps, setSteps] = useState<AutomationStep[]>(
     (automation?.steps || [])
@@ -843,6 +848,13 @@ export default function EmailAutomationBuilder({
                       <ListSelector
                         value={selectedList}
                         onChange={setSelectedList}
+                        organizationId={organizationId}
+                      />
+                    </div>
+                    <div className="mt-3">
+                      <CategorySelector
+                        value={selectedCategory}
+                        onChange={setSelectedCategory}
                         organizationId={organizationId}
                       />
                     </div>
