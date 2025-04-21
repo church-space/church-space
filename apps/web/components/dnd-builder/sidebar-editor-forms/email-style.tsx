@@ -181,6 +181,9 @@ export default function EmailStyleForm({
           </SelectContent>
         </Select>
       </div>
+      <Separator className="my-4" />
+      <Label className="text-lg font-semibold">Footer</Label>
+      <div className="grid grid-cols-3 items-center gap-2"></div>
     </div>
   );
 }
