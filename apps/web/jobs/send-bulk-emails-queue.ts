@@ -277,17 +277,25 @@ export const sendBulkEmails = task({
             const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
 
             // ---- START: Personalize content ----
+            // Add logging before replacement
+            console.log("--- Personalization START ---");
+            console.log("Recipient:", JSON.stringify(recipientData));
+            console.log("Base HTML (start):", baseHtml.substring(0, 500)); // Log start of base HTML
+
             let personalizedHtml = baseHtml
               .replace(
-                /<span data-type="mention" data-id="first-name">@first-name<\/span>/g,
+                // Use \s+ to match one or more spaces after <span
+                /<span\s+data-type="mention" data-id="first-name">@first-name<\/span>/g,
                 firstName || "",
               )
               .replace(
-                /<span data-type="mention" data-id="last-name">@last-name<\/span>/g,
+                // Use \s+ to match one or more spaces after <span
+                /<span\s+data-type="mention" data-id="last-name">@last-name<\/span>/g,
                 lastName || "",
               )
               .replace(
-                /<span data-type="mention" data-id="email">@email<\/span>/g,
+                // Use \s+ to match one or more spaces after <span
+                /<span\s+data-type="mention" data-id="email">@email<\/span>/g,
                 email || "",
               )
               // Use regex to replace href="#" within the correct <a> tag for manage preferences
@@ -300,6 +308,13 @@ export const sendBulkEmails = task({
                 /(<a[^>]*id="unsubscribe-link"[^>]*)href="#"([^>]*>)/g,
                 `$1href="${unsubscribeUrl}"$2`,
               );
+
+            // Add logging after replacement
+            console.log(
+              "Personalized HTML (end):",
+              personalizedHtml.substring(0, 500),
+            ); // Log start of personalized HTML
+            console.log("--- Personalization END ---");
 
             let personalizedText = baseText
               .replace(/@first-name/g, firstName || "")
@@ -378,27 +393,27 @@ export const sendBulkEmails = task({
             );
             // --- DEBUG LOGGING END ---
 
-            const peopleEmailIdsInBatch = emailBatch.map(
-              (email) => email.headers["X-Entity-People-Email-ID"],
-            );
-
-            for (const peopleEmailId of peopleEmailIdsInBatch) {
-              const recipientData = recipients[peopleEmailId];
-              const emailAddress = recipientData.email;
-              const sentInfo = sentEmailData.find(
-                (sent) => sent.to === emailAddress,
-              );
+            // Assuming the response order matches the request order in emailBatch
+            emailBatch.forEach(async (sentRequest, index) => {
+              const peopleEmailId =
+                sentRequest.headers["X-Entity-People-Email-ID"];
+              const emailAddress = sentRequest.to;
+              const sentInfo = sentEmailData[index]; // Get response by index
 
               // --- DEBUG LOGGING START ---
-              console.log(`Processing recipient: ${emailAddress}`);
+              console.log(
+                `Processing recipient: ${emailAddress} (Index: ${index})`,
+              );
               console.log("Found sentInfo:", JSON.stringify(sentInfo, null, 2));
               // --- DEBUG LOGGING END ---
 
-              // Map Resend status/error to Supabase status
-              const status =
-                sentInfo && !sentInfo.error ? "sent" : "did-not-send";
-              const errorMessage = sentInfo?.error?.message; // Use Resend error message
-              const messageId = sentInfo?.id;
+              // Determine status based on sentInfo existence and error property
+              // Assume success if sentInfo exists and doesn't have an error field.
+              // Note: Response structure for errors might differ, adjust if necessary.
+              const isSuccess = sentInfo && !sentInfo.error;
+              const status = isSuccess ? "sent" : "did-not-send";
+              const errorMessage = sentInfo?.error?.message;
+              const messageId = sentInfo?.id; // This ID is from Resend's response
 
               // --- DEBUG LOGGING START ---
               console.log(`Determined status: ${status}`);
@@ -410,9 +425,9 @@ export const sendBulkEmails = task({
                   people_email_id: parseInt(peopleEmailId),
                   email_address: emailAddress,
                   status: status,
-                  unsubscribe_token: batchTokens[peopleEmailId] || "",
+                  unsubscribe_token: batchTokens[peopleEmailId] || "", // Ensure batchTokens is accessible
                   error_message: errorMessage,
-                  resend_email_id: messageId, // Use correct column name
+                  resend_email_id: messageId,
                 });
 
                 if (status === "sent") {
@@ -425,10 +440,14 @@ export const sendBulkEmails = task({
                   `Failed to create recipient record for ${emailAddress}:`,
                   insertError,
                 );
-                // Increment failure count even if DB insert fails, as the email itself failed to send or record
-                failureCount++;
+                // Ensure failure is counted if DB insert fails, especially if the status was 'did-not-send' initially
+                if (status !== "sent") {
+                  // Avoid double-counting if status was already 'did-not-send'
+                } else {
+                  failureCount++; // Count as failure if DB insert failed for a 'sent' email status
+                }
               }
-            }
+            });
             // ---- END: Update recipient records based on send status ----
           } catch (error) {
             console.error("Error sending batch:", error);

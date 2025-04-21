@@ -272,7 +272,7 @@ const FileUpload = ({
         {!file && !filePath && (
           <AssetBrowserModal
             triggerText="Browse"
-            buttonClassName="flex-1 rounded-r-none border-r-0"
+            buttonClassName="flex-1 rounded-r-none border-r-0 truncate"
             onSelectAsset={handleAssetSelect}
             organizationId={organizationId}
             type={type}
@@ -346,7 +346,7 @@ const FileUpload = ({
         {(file || filePath) && (
           <AssetBrowserModal
             triggerText={getDisplayName() || ""}
-            buttonClassName="flex-1 rounded-r-none justify-start bg-background pl-3 font-normal"
+            buttonClassName="flex-1 rounded-r-none justify-start bg-background pl-3 font-normal truncate"
             onSelectAsset={handleAssetSelect}
             organizationId={organizationId}
             type={type}
