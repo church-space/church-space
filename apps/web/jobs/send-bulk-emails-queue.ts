@@ -5,8 +5,7 @@ import { createClient } from "@church-space/supabase/job";
 import { SignJWT } from "jose";
 import { Section, BlockType, BlockData } from "@/types/blocks";
 import { v4 as uuidv4 } from "uuid";
-import { generateEmailCode } from "@/lib/generate-email-code";
-import { render } from "@react-email/render";
+
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -195,6 +194,52 @@ export const sendBulkEmails = task({
         linkColor: emailStyle.link_color || "#0000ff",
       };
 
+      // ---- START: Render email template once ----
+      let baseHtml: string;
+      let baseText: string;
+
+      try {
+        const renderResponse = await fetch(
+          "https://churchspace.co/api/emails/render",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Trigger-Secret": process.env.TRIGGER_API_ROUTE_SECRET || "",
+            },
+            body: JSON.stringify({
+              sections: sections,
+              style: style,
+              footer: typedEmailData.footer,
+            }),
+          },
+        );
+
+        if (!renderResponse.ok) {
+          const errorBody = await renderResponse.text();
+          throw new Error(
+            `Failed to render email template: ${renderResponse.status} ${renderResponse.statusText} - ${errorBody}`,
+          );
+        }
+
+        const renderedEmail = await renderResponse.json();
+        baseHtml = renderedEmail.html;
+        baseText = renderedEmail.text;
+      } catch (error) {
+        console.error("Error rendering base email template:", error);
+        // Update email status to failed if rendering fails
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: "Failed to render email template",
+          })
+          .eq("id", emailId);
+        throw new Error("Failed to render base email template.");
+      }
+      // ---- END: Render email template once ----
+
       // Process recipients in batches of 100
       const peopleEmailIds = Object.keys(recipients);
       const batches = [];
@@ -209,6 +254,7 @@ export const sendBulkEmails = task({
 
         for (const peopleEmailId of batch) {
           const recipientData = recipients[peopleEmailId];
+          const { email, firstName, lastName } = recipientData;
 
           try {
             // Create JWT token for unsubscribe link
@@ -230,34 +276,46 @@ export const sendBulkEmails = task({
             const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
             const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
 
-            // Make API request to render email with personalized URLs
-            const renderResponse = await fetch(
-              "https://churchspace.co/api/emails/render",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Trigger-Secret":
-                    process.env.TRIGGER_API_ROUTE_SECRET || "",
-                },
-                body: JSON.stringify({
-                  sections: sections,
-                  style: style,
-                  footer: typedEmailData.footer,
-                }),
-              },
-            );
+            // ---- START: Personalize content ----
+            let personalizedHtml = baseHtml
+              .replace(
+                /<span class="mention" data-type="mention" data-id="first-name">@first-name<\/span>/g,
+                firstName || "",
+              )
+              .replace(
+                /<span class="mention" data-type="mention" data-id="last-name">@last-name<\/span>/g,
+                lastName || "",
+              )
+              .replace(
+                /<span class="mention" data-type="mention" data-id="email">@email<\/span>/g,
+                email || "",
+              )
+              .replace(
+                'id="manage-preferences-link" href="#"',
+                `id="manage-preferences-link" href="${managePreferencesUrl}"`,
+              )
+              .replace(
+                'id="unsubscribe-link" href="#"',
+                `id="unsubscribe-link" href="${unsubscribeUrl}"`,
+              );
 
-            const { html, text } = await renderResponse.json();
+            let personalizedText = baseText
+              .replace(/@first-name/g, firstName || "")
+              .replace(/@last-name/g, lastName || "")
+              .replace(/@email/g, email || "");
 
-            // Add to batch
+            // Append unsubscribe/manage links to text version
+            personalizedText += `\n\n---\nUnsubscribe: ${unsubscribeUrl}\nManage Preferences: ${managePreferencesUrl}`;
+            // ---- END: Personalize content ----
+
+            // Add to batch using personalized content
             emailBatch.push({
               from: `${typedEmailData.from_name || typedEmailData.from_email} <${fromAddress}>`,
               replyTo: replyToAddress,
               to: recipientData.email,
               subject: typedEmailData.subject || "No Subject",
-              html: html,
-              text: text,
+              html: personalizedHtml, // Use personalized HTML
+              text: personalizedText, // Use personalized Text
               headers: {
                 "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
@@ -283,7 +341,7 @@ export const sendBulkEmails = task({
                   error_message:
                     error instanceof Error
                       ? error.message
-                      : "Failed to render email",
+                      : "Failed to render or personalize email",
                 });
               } catch (insertError) {
                 console.error(
@@ -300,10 +358,63 @@ export const sendBulkEmails = task({
             // Send batch
             const response = await resend.batch.send(emailBatch);
             results.push(response);
-            // Increment success count by the number of emails in the batch
-            successCount += emailBatch.length;
+
+            // ---- START: Update recipient records based on send status ----
+            // Define type for Resend batch response items
+            interface ResendBatchItem {
+              id: string;
+              to: string;
+              error: { message: string; type: string } | null;
+            }
+            const sentEmailData = (response.data?.data ||
+              []) as ResendBatchItem[];
+
+            const peopleEmailIdsInBatch = emailBatch.map(
+              (email) => email.headers["X-Entity-People-Email-ID"],
+            );
+
+            for (const peopleEmailId of peopleEmailIdsInBatch) {
+              const recipientData = recipients[peopleEmailId];
+              const emailAddress = recipientData.email;
+              const sentInfo = sentEmailData.find(
+                (sent) => sent.to === emailAddress,
+              );
+
+              // Map Resend status/error to Supabase status
+              const status =
+                sentInfo && !sentInfo.error ? "sent" : "did-not-send";
+              const errorMessage = sentInfo?.error?.message; // Use Resend error message
+              const messageId = sentInfo?.id;
+
+              try {
+                await supabase.from("email_recipients").insert({
+                  email_id: emailId,
+                  people_email_id: parseInt(peopleEmailId),
+                  email_address: emailAddress,
+                  status: status,
+                  unsubscribe_token: batchTokens[peopleEmailId] || "",
+                  error_message: errorMessage,
+                  resend_email_id: messageId, // Use correct column name
+                });
+
+                if (status === "sent") {
+                  successCount++;
+                } else {
+                  failureCount++;
+                }
+              } catch (insertError) {
+                console.error(
+                  `Failed to create recipient record for ${emailAddress}:`,
+                  insertError,
+                );
+                // Increment failure count even if DB insert fails, as the email itself failed to send or record
+                failureCount++;
+              }
+            }
+            // ---- END: Update recipient records based on send status ----
           } catch (error) {
             console.error("Error sending batch:", error);
+            failureCount += emailBatch.length; // Assume all in batch failed if send throws
 
             // Create recipient records for failed sends in this batch
             const peopleEmailIdsInBatch = emailBatch.map(
@@ -318,11 +429,15 @@ export const sendBulkEmails = task({
                   email_id: emailId,
                   people_email_id: parseInt(peopleEmailId),
                   email_address: emailAddress,
-                  status: "did-not-send",
+                  status: "did-not-send", // Marked as did-not-send if batch fails
                   unsubscribe_token: batchTokens[peopleEmailId] || "",
+                  error_message:
+                    error instanceof Error
+                      ? error.message
+                      : "Batch send failed",
                 });
 
-                failureCount++;
+                // failureCount++; - Handled above by incrementing for the whole batch
               } catch (insertError) {
                 console.error(
                   `Failed to create failed recipient record for ${emailAddress}:`,
