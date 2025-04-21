@@ -279,24 +279,26 @@ export const sendBulkEmails = task({
             // ---- START: Personalize content ----
             let personalizedHtml = baseHtml
               .replace(
-                /<span class="mention" data-type="mention" data-id="first-name">@first-name<\/span>/g,
+                /<span data-type="mention" data-id="first-name">@first-name<\/span>/g,
                 firstName || "",
               )
               .replace(
-                /<span class="mention" data-type="mention" data-id="last-name">@last-name<\/span>/g,
+                /<span data-type="mention" data-id="last-name">@last-name<\/span>/g,
                 lastName || "",
               )
               .replace(
-                /<span class="mention" data-type="mention" data-id="email">@email<\/span>/g,
+                /<span data-type="mention" data-id="email">@email<\/span>/g,
                 email || "",
               )
+              // Use regex to replace href="#" within the correct <a> tag for manage preferences
               .replace(
-                'id="manage-preferences-link" href="#"',
-                `id="manage-preferences-link" href="${managePreferencesUrl}"`,
+                /(<a[^>]*id="manage-preferences-link"[^>]*)href="#"([^>]*>)/g,
+                `$1href="${managePreferencesUrl}"$2`,
               )
+              // Use regex to replace href="#" within the correct <a> tag for unsubscribe
               .replace(
-                'id="unsubscribe-link" href="#"',
-                `id="unsubscribe-link" href="${unsubscribeUrl}"`,
+                /(<a[^>]*id="unsubscribe-link"[^>]*)href="#"([^>]*>)/g,
+                `$1href="${unsubscribeUrl}"$2`,
               );
 
             let personalizedText = baseText
