@@ -16,8 +16,10 @@ import { createClient } from "@church-space/supabase/server";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import { Button } from "@church-space/ui/button";
 import {
@@ -72,14 +74,18 @@ export default async function Page() {
 
   return (
     <div className="relative">
-      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/settings">Settings</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Settings</BreadcrumbPage>
+                <BreadcrumbPage>Billing</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

@@ -289,8 +289,8 @@ export default function Page() {
   };
 
   return (
-    <>
-      <header className="flex h-12 shrink-0 items-center gap-2">
+    <div className="relative">
+      <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
@@ -525,6 +525,6 @@ export default function Page() {
           <p>Table here with active steps, people, etc.</p>
         </div>
       </div>
-    </>
+    </div>
   );
 }

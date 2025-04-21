@@ -371,6 +371,13 @@ export const sendBulkEmails = task({
             const sentEmailData = (response.data?.data ||
               []) as ResendBatchItem[];
 
+            // --- DEBUG LOGGING START ---
+            console.log(
+              "Resend batch response data:",
+              JSON.stringify(sentEmailData, null, 2),
+            );
+            // --- DEBUG LOGGING END ---
+
             const peopleEmailIdsInBatch = emailBatch.map(
               (email) => email.headers["X-Entity-People-Email-ID"],
             );
@@ -382,11 +389,20 @@ export const sendBulkEmails = task({
                 (sent) => sent.to === emailAddress,
               );
 
+              // --- DEBUG LOGGING START ---
+              console.log(`Processing recipient: ${emailAddress}`);
+              console.log("Found sentInfo:", JSON.stringify(sentInfo, null, 2));
+              // --- DEBUG LOGGING END ---
+
               // Map Resend status/error to Supabase status
               const status =
                 sentInfo && !sentInfo.error ? "sent" : "did-not-send";
               const errorMessage = sentInfo?.error?.message; // Use Resend error message
               const messageId = sentInfo?.id;
+
+              // --- DEBUG LOGGING START ---
+              console.log(`Determined status: ${status}`);
+              // --- DEBUG LOGGING END ---
 
               try {
                 await supabase.from("email_recipients").insert({
