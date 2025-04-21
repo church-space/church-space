@@ -10,7 +10,7 @@ const chunk = <T>(arr: T[], n: number) =>
 
 export const processPendingAutomationRuns = schedules.task({
   id: "process-pending-automation-runs",
-  cron: "*/1 * * * *", // every minute
+  cron: "*/2 * * * *", // every minute
   run: async (_payload, ctx) => {
     const supabase = createClient();
 
