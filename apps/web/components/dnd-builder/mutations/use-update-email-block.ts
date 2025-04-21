@@ -7,7 +7,6 @@ interface UpdateEmailBlockParams {
   type?: BlockType;
   value?: BlockData;
   order?: number;
-  linkedFile?: string | null;
 }
 
 export function useUpdateEmailBlock() {
@@ -20,7 +19,6 @@ export function useUpdateEmailBlock() {
       type,
       value,
       order,
-      linkedFile,
     }: UpdateEmailBlockParams) => {
       // Prepare the update data
       const updateData: any = {};

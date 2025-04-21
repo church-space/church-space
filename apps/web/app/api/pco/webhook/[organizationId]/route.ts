@@ -4,7 +4,6 @@ import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@church-space/supabase/job";
 import crypto from "crypto";
 import { getCachedEmailAutomationsByPCOId } from "@church-space/supabase/queries/cached/automations";
-import { automationJob } from "@/jobs/automation-job";
 
 // Helper function to wait for specified milliseconds
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
