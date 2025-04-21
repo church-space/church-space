@@ -65,6 +65,7 @@ interface EmailAutomation {
   organization_id: string;
   is_active: boolean;
   updated_at: string | null;
+  email_category_id: number | null;
   steps: AutomationStep[];
 }
 
@@ -102,6 +103,7 @@ export default function Page() {
           organization_id: organizationId,
           is_active: automation.data.is_active || false,
           updated_at: automation.data.updated_at || null,
+          email_category_id: automation.data.email_category_id || null,
           steps:
             automation.data.steps?.map((step) => ({
               id: step.id,
