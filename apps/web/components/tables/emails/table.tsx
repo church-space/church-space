@@ -22,20 +22,13 @@ interface EmailsTableProps {
 }
 
 export default function EmailsTable({ organizationId }: EmailsTableProps) {
-  // Add early return if organizationId is not available
-  if (!organizationId) {
-    return (
-      <div className="flex min-h-[200px] items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
+  // Move all hooks to the top
   const [search, setSearch] = useQueryState("search", {
     parse: (value) => value,
     serialize: (value) => value ?? null,
     history: "push",
   });
+
   const [status, setStatus] = useQueryState<EmailStatus | null>("status", {
     parse: (value): EmailStatus | null => {
       if (
@@ -52,15 +45,12 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
     serialize: (value) => value || "all",
     history: "push",
   });
+
   const [isNewEmailOpen, setIsNewEmailOpen] = useQueryState("newEmailOpen", {
     parse: (value) => value === "true",
     serialize: (value) => value?.toString() ?? null,
     history: "push",
   });
-
-  // Initialize search and status if they're not set and we have initial values
-  const effectiveSearch = search;
-  const effectiveStatus = status;
 
   const {
     data,
@@ -69,11 +59,7 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
     isFetchingNextPage,
     isLoading,
     isFetching,
-  } = useEmails(
-    organizationId,
-    effectiveSearch ?? undefined,
-    effectiveStatus ?? undefined,
-  );
+  } = useEmails(organizationId, search ?? undefined, status ?? undefined);
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -88,6 +74,15 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
     },
     [setStatus],
   );
+
+  // Now handle the loading state
+  if (!organizationId) {
+    return (
+      <div className="flex min-h-[200px] items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   // Flatten all pages of data and cast to Email type
   const emails = (data?.pages.flatMap((page) => page?.data ?? []) ??
@@ -115,14 +110,14 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
           };
         }}
         hasNextPage={hasNextPage}
-        searchQuery={effectiveSearch || ""}
+        searchQuery={search || ""}
         onSearch={handleSearch}
         filterConfig={getEmailFilterConfig()}
         onFilterChange={{
           status: handleStatusChange,
         }}
         initialFilters={{
-          status: effectiveStatus ?? undefined,
+          status: status ?? undefined,
         }}
         searchPlaceholderText="Search by subject..."
         isLoading={showLoading || isFetchingNextPage}

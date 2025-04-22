@@ -6,7 +6,6 @@ import { Button } from "@church-space/ui/button";
 import { cn } from "@church-space/ui/cn";
 import { DropdownMenuItem } from "@church-space/ui/dropdown-menu";
 import { Logout } from "@church-space/ui/icons";
-import { toast } from "@church-space/ui/use-toast";
 import Cookies from "js-cookie";
 
 const handleLogout = async () => {
