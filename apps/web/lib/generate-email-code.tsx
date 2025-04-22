@@ -604,13 +604,12 @@ const CustomCards: React.FC<{
     cellPadding="0"
     cellSpacing="0"
     border={0}
-    style={{ paddingTop: "12px", paddingBottom: "12px" }}
+    style={{ paddingTop: "8px", paddingBottom: "8px" }}
   >
     {/* Title and Subtitle */}
     {(title || subtitle) && (
       <tr>
-        {/* Apply colSpan=2 since we expect 2 cells in card rows on desktop */}
-        <td colSpan={2} style={{ paddingBottom: "12px" }}>
+        <td colSpan={2} style={{ paddingBottom: "8px" }}>
           <table width="100%" cellPadding="0" cellSpacing="0" border={0}>
             {title && (
               <tr>
@@ -646,7 +645,7 @@ const CustomCards: React.FC<{
       </tr>
     )}
 
-    {/* Card Rows - directly map rows here */}
+    {/* Card Rows */}
     {cards
       .reduce((rows, card, index) => {
         if (index % 2 === 0) {
@@ -657,147 +656,167 @@ const CustomCards: React.FC<{
         return rows;
       }, [] as any[])
       .map((row, rowIndex) => (
-        <tr
-          key={rowIndex}
-          className="card-row" // Add class to target rows
-          // Remove inline vertical-align style, handled by CSS/default table behavior
-        >
-          {row.map((card: any, colIndex: number) => {
-            const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${card.image}`;
-            const formattedButtonLink = card.buttonLink
-              ? formatUrl(card.buttonLink)
-              : "";
-            const CardContent = (
-              <table width="100%" cellPadding="0" cellSpacing="0" border={0}>
-                {card.image && (
-                  <tr>
-                    <td>
-                      <Img
-                        src={imageUrl}
-                        alt={card.title}
-                        width="100%"
-                        height="172"
-                        style={{
-                          display: "block",
-                          objectFit: "cover",
-                          borderRadius: isRounded ? "6px" : "0",
-                        }}
-                      />
-                    </td>
-                  </tr>
-                )}
-                <tr>
-                  <td style={{ padding: "0 4px" }}>
+        <tr key={rowIndex}>
+          <td>
+            <table
+              width="100%"
+              cellPadding="0"
+              cellSpacing="16"
+              border={0}
+              style={{
+                borderCollapse: "separate",
+                borderSpacing: "16px 0",
+                marginLeft: "-8px",
+                marginRight: "-8px",
+              }}
+            >
+              <tr>
+                {row.map((card: any, colIndex: number) => {
+                  const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${card.image}`;
+                  const formattedButtonLink = card.buttonLink
+                    ? formatUrl(card.buttonLink)
+                    : "";
+                  const CardContent = (
                     <table
                       width="100%"
                       cellPadding="0"
                       cellSpacing="0"
                       border={0}
                     >
-                      {card.label && (
-                        <tr>
-                          <td
-                            style={{
-                              fontFamily: defaultFont || "sans-serif",
-                              fontSize: "14px",
-                              fontWeight: "500",
-                              color: labelColor,
-                              paddingBottom: "8px",
-                              paddingTop: "8px",
-                            }}
-                          >
-                            {card.label}
-                          </td>
-                        </tr>
-                      )}
-                      {card.title && (
-                        <tr>
-                          <td
-                            style={{
-                              fontFamily: defaultFont || "sans-serif",
-                              fontSize: "18px",
-                              fontWeight: "bold",
-                              color: textColor,
-                              paddingBottom: "8px",
-                            }}
-                          >
-                            {card.title}
-                          </td>
-                        </tr>
-                      )}
-                      {card.description && (
-                        <tr>
-                          <td
-                            style={{
-                              fontFamily: defaultFont || "sans-serif",
-                              fontSize: "14px",
-                              color: textColor,
-                              opacity: 0.8,
-                              paddingBottom: "16px",
-                            }}
-                          >
-                            {card.description}
-                          </td>
-                        </tr>
-                      )}
-                      {card.buttonText && (
+                      {card.image && (
                         <tr>
                           <td>
-                            <div
+                            <Img
+                              src={imageUrl}
+                              alt={card.title}
+                              width="100%"
+                              height="172"
                               style={{
-                                backgroundColor: buttonColor,
-                                borderRadius: isRounded ? "6px" : "0",
-                                color: buttonTextColor,
                                 display: "block",
-                                fontFamily: defaultFont || "sans-serif",
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                padding: "8px 16px",
-                                textDecoration: "none",
-                                textAlign: "center",
-                                boxSizing: "border-box",
-                                width: "100%",
-                                marginBottom: "22px",
+                                objectFit: "cover",
+                                borderRadius: isRounded ? "6px" : "0",
                               }}
-                            >
-                              {card.buttonText}
-                            </div>
+                            />
                           </td>
                         </tr>
                       )}
+                      <tr>
+                        <td style={{ padding: "0 4px" }}>
+                          <table
+                            width="100%"
+                            cellPadding="0"
+                            cellSpacing="0"
+                            border={0}
+                          >
+                            {card.label && (
+                              <tr>
+                                <td
+                                  style={{
+                                    fontFamily: defaultFont || "sans-serif",
+                                    fontSize: "14px",
+                                    fontWeight: "500",
+                                    color: labelColor,
+                                    paddingBottom: "6px",
+                                    paddingTop: "6px",
+                                  }}
+                                >
+                                  {card.label}
+                                </td>
+                              </tr>
+                            )}
+                            {card.title && (
+                              <tr>
+                                <td
+                                  style={{
+                                    fontFamily: defaultFont || "sans-serif",
+                                    fontSize: "18px",
+                                    fontWeight: "bold",
+                                    color: textColor,
+                                    paddingBottom: "6px",
+                                  }}
+                                >
+                                  {card.title}
+                                </td>
+                              </tr>
+                            )}
+                            {card.description && (
+                              <tr>
+                                <td
+                                  style={{
+                                    fontFamily: defaultFont || "sans-serif",
+                                    fontSize: "14px",
+                                    color: textColor,
+                                    opacity: 0.8,
+                                    paddingBottom: "12px",
+                                  }}
+                                >
+                                  {card.description}
+                                </td>
+                              </tr>
+                            )}
+                            {card.buttonText && (
+                              <tr>
+                                <td>
+                                  <div
+                                    style={{
+                                      backgroundColor: buttonColor,
+                                      borderRadius: isRounded ? "6px" : "0",
+                                      color: buttonTextColor,
+                                      display: "block",
+                                      fontFamily: defaultFont || "sans-serif",
+                                      fontSize: "14px",
+                                      fontWeight: "500",
+                                      padding: "8px 16px",
+                                      textDecoration: "none",
+                                      textAlign: "center",
+                                      boxSizing: "border-box",
+                                      width: "100%",
+                                      marginBottom: "16px",
+                                    }}
+                                  >
+                                    {card.buttonText}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </table>
+                        </td>
+                      </tr>
                     </table>
-                  </td>
-                </tr>
-              </table>
-            );
+                  );
 
-            return (
-              <td
-                key={colIndex}
-                className="card-column" // Add class
-                // Remove inline styles for width, vertical-align, padding-top, padding-left, padding-right
-              >
-                {card.buttonLink ? (
-                  <a
-                    href={formattedButtonLink}
-                    target="_blank"
-                    style={{
-                      textDecoration: "none",
-                      display: "block",
-                    }}
-                  >
-                    {CardContent}
-                  </a>
-                ) : (
-                  CardContent
+                  return (
+                    <td
+                      key={colIndex}
+                      className="card-column"
+                      width="50%"
+                      style={{
+                        padding: "0 8px",
+                      }}
+                    >
+                      {card.buttonLink ? (
+                        <a
+                          href={formattedButtonLink}
+                          target="_blank"
+                          style={{
+                            textDecoration: "none",
+                            display: "block",
+                          }}
+                        >
+                          {CardContent}
+                        </a>
+                      ) : (
+                        CardContent
+                      )}
+                    </td>
+                  );
+                })}
+                {row.length === 1 && (
+                  <td className="card-column empty-card-cell" width="50%"></td>
                 )}
-              </td>
-            );
-          })}
-          {/* Handle empty cell for odd number of cards */}
-          {row.length === 1 && (
-            <td className="card-column empty-card-cell"></td>
-          )}
+              </tr>
+            </table>
+          </td>
         </tr>
       ))}
   </table>
@@ -1571,40 +1590,36 @@ export function generateEmailCode(
       .card-column {
         display: block !important;
         width: 100% !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        padding-bottom: 5px; /* Spacing between stacked cards */
+        padding: 0 !important;
+        padding-bottom: 12px !important;
         box-sizing: border-box;
-        vertical-align: top; /* Keep vertical align top */
+        vertical-align: top;
       }
-      .card-column > a, .card-column > table { /* Ensure content fills width */
+      .card-column > a, .card-column > table {
          width: 100% !important;
       }
       .empty-card-cell {
-        display: none !important; /* Hide placeholder on mobile */
+        display: none !important;
       }
 
       @media (min-width: 600px) {
         .card-column {
           display: table-cell !important;
           width: 50% !important;
-          padding-bottom: 0; /* Reset bottom padding */
+          padding-bottom: 12px !important;
         }
-        /* Add padding between columns */
         .card-column:nth-child(odd) {
-          padding-right: 12px !important;
+          padding-right: 8px !important;
         }
         .card-column:nth-child(even) {
-          padding-left: 12px !important;
+          padding-left: 8px !important;
         }
         .empty-card-cell {
-           display: table-cell !important; /* Show spacer on desktop */
+           display: table-cell !important;
            width: 50% !important;
-           padding-left: 12px !important;
+           padding-left: 8px !important;
            padding-right: 0 !important;
         }
-        /* Add spacing between rows */
-      
       }
     `}</style>
       </Head>
@@ -1619,7 +1634,6 @@ export function generateEmailCode(
         >
           <tr>
             <td align="center" style={{ padding: isInset ? "20px" : "0" }}>
-              {/* If inset, we need an inner table with a different background color */}
               {isInset ? (
                 <table
                   cellPadding="0"
@@ -1868,7 +1882,6 @@ export function generateEmailCode(
                   </tr>
                 </table>
               ) : (
-                /* Not inset, simpler structure */
                 <table
                   cellPadding="0"
                   cellSpacing="0"
