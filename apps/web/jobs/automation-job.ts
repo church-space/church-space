@@ -20,7 +20,6 @@ interface WaitStepValues {
 interface EmailStepValues {
   fromName: string | null;
   fromEmail: string | null;
-
   subject: string | null;
 }
 
@@ -33,6 +32,16 @@ interface AutomationStep {
   from_email_domain: number | null;
   email_template: number | null;
   automation_id: number;
+}
+
+// Interface for recipient data
+interface RecipientData {
+  pcoPersonId: string;
+  internalPersonId: number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  memberRecordId: number;
 }
 
 export const automationJob = task({
@@ -108,149 +117,147 @@ export const automationJob = task({
         };
       }
 
-      // Step 4: Process each person in parallel
-      const results = await Promise.all(
-        pcoPersonIds.map(async (pcoPersonId) => {
-          let currentMemberRecordId: number | null = null;
-          try {
-            // Fetch the internal Person ID
-            const { data: personData, error: personError } = await supabase
-              .from("people")
+      // Step 4: Create automation member records for all people
+      const recipients: RecipientData[] = [];
+      for (const pcoPersonId of pcoPersonIds) {
+        try {
+          // Fetch the internal Person ID
+          const { data: personData, error: personError } = await supabase
+            .from("people")
+            .select("id")
+            .eq("pco_id", pcoPersonId)
+            .eq("organization_id", organizationId)
+            .single();
+
+          if (personError || !personData) {
+            console.error(
+              `Failed to fetch internal person ID for PCO ID ${pcoPersonId}: ${personError?.message || "Person not found"}`,
+            );
+            continue;
+          }
+          const internalPersonId = personData.id;
+
+          // Create automation member record
+          const { data: newMemberData, error: createMemberError } =
+            await supabase
+              .from("email_automation_members")
+              .insert({
+                automation_id: automationId,
+                person_id: internalPersonId,
+                last_completed_step_id: steps[0].id,
+                status: "in-progress",
+                trigger_dev_id: ctx.run.id,
+              })
               .select("id")
-              .eq("pco_id", pcoPersonId)
-              .eq("organization_id", organizationId)
               .single();
 
-            if (personError || !personData) {
-              throw new Error(
-                `Failed to fetch internal person ID for PCO ID ${pcoPersonId}: ${personError?.message || "Person not found"}`,
-              );
-            }
-            const internalPersonId = personData.id;
+          if (createMemberError || !newMemberData) {
+            console.error(
+              `Failed to create automation member record for PCO ID ${pcoPersonId}: ${createMemberError?.message || "Insert failed"}`,
+            );
+            continue;
+          }
 
-            // Create automation member record
-            const { data: newMemberData, error: createMemberError } =
-              await supabase
-                .from("email_automation_members")
-                .insert({
-                  automation_id: automationId,
-                  person_id: internalPersonId,
-                  last_completed_step_id: steps[0].id,
-                  status: "in-progress",
-                  trigger_dev_id: ctx.run.id,
-                })
-                .select("id")
-                .single();
+          // Fetch person's email data
+          const { data: personEmailData, error: personEmailError } =
+            await supabase
+              .from("people_emails")
+              .select("id, email, status, people!inner(first_name, last_name)")
+              .eq("pco_person_id", pcoPersonId)
+              .eq("organization_id", organizationId)
+              .eq("status", "subscribed")
+              .limit(1)
+              .maybeSingle();
 
-            if (createMemberError || !newMemberData) {
-              throw new Error(
-                `Failed to create automation member record: ${createMemberError?.message || "Insert failed"}`,
-              );
-            }
-            currentMemberRecordId = newMemberData.id;
+          if (personEmailError || !personEmailData) {
+            console.error(
+              `Error fetching email for PCO person ${pcoPersonId}: ${personEmailError?.message || "No email found"}`,
+            );
+            continue;
+          }
 
-            // Process all steps for this person
-            for (let i = 0; i < steps.length; i++) {
-              const step = steps[i] as AutomationStep;
+          recipients.push({
+            pcoPersonId,
+            internalPersonId,
+            email: personEmailData.email,
+            firstName: personEmailData.people?.first_name || undefined,
+            lastName: personEmailData.people?.last_name || undefined,
+            memberRecordId: newMemberData.id,
+          });
+        } catch (error) {
+          console.error(`Error processing person ${pcoPersonId}:`, error);
+        }
+      }
 
-              if (step.type === "wait") {
-                const waitValues = step.values as WaitStepValues;
-                if (!waitValues || !waitValues.unit || !waitValues.value) {
-                  throw new Error(
-                    `Invalid wait step configuration for step ID ${step.id}: Missing values.`,
-                  );
-                }
+      if (recipients.length === 0) {
+        return {
+          status: "no_recipients",
+          reason: "No valid recipients found for automation.",
+        };
+      }
 
-                if (waitValues.unit === "days") {
-                  await wait.for({ days: waitValues.value });
-                } else if (waitValues.unit === "hours") {
-                  await wait.for({ hours: waitValues.value });
-                } else {
-                  throw new Error(`Unsupported wait unit: ${waitValues.unit}`);
-                }
+      // Step 5: Process all steps for all recipients together
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i] as AutomationStep;
 
-                await supabase
-                  .from("email_automation_members")
-                  .update({
-                    last_completed_step_id: step.id,
-                    updated_at: new Date().toISOString(),
-                  })
-                  .eq("id", currentMemberRecordId);
-              } else if (step.type === "send_email") {
-                const emailTemplateId = step.email_template;
+        if (step.type === "wait") {
+          const waitValues = step.values as WaitStepValues;
+          if (!waitValues || !waitValues.unit || !waitValues.value) {
+            throw new Error(
+              `Invalid wait step configuration for step ID ${step.id}: Missing values.`,
+            );
+          }
 
-                if (!emailTemplateId) {
-                  throw new Error(
-                    `Invalid email step configuration for step ID ${step.id}: Missing email_template ID.`,
-                  );
-                }
+          // Wait for all recipients together
+          if (waitValues.unit === "days") {
+            await wait.for({ days: waitValues.value });
+          } else if (waitValues.unit === "hours") {
+            await wait.for({ hours: waitValues.value });
+          } else {
+            throw new Error(`Unsupported wait unit: ${waitValues.unit}`);
+          }
 
-                const { data: personEmailData, error: personEmailError } =
-                  await supabase
-                    .from("people_emails")
-                    .select(
-                      "id, email, status, people!inner(first_name, last_name)",
-                    )
-                    .eq("pco_person_id", pcoPersonId)
-                    .eq("organization_id", organizationId)
-                    .eq("status", "subscribed")
-                    .limit(1)
-                    .maybeSingle();
+          // Update all member records after wait
+          await supabase
+            .from("email_automation_members")
+            .update({
+              last_completed_step_id: step.id,
+              updated_at: new Date().toISOString(),
+            })
+            .in(
+              "id",
+              recipients.map((r) => r.memberRecordId),
+            );
+        } else if (step.type === "send_email") {
+          const emailTemplateId = step.email_template;
+          if (!emailTemplateId) {
+            throw new Error(
+              `Invalid email step configuration for step ID ${step.id}: Missing email_template ID.`,
+            );
+          }
 
-                if (personEmailError) {
-                  console.error(
-                    `Error fetching email for PCO person ${pcoPersonId}: ${personEmailError.message}`,
-                  );
-                  await supabase
-                    .from("email_automation_members")
-                    .update({
-                      status: "canceled",
-                      reason: `Error fetching email: ${personEmailError.message}`,
-                      updated_at: new Date().toISOString(),
-                    })
-                    .eq("id", currentMemberRecordId);
-                  return {
-                    pcoPersonId,
-                    status: "canceled",
-                    reason: `Error fetching email: ${personEmailError.message}`,
-                  };
-                }
+          // Process recipients in batches of 100 for email sending
+          const batchSize = 100;
+          for (let j = 0; j < recipients.length; j += batchSize) {
+            const batch = recipients.slice(j, j + batchSize);
 
-                if (!personEmailData) {
-                  await supabase
-                    .from("email_automation_members")
-                    .update({
-                      status: "canceled",
-                      reason: "Person not subscribed or no email found",
-                      updated_at: new Date().toISOString(),
-                    })
-                    .eq("id", currentMemberRecordId);
-                  return {
-                    pcoPersonId,
-                    status: "canceled",
-                    reason: "Person not subscribed or no email found",
-                  };
-                }
-
-                const recipientEmail = personEmailData.email;
-                const peopleEmailId = personEmailData.id;
-                const firstName =
-                  personEmailData.people?.first_name || undefined;
-                const lastName = personEmailData.people?.last_name || undefined;
-
+            // Check unsubscribes for the batch
+            const validRecipients = await Promise.all(
+              batch.map(async (recipient) => {
                 const { data: unsubscribeData, error: unsubscribeError } =
                   await supabase
                     .from("email_category_unsubscribes")
                     .select("id")
                     .eq("email_category_id", emailCategoryId)
                     .eq("organization_id", organizationId)
-                    .eq("email_address", recipientEmail)
+                    .eq("email_address", recipient.email)
                     .maybeSingle();
 
                 if (unsubscribeError) {
-                  throw new Error(
-                    `Error checking email category unsubscribes for ${recipientEmail}: ${unsubscribeError.message}`,
+                  console.error(
+                    `Error checking unsubscribes for ${recipient.email}: ${unsubscribeError.message}`,
                   );
+                  return null;
                 }
 
                 if (unsubscribeData) {
@@ -261,112 +268,74 @@ export const automationJob = task({
                       reason: "Unsubscribed from email category",
                       updated_at: new Date().toISOString(),
                     })
-                    .eq("id", currentMemberRecordId);
-                  return {
-                    pcoPersonId,
-                    status: "canceled",
-                    reason: "Unsubscribed from email category",
-                  };
+                    .eq("id", recipient.memberRecordId);
+                  return null;
                 }
 
-                if (!step.from_email_domain) {
-                  await supabase
-                    .from("email_automation_members")
-                    .update({
-                      status: "canceled",
-                      reason: "Invalid email step configuration",
-                      updated_at: new Date().toISOString(),
-                    })
-                    .eq("id", currentMemberRecordId);
-                  throw new Error(
-                    `Invalid email step configuration for step ID ${step.id}: Missing from_email_domain.`,
-                  );
-                }
+                return recipient;
+              }),
+            );
 
-                await sendAutomationEmail.trigger({
+            // Filter out null values and unsubscribed recipients
+            const filteredRecipients = validRecipients.filter(
+              (r): r is RecipientData => r !== null,
+            );
+
+            // Send emails to valid recipients
+            await Promise.all(
+              filteredRecipients.map((recipient) =>
+                sendAutomationEmail.trigger({
                   emailId: emailTemplateId,
                   recipient: {
-                    pcoPersonId: pcoPersonId,
-                    email: recipientEmail,
-                    firstName: firstName,
-                    lastName: lastName,
+                    pcoPersonId: recipient.pcoPersonId,
+                    email: recipient.email,
+                    firstName: recipient.firstName,
+                    lastName: recipient.lastName,
                   },
                   organizationId: organizationId,
                   fromEmail: (step.values as EmailStepValues).fromEmail || "",
-                  fromEmailDomain: step.from_email_domain,
+                  fromEmailDomain: step.from_email_domain!,
                   fromName: (step.values as EmailStepValues).fromName || "",
                   subject: (step.values as EmailStepValues).subject || "",
                   automationId: automationId,
-                  personId: internalPersonId,
+                  personId: recipient.internalPersonId,
                   triggerAutomationRunId: ctx.run.id,
-                });
+                }),
+              ),
+            );
 
-                await supabase
-                  .from("email_automation_members")
-                  .update({
-                    last_completed_step_id: step.id,
-                    updated_at: new Date().toISOString(),
-                  })
-                  .eq("id", currentMemberRecordId);
-              }
-            }
-
-            // Mark automation as completed for this member
+            // Update member records for this batch
             await supabase
               .from("email_automation_members")
               .update({
-                status: "completed",
+                last_completed_step_id: step.id,
                 updated_at: new Date().toISOString(),
               })
-              .eq("id", currentMemberRecordId);
-
-            return {
-              pcoPersonId,
-              status: "completed",
-              processedSteps: steps.length,
-            };
-          } catch (error) {
-            console.error(
-              `Error processing automation ${automationId} for PCO person ${pcoPersonId}:`,
-              error,
-            );
-
-            if (currentMemberRecordId) {
-              try {
-                await supabase
-                  .from("email_automation_members")
-                  .update({
-                    status: "failed",
-                    reason:
-                      error instanceof Error
-                        ? error.message
-                        : "An unknown error occurred",
-                    updated_at: new Date().toISOString(),
-                  })
-                  .eq("id", currentMemberRecordId);
-              } catch (updateError) {
-                console.error(
-                  `Failed to update member ${currentMemberRecordId} status to failed:`,
-                  updateError,
-                );
-              }
-            }
-
-            return {
-              pcoPersonId,
-              status: "failed",
-              error:
-                error instanceof Error
-                  ? error.message
-                  : "An unknown error occurred",
-            };
+              .in(
+                "id",
+                filteredRecipients.map((r) => r.memberRecordId),
+              );
           }
-        }),
-      );
+        }
+      }
+
+      // Mark all remaining automation members as completed
+      await supabase
+        .from("email_automation_members")
+        .update({
+          status: "completed",
+          updated_at: new Date().toISOString(),
+        })
+        .in(
+          "id",
+          recipients.map((r) => r.memberRecordId),
+        )
+        .eq("status", "in-progress");
 
       return {
         status: "completed",
-        results,
+        processedRecipients: recipients.length,
+        processedSteps: steps.length,
       };
     } catch (error) {
       console.error(`Error in automation job:`, error);
