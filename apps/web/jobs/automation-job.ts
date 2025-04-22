@@ -248,7 +248,7 @@ export const automationJob = task({
                   await supabase
                     .from("email_category_unsubscribes")
                     .select("id")
-                    .eq("email_category_id", emailCategoryId)
+                    .eq("category_id", emailCategoryId)
                     .eq("organization_id", organizationId)
                     .eq("email_address", recipient.email)
                     .maybeSingle();
