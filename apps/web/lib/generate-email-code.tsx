@@ -167,7 +167,7 @@ const CustomText: React.FC<{
     })
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = "font-weight: 300; line-height: 1.5; margin: 0.5em 0";
+      const baseStyle = "font-weight: 400; line-height: 1.5; margin: 0.5em 0";
       if (existingStyle) {
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
@@ -598,7 +598,6 @@ const CustomCards: React.FC<{
   cards,
   defaultFont,
   isRounded,
-  imageAspectRatio,
 }) => (
   <table
     width="100%"
@@ -714,25 +713,18 @@ const CustomCards: React.FC<{
               <table width="100%" cellPadding="0" cellSpacing="0" border={0}>
                 {card.image && (
                   <tr>
-                    {/* Use background image on TD for cover effect */}
-                    <td
-                      role="img"
-                      aria-label={card.title}
-                      style={{
-                        backgroundImage: `url('${imageUrl}')`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center center",
-                        backgroundRepeat: "no-repeat",
-                        width: "100%",
-                        // Set fixed height based on aspect ratio (adjust values as needed for desired look)
-                        height: imageAspectRatio === "16:9" ? "180px" : "300px",
-                        borderRadius: isRounded ? "6px" : "0", // Note: border-radius on TDs may not work everywhere
-                        verticalAlign: "top", // Ensure content below starts correctly
-                      }}
-                    >
-                      {/* Empty TD content, background provides the image */}
-                      &nbsp;{" "}
-                      {/* Non-breaking space for email client compatibility */}
+                    <td>
+                      <Img
+                        src={imageUrl}
+                        alt={card.title}
+                        width="100%"
+                        height="172"
+                        style={{
+                          display: "block",
+                          objectFit: "cover",
+                          borderRadius: isRounded ? "6px" : "0",
+                        }}
+                      />
                     </td>
                   </tr>
                 )}
@@ -1688,9 +1680,7 @@ export function generateEmailCode(
                                               font={textData?.font}
                                               accentTextColor={accentTextColor}
                                               defaultFont={defaultFont}
-                                              defaultTextColor={
-                                                defaultTextColor
-                                              }
+                                              defaultTextColor={`${defaultTextColor} !important`}
                                               linkColor={linkColor}
                                             />
                                           </td>
@@ -1814,7 +1804,7 @@ export function generateEmailCode(
                                               {...(block.data as any)}
                                               defaultFont={defaultFont}
                                               isRounded={isRounded}
-                                              textColor={defaultTextColor}
+                                              textColor={`${defaultTextColor} !important`}
                                               imageAspectRatio={
                                                 (block.data as any)
                                                   ?.imageAspectRatio
@@ -1839,9 +1829,7 @@ export function generateEmailCode(
                                             <CustomList
                                               {...(block.data as any)}
                                               defaultFont={defaultFont}
-                                              defaultTextColor={
-                                                defaultTextColor
-                                              }
+                                              defaultTextColor={`${defaultTextColor} !important`}
                                             />
                                           </td>
                                         </tr>
@@ -1862,9 +1850,7 @@ export function generateEmailCode(
                                             <CustomAuthor
                                               {...(block.data as any)}
                                               defaultFont={defaultFont}
-                                              defaultTextColor={
-                                                defaultTextColor
-                                              }
+                                              defaultTextColor={`${defaultTextColor} !important`}
                                             />
                                           </td>
                                         </tr>
@@ -1925,9 +1911,7 @@ export function generateEmailCode(
                                               font={textData?.font}
                                               accentTextColor={accentTextColor}
                                               defaultFont={defaultFont}
-                                              defaultTextColor={
-                                                defaultTextColor
-                                              }
+                                              defaultTextColor={`${defaultTextColor} !important`}
                                               linkColor={linkColor}
                                             />
                                           </td>
@@ -2051,7 +2035,7 @@ export function generateEmailCode(
                                               {...(block.data as any)}
                                               defaultFont={defaultFont}
                                               isRounded={isRounded}
-                                              textColor={defaultTextColor}
+                                              textColor={`${defaultTextColor} !important`}
                                               imageAspectRatio={
                                                 (block.data as any)
                                                   ?.imageAspectRatio
@@ -2076,9 +2060,7 @@ export function generateEmailCode(
                                             <CustomList
                                               {...(block.data as any)}
                                               defaultFont={defaultFont}
-                                              defaultTextColor={
-                                                defaultTextColor
-                                              }
+                                              defaultTextColor={`${defaultTextColor} !important`}
                                             />
                                           </td>
                                         </tr>
@@ -2099,9 +2081,7 @@ export function generateEmailCode(
                                             <CustomAuthor
                                               {...(block.data as any)}
                                               defaultFont={defaultFont}
-                                              defaultTextColor={
-                                                defaultTextColor
-                                              }
+                                              defaultTextColor={`${defaultTextColor} !important`}
                                             />
                                           </td>
                                         </tr>

@@ -70,7 +70,7 @@ export default function CardsBlock({
             )}
           </div>
         ))}
-      <div className="grid grid-cols-1 gap-4 gap-y-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
         {cards.map((card, index) => (
           <div className="flex w-full flex-col gap-1" key={index}>
             {card.image && imageUrls[card.image] && (
@@ -78,13 +78,11 @@ export default function CardsBlock({
                 src={imageUrls[card.image]}
                 alt={card.title}
                 className={cn(
-                  "w-full object-cover",
+                  "aspect-video w-full object-cover",
                   isRounded && "rounded-md",
-                  data?.imageAspectRatio === "16:9" && "aspect-video",
-                  data?.imageAspectRatio === "square" && "aspect-square",
                 )}
-                width={data?.imageAspectRatio === "16:9" ? 1280 : 1024}
-                height={data?.imageAspectRatio === "16:9" ? 720 : 1024}
+                width={1280}
+                height={720}
               />
             )}
             <div className="flex flex-col gap-0.5 px-1">

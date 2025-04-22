@@ -448,7 +448,6 @@ export default function EmailDndProvider({
         labelColor: styles.accentTextColor,
         buttonColor: styles.accentTextColor,
         buttonTextColor: styles.bgColor,
-        imageAspectRatio: "square",
         cards: [
           {
             title: "",
@@ -930,7 +929,6 @@ export default function EmailDndProvider({
                   buttonColor: "#000000",
                   buttonTextColor: "#ffffff",
                   cards: [],
-                  imageAspectRatio: "square",
                 };
                 break;
               case "list":
