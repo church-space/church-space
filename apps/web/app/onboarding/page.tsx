@@ -97,7 +97,7 @@ export default async function Page() {
     } else {
       cookieStore.delete("invite");
       cookieStore.set("organization_id", organizationId);
-      return redirect(`/emails?invite-accepted=true`);
+      return redirect(`/invite-accepted`);
     }
   }
 
