@@ -25,7 +25,7 @@ export function NavUser() {
         <Button className="h-8 w-8 p-1" variant="ghost">
           <Avatar className="h-6 w-6">
             <AvatarImage
-              src={avatarUrl || ""}
+              src={avatarUrl || undefined}
               alt={`${firstName} ${lastName}`}
             />
             <AvatarFallback className="border">

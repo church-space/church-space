@@ -37,16 +37,14 @@ export default function InitUser({
         organizationId: organization_id,
         role,
       });
-    }
 
-    initState.current = true;
-  }, [user, userData]);
+      if (organization_id) {
+        Cookies.set("organizationId", organization_id);
+      }
 
-  useEffect(() => {
-    if (organization_id) {
-      Cookies.set("organizationId", organization_id);
+      initState.current = true;
     }
-  }, [organization_id]);
+  }, [user, userData, organization_id, role]);
 
   return null;
 }

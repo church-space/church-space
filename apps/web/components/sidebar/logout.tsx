@@ -10,34 +10,23 @@ import { toast } from "@church-space/ui/use-toast";
 import Cookies from "js-cookie";
 
 const handleLogout = async () => {
-  try {
-    useUser.setState({
-      user: undefined,
-      id: null,
-      firstName: null,
-      lastName: null,
-      avatarUrl: null,
-      email: null,
-      organizationId: null,
-    });
+  // Clear cookies first
+  Cookies.remove("planning_center_session");
+  Cookies.remove("organizationId");
 
-    // Clear cookies
-    Cookies.remove("planning_center_session");
-    Cookies.remove("organizationId");
+  // Clear user state
+  useUser.setState({
+    user: undefined,
+    id: null,
+    firstName: null,
+    lastName: null,
+    avatarUrl: null,
+    email: null,
+    organizationId: null,
+  });
 
-    // Sign out from Supabase
-    await signOutAction();
-
-    // Redirect to login page
-    window.location.href = "/homepage";
-  } catch (error) {
-    console.error("Error logging out:", error);
-    toast({
-      title: "Error",
-      description: "Failed to log out. Please try again.",
-      variant: "destructive",
-    });
-  }
+  // Sign out from Supabase last - this will redirect
+  await signOutAction();
 };
 
 export default function LogoutButton() {

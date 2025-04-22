@@ -22,6 +22,15 @@ interface EmailsTableProps {
 }
 
 export default function EmailsTable({ organizationId }: EmailsTableProps) {
+  // Add early return if organizationId is not available
+  if (!organizationId) {
+    return (
+      <div className="flex min-h-[200px] items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   const [search, setSearch] = useQueryState("search", {
     parse: (value) => value,
     serialize: (value) => value ?? null,
