@@ -54,7 +54,7 @@ type ActionType = "wait" | "send_email";
 
 interface WaitStepValues {
   unit: "days" | "hours";
-  value: number;
+  value: number | "";
 }
 
 interface EmailStepValues {
@@ -110,7 +110,7 @@ function getInitialStepValues(
     const waitValues = step.values as Partial<WaitStepValues>;
     return {
       unit: waitValues.unit || "days",
-      value: waitValues.value || 1,
+      value: waitValues.value || "",
     } as WaitStepValues;
   } else {
     const emailValues = step.values as Partial<EmailStepValues>;
@@ -146,6 +146,7 @@ type SortableStepProps = {
   updateStep: (index: number, updates: Partial<AutomationStep>) => void;
   removeStep: (index: number) => void;
   waitTimeError: string | null;
+  setWaitTimeError: (error: string | null) => void;
   organizationId: string;
   openItem: string;
   setOpenItem: (value: string) => void;
@@ -159,6 +160,7 @@ function SortableStep(props: SortableStepProps) {
     updateStep: updateStepInState,
     removeStep,
     waitTimeError,
+    setWaitTimeError,
     organizationId,
     openItem,
     setOpenItem,
@@ -216,7 +218,15 @@ function SortableStep(props: SortableStepProps) {
           value={openItem === stepId ? stepId : ""}
           onValueChange={(value) => setOpenItem(value || "")}
         >
-          <AccordionItem value={stepId} className="border-0">
+          <AccordionItem
+            value={stepId}
+            className={cn(
+              "border-0",
+              step.type === "wait" &&
+                waitTimeError &&
+                "rounded-md ring-2 ring-destructive",
+            )}
+          >
             <CustomAccordionTrigger>
               {step.type === "wait" ? "Wait" : "Send Email"}
             </CustomAccordionTrigger>
@@ -227,20 +237,27 @@ function SortableStep(props: SortableStepProps) {
                     <div className="flex items-center gap-3">
                       <Input
                         type="number"
+                        min="0"
                         className={cn(
                           "w-20",
                           waitTimeError && "border-destructive",
                         )}
                         value={step.values.value}
                         onChange={(e) => {
-                          const value =
-                            e.target.value === "" ? 0 : Number(e.target.value);
+                          const newValue =
+                            e.target.value === ""
+                              ? ""
+                              : Math.max(0, Number(e.target.value));
                           updateStepInState(index, {
                             values: {
                               ...step.values,
-                              value,
+                              value: newValue,
                             },
                           });
+                          // Clear error if we now have a valid value
+                          if (typeof newValue === "number" && newValue > 0) {
+                            setWaitTimeError(null);
+                          }
                         }}
                       />
                       <Select
@@ -491,7 +508,7 @@ export default function EmailAutomationBuilder({
         tempId: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         values:
           type === "wait"
-            ? { unit: "days", value: 1 }
+            ? { unit: "days", value: "" }
             : { fromName: "", fromEmail: "", subject: "" },
       };
       const newSteps = [...prev, newStep];
@@ -662,10 +679,17 @@ export default function EmailAutomationBuilder({
     // Validate all wait steps
     const waitSteps = steps.filter(isWaitStep);
     for (const step of waitSteps) {
+      // First check if value is empty or not a number
+      if (step.values.value === "" || typeof step.values.value !== "number") {
+        setWaitTimeError("Wait time is required");
+        return;
+      }
+
+      const numericValue = step.values.value as number; // We've already checked it's a number
       if (
         !(
-          (step.values.unit === "hours" && step.values.value <= 24) ||
-          (step.values.unit === "days" && step.values.value <= 31)
+          (step.values.unit === "hours" && numericValue <= 24) ||
+          (step.values.unit === "days" && numericValue <= 31)
         )
       ) {
         setWaitTimeError(
@@ -915,6 +939,7 @@ export default function EmailAutomationBuilder({
                     updateStep={updateStepInState}
                     removeStep={removeStep}
                     waitTimeError={waitTimeError}
+                    setWaitTimeError={setWaitTimeError}
                     organizationId={organizationId}
                     openItem={openStep}
                     setOpenItem={setOpenStep}
