@@ -37,13 +37,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import React from "react";
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectTrigger,
-  SelectContent,
-} from "@church-space/ui/select";
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };
