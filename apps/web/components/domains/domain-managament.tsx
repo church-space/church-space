@@ -1,8 +1,6 @@
 "use client";
 
-import React from "react";
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Check, Plus, Copy, Star, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
@@ -49,17 +47,31 @@ import { updateDomainsAction } from "@/actions/update-domains";
 import { CircleCheck } from "@church-space/ui/icons";
 
 // Domain validation schema
-const domainSchema = z.string().refine(
-  (val) => {
-    // Basic domain validation regex
-    const domainRegex =
-      /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i;
-    return domainRegex.test(val);
-  },
-  {
-    message: "Please enter a valid domain name (e.g., example.com)",
-  },
-);
+const domainSchema = z
+  .string()
+  .transform((val) => {
+    // Trim whitespace
+    let domain = val.trim();
+
+    // Remove http:// or https:// if present
+    domain = domain.replace(/^https?:\/\//i, "");
+
+    // Remove trailing slash if present
+    domain = domain.replace(/\/$/, "");
+
+    return domain;
+  })
+  .refine(
+    (val) => {
+      // Basic domain validation regex
+      const domainRegex =
+        /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i;
+      return domainRegex.test(val);
+    },
+    {
+      message: "Please enter a valid domain name (e.g., example.com)",
+    },
+  );
 
 // DMARC record recommendation
 const getDmarcRecommendation = () => ({
@@ -123,6 +135,8 @@ export default function DomainManagement({
   const [isAddingDomain, setIsAddingDomain] = useState(false);
   const [deletingDomainId, setDeletingDomainId] = useState<number | null>(null);
   const [deleteConfirmInput, setDeleteConfirmInput] = useState<string>("");
+  const [isTyping, setIsTyping] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [refreshingDomains, setRefreshingDomains] = useState<
     Record<number, { isRefreshing: boolean; cooldown: number }>
@@ -261,17 +275,45 @@ export default function DomainManagement({
     return () => clearInterval(interval);
   }, []);
 
+  const handleDomainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewDomain(value);
+    setIsTyping(true);
+
+    // Clear any existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Set a new timer for validation
+    debounceTimerRef.current = setTimeout(() => {
+      try {
+        if (value) {
+          domainSchema.parse(value);
+          setValidationError(null);
+        } else {
+          setValidationError(null);
+        }
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          setValidationError(error.errors[0].message);
+        }
+      }
+      setIsTyping(false);
+    }, 500); // 500ms debounce
+  };
+
   const handleAddDomain = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDomain) return;
 
     try {
-      // Validate domain with Zod
-      domainSchema.parse(newDomain);
+      // Validate and transform domain with Zod
+      const cleanedDomain = domainSchema.parse(newDomain);
       setValidationError(null);
 
       // Check if domain already exists
-      if (domains.some((d) => d.name === newDomain)) {
+      if (domains.some((d) => d.name === cleanedDomain)) {
         setValidationError("This domain is already added");
         return;
       }
@@ -282,7 +324,7 @@ export default function DomainManagement({
       // Call server action to add domain
       const response = await addDomainAction({
         organization_id: organizationId,
-        domain: newDomain,
+        domain: cleanedDomain,
         is_primary: domains.length === 0, // Set as primary if it's the first domain
       });
 
@@ -343,7 +385,7 @@ export default function DomainManagement({
 
         // Set as primary if it's the first one
         if (domains.length === 0) {
-          setPrimaryDomain(newDomain);
+          setPrimaryDomain(cleanedDomain);
         }
 
         // Open the newly added domain's accordion item
@@ -351,7 +393,7 @@ export default function DomainManagement({
 
         toast({
           title: "Domain added",
-          description: `${newDomain} has been added to your account.`,
+          description: `${cleanedDomain} has been added to your account.`,
         });
 
         setNewDomain("");
@@ -1014,19 +1056,24 @@ export default function DomainManagement({
               <div className="flex-1">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div>
+                    <div className="relative">
                       <Input
                         id="domain"
                         placeholder="example.com"
                         value={newDomain}
-                        onChange={(e) => {
-                          setNewDomain(e.target.value);
-                          setValidationError(null);
-                        }}
-                        className={validationError ? "border-red-500" : ""}
+                        onChange={handleDomainChange}
+                        className={cn(
+                          validationError ? "border-red-500" : "",
+                          isTyping ? "pr-8" : "",
+                        )}
                         disabled={isAddingDomain || isMaxDomainsReached}
                         maxLength={255}
                       />
+                      {isTyping && (
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        </div>
+                      )}
                     </div>
                   </TooltipTrigger>
                   {isMaxDomainsReached && (
@@ -1038,9 +1085,10 @@ export default function DomainManagement({
                     </TooltipContent>
                   )}
                 </Tooltip>
-
-                {validationError && (
-                  <p className="mt-1 text-xs text-red-500">{validationError}</p>
+                {validationError && !isTyping && (
+                  <p className="mt-1.5 text-xs text-destructive">
+                    {validationError}
+                  </p>
                 )}
               </div>
 

@@ -123,7 +123,7 @@ export const inviteMembers = task({
 
       // Add invite to database
       const { error: inviteError } = await supabase.from("invites").insert({
-        email: member.email,
+        email: member.email.trim(),
         organization_id,
         invited_by,
         expires: expirationDate.toISOString(),

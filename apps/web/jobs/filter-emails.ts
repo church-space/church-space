@@ -19,7 +19,14 @@ export const filterEmailRecipients = task({
       // Step 1: Get the email details
       const { data: emailData, error: emailError } = await supabase
         .from("emails")
-        .select("*, organization_id, list_id, status")
+        .select(
+          `
+          *,
+          organizations!inner (
+            name
+          )
+        `,
+        )
         .eq("id", emailId)
         .single();
 
@@ -152,7 +159,7 @@ export const filterEmailRecipients = task({
       // Validate list ownership
       const { data: listData, error: listOwnershipError } = await supabase
         .from("pco_lists")
-        .select("organization_id")
+        .select("organization_id, pco_list_description")
         .eq("id", emailData.list_id)
         .single();
 
@@ -425,6 +432,8 @@ export const filterEmailRecipients = task({
         emailId,
         recipients,
         organizationId: emailData.organization_id,
+        listName: listData.pco_list_description || "",
+        organizationName: emailData.organizations.name || "",
       });
 
       return {

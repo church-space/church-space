@@ -27,6 +27,8 @@ interface BulkEmailPayload {
     }
   >;
   organizationId: string;
+  listName: string;
+  organizationName: string;
 }
 
 // Interface for email data
@@ -275,6 +277,7 @@ export const sendBulkEmails = task({
             const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;
             const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
             const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
+            const unsubscribeEmail = `unsubscribe@churchspace.co?subject=unsubscribe&body=emailId%3A%20${emailId}%0ApersonEmailId%3A%20${peopleEmailId}`;
 
             // ---- START: Personalize content ----
             let personalizedHtml = baseHtml
@@ -325,8 +328,11 @@ export const sendBulkEmails = task({
                 "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
                 "X-Entity-Ref-ID": uuidv4(),
-                "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>`,
+                "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>, mailto:${unsubscribeEmail}`,
                 "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+                "List-ID": `${payload.organizationName} - ${payload.listName}`,
+                "X-Report-Abuse": `<mailto:report@churchspace.co>`,
+                "X-Mailer": `Church Space Mailer - **Customer ${payload.organizationId}**`,
               },
             });
           } catch (error) {

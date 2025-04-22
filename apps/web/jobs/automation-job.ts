@@ -57,7 +57,16 @@ export const automationJob = task({
       // Step 1: Fetch the automation details first since it's common for all persons
       const { data: automationData, error: automationError } = await supabase
         .from("email_automations")
-        .select("id, email_category_id, organization_id")
+        .select(
+          `
+            id,
+            email_category_id,
+            organization_id,
+            organizations (
+              name
+            )
+          `,
+        )
         .eq("id", automationId)
         .eq("organization_id", organizationId)
         .single();
@@ -316,6 +325,7 @@ export const automationJob = task({
                 subject: (step.values as EmailStepValues).subject || "",
                 automationId: automationId,
                 triggerAutomationRunId: ctx.run.id,
+                organizationName: automationData.organizations?.name || "",
               });
             }
 

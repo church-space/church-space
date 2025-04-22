@@ -35,6 +35,7 @@ interface SendAutomationEmailPayload {
   subject: string;
   automationId: number;
   triggerAutomationRunId: string;
+  organizationName: string;
 }
 
 // Interface for email data
@@ -294,7 +295,7 @@ export const sendAutomationEmail = task({
                 "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
                 "X-Mailer": `Church Space Mailer - **Customer ${organizationId}**`,
                 "X-Report-Abuse": `<mailto:report@churchspace.co>`,
-                Precedence: "bulk",
+                "List-ID": `${payload.organizationName} - Automation ${automationId}`,
               },
             });
           } catch (error) {
