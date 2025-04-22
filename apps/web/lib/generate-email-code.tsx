@@ -1625,11 +1625,11 @@ export function generateEmailCode(
                   cellPadding="0"
                   cellSpacing="0"
                   border={0}
-                  width="100%"
+                  width="672"
                   align="center"
                   style={{
-                    maxWidth: "672px",
                     width: "100%",
+                    maxWidth: "672px",
                     backgroundColor: bgColor,
                     borderRadius: isRounded ? "12px" : "0",
                     borderCollapse: "separate",
@@ -1642,8 +1642,9 @@ export function generateEmailCode(
                     <td style={{ padding: "0px" }}>
                       <Container
                         style={{
-                          padding: "0px 10px",
-                          maxWidth: "656px",
+                          margin: "0 auto",
+                          width: "100%",
+                          maxWidth: "672px",
                         }}
                       >
                         {sections.map((section, sectionIndex) => (
@@ -1872,18 +1873,23 @@ export function generateEmailCode(
                   cellPadding="0"
                   cellSpacing="0"
                   border={0}
-                  width="100%"
+                  width="672"
                   align="center"
                   style={{
-                    maxWidth: "672px",
                     width: "100%",
-                    paddingLeft: "10px",
-                    paddingRight: "10px",
+                    maxWidth: "672px",
+                    margin: "0 auto",
                   }}
                 >
                   <tr>
-                    <td style={{ padding: "0px 0" }}>
-                      <Container style={{ padding: 0 }}>
+                    <td style={{ padding: "15px" }}>
+                      <Container
+                        style={{
+                          margin: "0 auto",
+                          width: "100%",
+                          maxWidth: "672px",
+                        }}
+                      >
                         {sections.map((section, sectionIndex) => (
                           <EmailSection key={`section-${sectionIndex}`}>
                             {section.blocks.map((block, blockIndex) => {
