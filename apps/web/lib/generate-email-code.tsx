@@ -606,48 +606,6 @@ const CustomCards: React.FC<{
     border={0}
     style={{ paddingTop: "12px", paddingBottom: "12px" }}
   >
-    {/* Style tag for responsiveness */}
-    <style>{`
-      .card-column {
-        display: block !important;
-        width: 100% !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        padding-bottom: 5px; /* Spacing between stacked cards */
-        box-sizing: border-box;
-        vertical-align: top; /* Keep vertical align top */
-      }
-      .card-column > a, .card-column > table { /* Ensure content fills width */
-         width: 100% !important;
-      }
-      .empty-card-cell {
-        display: none !important; /* Hide placeholder on mobile */
-      }
-
-      @media (min-width: 600px) {
-        .card-column {
-          display: table-cell !important;
-          width: 50% !important;
-          padding-bottom: 0; /* Reset bottom padding */
-        }
-        /* Add padding between columns */
-        .card-column:nth-child(odd) {
-          padding-right: 12px !important;
-        }
-        .card-column:nth-child(even) {
-          padding-left: 12px !important;
-        }
-        .empty-card-cell {
-           display: table-cell !important; /* Show spacer on desktop */
-           width: 50% !important;
-           padding-left: 12px !important;
-           padding-right: 0 !important;
-        }
-        /* Add spacing between rows */
-      
-      }
-    `}</style>
-
     {/* Title and Subtitle */}
     {(title || subtitle) && (
       <tr>
@@ -1609,6 +1567,46 @@ export function generateEmailCode(
       <Head>
         <title>Email Preview</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>{`
+      .card-column {
+        display: block !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 5px; /* Spacing between stacked cards */
+        box-sizing: border-box;
+        vertical-align: top; /* Keep vertical align top */
+      }
+      .card-column > a, .card-column > table { /* Ensure content fills width */
+         width: 100% !important;
+      }
+      .empty-card-cell {
+        display: none !important; /* Hide placeholder on mobile */
+      }
+
+      @media (min-width: 600px) {
+        .card-column {
+          display: table-cell !important;
+          width: 50% !important;
+          padding-bottom: 0; /* Reset bottom padding */
+        }
+        /* Add padding between columns */
+        .card-column:nth-child(odd) {
+          padding-right: 12px !important;
+        }
+        .card-column:nth-child(even) {
+          padding-left: 12px !important;
+        }
+        .empty-card-cell {
+           display: table-cell !important; /* Show spacer on desktop */
+           width: 50% !important;
+           padding-left: 12px !important;
+           padding-right: 0 !important;
+        }
+        /* Add spacing between rows */
+      
+      }
+    `}</style>
       </Head>
       <Body style={{ margin: 0, padding: 0 }}>
         <table
