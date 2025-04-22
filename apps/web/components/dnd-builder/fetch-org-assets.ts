@@ -140,7 +140,16 @@ export async function fetchOrgAssets({
           .getPublicUrl(filePath);
 
         // Extract the original filename without timestamp
-        const filenameWithoutTimestamp = file.name.split("_")[0] || file.name;
+        const extension = file.name.split(".").pop() || "";
+        const nameWithoutExtension = file.name.slice(
+          0,
+          -(extension.length + 1),
+        );
+        const lastUnderscoreIndex = nameWithoutExtension.lastIndexOf("_");
+        const filenameWithoutTimestamp =
+          lastUnderscoreIndex !== -1
+            ? `${nameWithoutExtension.substring(0, lastUnderscoreIndex)}.${extension}`
+            : file.name;
 
         return {
           id: file.id,

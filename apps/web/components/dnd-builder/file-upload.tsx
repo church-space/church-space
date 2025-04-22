@@ -243,11 +243,26 @@ const FileUpload = ({
 
   // Extract filename from path for display
   const getDisplayName = () => {
-    if (file) return file.name;
+    if (file) {
+      const extension = file.name.split(".").pop() || "";
+      const nameWithoutExtension = file.name.slice(0, -(extension.length + 1));
+      const lastUnderscoreIndex = nameWithoutExtension.lastIndexOf("_");
+      const filenameWithoutTimestamp =
+        lastUnderscoreIndex !== -1
+          ? nameWithoutExtension.substring(0, lastUnderscoreIndex)
+          : nameWithoutExtension;
+      return `${filenameWithoutTimestamp}.${extension}`;
+    }
     if (filePath) {
       // Extract filename from path
       const pathParts = filePath.split("/");
-      return pathParts[pathParts.length - 1];
+      const filename = pathParts[pathParts.length - 1];
+      const extension = filename.split(".").pop() || "";
+      const nameWithoutExtension = filename.slice(0, -(extension.length + 1));
+      const lastUnderscoreIndex = nameWithoutExtension.lastIndexOf("_");
+      return lastUnderscoreIndex !== -1
+        ? `${nameWithoutExtension.substring(0, lastUnderscoreIndex)}.${extension}`
+        : filename;
     }
     return null; // Return null when there's no file
   };
@@ -268,7 +283,7 @@ const FileUpload = ({
 
   return (
     <div className="col-span-2 flex w-full items-center">
-      <div className="flex w-full flex-1">
+      <div className="flex min-w-0 flex-1">
         {!file && !filePath && (
           <AssetBrowserModal
             triggerText="Browse"
@@ -346,7 +361,7 @@ const FileUpload = ({
         {(file || filePath) && (
           <AssetBrowserModal
             triggerText={getDisplayName() || ""}
-            buttonClassName="flex-1 rounded-r-none justify-start bg-background pl-3 font-normal truncate"
+            buttonClassName="flex-1 rounded-r-none justify-start bg-background pl-3 font-normal truncate max-w-full"
             onSelectAsset={handleAssetSelect}
             organizationId={organizationId}
             type={type}
