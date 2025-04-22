@@ -107,8 +107,16 @@ export const createEditor = (
   const editor = new Editor({
     extensions: [
       StarterKit.configure({
-        bulletList: false,
-        orderedList: false,
+        bulletList: {
+          HTMLAttributes: {
+            class: "list-disc ml-4",
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: "list-decimal ml-4",
+          },
+        },
         heading: {
           levels: [1, 2, 3],
           HTMLAttributes: {

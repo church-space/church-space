@@ -181,13 +181,37 @@ const CustomText: React.FC<{
       }
       return `<a style="${baseStyle}"`;
     })
+    // Add list styles
+    .replace(/<ul(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      const baseStyle =
+        "list-style-type: disc; padding-left: 24px; margin: 0.5em 0";
+      if (existingStyle) {
+        return `<ul style="${existingStyle}; ${baseStyle}"`;
+      }
+      return `<ul style="${baseStyle}"`;
+    })
+    .replace(/<ol(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      const baseStyle =
+        "list-style-type: decimal; padding-left: 24px; margin: 0.5em 0";
+      if (existingStyle) {
+        return `<ol style="${existingStyle}; ${baseStyle}"`;
+      }
+      return `<ol style="${baseStyle}"`;
+    })
+    // Add font size to list items
+    .replace(/<li(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      const baseStyle =
+        "font-size: 16px; margin-bottom: 0.5em; line-height: 1.5";
+      if (existingStyle) {
+        return `<li style="${existingStyle}; ${baseStyle}"`;
+      }
+      return `<li style="${baseStyle}"`;
+    })
     // Handle empty paragraphs for line breaks
     .replace(
       /<p style="[^"]*"><\/p>/g,
       '<p style="display: block; padding-bottom: 0.8em" />',
     )
-    // Add font size to list items
-    .replace(/<li/g, '<li style="font-size: 16px; margin-bottom: 0.5em"')
     // Replace color styles in spans with data-color-type="accent"
     .replace(
       /<span(?: style="([^"]*)")?(?: data-color-type="accent"| class="accent-text-color")[^>]*>/g,

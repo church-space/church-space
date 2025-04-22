@@ -34,6 +34,8 @@ import {
   Heading2,
   Heading3,
   Text,
+  List,
+  ListOrdered,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Palette } from "@church-space/ui/icons";
@@ -242,6 +244,50 @@ const Toolbar = ({
             </ToggleGroupItem>
           </TooltipTrigger>
           <TooltipContent>Strikethrough</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <ToggleGroupItem
+              value="bulletList"
+              data-state={editor.isActive("bulletList") ? "on" : "off"}
+              onClick={() => {
+                editor.chain().focus().toggleBulletList().run();
+                setForceUpdate((prev) => prev + 1);
+              }}
+              disabled={!editor.can().chain().focus().toggleBulletList().run()}
+              className={
+                editor.isActive("bulletList")
+                  ? "bg-accent text-accent-foreground"
+                  : ""
+              }
+            >
+              <List className="h-4 w-4" />
+            </ToggleGroupItem>
+          </TooltipTrigger>
+          <TooltipContent>Bullet List</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <ToggleGroupItem
+              value="orderedList"
+              data-state={editor.isActive("orderedList") ? "on" : "off"}
+              onClick={() => {
+                editor.chain().focus().toggleOrderedList().run();
+                setForceUpdate((prev) => prev + 1);
+              }}
+              disabled={!editor.can().chain().focus().toggleOrderedList().run()}
+              className={
+                editor.isActive("orderedList")
+                  ? "bg-accent text-accent-foreground"
+                  : ""
+              }
+            >
+              <ListOrdered className="h-4 w-4" />
+            </ToggleGroupItem>
+          </TooltipTrigger>
+          <TooltipContent>Numbered List</TooltipContent>
         </Tooltip>
       </ToggleGroup>
 
