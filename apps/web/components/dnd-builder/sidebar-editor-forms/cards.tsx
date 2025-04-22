@@ -37,6 +37,13 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import React from "react";
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+} from "@church-space/ui/select";
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };
@@ -274,6 +281,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     labelColor: block.data?.labelColor || "#4274D2",
     buttonColor: block.data?.buttonColor || "#4274D2",
     buttonTextColor: block.data?.buttonTextColor || "#FFFFFF",
+    imageAspectRatio: block.data?.imageAspectRatio || "square",
   });
 
   // Set up DND sensors
@@ -504,6 +512,19 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             value={localState.buttonTextColor}
             onChange={(color) => handleChange("buttonTextColor", color)}
           />
+          <Label>Image Aspect Ratio</Label>
+          <Select
+            value={localState.imageAspectRatio}
+            onValueChange={(value) => handleChange("imageAspectRatio", value)}
+          >
+            <SelectTrigger className="col-span-2 bg-background">
+              <SelectValue placeholder="Select Image Aspect Ratio" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="square">Square</SelectItem>
+              <SelectItem value="16:9">16:9</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

@@ -82,6 +82,7 @@ export interface CardsBlockData {
   labelColor: string;
   buttonColor: string;
   buttonTextColor: string;
+  imageAspectRatio: "square" | "16:9";
   cards: Array<{
     title: string;
     description: string;

@@ -587,6 +587,7 @@ const CustomCards: React.FC<{
   }>;
   defaultFont?: string;
   isRounded?: boolean;
+  imageAspectRatio?: "16:9" | "square";
 }> = ({
   title,
   subtitle,
@@ -597,6 +598,7 @@ const CustomCards: React.FC<{
   cards,
   defaultFont,
   isRounded,
+  imageAspectRatio,
 }) => (
   <table
     width="100%"
@@ -605,9 +607,53 @@ const CustomCards: React.FC<{
     border={0}
     style={{ paddingTop: "12px", paddingBottom: "12px" }}
   >
+    {/* Style tag for responsiveness */}
+    <style>{`
+      .card-column {
+        display: block !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 5px; /* Spacing between stacked cards */
+        box-sizing: border-box;
+        vertical-align: top; /* Keep vertical align top */
+      }
+      .card-column > a, .card-column > table { /* Ensure content fills width */
+         width: 100% !important;
+      }
+      .empty-card-cell {
+        display: none !important; /* Hide placeholder on mobile */
+      }
+
+      @media (min-width: 600px) {
+        .card-column {
+          display: table-cell !important;
+          width: 50% !important;
+          padding-bottom: 0; /* Reset bottom padding */
+        }
+        /* Add padding between columns */
+        .card-column:nth-child(odd) {
+          padding-right: 12px !important;
+        }
+        .card-column:nth-child(even) {
+          padding-left: 12px !important;
+        }
+        .empty-card-cell {
+           display: table-cell !important; /* Show spacer on desktop */
+           width: 50% !important;
+           padding-left: 12px !important;
+           padding-right: 0 !important;
+        }
+        /* Add spacing between rows */
+      
+      }
+    `}</style>
+
+    {/* Title and Subtitle */}
     {(title || subtitle) && (
       <tr>
-        <td style={{ paddingBottom: "20px" }}>
+        {/* Apply colSpan=2 since we expect 2 cells in card rows on desktop */}
+        <td colSpan={2} style={{ paddingBottom: "12px" }}>
           <table width="100%" cellPadding="0" cellSpacing="0" border={0}>
             {title && (
               <tr>
@@ -642,166 +688,168 @@ const CustomCards: React.FC<{
         </td>
       </tr>
     )}
-    <tr>
-      <td>
-        <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
-          {cards
-            .reduce((rows, card, index) => {
-              if (index % 2 === 0) {
-                rows.push([card]);
-              } else {
-                rows[rows.length - 1].push(card);
-              }
-              return rows;
-            }, [] as any[])
-            .map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                style={{
-                  ...(rowIndex > 0 ? { verticalAlign: "top" } : {}),
-                }}
-              >
-                {row.map((card: any, colIndex: number) => {
-                  const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${card.image}`;
-                  const formattedButtonLink = card.buttonLink
-                    ? formatUrl(card.buttonLink)
-                    : "";
-                  const CardContent = (
+
+    {/* Card Rows - directly map rows here */}
+    {cards
+      .reduce((rows, card, index) => {
+        if (index % 2 === 0) {
+          rows.push([card]);
+        } else {
+          rows[rows.length - 1].push(card);
+        }
+        return rows;
+      }, [] as any[])
+      .map((row, rowIndex) => (
+        <tr
+          key={rowIndex}
+          className="card-row" // Add class to target rows
+          // Remove inline vertical-align style, handled by CSS/default table behavior
+        >
+          {row.map((card: any, colIndex: number) => {
+            const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${card.image}`;
+            const formattedButtonLink = card.buttonLink
+              ? formatUrl(card.buttonLink)
+              : "";
+            const CardContent = (
+              <table width="100%" cellPadding="0" cellSpacing="0" border={0}>
+                {card.image && (
+                  <tr>
+                    {/* Use background image on TD for cover effect */}
+                    <td
+                      role="img"
+                      aria-label={card.title}
+                      style={{
+                        backgroundImage: `url('${imageUrl}')`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center center",
+                        backgroundRepeat: "no-repeat",
+                        width: "100%",
+                        // Set fixed height based on aspect ratio (adjust values as needed for desired look)
+                        height: imageAspectRatio === "16:9" ? "180px" : "300px",
+                        borderRadius: isRounded ? "6px" : "0", // Note: border-radius on TDs may not work everywhere
+                        verticalAlign: "top", // Ensure content below starts correctly
+                      }}
+                    >
+                      {/* Empty TD content, background provides the image */}
+                      &nbsp;{" "}
+                      {/* Non-breaking space for email client compatibility */}
+                    </td>
+                  </tr>
+                )}
+                <tr>
+                  <td style={{ padding: "0 4px" }}>
                     <table
                       width="100%"
                       cellPadding="0"
                       cellSpacing="0"
                       border={0}
                     >
-                      {card.image && (
+                      {card.label && (
                         <tr>
-                          <td style={{ paddingBottom: "16px" }}>
-                            <Img
-                              src={imageUrl}
-                              alt={card.title}
-                              width="100%"
-                              height="192"
-                              style={{
-                                display: "block",
-                                objectFit: "cover",
-                                borderRadius: isRounded ? "6px" : "0",
-                              }}
-                            />
+                          <td
+                            style={{
+                              fontFamily: defaultFont || "sans-serif",
+                              fontSize: "14px",
+                              fontWeight: "500",
+                              color: labelColor,
+                              paddingBottom: "8px",
+                              paddingTop: "8px",
+                            }}
+                          >
+                            {card.label}
                           </td>
                         </tr>
                       )}
-                      <tr>
-                        <td style={{ padding: "0 4px" }}>
-                          <table
-                            width="100%"
-                            cellPadding="0"
-                            cellSpacing="0"
-                            border={0}
+                      {card.title && (
+                        <tr>
+                          <td
+                            style={{
+                              fontFamily: defaultFont || "sans-serif",
+                              fontSize: "18px",
+                              fontWeight: "bold",
+                              color: textColor,
+                              paddingBottom: "8px",
+                            }}
                           >
-                            <tr>
-                              <td
-                                style={{
-                                  fontFamily: defaultFont || "sans-serif",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                  color: labelColor,
-                                  paddingBottom: "8px",
-                                }}
-                              >
-                                {card.label}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td
-                                style={{
-                                  fontFamily: defaultFont || "sans-serif",
-                                  fontSize: "18px",
-                                  fontWeight: "bold",
-                                  color: textColor,
-                                  paddingBottom: "8px",
-                                }}
-                              >
-                                {card.title}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td
-                                style={{
-                                  fontFamily: defaultFont || "sans-serif",
-                                  fontSize: "14px",
-                                  color: textColor,
-                                  opacity: 0.8,
-                                  paddingBottom: "16px",
-                                }}
-                              >
-                                {card.description}
-                              </td>
-                            </tr>
-                            {card.buttonText && (
-                              <tr>
-                                <td>
-                                  <div
-                                    style={{
-                                      backgroundColor: buttonColor,
-                                      borderRadius: isRounded ? "6px" : "0",
-                                      color: buttonTextColor,
-                                      display: "block",
-                                      fontFamily: defaultFont || "sans-serif",
-                                      fontSize: "14px",
-                                      fontWeight: "500",
-                                      padding: "8px 16px",
-                                      textDecoration: "none",
-                                      textAlign: "center",
-                                      boxSizing: "border-box",
-                                      width: "100%",
-                                    }}
-                                  >
-                                    {card.buttonText}
-                                  </div>
-                                </td>
-                              </tr>
-                            )}
-                          </table>
-                        </td>
-                      </tr>
-                    </table>
-                  );
-
-                  return (
-                    <td
-                      key={colIndex}
-                      style={{
-                        width: "50%",
-                        verticalAlign: "top",
-                        ...(rowIndex > 0 ? { paddingTop: "56px" } : {}),
-                        ...(colIndex === 0
-                          ? { paddingRight: "12px" }
-                          : { paddingLeft: "12px" }),
-                      }}
-                    >
-                      {card.buttonLink ? (
-                        <a
-                          href={formattedButtonLink}
-                          target="_blank"
-                          style={{
-                            textDecoration: "none",
-                            display: "block",
-                          }}
-                        >
-                          {CardContent}
-                        </a>
-                      ) : (
-                        CardContent
+                            {card.title}
+                          </td>
+                        </tr>
                       )}
-                    </td>
-                  );
-                })}
-                {row.length === 1 && <td style={{ width: "50%" }}></td>}
-              </tr>
-            ))}
-        </table>
-      </td>
-    </tr>
+                      {card.description && (
+                        <tr>
+                          <td
+                            style={{
+                              fontFamily: defaultFont || "sans-serif",
+                              fontSize: "14px",
+                              color: textColor,
+                              opacity: 0.8,
+                              paddingBottom: "16px",
+                            }}
+                          >
+                            {card.description}
+                          </td>
+                        </tr>
+                      )}
+                      {card.buttonText && (
+                        <tr>
+                          <td>
+                            <div
+                              style={{
+                                backgroundColor: buttonColor,
+                                borderRadius: isRounded ? "6px" : "0",
+                                color: buttonTextColor,
+                                display: "block",
+                                fontFamily: defaultFont || "sans-serif",
+                                fontSize: "14px",
+                                fontWeight: "500",
+                                padding: "8px 16px",
+                                textDecoration: "none",
+                                textAlign: "center",
+                                boxSizing: "border-box",
+                                width: "100%",
+                                marginBottom: "22px",
+                              }}
+                            >
+                              {card.buttonText}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            );
+
+            return (
+              <td
+                key={colIndex}
+                className="card-column" // Add class
+                // Remove inline styles for width, vertical-align, padding-top, padding-left, padding-right
+              >
+                {card.buttonLink ? (
+                  <a
+                    href={formattedButtonLink}
+                    target="_blank"
+                    style={{
+                      textDecoration: "none",
+                      display: "block",
+                    }}
+                  >
+                    {CardContent}
+                  </a>
+                ) : (
+                  CardContent
+                )}
+              </td>
+            );
+          })}
+          {/* Handle empty cell for odd number of cards */}
+          {row.length === 1 && (
+            <td className="card-column empty-card-cell"></td>
+          )}
+        </tr>
+      ))}
   </table>
 );
 
@@ -1767,6 +1815,10 @@ export function generateEmailCode(
                                               defaultFont={defaultFont}
                                               isRounded={isRounded}
                                               textColor={defaultTextColor}
+                                              imageAspectRatio={
+                                                (block.data as any)
+                                                  ?.imageAspectRatio
+                                              }
                                             />
                                           </td>
                                         </tr>
@@ -2000,6 +2052,10 @@ export function generateEmailCode(
                                               defaultFont={defaultFont}
                                               isRounded={isRounded}
                                               textColor={defaultTextColor}
+                                              imageAspectRatio={
+                                                (block.data as any)
+                                                  ?.imageAspectRatio
+                                              }
                                             />
                                           </td>
                                         </tr>

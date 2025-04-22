@@ -49,25 +49,28 @@ export default function CardsBlock({
       className="flex flex-col gap-5 py-2"
       style={{ fontFamily: defaultFont || "inherit" }}
     >
-      <div className="flex flex-col">
-        {title !== undefined && (
-          <span
-            className="text-3xl font-bold"
-            style={{ color: defaultTextColor }}
-          >
-            {title !== "" && title}
-          </span>
-        )}
-        {subtitle !== undefined && (
-          <span
-            className="text-md text-muted-foreground"
-            style={{ color: defaultTextColor }}
-          >
-            {subtitle !== "" && subtitle}
-          </span>
-        )}
-      </div>
-      <div className="grid grid-cols-1 gap-6 gap-y-14 lg:grid-cols-2">
+      {title ||
+        (subtitle && (
+          <div className="flex flex-col">
+            {title !== undefined && (
+              <span
+                className="text-3xl font-bold"
+                style={{ color: defaultTextColor }}
+              >
+                {title !== "" && title}
+              </span>
+            )}
+            {subtitle !== undefined && (
+              <span
+                className="text-md text-muted-foreground"
+                style={{ color: defaultTextColor }}
+              >
+                {subtitle !== "" && subtitle}
+              </span>
+            )}
+          </div>
+        ))}
+      <div className="grid grid-cols-1 gap-4 gap-y-4 sm:grid-cols-2">
         {cards.map((card, index) => (
           <div className="flex w-full flex-col gap-1" key={index}>
             {card.image && imageUrls[card.image] && (
@@ -75,11 +78,13 @@ export default function CardsBlock({
                 src={imageUrls[card.image]}
                 alt={card.title}
                 className={cn(
-                  "h-48 w-full object-cover",
+                  "w-full object-cover",
                   isRounded && "rounded-md",
+                  data?.imageAspectRatio === "16:9" && "aspect-video",
+                  data?.imageAspectRatio === "square" && "aspect-square",
                 )}
-                width={1280}
-                height={720}
+                width={data?.imageAspectRatio === "16:9" ? 1280 : 1024}
+                height={data?.imageAspectRatio === "16:9" ? 720 : 1024}
               />
             )}
             <div className="flex flex-col gap-0.5 px-1">
@@ -93,29 +98,19 @@ export default function CardsBlock({
                 className="text-lg font-bold"
                 style={{ color: defaultTextColor }}
               >
-                {card.title === "" ? (
-                  <span className="text-muted-foreground">Card Title</span>
-                ) : (
-                  card.title
-                )}
+                {card.title && card.title}
               </h3>
               <p
-                className="text-sm text-muted-foreground"
+                className="pb-2 text-sm text-muted-foreground"
                 style={{ color: defaultTextColor }}
               >
-                {card.description === "" ? (
-                  <span className="text-muted-foreground">
-                    Card Description
-                  </span>
-                ) : (
-                  card.description
-                )}
+                {card.description && card.description}
               </p>
             </div>
             {card.buttonText && (
               <div
                 className={cn(
-                  "mt-2 flex min-h-8 items-center justify-center text-balance px-4 py-1 text-center text-sm font-medium",
+                  "mb-2 flex min-h-8 items-center justify-center text-balance px-4 py-1 text-center text-sm font-medium",
                   isRounded && "rounded-md",
                 )}
                 style={{
