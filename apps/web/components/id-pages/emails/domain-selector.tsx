@@ -5,12 +5,14 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@church-space/ui/select";
+import { Button } from "@church-space/ui/button";
 import {
-  getDomainsQuery,
-  getDomainQuery,
+  getVerifiedDomainsQuery,
+  getVerifiedDomainQuery,
 } from "@church-space/supabase/queries/all/get-domains";
 import { createClient } from "@church-space/supabase/client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface Domain {
   id: number;
@@ -39,7 +41,7 @@ export default function DomainSelector({
   useEffect(() => {
     const fetchDomains = async () => {
       try {
-        const result = await getDomainsQuery(supabase, organizationId);
+        const result = await getVerifiedDomainsQuery(supabase, organizationId);
         if (result.error) {
           throw result.error;
         }
@@ -61,7 +63,10 @@ export default function DomainSelector({
     const fetchSelectedDomain = async () => {
       if (value) {
         try {
-          const result = await getDomainQuery(supabase, parseInt(value));
+          const result = await getVerifiedDomainQuery(
+            supabase,
+            parseInt(value),
+          );
           if (result.error) {
             throw result.error;
           }
@@ -85,6 +90,14 @@ export default function DomainSelector({
 
   if (error) {
     return <div>Error: {error.message}</div>;
+  }
+
+  if (domains.length === 0) {
+    return (
+      <Button asChild variant="outline">
+        <Link href="/settings/domains">Add a domain</Link>
+      </Button>
+    );
   }
 
   return (
