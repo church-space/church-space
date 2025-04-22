@@ -33,6 +33,7 @@ export const createEmailAction = authActionClient
           subject: parsedInput.parsedInput.subject,
           organization_id: parsedInput.parsedInput.organization_id,
           type: parsedInput.parsedInput.type,
+          status: "draft",
         },
         parsedInput.parsedInput.organization_id,
       );

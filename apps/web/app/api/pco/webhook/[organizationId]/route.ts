@@ -73,8 +73,8 @@ export async function POST(
   const { data: webhookData, error: fetchError } = await supabase
     .from("pco_webhooks")
     .select("authenticity_secret")
-    .eq("name", webhookName)
     .eq("organization_id", organizationId)
+    .eq("name", webhookName)
     .single();
 
   if (fetchError) {

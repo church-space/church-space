@@ -1,12 +1,10 @@
-import "server-only";
-import { task, queue, runs } from "@trigger.dev/sdk/v3";
-import { Resend } from "resend";
+import { BlockData, BlockType, Section } from "@/types/blocks";
 import { createClient } from "@church-space/supabase/job";
+import { queue, runs, task } from "@trigger.dev/sdk/v3";
 import { SignJWT } from "jose";
-import { Section, BlockType, BlockData } from "@/types/blocks";
+import { Resend } from "resend";
+import "server-only";
 import { v4 as uuidv4 } from "uuid";
-import { generateEmailCode } from "@/lib/generate-email-code";
-import { render } from "@react-email/render";
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -20,19 +18,22 @@ const emailQueue = queue({
 // Interface for the payload
 interface SendAutomationEmailPayload {
   emailId: number;
-  recipient: {
-    pcoPersonId: string;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-  };
+  recipients: Record<
+    string,
+    {
+      pcoPersonId: string;
+      email: string;
+      firstName?: string;
+      lastName?: string;
+      personId: number;
+    }
+  >;
   organizationId: string;
   fromEmail: string;
   fromEmailDomain: number;
   fromName: string;
   subject: string;
-  automationId: number; // Assuming this might be needed for tracking/logging
-  personId: number;
+  automationId: number;
   triggerAutomationRunId: string;
 }
 
@@ -69,65 +70,27 @@ interface EmailData {
 
 // Renamed task
 export const sendAutomationEmail = task({
-  id: "send-automation-email", // Updated task ID
+  id: "send-automation-email",
   queue: emailQueue,
   run: async (payload: SendAutomationEmailPayload) => {
     const {
       emailId,
-      recipient,
+      recipients,
       fromEmail,
       fromEmailDomain,
       fromName,
       subject,
       organizationId,
       automationId,
-      personId,
       triggerAutomationRunId,
     } = payload;
     const supabase = createClient();
 
-    let emailSentSuccessfully = false;
-    let errorMessage: string | null = null;
-    let unsubscribeToken: string | null = null;
+    let successCount = 0;
+    let failureCount = 0;
+    const results = [];
 
     try {
-      const { data: peopleEmailId, error: peopleEmailIdError } = await supabase
-        .from("people_emails")
-        .select("id")
-        .eq("email", recipient.email)
-        .eq("organization_id", organizationId)
-        .eq("pco_person_id", recipient.pcoPersonId)
-        .single();
-
-      if (peopleEmailIdError || !peopleEmailId) {
-        throw new Error(
-          `Failed to fetch people_email_id for ${recipient.email}: ${peopleEmailIdError?.message || "People email not found"}`,
-        );
-      }
-
-      // Get email data with blocks and footer
-      const { data: emailData, error: emailError } = await supabase
-        .from("emails")
-        .select(
-          `
-          *,
-          blocks:email_blocks(*),
-          footer:email_footers(*)
-        `,
-        )
-        .eq("id", emailId)
-        .eq("organization_id", organizationId)
-        .eq("type", "template")
-        .single();
-
-      if (emailError || !emailData) {
-        throw new Error(
-          `Failed to fetch email template data: ${emailError?.message || "Email template not found"}`,
-        );
-      }
-
-      const typedEmailData = emailData as unknown as EmailData;
-
       // Get domain for From address
       const { data: domainData, error: domainError } = await supabase
         .from("domains")
@@ -154,10 +117,33 @@ export const sendAutomationEmail = task({
 
       const fromAddress = `${fromEmail}@${domainData.domain}`;
 
+      // Get email data with blocks and footer
+      const { data: emailData, error: emailError } = await supabase
+        .from("emails")
+        .select(
+          `
+          *,
+          blocks:email_blocks(*),
+          footer:email_footers(*)
+        `,
+        )
+        .eq("id", emailId)
+        .eq("organization_id", organizationId)
+        .eq("type", "template")
+        .single();
+
+      if (emailError || !emailData) {
+        throw new Error(
+          `Failed to fetch email template data: ${emailError?.message || "Email template not found"}`,
+        );
+      }
+
+      const typedEmailData = emailData as unknown as EmailData;
+
       // Convert blocks to sections format for email generation
       const sections: Section[] = [
         {
-          id: "main-section", // Or use a dynamic ID if needed
+          id: "main-section",
           blocks: typedEmailData.blocks
             .sort((a, b) => (a.order || 0) - (b.order || 0))
             .map((block) => ({
@@ -215,7 +201,6 @@ export const sendAutomationEmail = task({
         baseText = renderedEmail.text;
       } catch (error) {
         console.error("Error rendering base email template:", error);
-        // Update email status to failed if rendering fails
         await supabase
           .from("emails")
           .update({
@@ -228,126 +213,238 @@ export const sendAutomationEmail = task({
       }
       // ---- END: Render email template once ----
 
-      // Generate unsubscribe token
-      unsubscribeToken = await new SignJWT({
-        email_id: emailId,
-        people_email_id: peopleEmailId,
-      })
-        .setProtectedHeader({ alg: "HS256" })
-        .setIssuedAt()
-        .sign(new TextEncoder().encode(process.env.UNSUBSCRIBE_JWT_SECRET));
+      // Process recipients in batches of 100
+      const peopleEmailIds = Object.keys(recipients);
+      const batches = [];
 
-      const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;
-      const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
-      const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
-      const unsubscribeEmail = `unsubscribe@churchspace.co?subject=unsubscribe&body=emailId%3A%20${emailId}%0AautomationId%3A%20${automationId}%0ApersonEmailId%3A%20${peopleEmailId}`;
-
-      // ---- START: Personalize content ----
-      let personalizedHtml = baseHtml
-        .replace(
-          // Use \s+ to match one or more spaces after <span
-          /<span\s+data-type="mention" data-id="first-name">@first-name<\/span>/g,
-          recipient.firstName || "",
-        )
-        .replace(
-          // Use \s+ to match one or more spaces after <span
-          /<span\s+data-type="mention" data-id="last-name">@last-name<\/span>/g,
-          recipient.lastName || "",
-        )
-        .replace(
-          // Use \s+ to match one or more spaces after <span
-          /<span\s+data-type="mention" data-id="email">@email<\/span>/g,
-          recipient.email || "",
-        )
-        // Use regex with lookahead to replace href="#" for the correct ID, regardless of attribute order
-        .replace(
-          /(<a(?=[^>]*id="manage-preferences-link")[^>]*?)href="#"([^>]*>)/g,
-          `$1href="${managePreferencesUrl}"$2`,
-        )
-        // Use regex with lookahead to replace href="#" for the correct ID, regardless of attribute order
-        .replace(
-          /(<a(?=[^>]*id="unsubscribe-link")[^>]*?)href="#"([^>]*>)/g,
-          `$1href="${unsubscribeUrl}"$2`,
-        );
-
-      let personalizedText = baseText
-        .replace(/@first-name/g, recipient.firstName || "")
-        .replace(/@last-name/g, recipient.lastName || "")
-        .replace(/@email/g, recipient.email || "");
-
-      // Append unsubscribe/manage links to text version
-      personalizedText += `\n\n---\nUnsubscribe: ${unsubscribeUrl}\nManage Preferences: ${managePreferencesUrl}`;
-      // ---- END: Personalize content ----
-
-      // Prepare email data for sending
-      const emailSendData = {
-        from: `${fromName} <${fromAddress}>`,
-        to: recipient.email,
-        subject: subject, // Use subject from payload
-        html: personalizedHtml,
-        text: personalizedText,
-        headers: {
-          "X-Entity-Email-ID": `${emailId}`,
-          "X-Entity-Automation-ID": `${automationId}`,
-          "X-Entity-People-Email-ID": `${peopleEmailId}`, // Use ID from payload
-          "X-Entity-Ref-ID": uuidv4(), // Unique reference for this specific send
-          "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>, mailto:${unsubscribeEmail}`,
-          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-          "X-Mailer": `Church Space Mailer - **Customer ${organizationId}**`,
-          "X-Report-Abuse": `<mailto:report@churchspace.co>`,
-          Precedence: "bulk",
-        },
-      };
-
-      // Send the email using Resend
-      const { data: sendData, error: sendError } =
-        await resend.emails.send(emailSendData);
-
-      if (sendError) {
-        // Log error and set status
-        console.error(
-          `Resend failed to send email to ${recipient.email} for email ID ${emailId}:`,
-          sendError,
-        );
-        errorMessage = `Resend error: ${sendError.message}`;
-        emailSentSuccessfully = false;
-      } else if (sendData) {
-        emailSentSuccessfully = true;
-      } else {
-        // Should not happen based on Resend types, but handle defensively
-        errorMessage = "Resend returned no data and no error.";
-        emailSentSuccessfully = false;
+      for (let i = 0; i < peopleEmailIds.length; i += 100) {
+        batches.push(peopleEmailIds.slice(i, i + 100));
       }
 
-      // Update the automation member status based on the email send result
-      const { data: automationMember, error: memberError } = await supabase
-        .from("email_automation_members")
-        .select("id, status")
-        .eq("automation_id", automationId)
-        .eq("person_id", personId)
-        .single();
+      for (const batch of batches) {
+        const emailBatch = [];
+        const batchTokens: Record<string, string> = {};
 
-      if (memberError || !automationMember) {
-        console.error(
-          `Failed to fetch automation member record for automation ${automationId}, person ${peopleEmailId.id}:`,
-          memberError?.message || "Member not found",
-        );
-      } else {
-        // Only update if the status indicates we should (e.g., don't update if already failed/completed)
-        if (automationMember.status === "in-progress") {
-          await supabase
-            .from("email_automation_members")
-            .update({
-              status: emailSentSuccessfully ? "in-progress" : "failed",
-              reason: errorMessage,
-              updated_at: new Date().toISOString(),
+        for (const peopleEmailId of batch) {
+          const recipientData = recipients[peopleEmailId];
+          const { email, firstName, lastName, pcoPersonId, personId } =
+            recipientData;
+
+          try {
+            // Generate unsubscribe token
+            const unsubscribeToken = await new SignJWT({
+              email_id: emailId,
+              people_email_id: parseInt(peopleEmailId),
             })
-            .eq("id", automationMember.id);
+              .setProtectedHeader({ alg: "HS256" })
+              .setIssuedAt()
+              .sign(
+                new TextEncoder().encode(process.env.UNSUBSCRIBE_JWT_SECRET),
+              );
+
+            batchTokens[peopleEmailId] = unsubscribeToken;
+
+            const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;
+            const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
+            const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
+            const unsubscribeEmail = `unsubscribe@churchspace.co?subject=unsubscribe&body=emailId%3A%20${emailId}%0AautomationId%3A%20${automationId}%0ApersonEmailId%3A%20${peopleEmailId}`;
+
+            // ---- START: Personalize content ----
+            let personalizedHtml = baseHtml
+              .replace(
+                /<span\s+data-type="mention" data-id="first-name">@first-name<\/span>/g,
+                firstName || "",
+              )
+              .replace(
+                /<span\s+data-type="mention" data-id="last-name">@last-name<\/span>/g,
+                lastName || "",
+              )
+              .replace(
+                /<span\s+data-type="mention" data-id="email">@email<\/span>/g,
+                email || "",
+              )
+              .replace(
+                /(<a(?=[^>]*id="manage-preferences-link")[^>]*?)href="#"([^>]*>)/g,
+                `$1href="${managePreferencesUrl}"$2`,
+              )
+              .replace(
+                /(<a(?=[^>]*id="unsubscribe-link")[^>]*?)href="#"([^>]*>)/g,
+                `$1href="${unsubscribeUrl}"$2`,
+              );
+
+            let personalizedText = baseText
+              .replace(/@first-name/g, firstName || "")
+              .replace(/@last-name/g, lastName || "")
+              .replace(/@email/g, email || "");
+
+            personalizedText += `\n\n---\nUnsubscribe: ${unsubscribeUrl}\nManage Preferences: ${managePreferencesUrl}`;
+
+            emailBatch.push({
+              from: `${fromName} <${fromAddress}>`,
+              to: email,
+              subject: subject,
+              html: personalizedHtml,
+              text: personalizedText,
+              headers: {
+                "X-Entity-Email-ID": `${emailId}`,
+                "X-Entity-Automation-ID": `${automationId}`,
+                "X-Entity-People-Email-ID": `${peopleEmailId}`,
+                "X-Entity-Ref-ID": uuidv4(),
+                "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>, mailto:${unsubscribeEmail}`,
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+                "X-Mailer": `Church Space Mailer - **Customer ${organizationId}**`,
+                "X-Report-Abuse": `<mailto:report@churchspace.co>`,
+                Precedence: "bulk",
+              },
+            });
+          } catch (error) {
+            console.error(`Error preparing email for ${email}:`, error);
+            failureCount++;
+
+            // Update automation member status on error
+            try {
+              const { data: automationMember, error: memberError } =
+                await supabase
+                  .from("email_automation_members")
+                  .select("id, status")
+                  .eq("automation_id", automationId)
+                  .eq("person_id", personId)
+                  .single();
+
+              if (
+                !memberError &&
+                automationMember &&
+                automationMember.status === "in-progress"
+              ) {
+                await supabase
+                  .from("email_automation_members")
+                  .update({
+                    status: "failed",
+                    reason:
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to prepare email",
+                    updated_at: new Date().toISOString(),
+                  })
+                  .eq("id", automationMember.id);
+              }
+            } catch (updateError) {
+              console.error(
+                `Failed to update automation member status for person ${personId}:`,
+                updateError,
+              );
+            }
+          }
+        }
+
+        if (emailBatch.length > 0) {
+          try {
+            // Send batch
+            const response = await resend.batch.send(emailBatch);
+            results.push(response);
+
+            // Process batch results
+            const sentEmailData = (response.data?.data || []) as Array<{
+              id: string;
+              to: string;
+              error: { message: string; type: string } | null;
+            }>;
+
+            // Process each sent email in the batch
+            emailBatch.forEach(async (sentRequest, index) => {
+              const peopleEmailId =
+                sentRequest.headers["X-Entity-People-Email-ID"];
+              const recipientData = recipients[peopleEmailId];
+              const sentInfo = sentEmailData[index];
+              const isSuccess = sentInfo && !sentInfo.error;
+
+              // Update automation member status
+              try {
+                const { data: automationMember, error: memberError } =
+                  await supabase
+                    .from("email_automation_members")
+                    .select("id, status")
+                    .eq("automation_id", automationId)
+                    .eq("person_id", recipientData.personId)
+                    .single();
+
+                if (
+                  !memberError &&
+                  automationMember &&
+                  automationMember.status === "in-progress"
+                ) {
+                  await supabase
+                    .from("email_automation_members")
+                    .update({
+                      status: isSuccess ? "in-progress" : "failed",
+                      reason: sentInfo?.error?.message,
+                      updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", automationMember.id);
+                }
+
+                if (isSuccess) {
+                  successCount++;
+                } else {
+                  failureCount++;
+                  if (!isSuccess) {
+                    await runs.cancel(triggerAutomationRunId);
+                  }
+                }
+              } catch (updateError) {
+                console.error(
+                  `Failed to update automation member status for person ${recipientData.personId}:`,
+                  updateError,
+                );
+                failureCount++;
+              }
+            });
+          } catch (error) {
+            console.error("Error sending batch:", error);
+            failureCount += emailBatch.length;
+
+            // Update automation member status for failed batch
+            for (const peopleEmailId of batch) {
+              const recipientData = recipients[peopleEmailId];
+              try {
+                const { data: automationMember, error: memberError } =
+                  await supabase
+                    .from("email_automation_members")
+                    .select("id, status")
+                    .eq("automation_id", automationId)
+                    .eq("person_id", recipientData.personId)
+                    .single();
+
+                if (
+                  !memberError &&
+                  automationMember &&
+                  automationMember.status === "in-progress"
+                ) {
+                  await supabase
+                    .from("email_automation_members")
+                    .update({
+                      status: "failed",
+                      reason:
+                        error instanceof Error
+                          ? error.message
+                          : "Batch send failed",
+                      updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", automationMember.id);
+                }
+              } catch (updateError) {
+                console.error(
+                  `Failed to update automation member status for person ${recipientData.personId}:`,
+                  updateError,
+                );
+              }
+            }
+          }
         }
       }
 
-      // If successfully sent, update organization usage
-      if (emailSentSuccessfully) {
+      // Update organization's email usage
+      if (successCount > 0) {
         const { data: emailUsage, error: emailUsageError } = await supabase
           .from("org_email_usage")
           .select("sends_remaining, sends_used")
@@ -355,24 +452,27 @@ export const sendAutomationEmail = task({
           .single();
 
         if (emailUsageError || !emailUsage) {
-          // Log this error but don't fail the whole job
           console.error(
-            `Failed to fetch email usage for org ${organizationId}: ${emailUsageError?.message || "Usage record not found"}`,
+            `Failed to fetch email usage for org ${organizationId}:`,
+            emailUsageError?.message || "Usage record not found",
           );
         } else {
           const { error: updateUsageError } = await supabase
             .from("org_email_usage")
             .update({
-              sends_remaining: Math.max(0, emailUsage.sends_remaining - 1), // Decrement, ensure not negative
-              sends_used: emailUsage.sends_used + 1,
+              sends_remaining: Math.max(
+                0,
+                emailUsage.sends_remaining - successCount,
+              ),
+              sends_used: emailUsage.sends_used + successCount,
               updated_at: new Date().toISOString(),
             })
             .eq("organization_id", organizationId);
 
           if (updateUsageError) {
-            // Log this error but don't fail the whole job
             console.error(
-              `Failed to update email usage for org ${organizationId}: ${updateUsageError.message}`,
+              `Failed to update email usage for org ${organizationId}:`,
+              updateUsageError.message,
             );
           }
         }
@@ -380,53 +480,23 @@ export const sendAutomationEmail = task({
 
       return {
         emailId,
-        recipientEmail: recipient.email,
-        status: emailSentSuccessfully ? "sent" : "failed",
-        errorMessage: errorMessage,
+        totalRecipients: Object.keys(recipients).length,
+        successCount,
+        failureCount,
+        status: successCount === 0 ? "failed" : "sent",
       };
     } catch (error) {
       console.error(
-        `Error in sendAutomationEmail job for email ID ${emailId}, recipient ${recipient?.email}:`,
+        `Error in sendAutomationEmail job for email ID ${emailId}:`,
         error,
       );
 
-      errorMessage =
+      const errorMessage =
         error instanceof Error ? error.message : "An unknown error occurred";
 
-      // Try to update the automation member status on error
-      try {
-        const { data: automationMember, error: memberError } = await supabase
-          .from("email_automation_members")
-          .select("id, status")
-          .eq("automation_id", automationId)
-          .eq("person_id", personId)
-          .single();
+      // Cancel the automation run on error
+      await runs.cancel(triggerAutomationRunId);
 
-        if (memberError || !automationMember) {
-          console.error(
-            `Failed to fetch automation member record for automation ${automationId}, person ${recipient.pcoPersonId}:`,
-            memberError?.message || "Member not found",
-          );
-        } else if (automationMember.status === "in-progress") {
-          await supabase
-            .from("email_automation_members")
-            .update({
-              status: "failed",
-              reason: errorMessage,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", automationMember.id);
-
-          await runs.cancel(triggerAutomationRunId);
-        }
-      } catch (updateError) {
-        console.error(
-          `Failed to update automation member status for automation ${automationId}:`,
-          updateError,
-        );
-      }
-
-      // Re-throw the error
       throw error;
     }
   },

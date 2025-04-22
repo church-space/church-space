@@ -314,6 +314,7 @@ export type Database = {
           id: number
           organization_id: string
           person_id: number | null
+          unsub_email_automation_step_id: number | null
           unsub_email_id: number | null
           updated_at: string | null
         }
@@ -324,6 +325,7 @@ export type Database = {
           id?: number
           organization_id: string
           person_id?: number | null
+          unsub_email_automation_step_id?: number | null
           unsub_email_id?: number | null
           updated_at?: string | null
         }
@@ -334,6 +336,7 @@ export type Database = {
           id?: number
           organization_id?: string
           person_id?: number | null
+          unsub_email_automation_step_id?: number | null
           unsub_email_id?: number | null
           updated_at?: string | null
         }
@@ -357,6 +360,13 @@ export type Database = {
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_category_unsubscribes_unsub_email_automation_step_id_fkey"
+            columns: ["unsub_email_automation_step_id"]
+            isOneToOne: false
+            referencedRelation: "email_automation_steps"
             referencedColumns: ["id"]
           },
           {
@@ -521,6 +531,7 @@ export type Database = {
           organization_id: string
           pco_list_category: number
           person_id: number | null
+          unsub_automation_step_id: number | null
           unsub_email_id: number | null
         }
         Insert: {
@@ -530,6 +541,7 @@ export type Database = {
           organization_id: string
           pco_list_category: number
           person_id?: number | null
+          unsub_automation_step_id?: number | null
           unsub_email_id?: number | null
         }
         Update: {
@@ -539,6 +551,7 @@ export type Database = {
           organization_id?: string
           pco_list_category?: number
           person_id?: number | null
+          unsub_automation_step_id?: number | null
           unsub_email_id?: number | null
         }
         Relationships: [
@@ -547,6 +560,13 @@ export type Database = {
             columns: ["pco_list_category"]
             isOneToOne: false
             referencedRelation: "pco_list_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_list_category_unsubscribes_unsub_automation_step_id_fkey"
+            columns: ["unsub_automation_step_id"]
+            isOneToOne: false
+            referencedRelation: "email_automation_steps"
             referencedColumns: ["id"]
           },
           {
@@ -628,6 +648,7 @@ export type Database = {
           socials_icon_color: string | null
           socials_style: Database["public"]["Enums"]["social_icons_style"]
           subtitle: string | null
+          updated_at: string | null
         }
         Insert: {
           address?: string | null
@@ -643,6 +664,7 @@ export type Database = {
           socials_icon_color?: string | null
           socials_style?: Database["public"]["Enums"]["social_icons_style"]
           subtitle?: string | null
+          updated_at?: string | null
         }
         Update: {
           address?: string | null
@@ -658,6 +680,7 @@ export type Database = {
           socials_icon_color?: string | null
           socials_style?: Database["public"]["Enums"]["social_icons_style"]
           subtitle?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -729,27 +752,37 @@ export type Database = {
       }
       email_unsubscribes: {
         Row: {
+          automation_step_id: number | null
           category_id: number | null
           created_at: string
-          email_id: number
+          email_id: number | null
           id: number
           person_email_id: number | null
         }
         Insert: {
+          automation_step_id?: number | null
           category_id?: number | null
           created_at?: string
-          email_id: number
+          email_id?: number | null
           id?: number
           person_email_id?: number | null
         }
         Update: {
+          automation_step_id?: number | null
           category_id?: number | null
           created_at?: string
-          email_id?: number
+          email_id?: number | null
           id?: number
           person_email_id?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "email_unsubscribes_automation_step_id_fkey"
+            columns: ["automation_step_id"]
+            isOneToOne: false
+            referencedRelation: "email_automation_steps"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "email_unsubscribes_category_id_fkey"
             columns: ["category_id"]
@@ -887,6 +920,7 @@ export type Database = {
           invited_by: string | null
           organization_id: string | null
           status: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
@@ -896,6 +930,7 @@ export type Database = {
           invited_by?: string | null
           organization_id?: string | null
           status?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
@@ -905,6 +940,7 @@ export type Database = {
           invited_by?: string | null
           organization_id?: string | null
           status?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -923,52 +959,6 @@ export type Database = {
           },
         ]
       }
-      link_list_link_clicks: {
-        Row: {
-          created_at: string
-          id: number
-          link_id: number | null
-          link_list_id: number
-          socail_link_id: number | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          link_id?: number | null
-          link_list_id: number
-          socail_link_id?: number | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          link_id?: number | null
-          link_list_id?: number
-          socail_link_id?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "link_list_link_clicks_link_id_fkey"
-            columns: ["link_id"]
-            isOneToOne: false
-            referencedRelation: "link_list_links"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "link_list_link_clicks_link_list_id_fkey"
-            columns: ["link_list_id"]
-            isOneToOne: false
-            referencedRelation: "link_lists"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "link_list_link_clicks_socail_link_id_fkey"
-            columns: ["socail_link_id"]
-            isOneToOne: false
-            referencedRelation: "link_list_socials"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       link_list_links: {
         Row: {
           created_at: string
@@ -977,6 +967,7 @@ export type Database = {
           order: number | null
           text: string | null
           type: string | null
+          updated_at: string | null
           url: string | null
         }
         Insert: {
@@ -986,6 +977,7 @@ export type Database = {
           order?: number | null
           text?: string | null
           type?: string | null
+          updated_at?: string | null
           url?: string | null
         }
         Update: {
@@ -995,6 +987,7 @@ export type Database = {
           order?: number | null
           text?: string | null
           type?: string | null
+          updated_at?: string | null
           url?: string | null
         }
         Relationships: [
@@ -1014,6 +1007,7 @@ export type Database = {
           id: number
           link_list: number
           order: number | null
+          updated_at: string | null
           url: string | null
         }
         Insert: {
@@ -1022,6 +1016,7 @@ export type Database = {
           id?: number
           link_list: number
           order?: number | null
+          updated_at?: string | null
           url?: string | null
         }
         Update: {
@@ -1030,6 +1025,7 @@ export type Database = {
           id?: number
           link_list?: number
           order?: number | null
+          updated_at?: string | null
           url?: string | null
         }
         Relationships: [
@@ -1056,6 +1052,7 @@ export type Database = {
           private_name: string
           style: Json | null
           title: string | null
+          updated_at: string | null
           url_slug: string
         }
         Insert: {
@@ -1071,6 +1068,7 @@ export type Database = {
           private_name: string
           style?: Json | null
           title?: string | null
+          updated_at?: string | null
           url_slug: string
         }
         Update: {
@@ -1086,6 +1084,7 @@ export type Database = {
           private_name?: string
           style?: Json | null
           title?: string | null
+          updated_at?: string | null
           url_slug?: string
         }
         Relationships: [
@@ -1142,6 +1141,7 @@ export type Database = {
           id: number
           organization_id: string
           role: string | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -1149,6 +1149,7 @@ export type Database = {
           id?: number
           organization_id: string
           role?: string | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -1156,6 +1157,7 @@ export type Database = {
           id?: number
           organization_id?: string
           role?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -1184,6 +1186,7 @@ export type Database = {
           id: string
           name: string
           pco_org_id: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
@@ -1193,6 +1196,7 @@ export type Database = {
           id?: string
           name: string
           pco_org_id?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
@@ -1202,6 +1206,7 @@ export type Database = {
           id?: string
           name?: string
           pco_org_id?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1279,7 +1284,6 @@ export type Database = {
           created_at: string
           description: string | null
           id: number
-          is_public: boolean
           organization_id: string
           pco_id: string
           pco_name: string
@@ -1288,7 +1292,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: number
-          is_public?: boolean
           organization_id: string
           pco_id: string
           pco_name: string
@@ -1297,7 +1300,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: number
-          is_public?: boolean
           organization_id?: string
           pco_id?: string
           pco_name?: string
@@ -1389,35 +1391,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pco_list_categories"
             referencedColumns: ["pco_id"]
-          },
-        ]
-      }
-      pco_orgs: {
-        Row: {
-          created_at: string
-          id: number
-          organization_id: string | null
-          pco_org_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          organization_id?: string | null
-          pco_org_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          organization_id?: string | null
-          pco_org_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pco_orgs_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
           },
         ]
       }
@@ -1551,6 +1524,7 @@ export type Database = {
           nickname: string | null
           organization_id: string
           pco_id: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
@@ -1562,6 +1536,7 @@ export type Database = {
           nickname?: string | null
           organization_id: string
           pco_id: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
@@ -1573,6 +1548,7 @@ export type Database = {
           nickname?: string | null
           organization_id?: string
           pco_id?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1643,21 +1619,31 @@ export type Database = {
           created_at: string
           email_id: number | null
           id: number
+          organization_id: string
           user_id: string | null
         }
         Insert: {
           created_at?: string
           email_id?: number | null
           id?: number
+          organization_id: string
           user_id?: string | null
         }
         Update: {
           created_at?: string
           email_id?: number | null
           id?: number
+          organization_id?: string
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pinned_email_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pinned_emails_email_id_fkey"
             columns: ["email_id"]
@@ -1679,18 +1665,21 @@ export type Database = {
           created_at: string
           id: number
           list_id: number
+          organization_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: number
           list_id: number
+          organization_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: number
           list_id?: number
+          organization_id?: string
           user_id?: string
         }
         Relationships: [
@@ -1699,6 +1688,13 @@ export type Database = {
             columns: ["list_id"]
             isOneToOne: false
             referencedRelation: "pco_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pinned_lists_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -1744,6 +1740,7 @@ export type Database = {
           qr_link_id: number
           style: Json | null
           title: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
@@ -1752,6 +1749,7 @@ export type Database = {
           qr_link_id: number
           style?: Json | null
           title?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
@@ -1760,6 +1758,7 @@ export type Database = {
           qr_link_id?: number
           style?: Json | null
           title?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1778,6 +1777,7 @@ export type Database = {
           name: string | null
           organization_id: string
           status: string
+          updated_at: string | null
           url: string | null
         }
         Insert: {
@@ -1786,6 +1786,7 @@ export type Database = {
           name?: string | null
           organization_id: string
           status?: string
+          updated_at?: string | null
           url?: string | null
         }
         Update: {
@@ -1794,6 +1795,7 @@ export type Database = {
           name?: string | null
           organization_id?: string
           status?: string
+          updated_at?: string | null
           url?: string | null
         }
         Relationships: [
@@ -2073,6 +2075,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -2081,6 +2084,7 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
+          updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -2089,6 +2093,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -2097,6 +2102,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _is_org_member_no_rls: {
+        Args: { target_org: string }
+        Returns: boolean
+      }
+      _is_org_owner_no_rls: {
+        Args: { target_org: string }
+        Returns: boolean
+      }
       add_user_to_organization: {
         Args: {
           target_org_id: string
@@ -2121,6 +2134,10 @@ export type Database = {
       count_direct_storage_items: {
         Args: { bucket_name: string; folder_path: string }
         Returns: number
+      }
+      delete_done_pending_automation_runs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       delete_unverified_domains: {
         Args: Record<PropertyKey, never>
@@ -2159,6 +2176,10 @@ export type Database = {
         Args: { org: string }
         Returns: boolean
       }
+      is_owner_self: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       org_storage_used_mb: {
         Args: { org_id: string }
         Returns: number
@@ -2170,6 +2191,10 @@ export type Database = {
       resubscribe_category: {
         Args: { p_people_email_id: number; p_category_id: number }
         Returns: undefined
+      }
+      shares_org_with_current_user: {
+        Args: { target_user: string }
+        Returns: boolean
       }
       unsubscribe_from_all_emails: {
         Args: { p_email_id: number; p_person_email_id: number }

@@ -281,28 +281,43 @@ export const automationJob = task({
               (r): r is RecipientData => r !== null,
             );
 
-            // Send emails to valid recipients
-            await Promise.all(
-              filteredRecipients.map((recipient) =>
-                sendAutomationEmail.trigger({
-                  emailId: emailTemplateId,
-                  recipient: {
-                    pcoPersonId: recipient.pcoPersonId,
-                    email: recipient.email,
-                    firstName: recipient.firstName,
-                    lastName: recipient.lastName,
-                  },
-                  organizationId: organizationId,
-                  fromEmail: (step.values as EmailStepValues).fromEmail || "",
-                  fromEmailDomain: step.from_email_domain!,
-                  fromName: (step.values as EmailStepValues).fromName || "",
-                  subject: (step.values as EmailStepValues).subject || "",
-                  automationId: automationId,
+            if (filteredRecipients.length > 0) {
+              // Prepare recipients map for batch sending
+              const recipientsMap: Record<
+                string,
+                {
+                  pcoPersonId: string;
+                  email: string;
+                  firstName?: string;
+                  lastName?: string;
+                  personId: number;
+                }
+              > = {};
+
+              // Build recipients map using people_emails.id as the key
+              filteredRecipients.forEach((recipient) => {
+                recipientsMap[recipient.memberRecordId.toString()] = {
+                  pcoPersonId: recipient.pcoPersonId,
+                  email: recipient.email,
+                  firstName: recipient.firstName,
+                  lastName: recipient.lastName,
                   personId: recipient.internalPersonId,
-                  triggerAutomationRunId: ctx.run.id,
-                }),
-              ),
-            );
+                };
+              });
+
+              // Send emails in batch
+              await sendAutomationEmail.trigger({
+                emailId: emailTemplateId,
+                recipients: recipientsMap,
+                organizationId: organizationId,
+                fromEmail: (step.values as EmailStepValues).fromEmail || "",
+                fromEmailDomain: step.from_email_domain!,
+                fromName: (step.values as EmailStepValues).fromName || "",
+                subject: (step.values as EmailStepValues).subject || "",
+                automationId: automationId,
+                triggerAutomationRunId: ctx.run.id,
+              });
+            }
 
             // Update member records for this batch
             await supabase
