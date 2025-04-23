@@ -239,7 +239,7 @@ export default function SubscribeModal({
   organizationId: string;
   userId: string;
 }) {
-  const [selectedPlan, setSelectedPlan] = useState<string>("");
+  const [selectedPlan, setSelectedPlan] = useState<string>("5000");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -298,12 +298,12 @@ export default function SubscribeModal({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Subscribe</Button>
+        <Button>Upgrade Plan</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Subscribe</DialogTitle>
-          <DialogDescription>Choose a plan to subscribe to</DialogDescription>
+          <DialogTitle>Upgrade Plan</DialogTitle>
+          <DialogDescription>Choose a plan to upgrade to</DialogDescription>
         </DialogHeader>
         <Label>How many emails do you need to send per month?</Label>
         <Select onValueChange={setSelectedPlan} value={selectedPlan}>
@@ -335,8 +335,8 @@ export default function SubscribeModal({
               </h3>
             </CardTitle>
             <CardDescription>
-              Send up to <b>20,000 emails</b> per month to an <b>unlimited</b>{" "}
-              number of contacts.
+              Send up to <b>{Number(selectedPlan).toLocaleString()} emails</b>{" "}
+              per month to an <b>unlimited</b> number of contacts.
             </CardDescription>
           </CardHeader>
         </Card>

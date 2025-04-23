@@ -22,15 +22,9 @@ import {
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import { Button } from "@church-space/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@church-space/ui/select";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { ChevronRightIcon } from "lucide-react";
 import { cookies } from "next/headers";
 import Link from "next/link";
 
@@ -51,26 +45,6 @@ export default async function Page() {
 
   const { data: subscriptionData, error: subscriptionError } =
     await getOrgSubscriptionQuery(supabase, organizationId);
-
-  if (subscriptionError) {
-    return <div>Error fetching subscription</div>;
-  }
-
-  const subscription = subscriptionData;
-
-  const selectOptions = [
-    { label: "Free - 250 Emails Per Month", value: "250" },
-    { label: "$8 - 5,000 Emails Per Month", value: "5000" },
-    { label: "$16 - 10,000 Emails Per Month", value: "10000" },
-    { label: "$32 - 20,000 Emails Per Month", value: "20000" },
-    { label: "$56 - 35,000 Emails Per Month", value: "35000" },
-    { label: "$80 - 50,000 Emails Per Month", value: "50000" },
-    { label: "$120 - 75,000 Emails Per Month", value: "75000" },
-    { label: "$160 - 100,000 Emails Per Month", value: "100000" },
-    { label: "$240 - 150,000 Emails Per Month", value: "150000" },
-    { label: "$320 - 200,000 Emails Per Month", value: "200000" },
-    { label: "$400 - 250,000 Emails Per Month", value: "250000" },
-  ];
 
   return (
     <div className="relative">
@@ -100,28 +74,30 @@ export default async function Page() {
             </SettingsDescription>
           </SettingsHeader>
 
-          {subscription && <BillingCard subscription={subscription} />}
+          {subscriptionData && <BillingCard subscription={subscriptionData} />}
           <SettingsContent>
             <SettingsRow isFirstRow>
               <div>
-                <SettingsRowTitle>Plan</SettingsRowTitle>
+                <SettingsRowTitle>Current Plan</SettingsRowTitle>
                 <SettingsRowDescription>
-                  Change your plan
+                  {subscriptionData?.stripe_prices?.amount ? (
+                    <span>
+                      ${subscriptionData.stripe_prices.amount}{" "}
+                      {subscriptionData.stripe_prices.currency?.toUpperCase()}
+                    </span>
+                  ) : (
+                    "Free"
+                  )}
                 </SettingsRowDescription>
               </div>
               <SettingsRowAction>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a plan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {selectOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex w-full items-center gap-2 rounded-md border bg-card p-2 px-4 md:w-fit">
+                  <div className="text-sm">
+                    {subscriptionData?.stripe_prices?.stripe_products?.name
+                      ? subscriptionData.stripe_prices.stripe_products.name
+                      : "500 Emails Sends per Month"}
+                  </div>
+                </div>
               </SettingsRowAction>
             </SettingsRow>
             <SettingsRow>
@@ -132,16 +108,62 @@ export default async function Page() {
                 </SettingsRowDescription>
               </div>
               <SettingsRowAction>
-                <Link href="https://billing.stripe.com/p/login/test_28o4ic2eJ4zw8F2144">
-                  <Button>Change Plan/Manage Payment Method</Button>
-                </Link>
+                {subscriptionData?.status === "active" ? (
+                  process.env.NEXT_PUBLIC_STRIPE_ENV === "live" ? (
+                    <Link href="https://billing.stripe.com/p/login/bIYg303LI4CAbRe288">
+                      <Button>Manage Plan and Payment Method</Button>
+                    </Link>
+                  ) : (
+                    <Link href="https://billing.stripe.com/p/login/test_28o4ic2eJ4zw8F2144">
+                      <Button>Manage Plan and Payment Method</Button>
+                    </Link>
+                  )
+                ) : (
+                  <SubscribeModal
+                    organizationId={organizationId}
+                    userId={user.id}
+                  />
+                )}
               </SettingsRowAction>
             </SettingsRow>
           </SettingsContent>
         </SettingsSection>
-        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col pt-0">
-          <SubscribeModal organizationId={organizationId} userId={user.id} />
-        </div>
+        <SettingsSection>
+          <SettingsHeader>
+            <SettingsTitle>Recent Invoices</SettingsTitle>
+          </SettingsHeader>
+
+          <SettingsContent>
+            <SettingsRow isFirstRow>
+              <div>
+                <SettingsRowTitle>Jan 1st, 2025</SettingsRowTitle>
+                <SettingsRowDescription>$100.00</SettingsRowDescription>
+              </div>
+            </SettingsRow>
+            <SettingsRow>
+              <div>
+                <SettingsRowTitle>Jan 1st, 2025</SettingsRowTitle>
+                <SettingsRowDescription>$100.00</SettingsRowDescription>
+              </div>
+            </SettingsRow>
+            <SettingsRow>
+              <div>
+                <SettingsRowTitle>Jan 1st, 2025</SettingsRowTitle>
+                <SettingsRowDescription>$100.00</SettingsRowDescription>
+              </div>
+            </SettingsRow>
+            <Link href="/settings/billing/invoices">
+              <SettingsRow>
+                <div>
+                  <SettingsRowTitle>View All</SettingsRowTitle>
+                </div>
+                <SettingsRowAction>
+                  <ChevronRightIcon className="h-4 w-4" />
+                </SettingsRowAction>
+              </SettingsRow>
+            </Link>
+          </SettingsContent>
+        </SettingsSection>
       </div>
     </div>
   );

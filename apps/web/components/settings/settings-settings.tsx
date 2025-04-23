@@ -68,7 +68,10 @@ const SettingsContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("mt-3 flex w-full flex-col rounded-lg border", className)}
+    className={cn(
+      "mt-3 flex w-full flex-col rounded-lg border bg-card",
+      className,
+    )}
     {...props}
   />
 ));

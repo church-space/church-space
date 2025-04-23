@@ -1,4 +1,5 @@
 "use client";
+
 import { Badge } from "@church-space/ui/badge";
 import { Card, CardContent } from "@church-space/ui/card";
 import { cn } from "@church-space/ui/cn";
@@ -14,9 +15,13 @@ import { Label, Pie, PieChart } from "recharts";
 export default function SubscriptionCard({
   subscription,
 }: {
-  subscription: any;
+  subscription: any | undefined;
 }) {
-  const emailsSent = subscription.email_usage.sends_used;
+  if (!subscription || !subscription.stripe_prices?.stripe_products) {
+    return null;
+  }
+
+  const emailsSent = subscription.email_usage?.sends_used ?? 0;
   const emailLimit = subscription.stripe_prices.stripe_products.send_limit;
   const emailsRemaining = emailLimit - emailsSent;
 
