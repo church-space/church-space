@@ -15,6 +15,7 @@ import { useQueryState } from "nuqs";
 import { useCallback, useState } from "react";
 import DataTable from "../data-table";
 import { columns, EmailCategory } from "./columns";
+import NullState from "./null-state";
 
 interface EmailCategoriesTableProps {
   organizationId: string;
@@ -83,6 +84,9 @@ export default function EmailCategoriesTable({
         onSearch={handleSearch}
         searchPlaceholderText="Search by name..."
         isLoading={isFetchingNextPage || isLoading}
+        nullState={
+          <NullState onClick={() => setIsNewEmailCategoryOpen(true)} />
+        }
       />
 
       <Dialog

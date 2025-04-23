@@ -16,6 +16,7 @@ import { columns, type EmailAutomation } from "./columns";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 import NewEmailAutomation from "../../forms/new-automation";
 import { AutomationStatus, getAutomationFilterConfig } from "./filters";
+import NullState from "./null-state";
 
 interface AutomationsTableProps {
   organizationId: string;
@@ -121,6 +122,9 @@ export default function AutomationsTable({
         initialFilters={{
           is_active: status ?? "all",
         }}
+        nullState={
+          <NullState onClick={() => setIsNewEmailAutomationOpen(true)} />
+        }
       />
 
       <Dialog

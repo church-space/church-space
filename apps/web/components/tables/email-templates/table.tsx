@@ -16,6 +16,7 @@ import { useEmailTemplates } from "@/hooks/use-email-templates";
 import NewEmailTemplate from "@/components/forms/new-email-template";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
 import Link from "next/link";
+import NullState from "./null-state";
 
 interface EmailTemplatesTableProps {
   organizationId: string;
@@ -85,6 +86,9 @@ export default function EmailTemplatesTable({
         searchQuery={search || ""}
         onSearch={handleSearch}
         isLoading={isFetchingNextPage || isLoading}
+        nullState={
+          <NullState onClick={() => setIsNewEmailTemplateOpen(true)} />
+        }
       />
 
       <Dialog
