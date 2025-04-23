@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
       .eq("user_id", user.id)
       .eq("role", "owner");
 
-    if (!userDetails || !userDetails[0].organization_id) {
+    if (!userDetails?.length || !userDetails[0].organization_id) {
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}?error=user_is_not_owner_of_organization`,
       );

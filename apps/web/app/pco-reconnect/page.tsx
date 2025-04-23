@@ -19,8 +19,9 @@ export default function Page() {
               Reconnect to Planning Center
             </div>
             <div className="text-center text-sm text-muted-foreground">
-              It has been over 90 days since you last connected to Planning
-              Center. Please reconnect to continue using this application.
+              Seems like we&apos;ve lost connection to your Planning Center
+              account. To reconnect to Church Space, please click the button
+              below.
             </div>
           </motion.div>
           <motion.div
