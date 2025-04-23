@@ -21,6 +21,11 @@ export default function ManageSubscriptionButton({
         organization_id: organizationId,
         return_url: window.location.href,
       })) as any;
+
+      if (response.data?.data?.url) {
+        console.log("Attempting to open URL:", response.data.data.url);
+        window.open(response.data.data.url, "_blank", "noopener,noreferrer");
+      }
     } catch (error) {
       console.error("Error managing subscription:", error);
     } finally {
