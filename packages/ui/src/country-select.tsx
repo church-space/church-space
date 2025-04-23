@@ -17,10 +17,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { countries } from "./lib/countries";
 import { cn } from "./lib/utils";
 
-export default function CountrySelect({ className }: { className?: string }) {
+export default function CountrySelect({
+  className,
+  value,
+  onValueChange,
+}: {
+  className?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
+}) {
   const id = useId();
   const [open, setOpen] = useState<boolean>(false);
-  const [value, setValue] = useState<string>("");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -66,7 +73,7 @@ export default function CountrySelect({ className }: { className?: string }) {
                   key={country.code}
                   value={country.name}
                   onSelect={(currentValue) => {
-                    setValue(currentValue);
+                    onValueChange?.(currentValue);
                     setOpen(false);
                   }}
                 >

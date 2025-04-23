@@ -32,14 +32,45 @@ import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
 import CountrySelect from "@church-space/ui/country-select";
 import { format } from "date-fns";
+import { useState } from "react";
+
+export interface Address {
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
+}
 
 export default function ClientPage({
   organizationId,
   pcoConnection,
+  orgName,
+  defaultEmail,
+  defaultEmailDomain,
+  address,
 }: {
   organizationId: string;
   pcoConnection: any;
+  orgName?: string;
+  defaultEmail?: string;
+  defaultEmailDomain?: number;
+  address?: Address;
 }) {
+  const [localOrgName, setLocalOrgName] = useState(orgName);
+  const [localDefaultEmail, setLocalDefaultEmail] = useState(defaultEmail);
+  const [localDefaultEmailDomain, setLocalDefaultEmailDomain] =
+    useState<string>(defaultEmailDomain?.toString() || "");
+  const [localAddress, setLocalAddress] = useState<Address>(address || {});
+
+  const updateAddress = (field: keyof Address, value: string) => {
+    setLocalAddress((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   return (
     <>
       <div className="flex flex-1 flex-col gap-16 p-4 pb-24 pt-0">
@@ -71,6 +102,8 @@ export default function ClientPage({
                   placeholder="Enter organization name"
                   className="w-full bg-background"
                   maxLength={255}
+                  value={localOrgName}
+                  onChange={(e) => setLocalOrgName(e.target.value)}
                 />
               </SettingsRowAction>
             </SettingsRow>
@@ -88,12 +121,14 @@ export default function ClientPage({
                     placeholder="Enter email prefix"
                     className="w-full bg-background"
                     maxLength={255}
+                    value={localDefaultEmail}
+                    onChange={(e) => setLocalDefaultEmail(e.target.value)}
                   />
                   <span className="flex items-center">@</span>
                   <DomainSelector
                     organizationId={organizationId}
-                    onChange={() => {}}
-                    value={""}
+                    onChange={setLocalDefaultEmailDomain}
+                    value={localDefaultEmailDomain || ""}
                   />
                 </div>
               </SettingsRowAction>
@@ -109,30 +144,44 @@ export default function ClientPage({
                 <div className="grid grid-cols-3">
                   <Input
                     placeholder="Address Line One"
-                    className="col-span-3 w-full rounded-b-none border-b-0 bg-background"
+                    className="col-span-3 h-8 w-full rounded-b-none border-b-0 bg-background"
                     maxLength={255}
+                    value={localAddress.line1 || ""}
+                    onChange={(e) => updateAddress("line1", e.target.value)}
                   />
                   <Input
                     placeholder="Address Line Two"
-                    className="col-span-3 w-full rounded-none border-b-0 bg-background"
+                    className="col-span-3 h-8 w-full rounded-none border-b-0 bg-background"
                     maxLength={255}
+                    value={localAddress.line2 || ""}
+                    onChange={(e) => updateAddress("line2", e.target.value)}
                   />
                   <Input
                     placeholder="City"
-                    className="w-full rounded-none border-b-0 border-r-0 bg-background"
+                    className="h-8 w-full rounded-none border-b-0 border-r-0 bg-background"
                     maxLength={255}
+                    value={localAddress.city || ""}
+                    onChange={(e) => updateAddress("city", e.target.value)}
                   />
                   <Input
                     placeholder="State"
-                    className="w-full rounded-none border-b-0 border-r-0 bg-background"
+                    className="h-8 w-full rounded-none border-b-0 border-r-0 bg-background"
                     maxLength={255}
+                    value={localAddress.state || ""}
+                    onChange={(e) => updateAddress("state", e.target.value)}
                   />
                   <Input
                     placeholder="Zip Code"
-                    className="w-full rounded-none border-b-0 bg-background"
+                    className="h-8 w-full rounded-none border-b-0 bg-background"
                     maxLength={255}
+                    value={localAddress.zip || ""}
+                    onChange={(e) => updateAddress("zip", e.target.value)}
                   />
-                  <CountrySelect className="col-span-3 rounded-t-none bg-background" />
+                  <CountrySelect
+                    className="col-span-3 h-8 rounded-t-none bg-background"
+                    value={localAddress.country}
+                    onValueChange={(value) => updateAddress("country", value)}
+                  />
                 </div>
               </SettingsRowAction>
             </SettingsRow>

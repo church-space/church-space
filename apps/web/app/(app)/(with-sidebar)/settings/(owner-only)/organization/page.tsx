@@ -1,33 +1,5 @@
-import DomainSelector from "@/components/id-pages/emails/domain-selector";
-import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
-import DisconnectFromPcoButton from "@/components/pco/disconnect-from-pco-button";
-import { InviteModal } from "@/components/settings/invite-modal";
-import OrgMembers from "@/components/settings/org-members";
-import {
-  SettingsContent,
-  SettingsDescription,
-  SettingsHeader,
-  SettingsRow,
-  SettingsRowAction,
-  SettingsRowDescription,
-  SettingsRowTitle,
-  SettingsSection,
-  SettingsTitle,
-} from "@/components/settings/settings-settings";
 import { getPcoConnection } from "@church-space/supabase/queries/all/get-pco-connection";
 import { createClient } from "@church-space/supabase/server";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@church-space/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,13 +8,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-import { Button } from "@church-space/ui/button";
-import { Input } from "@church-space/ui/input";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { format } from "date-fns";
 import { cookies } from "next/headers";
-import ClientPage from "./client-page";
+import ClientPage, { Address } from "./client-page";
+import { getOrgDetailsQuery } from "@church-space/supabase/queries/all/get-org-details";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -59,8 +29,12 @@ export default async function Page() {
     return <div>No organization selected</div>;
   }
 
-  const data = await Promise.all([getPcoConnection(supabase, organizationId)]);
+  const data = await Promise.all([
+    getPcoConnection(supabase, organizationId),
+    getOrgDetailsQuery(supabase, organizationId),
+  ]);
   const pcoConnection = data[0].data || null;
+  const orgDetails = data[1].data;
 
   return (
     <div className="relative">
@@ -84,6 +58,10 @@ export default async function Page() {
       <ClientPage
         organizationId={organizationId}
         pcoConnection={pcoConnection}
+        orgName={orgDetails?.name}
+        defaultEmail={orgDetails?.default_email || undefined}
+        defaultEmailDomain={orgDetails?.default_email_domain || undefined}
+        address={orgDetails?.address as Address | undefined}
       />
     </div>
   );
