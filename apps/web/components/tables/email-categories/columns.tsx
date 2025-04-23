@@ -1,9 +1,9 @@
 "use client";
 
-import { cn } from "@church-space/ui/cn";
-import { ColumnDef } from "@tanstack/react-table";
+import { deleteEmailCategoryAction } from "@/actions/delete-email-category";
+import { updateEmailCategoryAction } from "@/actions/update-email-category";
 import { Button } from "@church-space/ui/button";
-import { Pencil } from "lucide-react";
+import { cn } from "@church-space/ui/cn";
 import {
   Dialog,
   DialogClose,
@@ -14,17 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
-import { Input } from "@church-space/ui/input";
-import { Textarea } from "@church-space/ui/textarea";
-import { Label } from "@church-space/ui/label";
-import { Trash } from "@church-space/ui/icons";
-import { useState } from "react";
-import { updateEmailCategoryAction } from "@/actions/update-email-category";
-import { useToast } from "@church-space/ui/use-toast";
-import { deleteEmailCategoryAction } from "@/actions/delete-email-category";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -32,8 +21,18 @@ import {
   FormItem,
   FormMessage,
 } from "@church-space/ui/form";
-import type { ActionResponse } from "@/types/action";
+import { Trash } from "@church-space/ui/icons";
+import { Input } from "@church-space/ui/input";
+import { Label } from "@church-space/ui/label";
+import { Textarea } from "@church-space/ui/textarea";
+import { useToast } from "@church-space/ui/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { ColumnDef } from "@tanstack/react-table";
+import { Pencil } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 // Define the validation schema
 const formSchema = z.object({

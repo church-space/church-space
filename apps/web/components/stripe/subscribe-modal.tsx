@@ -298,7 +298,7 @@ export default function SubscribeModal({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Upgrade Plan</Button>
+        <Button className="w-full">Upgrade Plan</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

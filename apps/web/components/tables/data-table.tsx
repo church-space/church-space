@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@church-space/ui/cn";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import {
@@ -9,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
+import { useSidebar } from "@church-space/ui/sidebar";
+import { Skeleton } from "@church-space/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -32,13 +35,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import debounce from "lodash/debounce";
-import { Plus, Mail, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import ActionBar from "./action-bar";
-import { Skeleton } from "@church-space/ui/skeleton";
-import { cn } from "@church-space/ui/cn";
-import { useSidebar } from "@church-space/ui/sidebar";
-import { Button } from "@church-space/ui/button";
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

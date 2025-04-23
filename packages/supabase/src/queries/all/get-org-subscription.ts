@@ -31,7 +31,7 @@ export async function getOrgSubscriptionQuery(
 
     supabase
       .from("org_email_usage")
-      .select("sends_used")
+      .select("sends_used, send_limit")
       .eq("organization_id", organizationId)
       .single(),
   ]);

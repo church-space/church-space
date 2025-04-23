@@ -4,13 +4,11 @@ import {
   SettingsDescription,
   SettingsHeader,
   SettingsRow,
-  SettingsRowAction,
   SettingsRowDescription,
   SettingsRowTitle,
   SettingsSection,
   SettingsTitle,
 } from "@/components/settings/settings-settings";
-import SubscribeModal from "@/components/stripe/subscribe-modal";
 import { getOrgSubscriptionQuery } from "@church-space/supabase/queries/all/get-org-subscription";
 import { createClient } from "@church-space/supabase/server";
 import {
@@ -21,12 +19,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-import { Button } from "@church-space/ui/button";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { ChevronRightIcon } from "lucide-react";
 import { cookies } from "next/headers";
-import Link from "next/link";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -45,6 +40,10 @@ export default async function Page() {
 
   const { data: subscriptionData, error: subscriptionError } =
     await getOrgSubscriptionQuery(supabase, organizationId);
+
+  if (subscriptionError) {
+    console.error(subscriptionError);
+  }
 
   return (
     <div className="relative">
@@ -74,59 +73,13 @@ export default async function Page() {
             </SettingsDescription>
           </SettingsHeader>
 
-          {subscriptionData && <BillingCard subscription={subscriptionData} />}
-          <SettingsContent>
-            <SettingsRow isFirstRow>
-              <div>
-                <SettingsRowTitle>Current Plan</SettingsRowTitle>
-                <SettingsRowDescription>
-                  {subscriptionData?.stripe_prices?.amount ? (
-                    <span>
-                      ${subscriptionData.stripe_prices.amount}{" "}
-                      {subscriptionData.stripe_prices.currency?.toUpperCase()}
-                    </span>
-                  ) : (
-                    "Free"
-                  )}
-                </SettingsRowDescription>
-              </div>
-              <SettingsRowAction>
-                <div className="flex w-full items-center gap-2 rounded-md border bg-card p-2 px-4 md:w-fit">
-                  <div className="text-sm">
-                    {subscriptionData?.stripe_prices?.stripe_products?.name
-                      ? subscriptionData.stripe_prices.stripe_products.name
-                      : "500 Emails Sends per Month"}
-                  </div>
-                </div>
-              </SettingsRowAction>
-            </SettingsRow>
-            <SettingsRow>
-              <div>
-                <SettingsRowTitle>Billing</SettingsRowTitle>
-                <SettingsRowDescription>
-                  Manage your billing information
-                </SettingsRowDescription>
-              </div>
-              <SettingsRowAction>
-                {subscriptionData?.status === "active" ? (
-                  process.env.NEXT_PUBLIC_STRIPE_ENV === "live" ? (
-                    <Link href="https://billing.stripe.com/p/login/bIYg303LI4CAbRe288">
-                      <Button>Manage Plan and Payment Method</Button>
-                    </Link>
-                  ) : (
-                    <Link href="https://billing.stripe.com/p/login/test_28o4ic2eJ4zw8F2144">
-                      <Button>Manage Plan and Payment Method</Button>
-                    </Link>
-                  )
-                ) : (
-                  <SubscribeModal
-                    organizationId={organizationId}
-                    userId={user.id}
-                  />
-                )}
-              </SettingsRowAction>
-            </SettingsRow>
-          </SettingsContent>
+          {subscriptionData && (
+            <BillingCard
+              userId={user.id}
+              organizationId={organizationId}
+              subscription={subscriptionData}
+            />
+          )}
         </SettingsSection>
         <SettingsSection>
           <SettingsHeader>
@@ -152,16 +105,6 @@ export default async function Page() {
                 <SettingsRowDescription>$100.00</SettingsRowDescription>
               </div>
             </SettingsRow>
-            <Link href="/settings/billing/invoices">
-              <SettingsRow>
-                <div>
-                  <SettingsRowTitle>View All</SettingsRowTitle>
-                </div>
-                <SettingsRowAction>
-                  <ChevronRightIcon className="h-4 w-4" />
-                </SettingsRowAction>
-              </SettingsRow>
-            </Link>
           </SettingsContent>
         </SettingsSection>
       </div>
