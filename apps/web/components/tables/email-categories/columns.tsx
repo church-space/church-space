@@ -52,235 +52,250 @@ export type EmailCategory = {
   updated_at: string | null;
 };
 
+interface NameCellProps {
+  name: string | null;
+  description: string | null;
+  organizationId: string | null;
+  id: number;
+}
+
+const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: name || "",
+      description: description || "",
+    },
+  });
+
+  const handleUpdateCategory = async (values: FormValues) => {
+    setIsLoading(true);
+    try {
+      const result = await updateEmailCategoryAction({
+        emailCategoryId: id,
+        name: values.name,
+        description: values.description,
+      });
+
+      if (!result) return;
+
+      if (result.data?.success) {
+        toast({
+          title: "Success",
+          description: "Category updated successfully",
+        });
+        // Invalidate the email categories query
+        if (organizationId) {
+          await queryClient.invalidateQueries({
+            queryKey: ["email-categories", organizationId],
+          });
+        }
+        // Close the modal
+        setIsOpen(false);
+      } else {
+        toast({
+          title: "Error",
+          description: result.data?.error || "Failed to update category",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to update category",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteCategory = async () => {
+    setIsLoading(true);
+    try {
+      const result = await deleteEmailCategoryAction({
+        emailCategoryId: id,
+      });
+
+      if (!result) return;
+
+      if (result.data?.success) {
+        toast({
+          title: "Success",
+          description: "Category deleted successfully",
+        });
+        // Invalidate the email categories query
+        if (organizationId) {
+          await queryClient.invalidateQueries({
+            queryKey: ["email-categories", organizationId],
+          });
+        }
+        // Close both dialogs
+        setIsOpen(false);
+      } else {
+        toast({
+          title: "Error",
+          description: result.data?.error || "Failed to delete category",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to delete category",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="ml-1 flex flex-shrink-0 items-center gap-1 text-base font-medium">
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            className="group h-16 w-full items-center justify-start gap-3 px-1.5 text-left text-base [&_svg]:size-3"
+          >
+            <span>{name || "Untitled"}</span>
+            <Pencil className="size-6 text-muted-foreground" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Category</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleUpdateCategory)}
+              className="space-y-4"
+            >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Name</Label>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          maxLength={60}
+                          className="pe-16"
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                        {field.value.length} / 60
+                      </span>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Description</Label>
+                    <div className="relative">
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          maxLength={80}
+                          rows={2}
+                          className="pe-16"
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <span className="absolute right-2 top-2 text-sm text-muted-foreground">
+                        {field.value.length} / 80
+                      </span>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter className="flex w-full flex-row items-center justify-between gap-2 sm:justify-between">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      tabIndex={-1}
+                      type="button"
+                      disabled={isLoading}
+                    >
+                      <span className="hidden sm:inline">Delete</span>
+                      <span className="inline sm:hidden">
+                        <Trash />
+                      </span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Delete Category</DialogTitle>
+                    </DialogHeader>
+                    <DialogDescription>
+                      Are you sure you want to delete this category?
+                    </DialogDescription>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline" type="button">
+                          Cancel
+                        </Button>
+                      </DialogClose>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDeleteCategory}
+                        disabled={isLoading}
+                      >
+                        Delete
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                <div className="flex items-center gap-2">
+                  <DialogClose asChild>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      disabled={isLoading}
+                    >
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                  <Button type="submit" disabled={isLoading}>
+                    {isLoading ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
 export const columns: ColumnDef<EmailCategory>[] = [
   {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
-      const name = row.getValue("name") as string | null;
-      const description = row.getValue("description") as string | null;
-      const { toast } = useToast();
-      const [isLoading, setIsLoading] = useState(false);
-      const [isOpen, setIsOpen] = useState(false);
-      const queryClient = useQueryClient();
-      const organizationId = row.original.organization_id;
-
-      const form = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-          name: name || "",
-          description: description || "",
-        },
-      });
-
-      const handleUpdateCategory = async (values: FormValues) => {
-        setIsLoading(true);
-        try {
-          const result = await updateEmailCategoryAction({
-            emailCategoryId: row.original.id,
-            name: values.name,
-            description: values.description,
-          });
-
-          if (!result) return;
-
-          if (result.data?.success) {
-            toast({
-              title: "Success",
-              description: "Category updated successfully",
-            });
-            // Invalidate the email categories query
-            if (organizationId) {
-              await queryClient.invalidateQueries({
-                queryKey: ["email-categories", organizationId],
-              });
-            }
-            // Close the modal
-            setIsOpen(false);
-          } else {
-            toast({
-              title: "Error",
-              description: result.data?.error || "Failed to update category",
-              variant: "destructive",
-            });
-          }
-        } catch (error) {
-          toast({
-            title: "Error",
-            description: "Failed to update category",
-            variant: "destructive",
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      const handleDeleteCategory = async () => {
-        setIsLoading(true);
-        try {
-          const result = await deleteEmailCategoryAction({
-            emailCategoryId: row.original.id,
-          });
-
-          if (!result) return;
-
-          if (result.data?.success) {
-            toast({
-              title: "Success",
-              description: "Category deleted successfully",
-            });
-            // Invalidate the email categories query
-            if (organizationId) {
-              await queryClient.invalidateQueries({
-                queryKey: ["email-categories", organizationId],
-              });
-            }
-            // Close both dialogs
-            setIsOpen(false);
-          } else {
-            toast({
-              title: "Error",
-              description: result.data?.error || "Failed to delete category",
-              variant: "destructive",
-            });
-          }
-        } catch (error) {
-          toast({
-            title: "Error",
-            description: "Failed to delete category",
-            variant: "destructive",
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
       return (
-        <div className="ml-1 flex flex-shrink-0 items-center gap-1 text-base font-medium">
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button
-                variant="ghost"
-                className="group h-16 w-full items-center justify-start gap-3 px-1.5 text-left text-base [&_svg]:size-3"
-              >
-                <span>{name || "Untitled"}</span>
-                <Pencil className="size-6 text-muted-foreground" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Edit Category</DialogTitle>
-              </DialogHeader>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(handleUpdateCategory)}
-                  className="space-y-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Label>Name</Label>
-                        <div className="relative">
-                          <FormControl>
-                            <Input
-                              {...field}
-                              maxLength={60}
-                              className="pe-16"
-                              disabled={isLoading}
-                            />
-                          </FormControl>
-                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                            {field.value.length} / 60
-                          </span>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Label>Description</Label>
-                        <div className="relative">
-                          <FormControl>
-                            <Textarea
-                              {...field}
-                              maxLength={80}
-                              rows={2}
-                              className="pe-16"
-                              disabled={isLoading}
-                            />
-                          </FormControl>
-                          <span className="absolute right-2 top-2 text-sm text-muted-foreground">
-                            {field.value.length} / 80
-                          </span>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <DialogFooter className="flex w-full flex-row items-center justify-between gap-2 sm:justify-between">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="destructive"
-                          tabIndex={-1}
-                          type="button"
-                          disabled={isLoading}
-                        >
-                          <span className="hidden sm:inline">Delete</span>
-                          <span className="inline sm:hidden">
-                            <Trash />
-                          </span>
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Delete Category</DialogTitle>
-                        </DialogHeader>
-                        <DialogDescription>
-                          Are you sure you want to delete this category?
-                        </DialogDescription>
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline" type="button">
-                              Cancel
-                            </Button>
-                          </DialogClose>
-                          <Button
-                            variant="destructive"
-                            onClick={handleDeleteCategory}
-                            disabled={isLoading}
-                          >
-                            Delete
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                    <div className="flex items-center gap-2">
-                      <DialogClose asChild>
-                        <Button
-                          variant="outline"
-                          type="button"
-                          disabled={isLoading}
-                        >
-                          Cancel
-                        </Button>
-                      </DialogClose>
-                      <Button type="submit" disabled={isLoading}>
-                        {isLoading ? "Saving..." : "Save"}
-                      </Button>
-                    </div>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <NameCell
+          name={row.getValue("name")}
+          description={row.getValue("description")}
+          organizationId={row.original.organization_id}
+          id={row.original.id}
+        />
       );
     },
   },
