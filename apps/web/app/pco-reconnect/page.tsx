@@ -3,10 +3,6 @@ import { createClient } from "@church-space/supabase/server";
 import { redirect } from "next/navigation";
 import ClientPage from "./client-page";
 
-interface ProtectedLayoutProps {
-  children: React.ReactNode;
-}
-
 export default async function ProtectedLayout({}) {
   const supabase = await createClient();
   const user = await getUserWithDetailsQuery(supabase);

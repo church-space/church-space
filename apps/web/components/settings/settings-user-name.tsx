@@ -9,6 +9,7 @@ import {
 import { Input } from "@church-space/ui/input";
 import { updateUserAction } from "@/actions/update-user";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useToast } from "@church-space/ui/use-toast";
 
 export default function SettingsUserName({
   initialFirstName,
@@ -19,6 +20,7 @@ export default function SettingsUserName({
   initialLastName: string;
   userId: string;
 }) {
+  const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
@@ -68,6 +70,10 @@ export default function SettingsUserName({
 
         if (response.success) {
           // Update was successful, no need to do anything
+          toast({
+            title: "Profile updated",
+            description: "Your name has been updated successfully.",
+          });
           return;
         }
 
@@ -89,6 +95,7 @@ export default function SettingsUserName({
     initialFirstName,
     initialLastName,
     isMounted,
+    toast,
   ]);
 
   const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

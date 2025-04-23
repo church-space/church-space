@@ -35,7 +35,6 @@ import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { updateOrganizationDataAction } from "@/actions/update-organization-data";
 import { useDebounce } from "@/hooks/use-debounce";
-import type { ActionResponse } from "@/types/action";
 import { useToast } from "@church-space/ui/use-toast";
 
 export interface Address {
@@ -136,6 +135,10 @@ export default function ClientPage({
 
         // If we get here, the update was successful
         // No need to do anything as the local state already matches what we sent
+        toast({
+          title: "Organization updated",
+          description: "Your changes have been saved successfully.",
+        });
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to update organization",
