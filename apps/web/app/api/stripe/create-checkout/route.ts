@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
         .from("stripe_customers")
         .select("stripe_customer_id")
         .eq("user_id", userId)
+        .eq("organization_id", organizationId)
         .single();
 
     if (customerQueryError && customerQueryError.code !== "PGRST116") {
@@ -85,6 +86,7 @@ export async function POST(request: NextRequest) {
           .update({
             stripe_customer_id: customerId,
             updated_at: new Date().toISOString(),
+            organization_id: organizationId,
           })
           .eq("user_id", userId);
       } else {
@@ -92,6 +94,7 @@ export async function POST(request: NextRequest) {
         await supabase.from("stripe_customers").insert({
           user_id: userId,
           stripe_customer_id: customerId,
+          organization_id: organizationId,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         });

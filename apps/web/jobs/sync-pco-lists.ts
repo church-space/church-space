@@ -195,7 +195,7 @@ export const syncPcoLists = task({
         .from("pco_list_categories")
         .delete()
         .eq("organization_id", payload.organization_id)
-        .not("pco_id", "in", Array.from(seenCategoryIds));
+        .not("pco_id", "in", `(${Array.from(seenCategoryIds).join(",")})`);
 
       if (deleteStaleCategoriesError) {
         console.error(
@@ -210,7 +210,7 @@ export const syncPcoLists = task({
         .from("pco_lists")
         .delete()
         .eq("organization_id", payload.organization_id)
-        .not("pco_list_id", "in", Array.from(seenListIds));
+        .not("pco_list_id", "in", `(${Array.from(seenListIds).join(",")})`);
 
       if (deleteStaleListsError) {
         console.error("Error deleting stale lists:", deleteStaleListsError);
@@ -221,7 +221,7 @@ export const syncPcoLists = task({
         .from("pco_list_members")
         .delete()
         .eq("organization_id", payload.organization_id)
-        .not("pco_list_id", "in", Array.from(seenListIds));
+        .not("pco_list_id", "in", `(${Array.from(seenListIds).join(",")})`);
 
       if (deleteStaleListMembersError) {
         console.error(

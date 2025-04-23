@@ -87,6 +87,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Get organization data
+    const pcoOrganizationResponse = await fetch(
+      `https://api.planningcenteronline.com/people/v2/people/${pcoUserData.data.id}/organization`,
+      {
+        headers: {
+          Authorization: `Bearer ${tokenData.access_token}`,
+        },
+      },
+    );
+
+    const pcoOrganizationData = await pcoOrganizationResponse.json();
+
     console.log("🔐 Getting Supabase user...");
     // Store the connection in Supabase
     const supabase = await createClient();
@@ -163,10 +175,7 @@ export async function GET(request: NextRequest) {
       .from("pco_connections")
       .delete()
       .eq("organization_id", userDetails[0].organization_id)
-      .eq(
-        "pco_organization_id",
-        pcoUserData.data.relationships.organization.data.id,
-      );
+      .eq("pco_organization_id", pcoOrganizationData.data.id);
 
     if (deleteOldConnectionError) {
       console.error(
@@ -186,8 +195,7 @@ export async function GET(request: NextRequest) {
         scope: tokenData.scope,
         organization_id: userDetails[0].organization_id,
         last_refreshed: new Date().toISOString(),
-        pco_organization_id:
-          pcoUserData.data.relationships.organization.data.id,
+        pco_organization_id: pcoOrganizationData.data.id,
       })
       .select("id");
 

@@ -6,7 +6,6 @@ import {
   createPortalSessionAction,
   type PortalSessionResponse,
 } from "@/actions/create-portal-session";
-import type { ActionResponse } from "@/types/action";
 
 interface ManageSubscriptionButtonProps {
   organizationId: string;
@@ -19,19 +18,24 @@ export default function ManageSubscriptionButton({
 
   const handleManageSubscription = async () => {
     try {
+      console.log("Starting subscription management...");
       setIsLoading(true);
+      console.log("Calling createPortalSessionAction...");
       const response = (await createPortalSessionAction({
         organization_id: organizationId,
         return_url: window.location.href,
-      })) as ActionResponse<PortalSessionResponse>;
+      })) as any;
 
-      if (!response?.success || !response?.data) {
-        console.error("Failed to create portal session:", response?.error);
-        return;
+      console.log("Got response:", response);
+
+      if (response.data?.data?.url) {
+        console.log("Attempting to open URL:", response.data.data.url);
+        const newWindow = window.open(
+          response.data.data.url,
+          "_blank",
+          "noopener,noreferrer",
+        );
       }
-
-      // Redirect to the portal
-      window.location.href = response.data.url;
     } catch (error) {
       console.error("Error managing subscription:", error);
     } finally {

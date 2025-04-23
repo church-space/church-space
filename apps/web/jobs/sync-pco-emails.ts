@@ -155,7 +155,7 @@ export const syncPcoEmails = task({
         .from("people_emails")
         .delete()
         .eq("organization_id", payload.organization_id)
-        .not("pco_email_id", "in", Array.from(seenEmailIds));
+        .not("pco_email_id", "in", `(${Array.from(seenEmailIds).join(",")})`);
 
       if (deleteStaleEmailsError) {
         console.error("Error deleting stale emails:", deleteStaleEmailsError);
@@ -165,7 +165,7 @@ export const syncPcoEmails = task({
         .from("people")
         .delete()
         .eq("organization_id", payload.organization_id)
-        .not("pco_id", "in", Array.from(seenPeopleIds));
+        .not("pco_id", "in", `(${Array.from(seenPeopleIds).join(",")})`);
 
       if (deleteStalePeopleError) {
         console.error("Error deleting stale people:", deleteStalePeopleError);

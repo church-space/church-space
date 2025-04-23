@@ -77,7 +77,7 @@ export async function upsertSubscription(
       trial_end: trialEnd ? new Date(trialEnd * 1000).toISOString() : null,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: "organization_id" }
+    { onConflict: "stripe_subscription_id" }
   );
 }
 

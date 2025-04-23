@@ -39,24 +39,69 @@ export const createPortalSessionAction = authActionClient
           };
         }
 
-        // Create the portal session
-        const session = await stripe.billingPortal.sessions.create({
-          customer: customerData.stripe_customer_id,
-          return_url: parsedInput.parsedInput.return_url,
+        // Log the values before creating the session
+        console.log("Creating portal session with:", {
+          customerId: customerData.stripe_customer_id,
+          returnUrl: parsedInput.parsedInput.return_url,
         });
 
-        return {
-          success: true,
-          data: { url: session.url },
-        };
+        // Create the portal session
+        try {
+          const session = await stripe.billingPortal.sessions.create({
+            customer: customerData.stripe_customer_id,
+            return_url: parsedInput.parsedInput.return_url,
+          });
+
+          console.log(
+            "Stripe portal session response:",
+            JSON.stringify(session, null, 2),
+          );
+
+          if (!session?.url) {
+            console.error("Missing URL in session response");
+            return {
+              success: false,
+              error: "Invalid portal session response from Stripe",
+            };
+          }
+
+          return {
+            success: true,
+            data: {
+              url: session.url,
+            },
+          };
+        } catch (stripeError) {
+          console.error("Stripe portal session error:", stripeError);
+          return {
+            success: false,
+            error:
+              stripeError instanceof Error
+                ? stripeError.message
+                : "Stripe portal session creation failed",
+          };
+        }
       } catch (error) {
         console.error("Error creating portal session:", error);
+        // Log more details about the error
+        if (error instanceof Error) {
+          console.error("Error details:", {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+          });
+        } else {
+          console.error("Non-Error object thrown:", error);
+        }
+
         return {
           success: false,
           error:
             error instanceof Error
               ? error.message
-              : "Failed to create portal session",
+              : typeof error === "object" && error !== null
+                ? JSON.stringify(error)
+                : "Failed to create portal session",
         };
       }
     },
