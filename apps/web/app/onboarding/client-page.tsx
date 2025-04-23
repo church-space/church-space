@@ -33,7 +33,7 @@ export default function ClientPage() {
             <div className="space-y-6">
               <Card className="space-y-6 px-0 pt-4">
                 <CardContent className="space-y-4 pt-4">
-                  <ConnectToPcoButton />
+                  <ConnectToPcoButton isReconnect={false} />
                 </CardContent>
               </Card>
               {error && (

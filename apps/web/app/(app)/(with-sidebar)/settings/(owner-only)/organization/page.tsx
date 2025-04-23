@@ -197,7 +197,7 @@ export default async function Page() {
               </div>
               <SettingsRowAction>
                 {!pcoConnection ? (
-                  <ConnectToPcoButton />
+                  <ConnectToPcoButton isReconnect={true} />
                 ) : (
                   <DisconnectFromPcoButton />
                 )}
