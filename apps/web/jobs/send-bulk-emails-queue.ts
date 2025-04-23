@@ -380,26 +380,12 @@ export const sendBulkEmails = task({
             const sentEmailData = (response.data?.data ||
               []) as ResendBatchItem[];
 
-            // --- DEBUG LOGGING START ---
-            console.log(
-              "Resend batch response data:",
-              JSON.stringify(sentEmailData, null, 2),
-            );
-            // --- DEBUG LOGGING END ---
-
             // Assuming the response order matches the request order in emailBatch
             emailBatch.forEach(async (sentRequest, index) => {
               const peopleEmailId =
                 sentRequest.headers["X-Entity-People-Email-ID"];
               const emailAddress = sentRequest.to;
               const sentInfo = sentEmailData[index]; // Get response by index
-
-              // --- DEBUG LOGGING START ---
-              console.log(
-                `Processing recipient: ${emailAddress} (Index: ${index})`,
-              );
-              console.log("Found sentInfo:", JSON.stringify(sentInfo, null, 2));
-              // --- DEBUG LOGGING END ---
 
               // Determine status based on sentInfo existence and error property
               // Assume success if sentInfo exists and doesn't have an error field.
@@ -408,10 +394,6 @@ export const sendBulkEmails = task({
               const status = isSuccess ? "sent" : "did-not-send";
               const errorMessage = sentInfo?.error?.message;
               const messageId = sentInfo?.id; // This ID is from Resend's response
-
-              // --- DEBUG LOGGING START ---
-              console.log(`Determined status: ${status}`);
-              // --- DEBUG LOGGING END ---
 
               try {
                 await supabase.from("email_recipients").insert({

@@ -39,23 +39,12 @@ export const createPortalSessionAction = authActionClient
           };
         }
 
-        // Log the values before creating the session
-        console.log("Creating portal session with:", {
-          customerId: customerData.stripe_customer_id,
-          returnUrl: parsedInput.parsedInput.return_url,
-        });
-
         // Create the portal session
         try {
           const session = await stripe.billingPortal.sessions.create({
             customer: customerData.stripe_customer_id,
             return_url: parsedInput.parsedInput.return_url,
           });
-
-          console.log(
-            "Stripe portal session response:",
-            JSON.stringify(session, null, 2),
-          );
 
           if (!session?.url) {
             console.error("Missing URL in session response");

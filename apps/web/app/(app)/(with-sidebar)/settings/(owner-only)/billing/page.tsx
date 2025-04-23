@@ -91,14 +91,14 @@ export default async function Page() {
             />
           )}
         </SettingsSection>
-        <SettingsSection>
-          <SettingsHeader>
-            <SettingsTitle>Recent Invoices</SettingsTitle>
-          </SettingsHeader>
+        {invoicesData && invoicesData.length > 0 && (
+          <SettingsSection>
+            <SettingsHeader>
+              <SettingsTitle>Recent Invoices</SettingsTitle>
+            </SettingsHeader>
 
-          <SettingsContent>
-            {invoicesData && invoicesData.length > 0 ? (
-              invoicesData.map((invoice, index) => (
+            <SettingsContent>
+              {invoicesData.map((invoice, index) => (
                 <SettingsRow key={invoice.id} isFirstRow={index === 0}>
                   <div>
                     <SettingsRowTitle>
@@ -122,19 +122,10 @@ export default async function Page() {
                     <ViewInvoiceButton invoiceId={invoice.stripe_invoice_id!} />
                   </SettingsRowAction>
                 </SettingsRow>
-              ))
-            ) : (
-              <SettingsRow isFirstRow>
-                <div>
-                  <SettingsRowTitle>No invoices found</SettingsRowTitle>
-                  <SettingsRowDescription>
-                    You haven't been charged yet
-                  </SettingsRowDescription>
-                </div>
-              </SettingsRow>
-            )}
-          </SettingsContent>
-        </SettingsSection>
+              ))}
+            </SettingsContent>
+          </SettingsSection>
+        )}
       </div>
     </div>
   );

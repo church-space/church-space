@@ -89,8 +89,6 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
   const [replyToDomain] = useState(email.reply_to_domain?.toString() || "");
   const [categoryId] = useState(email.email_category || "");
 
-  console.log("categoryId", categoryId);
-
   // Fetch list and domain data
   const { data: listData } = useQuery({
     queryKey: ["pcoList", listId],
@@ -108,8 +106,6 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
       ),
     enabled: !!categoryId,
   });
-
-  console.log("categoryData", categoryData);
 
   const { data: domainData } = useQuery({
     queryKey: ["domain", fromDomain],

@@ -99,31 +99,10 @@ const STRIPE_PLANS: StripePlans[] = [
     enviorment: "testing",
   },
   {
-    productId: "prod_SA5edTouwc2jnm",
-    priceId: "price_1RFlSvJPD51CqUc4LHtCkaNq",
-    price: 144,
-    sendLimit: 90000,
-    enviorment: "testing",
-  },
-  {
     productId: "prod_Ry0GuwNyFWV7VZ",
     priceId: "price_1R44G1JPD51CqUc4IOxGpopu",
     price: 160,
     sendLimit: 100000,
-    enviorment: "testing",
-  },
-  {
-    productId: "prod_SA5dWZN1EplTHY",
-    priceId: "price_1RFlSRJPD51CqUc4zcX1X2ZE",
-    price: 200,
-    sendLimit: 125000,
-    enviorment: "testing",
-  },
-  {
-    productId: "prod_Ry0HasrAP8MNmG",
-    priceId: "price_1R44GsJPD51CqUc4h9KMvw4j",
-    price: 240,
-    sendLimit: 150000,
     enviorment: "testing",
   },
   {
@@ -190,31 +169,10 @@ const STRIPE_PLANS: StripePlans[] = [
     enviorment: "live",
   },
   {
-    productId: "prod_SA5tSs45lOWBwr",
-    priceId: "price_1RFli6JPD51CqUc4TVUEdAsI",
-    price: 144,
-    sendLimit: 90000,
-    enviorment: "live",
-  },
-  {
     productId: "prod_Ry0G0Bo4FvAExH",
     priceId: "price_1R44GMJPD51CqUc48dPj9tCw",
     price: 160,
     sendLimit: 100000,
-    enviorment: "live",
-  },
-  {
-    productId: "prod_SA5teVw5OvKGWw",
-    priceId: "price_1RFlhMJPD51CqUc42Ne6ohwv",
-    price: 200,
-    sendLimit: 125000,
-    enviorment: "live",
-  },
-  {
-    productId: "prod_Ry0IPcegN3koXN",
-    priceId: "price_1R44HgJPD51CqUc4uhFo7Rlf",
-    price: 240,
-    sendLimit: 150000,
     enviorment: "live",
   },
 ];

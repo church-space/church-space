@@ -103,7 +103,6 @@ export const inviteMembers = task({
 
         // Skip if user is already a member
         if (existingMembership) {
-          console.log(`Skipping invite for ${member.email}: already a member`);
           continue;
         }
       }
