@@ -138,7 +138,9 @@ function SortableAccordionItem({
           collapsible
           className="w-full"
           value={openItem === linkId ? linkId : undefined}
-          onValueChange={(value) => setOpenItem(value)}
+          onValueChange={(value) =>
+            setOpenItem(value === linkId ? undefined : value)
+          }
         >
           <AccordionItem value={linkId} className="border-0">
             <AccordionTrigger className="w-full rounded-sm px-2 py-3">

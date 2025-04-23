@@ -17,10 +17,11 @@ export async function getAllEmailTemplates(
       `
       id,
       created_at,
+      updated_at,
       subject
     `
     )
-    .order("created_at", { ascending: false })
+    .order("updated_at", { ascending: false })
     .eq("organization_id", organizationId)
     .eq("type", "template");
 

@@ -18,13 +18,14 @@ export async function getAllQrLinks(
       `
       id,
       created_at,
+      updated_at,
       organization_id,
       url,
       name,
       status
     `
     )
-    .order("name", { ascending: true })
+    .order("updated_at", { ascending: false })
     .eq("organization_id", organizationId);
 
   if (params?.status && params.status.length > 0) {

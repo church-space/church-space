@@ -20,10 +20,11 @@ export async function getAllLinkLists(
       created_at,
       private_name,
       is_public,
-      url_slug
+      url_slug,
+      updated_at
     `
     )
-    .order("created_at", { ascending: false })
+    .order("updated_at", { ascending: false })
     .order("private_name", { ascending: true })
     .eq("organization_id", organizationId);
 

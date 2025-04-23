@@ -158,7 +158,7 @@ export default function NewLinkList({
                     data-lpignore="true"
                     aria-label="URL slug"
                     className={cn(
-                      "pl-44 pr-14",
+                      "pl-40 pr-14",
                       form.formState.errors.url_slug &&
                         "ring-2 ring-destructive ring-offset-2",
                     )}
