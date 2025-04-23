@@ -9,6 +9,7 @@ import {
   getEmailCategoryFilterConfig,
   type EmailRecipientStatus,
 } from "./filters";
+import NullState from "./null-state";
 
 interface EmailRecipientsTableProps {
   emailId: number;
@@ -135,6 +136,7 @@ export default function EmailRecipientsTable({
         }}
         searchPlaceholderText="Search by email address..."
         isLoading={isLoading || isFetchingNextPage}
+        nullState={<NullState onClick={() => {}} />}
       />
     </>
   );

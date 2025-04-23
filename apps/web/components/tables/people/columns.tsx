@@ -12,7 +12,7 @@ import {
 import { Label } from "@church-space/ui/label";
 import { Button } from "@church-space/ui/button";
 import Link from "next/link";
-import { ExternalLinkIcon } from "lucide-react";
+import { ExternalLinkIcon, Pencil } from "lucide-react";
 import { Badge } from "@church-space/ui/badge";
 import {
   Tooltip,
@@ -146,9 +146,12 @@ const NameCell = ({ person }: { person: Person }) => {
 
   return (
     <Sheet>
-      <SheetTrigger className="min-w-44 px-2 text-left">
-        <div className="text-base font-medium hover:underline">
-          {person.first_name} {person.last_name}
+      <SheetTrigger className="h-12 min-w-44 px-2 text-left">
+        <div className="flex items-center gap-2">
+          <div className="text-base font-medium hover:underline">
+            {person.first_name} {person.last_name}
+          </div>
+          <Pencil className="size-6 text-muted-foreground" />
         </div>
         {person.nickname && (
           <div className="text-sm text-muted-foreground">

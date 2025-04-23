@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@church-space/ui/dialog";
 import { useEmailAutomationMembers } from "@/hooks/use-email-automation-members";
+import NullState from "./null-state";
 
 interface AutomationMembersTableProps {
   organizationId: string;
@@ -23,7 +24,7 @@ export default function AutomationMembersTable({
   const [search, setSearch] = useQueryState("search");
   const [isNewLinkListOpen, setIsNewLinkListOpen] = useState(false);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useEmailAutomationMembers(Number(organizationId));
 
   const handleSearch = useCallback(
@@ -62,7 +63,8 @@ export default function AutomationMembersTable({
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
-        isLoading={isFetchingNextPage}
+        isLoading={isFetchingNextPage || isLoading}
+        nullState={<NullState onClick={() => {}} />}
       />
 
       <Dialog open={isNewLinkListOpen} onOpenChange={setIsNewLinkListOpen}>
