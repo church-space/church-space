@@ -1,6 +1,20 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getOrganizationMembers } from "@/actions/get-organization-members";
-import type { OrganizationMember } from "@/components/tables/organization-members/columns";
+
+export type OrganizationMember = {
+  id: number;
+  created_at: string;
+  user_id: string;
+  organization_id: string;
+  role: "owner" | "admin";
+  users: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+    avatar_url: string | null;
+    email: string;
+  };
+};
 
 export function useOrganizationMembers(organizationId: string) {
   return useInfiniteQuery({
