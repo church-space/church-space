@@ -1063,6 +1063,7 @@ export default function DomainManagement({
                         value={newDomain}
                         onChange={handleDomainChange}
                         className={cn(
+                          "h-12",
                           validationError ? "border-red-500" : "",
                           isTyping ? "pr-8" : "",
                         )}
@@ -1098,6 +1099,7 @@ export default function DomainManagement({
                     <Button
                       variant="default"
                       type="submit"
+                      className="h-[2.9rem]"
                       disabled={isAddingDomain || isMaxDomainsReached}
                     >
                       {isAddingDomain ? (

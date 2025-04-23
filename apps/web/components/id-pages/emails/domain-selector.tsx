@@ -94,9 +94,9 @@ export default function DomainSelector({
 
   if (domains.length === 0) {
     return (
-      <Button asChild variant="outline">
-        <Link href="/settings/domains">Add a domain</Link>
-      </Button>
+      <Link href="/settings/domains">
+        <Button variant="secondary">Add a domain</Button>
+      </Link>
     );
   }
 

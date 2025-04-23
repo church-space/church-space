@@ -47,7 +47,8 @@
     "./chart": "./src/chart.tsx",
     "./navigation-menu": "./src/navigation-menu.tsx",
     "./context-menu": "./src/context-menu.tsx",
-    "./number-ticker": "./src/number-ticker.tsx"
+    "./number-ticker": "./src/number-ticker.tsx",
+    "./country-select": "./src/country-select.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

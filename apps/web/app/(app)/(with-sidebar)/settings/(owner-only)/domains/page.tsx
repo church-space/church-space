@@ -53,7 +53,7 @@ export default async function Page() {
         <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col pt-0">
           <h2 className="pl-1 text-2xl font-bold">Domains</h2>
           <p className="mb-4 pl-1 text-sm text-muted-foreground">
-            Manage your domains and DNS records.
+            Manage the domains that are used to send emails.
           </p>
           <DomainManagement
             organizationId={organizationId}
