@@ -4,12 +4,14 @@ import {
   SettingsDescription,
   SettingsHeader,
   SettingsRow,
+  SettingsRowAction,
   SettingsRowDescription,
   SettingsRowTitle,
   SettingsSection,
   SettingsTitle,
 } from "@/components/settings/settings-settings";
 import { getOrgSubscriptionQuery } from "@church-space/supabase/queries/all/get-org-subscription";
+import { getOrgInvoicesQuery } from "@church-space/supabase/queries/all/get-org-invoices";
 import { createClient } from "@church-space/supabase/server";
 import {
   Breadcrumb,
@@ -22,6 +24,7 @@ import {
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
+import ViewInvoiceButton from "@/components/stripe/view-invoice-button";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -41,8 +44,15 @@ export default async function Page() {
   const { data: subscriptionData, error: subscriptionError } =
     await getOrgSubscriptionQuery(supabase, organizationId);
 
+  const { data: invoicesData, error: invoicesError } =
+    await getOrgInvoicesQuery(supabase, organizationId);
+
   if (subscriptionError) {
     console.error(subscriptionError);
+  }
+
+  if (invoicesError) {
+    console.error(invoicesError);
   }
 
   return (
@@ -87,24 +97,42 @@ export default async function Page() {
           </SettingsHeader>
 
           <SettingsContent>
-            <SettingsRow isFirstRow>
-              <div>
-                <SettingsRowTitle>Jan 1st, 2025</SettingsRowTitle>
-                <SettingsRowDescription>$100.00</SettingsRowDescription>
-              </div>
-            </SettingsRow>
-            <SettingsRow>
-              <div>
-                <SettingsRowTitle>Jan 1st, 2025</SettingsRowTitle>
-                <SettingsRowDescription>$100.00</SettingsRowDescription>
-              </div>
-            </SettingsRow>
-            <SettingsRow>
-              <div>
-                <SettingsRowTitle>Jan 1st, 2025</SettingsRowTitle>
-                <SettingsRowDescription>$100.00</SettingsRowDescription>
-              </div>
-            </SettingsRow>
+            {invoicesData && invoicesData.length > 0 ? (
+              invoicesData.map((invoice, index) => (
+                <SettingsRow key={invoice.id} isFirstRow={index === 0}>
+                  <div>
+                    <SettingsRowTitle>
+                      {new Date(invoice.created_at!).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        },
+                      )}
+                    </SettingsRowTitle>
+                    <SettingsRowDescription>
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: invoice.currency?.toUpperCase() || "USD",
+                      }).format(invoice.amount! / 100)}
+                    </SettingsRowDescription>
+                  </div>
+                  <SettingsRowAction>
+                    <ViewInvoiceButton invoiceId={invoice.stripe_invoice_id!} />
+                  </SettingsRowAction>
+                </SettingsRow>
+              ))
+            ) : (
+              <SettingsRow isFirstRow>
+                <div>
+                  <SettingsRowTitle>No invoices found</SettingsRowTitle>
+                  <SettingsRowDescription>
+                    You haven't been charged yet
+                  </SettingsRowDescription>
+                </div>
+              </SettingsRow>
+            )}
           </SettingsContent>
         </SettingsSection>
       </div>

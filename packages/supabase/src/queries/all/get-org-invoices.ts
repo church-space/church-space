@@ -1,6 +1,6 @@
 import { Client } from "../../types";
 
-export async function getOrgNameQuery(
+export async function getOrgInvoicesQuery(
   supabase: Client,
   organizationId: string
 ) {

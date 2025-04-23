@@ -164,40 +164,66 @@ export default function SubscriptionCard({
           <div className="mb-6 flex flex-col gap-1">
             <div className="flex items-center gap-3">
               <h2 className="text-2xl font-bold">Subscription</h2>
-              <Badge className="capitalize">{subscription.status}</Badge>
+              {subscription.cancel_at_period_end ? (
+                <Badge
+                  variant="outline"
+                  className="bg-destructive/20 capitalize"
+                >
+                  Cancels on{" "}
+                  {format(new Date(subscription.current_period_end), "MMM d")}
+                </Badge>
+              ) : (
+                <Badge
+                  variant={
+                    subscription.status === "active" ? "default" : "destructive"
+                  }
+                  className="capitalize"
+                >
+                  {subscription.status}
+                </Badge>
+              )}
             </div>
             <p className="text-muted-foreground">
               {subscription.stripe_prices.stripe_products.name}
             </p>
           </div>
 
-          <div className="mb-4">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
-              Next Bill
-            </div>
-            <p className="text-lg font-medium">
-              {format(
-                new Date(subscription.current_period_end),
-                "MMMM d, yyyy",
-              )}{" "}
-              - ${subscription.stripe_prices.amount}/
-              {subscription.stripe_prices.currency.toUpperCase()}
-            </p>
-          </div>
+          {subscription.status === "active" &&
+            !subscription.cancel_at_period_end && (
+              <div className="mb-4">
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                  Next Bill
+                </div>
+                <p className="text-lg font-medium">
+                  {format(
+                    new Date(subscription.current_period_end),
+                    "MMMM d, yyyy",
+                  )}{" "}
+                  - ${subscription.stripe_prices.amount}/
+                  {subscription.stripe_prices.currency.toUpperCase()}
+                </p>
+              </div>
+            )}
 
-          <div
-            className={cn("mb-0", subscription.cancel_at_period_end && "mb-4")}
-          >
-            <div className="flex items-center text-sm text-muted-foreground">
-              <CreditCardIcon className="mr-1.5 h-3.5 w-3.5" />
-              Payment Method
-            </div>
-            <p className="text-lg font-medium capitalize">
-              {subscription.payment_method_brand} ••••{" "}
-              {subscription.payment_method_last4}
-            </p>
-          </div>
+          {subscription.status === "active" &&
+            !subscription.cancel_at_period_end && (
+              <div
+                className={cn(
+                  "mb-0",
+                  subscription.cancel_at_period_end && "mb-4",
+                )}
+              >
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <CreditCardIcon className="mr-1.5 h-3.5 w-3.5" />
+                  Payment Method
+                </div>
+                <p className="text-lg font-medium capitalize">
+                  {subscription.payment_method_brand} ••••{" "}
+                  {subscription.payment_method_last4}
+                </p>
+              </div>
+            )}
           {subscription.cancel_at_period_end && (
             <div>
               <div className="flex items-center text-sm text-muted-foreground">

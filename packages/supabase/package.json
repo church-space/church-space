@@ -71,6 +71,7 @@
     "./queries/all/get-email-recipients": "./src/queries/all/get-email-recipients.ts",
     "./queries/all/get-email-automation": "./src/queries/all/get-email-automation.ts",
     "./queries/cached/automations": "./src/queries/cached/automations.ts",
-    "./queries/all/get-org-subscription": "./src/queries/all/get-org-subscription.ts"
+    "./queries/all/get-org-subscription": "./src/queries/all/get-org-subscription.ts",
+    "./queries/all/get-org-invoices": "./src/queries/all/get-org-invoices.ts"
   }
 }
