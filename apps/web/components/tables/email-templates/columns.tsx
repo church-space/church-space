@@ -8,6 +8,7 @@ export type EmailTemplate = {
   id: number;
   created_at: string;
   subject: string;
+  updated_at: string;
 };
 
 export const columns: ColumnDef<EmailTemplate>[] = [
