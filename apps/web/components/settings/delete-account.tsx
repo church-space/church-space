@@ -22,6 +22,11 @@ import { getOrgNameQuery } from "@church-space/supabase/queries/all/get-org-name
 import { getOrgOwnersQuery } from "@church-space/supabase/queries/all/get-org-owners";
 import { createClient } from "@church-space/supabase/client";
 
+// unsub from stripe
+// delete resend domain
+// delete pco connection
+// delete pco webhooks
+
 export default function DeleteAccount({
   userId,
   orgRole,

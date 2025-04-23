@@ -19,9 +19,31 @@ import {
 } from "@church-space/ui/card";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
+import { handlePcoDisconnect } from "@/actions/handle-pco-disconnect";
+import { useRouter } from "next/navigation";
 
-export default function DisconnectFromPcoButton() {
+export default function DisconnectFromPcoButton({
+  organizationId,
+}: {
+  organizationId: string;
+}) {
   const [confirmText, setConfirmText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleDisconnect = async () => {
+    try {
+      setIsLoading(true);
+      await handlePcoDisconnect({
+        organizationId: organizationId,
+      });
+
+      router.push("/pco-reconnect");
+    } catch (error) {
+      console.error("Error initiating PCO connection:", error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog>
@@ -39,22 +61,20 @@ export default function DisconnectFromPcoButton() {
           <CardHeader>
             <CardTitle>Warning</CardTitle>
             <CardDescription className="text-normal">
-              Disconnecting from Planning Center will remove all Planning Center
-              data from Church Space account including all <b>People, Lists,</b>{" "}
-              and <b>List Categories.</b> You will still see your emails, link
-              lists, and QR codes, but data related to people will be deleted.
-              This cannont be undone.
+              Planning Center is required to use Church Space. If you disconnect
+              your account from Planning Center, you will not be able to use
+              Church Space until you reconnect.
             </CardDescription>
           </CardHeader>
         </Card>
         <div className="flex flex-col gap-2">
-          <Label>
+          <Label className="font-normal">
             Type <b className="font-bold">disconnect</b> to confirm
           </Label>
           <Input
             placeholder="Type 'disconnect' to confirm"
             value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
+            onChange={(e) => setConfirmText(e.target.value.toLowerCase())}
             autoFocus
             maxLength={10}
           />
@@ -63,9 +83,10 @@ export default function DisconnectFromPcoButton() {
           <Button variant="outline">Cancel</Button>
           <Button
             variant="destructive"
-            disabled={confirmText.toLowerCase() !== "disconnect"}
+            disabled={confirmText.toLowerCase() !== "disconnect" || isLoading}
+            onClick={handleDisconnect}
           >
-            Disconnect
+            {isLoading ? "Disconnecting..." : "Disconnect"}
           </Button>
         </DialogFooter>
       </DialogContent>

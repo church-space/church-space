@@ -181,7 +181,7 @@ export default function ClientPage({
                 {!pcoConnection ? (
                   <ConnectToPcoButton isReconnect={true} />
                 ) : (
-                  <DisconnectFromPcoButton />
+                  <DisconnectFromPcoButton organizationId={organizationId} />
                 )}
               </SettingsRowAction>
             </SettingsRow>

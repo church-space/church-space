@@ -1,42 +1,29 @@
-"use client";
+import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
+import { createClient } from "@church-space/supabase/server";
+import { redirect } from "next/navigation";
+import ClientPage from "./client-page";
 
-import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
-import { Card, CardContent } from "@church-space/ui/card";
-import { AnimatePresence, motion } from "framer-motion";
+interface ProtectedLayoutProps {
+  children: React.ReactNode;
+}
 
-export default function Page() {
+export default async function ProtectedLayout({}) {
+  const supabase = await createClient();
+  const user = await getUserWithDetailsQuery(supabase);
+
+  if (!user) {
+    return redirect("/login");
+  }
+
+  if (!user.organizationMembership) {
+    return redirect("/onboarding");
+  }
+
   return (
-    <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
-      <AnimatePresence mode="wait">
-        <div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mb-6 flex flex-col items-center justify-center gap-2"
-          >
-            <div className="text-center text-2xl font-bold">
-              Reconnect to Planning Center
-            </div>
-            <div className="text-center text-sm text-muted-foreground">
-              Seems like we&apos;ve lost connection to your Planning Center
-              account. To reconnect to Church Space, please click the button
-              below.
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            <Card className="space-y-6 px-0 pt-4">
-              <CardContent className="space-y-4 pt-4">
-                <ConnectToPcoButton isReconnect={true} />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </AnimatePresence>
+    <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-card/100 to-background/60">
+      <ClientPage
+        organizationId={user.organizationMembership.organization_id}
+      />
     </div>
   );
 }
