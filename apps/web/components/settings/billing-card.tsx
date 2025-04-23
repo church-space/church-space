@@ -4,12 +4,7 @@ import { Badge } from "@church-space/ui/badge";
 import { Card, CardContent, CardFooter } from "@church-space/ui/card";
 import { cn } from "@church-space/ui/cn";
 import { format } from "date-fns";
-import {
-  CalendarIcon,
-  CheckCircle2Icon,
-  CreditCardIcon,
-  MailIcon,
-} from "lucide-react";
+import { CalendarIcon, CreditCardIcon, MailIcon } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 import ManageSubscriptionButton from "../stripe/manage-subscription-button";
 import SubscribeModal from "../stripe/subscribe-modal";
