@@ -28,10 +28,12 @@ export default function DomainSelector({
   organizationId,
   onChange,
   value,
+  className,
 }: {
   organizationId: string;
   onChange: (value: string) => void;
   value: string;
+  className?: string;
 }) {
   const supabase = createClient();
   const [domains, setDomains] = useState<Domain[]>([]);
@@ -95,14 +97,16 @@ export default function DomainSelector({
   if (domains.length === 0) {
     return (
       <Link href="/settings/domains">
-        <Button variant="secondary">Add a domain</Button>
+        <Button variant="secondary" className={className}>
+          Add a domain
+        </Button>
       </Link>
     );
   }
 
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger>
+      <SelectTrigger className={className}>
         {selectedDomain ? selectedDomain.domain : "Select Domain"}
       </SelectTrigger>
       <SelectContent>

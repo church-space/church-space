@@ -1,4 +1,4 @@
-import type { Client } from "../types";
+import type { Client, Json } from "../types";
 import { getUserQuery } from "../queries/all/get-user";
 import { revalidateTag } from "next/cache";
 
@@ -22,6 +22,39 @@ export async function updateUser(
 
   // Invalidate the cache for this specific email
   if (!result.error) revalidateTag(`user_${userId}`);
+
+  return result;
+}
+
+export async function updateOrganization(
+  supabase: Client,
+  organization: {
+    organizationId: string;
+    name: string;
+    defaultEmail: string;
+    defaultEmailDomain: number | null;
+    address: Json;
+  }
+) {
+  const authUser = await getUserQuery(supabase);
+  const userId = authUser.data.user?.id;
+
+  if (!userId) return { data: null, error: new Error("No user found") };
+
+  const result = await supabase
+    .from("organizations")
+    .update({
+      name: organization.name,
+      default_email: organization.defaultEmail,
+      default_email_domain: organization.defaultEmailDomain,
+      address: organization.address,
+    })
+    .eq("id", organization.organizationId)
+    .select();
+
+  if (result.error) {
+    console.error(result.error);
+  }
 
   return result;
 }

@@ -80,15 +80,17 @@ SettingsContent.displayName = "SettingsContent";
 // Row component
 interface SettingsRowProps extends React.HTMLAttributes<HTMLDivElement> {
   isFirstRow?: boolean;
+  larger?: boolean;
 }
 
 const SettingsRow = React.forwardRef<HTMLDivElement, SettingsRowProps>(
-  ({ className, isFirstRow = false, ...props }, ref) => (
+  ({ className, larger = false, isFirstRow = false, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
         "flex w-full flex-col items-start justify-between gap-2 p-4 md:flex-row md:items-center",
         !isFirstRow && "border-t",
+        larger && "!lg:flex-row !lg:items-center",
         className,
       )}
       {...props}
@@ -122,12 +124,13 @@ SettingsRowDescription.displayName = "SettingsRowDescription";
 // Row action wrapper
 const SettingsRowAction = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> & { larger?: boolean }
+>(({ className, larger = false, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
       "flex w-full flex-col items-end md:w-auto md:max-w-xs md:flex-1",
+      larger && "md:max-w-md",
       className,
     )}
     {...props}

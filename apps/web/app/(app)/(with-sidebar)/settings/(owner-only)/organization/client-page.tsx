@@ -32,7 +32,11 @@ import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
 import CountrySelect from "@church-space/ui/country-select";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { updateOrganizationDataAction } from "@/actions/update-organization-data";
+import { useDebounce } from "@/hooks/use-debounce";
+import type { ActionResponse } from "@/types/action";
+import { useToast } from "@church-space/ui/use-toast";
 
 export interface Address {
   line1?: string;
@@ -58,11 +62,104 @@ export default function ClientPage({
   defaultEmailDomain?: number;
   address?: Address;
 }) {
-  const [localOrgName, setLocalOrgName] = useState(orgName);
-  const [localDefaultEmail, setLocalDefaultEmail] = useState(defaultEmail);
-  const [localDefaultEmailDomain, setLocalDefaultEmailDomain] =
-    useState<string>(defaultEmailDomain?.toString() || "");
+  const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  const [localOrgName, setLocalOrgName] = useState(orgName || "");
+  const [localDefaultEmail, setLocalDefaultEmail] = useState(
+    defaultEmail || "",
+  );
+  const [localDefaultEmailDomain, setLocalDefaultEmailDomain] = useState(
+    defaultEmailDomain?.toString() || "",
+  );
   const [localAddress, setLocalAddress] = useState<Address>(address || {});
+
+  const debouncedOrgName = useDebounce(localOrgName, 500);
+  const debouncedDefaultEmail = useDebounce(localDefaultEmail, 500);
+  const debouncedDefaultEmailDomain = useDebounce(localDefaultEmailDomain, 500);
+  const debouncedAddress = useDebounce(localAddress, 500);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
+    // Don't update if the values are the same as initial values
+    if (
+      debouncedOrgName === orgName &&
+      debouncedDefaultEmail === defaultEmail &&
+      debouncedDefaultEmailDomain === defaultEmailDomain?.toString() &&
+      JSON.stringify(debouncedAddress) === JSON.stringify(address)
+    ) {
+      return;
+    }
+
+    const updateOrganization = async () => {
+      try {
+        setError(null);
+        const result = await updateOrganizationDataAction({
+          organizationId,
+          name: debouncedOrgName,
+          defaultEmail: debouncedDefaultEmail,
+          defaultEmailDomain: debouncedDefaultEmailDomain
+            ? parseInt(debouncedDefaultEmailDomain, 10)
+            : null,
+          address: {
+            line1: debouncedAddress.line1 || "",
+            line2: debouncedAddress.line2 || "",
+            city: debouncedAddress.city || "",
+            state: debouncedAddress.state || "",
+            zip: debouncedAddress.zip || "",
+            country: debouncedAddress.country || "",
+          },
+        });
+
+        if (!result) {
+          setError("Failed to update organization: no response received");
+          setLocalOrgName(orgName || "");
+          setLocalDefaultEmail(defaultEmail || "");
+          setLocalDefaultEmailDomain(defaultEmailDomain?.toString() || "");
+          setLocalAddress(address || {});
+          return;
+        }
+
+        if (result.data?.error) {
+          setError(result.data?.error || "Failed to update organization");
+          setLocalOrgName(orgName || "");
+          setLocalDefaultEmail(defaultEmail || "");
+          setLocalDefaultEmailDomain(defaultEmailDomain?.toString() || "");
+          setLocalAddress(address || {});
+          return;
+        }
+
+        // If we get here, the update was successful
+        // No need to do anything as the local state already matches what we sent
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to update organization",
+        );
+        setLocalOrgName(orgName || "");
+        setLocalDefaultEmail(defaultEmail || "");
+        setLocalDefaultEmailDomain(defaultEmailDomain?.toString() || "");
+        setLocalAddress(address || {});
+      }
+    };
+
+    updateOrganization();
+  }, [
+    isMounted,
+    debouncedOrgName,
+    debouncedDefaultEmail,
+    debouncedDefaultEmailDomain,
+    debouncedAddress,
+    organizationId,
+    orgName,
+    defaultEmail,
+    defaultEmailDomain,
+    address,
+  ]);
 
   const updateAddress = (field: keyof Address, value: string) => {
     setLocalAddress((prev) => ({
@@ -72,52 +169,55 @@ export default function ClientPage({
   };
 
   return (
-    <>
-      <div className="flex flex-1 flex-col gap-16 p-4 pb-24 pt-0">
-        <SettingsSection>
-          <SettingsHeader>
-            <SettingsTitle>Organization</SettingsTitle>
-            <SettingsDescription>
-              Manage your organization settings
-            </SettingsDescription>
-          </SettingsHeader>
+    <div className="flex flex-1 flex-col gap-16 p-4 pb-24 pt-0">
+      {error && (
+        <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+      <SettingsSection>
+        <SettingsHeader>
+          <SettingsTitle>Organization</SettingsTitle>
+          <SettingsDescription>
+            Manage your organization settings
+          </SettingsDescription>
+        </SettingsHeader>
 
-          <SettingsContent>
-            <SettingsRow isFirstRow>
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src="/org-avatar.png" alt="Organization" />
-                  <AvatarFallback>ORG</AvatarFallback>
-                </Avatar>
-                <div>
-                  <SettingsRowTitle>Organization Name</SettingsRowTitle>
-                  <SettingsRowDescription>
-                    Change your organization name
-                  </SettingsRowDescription>
-                </div>
-              </div>
-              <SettingsRowAction>
-                <Input
-                  defaultValue="Church Space"
-                  placeholder="Enter organization name"
-                  className="w-full bg-background"
-                  maxLength={255}
-                  value={localOrgName}
-                  onChange={(e) => setLocalOrgName(e.target.value)}
-                />
-              </SettingsRowAction>
-            </SettingsRow>
-            <SettingsRow>
+        <SettingsContent>
+          <SettingsRow isFirstRow larger>
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src="/org-avatar.png" alt="Organization" />
+                <AvatarFallback>ORG</AvatarFallback>
+              </Avatar>
               <div>
-                <SettingsRowTitle>Primary Email</SettingsRowTitle>
+                <SettingsRowTitle>Organization Name</SettingsRowTitle>
                 <SettingsRowDescription>
-                  Primary email for your organization
+                  Change your organization name
                 </SettingsRowDescription>
               </div>
-              <SettingsRowAction>
-                <div className="flex gap-2">
+            </div>
+            <SettingsRowAction larger>
+              <Input
+                placeholder="Enter organization name"
+                className="w-full bg-background"
+                maxLength={255}
+                value={localOrgName}
+                onChange={(e) => setLocalOrgName(e.target.value)}
+              />
+            </SettingsRowAction>
+          </SettingsRow>
+          <SettingsRow larger>
+            <div>
+              <SettingsRowTitle>Primary Email</SettingsRowTitle>
+              <SettingsRowDescription>
+                Primary email for your organization
+              </SettingsRowDescription>
+            </div>
+            <SettingsRowAction larger>
+              <div className="flex w-full flex-row gap-2 md:flex-col lg:flex-row">
+                <div className="flex w-full flex-row gap-2">
                   <Input
-                    defaultValue="contact"
                     placeholder="Enter email prefix"
                     className="w-full bg-background"
                     maxLength={255}
@@ -125,179 +225,180 @@ export default function ClientPage({
                     onChange={(e) => setLocalDefaultEmail(e.target.value)}
                   />
                   <span className="flex items-center">@</span>
-                  <DomainSelector
-                    organizationId={organizationId}
-                    onChange={setLocalDefaultEmailDomain}
-                    value={localDefaultEmailDomain || ""}
-                  />
                 </div>
-              </SettingsRowAction>
-            </SettingsRow>
-            <SettingsRow>
-              <div>
-                <SettingsRowTitle>Primary Address</SettingsRowTitle>
-                <SettingsRowDescription>
-                  Primary organization address
-                </SettingsRowDescription>
+                <DomainSelector
+                  className="w-full"
+                  organizationId={organizationId}
+                  onChange={setLocalDefaultEmailDomain}
+                  value={localDefaultEmailDomain}
+                />
               </div>
-              <SettingsRowAction>
-                <div className="grid grid-cols-3">
-                  <Input
-                    placeholder="Address Line One"
-                    className="col-span-3 h-8 w-full rounded-b-none border-b-0 bg-background"
-                    maxLength={255}
-                    value={localAddress.line1 || ""}
-                    onChange={(e) => updateAddress("line1", e.target.value)}
-                  />
-                  <Input
-                    placeholder="Address Line Two"
-                    className="col-span-3 h-8 w-full rounded-none border-b-0 bg-background"
-                    maxLength={255}
-                    value={localAddress.line2 || ""}
-                    onChange={(e) => updateAddress("line2", e.target.value)}
-                  />
-                  <Input
-                    placeholder="City"
-                    className="h-8 w-full rounded-none border-b-0 border-r-0 bg-background"
-                    maxLength={255}
-                    value={localAddress.city || ""}
-                    onChange={(e) => updateAddress("city", e.target.value)}
-                  />
-                  <Input
-                    placeholder="State"
-                    className="h-8 w-full rounded-none border-b-0 border-r-0 bg-background"
-                    maxLength={255}
-                    value={localAddress.state || ""}
-                    onChange={(e) => updateAddress("state", e.target.value)}
-                  />
-                  <Input
-                    placeholder="Zip Code"
-                    className="h-8 w-full rounded-none border-b-0 bg-background"
-                    maxLength={255}
-                    value={localAddress.zip || ""}
-                    onChange={(e) => updateAddress("zip", e.target.value)}
-                  />
-                  <CountrySelect
-                    className="col-span-3 h-8 rounded-t-none bg-background"
-                    value={localAddress.country}
-                    onValueChange={(value) => updateAddress("country", value)}
-                  />
-                </div>
-              </SettingsRowAction>
-            </SettingsRow>
-          </SettingsContent>
-        </SettingsSection>
-
-        <SettingsSection>
-          <SettingsHeader>
-            <SettingsTitle>Integrations</SettingsTitle>
-            <SettingsDescription>
-              Connect your organization with external services
-            </SettingsDescription>
-          </SettingsHeader>
-
-          <SettingsContent>
-            <SettingsRow isFirstRow>
-              <div>
-                <SettingsRowTitle className="flex items-center gap-1.5">
-                  <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-green-500" />
-                  Planning Center
-                </SettingsRowTitle>
-                <div className="text-sm text-muted-foreground">
-                  {pcoConnection ? (
-                    <div className="flex flex-col">
-                      <p>
-                        Connected by{" "}
-                        <span className="font-medium">
-                          {pcoConnection.users.first_name}{" "}
-                          {pcoConnection.users.last_name}
-                        </span>
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Connected on{" "}
-                        {format(
-                          new Date(pcoConnection.created_at),
-                          "MMM d, yyyy",
-                        )}
-                      </p>
-                    </div>
-                  ) : (
-                    "Connect your PCO account to sync data"
-                  )}
-                </div>
-              </div>
-              <SettingsRowAction>
-                {!pcoConnection ? (
-                  <ConnectToPcoButton isReconnect={true} />
-                ) : (
-                  <DisconnectFromPcoButton organizationId={organizationId} />
-                )}
-              </SettingsRowAction>
-            </SettingsRow>
-          </SettingsContent>
-        </SettingsSection>
-
-        <SettingsSection>
-          <SettingsHeader className="flex w-full flex-row items-center justify-between">
-            <div className="flex flex-col">
-              <SettingsTitle>Members</SettingsTitle>
-              <SettingsDescription>
-                Manage the people in your organization.
-              </SettingsDescription>
+            </SettingsRowAction>
+          </SettingsRow>
+          <SettingsRow larger>
+            <div>
+              <SettingsRowTitle>Primary Address</SettingsRowTitle>
+              <SettingsRowDescription>
+                Primary organization address
+              </SettingsRowDescription>
             </div>
-            <InviteModal organizationId={organizationId} />
-          </SettingsHeader>
-
-          <SettingsContent>
-            <OrgMembers organizationId={organizationId} />
-          </SettingsContent>
-        </SettingsSection>
-
-        <SettingsSection>
-          <SettingsHeader>
-            <SettingsTitle>Danger Zone</SettingsTitle>
-            <SettingsDescription>
-              Irreversible and destructive actions
-            </SettingsDescription>
-          </SettingsHeader>
-
-          <SettingsContent>
-            <SettingsRow isFirstRow>
-              <div>
-                <SettingsRowTitle>Delete Organization</SettingsRowTitle>
-                <SettingsRowDescription>
-                  Permanently delete your organization and all associated data
-                </SettingsRowDescription>
+            <SettingsRowAction larger>
+              <div className="grid grid-cols-3">
+                <Input
+                  placeholder="Address Line One"
+                  className="col-span-3 h-8 w-full rounded-b-none border-b-0 bg-background"
+                  maxLength={255}
+                  value={localAddress.line1 || ""}
+                  onChange={(e) => updateAddress("line1", e.target.value)}
+                />
+                <Input
+                  placeholder="Address Line Two"
+                  className="col-span-3 h-8 w-full rounded-none border-b-0 bg-background"
+                  maxLength={255}
+                  value={localAddress.line2 || ""}
+                  onChange={(e) => updateAddress("line2", e.target.value)}
+                />
+                <Input
+                  placeholder="City"
+                  className="h-8 w-full rounded-none border-b-0 border-r-0 bg-background"
+                  maxLength={255}
+                  value={localAddress.city || ""}
+                  onChange={(e) => updateAddress("city", e.target.value)}
+                />
+                <Input
+                  placeholder="State"
+                  className="h-8 w-full rounded-none border-b-0 border-r-0 bg-background"
+                  maxLength={255}
+                  value={localAddress.state || ""}
+                  onChange={(e) => updateAddress("state", e.target.value)}
+                />
+                <Input
+                  placeholder="Zip Code"
+                  className="h-8 w-full rounded-none border-b-0 bg-background"
+                  maxLength={255}
+                  value={localAddress.zip || ""}
+                  onChange={(e) => updateAddress("zip", e.target.value)}
+                />
+                <CountrySelect
+                  className="col-span-3 h-8 rounded-t-none bg-background"
+                  value={localAddress.country}
+                  onValueChange={(value) => updateAddress("country", value)}
+                />
               </div>
-              <SettingsRowAction>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive">Delete Organization</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete your organization and remove all associated data
-                        from our servers.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Delete Organization
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </SettingsRowAction>
-            </SettingsRow>
-          </SettingsContent>
-        </SettingsSection>
-      </div>
-    </>
+            </SettingsRowAction>
+          </SettingsRow>
+        </SettingsContent>
+      </SettingsSection>
+
+      <SettingsSection>
+        <SettingsHeader>
+          <SettingsTitle>Integrations</SettingsTitle>
+          <SettingsDescription>
+            Connect your organization with external services
+          </SettingsDescription>
+        </SettingsHeader>
+
+        <SettingsContent>
+          <SettingsRow isFirstRow>
+            <div>
+              <SettingsRowTitle className="flex items-center gap-1.5">
+                <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-green-500" />
+                Planning Center
+              </SettingsRowTitle>
+              <div className="text-sm text-muted-foreground">
+                {pcoConnection ? (
+                  <div className="flex flex-col">
+                    <p>
+                      Connected by{" "}
+                      <span className="font-medium">
+                        {pcoConnection.users.first_name}{" "}
+                        {pcoConnection.users.last_name}
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Connected on{" "}
+                      {format(
+                        new Date(pcoConnection.created_at),
+                        "MMM d, yyyy",
+                      )}
+                    </p>
+                  </div>
+                ) : (
+                  "Connect your PCO account to sync data"
+                )}
+              </div>
+            </div>
+            <SettingsRowAction>
+              {!pcoConnection ? (
+                <ConnectToPcoButton isReconnect={true} />
+              ) : (
+                <DisconnectFromPcoButton organizationId={organizationId} />
+              )}
+            </SettingsRowAction>
+          </SettingsRow>
+        </SettingsContent>
+      </SettingsSection>
+
+      <SettingsSection>
+        <SettingsHeader className="flex w-full flex-row items-center justify-between">
+          <div className="flex flex-col">
+            <SettingsTitle>Members</SettingsTitle>
+            <SettingsDescription>
+              Manage the people in your organization.
+            </SettingsDescription>
+          </div>
+          <InviteModal organizationId={organizationId} />
+        </SettingsHeader>
+
+        <SettingsContent>
+          <OrgMembers organizationId={organizationId} />
+        </SettingsContent>
+      </SettingsSection>
+
+      <SettingsSection>
+        <SettingsHeader>
+          <SettingsTitle>Danger Zone</SettingsTitle>
+          <SettingsDescription>
+            Irreversible and destructive actions
+          </SettingsDescription>
+        </SettingsHeader>
+
+        <SettingsContent>
+          <SettingsRow isFirstRow>
+            <div>
+              <SettingsRowTitle>Delete Organization</SettingsRowTitle>
+              <SettingsRowDescription>
+                Permanently delete your organization and all associated data
+              </SettingsRowDescription>
+            </div>
+            <SettingsRowAction>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">Delete Organization</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      your organization and remove all associated data from our
+                      servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Delete Organization
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </SettingsRowAction>
+          </SettingsRow>
+        </SettingsContent>
+      </SettingsSection>
+    </div>
   );
 }
