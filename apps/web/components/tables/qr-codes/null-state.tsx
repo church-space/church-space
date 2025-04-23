@@ -1,7 +1,6 @@
-import React from "react";
-import { Plus } from "lucide-react";
-import { Email } from "@church-space/ui/icons";
 import { Button } from "@church-space/ui/button";
+import { Qrcode } from "@church-space/ui/icons";
+import { Plus } from "lucide-react";
 
 export default function NullState({ onClick }: { onClick: () => void }) {
   return (
@@ -12,7 +11,7 @@ export default function NullState({ onClick }: { onClick: () => void }) {
       <div className="relative mb-8 w-64">
         <div className="flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-md">
           <div className="flex items-center gap-2">
-            <Email height={"20"} width={"20"} />
+            <Qrcode height={"20"} width={"20"} />
             <div className="h-6 w-1/3 rounded bg-muted"></div>
           </div>
           <div className="h-4 w-full rounded bg-muted"></div>
@@ -24,12 +23,12 @@ export default function NullState({ onClick }: { onClick: () => void }) {
       </div>
 
       <h3 className="mb-4 text-center text-xl font-medium text-muted-foreground">
-        No templates found
+        No QR codes found
       </h3>
 
       <Button className="flex items-center gap-2" onClick={onClick}>
         <Plus className="h-4 w-4" />
-        New Template
+        New QR Code
       </Button>
     </div>
   );

@@ -15,6 +15,7 @@ import {
 import { useLinkLists } from "@/hooks/use-link-lists";
 import NewLinkList from "@/components/forms/new-link-list";
 import { LinkFilled } from "@church-space/ui/icons";
+import NullState from "./null-state";
 
 interface LinkListsTableProps {
   organizationId: string;
@@ -111,6 +112,7 @@ export default function LinkListsTable({
         }}
         searchPlaceholderText="Search by name or URL slug..."
         isLoading={isLoading || isFetchingNextPage}
+        nullState={<NullState onClick={() => setIsNewLinkListOpen(true)} />}
       />
 
       <Dialog

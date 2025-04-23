@@ -25,6 +25,7 @@ const formSchema = z.object({
     .max(60, "Name must be 60 characters or less"),
   description: z
     .string()
+    .min(1, "Description is required")
     .max(80, "Description must be 80 characters or less")
     .nullable(),
 });

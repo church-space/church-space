@@ -7,6 +7,7 @@ import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, type Person } from "./columns";
 import { CircleInfo } from "@church-space/ui/icons";
+import NullState from "./null-state";
 
 interface PeopleTableProps {
   organizationId: string;
@@ -85,6 +86,7 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
         onSearch={handleSearch}
         searchPlaceholderText="Search by name or email..."
         isLoading={isLoading || isFetchingNextPage}
+        nullState={<NullState onClick={() => {}} />}
       />
     </>
   );

@@ -15,6 +15,7 @@ import {
 import { useQrLinks } from "@/hooks/use-qr-codes";
 import NewQRCode from "@/components/forms/new-qr-code";
 import { Qrcode } from "@church-space/ui/icons";
+import NullState from "./null-state";
 
 interface QrCodesTableProps {
   organizationId: string;
@@ -83,6 +84,7 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
           status: status ?? undefined,
         }}
         isLoading={isFetchingNextPage || isLoading}
+        nullState={<NullState onClick={() => setIsNewQrCodeOpen(true)} />}
       />
 
       <Dialog open={isNewQrCodeOpen ?? false} onOpenChange={setIsNewQrCodeOpen}>

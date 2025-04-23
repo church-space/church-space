@@ -5,7 +5,10 @@ import { Button } from "@church-space/ui/button";
 
 export default function NullState({ onClick }: { onClick: () => void }) {
   return (
-    <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg p-6">
+    <div
+      className="flex min-h-[400px] flex-col items-center justify-center rounded-lg p-6"
+      onClick={onClick}
+    >
       <div className="relative mb-8 w-64">
         <div className="flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-md">
           <div className="flex items-center gap-2">
