@@ -15,10 +15,10 @@ export default function Page() {
             transition={{ duration: 0.3 }}
             className="mb-6 flex flex-col items-center justify-center gap-2"
           >
-            <div className="text-3xl font-bold">
+            <div className="text-center text-2xl font-bold">
               Reconnect to Planning Center
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-center text-sm text-muted-foreground">
               It has been over 90 days since you last connected to Planning
               Center. Please reconnect to continue using this application.
             </div>
@@ -30,7 +30,7 @@ export default function Page() {
           >
             <Card className="space-y-6 px-0 pt-4">
               <CardContent className="space-y-4 pt-4">
-                <ConnectToPcoButton />
+                <ConnectToPcoButton isReconnect={true} />
               </CardContent>
             </Card>
           </motion.div>

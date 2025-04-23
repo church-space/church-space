@@ -8,6 +8,10 @@ export const syncPcoEmails = task({
   run: async (payload: { organization_id: string }, io) => {
     const supabase = createClient();
 
+    // Track all PCO IDs we see during sync
+    const seenPeopleIds = new Set<string>();
+    const seenEmailIds = new Set<string>();
+
     // Get PCO connection for this organization
     const { data: pcoConnection, error: pcoError } = await supabase
       .from("pco_connections")
@@ -47,20 +51,27 @@ export const syncPcoEmails = task({
       // Process each person
       for (const person of data.data) {
         try {
+          seenPeopleIds.add(person.id);
+
           // Insert into people table
-          const { error: personError } = await supabase.from("people").insert({
-            pco_id: person.id,
-            first_name: person.attributes.first_name,
-            middle_name: person.attributes.middle_name,
-            last_name: person.attributes.last_name,
-            nickname: person.attributes.nickname,
-            given_name: person.attributes.given_name,
-            organization_id: payload.organization_id,
-          });
+          const { error: personError } = await supabase.from("people").upsert(
+            {
+              pco_id: person.id,
+              first_name: person.attributes.first_name,
+              middle_name: person.attributes.middle_name,
+              last_name: person.attributes.last_name,
+              nickname: person.attributes.nickname,
+              given_name: person.attributes.given_name,
+              organization_id: payload.organization_id,
+            },
+            {
+              onConflict: "pco_id",
+            },
+          );
 
           if (personError) {
-            console.error(`Error inserting person ${person.id}:`, personError);
-            continue; // Continue to the next person if insert fails
+            console.error(`Error upserting person ${person.id}:`, personError);
+            continue; // Continue to the next person if upsert fails
           }
 
           // Process each email for the current person
@@ -74,6 +85,8 @@ export const syncPcoEmails = task({
               console.warn(`Email data not found for email ID ${emailData.id}`);
               continue;
             }
+
+            seenEmailIds.add(email.id);
 
             // Only process primary emails
             if (!email.attributes.primary) {
@@ -101,17 +114,25 @@ export const syncPcoEmails = task({
             // Insert into people_emails table
             const { error: emailError } = await supabase
               .from("people_emails")
-              .insert({
-                organization_id: payload.organization_id,
-                pco_person_id: person.id,
-                pco_email_id: email.id,
-                email: emailAddress,
-                status: status as "unsubscribed" | "pco_blocked" | "subscribed",
-              });
+              .upsert(
+                {
+                  organization_id: payload.organization_id,
+                  pco_person_id: person.id,
+                  pco_email_id: email.id,
+                  email: emailAddress,
+                  status: status as
+                    | "unsubscribed"
+                    | "pco_blocked"
+                    | "subscribed",
+                },
+                {
+                  onConflict: "pco_email_id,organization_id",
+                },
+              );
 
             if (emailError) {
               console.error(
-                `Error inserting email ${email.id} for person ${person.id}:`,
+                `Error upserting email ${email.id} for person ${person.id}:`,
                 emailError,
               );
             }
@@ -128,12 +149,41 @@ export const syncPcoEmails = task({
       pageCount++; // Increment page count
     }
 
+    // Clean up stale records
+    if (seenPeopleIds.size > 0) {
+      const { error: deleteStaleEmailsError } = await supabase
+        .from("people_emails")
+        .delete()
+        .eq("organization_id", payload.organization_id)
+        .not("pco_email_id", "in", Array.from(seenEmailIds));
+
+      if (deleteStaleEmailsError) {
+        console.error("Error deleting stale emails:", deleteStaleEmailsError);
+      }
+
+      const { error: deleteStalePeopleError } = await supabase
+        .from("people")
+        .delete()
+        .eq("organization_id", payload.organization_id)
+        .not("pco_id", "in", Array.from(seenPeopleIds));
+
+      if (deleteStalePeopleError) {
+        console.error("Error deleting stale people:", deleteStalePeopleError);
+      }
+    }
+
     await supabase.from("pco_sync_status").upsert({
       organization_id: payload.organization_id,
-      type: "emails", // Consider changing this to "people_and_emails" or similar
+      type: "emails",
       synced_at: new Date().toISOString(),
     });
 
-    return { message: "PCO people and emails sync completed" };
+    return {
+      message: "PCO people and emails sync completed",
+      stats: {
+        people_synced: seenPeopleIds.size,
+        emails_synced: seenEmailIds.size,
+      },
+    };
   },
 });

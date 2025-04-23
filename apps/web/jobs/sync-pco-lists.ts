@@ -9,6 +9,11 @@ export const syncPcoLists = task({
   run: async (payload: { organization_id: string }, io) => {
     const supabase = createClient();
 
+    // Track all PCO IDs we see during sync
+    const seenCategoryIds = new Set<string>();
+    const seenListIds = new Set<string>();
+    const seenListMemberKeys = new Set<string>();
+
     // Get PCO connection for this organization
 
     const { data: pcoConnection, error: pcoError } = await supabase
@@ -50,6 +55,8 @@ export const syncPcoLists = task({
 
     // Process each category
     for (const category of categoriesData.data) {
+      seenCategoryIds.add(category.id);
+
       await supabase.from("pco_list_categories").upsert(
         {
           organization_id: payload.organization_id,
@@ -92,6 +99,7 @@ export const syncPcoLists = task({
       for (const list of data.data) {
         try {
           const listId = list.id;
+          seenListIds.add(listId);
           const listDescription = list.attributes.name_or_description;
           const lastRefreshedAt = list.attributes.refreshed_at;
           const totalPeople = list.attributes.total_people;
@@ -144,17 +152,23 @@ export const syncPcoLists = task({
 
             for (const result of listResultsData.data) {
               const personId = result.relationships.person.data.id;
+              seenListMemberKeys.add(`${listId}:${personId}`);
 
               // Insert into pco_list_members table
               try {
-                await supabase.from("pco_list_members").insert({
-                  organization_id: payload.organization_id,
-                  pco_list_id: listId,
-                  pco_person_id: personId,
-                });
+                await supabase.from("pco_list_members").upsert(
+                  {
+                    organization_id: payload.organization_id,
+                    pco_list_id: listId,
+                    pco_person_id: personId,
+                  },
+                  {
+                    onConflict: "pco_list_id,pco_person_id",
+                  },
+                );
               } catch (memberError) {
                 console.error(
-                  `Error inserting list member (List: ${listId}, Person: ${personId}):`,
+                  `Error upserting list member (List: ${listId}, Person: ${personId}):`,
                   memberError,
                 );
               }
@@ -175,12 +189,61 @@ export const syncPcoLists = task({
       pageCount++; // Increment page count
     }
 
+    // Clean up stale records
+    if (seenCategoryIds.size > 0) {
+      const { error: deleteStaleCategoriesError } = await supabase
+        .from("pco_list_categories")
+        .delete()
+        .eq("organization_id", payload.organization_id)
+        .not("pco_id", "in", Array.from(seenCategoryIds));
+
+      if (deleteStaleCategoriesError) {
+        console.error(
+          "Error deleting stale categories:",
+          deleteStaleCategoriesError,
+        );
+      }
+    }
+
+    if (seenListIds.size > 0) {
+      const { error: deleteStaleListsError } = await supabase
+        .from("pco_lists")
+        .delete()
+        .eq("organization_id", payload.organization_id)
+        .not("pco_list_id", "in", Array.from(seenListIds));
+
+      if (deleteStaleListsError) {
+        console.error("Error deleting stale lists:", deleteStaleListsError);
+      }
+
+      // For list members, we need to handle the composite key differently
+      const { error: deleteStaleListMembersError } = await supabase
+        .from("pco_list_members")
+        .delete()
+        .eq("organization_id", payload.organization_id)
+        .not("pco_list_id", "in", Array.from(seenListIds));
+
+      if (deleteStaleListMembersError) {
+        console.error(
+          "Error deleting stale list members:",
+          deleteStaleListMembersError,
+        );
+      }
+    }
+
     await supabase.from("pco_sync_status").upsert({
       organization_id: payload.organization_id,
       type: "lists",
       synced_at: new Date().toISOString(),
     });
 
-    return { message: "PCO lists sync completed" };
+    return {
+      message: "PCO lists sync completed",
+      stats: {
+        categories_synced: seenCategoryIds.size,
+        lists_synced: seenListIds.size,
+        list_members_synced: seenListMemberKeys.size,
+      },
+    };
   },
 });
