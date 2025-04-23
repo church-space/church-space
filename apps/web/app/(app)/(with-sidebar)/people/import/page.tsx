@@ -84,7 +84,7 @@ export default function ImportPage() {
       <p className="mb-6 text-sm text-muted-foreground">
         Importing unsubscribed contacts will help you not email people who have
         asked to not receive your emails. This helps make sure emails you send
-        land in people's inboxes instead of their spam folders.
+        land in people&apos;s inboxes instead of their spam folders.
       </p>
 
       <div className="space-y-6">
