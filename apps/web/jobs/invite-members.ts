@@ -165,18 +165,12 @@ export const inviteMembers = task({
                   <td style="text-align: left; vertical-align: middle;">
                     <!-- Church Space Logo with Link -->
                     <a href="https://churchspace.co" target="_blank" style="text-decoration: none; color: #000000; display: inline-flex; align-items: center;">
-                      <svg height="24" width="16" viewBox="0 0 185 291" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
-                        <g fill="none">
-                          <path
-                            d="M142.177 23.3423H173.437C179.612 23.3423 184.617 28.3479 184.617 34.5227V258.318C184.617 264.493 179.612 269.498 173.437 269.498H142.177V23.3423Z"
-                            fill="#000000"
-                          />
-                          <path
-                            d="M0 57.5604C0 52.8443 2.9699 48.6392 7.41455 47.0622L125.19 5.27404C132.441 2.70142 140.054 8.07871 140.054 15.7722V275.171C140.054 282.801 132.557 288.172 125.332 285.718L7.55682 245.715C3.03886 244.18 0 239.939 0 235.167V57.5604Z"
-                            fill="#000000"
-                          />
-                        </g>
-                      </svg>
+                      <img
+                        src="https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets//churchspace-black.png"
+                        alt="Church Space Logo"
+                        height="24"
+                        style="vertical-align: middle; display: inline-block; width: auto;"
+                      />
                       <span style="font-size: 16px; font-weight: 600; letter-spacing: -0.5px; margin-left: 6px; vertical-align: middle;">Church Space</span>
                     </a>
                   </td>
