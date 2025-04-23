@@ -16,6 +16,7 @@ import DataTable from "../data-table";
 import { columns, type Email } from "./columns";
 import { getEmailFilterConfig, type EmailStatus } from "./filters";
 import { NewEmail as NewEmailIcon } from "@church-space/ui/icons";
+import NullState from "./null-state";
 
 interface EmailsTableProps {
   organizationId: string;
@@ -121,6 +122,7 @@ export default function EmailsTable({ organizationId }: EmailsTableProps) {
         }}
         searchPlaceholderText="Search by subject..."
         isLoading={showLoading || isFetchingNextPage}
+        nullState={<NullState onClick={() => setIsNewEmailOpen(true)} />}
       />
 
       <Dialog open={isNewEmailOpen ?? false} onOpenChange={setIsNewEmailOpen}>

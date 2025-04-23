@@ -5,24 +5,32 @@ import type { syncPcoEmails } from "@/jobs/sync-pco-emails";
 import { syncPcoLists } from "@/jobs/sync-pco-lists";
 
 export async function GET(request: NextRequest) {
+  console.log("🚀 Starting PCO reconnect callback process");
   try {
     const searchParams = request.nextUrl.searchParams;
     const code = searchParams.get("code");
     const error = searchParams.get("error");
 
+    console.log("📝 Initial params:", {
+      code: code?.slice(0, 10) + "...",
+      error,
+    });
+
     if (error) {
-      console.error("PCO OAuth error:", error);
+      console.error("❌ PCO OAuth error:", error);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}?error=${error}`,
       );
     }
 
     if (!code) {
+      console.error("❌ No code provided in callback");
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}?error=no_code`,
       );
     }
 
+    console.log("🔄 Exchanging code for tokens...");
     // Exchange the code for tokens
     const tokenResponse = await fetch(
       "https://api.planningcenteronline.com/oauth/token",
@@ -44,12 +52,14 @@ export async function GET(request: NextRequest) {
     const tokenData = await tokenResponse.json();
 
     if (!tokenResponse.ok) {
-      console.error("PCO token error:", tokenData);
+      console.error("❌ PCO token exchange failed:", tokenData);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}?error=token_error`,
       );
     }
+    console.log("✅ Token exchange successful");
 
+    console.log("👤 Fetching PCO user info...");
     // Get current user's PCO info
     const pcoUserResponse = await fetch(
       "https://api.planningcenteronline.com/people/v2/me",
@@ -62,15 +72,22 @@ export async function GET(request: NextRequest) {
 
     const pcoUserData = await pcoUserResponse.json();
 
+    console.log("📊 PCO User permissions:", {
+      can_email_lists: pcoUserData.data.attributes.can_email_lists,
+      people_permissions: pcoUserData.data.attributes.people_permissions,
+    });
+
     if (
       pcoUserData.data.attributes.can_email_lists !== true ||
       pcoUserData.data.attributes.people_permissions !== "Manager"
     ) {
+      console.error("❌ Insufficient permissions");
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/permissions-error`,
       );
     }
 
+    console.log("🔐 Getting Supabase user...");
     // Store the connection in Supabase
     const supabase = await createClient();
     const {
@@ -79,23 +96,30 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      console.error("❌ Supabase auth error:", authError);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}?error=auth_error`,
       );
     }
+    console.log("✅ Supabase user found:", user.id);
 
+    console.log("🏢 Fetching organization details...");
     const { data: userDetails } = await supabase
       .from("organization_memberships")
       .select("organization_id")
       .eq("user_id", user.id)
       .eq("role", "owner");
 
+    console.log("📋 Organization details:", userDetails);
+
     if (!userDetails?.length || !userDetails[0].organization_id) {
+      console.error("❌ User is not organization owner");
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}?error=user_is_not_owner_of_organization`,
       );
     }
 
+    console.log("🔍 Fetching existing PCO webhooks...");
     // Get existing webhooks from PCO
     const webhooksResponse = await fetch(
       "https://api.planningcenteronline.com/webhooks/v2/subscriptions",
@@ -108,6 +132,7 @@ export async function GET(request: NextRequest) {
 
     const webhooksData = await webhooksResponse.json();
 
+    console.log("🗑️ Cleaning up old webhooks...");
     // Delete webhooks that match our URL pattern
     for (const webhook of webhooksData.data) {
       if (
@@ -133,6 +158,7 @@ export async function GET(request: NextRequest) {
       .delete()
       .eq("organization_id", userDetails[0].organization_id);
 
+    console.log("🔄 Updating PCO connection in database...");
     const { error: deleteOldConnectionError } = await supabase
       .from("pco_connections")
       .delete()
@@ -143,9 +169,13 @@ export async function GET(request: NextRequest) {
       );
 
     if (deleteOldConnectionError) {
-      console.error("Supabase error:", deleteOldConnectionError);
+      console.error(
+        "❌ Error deleting old connection:",
+        deleteOldConnectionError,
+      );
     }
 
+    console.log("📝 Creating new PCO connection...");
     const { error: upsertError } = await supabase
       .from("pco_connections")
       .insert({
@@ -162,12 +192,14 @@ export async function GET(request: NextRequest) {
       .select("id");
 
     if (upsertError) {
-      console.error("Supabase error:", upsertError);
+      console.error("❌ Error creating PCO connection:", upsertError);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}?error=pco_connection_db_error`,
       );
     }
+    console.log("✅ PCO connection created successfully");
 
+    console.log("🔄 Setting up new webhooks...");
     // Create new webhooks
     const webhookEvents = [
       "people.v2.events.list.created",
@@ -247,21 +279,25 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    console.log("📨 Triggering initial sync tasks...");
     // Trigger the syncPcoEmails task
     await tasks.trigger<typeof syncPcoEmails>("sync-pco-emails", {
       organization_id: userDetails[0].organization_id,
     });
+    console.log("✅ Email sync task triggered");
 
     // Trigger the syncPcoLists task
     await tasks.trigger<typeof syncPcoLists>("sync-pco-lists", {
       organization_id: userDetails[0].organization_id,
     });
+    console.log("✅ Lists sync task triggered");
 
+    console.log("🎉 PCO reconnect process completed successfully!");
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_SITE_URL}/emails?pco_connection_success=true`,
     );
   } catch (error) {
-    console.error("PCO callback error:", error);
+    console.error("❌ Unexpected error in PCO callback:", error);
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?pco_connection_error=unknown`,
     );

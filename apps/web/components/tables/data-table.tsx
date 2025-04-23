@@ -32,13 +32,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import debounce from "lodash/debounce";
-import { SearchIcon } from "lucide-react";
+import { Plus, Mail, SearchIcon } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import ActionBar from "./action-bar";
 import { Skeleton } from "@church-space/ui/skeleton";
 import { cn } from "@church-space/ui/cn";
 import { useSidebar } from "@church-space/ui/sidebar";
-
+import { Button } from "@church-space/ui/button";
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -84,6 +84,7 @@ interface DataTableProps<TData> {
   };
   isLoading?: boolean;
   searchPlaceholderText?: string;
+  nullState?: React.ReactNode;
 }
 
 export default function DataTable<TData>({
@@ -100,6 +101,7 @@ export default function DataTable<TData>({
   initialFilters,
   isLoading: externalIsLoading,
   searchPlaceholderText = "Search...",
+  nullState,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState(searchQuery);
@@ -445,12 +447,12 @@ export default function DataTable<TData>({
                     ))}
                 </>
               ) : (
-                <TableRow>
+                <TableRow className="hover:bg-transparent">
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="py-10 text-center hover:bg-transparent"
                   >
-                    No results.
+                    {nullState ? nullState : "No results."}
                   </TableCell>
                 </TableRow>
               )}

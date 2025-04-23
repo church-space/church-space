@@ -1,5 +1,7 @@
+import "server-only";
+
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@church-space/supabase/server";
+import { createClient } from "@church-space/supabase/job";
 import {
   upsertCustomer,
   upsertSubscription,
