@@ -85,15 +85,18 @@ export const importUnsubscribes = task({
     const dataToUpsert = parseResult.data
       .map((row) => {
         const email = row[emailColumn]?.trim();
-        // Basic email validation (can be enhanced)
-        if (email && email.includes("@")) {
+        // Validate email using Zod
+        const validationResult = z.string().email().safeParse(email);
+        if (validationResult.success) {
           return {
             organization_id: organizationId,
-            email_address: email.toLowerCase(), // Normalize email
+            email_address: validationResult.data.toLowerCase(), // Normalize email
             status: status,
             // 'reason' could potentially be added if available in CSV
           };
         }
+        // Log invalid emails if needed
+        // console.warn(`Invalid email format found: ${email}`);
         return null;
       })
       .filter((item): item is NonNullable<typeof item> => item !== null); // Filter out invalid/missing emails

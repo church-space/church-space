@@ -8,7 +8,7 @@ import DataTable from "../data-table";
 import { columns, type Person } from "./columns";
 import { CircleInfo } from "@church-space/ui/icons";
 import NullState from "./null-state";
-
+import Link from "next/link";
 interface PeopleTableProps {
   organizationId: string;
 }
@@ -56,7 +56,11 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
               </p>
             </div>
           </div>
-          <Button className="mr-3 w-full md:w-fit">Import Unsubscribes</Button>
+          <Link href={`/people/import`}>
+            <Button className="mr-3 w-full md:w-fit">
+              Import Unsubscribes
+            </Button>
+          </Link>
         </div>
         <div className="flex w-full items-center gap-3 rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
           <div className="flex-shrink-0">

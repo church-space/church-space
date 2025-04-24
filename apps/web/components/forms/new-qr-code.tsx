@@ -25,22 +25,48 @@ const formSchema = z.object({
   url: z
     .string()
     .min(1, "URL is required")
-    .transform((val) => {
-      if (!val.startsWith("http://") && !val.startsWith("https://")) {
-        return `https://${val}`;
-      }
-      return val;
+    .refine((val) => !val.includes(" "), {
+      message: "URL cannot contain spaces",
     })
     .refine(
       (val) => {
         try {
-          new URL(val);
-          return true;
+          const urlToTest =
+            !val.startsWith("http://") && !val.startsWith("https://")
+              ? `https://${val}`
+              : val;
+          const parsedUrl = new URL(urlToTest);
+          const hostname = parsedUrl.hostname;
+
+          if (!hostname) return false; // Hostname is essential
+
+          // Allow localhost and common IP address formats
+          const ipv4Regex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+          // Very basic check for IPv6, relying mostly on URL parser's leniency
+          const ipv6Regex = /^[a-fA-F0-9:]+$/;
+
+          if (
+            hostname === "localhost" ||
+            ipv4Regex.test(hostname) ||
+            (hostname.includes(":") && ipv6Regex.test(hostname)) // Simple check if contains ':'
+          ) {
+            return true;
+          }
+
+          // For other hostnames, require a dot (likely for TLD)
+          if (!hostname.includes(".")) {
+            return false;
+          }
+
+          return true; // Parsed, has hostname, and meets criteria
         } catch {
-          return false;
+          return false; // Didn't parse as a URL
         }
       },
-      { message: "Must be a valid URL" },
+      {
+        message:
+          "Must be a valid URL (e.g., example.com or https://example.com)",
+      },
     ),
 });
 
