@@ -268,6 +268,9 @@ export default function Page() {
   });
 
   const [editingQRCode, setEditingQRCode] = useState<QRCodeData | null>(null);
+  const [originalQRCode, setOriginalQRCode] = useState<QRCodeData | null>(null);
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] =
+    useState(false);
   const [isAddingQRCode, setIsAddingQRCode] = useState(false);
   const [newQRCodeName, setNewQRCodeName] = useState("");
   const [chartData, setChartData] = useState<any[]>([]);
@@ -1414,7 +1417,11 @@ export default function Page() {
                 <Button
                   variant="ghost"
                   className="h-12 w-full items-center justify-between"
-                  onClick={() => setEditingQRCode({ ...qrCode })}
+                  onClick={() => {
+                    const qrCodeCopy = { ...qrCode };
+                    setEditingQRCode(qrCodeCopy);
+                    setOriginalQRCode(qrCodeCopy);
+                  }}
                 >
                   <CardHeader className="flex w-full flex-row items-center justify-between gap-2 space-y-0 p-0">
                     <CardTitle className="flex-1 truncate text-left text-base">
@@ -1500,7 +1507,20 @@ export default function Page() {
           {/* Dialog for editing a QR code */}
           <Dialog
             open={!!editingQRCode}
-            onOpenChange={(open) => !open && setEditingQRCode(null)}
+            onOpenChange={(open: boolean) => {
+              if (!open && editingQRCode) {
+                // Check if there are unsaved changes by comparing with original state
+                const hasChanges =
+                  JSON.stringify(editingQRCode) !==
+                  JSON.stringify(originalQRCode);
+                if (hasChanges) {
+                  setShowUnsavedChangesDialog(true);
+                } else {
+                  setEditingQRCode(null);
+                  setOriginalQRCode(null);
+                }
+              }
+            }}
           >
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
@@ -1712,7 +1732,10 @@ export default function Page() {
                             Cancel
                           </Button>
                           <Button
-                            onClick={() => handleDeleteQRCode(editingQRCode.id)}
+                            onClick={() => {
+                              handleDeleteQRCode(editingQRCode.id);
+                              setOriginalQRCode(null);
+                            }}
                           >
                             Delete
                           </Button>
@@ -1722,15 +1745,68 @@ export default function Page() {
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
-                        onClick={() => setEditingQRCode(null)}
+                        onClick={() => {
+                          const hasChanges =
+                            JSON.stringify(editingQRCode) !==
+                            JSON.stringify(originalQRCode);
+                          if (hasChanges) {
+                            setShowUnsavedChangesDialog(true);
+                          } else {
+                            setEditingQRCode(null);
+                            setOriginalQRCode(null);
+                          }
+                        }}
                       >
                         Cancel
                       </Button>
-                      <Button onClick={saveQRCodeChanges}>Save</Button>
+                      <Button
+                        onClick={() => {
+                          saveQRCodeChanges();
+                          setOriginalQRCode(null);
+                        }}
+                      >
+                        Save
+                      </Button>
                     </div>
                   </div>
                 </div>
               )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Dialog for unsaved changes warning */}
+          <Dialog
+            open={showUnsavedChangesDialog}
+            onOpenChange={(open: boolean) => setShowUnsavedChangesDialog(open)}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Unsaved Changes</DialogTitle>
+                <DialogDescription>
+                  You have unsaved changes. Are you sure you want to close
+                  without saving?
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowUnsavedChangesDialog(false);
+                  }}
+                >
+                  Continue Editing
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setShowUnsavedChangesDialog(false);
+                    setEditingQRCode(null);
+                    setOriginalQRCode(null);
+                  }}
+                >
+                  Discard Changes
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
