@@ -1,10 +1,15 @@
 import { Client } from "../../types";
 
-export async function getEmailQuery(supabase: Client, emailId: number) {
+export async function getEmailQuery(
+  supabase: Client,
+  emailId: number,
+  organizationId: string
+) {
   const { data, error } = await supabase
     .from("emails")
     .select("*")
     .eq("id", emailId)
+    .eq("organization_id", organizationId)
     .single();
 
   return { data, error };

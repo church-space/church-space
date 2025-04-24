@@ -2,7 +2,8 @@ import { Client } from "../../types";
 
 export async function getEmailAutomationQuery(
   supabase: Client,
-  automationId: number
+  automationId: number,
+  organizationId: string
 ) {
   const { data, error } = await supabase
     .from("email_automations")
@@ -22,6 +23,7 @@ export async function getEmailAutomationQuery(
     `
     )
     .eq("id", automationId)
+    .eq("organization_id", organizationId)
     .single();
 
   return { data, error };

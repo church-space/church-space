@@ -56,7 +56,7 @@ import {
   type QRCodeClick,
 } from "@church-space/supabase/queries/all/get-qr-code";
 import { createClient } from "@church-space/supabase/client";
-import { useParams, useRouter } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createQRCode,
@@ -86,6 +86,7 @@ import { LoaderIcon } from "lucide-react";
 import { z } from "zod";
 import Link from "next/link";
 import { Skeleton } from "@church-space/ui/skeleton";
+import Cookies from "js-cookie";
 
 // Types
 type QRCodeData = {
@@ -204,9 +205,13 @@ export default function Page() {
   const params = useParams();
   const supabase = createClient();
   const qrLinkId = Number(params.qrCodeId);
-  const { organizationId } = useUser();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const organizationId = Cookies.get("organizationId");
+
+  if (!organizationId) {
+    redirect("/onboarding");
+  }
 
   const [isDeletingLink, setIsDeletingLink] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -223,7 +228,11 @@ export default function Page() {
   const { data: qrLinkData, isLoading: isLoadingQRLink } = useQuery({
     queryKey: ["qr-link", qrLinkId],
     queryFn: async () => {
-      const { data, error } = await getQRLinkQuery(supabase, qrLinkId);
+      const { data, error } = await getQRLinkQuery(
+        supabase,
+        qrLinkId,
+        organizationId,
+      );
       if (error) throw error;
       if (!data) throw new Error("QR link not found");
       return data;

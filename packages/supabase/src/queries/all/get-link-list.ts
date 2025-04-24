@@ -37,7 +37,11 @@ type DatabaseLinkList = {
   link_list_socials: DatabaseLinkListSocial[];
 };
 
-export async function getLinkListQuery(supabase: Client, linkListId: number) {
+export async function getLinkListQuery(
+  supabase: Client,
+  linkListId: number,
+  organizationId: string
+) {
   const { data, error } = await supabase
     .from("link_lists")
     .select(
@@ -60,6 +64,7 @@ export async function getLinkListQuery(supabase: Client, linkListId: number) {
     `
     )
     .eq("id", linkListId)
+    .eq("organization_id", organizationId)
     .single();
 
   // Sort the links and social links by their order field

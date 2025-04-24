@@ -36,7 +36,11 @@ export type QRCodeClick = {
   qr_code_id: string;
 };
 
-export async function getQRLinkQuery(supabase: Client, qrLinkId: number) {
+export async function getQRLinkQuery(
+  supabase: Client,
+  qrLinkId: number,
+  organizationId: string
+) {
   const { data, error } = await supabase
     .from("qr_links")
     .select(
@@ -57,6 +61,7 @@ export async function getQRLinkQuery(supabase: Client, qrLinkId: number) {
     `
     )
     .eq("id", qrLinkId)
+    .eq("organization_id", organizationId)
     .single();
 
   return { data: data as DatabaseQRLink | null, error };

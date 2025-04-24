@@ -71,7 +71,11 @@ interface PrimaryButton {
   textColor: string;
 }
 
-export default function LinkListBuilder() {
+export default function LinkListBuilder({
+  organizationId,
+}: {
+  organizationId: string;
+}) {
   const params = useParams();
   const linkListId = params.linkListId as unknown as number;
   const supabase = createClient();
@@ -126,7 +130,7 @@ export default function LinkListBuilder() {
   // Query hook
   const { data: linkList, isLoading } = useQuery({
     queryKey: ["linkList", linkListId],
-    queryFn: () => getLinkListQuery(supabase, linkListId),
+    queryFn: () => getLinkListQuery(supabase, linkListId, organizationId),
     enabled: !!linkListId,
   });
 

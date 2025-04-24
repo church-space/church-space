@@ -7,6 +7,7 @@ import { authActionClient } from "./safe-action";
 
 const getEmailAutomationSchema = z.object({
   automationId: z.number(),
+  organizationId: z.string(),
 });
 
 export const getEmailAutomationAction = authActionClient
@@ -21,6 +22,7 @@ export const getEmailAutomationAction = authActionClient
     const { data, error } = await getEmailAutomationQuery(
       supabase,
       parsedInput.automationId,
+      parsedInput.organizationId,
     );
 
     return {

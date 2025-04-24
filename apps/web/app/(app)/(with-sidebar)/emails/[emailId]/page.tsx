@@ -11,17 +11,23 @@ import ScheduledPage from "./scheduled-page";
 import LoadingPage from "./loading-page";
 import { useState, useEffect } from "react";
 import { getSentEmailStatsAction } from "@/actions/get-sent-email-stats";
+import Cookies from "js-cookie";
 
 export default function Page() {
   const params = useParams();
   const emailId = parseInt(params.emailId as string, 10);
   const supabase = createClient();
+  const organizationId = Cookies.get("organizationId");
+
+  if (!organizationId) {
+    redirect("/onboarding");
+  }
 
   const [emailState, setEmailState] = useState<any>(null);
 
   const { data: email, isLoading } = useQuery({
     queryKey: ["email-id-page", emailId],
-    queryFn: () => getEmailQuery(supabase, emailId),
+    queryFn: () => getEmailQuery(supabase, emailId, organizationId),
   });
 
   const { data: sentStats } = useQuery({

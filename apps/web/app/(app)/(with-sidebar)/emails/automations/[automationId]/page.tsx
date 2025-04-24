@@ -38,10 +38,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 import { useUser } from "@/stores/use-user";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
 import type { TriggerType } from "@/components/automation-builder/automation-builder";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
+import Cookies from "js-cookie";
 
 // Types for the new schema
 interface AutomationStep {
@@ -72,7 +73,13 @@ interface EmailAutomation {
 export default function Page() {
   const params = useParams();
   const automationId = parseInt(params.automationId as string, 10);
-  const { organizationId } = useUser();
+
+  const organizationId = Cookies.get("organizationId");
+
+  if (!organizationId) {
+    redirect("/onboarding");
+  }
+
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -84,6 +91,7 @@ export default function Page() {
       queryFn: () =>
         getEmailAutomationAction({
           automationId: automationId,
+          organizationId: organizationId,
         }),
     },
   );
