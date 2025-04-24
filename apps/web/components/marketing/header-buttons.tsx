@@ -1,4 +1,3 @@
-import { createClient } from "@church-space/supabase/server";
 import Link from "next/link";
 import { Button } from "@church-space/ui/button";
 
