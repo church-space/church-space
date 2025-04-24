@@ -73,6 +73,17 @@ function validateIds(headers: { name: string; value: string }[]): {
   };
 }
 
+// Add this helper function after the other helper functions
+function extractOrganizationId(
+  headers: { name: string; value: string }[],
+): string | undefined {
+  const mailerHeader = getHeaderValue(headers, "X-Mailer");
+  if (!mailerHeader) return undefined;
+
+  const match = mailerHeader.match(/Customer (\d+)/);
+  return match?.[1];
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
 
@@ -255,6 +266,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
+      const organizationId = extractOrganizationId(payload.data.headers);
       await Promise.all([
         upsertEmailRecipient(supabase, {
           resend_email_id: payload.data.email_id,
@@ -264,11 +276,16 @@ export async function POST(request: NextRequest) {
           email_address: payload.data.to[0],
           automation_id: bouncedIds.automation_id,
         }),
-        updatePeopleEmailStatus(supabase, {
-          people_email_id: bouncedIds.people_email_id,
-          status: "cleaned",
-          reason: "email bounced",
-        }),
+        ...(organizationId
+          ? [
+              updatePeopleEmailStatus(supabase, {
+                status: "cleaned",
+                reason: "email bounced",
+                email_address: payload.data.to[0],
+                organization_id: organizationId,
+              }),
+            ]
+          : []),
       ]);
       break;
     case "email.opened":

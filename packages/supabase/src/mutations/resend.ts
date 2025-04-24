@@ -53,19 +53,22 @@ export async function insertEmailLinkClicked(
 export async function updatePeopleEmailStatus(
   supabase: Client,
   {
-    people_email_id,
     status,
     reason,
+    email_address,
+    organization_id,
   }: {
-    people_email_id: number;
     status: Database["public"]["Enums"]["email_address_status"];
     reason: string;
+    email_address: string;
+    organization_id: string;
   }
 ) {
   return supabase
-    .from("people_emails")
+    .from("people_email_statuses")
     .update({ status, reason })
-    .eq("id", people_email_id);
+    .eq("email_address", email_address)
+    .eq("organization_id", organization_id);
 }
 
 export async function updateDomainVerificationStatus(
