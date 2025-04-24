@@ -6,10 +6,59 @@ import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useToast } from "@church-space/ui/use-toast";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { updateUserAction } from "@/actions/update-user";
+import { Loader2 } from "lucide-react";
 
-export default function ClientPage() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+const formSchema = z.object({
+  firstName: z.string().min(1, "First name cannot be blank"),
+  lastName: z.string().min(1, "Last name cannot be blank"),
+});
+
+export default function ClientPage({ userId }: { userId: string }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+    },
+  });
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
+    try {
+      const result = await updateUserAction({
+        ...data,
+        userId,
+      });
+      if (result?.data?.error) {
+        toast({ title: "Error updating user", description: result.data.error });
+        setIsLoading(false);
+      } else {
+        router.push("/emails");
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error updating user",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+      });
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
@@ -37,21 +86,36 @@ export default function ClientPage() {
               <CardContent className="space-y-4 pt-4">
                 <div className="space-y-1">
                   <Label>First Name</Label>
-                  <Input
-                    placeholder="First Name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
+                  <Input placeholder="First Name" {...register("firstName")} />
+                  {errors.firstName && (
+                    <div className="mt-2 text-sm text-red-500">
+                      {errors.firstName.message}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <Label>Last Name</Label>
-                  <Input
-                    placeholder="Last Name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
+                  <Input placeholder="Last Name" {...register("lastName")} />
+                  {errors.lastName && (
+                    <div className="mt-2 text-sm text-red-500">
+                      {errors.lastName.message}
+                    </div>
+                  )}
                 </div>
-                <Button className="w-full">Let&apos;s get started</Button>
+                <Button
+                  className="w-full"
+                  disabled={isLoading}
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Let&apos;s get started
+                    </>
+                  ) : (
+                    `Let's get started`
+                  )}
+                </Button>
               </CardContent>
             </Card>
           </motion.div>

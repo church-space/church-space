@@ -70,7 +70,9 @@ export default async function ProtectedLayout({
         />
         <InitPco
           pcoData={{
-            id: user.pcoConnection?.id.toString() || null,
+            id: user.pcoConnection?.id
+              ? user.pcoConnection.id.toString()
+              : null,
             access_token: user.pcoConnection?.access_token || null,
           }}
         />
