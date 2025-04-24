@@ -156,14 +156,13 @@ export default function OrgMembers({
         page.data.map((member, index) => {
           const isAffected = affectedMemberIds.includes(member.id);
           return (
-            <>
+            <div key={member.id}>
               <div
                 className={cn(
                   "flex items-center justify-between p-4",
                   index !== 0 && "border-t",
                   isAffected && "bg-muted opacity-50",
                 )}
-                key={member.id}
               >
                 <div className="flex items-center gap-4">
                   <Avatar>
@@ -268,7 +267,7 @@ export default function OrgMembers({
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-            </>
+            </div>
           );
         }),
       )}
