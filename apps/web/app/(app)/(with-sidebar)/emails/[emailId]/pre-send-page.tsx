@@ -147,6 +147,11 @@ export default function PreSendPage({
   const [isLoading, setIsLoading] = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
 
+  // Add a useEffect to update email state when initialEmail changes
+  useEffect(() => {
+    setEmail(initialEmail);
+  }, [initialEmail]);
+
   // Track which accordion is attempting to be closed with unsaved changes
   const [accordionWithPreventedClose, setAccordionWithPreventedClose] =
     useState<string | null>(null);
@@ -293,6 +298,24 @@ export default function PreSendPage({
       emailBlockCount > 0
     );
   };
+
+  // Add a state to track completion status
+  const [isCompleted, setIsCompleted] = useState(isAllStepsCompleted());
+
+  // Add useEffect to update completion status when relevant fields change
+  useEffect(() => {
+    setIsCompleted(isAllStepsCompleted());
+  }, [
+    email.list_id,
+    email.from_name,
+    email.from_email,
+    email.from_email_domain,
+    email.subject,
+    email.email_category,
+    email.scheduled_for,
+    email.send_now,
+    emailBlockCount,
+  ]);
 
   // Setup the update email mutation using TanStack Query
   const updateEmailMutation = useMutation({
@@ -763,7 +786,7 @@ export default function PreSendPage({
           <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
             <DialogTrigger asChild>
               <Button
-                disabled={!isAllStepsCompleted()}
+                disabled={!isCompleted}
                 onClick={(e) => {
                   if (email.scheduled_for) {
                     const scheduledTime = new Date(email.scheduled_for);

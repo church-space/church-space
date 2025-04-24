@@ -502,8 +502,8 @@ export default function DomainManagement({
       // Cast response to ActionResponse type
       const typedResponse = response as ActionResponse;
 
-      // Simply check if success is true
-      if (typedResponse.success === true) {
+      // Check if we have a successful response with data
+      if (typedResponse.success === true && typedResponse.data) {
         // Update domains state with the new verification status
         setDomains((prevDomains) =>
           prevDomains.map((d) =>
@@ -513,22 +513,25 @@ export default function DomainManagement({
                   has_clicked_verify: true,
                   is_verified:
                     typedResponse.data?.data?.domain?.[0]?.status ===
-                      "verified" || false,
+                    "verified",
                 }
               : d,
           ),
         );
 
+        const status = typedResponse.data?.data?.domain?.[0]?.status;
+        const message =
+          status === "pending"
+            ? "Domain verification is pending. This may take a few minutes."
+            : "Domain verification process has started.";
+
         toast({
           title: "Records added",
-          description: "Please wait for the verification process to complete.",
+          description: message,
         });
       } else {
         console.error("Failed to verify domain:", response);
-        const errorMessage =
-          typedResponse && typeof typedResponse.error === "string"
-            ? typedResponse.error
-            : "Failed to verify domain";
+        const errorMessage = typedResponse.error || "Failed to verify domain";
         toast({
           title: "Error verifying domain",
           description: errorMessage,

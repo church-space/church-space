@@ -80,7 +80,6 @@ import {
   LinkIcon,
 } from "@church-space/ui/icons";
 import { createRoot } from "react-dom/client";
-import { useUser } from "@/stores/use-user";
 import FileUpload from "@/components/dnd-builder/file-upload";
 import { LoaderIcon } from "lucide-react";
 import { z } from "zod";
