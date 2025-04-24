@@ -1,3 +1,5 @@
+import "server-only";
+
 import { scheduleEmail } from "@/jobs/schduled-emails";
 import { NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";

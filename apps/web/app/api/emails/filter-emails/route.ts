@@ -1,3 +1,5 @@
+import "server-only";
+
 import { filterEmailRecipients } from "@/jobs/filter-emails";
 import { NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";

@@ -1,3 +1,5 @@
+import "server-only";
+
 import stripe from "@/lib/stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";

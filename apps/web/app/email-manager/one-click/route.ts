@@ -18,8 +18,12 @@ export async function POST(request: Request) {
 
     const emailId = payload.email_id as number;
     const peopleEmailId = payload.people_email_id as number;
+    const automationStepId = payload.automation_step_id as number;
 
-    if (!emailId || !peopleEmailId) {
+    if (!peopleEmailId) {
+      return new Response("Invalid token payload", { status: 400 });
+    }
+    if (!emailId && !automationStepId) {
       return new Response("Invalid token payload", { status: 400 });
     }
 
@@ -27,8 +31,9 @@ export async function POST(request: Request) {
 
     // Call the unsubscribe_from_all_emails function
     await supabase.rpc("unsubscribe_from_all_emails", {
-      p_email_id: emailId,
-      p_person_email_id: peopleEmailId,
+      person_email_id_input: peopleEmailId,
+      email_id_input: emailId || undefined,
+      automation_step_id_input: automationStepId || undefined,
     });
 
     return new Response(null, { status: 202 });

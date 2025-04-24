@@ -1,3 +1,5 @@
+import "server-only";
+
 import { generateEmailCode } from "@/lib/generate-email-code";
 import { render } from "@react-email/render";
 import { NextRequest, NextResponse } from "next/server";

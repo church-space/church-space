@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import { inviteMembers } from "@/jobs/invite-members";
 import { NextResponse } from "next/server";

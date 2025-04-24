@@ -1,3 +1,5 @@
+import "server-only";
+
 import { sendEmails } from "@/jobs/test-email-queue";
 import { NextResponse } from "next/server";
 import { z } from "zod";

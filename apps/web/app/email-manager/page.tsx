@@ -51,11 +51,11 @@ export default async function Page({
     }
   }
 
-  if (!emailId) {
+  if (!peopleEmailId) {
     return <div>Invalid token</div>;
   }
 
-  if (!automationStepId && !peopleEmailId) {
+  if (!automationStepId && !emailId) {
     return <div>Invalid token</div>;
   }
 
@@ -99,7 +99,7 @@ export default async function Page({
 
   let categories: Category[] = [];
   if (type === "manage") {
-    categories = await getCategories(emailId);
+    categories = await getCategories(peopleEmailId);
   }
 
   return (

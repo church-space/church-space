@@ -11,8 +11,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Create a queue for email sending
 const emailQueue = queue({
-  name: "automation-email-queue",
-  concurrencyLimit: 5, // Keep concurrency for the queue itself
+  name: "bulk-email-queue",
+  concurrencyLimit: 20,
 });
 
 // Interface for the payload
