@@ -15,7 +15,10 @@ export default async function Page() {
     return redirect("/onboarding");
   }
 
-  if (user.userDetails?.first_name && user.userDetails?.last_name) {
+  if (
+    user.userDetails?.first_name === null ||
+    user.userDetails?.last_name === null
+  ) {
     return redirect("/emails");
   }
 
