@@ -1,31 +1,23 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getOrganizationMembers } from "@/actions/get-organization-members";
+import { getOrganizationInvites } from "@/actions/get-organization-invites";
 
-export type OrganizationMember = {
+export type OrganizationInvite = {
   id: number;
-  created_at: string;
-  user_id: string;
-  organization_id: string;
-  role: "owner" | "admin" | "member";
-  users: {
-    id: string;
-    first_name: string | null;
-    last_name: string | null;
-    avatar_url: string | null;
-    email: string;
-  };
+  email: string;
+  expires: string;
+  status: string;
 };
 
-export function useOrganizationMembers(organizationId: string) {
+export function useOrganizationInvites(organizationId: string) {
   return useInfiniteQuery({
-    queryKey: ["organization-members", organizationId],
+    queryKey: ["organization-invites", organizationId],
     queryFn: async () => {
-      const result = await getOrganizationMembers({
+      const result = await getOrganizationInvites({
         organizationId,
       });
 
       if (!result) {
-        throw new Error("Failed to fetch members");
+        throw new Error("Failed to fetch invites");
       }
 
       if (result.validationErrors) {
@@ -40,7 +32,7 @@ export function useOrganizationMembers(organizationId: string) {
         data:
           (result.data.data?.map((person) => ({
             ...person,
-          })) as OrganizationMember[]) ?? [],
+          })) as OrganizationInvite[]) ?? [],
         nextPage: result.data.nextPage,
       };
     },

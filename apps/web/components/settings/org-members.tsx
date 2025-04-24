@@ -26,7 +26,7 @@ export default function OrgMembers({
 
   if (isLoading)
     return (
-      <div className="rounded-lg border">
+      <div className="rounded-lg">
         {Array.from({ length: 2 }).map((_, index) => (
           <div
             className={cn(
@@ -79,7 +79,7 @@ export default function OrgMembers({
       </div>
     );
   return (
-    <div className="rounded-lg border">
+    <div className="rounded-lg">
       {data?.pages.map((page) =>
         page.data.map((member, index) => (
           <div

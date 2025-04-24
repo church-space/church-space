@@ -39,16 +39,14 @@ export default async function Page() {
     return <div>No organization selected</div>;
   }
 
-  const userDetails = (
-    user.userDetails as {
-      avatar_url: string | null;
-      created_at: string;
-      email: string;
-      first_name: string | null;
-      id: string;
-      last_name: string | null;
-    }[]
-  )?.[0];
+  const userDetails = user.userDetails as {
+    avatar_url: string | null;
+    created_at: string;
+    email: string;
+    first_name: string | null;
+    id: string;
+    last_name: string | null;
+  };
 
   return (
     <div className="relative">

@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@church-space/ui/select";
 import { X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Member {
   email: string;
@@ -40,6 +41,7 @@ export function InviteModal({ organizationId }: InviteModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -113,6 +115,14 @@ export function InviteModal({ organizationId }: InviteModalProps) {
       toast({
         title: "Invites sent successfully",
         description: "Your invitations have been sent",
+      });
+
+      // Invalidate the queries to refresh the data
+      queryClient.invalidateQueries({
+        queryKey: ["organization-invites", organizationId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["organization-members", organizationId],
       });
 
       setIsOpen(false);

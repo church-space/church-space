@@ -21,7 +21,7 @@ export default async function HeaderButtons() {
             </Button>
           </Link>
           <Link href="/signup" passHref>
-            <Button className="h-8 rounded-lg bg-foreground/90 px-3 py-0 hover:bg-foreground">
+            <Button className="h-8 rounded-lg bg-foreground/90 px-3 py-0 text-background hover:bg-foreground">
               Sign up
             </Button>
           </Link>

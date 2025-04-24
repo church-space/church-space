@@ -36,7 +36,7 @@ import { useState, useEffect } from "react";
 import { updateOrganizationDataAction } from "@/actions/update-organization-data";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@church-space/ui/use-toast";
-
+import OrgInvites from "@/components/settings/invites";
 export interface Address {
   line1?: string;
   line2?: string;
@@ -64,6 +64,7 @@ export default function ClientPage({
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [hasBeenModified, setHasBeenModified] = useState(false);
   const [localOrgName, setLocalOrgName] = useState(orgName || "");
   const [localDefaultEmail, setLocalDefaultEmail] = useState(
     defaultEmail || "",
@@ -83,7 +84,7 @@ export default function ClientPage({
   }, []);
 
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || !hasBeenModified) return;
 
     // Don't update if the values are the same as initial values
     if (
@@ -165,6 +166,7 @@ export default function ClientPage({
   ]);
 
   const updateAddress = (field: keyof Address, value: string) => {
+    setHasBeenModified(true);
     setLocalAddress((prev) => ({
       ...prev,
       [field]: value,
@@ -206,7 +208,10 @@ export default function ClientPage({
                 className="w-full bg-background"
                 maxLength={255}
                 value={localOrgName}
-                onChange={(e) => setLocalOrgName(e.target.value)}
+                onChange={(e) => {
+                  setHasBeenModified(true);
+                  setLocalOrgName(e.target.value);
+                }}
               />
             </SettingsRowAction>
           </SettingsRow>
@@ -225,14 +230,20 @@ export default function ClientPage({
                     className="w-full bg-background"
                     maxLength={255}
                     value={localDefaultEmail}
-                    onChange={(e) => setLocalDefaultEmail(e.target.value)}
+                    onChange={(e) => {
+                      setHasBeenModified(true);
+                      setLocalDefaultEmail(e.target.value);
+                    }}
                   />
                   <span className="flex items-center">@</span>
                 </div>
                 <DomainSelector
                   className="w-full"
                   organizationId={organizationId}
-                  onChange={setLocalDefaultEmailDomain}
+                  onChange={(value) => {
+                    setHasBeenModified(true);
+                    setLocalDefaultEmailDomain(value);
+                  }}
                   value={localDefaultEmailDomain}
                 />
               </div>
@@ -285,7 +296,10 @@ export default function ClientPage({
                 <CountrySelect
                   className="col-span-3 h-8 rounded-t-none bg-background"
                   value={localAddress.country}
-                  onValueChange={(value) => updateAddress("country", value)}
+                  onValueChange={(value) => {
+                    setHasBeenModified(true);
+                    updateAddress("country", value);
+                  }}
                 />
               </div>
             </SettingsRowAction>
@@ -356,6 +370,8 @@ export default function ClientPage({
         <SettingsContent>
           <OrgMembers organizationId={organizationId} />
         </SettingsContent>
+
+        <OrgInvites organizationId={organizationId} />
       </SettingsSection>
 
       <SettingsSection>

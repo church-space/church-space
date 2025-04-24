@@ -58,3 +58,17 @@ export async function updateOrganization(
 
   return result;
 }
+
+export async function cancelInvite(supabase: Client, inviteId: number) {
+  const result = await supabase
+    .from("invites")
+    .delete()
+    .eq("id", inviteId)
+    .select();
+
+  if (result.error) {
+    console.error(result.error);
+  }
+
+  return result;
+}

@@ -22,6 +22,8 @@ export default function SettingsUserName({
 }) {
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
+  const [firstNameError, setFirstNameError] = useState<string | null>(null);
+  const [lastNameError, setLastNameError] = useState<string | null>(null);
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
   const [isMounted, setIsMounted] = useState(false);
@@ -41,6 +43,17 @@ export default function SettingsUserName({
       debouncedFirstName === initialFirstName &&
       debouncedLastName === initialLastName
     ) {
+      return;
+    }
+
+    // Validate that neither first name nor last name is blank
+    if (!debouncedFirstName.trim()) {
+      setFirstNameError("First name cannot be blank");
+      return;
+    }
+
+    if (!debouncedLastName.trim()) {
+      setLastNameError("Last name cannot be blank");
       return;
     }
 
@@ -101,11 +114,13 @@ export default function SettingsUserName({
   const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFirstName = e.target.value;
     setFirstName(newFirstName);
+    setFirstNameError(null);
   };
 
   const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newLastName = e.target.value;
     setLastName(newLastName);
+    setLastNameError(null);
   };
 
   return (
@@ -120,6 +135,9 @@ export default function SettingsUserName({
             className="w-full"
             maxLength={255}
           />
+          {firstNameError && (
+            <div className="mt-2 text-sm text-red-500">{firstNameError}</div>
+          )}
         </SettingsRowAction>
       </SettingsRow>
       <SettingsRow>
@@ -132,6 +150,9 @@ export default function SettingsUserName({
             className="w-full"
             maxLength={255}
           />
+          {lastNameError && (
+            <div className="mt-2 text-sm text-red-500">{lastNameError}</div>
+          )}
         </SettingsRowAction>
       </SettingsRow>
       {error && <div className="mt-2 text-sm text-red-500">{error}</div>}

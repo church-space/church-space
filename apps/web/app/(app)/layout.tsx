@@ -14,60 +14,71 @@ export default async function ProtectedLayout({
   children,
 }: ProtectedLayoutProps) {
   const supabase = await createClient();
-  const user = await getUserWithDetailsQuery(supabase);
 
-  if (!user) {
-    return redirect("/login");
-  }
+  try {
+    const user = await getUserWithDetailsQuery(supabase);
+    const session = await supabase.auth.getSession();
 
-  if (!user.organizationMembership) {
-    return redirect("/onboarding");
-  }
-
-  if (user.pcoConnection === null) {
-    return redirect("/pco-reconnect");
-  }
-
-  if (user.pcoConnection) {
-    const lastRefreshed = new Date(user.pcoConnection.last_refreshed);
-    const now = new Date();
-    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
-    const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-
-    if (lastRefreshed < twoHoursAgo && lastRefreshed > ninetyDaysAgo) {
-      // Token needs refresh but isn't expired
-      const headersList = await headers();
-      const currentPath = headersList.get("x-pathname");
-      const returnPath =
-        currentPath || headersList.get("x-invoke-path") || "/emails";
-
-      return redirect(
-        `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`,
-      );
+    if (!session.data.session) {
+      return redirect("/login");
     }
 
-    if (lastRefreshed < ninetyDaysAgo) {
-      // Token is too old, need to reconnect
+    if (!user) {
+      return redirect("/login");
+    }
+
+    if (!user.organizationMembership) {
+      return redirect("/onboarding");
+    }
+
+    if (user.pcoConnection === null) {
       return redirect("/pco-reconnect");
     }
-  }
 
-  return (
-    <div className="relative">
-      {children}
-      <InitUser
-        user={user.user}
-        userData={user.userDetails[0]}
-        organization_id={user.organizationMembership.organization_id}
-        role={user.organizationMembership.role}
-      />
-      <InitPco
-        pcoData={{
-          id: user.pcoConnection?.id.toString() || null,
-          access_token: user.pcoConnection?.access_token || null,
-        }}
-      />
-      <HelpMenu />
-    </div>
-  );
+    if (user.pcoConnection) {
+      const lastRefreshed = new Date(user.pcoConnection.last_refreshed);
+      const now = new Date();
+      const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+      const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+
+      if (lastRefreshed < twoHoursAgo && lastRefreshed > ninetyDaysAgo) {
+        // Token needs refresh but isn't expired
+        const headersList = await headers();
+        const currentPath = headersList.get("x-pathname");
+        const returnPath =
+          currentPath || headersList.get("x-invoke-path") || "/emails";
+
+        return redirect(
+          `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`,
+        );
+      }
+
+      if (lastRefreshed < ninetyDaysAgo) {
+        // Token is too old, need to reconnect
+        return redirect("/pco-reconnect");
+      }
+    }
+
+    return (
+      <div className="relative">
+        {children}
+        <InitUser
+          user={user.user}
+          userData={user.userDetails}
+          organization_id={user.organizationMembership.organization_id}
+          role={user.organizationMembership.role}
+        />
+        <InitPco
+          pcoData={{
+            id: user.pcoConnection?.id.toString() || null,
+            access_token: user.pcoConnection?.access_token || null,
+          }}
+        />
+        <HelpMenu />
+      </div>
+    );
+  } catch (error) {
+    console.error("Auth error:", error);
+    return redirect("/login");
+  }
 }

@@ -14,7 +14,8 @@ export async function getUserWithDetailsQuery(supabase: Client) {
   const { data: userDetails, error: userDetailsError } = await supabase
     .from("users")
     .select("*")
-    .eq("id", data.user?.id);
+    .eq("id", data.user?.id)
+    .single();
 
   if (userDetailsError) {
     throw userDetailsError;
@@ -32,7 +33,7 @@ export async function getUserWithDetailsQuery(supabase: Client) {
     // Return early if there's no organization membership or if there was an error
     return {
       user: data.user,
-      userDetails: userDetails?.[0] || null,
+      userDetails: userDetails || null,
     };
   }
 
