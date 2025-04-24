@@ -28,7 +28,7 @@ export default async function HeaderButtons() {
         </>
       ) : (
         <Link href="/emails" passHref>
-          <Button className="h-8 gap-1 rounded-lg bg-foreground/90 px-3 py-0 hover:bg-foreground">
+          <Button className="h-8 gap-1 rounded-lg bg-foreground/90 px-3 py-0 text-background hover:bg-foreground">
             <span className="hidden sm:inline">Go to</span>
             Dashboard
           </Button>

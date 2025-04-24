@@ -14,7 +14,7 @@ import { SettingsContent } from "./settings-settings";
 import { cancelInviteAction } from "@/actions/cancel-invite";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-
+import { useToast } from "@church-space/ui/use-toast";
 export default function OrgInvites({
   organizationId,
 }: {
@@ -23,6 +23,8 @@ export default function OrgInvites({
   const { data, isLoading, isError } = useOrganizationInvites(organizationId);
   const queryClient = useQueryClient();
   const [cancellingInvites, setCancellingInvites] = useState<number[]>([]);
+
+  const { toast } = useToast();
 
   const handleCancelInvite = async (inviteId: number) => {
     setCancellingInvites((prev) => [...prev, inviteId]);
@@ -45,6 +47,10 @@ export default function OrgInvites({
       }
     } finally {
       setCancellingInvites((prev) => prev.filter((id) => id !== inviteId));
+      toast({
+        title: "Invite cancelled",
+        description: "Invite cancelled from organization",
+      });
     }
   };
 

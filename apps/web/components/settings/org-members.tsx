@@ -14,6 +14,11 @@ import {
 import { Skeleton } from "@church-space/ui/skeleton";
 import { EllipsisVertical } from "lucide-react";
 import { useUser } from "@/stores/use-user";
+import { useState } from "react";
+import { updateOrganizationMemberAction } from "@/actions/update-organizaztion-member";
+import { deleteOrganizationMemberAction } from "@/actions/delete-organization-member";
+import { useToast } from "@church-space/ui/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function OrgMembers({
   organizationId,
@@ -21,8 +26,63 @@ export default function OrgMembers({
   organizationId: string;
 }) {
   const { data, isLoading, isError } = useOrganizationMembers(organizationId);
+  const [isRemovingMember, setIsRemovingMember] = useState(false);
+  const [isMakingOwner, setIsMakingOwner] = useState(false);
+  const [affectedMemberIds, setAffectedMemberIds] = useState<number[]>([]);
+
+  const queryClient = useQueryClient();
 
   const { user } = useUser();
+  const { toast } = useToast();
+
+  const handleMakeOwner = async (
+    memberId: number,
+    role: "owner" | "member",
+  ) => {
+    setIsMakingOwner(true);
+    setAffectedMemberIds((prev) => [...prev, memberId]);
+    try {
+      await updateOrganizationMemberAction({
+        memberId,
+        role,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      queryClient.invalidateQueries({
+        queryKey: ["organization-members", organizationId],
+      });
+      toast({
+        title: "Member updated",
+        description: "Member updated in organization",
+      });
+
+      setIsMakingOwner(false);
+      setAffectedMemberIds((prev) => prev.filter((id) => id !== memberId));
+    }
+  };
+
+  const handleRemoveMember = async (memberId: number) => {
+    setIsRemovingMember(true);
+    setAffectedMemberIds((prev) => [...prev, memberId]);
+    try {
+      await deleteOrganizationMemberAction({
+        memberId,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      queryClient.invalidateQueries({
+        queryKey: ["organization-members", organizationId],
+      });
+      toast({
+        title: "Member removed",
+        description: "Member removed from organization",
+      });
+      setIsRemovingMember(false);
+      setAffectedMemberIds((prev) => prev.filter((id) => id !== memberId));
+    }
+  };
 
   if (isLoading)
     return (
@@ -81,70 +141,96 @@ export default function OrgMembers({
   return (
     <div className="rounded-lg">
       {data?.pages.map((page) =>
-        page.data.map((member, index) => (
-          <div
-            className={cn(
-              "flex items-center justify-between p-4",
-              index !== 0 && "border-t",
-            )}
-            key={member.id}
-          >
-            <div className="flex items-center gap-4">
-              <Avatar>
-                <AvatarImage
-                  src={member.users.avatar_url ?? undefined}
-                  alt={member.users.first_name ?? undefined}
-                />
-                <AvatarFallback>
-                  {member.users.first_name?.[0]}
-                  {member.users.last_name?.[0]}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="text-sm font-medium">
-                    {member.users.first_name} {member.users.last_name}
+        page.data.map((member, index) => {
+          const isAffected = affectedMemberIds.includes(member.id);
+          return (
+            <div
+              className={cn(
+                "flex items-center justify-between p-4",
+                index !== 0 && "border-t",
+                isAffected && "bg-muted opacity-50",
+              )}
+              key={member.id}
+            >
+              <div className="flex items-center gap-4">
+                <Avatar>
+                  <AvatarImage
+                    src={member.users.avatar_url ?? undefined}
+                    alt={member.users.first_name ?? undefined}
+                  />
+                  <AvatarFallback>
+                    {member.users.first_name?.[0]}
+                    {member.users.last_name?.[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm font-medium">
+                      {member.users.first_name} {member.users.last_name}
+                    </div>
+                    <Badge
+                      className="h-5 w-fit px-1 text-xs capitalize"
+                      variant={
+                        member.role === "owner" ? "default" : "secondary"
+                      }
+                    >
+                      {member.role}
+                    </Badge>
                   </div>
-                  <Badge className="h-5 w-fit px-1 text-xs capitalize">
-                    {member.role}
-                  </Badge>
+                  <div className="text-xs text-muted-foreground">
+                    {member.users.email}
+                  </div>
                 </div>
+              </div>
+              <div className="flex items-center gap-1">
                 <div className="text-xs text-muted-foreground">
-                  {member.users.email}
+                  Added{" "}
+                  {new Date(member.created_at).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" disabled={isAffected}>
+                      <EllipsisVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {user?.id !== member.users.id ? (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleMakeOwner(
+                              member.id,
+                              member.role === "owner" ? "member" : "owner",
+                            )
+                          }
+                          disabled={isMakingOwner || isAffected}
+                        >
+                          {member.role === "owner"
+                            ? "Make Member"
+                            : "Make Owner"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleRemoveMember(member.id)}
+                          disabled={isRemovingMember || isAffected}
+                        >
+                          Remove
+                        </DropdownMenuItem>
+                      </>
+                    ) : (
+                      <DropdownMenuLabel className="text-muted-foreground">
+                        You are an owner of this organization
+                      </DropdownMenuLabel>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="text-xs text-muted-foreground">
-                Added{" "}
-                {new Date(member.created_at).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <EllipsisVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {user?.id !== member.users.id ? (
-                    <>
-                      <DropdownMenuItem>Make Owner</DropdownMenuItem>
-                      <DropdownMenuItem>Remove</DropdownMenuItem>
-                    </>
-                  ) : (
-                    <DropdownMenuLabel className="text-muted-foreground">
-                      You are an owner of this organization
-                    </DropdownMenuLabel>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        )),
+          );
+        }),
       )}
     </div>
   );

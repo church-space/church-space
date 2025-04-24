@@ -31,6 +31,13 @@ export default async function ProtectedLayout({
       return redirect("/onboarding");
     }
 
+    if (
+      user.userDetails?.first_name === null ||
+      user.userDetails?.last_name === null
+    ) {
+      return redirect("/hello");
+    }
+
     if (user.pcoConnection === null) {
       return redirect("/pco-reconnect");
     }

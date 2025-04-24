@@ -72,3 +72,38 @@ export async function cancelInvite(supabase: Client, inviteId: number) {
 
   return result;
 }
+
+export async function updateOrganizationMember(
+  supabase: Client,
+  memberId: number,
+  role: string
+) {
+  const result = await supabase
+    .from("organization_memberships")
+    .update({ role })
+    .eq("id", memberId)
+    .select();
+
+  if (result.error) {
+    console.error(result.error);
+  }
+
+  return result;
+}
+
+export async function removeOrganizationMember(
+  supabase: Client,
+  memberId: number
+) {
+  const result = await supabase
+    .from("organization_memberships")
+    .delete()
+    .eq("id", memberId)
+    .select();
+
+  if (result.error) {
+    console.error(result.error);
+  }
+
+  return result;
+}
