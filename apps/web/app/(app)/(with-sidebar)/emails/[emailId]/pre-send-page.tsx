@@ -582,7 +582,7 @@ export default function PreSendPage({
     // Reset the prevented close state
     setAccordionWithPreventedClose(null);
 
-    // If trying to close the current section
+    // If trying to close the current section or switch to another section
     if (value === "" || value !== activeAccordion) {
       // Check if current section has unsaved changes
       const hasUnsavedChangesInSection =
@@ -605,8 +605,14 @@ export default function PreSendPage({
         return;
       }
     }
-    // Otherwise, update to the new value
-    setActiveAccordion(value);
+
+    // Allow explicitly closing by clicking the open accordion
+    if (value === activeAccordion) {
+      setActiveAccordion("");
+    } else {
+      // Otherwise, update to the new value
+      setActiveAccordion(value);
+    }
   };
 
   // Add window beforeunload event listener to catch navigation attempts
