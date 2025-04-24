@@ -1,5 +1,11 @@
 import { Input } from "@church-space/ui/input";
-import React, { useState, useRef, useEffect } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@church-space/ui/popover";
+import { useEffect, useRef, useState } from "react";
+import { SketchPicker } from "react-color";
 import { z } from "zod";
 
 // Define a Zod schema for hex color validation
@@ -53,19 +59,28 @@ export default function ColorPicker({
   return (
     <div className="col-span-2 flex flex-col">
       <div className="flex items-center">
-        <Input
-          type="color"
-          className="h-9 w-[42px] rounded-r-none border-r-0 bg-background px-1 py-0.5"
-          value={color}
-          onChange={(e) => {
-            const newColor = e.target.value;
-            setColor(newColor);
-            onChange(newColor);
-            // Color picker input always provides valid hex, so clear any errors
-            setError(null);
-          }}
-          maxLength={6}
-        />
+        <Popover>
+          <PopoverTrigger>
+            <div
+              className="h-9 w-9 rounded-l border border-r-0"
+              style={{ backgroundColor: color }}
+            />
+          </PopoverTrigger>
+          <PopoverContent className="border-none p-0">
+            <SketchPicker
+              color={color}
+              onChange={(color) => {
+                setColor(color.hex);
+                onChange(color.hex);
+              }}
+              presetColors={[
+                { color: "#f00", title: "red" },
+                { color: "#0f0", title: "green" },
+                { color: "#00f", title: "blue" },
+              ]}
+            />
+          </PopoverContent>
+        </Popover>
         <div className="relative w-full">
           <Input
             type="text"
