@@ -373,7 +373,10 @@ export default function DataTable<TData>({
           <Table className="w-full border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
             <TableHeader className="backdrop-blur-xs sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="bg-muted">
+                <TableRow
+                  key={headerGroup.id}
+                  className="bg-muted hover:bg-muted"
+                >
                   {headerGroup.headers.map((header, index) => {
                     return (
                       <TableHead
