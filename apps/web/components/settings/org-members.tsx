@@ -8,10 +8,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@church-space/ui/dropdown-menu";
 import { Skeleton } from "@church-space/ui/skeleton";
 import { EllipsisVertical } from "lucide-react";
+import { useUser } from "@/stores/use-user";
 
 export default function OrgMembers({
   organizationId,
@@ -19,6 +21,8 @@ export default function OrgMembers({
   organizationId: string;
 }) {
   const { data, isLoading, isError } = useOrganizationMembers(organizationId);
+
+  const { user } = useUser();
 
   if (isLoading)
     return (
@@ -126,8 +130,16 @@ export default function OrgMembers({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Make Owner</DropdownMenuItem>
-                  <DropdownMenuItem>Remove</DropdownMenuItem>
+                  {user?.id !== member.users.id ? (
+                    <>
+                      <DropdownMenuItem>Make Owner</DropdownMenuItem>
+                      <DropdownMenuItem>Remove</DropdownMenuItem>
+                    </>
+                  ) : (
+                    <DropdownMenuLabel className="text-muted-foreground">
+                      You are an owner of this organization
+                    </DropdownMenuLabel>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

@@ -35,7 +35,7 @@ interface InviteModalProps {
 
 export function InviteModal({ organizationId }: InviteModalProps) {
   const [members, setMembers] = useState<Member[]>([
-    { email: "", role: "admin" },
+    { email: "", role: "member" },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +47,7 @@ export function InviteModal({ organizationId }: InviteModalProps) {
 
   const handleAddMember = () => {
     if (members.length < 10) {
-      setMembers([...members, { email: "", role: "admin" }]);
+      setMembers([...members, { email: "", role: "member" }]);
     }
   };
 
@@ -107,7 +107,7 @@ export function InviteModal({ organizationId }: InviteModalProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to send invites");
+        throw new Error("Failed to send invites: " + response.statusText);
       }
 
       toast({
@@ -162,6 +162,11 @@ export function InviteModal({ organizationId }: InviteModalProps) {
                     placeholder="email@example.com"
                     value={member.email}
                     onChange={(e) => handleEmailChange(index, e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === " ") {
+                        e.preventDefault();
+                      }
+                    }}
                     className={
                       !validateEmail(member.email) && member.email
                         ? "border-red-500"
@@ -176,7 +181,7 @@ export function InviteModal({ organizationId }: InviteModalProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="member">Member</SelectItem>
                       <SelectItem value="owner">Owner</SelectItem>
                     </SelectContent>
                   </Select>

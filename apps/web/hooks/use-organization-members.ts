@@ -6,7 +6,7 @@ export type OrganizationMember = {
   created_at: string;
   user_id: string;
   organization_id: string;
-  role: "owner" | "admin";
+  role: "owner" | "admin" | "member";
   users: {
     id: string;
     first_name: string | null;

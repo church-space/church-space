@@ -7,7 +7,7 @@ import { add } from "date-fns";
 
 interface InviteMemberData {
   email: string;
-  role: string;
+  role: "member" | "owner" | "admin";
 }
 
 interface InviteMembersPayload {
@@ -142,7 +142,7 @@ export const inviteMembers = task({
 
       try {
         await resend.emails.send({
-          from: "invites@churchspace.co",
+          from: "invites@mail.churchspace.co",
           to: member.email,
           subject: `You've been invited to join ${orgData.name} on Church Space`,
           html: `<!DOCTYPE html>

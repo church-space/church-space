@@ -1,3 +1,5 @@
+"use server";
+
 import { inviteMembers } from "@/jobs/invite-members";
 import { NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";
@@ -10,8 +12,6 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.fixedWindow(5, "10s"),
   redis: RedisClient,
 });
-
-export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {

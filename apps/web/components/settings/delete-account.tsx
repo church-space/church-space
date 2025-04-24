@@ -95,7 +95,7 @@ export default function DeleteAccount({
         organizationId,
         organizationName:
           orgRole === "owner" && isOnlyOwner ? inputOrgName : undefined,
-        role: orgRole as "owner" | "admin",
+        role: orgRole as "owner" | "admin" | "member",
       });
 
       if (!result) {

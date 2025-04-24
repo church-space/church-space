@@ -14,7 +14,7 @@ export const deleteUserAction = authActionClient
       email: z.string().email(),
       organizationId: z.string(),
       organizationName: z.string().optional(),
-      role: z.enum(["owner", "admin"]),
+      role: z.enum(["owner", "admin", "member"]),
     }),
   )
   .metadata({
