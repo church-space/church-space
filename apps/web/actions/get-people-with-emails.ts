@@ -11,15 +11,6 @@ const getPeopleWithEmailsSchema = z.object({
   organizationId: z.string(),
   page: z.number().default(0),
   searchTerm: z.string().optional(),
-  emailStatus: z
-    .enum([
-      "subscribed",
-      "partially subscribed",
-      "pco_blocked",
-      "unsubscribed",
-      "cleaned",
-    ])
-    .optional(),
 });
 
 export const getPeopleWithEmails = authActionClient
@@ -39,9 +30,6 @@ export const getPeopleWithEmails = authActionClient
         start: from,
         end: to,
         searchTerm: parsedInput.searchTerm,
-        emailStatus: parsedInput.emailStatus
-          ? [parsedInput.emailStatus]
-          : undefined,
       },
     );
 

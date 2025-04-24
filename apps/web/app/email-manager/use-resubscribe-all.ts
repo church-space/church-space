@@ -11,8 +11,9 @@ const ratelimit = new Ratelimit({
 });
 
 export async function handleResubscribeAll(
-  emailId: number,
+  emailId: number | null,
   peopleEmailId: number,
+  personAutomationId: number | null,
 ) {
   const ip = (await headers()).get("x-forwarded-for");
 
@@ -24,8 +25,9 @@ export async function handleResubscribeAll(
   const supabase = await createClient();
 
   const { data, error } = await supabase.rpc("re_subscribe_and_cleanup", {
-    email_id_input: emailId,
     person_email_id_input: peopleEmailId,
+    email_id_input: emailId ?? undefined,
+    automation_step_id_input: personAutomationId ?? undefined,
   });
 
   if (error) {

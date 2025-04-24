@@ -34,6 +34,7 @@ interface SendAutomationEmailPayload {
   fromName: string;
   subject: string;
   automationId: number;
+  automationStepId: number;
   triggerAutomationRunId: string;
   organizationName: string;
 }
@@ -83,6 +84,7 @@ export const sendAutomationEmail = task({
       subject,
       organizationId,
       automationId,
+      automationStepId,
       triggerAutomationRunId,
     } = payload;
     const supabase = createClient();
@@ -234,7 +236,7 @@ export const sendAutomationEmail = task({
           try {
             // Generate unsubscribe token
             const unsubscribeToken = await new SignJWT({
-              email_id: emailId,
+              automation_step_id: automationStepId,
               people_email_id: parseInt(peopleEmailId),
             })
               .setProtectedHeader({ alg: "HS256" })
@@ -248,7 +250,7 @@ export const sendAutomationEmail = task({
             const unsubscribeUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=unsubscribe`;
             const oneClickUnsubscribeUrl = `https://churchspace.co/email-manager/one-click?tk=${unsubscribeToken}&type=unsubscribe`;
             const managePreferencesUrl = `https://churchspace.co/email-manager?tk=${unsubscribeToken}&type=manage`;
-            const unsubscribeEmail = `unsubscribe@churchspace.co?subject=unsubscribe&body=emailId%3A%20${emailId}%0AautomationId%3A%20${automationId}%0ApersonEmailId%3A%20${peopleEmailId}`;
+            const unsubscribeEmail = `unsubscribe@churchspace.co?subject=unsubscribe&body=automationId%3A%20${automationId}%0ApersonEmailId%3A%20${peopleEmailId}`;
 
             // ---- START: Personalize content ----
             let personalizedHtml = baseHtml

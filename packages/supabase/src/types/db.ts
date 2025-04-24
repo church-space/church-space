@@ -1563,6 +1563,47 @@ export type Database = {
           },
         ]
       }
+      people_email_statuses: {
+        Row: {
+          created_at: string
+          email_address: string
+          id: number
+          organization_id: string
+          protected_from_cleaning: boolean | null
+          reason: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_address: string
+          id?: number
+          organization_id: string
+          protected_from_cleaning?: boolean | null
+          reason?: string | null
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_address?: string
+          id?: number
+          organization_id?: string
+          protected_from_cleaning?: boolean | null
+          reason?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imported_unsubscribes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       people_emails: {
         Row: {
           created_at: string
@@ -1571,9 +1612,6 @@ export type Database = {
           organization_id: string
           pco_email_id: string
           pco_person_id: string
-          protected_from_cleaning: boolean
-          reason: string | null
-          status: Database["public"]["Enums"]["email_address_status"]
           updated_at: string | null
         }
         Insert: {
@@ -1583,9 +1621,6 @@ export type Database = {
           organization_id: string
           pco_email_id: string
           pco_person_id: string
-          protected_from_cleaning?: boolean
-          reason?: string | null
-          status?: Database["public"]["Enums"]["email_address_status"]
           updated_at?: string | null
         }
         Update: {
@@ -1595,9 +1630,6 @@ export type Database = {
           organization_id?: string
           pco_email_id?: string
           pco_person_id?: string
-          protected_from_cleaning?: boolean
-          reason?: string | null
-          status?: Database["public"]["Enums"]["email_address_status"]
           updated_at?: string | null
         }
         Relationships: [
@@ -2170,7 +2202,9 @@ export type Database = {
         Returns: boolean
       }
       get_public_list_categories_with_unsub_status: {
-        Args: { input_people_email_id: number; input_email_id: number }
+        Args:
+          | { input_people_email_id: number }
+          | { input_people_email_id: number; input_email_id: number }
         Returns: {
           category_id: number
           pco_name: string
@@ -2199,11 +2233,24 @@ export type Database = {
         Returns: number
       }
       re_subscribe_and_cleanup: {
-        Args: { email_id_input: number; person_email_id_input: number }
+        Args:
+          | { email_id_input: number; person_email_id_input: number }
+          | {
+              person_email_id_input: number
+              email_id_input?: number
+              automation_step_id_input?: number
+            }
         Returns: undefined
       }
       resubscribe_category: {
-        Args: { p_people_email_id: number; p_category_id: number }
+        Args:
+          | { p_people_email_id: number; p_category_id: number }
+          | {
+              person_email_id_input: number
+              category_id_input: number
+              email_id_input?: number
+              automation_step_id_input?: number
+            }
         Returns: undefined
       }
       shares_org_with_current_user: {
@@ -2211,15 +2258,28 @@ export type Database = {
         Returns: boolean
       }
       unsubscribe_from_all_emails: {
-        Args: { p_email_id: number; p_person_email_id: number }
+        Args:
+          | { p_email_id: number; p_person_email_id: number }
+          | {
+              person_email_id_input: number
+              email_id_input?: number
+              automation_step_id_input?: number
+            }
         Returns: undefined
       }
       unsubscribe_from_email_category: {
-        Args: {
-          unsub_email_id: number
-          person_email_id: number
-          category_id: number
-        }
+        Args:
+          | {
+              person_email_id_input: number
+              category_id_input: number
+              email_id_input?: number
+              automation_step_id_input?: number
+            }
+          | {
+              unsub_email_id: number
+              person_email_id: number
+              category_id: number
+            }
         Returns: undefined
       }
       update_hourly_link_click_stats: {

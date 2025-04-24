@@ -47,11 +47,16 @@ export type Person = {
   people_emails: Array<{
     id: number;
     email: string;
-    status: "subscribed" | "unsubscribed" | "pco_blocked" | "cleaned";
     pco_person_id: string;
     organization_id: string;
-    protected_from_cleaning: boolean;
+    status:
+      | "subscribed"
+      | "unsubscribed"
+      | "pco_blocked"
+      | "cleaned"
+      | "unknown";
     reason: string | null;
+    protected_from_cleaning: boolean;
   }>;
   email_category_unsubscribes: Array<{
     id: number;
@@ -71,7 +76,12 @@ const NameCell = ({ person }: { person: Person }) => {
     null,
   );
   const [optimisticStatus, setOptimisticStatus] = useState<{
-    status?: "subscribed" | "unsubscribed" | "pco_blocked" | "cleaned";
+    status?:
+      | "subscribed"
+      | "unsubscribed"
+      | "pco_blocked"
+      | "cleaned"
+      | "unknown";
     categoryUnsubscribes?: number[];
   }>({});
   const queryClient = useQueryClient();
@@ -151,7 +161,7 @@ const NameCell = ({ person }: { person: Person }) => {
           <div className="text-base font-medium hover:underline">
             {person.first_name} {person.last_name}
           </div>
-          <Pencil className="size-6 text-muted-foreground" />
+          <Pencil className="size-4 text-muted-foreground" />
         </div>
         {person.nickname && (
           <div className="text-sm text-muted-foreground">

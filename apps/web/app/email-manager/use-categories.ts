@@ -10,7 +10,7 @@ const ratelimit = new Ratelimit({
   redis: RedisClient,
 });
 
-export async function getCategories(emailId: number, peopleEmailId: number) {
+export async function getCategories(peopleEmailId: number) {
   const ip = (await headers()).get("x-forwarded-for");
 
   const { success } = await ratelimit.limit(`${ip}-get-categories`);
@@ -24,7 +24,6 @@ export async function getCategories(emailId: number, peopleEmailId: number) {
     "get_public_list_categories_with_unsub_status",
     {
       input_people_email_id: peopleEmailId,
-      input_email_id: emailId,
     },
   );
 

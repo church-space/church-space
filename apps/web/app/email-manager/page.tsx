@@ -33,6 +33,7 @@ export default async function Page({
 
   let emailId: number | null = null;
   let peopleEmailId: number | null = null;
+  let automationStepId: number | null = null;
 
   if (tk) {
     try {
@@ -42,48 +43,63 @@ export default async function Page({
       );
 
       // Extract the email_id and people_email_id from the payload
-      emailId = payload.email_id as number;
+      emailId = payload.email_id as number | null;
       peopleEmailId = payload.people_email_id as number;
+      automationStepId = payload.automation_step_id as number | null;
     } catch (error) {
       console.error("Error decoding token:", error);
     }
   }
 
-  if (!emailId || !peopleEmailId) {
+  if (!emailId) {
+    return <div>Invalid token</div>;
+  }
+
+  if (!automationStepId && !peopleEmailId) {
     return <div>Invalid token</div>;
   }
 
   const handleServerUnsubscribe = async () => {
     "use server";
-    if (emailId && peopleEmailId) {
-      await handleUnsubscribe(emailId, peopleEmailId);
+    if (peopleEmailId && (emailId || automationStepId)) {
+      await handleUnsubscribe(emailId, peopleEmailId, automationStepId);
     }
   };
 
   const handleServerResubscribeAll = async () => {
     "use server";
-    if (emailId && peopleEmailId) {
-      await handleResubscribeAll(emailId, peopleEmailId);
+    if (peopleEmailId && (emailId || automationStepId)) {
+      await handleResubscribeAll(emailId, peopleEmailId, automationStepId);
     }
   };
 
   const handleServerCategoryUnsubscribe = async (categoryId: number) => {
     "use server";
-    if (emailId && peopleEmailId) {
-      await handleCategoryUnsubscribe(emailId, peopleEmailId, categoryId);
+    if (peopleEmailId && (emailId || automationStepId)) {
+      await handleCategoryUnsubscribe(
+        emailId,
+        peopleEmailId,
+        categoryId,
+        automationStepId,
+      );
     }
   };
 
   const handleServerCategoryResubscribe = async (categoryId: number) => {
     "use server";
-    if (peopleEmailId) {
-      await handleCategoryResubscribe(peopleEmailId, categoryId);
+    if (peopleEmailId && (emailId || automationStepId)) {
+      await handleCategoryResubscribe(
+        peopleEmailId,
+        categoryId,
+        emailId,
+        automationStepId,
+      );
     }
   };
 
   let categories: Category[] = [];
   if (type === "manage") {
-    categories = await getCategories(emailId, peopleEmailId);
+    categories = await getCategories(emailId);
   }
 
   return (

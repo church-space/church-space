@@ -11,9 +11,10 @@ const ratelimit = new Ratelimit({
 });
 
 export async function handleCategoryUnsubscribe(
-  emailId: number,
+  emailId: number | null,
   peopleEmailId: number,
   emailCategoryId: number,
+  automationStepId: number | null,
 ) {
   const ip = (await headers()).get("x-forwarded-for");
 
@@ -26,9 +27,10 @@ export async function handleCategoryUnsubscribe(
   const supabase = await createClient();
 
   const { error } = await supabase.rpc("unsubscribe_from_email_category", {
-    unsub_email_id: emailId,
-    person_email_id: peopleEmailId,
-    category_id: emailCategoryId,
+    person_email_id_input: peopleEmailId,
+    category_id_input: emailCategoryId,
+    email_id_input: emailId ?? undefined,
+    automation_step_id_input: automationStepId ?? undefined,
   });
 
   if (error) {

@@ -25,7 +25,6 @@ export function usePeople(
         organizationId,
         page: pageParam,
         searchTerm,
-        emailStatus,
       });
 
       if (!result) {

@@ -269,13 +269,13 @@ export const filterEmailRecipients = task({
       // Extract person IDs from list members
       const personIds = listMembers.map((member) => member.pco_person_id);
 
-      // Step 5: Get all emails for these people that are subscribed
+      // Step 5: Get all emails for these people
       const { data: peopleEmails, error: peopleEmailsError } = await supabase
         .from("people_emails")
         .select(
           `
-          id, 
-          email, 
+          id,
+          email,
           pco_person_id,
           people!people_emails_pco_person_id_fkey(
             first_name,
@@ -284,8 +284,7 @@ export const filterEmailRecipients = task({
         `,
         )
         .in("pco_person_id", personIds)
-        .eq("organization_id", emailData.organization_id)
-        .eq("status", "subscribed");
+        .eq("organization_id", emailData.organization_id);
 
       if (peopleEmailsError) {
         await supabase
@@ -302,6 +301,57 @@ export const filterEmailRecipients = task({
       }
 
       if (!peopleEmails || peopleEmails.length === 0) {
+        // Update email status to failed
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: "No email addresses found for people in the list",
+          })
+          .eq("id", emailId);
+
+        throw new Error("No email addresses found for people in the list");
+      }
+
+      // Extract unique email addresses to check statuses
+      const emailAddressesToCheck = Array.from(
+        new Set(peopleEmails.map((pe) => pe.email)),
+      );
+
+      // Step 5.1: Get subscribed statuses for these email addresses
+      const { data: emailStatuses, error: emailStatusesError } = await supabase
+        .from("people_email_statuses")
+        .select("email_address")
+        .eq("organization_id", emailData.organization_id)
+        .in("email_address", emailAddressesToCheck)
+        .eq("status", "subscribed");
+
+      if (emailStatusesError) {
+        await supabase
+          .from("emails")
+          .update({
+            status: "failed",
+            updated_at: new Date().toISOString(),
+            error_message: `Failed to fetch email statuses: ${emailStatusesError.message}`,
+          })
+          .eq("id", emailId);
+        throw new Error(
+          `Failed to fetch email statuses: ${emailStatusesError.message}`,
+        );
+      }
+
+      // Create a set of subscribed email addresses for efficient lookup
+      const subscribedEmailAddresses = new Set(
+        emailStatuses?.map((status) => status.email_address) || [],
+      );
+
+      // Filter peopleEmails based on subscribed status
+      const subscribedPeopleEmails = peopleEmails.filter((pe) =>
+        subscribedEmailAddresses.has(pe.email),
+      );
+
+      if (subscribedPeopleEmails.length === 0) {
         // Update email status to failed
         await supabase
           .from("emails")
@@ -338,7 +388,7 @@ export const filterEmailRecipients = task({
       );
 
       // Step 7: Filter out unsubscribed emails and no-reply addresses
-      const filteredEmails = peopleEmails.filter(
+      const filteredEmails = subscribedPeopleEmails.filter(
         (emailRecord) =>
           !unsubscribedEmails.has(emailRecord.email.toLowerCase()) &&
           !emailRecord.email.toLowerCase().includes("no-reply") &&

@@ -167,30 +167,57 @@ export const automationJob = task({
             continue;
           }
 
-          // Fetch person's email data
-          const { data: personEmailData, error: personEmailError } =
+          // Fetch person's email data first
+          const { data: personEmailRecord, error: personEmailRecordError } =
             await supabase
               .from("people_emails")
-              .select("id, email, status, people!inner(first_name, last_name)")
+              .select("id, email, people!inner(first_name, last_name)")
               .eq("pco_person_id", pcoPersonId)
               .eq("organization_id", organizationId)
-              .eq("status", "subscribed")
               .limit(1)
               .maybeSingle();
 
-          if (personEmailError || !personEmailData) {
+          if (personEmailRecordError || !personEmailRecord) {
             console.error(
-              `Error fetching email for PCO person ${pcoPersonId}: ${personEmailError?.message || "No email found"}`,
+              `Error fetching email record for PCO person ${pcoPersonId}: ${personEmailRecordError?.message || "No email record found"}`,
             );
+            continue; // Skip this person if email record not found
+          }
+
+          // Now check if the status for that email address is 'subscribed'
+          const { data: emailStatusData, error: emailStatusError } =
+            await supabase
+              .from("people_email_statuses")
+              .select("email_address") // Only need to know if a record exists
+              .eq("organization_id", organizationId)
+              .eq("email_address", personEmailRecord.email) // Use fetched email
+              .eq("status", "subscribed") // Filter directly for subscribed status
+              .maybeSingle(); // Use maybeSingle as status might not exist or not be subscribed
+
+          // Handle potential errors fetching status
+          if (emailStatusError) {
+            console.error(
+              `Error fetching email status for ${personEmailRecord.email}: ${emailStatusError.message}`,
+            );
+            // Decide how to handle: skip person, assume unsubscribed? Let's skip for now.
             continue;
           }
 
+          // Check if a subscribed status record was found
+          if (!emailStatusData) {
+            console.log(
+              `Email ${personEmailRecord.email} is not subscribed or status record not found. Skipping.`,
+            );
+            continue; // Skip if not subscribed or status record missing
+          }
+
+          // If subscribed, add to recipients
           recipients.push({
             pcoPersonId,
             internalPersonId,
-            email: personEmailData.email,
-            firstName: personEmailData.people?.first_name || undefined,
-            lastName: personEmailData.people?.last_name || undefined,
+            email: personEmailRecord.email,
+            firstName: personEmailRecord.people?.first_name || undefined,
+            lastName: personEmailRecord.people?.last_name || undefined,
             memberRecordId: newMemberData.id,
           });
         } catch (error) {
@@ -326,6 +353,7 @@ export const automationJob = task({
                 automationId: automationId,
                 triggerAutomationRunId: ctx.run.id,
                 organizationName: automationData.organizations?.name || "",
+                automationStepId: step.id,
               });
             }
 

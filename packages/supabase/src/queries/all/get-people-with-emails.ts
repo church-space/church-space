@@ -3,13 +3,6 @@ import { Client } from "../../types";
 export interface QueryParams {
   start?: number;
   end?: number;
-  emailStatus?: (
-    | "subscribed"
-    | "partially subscribed"
-    | "pco_blocked"
-    | "unsubscribed"
-    | "cleaned"
-  )[];
   searchTerm?: string;
   unsubscribedCategories?: number[];
 }
@@ -34,11 +27,8 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
       people_emails(
         id,
         email,
-        status,
         pco_person_id,
-        organization_id,
-        reason, 
-        protected_from_cleaning
+        organization_id
       ),
       email_category_unsubscribes(
         id,
@@ -53,29 +43,6 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
     )
     .order("first_name", { ascending: true })
     .eq("organization_id", organizationId);
-
-  // Apply filters if provided
-  if (params?.emailStatus && params.emailStatus.length > 0) {
-    // For partially subscribed, we need to check both status and unsubscribes
-    if (params.emailStatus.includes("partially subscribed")) {
-      query = query.eq("people_emails.status", "subscribed");
-      query = query.not("email_category_unsubscribes.id", "is", null);
-    } else {
-      // Filter out "partially subscribed" from the status array since it's not a valid database status
-      const validStatuses = params.emailStatus.filter(
-        (
-          status
-        ): status is
-          | "subscribed"
-          | "unsubscribed"
-          | "pco_blocked"
-          | "cleaned" => status !== "partially subscribed"
-      );
-      if (validStatuses.length > 0) {
-        query = query.in("people_emails.status", validStatuses);
-      }
-    }
-  }
 
   if (params?.searchTerm) {
     const searchTerm = `%${params.searchTerm}%`;
@@ -103,7 +70,64 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
 
   const { data, error } = await query;
 
-  return { data, error };
+  if (error || !data) {
+    return { data, error };
+  }
+
+  // Extract unique email addresses from the results
+  const emailAddresses = Array.from(
+    new Set(
+      data.flatMap((person) => person.people_emails.map((email) => email.email))
+    )
+  );
+
+  if (emailAddresses.length === 0) {
+    // No emails found, return data as is (or potentially enrich emails with default status?)
+    // For now, just return
+    return { data, error };
+  }
+
+  // Fetch email statuses for the collected email addresses
+  const { data: statusesData, error: statusesError } = await supabase
+    .from("people_email_statuses")
+    .select("email_address, status, reason, protected_from_cleaning")
+    .eq("organization_id", organizationId)
+    .in("email_address", emailAddresses);
+
+  if (statusesError) {
+    // Handle error fetching statuses - maybe log it or return partial data with error
+    console.error("Error fetching email statuses:", statusesError);
+    // Depending on requirements, you might still return the original data
+    // return { data, error: statusesError }; // Or return original data + new error
+    return { data, error: null }; // Return original data without status enrichment
+  }
+
+  // Create a map for quick lookup: email_address -> status details
+  const statusMap = new Map(
+    statusesData.map((status) => [
+      status.email_address,
+      {
+        status: status.status,
+        reason: status.reason,
+        protected_from_cleaning: status.protected_from_cleaning,
+      },
+    ])
+  );
+
+  // Augment the original data with status information
+  const augmentedData = data.map((person) => ({
+    ...person,
+    people_emails: person.people_emails.map((email) => ({
+      ...email,
+      ...(statusMap.get(email.email) || {
+        status: "unknown", // Or 'subscribed' or null, depending on default
+        reason: null,
+        protected_from_cleaning: false,
+      }), // Add status info, handle cases where status might be missing
+    })),
+  }));
+
+  return { data: augmentedData, error };
 }
 
 // Keep the old function name for backward compatibility

@@ -105,7 +105,7 @@ export const syncPcoEmails = task({
 
             const pcoBlocked = email.attributes.blocked;
 
-            let status = "subscribed";
+            let status: "subscribed" | "pco_blocked" = "subscribed";
 
             if (pcoBlocked) {
               status = "pco_blocked";
@@ -120,10 +120,6 @@ export const syncPcoEmails = task({
                   pco_person_id: person.id,
                   pco_email_id: email.id,
                   email: emailAddress,
-                  status: status as
-                    | "unsubscribed"
-                    | "pco_blocked"
-                    | "subscribed",
                 },
                 {
                   onConflict: "pco_email_id,organization_id",
@@ -134,6 +130,29 @@ export const syncPcoEmails = task({
               console.error(
                 `Error upserting email ${email.id} for person ${person.id}:`,
                 emailError,
+              );
+              continue;
+            }
+
+            // Insert status into people_email_statuses only if it doesn't exist
+            const { error: statusError } = await supabase
+              .from("people_email_statuses")
+              .upsert(
+                {
+                  organization_id: payload.organization_id,
+                  email_address: emailAddress,
+                  status: status,
+                },
+                {
+                  onConflict: "organization_id,email_address",
+                  ignoreDuplicates: true,
+                },
+              );
+
+            if (statusError) {
+              console.error(
+                `Error upserting status for email ${emailAddress} for person ${person.id}:`,
+                statusError,
               );
             }
           }
