@@ -19,6 +19,10 @@ export default async function Page(props: { params: Params }) {
   const cookieStore = await cookies();
   const organizationId = cookieStore.get("organizationId")?.value;
 
+  if (!organizationId) {
+    redirect("/onboarding");
+  }
+
   const queryClient = new QueryClient();
 
   // Prefetch the email data
@@ -41,6 +45,7 @@ export default async function Page(props: { params: Params }) {
         `,
         )
         .eq("id", emailId)
+        .eq("organization_id", organizationId)
         .single();
 
       if (emailError) {
