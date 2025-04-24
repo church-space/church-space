@@ -9,7 +9,8 @@ import { authActionClient } from "./safe-action";
 export const updatePersonSubscriptionStatusAction = authActionClient
   .schema(
     z.object({
-      emailId: z.number(),
+      emailAddress: z.string(),
+      organizationId: z.string(),
       status: z.enum(["unsubscribed", "pco_blocked", "subscribed", "cleaned"]),
     }),
   )
@@ -21,7 +22,8 @@ export const updatePersonSubscriptionStatusAction = authActionClient
       const supabase = await createClient();
       const data = await updateEmailStatus(
         supabase,
-        parsedInput.parsedInput.emailId,
+        parsedInput.parsedInput.emailAddress,
+        parsedInput.parsedInput.organizationId,
         parsedInput.parsedInput.status,
       );
 

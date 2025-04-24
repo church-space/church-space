@@ -10,7 +10,8 @@ import { PostgrestError } from "@supabase/supabase-js";
 export const deleteCategoryUnsubscribeAction = authActionClient
   .schema(
     z.object({
-      emailId: z.number(),
+      emailAddress: z.string(),
+      organizationId: z.string(),
       categoryId: z.number(),
     }),
   )
@@ -23,7 +24,8 @@ export const deleteCategoryUnsubscribeAction = authActionClient
 
       const { data, error } = await deleteEmailCategoryUnsubscribe(
         supabase,
-        parsedInput.parsedInput.emailId,
+        parsedInput.parsedInput.emailAddress,
+        parsedInput.parsedInput.organizationId,
         parsedInput.parsedInput.categoryId,
       );
 

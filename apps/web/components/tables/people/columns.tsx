@@ -103,8 +103,9 @@ const NameCell = ({ person }: { person: Person }) => {
 
     try {
       await updatePersonSubscriptionStatusAction({
-        emailId: person.people_emails?.[0]?.id,
         status: newStatus,
+        organizationId: person.organization_id,
+        emailAddress: person.people_emails?.[0]?.email,
       });
       // Invalidate the people query to refresh the table data
       await queryClient.invalidateQueries({ queryKey: ["people"] });
@@ -128,7 +129,8 @@ const NameCell = ({ person }: { person: Person }) => {
 
     try {
       await deleteCategoryUnsubscribeAction({
-        emailId: person.people_emails?.[0]?.id,
+        emailAddress: person.people_emails?.[0]?.email,
+        organizationId: person.organization_id,
         categoryId,
       });
       // Invalidate the people query to refresh the table data

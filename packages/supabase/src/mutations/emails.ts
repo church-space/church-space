@@ -380,29 +380,17 @@ export async function updateEmail(
   return { data, error };
 }
 
-export async function unsubscribeEmail(supabase: Client, emailId: number) {
-  const { data, error } = await supabase
-    .from("people_emails")
-    .update({ status: "unsubscribed" })
-    .eq("id", emailId)
-    .select();
-
-  if (error) {
-    console.error("Error unsubscribing email:", error);
-    throw error;
-  }
-  return data;
-}
-
 export async function updateEmailStatus(
   supabase: Client,
-  emailId: number,
+  emailAddress: string,
+  organizationId: string,
   status: "unsubscribed" | "pco_blocked" | "subscribed" | "cleaned"
 ) {
   const { data, error } = await supabase
-    .from("people_emails")
+    .from("people_email_statuses")
     .update({ status: status })
-    .eq("id", emailId)
+    .eq("email_address", emailAddress)
+    .eq("organization_id", organizationId)
     .select();
 
   if (error) {
@@ -412,16 +400,19 @@ export async function updateEmailStatus(
   return data;
 }
 
+// HERE
 export async function deleteEmailCategoryUnsubscribe(
   supabase: Client,
-  emailId: number,
+  emailAddress: string,
+  organizationId: string,
   categoryId: number
 ) {
   const { data, error } = await supabase
-    .from("email_list_category_unsubscribes")
+    .from("email_category_unsubscribes")
     .delete()
-    .eq("unsub_email_id", emailId)
-    .eq("pco_list_category", categoryId)
+    .eq("email_address", emailAddress)
+    .eq("organization_id", organizationId)
+    .eq("category_id", categoryId)
     .select();
 
   if (error) {
