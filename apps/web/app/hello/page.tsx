@@ -17,13 +17,13 @@ export default async function ProtectedLayout({
     return redirect("/login");
   }
 
-  if (user.organizationMembership?.organization_id) {
+  if (!user.organizationMembership?.organization_id) {
     return redirect("/onboarding");
   }
 
-  if (user.userDetails?.first_name && user.userDetails?.last_name) {
-    return redirect("/emails");
-  }
+  //   if (user.userDetails?.first_name && user.userDetails?.last_name) {
+  //     return redirect("/emails");
+  //   }
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-card/100 to-background/60">
