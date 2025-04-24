@@ -42,6 +42,16 @@ export function MarketingLogoutButton({
 }: {
   showIcon?: boolean;
 }) {
+  // Clear user state
+  useUser.setState({
+    user: undefined,
+    id: null,
+    firstName: null,
+    lastName: null,
+    avatarUrl: null,
+    email: null,
+    organizationId: null,
+  });
   return (
     <Button
       variant="ghost"

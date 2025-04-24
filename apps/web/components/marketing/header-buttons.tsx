@@ -2,12 +2,7 @@ import { createClient } from "@church-space/supabase/server";
 import Link from "next/link";
 import { Button } from "@church-space/ui/button";
 
-export default async function HeaderButtons() {
-  const supabase = await createClient();
-
-  const { data: session } = await supabase.auth.getSession();
-
-  const isLoggedIn = session?.session !== null;
+export default function HeaderButtons({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
     <div className="flex items-center gap-2">
       {!isLoggedIn ? (

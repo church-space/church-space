@@ -24,7 +24,11 @@ import PCOlogo from "@/public/pco-logo.png";
 import Image from "next/image";
 import { MarketingLogoutButton } from "../sidebar/logout";
 
-export default function MobileHeaderSheet() {
+export default function MobileHeaderSheet({
+  isLoggedIn,
+}: {
+  isLoggedIn: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -137,9 +141,11 @@ export default function MobileHeaderSheet() {
             Contact
           </Link>
         </div>
-        <div className="flex flex-col gap-3 p-4 text-lg font-semibold">
-          <MarketingLogoutButton showIcon={true} />
-        </div>
+        {isLoggedIn && (
+          <div className="flex flex-col gap-3 p-4 text-lg font-semibold">
+            <MarketingLogoutButton showIcon={true} />
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

@@ -27,7 +27,7 @@ import HeaderButtons from "./header-buttons";
 import { Separator } from "@church-space/ui/separator";
 import { Label } from "@church-space/ui/label";
 
-export default function Header() {
+export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
     <header className="sticky top-0 z-10 flex h-16 w-full shrink-0 items-center gap-2 border-b bg-background/80 backdrop-blur-lg">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-6">
@@ -142,8 +142,8 @@ export default function Header() {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex items-center gap-2">
-          <HeaderButtons />
-          <MobileHeaderSheet />
+          <HeaderButtons isLoggedIn={isLoggedIn} />
+          <MobileHeaderSheet isLoggedIn={isLoggedIn} />
         </div>
       </div>
     </header>
