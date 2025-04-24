@@ -16,8 +16,8 @@ export default async function Page() {
   }
 
   if (
-    user.userDetails?.first_name === null ||
-    user.userDetails?.last_name === null
+    user.userDetails?.first_name !== null &&
+    user.userDetails?.last_name !== null
   ) {
     return redirect("/emails");
   }
