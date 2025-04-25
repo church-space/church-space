@@ -16,7 +16,6 @@ import { Separator } from "@church-space/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -24,7 +23,7 @@ import {
 import { useUser } from "@/stores/use-user";
 import { useCsvUpload } from "./use-csv-upload";
 import { useToast } from "@church-space/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Link, Loader2 } from "lucide-react";
 
 export default function ImportPage() {
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
@@ -160,11 +159,11 @@ export default function ImportPage() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/people">
+              <Link href="/people" className="hidden md:block">
+                <BreadcrumbItem>
                   <BreadcrumbPage>People</BreadcrumbPage>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
+                </BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage>Import Unsubscribed</BreadcrumbPage>

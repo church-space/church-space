@@ -32,11 +32,11 @@ import { Separator } from "@church-space/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
+import Link from "next/link";
 
 export interface Link {
   type: string;
@@ -598,9 +598,9 @@ export default function LinkListBuilder({
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/link-pages">Link Pages</BreadcrumbLink>
-              </BreadcrumbItem>
+              <Link href="/link-pages" className="hidden md:block">
+                <BreadcrumbItem>Link Pages</BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">

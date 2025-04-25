@@ -18,7 +18,6 @@ import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-list
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -45,6 +44,7 @@ import {
 } from "@church-space/ui/icons";
 import { motion } from "framer-motion";
 import { getEmailCategoryById } from "@church-space/supabase/queries/all/get-all-email-categories";
+import Link from "next/link";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -161,9 +161,9 @@ export default function ScheduledPage({ email: initialEmail }: { email: any }) {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
-              </BreadcrumbItem>
+              <Link href="/emails" className="hidden md:block">
+                <BreadcrumbItem>Emails</BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator className="hidden md:block" />
 
               <BreadcrumbItem>

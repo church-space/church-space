@@ -135,8 +135,6 @@ interface EmailFooterFormProps {
 function SortableLinkItem({
   link,
   index,
-  openItem,
-  setOpenItem,
   linkErrors,
   typingLinks,
   updateLink,
@@ -145,8 +143,6 @@ function SortableLinkItem({
 }: {
   link: any;
   index: number;
-  openItem: string | undefined;
-  setOpenItem: (value: string | undefined) => void;
   linkErrors: Record<number, string | null>;
   typingLinks: Record<number, boolean>;
   updateLink: (index: number, key: "icon" | "url", value: string) => void;
@@ -204,145 +200,128 @@ function SortableLinkItem({
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
 
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full"
-          value={openItem === index.toString() ? index.toString() : undefined}
-          onValueChange={(value) => setOpenItem(value)}
-        >
-          <AccordionItem value={index.toString()} className="border-0">
-            <div
-              onClick={() =>
-                setOpenItem(
-                  openItem === index.toString() ? undefined : index.toString(),
-                )
-              }
-            >
-              <AccordionTrigger className="flex w-full items-center justify-between rounded-sm px-2 py-3">
-                <div className="flex items-center gap-2">
-                  {Icon && <Icon height="20" width="20" />}
-                  <span className="truncate pr-2 text-sm">
-                    {link.icon
-                      ? link.icon === "twitter"
-                        ? "X"
-                        : link.icon.charAt(0).toUpperCase() + link.icon.slice(1)
-                      : `Link ${index + 1}`}
-                  </span>
-                </div>
-              </AccordionTrigger>
+        <AccordionItem value={index.toString()} className="w-full border-0">
+          <AccordionTrigger className="flex w-full items-center justify-between rounded-sm px-2 py-3">
+            <div className="flex items-center gap-2">
+              {Icon && <Icon height="20" width="20" />}
+              <span className="truncate pr-2 text-sm">
+                {link.icon
+                  ? link.icon === "twitter"
+                    ? "X"
+                    : link.icon.charAt(0).toUpperCase() + link.icon.slice(1)
+                  : `Link ${index + 1}`}
+              </span>
             </div>
-            <AccordionContent>
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full flex-col gap-y-2">
-                  <Label className="col-span-1">Platform</Label>
-                  <div className="col-span-2 mb-2 flex">
-                    <Select
-                      value={link.icon}
-                      onValueChange={(value) =>
-                        updateLink(index, "icon", value)
-                      }
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue placeholder="Icon" />
-                      </SelectTrigger>
-                      <SelectContent className="min-w-20">
-                        <SelectItem value="mail">
-                          <div className="flex flex-row gap-2">
-                            <MailFilled height={"20"} width={"20"} /> Email
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="link">
-                          <div className="flex flex-row gap-2">
-                            <LinkIcon height={"20"} width={"20"} /> Website
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="facebook">
-                          <div className="flex flex-row gap-2">
-                            <Facebook height={"20"} width={"20"} /> Facebook
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="youtube">
-                          <div className="flex flex-row gap-2">
-                            <Youtube height={"20"} width={"20"} /> Youtube
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="instagram">
-                          <div className="flex flex-row gap-2">
-                            <Instagram height={"20"} width={"20"} /> Instagram
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="tiktok">
-                          <div className="flex flex-row gap-2">
-                            <TikTok height={"20"} width={"20"} /> TikTok
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="twitter">
-                          <div className="flex flex-row gap-2">
-                            <XTwitter height={"20"} width={"20"} /> X
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="vimeo">
-                          <div className="flex flex-row gap-2">
-                            <Vimeo height={"20"} width={"20"} /> Vimeo
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="threads">
-                          <div className="flex flex-row gap-2">
-                            <Threads height={"20"} width={"20"} /> Threads
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bluesky">
-                          <div className="flex flex-row gap-2">
-                            <Bluesky height={"20"} width={"20"} /> Bluesky
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="linkedin">
-                          <div className="flex flex-row gap-2">
-                            <Linkedin height={"20"} width={"20"} /> LinkedIn
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+          </AccordionTrigger>
 
-                  <Label className="col-span-1">
-                    {link.icon === "mail" ? "Email" : "URL"}
-                  </Label>
-                  <div className="col-span-3 flex flex-col gap-1">
-                    <Input
-                      className={cn(
-                        "bg-background",
-                        linkErrors[index] &&
-                          !typingLinks[index] &&
-                          "border-destructive",
-                      )}
-                      value={link.url}
-                      onChange={(e) => updateLink(index, "url", e.target.value)}
-                      onBlur={() => handleLinkBlur(index)}
-                      placeholder={
-                        link.icon === "mail" ? "email@example.com" : "https://"
-                      }
-                      maxLength={500}
-                    />
-                    {linkErrors[index] && !typingLinks[index] && (
-                      <p className="text-xs text-destructive">
-                        {linkErrors[index]}
-                      </p>
-                    )}
-                  </div>
+          <AccordionContent>
+            <div className="flex flex-col gap-4">
+              <div className="flex w-full flex-col gap-y-2">
+                <Label className="col-span-1">Platform</Label>
+                <div className="col-span-2 mb-2 flex">
+                  <Select
+                    value={link.icon}
+                    onValueChange={(value) => updateLink(index, "icon", value)}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Icon" />
+                    </SelectTrigger>
+                    <SelectContent className="min-w-20">
+                      <SelectItem value="mail">
+                        <div className="flex flex-row gap-2">
+                          <MailFilled height="20" width="20" /> Email
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="link">
+                        <div className="flex flex-row gap-2">
+                          <LinkIcon height="20" width="20" /> Website
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="facebook">
+                        <div className="flex flex-row gap-2">
+                          <Facebook height="20" width="20" /> Facebook
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="youtube">
+                        <div className="flex flex-row gap-2">
+                          <Youtube height="20" width="20" /> Youtube
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="instagram">
+                        <div className="flex flex-row gap-2">
+                          <Instagram height="20" width="20" /> Instagram
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="tiktok">
+                        <div className="flex flex-row gap-2">
+                          <TikTok height="20" width="20" /> TikTok
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="twitter">
+                        <div className="flex flex-row gap-2">
+                          <XTwitter height="20" width="20" /> X
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="vimeo">
+                        <div className="flex flex-row gap-2">
+                          <Vimeo height="20" width="20" /> Vimeo
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="threads">
+                        <div className="flex flex-row gap-2">
+                          <Threads height="20" width="20" /> Threads
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="bluesky">
+                        <div className="flex flex-row gap-2">
+                          <Bluesky height="20" width="20" /> Bluesky
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="linkedin">
+                        <div className="flex flex-row gap-2">
+                          <Linkedin height="20" width="20" /> LinkedIn
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Button
-                  variant="ghost"
-                  onClick={() => removeLink(index)}
-                  className="h-7 w-full hover:bg-destructive hover:text-white"
-                >
-                  Remove Link
-                </Button>
+
+                <Label className="col-span-1">
+                  {link.icon === "mail" ? "Email" : "URL"}
+                </Label>
+                <div className="col-span-3 flex flex-col gap-1">
+                  <Input
+                    className={cn(
+                      "bg-background",
+                      linkErrors[index] &&
+                        !typingLinks[index] &&
+                        "border-destructive",
+                    )}
+                    value={link.url}
+                    onChange={(e) => updateLink(index, "url", e.target.value)}
+                    onBlur={() => handleLinkBlur(index)}
+                    placeholder={
+                      link.icon === "mail" ? "email@example.com" : "https://"
+                    }
+                    maxLength={500}
+                  />
+                  {linkErrors[index] && !typingLinks[index] && (
+                    <p className="text-xs text-destructive">
+                      {linkErrors[index]}
+                    </p>
+                  )}
+                </div>
               </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+              <Button
+                variant="ghost"
+                onClick={() => removeLink(index)}
+                className="h-7 w-full hover:bg-destructive hover:text-white"
+              >
+                Remove Link
+              </Button>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
       </div>
     </div>
   );
@@ -358,8 +337,6 @@ export default function EmailFooterForm({
 
   const [savingAsDefault, setSavingAsDefault] = useState(false);
   const [revertingToDefault, setRevertingToDefault] = useState(false);
-  const [openItem, setOpenItem] = useState<string | undefined>(undefined);
-
   const [revertToDefaultDialogOpen, setRevertToDefaultDialogOpen] =
     useState(false);
   const [saveAsDefaultDialogOpen, setSaveAsDefaultDialogOpen] = useState(false);
@@ -674,6 +651,7 @@ export default function EmailFooterForm({
         footer_data: localState,
       });
 
+      // Close dialog after successful save
       setSaveAsDefaultDialogOpen(false);
     } catch (error) {
       console.error("Error saving footer as default:", error);
@@ -712,6 +690,7 @@ export default function EmailFooterForm({
         }
       }
 
+      // Close dialog after successful revert
       setRevertToDefaultDialogOpen(false);
     } catch (error) {
       console.error("Error reverting to default:", error);
@@ -871,8 +850,6 @@ export default function EmailFooterForm({
                     key={index}
                     link={link}
                     index={index}
-                    openItem={openItem}
-                    setOpenItem={setOpenItem}
                     linkErrors={linkErrors || {}}
                     typingLinks={typingLinks}
                     updateLink={updateLink}

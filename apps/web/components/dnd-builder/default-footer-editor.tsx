@@ -4,7 +4,6 @@ import { getDefaultEmailFooter } from "@/actions/get-default-email-footer";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -18,6 +17,7 @@ import Footer from "./footer";
 import { useUpdateOrgDefaultFooter } from "./mutations/use-update-org-default-footer";
 import DefaultEmailFooterForm from "./sidebar-editor-forms/default-email-footer";
 import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
+import Link from "next/link";
 
 type FooterData = {
   links: any | null;
@@ -113,15 +113,13 @@ export default function DefaultFooterEditor({
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
-              </BreadcrumbItem>
+              <Link href="/emails" className="hidden md:block">
+                <BreadcrumbItem>Emails</BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails/templates">
-                  Templates
-                </BreadcrumbLink>
-              </BreadcrumbItem>
+              <Link href="/emails/templates" className="hidden md:block">
+                <BreadcrumbItem>Templates</BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator className="hidden md:block" />
 
               <BreadcrumbItem>

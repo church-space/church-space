@@ -2,7 +2,6 @@ import EmailAutomationsTable from "@/components/tables/automations/table";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -10,6 +9,7 @@ import {
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
@@ -28,9 +28,9 @@ export default async function Page() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
-              </BreadcrumbItem>
+              <Link href="/emails" className="hidden md:block">
+                <BreadcrumbItem>Emails</BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator className="hidden md:block" />
 
               <BreadcrumbItem>

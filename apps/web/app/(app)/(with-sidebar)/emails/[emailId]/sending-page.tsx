@@ -7,11 +7,10 @@ import {
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
-
+import Link from "next/link";
 function FloatingPaths({ position }: { position: number }) {
   const paths = Array.from({ length: 36 }, (_, i) => ({
     id: i,
@@ -76,9 +75,9 @@ export default function SendingPage({
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
-              </BreadcrumbItem>
+              <Link href="/emails" className="hidden md:block">
+                <BreadcrumbItem>Emails</BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator className="hidden md:block" />
 
               <BreadcrumbItem>

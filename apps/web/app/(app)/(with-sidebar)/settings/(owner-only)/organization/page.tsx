@@ -3,7 +3,6 @@ import { createClient } from "@church-space/supabase/server";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -13,6 +12,7 @@ import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
 import ClientPage, { Address } from "./client-page";
 import { getOrgDetailsQuery } from "@church-space/supabase/queries/all/get-org-details";
+import Link from "next/link";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -44,9 +44,9 @@ export default async function Page() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/settings">Settings</BreadcrumbLink>
-              </BreadcrumbItem>
+              <Link href="/settings" className="hidden md:block">
+                <BreadcrumbItem>Settings</BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage>Organization</BreadcrumbPage>

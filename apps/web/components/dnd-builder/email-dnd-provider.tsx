@@ -6,7 +6,6 @@ import type { BlockData, Block as BlockType } from "@/types/blocks";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -44,6 +43,7 @@ import { Editor } from "@tiptap/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
 import { Eye, SaveIcon } from "lucide-react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -2697,22 +2697,22 @@ export default function EmailDndProvider({
         <div className="flex items-center gap-2 px-4">
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/emails">Emails</BreadcrumbLink>
-              </BreadcrumbItem>
+              <Link href="/emails" className="hidden md:block">
+                <BreadcrumbItem>Emails</BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbLink
-                  href={
-                    emailData?.email?.type === "template"
-                      ? `/emails/templates`
-                      : `/emails/${emailId}`
-                  }
-                  className="max-w-32 truncate sm:max-w-sm"
-                >
+
+              <Link
+                href={
+                  emailData?.email?.type === "template"
+                    ? `/emails/templates`
+                    : `/emails/${emailId}`
+                }
+              >
+                <BreadcrumbItem className="max-w-32 truncate sm:max-w-sm">
                   {(emailData?.email as any)?.subject || "Email Subject"}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
+                </BreadcrumbItem>
+              </Link>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbPage>
