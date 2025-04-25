@@ -548,6 +548,14 @@ export default function DndBuilderSidebar({
                 emailId={emailId}
                 footerData={footerData}
                 onFooterChange={onFooterChange}
+                isRounded={isRounded}
+                onIsRoundedChange={onIsRoundedChange}
+                linkColor={linkColor}
+                onLinkColorChange={onLinkColorChange}
+                accentTextColor={accentTextColor}
+                onAccentTextColorChange={onAccentTextColorChange}
+                blockSpacing={blockSpacing}
+                onBlockSpacingChange={onBlockSpacingChange}
               />
             )}
           </SheetContent>

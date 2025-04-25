@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
 import { Slider } from "@church-space/ui/slider";
+import { useRef, useState, useEffect } from "react";
 
 interface EmailStyleFormProps {
   bgColor?: string;
@@ -36,6 +37,14 @@ interface EmailStyleFormProps {
   onAccentTextColorChange?: (color: string) => void;
   blockSpacing?: number;
   onBlockSpacingChange?: (spacing: number) => void;
+  footerBgColor?: string;
+  onFooterBgColorChange?: (color: string) => void;
+  footerTextColor?: string;
+  onFooterTextColorChange?: (color: string) => void;
+  footerSecondaryTextColor?: string;
+  onFooterSecondaryTextColorChange?: (color: string) => void;
+  footerData?: any;
+  onFooterChange?: (data: any) => void;
 }
 
 export default function EmailStyleForm({
@@ -57,7 +66,56 @@ export default function EmailStyleForm({
   onAccentTextColorChange,
   blockSpacing = 20,
   onBlockSpacingChange,
+  footerBgColor = "#ffffff",
+  onFooterBgColorChange,
+  footerData,
+  onFooterChange,
 }: EmailStyleFormProps) {
+  const colorTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Local state for footer properties
+  const [localState, setLocalState] = useState({
+    text_color: footerData?.text_color || "#000000",
+    secondary_text_color: footerData?.secondary_text_color || "#666666",
+  });
+
+  // Update local state when footerData changes
+  useEffect(() => {
+    if (footerData) {
+      setLocalState({
+        text_color: footerData.text_color || "#000000",
+        secondary_text_color: footerData.secondary_text_color || "#666666",
+      });
+    }
+  }, [footerData]);
+
+  // Handle color changes for footer styling
+  const handleColorChange = (key: string, value: string) => {
+    // Update local state immediately for responsive UI
+    setLocalState((prev) => ({ ...prev, [key]: value }));
+
+    // Clear any existing timer
+    if (colorTimerRef.current) {
+      clearTimeout(colorTimerRef.current);
+    }
+
+    // Set a new timer to update parent after user stops moving
+    colorTimerRef.current = setTimeout(() => {
+      if (onFooterChange) {
+        onFooterChange({ ...footerData, [key]: value });
+      }
+    }, 150);
+  };
+
+  // Cleanup color timer on unmount
+  useEffect(() => {
+    return () => {
+      if (colorTimerRef.current) {
+        clearTimeout(colorTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="flex flex-col gap-4 pr-1">
       <h2 className="text-lg font-semibold">Email Style</h2>
@@ -222,7 +280,28 @@ export default function EmailStyleForm({
       </div>
       <Separator className="my-4" />
       <Label className="text-lg font-semibold">Footer</Label>
-      <div className="grid grid-cols-3 items-center gap-2"></div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Footer Title Color</Label>
+        <ColorPicker
+          value={localState.text_color}
+          onChange={(color) => handleColorChange("text_color", color)}
+        />
+
+        <Label className="font-medium">Footer Accent Text Color</Label>
+        <ColorPicker
+          value={localState.secondary_text_color}
+          onChange={(color) => handleColorChange("secondary_text_color", color)}
+        />
+        {!isInset && (
+          <>
+            <Label className="font-medium">Footer Background Color</Label>
+            <ColorPicker
+              value={footerData?.bg_color || "#ffffff"}
+              onChange={(color) => handleColorChange("bg_color", color)}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }

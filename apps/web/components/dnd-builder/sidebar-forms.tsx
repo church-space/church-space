@@ -161,6 +161,8 @@ export default function DndBuilderSidebarForms({
             onAccentTextColorChange={onAccentTextColorChange}
             blockSpacing={blockSpacing}
             onBlockSpacingChange={onBlockSpacingChange}
+            footerData={footerData}
+            onFooterChange={onFooterChange}
           />
         )}
         {formType === "email-footer" && (
