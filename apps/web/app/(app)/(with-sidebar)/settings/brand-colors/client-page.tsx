@@ -13,7 +13,7 @@ import { upsertBrandColorsAction } from "@/actions/upsert-brand-colors";
 import { useDebounce } from "@/hooks/use-debounce";
 import { getBrandColors } from "@/actions/get-brand-colors";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useToast } from "@church-space/ui/use-toast";
 
 export default function ClientPage({
   organizationId,
@@ -26,35 +26,62 @@ export default function ClientPage({
   });
 
   const [colors, setColors] = useState<string[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false); // Track initialization
   const debouncedColors = useDebounce(colors, 500); // Debounce for 500ms
+
+  const { toast } = useToast();
 
   const { mutate: saveColors } = useMutation({
     mutationFn: upsertBrandColorsAction,
     onSuccess: () => {
-      toast.success("Brand colors saved successfully!");
+      toast({
+        title: "Success",
+        description: "Brand colors saved successfully!",
+        variant: "default",
+      });
       // Optionally refetch or update query data here if needed
     },
     onError: (error) => {
-      toast.error(`Failed to save brand colors: ${error.message}`);
+      toast({
+        title: "Error",
+        description: `Failed to save brand colors: ${error.message}`,
+        variant: "destructive",
+      });
     },
   });
 
   // Initialize colors from fetched data
   useEffect(() => {
-    if (initialData?.colors && initialData.colors.length > 0) {
-      // Assuming getBrandColors returns { colors: { color: string }[] } based on upsert action structure
-      // If it returns string[], adjust accordingly. Let's assume string[] for now based on getBrandColorsQuery return type.
-      setColors(initialData.colors);
-    } else if (!isLoading) {
-      // Set default if no colors are fetched and not loading
-      setColors(["#000000"]);
+    let initialColors: string[] = ["#000000"]; // Default color
+    if (initialData?.data?.colors) {
+      // Assuming initialData.data.colors is stored as a JSON array of strings
+      try {
+        const parsedColors = initialData.data.colors;
+        if (
+          Array.isArray(parsedColors) &&
+          parsedColors.every((c) => typeof c === "string") &&
+          parsedColors.length > 0
+        ) {
+          initialColors = parsedColors;
+        }
+      } catch (error) {
+        console.error("Failed to parse initial brand colors:", error);
+        // Keep the default color if parsing fails
+      }
+    } else if (isLoading) {
+      // If loading, do nothing yet, wait for data or loading to finish
+      return;
     }
+
+    setColors(initialColors);
+    setIsInitialized(true); // Mark as initialized
+
+    // initialData is stable, no need to include in dependency array if using isInitialized flag
   }, [initialData, isLoading]);
 
-  // Save colors when debounced state changes
+  // Save colors when debounced state changes *after* initialization
   useEffect(() => {
-    // Prevent saving the initial default or empty state before data loads
-    if (!isLoading && initialData && debouncedColors !== initialData.colors) {
+    if (isInitialized) {
       // Map the colors array to the expected format { color: string, title: string }[]
       const colorsToSave = debouncedColors.map((color, index) => ({
         color,
@@ -66,8 +93,8 @@ export default function ClientPage({
         colors: colorsToSave,
       });
     }
-    // Adding initialData to dependency array to ensure comparison happens after data loads
-  }, [debouncedColors, saveColors, organizationId, isLoading, initialData]);
+    // Only trigger save when debouncedColors changes, after initialization
+  }, [debouncedColors, saveColors, organizationId, isInitialized]);
 
   const handleColorChange = (index: number, newColor: string) => {
     const updatedColors = [...colors];
@@ -85,7 +112,10 @@ export default function ClientPage({
   const removeColor = (index: number) => {
     // Prevent removing the last color
     if (colors.length <= 1) {
-      toast.info("You must have at least one brand color.");
+      toast({
+        title: "Info",
+        description: "You must have at least one brand color.",
+      });
       return;
     }
     const updatedColors = colors.filter((_, i) => i !== index);
