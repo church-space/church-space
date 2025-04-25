@@ -6,6 +6,15 @@ import { createClient } from "@church-space/supabase/server";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 
+// Define the expected input type for the Supabase function
+interface UpsertBrandColorInput {
+  organizationId: string;
+  colors: {
+    color: string;
+    title: string;
+  }[];
+}
+
 export const upsertBrandColorsAction = authActionClient
   .schema(
     z.object({
@@ -21,24 +30,28 @@ export const upsertBrandColorsAction = authActionClient
   .metadata({
     name: "upsert-brand-colors",
   })
-  .action(async (parsedInput): Promise<ActionResponse> => {
+  .action(async ({ parsedInput }): Promise<ActionResponse> => {
     try {
       const supabase = await createClient();
-      const data = await upsertBrandColor(supabase, {
-        organizationId: parsedInput.parsedInput.organizationId,
-        colors: parsedInput.parsedInput.colors,
-      });
+      // Explicitly type the input for clarity
+      const input: UpsertBrandColorInput = {
+        organizationId: parsedInput.organizationId,
+        colors: parsedInput.colors,
+      };
+      // Call the mutation. It throws on Supabase error.
+      const data = await upsertBrandColor(supabase, input);
 
-      if (!data) {
-        return {
-          success: false,
-          error: "Brand colors upsert failed: no data returned.",
-        };
-      }
+      // If upsertBrandColor didn't throw, assume success.
+      // The actual returned data might be null or an empty array, which is fine.
+      console.log("Upsert successful. Returned data (could be null):", data);
+      console.log("Input provided:", parsedInput);
 
       return {
         success: true,
-        data,
+        // Optionally return the data, or just indicate success
+        data: data ?? {
+          message: "Upsert successful, no specific data returned.",
+        },
       };
     } catch (error) {
       console.error("Error upserting brand colors:", error);

@@ -11,6 +11,8 @@ export async function getBrandColorsQuery(supabase: Client, orgId: string) {
     throw colorsError;
   }
 
+  console.log("colors", colors);
+
   return {
     colors,
   };

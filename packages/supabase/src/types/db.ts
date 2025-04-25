@@ -1832,7 +1832,7 @@ export type Database = {
           {
             foreignKeyName: "stripe_customers_organization_id_fkey"
             columns: ["organization_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },

@@ -28,7 +28,7 @@ export default function ClientPage({
   const [colors, setColors] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false); // Track initialization
   const hasUserMadeChangesRef = useRef(false); // Ref to track if user initiated changes
-  const debouncedColors = useDebounce(colors, 500); // Debounce for 500ms
+  const debouncedColors = useDebounce(colors, 800); // Debounce for 800ms
 
   const { toast } = useToast();
 
@@ -43,9 +43,13 @@ export default function ClientPage({
       // Optionally refetch or update query data here if needed
     },
     onError: (error) => {
+      const errorMessage =
+        error && typeof error === "object" && "message" in error
+          ? error.message
+          : "Failed to save brand colors due to an unknown error";
       toast({
         title: "Error",
-        description: `Failed to save brand colors: ${error.message}`,
+        description: `Failed to save brand colors: ${errorMessage}`,
         variant: "destructive",
       });
     },
@@ -54,16 +58,26 @@ export default function ClientPage({
   // Initialize colors from fetched data
   useEffect(() => {
     let initialColors: string[] = ["#000000"]; // Default color
-    if (initialData?.data?.colors) {
-      // Assuming initialData.data.colors is stored as a JSON array of strings
+
+    // Access data based on inferred type (likely initialData.data.colors.colors)
+    // Use optional chaining for safety
+    const fetchedColorData = initialData?.data?.colors?.colors; // Adjusted path
+
+    if (fetchedColorData) {
       try {
-        const parsedColors = initialData.data.colors;
+        // Ensure it's an array and has color objects with string properties
         if (
-          Array.isArray(parsedColors) &&
-          parsedColors.every((c) => typeof c === "string") &&
-          parsedColors.length > 0
+          Array.isArray(fetchedColorData) &&
+          fetchedColorData.length > 0 &&
+          fetchedColorData.every(
+            (c: any) =>
+              typeof c === "object" &&
+              c !== null &&
+              typeof c.color === "string",
+          )
         ) {
-          initialColors = parsedColors;
+          // Extract just the color hex strings
+          initialColors = fetchedColorData.map((c: any) => c.color);
         }
       } catch (error) {
         console.error("Failed to parse initial brand colors:", error);
@@ -72,12 +86,14 @@ export default function ClientPage({
     } else if (isLoading) {
       // If loading, do nothing yet, wait for data or loading to finish
       return;
-    }
+    } // Handle potential errors from useQuery if needed (e.g., initialData?.error)
 
-    setColors(initialColors);
-    setIsInitialized(true); // Mark as initialized
-    // DO NOT set hasUserMadeChangesRef here
-  }, [initialData, isLoading]);
+    // Only update colors if the component is not yet initialized
+    if (!isInitialized) {
+      setColors(initialColors);
+      setIsInitialized(true); // Mark as initialized after setting initial state
+    }
+  }, [initialData, isLoading, isInitialized]);
 
   // Save colors when debounced state changes *after* initialization and *only if* user made changes
   useEffect(() => {
