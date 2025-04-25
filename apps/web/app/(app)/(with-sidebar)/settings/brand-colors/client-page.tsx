@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import {
   SettingsRow,
@@ -27,6 +27,7 @@ export default function ClientPage({
 
   const [colors, setColors] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false); // Track initialization
+  const hasUserMadeChangesRef = useRef(false); // Ref to track if user initiated changes
   const debouncedColors = useDebounce(colors, 500); // Debounce for 500ms
 
   const { toast } = useToast();
@@ -75,28 +76,35 @@ export default function ClientPage({
 
     setColors(initialColors);
     setIsInitialized(true); // Mark as initialized
-
-    // initialData is stable, no need to include in dependency array if using isInitialized flag
+    // DO NOT set hasUserMadeChangesRef here
   }, [initialData, isLoading]);
 
-  // Save colors when debounced state changes *after* initialization
+  // Save colors when debounced state changes *after* initialization and *only if* user made changes
   useEffect(() => {
-    if (isInitialized) {
-      // Map the colors array to the expected format { color: string, title: string }[]
-      const colorsToSave = debouncedColors.map((color, index) => ({
-        color,
-        title: `Color ${index + 1}`, // Assign a default title
-      }));
-
-      saveColors({
-        organizationId,
-        colors: colorsToSave,
-      });
+    // Don't save until the component is initialized with data
+    if (!isInitialized) {
+      return;
     }
-    // Only trigger save when debouncedColors changes, after initialization
-  }, [debouncedColors, saveColors, organizationId, isInitialized]);
+
+    // Skip the save if the user hasn't made any changes yet
+    if (!hasUserMadeChangesRef.current) {
+      return;
+    }
+
+    // Proceed with saving only after initialization and if user has interacted
+    const colorsToSave = debouncedColors.map((color, index) => ({
+      color,
+      title: `Color ${index + 1}`, // Assign a default title
+    }));
+
+    saveColors({
+      organizationId,
+      colors: colorsToSave,
+    });
+  }, [debouncedColors, saveColors, organizationId, isInitialized]); // Keep dependencies
 
   const handleColorChange = (index: number, newColor: string) => {
+    hasUserMadeChangesRef.current = true; // Mark user interaction
     const updatedColors = [...colors];
     updatedColors[index] = newColor;
     setColors(updatedColors);
@@ -104,13 +112,12 @@ export default function ClientPage({
 
   const addColor = () => {
     if (colors.length < 8) {
-      // Add a default color, maybe white? Or the last color? Let's use white for now.
+      hasUserMadeChangesRef.current = true; // Mark user interaction
       setColors([...colors, "#FFFFFF"]);
     }
   };
 
   const removeColor = (index: number) => {
-    // Prevent removing the last color
     if (colors.length <= 1) {
       toast({
         title: "Info",
@@ -118,13 +125,18 @@ export default function ClientPage({
       });
       return;
     }
+    hasUserMadeChangesRef.current = true; // Mark user interaction
     const updatedColors = colors.filter((_, i) => i !== index);
     setColors(updatedColors);
   };
 
   // Show loading state or placeholder?
   if (isLoading) {
-    return <div>Loading brand colors...</div>; // Replace with a proper loader/skeleton
+    return (
+      <SettingsRow isFirstRow={true}>
+        <SettingsRowTitle>Loading brand colors...</SettingsRowTitle>
+      </SettingsRow>
+    ); // Replace with a proper loader/skeleton
   }
 
   return (
