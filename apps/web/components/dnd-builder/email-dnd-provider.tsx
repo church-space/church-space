@@ -144,7 +144,7 @@ export default function EmailDndProvider({
     emailBgColor: emailStyle.bg_color || "#ffffff",
     linkColor: emailStyle.link_color || "#0000ff",
     defaultTextColor: emailStyle.default_text_color || "#000000",
-    defaultFont: emailStyle.default_font || "Inter",
+    defaultFont: emailStyle.default_font || "sans-serif",
     isRounded: emailStyle.is_rounded ?? true,
     blockSpacing: emailStyle.block_spacing || 20,
     accentTextColor: emailStyle.accent_text_color || "#666666",

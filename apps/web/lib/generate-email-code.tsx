@@ -692,6 +692,8 @@ const CustomCards: React.FC<{
                 borderSpacing: "16px 0",
                 marginLeft: "-8px",
                 marginRight: "-8px",
+                width: "100%",
+                tableLayout: "fixed",
               }}
             >
               <tr>
@@ -816,6 +818,8 @@ const CustomCards: React.FC<{
                       width="50%"
                       style={{
                         padding: "0 8px",
+                        width: "50%",
+                        maxWidth: "100%",
                       }}
                     >
                       {card.buttonLink ? (
@@ -1611,13 +1615,14 @@ export function generateEmailCode(
         <title>Email Preview</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>{`
+      /* Default mobile styles */
       .card-column {
         display: block !important;
         width: 100% !important;
         padding: 0 !important;
         padding-bottom: 12px !important;
-        box-sizing: border-box;
-        vertical-align: top;
+        box-sizing: border-box !important;
+        vertical-align: top !important;
       }
       .card-column > a, .card-column > table {
          width: 100% !important;
@@ -1626,7 +1631,8 @@ export function generateEmailCode(
         display: none !important;
       }
 
-      @media (min-width: 600px) {
+      /* Desktop styles - Using media query syntax for email clients */
+      @media only screen and (min-width: 480px) {
         .card-column {
           display: table-cell !important;
           width: 50% !important;
