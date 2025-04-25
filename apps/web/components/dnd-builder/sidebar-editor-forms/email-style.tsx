@@ -178,6 +178,45 @@ export default function EmailStyleForm({
             >
               Verdana
             </SelectItem>
+            <SelectItem
+              value="'Courier New', monospace"
+              style={{ fontFamily: "'Courier New', monospace" }}
+            >
+              Courier New
+            </SelectItem>
+            <SelectItem
+              value="Helvetica, Arial, sans-serif"
+              style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
+            >
+              Helvetica
+            </SelectItem>
+            <SelectItem
+              value="'Lucida Sans Unicode', 'Lucida Grande', sans-serif"
+              style={{
+                fontFamily:
+                  "'Lucida Sans Unicode', 'Lucida Grande', sans-serif",
+              }}
+            >
+              Lucida Sans Unicode
+            </SelectItem>
+            <SelectItem
+              value="Tahoma, Geneva, sans-serif"
+              style={{ fontFamily: "Tahoma, Geneva, sans-serif" }}
+            >
+              Tahoma
+            </SelectItem>
+            <SelectItem
+              value="'Times New Roman', Times, serif"
+              style={{ fontFamily: "'Times New Roman', Times, serif" }}
+            >
+              Times New Roman
+            </SelectItem>
+            <SelectItem
+              value="'Trebuchet MS', Helvetica, sans-serif"
+              style={{ fontFamily: "'Trebuchet MS', Helvetica, sans-serif" }}
+            >
+              Trebuchet MS
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -17,6 +17,42 @@ const IconColors = {
   darkGray: "#404040",
 };
 
+// Helper function to ensure proper font fallbacks for email clients
+function ensureFontFallbacks(font: string | undefined): string {
+  if (!font) return "sans-serif";
+
+  // Font is already properly formatted with fallbacks
+  if (font.includes(",")) return font;
+
+  // Add appropriate fallbacks based on font family
+  switch (font) {
+    case "sans-serif":
+      return "Arial, 'Helvetica Neue', Helvetica, sans-serif";
+    case "serif":
+      return "'Times New Roman', Times, Georgia, serif";
+    case "Arial, sans-serif":
+      return "Arial, 'Helvetica Neue', Helvetica, sans-serif";
+    case "Georgia, serif":
+      return "Georgia, 'Times New Roman', Times, serif";
+    case "Verdana, sans-serif":
+      return "Verdana, Geneva, Tahoma, sans-serif";
+    case "'Courier New', monospace":
+      return "'Courier New', Courier, monospace";
+    case "Helvetica, Arial, sans-serif":
+      return "Helvetica, Arial, 'Helvetica Neue', sans-serif";
+    case "'Lucida Sans Unicode', 'Lucida Grande', sans-serif":
+      return "'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif";
+    case "Tahoma, Geneva, sans-serif":
+      return "Tahoma, Geneva, Verdana, sans-serif";
+    case "'Times New Roman', Times, serif":
+      return "'Times New Roman', Times, Georgia, serif";
+    case "'Trebuchet MS', Helvetica, sans-serif":
+      return "'Trebuchet MS', Helvetica, Arial, sans-serif";
+    default:
+      return `${font}, sans-serif`;
+  }
+}
+
 // Define social icon keys mapping
 const SocialIconKeys = {
   x: "x",
@@ -244,7 +280,7 @@ const CustomText: React.FC<{
       <tr>
         <td
           style={{
-            fontFamily: font || defaultFont || "sans-serif",
+            fontFamily: ensureFontFallbacks(font || defaultFont),
             color: defaultTextColor || "#000000",
             fontSize: "16px",
           }}
@@ -319,7 +355,7 @@ const CustomButton: React.FC<{
                 borderRadius,
                 color: buttonStyle === "filled" ? textColor : color,
                 display: "inline-block",
-                fontFamily: defaultFont || "sans-serif",
+                fontFamily: ensureFontFallbacks(defaultFont),
                 fontSize: "14px",
                 fontWeight: "normal",
                 lineHeight: "1",
@@ -342,7 +378,7 @@ const CustomButton: React.FC<{
                 borderRadius,
                 color: buttonStyle === "filled" ? textColor : color,
                 display: "inline-block",
-                fontFamily: defaultFont || "sans-serif",
+                fontFamily: ensureFontFallbacks(defaultFont),
                 fontSize: "14px",
                 fontWeight: "normal",
                 lineHeight: "1",
@@ -492,7 +528,7 @@ const CustomFileDownload: React.FC<{
                       >
                         <span
                           style={{
-                            fontFamily: defaultFont || "sans-serif",
+                            fontFamily: ensureFontFallbacks(defaultFont),
                             fontSize: "14px",
                             fontWeight: "500",
                             color: textColor,
@@ -517,7 +553,7 @@ const CustomFileDownload: React.FC<{
                             color: bgColor,
                             backgroundColor: textColor,
                             display: "inline-block",
-                            fontFamily: defaultFont || "sans-serif",
+                            fontFamily: ensureFontFallbacks(defaultFont),
                             fontSize: "13px",
                             padding: "6px 18px",
                             whiteSpace: "nowrap",
@@ -639,7 +675,7 @@ const CustomCards: React.FC<{
               <tr>
                 <td
                   style={{
-                    fontFamily: defaultFont || "sans-serif",
+                    fontFamily: ensureFontFallbacks(defaultFont),
                     fontSize: "30px",
                     fontWeight: "bold",
                     color: textColor,
@@ -654,7 +690,7 @@ const CustomCards: React.FC<{
               <tr>
                 <td
                   style={{
-                    fontFamily: defaultFont || "sans-serif",
+                    fontFamily: ensureFontFallbacks(defaultFont),
                     fontSize: "16px",
                     color: textColor,
                     fontWeight: "300",
@@ -883,7 +919,7 @@ const CustomList: React.FC<{
             <tr>
               <td
                 style={{
-                  fontFamily: defaultFont || "sans-serif",
+                  fontFamily: ensureFontFallbacks(defaultFont),
                   fontWeight: "800",
                   fontSize: "30px",
                   color: defaultTextColor || textColor,
@@ -898,7 +934,7 @@ const CustomList: React.FC<{
             <tr>
               <td
                 style={{
-                  fontFamily: defaultFont || "sans-serif",
+                  fontFamily: ensureFontFallbacks(defaultFont),
                   fontSize: "1rem",
                   color: defaultTextColor || textColor,
                   opacity: 0.8,
@@ -1107,7 +1143,7 @@ const CustomAuthor: React.FC<{
                                 valign="middle"
                                 style={{
                                   color: "#000000",
-                                  fontFamily: defaultFont || "sans-serif",
+                                  fontFamily: ensureFontFallbacks(defaultFont),
                                   fontSize: "15px",
                                   fontWeight: "400",
                                   lineHeight: "40px",
@@ -1123,7 +1159,7 @@ const CustomAuthor: React.FC<{
                     <td>
                       <div
                         style={{
-                          fontFamily: defaultFont || "sans-serif",
+                          fontFamily: ensureFontFallbacks(defaultFont),
                           fontSize: "14px",
                           fontWeight: "600",
                           color: finalTextColor,
@@ -1134,7 +1170,7 @@ const CustomAuthor: React.FC<{
                       </div>
                       <div
                         style={{
-                          fontFamily: defaultFont || "sans-serif",
+                          fontFamily: ensureFontFallbacks(defaultFont),
                           fontSize: "14px",
                           color: finalTextColor,
                           opacity: 0.8,
@@ -1324,7 +1360,7 @@ const CustomFooter: React.FC<{
             style={{
               maxWidth: "672px",
               margin: "0 auto",
-              fontFamily: defaultFont,
+              fontFamily: ensureFontFallbacks(defaultFont),
             }}
           >
             <tr>
@@ -1608,6 +1644,9 @@ export function generateEmailCode(
     blockSpacing = 0,
   } = style;
 
+  // Ensure defaultFont has proper fallbacks for email clients
+  const emailSafeFont = ensureFontFallbacks(defaultFont);
+
   return (
     <Html>
       <Head>
@@ -1721,7 +1760,7 @@ export function generateEmailCode(
                                               content={textData?.content || ""}
                                               font={textData?.font}
                                               accentTextColor={accentTextColor}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               defaultTextColor={`${defaultTextColor} !important`}
                                               linkColor={linkColor}
                                             />
@@ -1744,7 +1783,7 @@ export function generateEmailCode(
                                             <CustomButton
                                               {...(block.data as ButtonBlockData)}
                                               isRounded={isRounded}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                             />
                                           </td>
                                         </tr>
@@ -1803,7 +1842,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomFileDownload
                                               {...(block.data as any)}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               isRounded={isRounded}
                                             />
                                           </td>
@@ -1844,7 +1883,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomCards
                                               {...(block.data as any)}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               isRounded={isRounded}
                                               textColor={`${defaultTextColor} !important`}
                                               imageAspectRatio={
@@ -1870,7 +1909,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomList
                                               {...(block.data as any)}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               defaultTextColor={`${defaultTextColor} !important`}
                                             />
                                           </td>
@@ -1891,7 +1930,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomAuthor
                                               {...(block.data as any)}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               defaultTextColor={`${defaultTextColor} !important`}
                                             />
                                           </td>
@@ -1956,7 +1995,7 @@ export function generateEmailCode(
                                               content={textData?.content || ""}
                                               font={textData?.font}
                                               accentTextColor={accentTextColor}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               defaultTextColor={`${defaultTextColor} !important`}
                                               linkColor={linkColor}
                                             />
@@ -1979,7 +2018,7 @@ export function generateEmailCode(
                                             <CustomButton
                                               {...(block.data as ButtonBlockData)}
                                               isRounded={isRounded}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                             />
                                           </td>
                                         </tr>
@@ -2038,7 +2077,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomFileDownload
                                               {...(block.data as any)}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               isRounded={isRounded}
                                             />
                                           </td>
@@ -2079,7 +2118,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomCards
                                               {...(block.data as any)}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               isRounded={isRounded}
                                               textColor={`${defaultTextColor} !important`}
                                               imageAspectRatio={
@@ -2105,7 +2144,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomList
                                               {...(block.data as any)}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               defaultTextColor={`${defaultTextColor} !important`}
                                             />
                                           </td>
@@ -2126,7 +2165,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomAuthor
                                               {...(block.data as any)}
-                                              defaultFont={defaultFont}
+                                              defaultFont={emailSafeFont}
                                               defaultTextColor={`${defaultTextColor} !important`}
                                             />
                                           </td>
@@ -2151,7 +2190,7 @@ export function generateEmailCode(
         </table>
         <CustomFooter
           footerData={footerData}
-          defaultFont={defaultFont}
+          defaultFont={emailSafeFont}
           emailBgColor={emailBgColor}
           isInset={isInset}
           isRounded={isRounded}
