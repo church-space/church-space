@@ -45,6 +45,8 @@ import debounce from "lodash/debounce";
 import { fetchOrgAssets, type Asset } from "./fetch-org-assets";
 import { Skeleton } from "@church-space/ui/skeleton";
 import { useFileUpload } from "./use-file-upload";
+import { getOrgStorageUsageAction } from "@/actions/get-org-storage-usage";
+import { useQuery } from "@tanstack/react-query";
 
 // Helper function to get icon based on file type
 const FileTypeIcon = ({ type }: { type: string }) => {
@@ -208,6 +210,16 @@ export default function AssetBrowserModal({
   const [isOpen, setIsOpen] = useState(false);
   const { deleteFile } = useFileUpload(organizationId, bucket);
 
+  const { data: orgStorageUsage } = useQuery({
+    queryKey: ["orgStorageUsage"],
+    queryFn: () => getOrgStorageUsageAction({ organizationId }),
+  });
+
+  const orgStorageUsageGB =
+    orgStorageUsage?.data?.data != null
+      ? (orgStorageUsage.data.data / 1024).toFixed(2)
+      : "0.00";
+
   const itemsPerPage = 6;
 
   // Create a ref to store the latest search query for the debounced function
@@ -313,7 +325,7 @@ export default function AssetBrowserModal({
             <DialogTitle className="text-xl font-bold">
               Asset Library
             </DialogTitle>
-            0/30GB used
+            {orgStorageUsageGB} GB / 30 GB used
           </div>
         </DialogHeader>
 
