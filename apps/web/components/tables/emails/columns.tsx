@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { Badge } from "@church-space/ui/badge";
+import { Button } from "@church-space/ui/button";
 
 export type Email = {
   id: number;
@@ -32,28 +33,6 @@ export type Email = {
 };
 
 export const columns: ColumnDef<Email>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //       className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  // },
   {
     header: "Subject",
     id: "subject",
@@ -63,12 +42,13 @@ export const columns: ColumnDef<Email>[] = [
       const email = row.original;
       return (
         <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap px-3">
-          <Link
-            href={`/emails/${email.id}`}
-            className="w-full text-base font-medium hover:underline"
-            prefetch={true}
-          >
-            {email.subject || "No Subject"}
+          <Link href={`/emails/${email.id}`} prefetch={true}>
+            <Button
+              variant="ghost"
+              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+            >
+              {email.subject || "No Subject"}
+            </Button>
           </Link>
         </div>
       );

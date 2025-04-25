@@ -161,7 +161,7 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
         <DialogTrigger asChild>
           <Button
             variant="ghost"
-            className="group h-16 w-full items-center justify-start gap-3 px-1.5 text-left text-base [&_svg]:size-3"
+            className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
           >
             <span>{name || "Untitled"}</span>
             <Pencil className="size-6 text-muted-foreground" />

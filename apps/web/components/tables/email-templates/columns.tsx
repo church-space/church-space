@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
+import { Button } from "@church-space/ui/button";
 
 // Define the type based on the SQL schema
 export type EmailTemplate = {
@@ -21,9 +22,12 @@ export const columns: ColumnDef<EmailTemplate>[] = [
       return (
         <>
           <Link href={`/emails/${row.original.id}/editor`}>
-            <div className="pl-2 text-base font-medium hover:underline">
-              {subject}
-            </div>
+            <Button
+              variant="ghost"
+              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+            >
+              <span>{subject}</span>
+            </Button>
           </Link>
         </>
       );

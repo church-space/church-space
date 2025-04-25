@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@church-space/ui/badge";
+import { Button } from "@church-space/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -22,9 +23,12 @@ export const columns: ColumnDef<LinkList>[] = [
       const name = row.getValue("private_name") as string | null;
       return (
         <Link href={`/link-pages/${row.original.id}`} prefetch={true}>
-          <div className="min-w-32 truncate text-base font-semibold hover:underline">
+          <Button
+            variant="ghost"
+            className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+          >
             {name || "Untitled"}
-          </div>
+          </Button>
         </Link>
       );
     },

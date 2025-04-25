@@ -158,18 +158,23 @@ const NameCell = ({ person }: { person: Person }) => {
 
   return (
     <Sheet>
-      <SheetTrigger className="h-12 min-w-44 px-2 text-left">
-        <div className="flex items-center gap-2">
-          <div className="text-base font-medium hover:underline">
-            {person.first_name} {person.last_name}
+      <SheetTrigger className="h-12 min-w-44 px-2 text-left" asChild>
+        <Button
+          variant="ghost"
+          className="group h-16 w-full flex-col items-start justify-center gap-0 truncate px-1.5 text-left text-base [&_svg]:size-3"
+        >
+          <div className="flex items-center gap-2">
+            <div className="text-base font-medium group-hover:underline">
+              {person.first_name} {person.last_name}
+            </div>
+            <Pencil className="size-4 text-muted-foreground" />
           </div>
-          <Pencil className="size-4 text-muted-foreground" />
-        </div>
-        {person.nickname && (
-          <div className="text-sm text-muted-foreground">
-            ({person.nickname})
-          </div>
-        )}
+          {person.nickname && (
+            <div className="text-sm text-muted-foreground">
+              ({person.nickname})
+            </div>
+          )}
+        </Button>
       </SheetTrigger>
       <SheetContent
         className="h-[95%] w-full md:h-full md:max-w-lg"

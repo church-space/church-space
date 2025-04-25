@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@church-space/ui/badge";
+import { Button } from "@church-space/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
@@ -24,9 +25,12 @@ export const columns: ColumnDef<EmailAutomation>[] = [
       const name = row.getValue("name") as string;
       return (
         <Link href={`/emails/automations/${row.original.id}`} prefetch={true}>
-          <div className="pl-2 text-base font-medium hover:underline">
-            {name}
-          </div>
+          <Button
+            variant="ghost"
+            className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+          >
+            <span>{name || "Untitled"}</span>
+          </Button>
         </Link>
       );
     },
