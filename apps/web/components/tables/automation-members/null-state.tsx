@@ -1,5 +1,4 @@
 import { Users } from "@church-space/ui/icons";
-import { Plus } from "lucide-react";
 
 export default function NullState({ onClick }: { onClick: () => void }) {
   return (
