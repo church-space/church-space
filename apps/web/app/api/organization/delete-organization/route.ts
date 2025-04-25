@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { client as RedisClient } from "@church-space/kv";
 import { z } from "zod";
 import { deleteOrganization } from "@/jobs/delete-organization";
+import { getUserQuery } from "@church-space/supabase/get-user";
 
 const DeleteOrganizationAPIPayload = z.object({
   organizationId: z.string().uuid(),
@@ -76,6 +77,12 @@ export async function POST(request: Request) {
 
     // Verify user exists and is authenticated
     const supabase = await createClient();
+
+    const { data: user, error: userError } = await getUserQuery(supabase);
+
+    if (userError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     // Authorization check: Verify user is an owner of the organizationId
     const { data: isOwner, error: rpcError } = await supabase.rpc(

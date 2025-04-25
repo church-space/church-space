@@ -206,7 +206,7 @@ export default function ClientPage({
             description: "Your organization has been successfully deleted.",
           });
           // Redirect to a safe page, e.g., dashboard or home
-          router.push("/"); // Or another appropriate route
+          router.push("/homepage"); // Or another appropriate route
         } else if (result && "error" in result && result.error) {
           // Handle error case returned by the action
           const errorMsg =
