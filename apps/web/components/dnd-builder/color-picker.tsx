@@ -35,14 +35,31 @@ export default function ColorPicker({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const organizationId = cookies.get("organizationId");
 
+  const { data: brandColors } = useQuery({
+    queryKey: ["brandColors", organizationId],
+    queryFn: () => {
+      if (!organizationId) {
+        // Return a promise that resolves to undefined or handle appropriately
+        return Promise.resolve(undefined);
+      }
+      return getBrandColors({ organizationId });
+    },
+    // Ensure the query is only enabled when organizationId is available
+    enabled: !!organizationId,
+  });
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
   if (!organizationId) {
     return null;
   }
-
-  const { data: brandColors } = useQuery({
-    queryKey: ["brandColors", organizationId],
-    queryFn: () => getBrandColors({ organizationId }),
-  });
 
   const parsedBrandColors = (
     brandColors?.data?.colors?.colors as
@@ -71,15 +88,6 @@ export default function ColorPicker({
     setError(null);
     return true;
   };
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
 
   return (
     <div className="col-span-2 flex flex-col">
