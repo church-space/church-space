@@ -689,9 +689,8 @@ const CustomCards: React.FC<{
               border={0}
               style={{
                 borderCollapse: "separate",
-                borderSpacing: "16px 0",
-                marginLeft: "-8px",
-                marginRight: "-8px",
+                borderSpacing: "0 0",
+                margin: "0",
                 width: "100%",
                 tableLayout: "fixed",
               }}
@@ -706,7 +705,7 @@ const CustomCards: React.FC<{
                     <table
                       width="100%"
                       cellPadding="0"
-                      cellSpacing="0"
+                      cellSpacing="12"
                       border={0}
                     >
                       {card.image && (
@@ -727,7 +726,7 @@ const CustomCards: React.FC<{
                         </tr>
                       )}
                       <tr>
-                        <td style={{ padding: "0 4px" }}>
+                        <td style={{ padding: "0" }}>
                           <table
                             width="100%"
                             cellPadding="0"
@@ -1639,10 +1638,10 @@ export function generateEmailCode(
           padding-bottom: 12px !important;
         }
         .card-column:nth-child(odd) {
-          padding-right: 8px !important;
+          padding: 0 4px !important;
         }
         .card-column:nth-child(even) {
-          padding-left: 8px !important;
+          padding: 0 4px !important;
         }
         .empty-card-cell {
            display: table-cell !important;
@@ -1677,7 +1676,7 @@ export function generateEmailCode(
                     backgroundColor: bgColor,
                     borderRadius: isRounded ? "12px" : "0",
                     borderCollapse: "separate",
-                    padding: "17px",
+                    padding: "22px",
                     paddingTop: "14px",
                     paddingBottom: "20px",
                   }}
