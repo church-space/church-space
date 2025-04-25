@@ -8,6 +8,9 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { SketchPicker } from "react-color";
 import { z } from "zod";
+import cookies from "js-cookie";
+import { getBrandColors } from "@/actions/get-brand-colors";
+import { useQuery } from "@tanstack/react-query";
 
 // Define a Zod schema for hex color validation
 const hexColorSchema = z
@@ -30,6 +33,25 @@ export default function ColorPicker({
   const [error, setError] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const organizationId = cookies.get("organizationId");
+
+  if (!organizationId) {
+    return null;
+  }
+
+  const { data: brandColors } = useQuery({
+    queryKey: ["brandColors", organizationId],
+    queryFn: () => getBrandColors({ organizationId }),
+  });
+
+  const parsedBrandColors = (
+    brandColors?.data?.colors?.colors as
+      | { color: string; title: string }[]
+      | undefined
+  )?.map((color) => ({
+    color: color.color,
+    title: color.title,
+  }));
 
   // Function to strip the hash from a color string
   const stripHash = (colorStr: string) => colorStr.replace(/^#/, "");
@@ -77,13 +99,7 @@ export default function ColorPicker({
                 onChange(color.hex);
               }}
               presetColors={[
-                ...(brandColorsDisabled
-                  ? []
-                  : [
-                      { color: "#f00", title: "red" },
-                      { color: "#0f0", title: "green" },
-                      { color: "#00f", title: "blue" },
-                    ]),
+                ...(brandColorsDisabled ? [] : (parsedBrandColors ?? [])),
               ]}
             />
           </PopoverContent>

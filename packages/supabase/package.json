@@ -74,6 +74,8 @@
     "./queries/all/get-org-subscription": "./src/queries/all/get-org-subscription.ts",
     "./queries/all/get-org-invoices": "./src/queries/all/get-org-invoices.ts",
     "./queries/all/get-org-details": "./src/queries/all/get-org-details.ts",
-    "./queries/all/get-organization-invites": "./src/queries/all/get-organization-invites.ts"
+    "./queries/all/get-organization-invites": "./src/queries/all/get-organization-invites.ts",
+    "./queries/all/get-brand-colors": "./src/queries/all/get-brand-colors.ts",
+    "./mutations/brand": "./src/mutations/brand.ts"
   }
 }

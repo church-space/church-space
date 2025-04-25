@@ -9,8 +9,21 @@ import {
 import { Plus, X } from "lucide-react";
 import { Button } from "@church-space/ui/button";
 import { cn } from "@church-space/ui/cn";
+import { upsertBrandColorsAction } from "@/actions/upsert-brand-colors";
+import { useDebounce } from "@/hooks/use-debounce";
+import { getBrandColors } from "@/actions/get-brand-colors";
+import { useQuery } from "@tanstack/react-query";
 
-export default function ClientPage() {
+export default function ClientPage({
+  organizationId,
+}: {
+  organizationId: string;
+}) {
+  const data = useQuery({
+    queryKey: ["brand-colors", organizationId],
+    queryFn: () => getBrandColors({ organizationId }),
+  });
+
   const [colors, setColors] = useState<string[]>(["#000000"]); // Initial color
 
   const handleColorChange = (index: number, newColor: string) => {

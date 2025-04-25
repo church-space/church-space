@@ -15,7 +15,16 @@ import {
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import ClientPage from "./client-page";
+import { cookies } from "next/headers";
+
 export default async function Page() {
+  const cookieStore = await cookies();
+  const organizationId = cookieStore.get("organizationId")?.value;
+
+  if (!organizationId) {
+    return <div>No organization ID found</div>;
+  }
+
   return (
     <div className="relative">
       <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
@@ -41,7 +50,7 @@ export default async function Page() {
             <SettingsTitle>Brand Colors</SettingsTitle>
           </SettingsHeader>
           <SettingsContent>
-            <ClientPage />
+            <ClientPage organizationId={organizationId} />
           </SettingsContent>
         </SettingsSection>
       </div>
