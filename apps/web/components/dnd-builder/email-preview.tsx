@@ -18,9 +18,11 @@ import { cn } from "@church-space/ui/cn";
 export default function EmailPreview({
   showBackButton = false,
   webOnly = false,
+  orgFooterDetails,
 }: {
   showBackButton?: boolean;
   webOnly?: boolean;
+  orgFooterDetails?: any;
 }) {
   const [previewType, setPreviewType] = useQueryState("previewType");
   const [htmlContent, setHtmlContent] = useState<string>("");
@@ -62,7 +64,12 @@ export default function EmailPreview({
   useEffect(() => {
     const renderEmail = async () => {
       // Generate email code
-      const emailCode = generateEmailCode(sections, style, emailData?.footer);
+      const emailCode = generateEmailCode(
+        sections,
+        style,
+        emailData?.footer,
+        orgFooterDetails,
+      );
       const renderedHtml = await render(emailCode);
       setHtmlContent(renderedHtml);
     };

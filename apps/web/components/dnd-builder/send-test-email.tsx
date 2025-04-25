@@ -28,7 +28,11 @@ interface OrganizationData {
   } | null;
 }
 
-export default function SendTestEmail() {
+export default function SendTestEmail({
+  orgFooterDetails,
+}: {
+  orgFooterDetails: any;
+}) {
   const [emailInput, setEmailInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -164,7 +168,12 @@ export default function SendTestEmail() {
       };
 
       // Generate email code
-      const emailCode = generateEmailCode(sections, style, emailData.footer);
+      const emailCode = generateEmailCode(
+        sections,
+        style,
+        emailData.footer,
+        orgFooterDetails,
+      );
       const htmlContent = await render(emailCode);
 
       // Add additional email client compatibility headers

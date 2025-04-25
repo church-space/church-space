@@ -79,9 +79,11 @@ const itemVariants = {
 export default function PostSendPage({
   initialEmail,
   stats,
+  orgFooterDetails,
 }: {
   initialEmail: any;
   stats: any;
+  orgFooterDetails: any;
 }) {
   const [email] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");

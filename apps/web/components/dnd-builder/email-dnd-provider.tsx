@@ -2772,10 +2772,10 @@ export default function EmailDndProvider({
                 <DialogTitle>Preview</DialogTitle>
               </DialogHeader>
 
-              <EmailPreview />
+              <EmailPreview orgFooterDetails={orgFooterDetails?.data?.data} />
             </DialogContent>
           </Dialog>
-          <SendTestEmail />
+          <SendTestEmail orgFooterDetails={orgFooterDetails?.data?.data} />
           <Button variant="default" onClick={handleSave} disabled={isSaving}>
             <span className="hidden md:block">
               {isSaving ? (

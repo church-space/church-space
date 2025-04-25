@@ -134,9 +134,11 @@ const itemVariants = {
 export default function PreSendPage({
   email: initialEmail,
   onStatusChange,
+  orgFooterDetails,
 }: {
   email: any;
   onStatusChange: (status: "sending" | "scheduled") => void;
+  orgFooterDetails: any;
 }) {
   const [email, setEmail] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
@@ -813,7 +815,7 @@ export default function PreSendPage({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <SendTestEmail />
+          <SendTestEmail orgFooterDetails={orgFooterDetails?.data?.data} />
 
           <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
             <DialogTrigger asChild>
@@ -919,7 +921,10 @@ export default function PreSendPage({
                         <Maximize2 />
                       </Button>
                     </div>
-                    <EmailPreview webOnly={true} />
+                    <EmailPreview
+                      webOnly={true}
+                      orgFooterDetails={orgFooterDetails?.data?.data}
+                    />
                     <div className="flex flex-col gap-2 px-2.5">
                       <span className="text-xs text-muted-foreground">
                         {emailBlockCount} blocks
@@ -1555,7 +1560,9 @@ export default function PreSendPage({
                       <DialogTitle>Preview</DialogTitle>
                     </DialogHeader>
 
-                    <EmailPreview />
+                    <EmailPreview
+                      orgFooterDetails={orgFooterDetails?.data?.data}
+                    />
                   </DialogContent>
                 </Dialog>
                 <Button variant="outline" className="cursor-pointer px-5">

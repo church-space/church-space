@@ -171,6 +171,21 @@ export const sendAutomationEmail = task({
         linkColor: emailStyle.link_color || "#0000ff",
       };
 
+      // Get org footer details
+      const { data: orgFooterDetails, error: orgFooterDetailsError } =
+        await supabase
+          .from("organizations")
+          .select("name, address")
+          .eq("id", typedEmailData.organization_id)
+          .single();
+
+      if (orgFooterDetailsError) {
+        console.error(
+          "Error fetching org footer details:",
+          orgFooterDetailsError,
+        );
+      }
+
       // ---- START: Render email template once ----
       let baseHtml: string;
       let baseText: string;
@@ -188,6 +203,7 @@ export const sendAutomationEmail = task({
               sections: sections,
               style: style,
               footer: typedEmailData.footer,
+              orgFooterDetails: orgFooterDetails,
             }),
           },
         );

@@ -1291,12 +1291,20 @@ function extractYouTubeId(url: string): string | undefined {
 // Add CustomFooter component before the main generator function
 const CustomFooter: React.FC<{
   footerData: any;
+  orgFooterDetails: any;
   defaultFont?: string;
   emailBgColor?: string;
   isInset?: boolean;
   isRounded?: boolean;
   linkColor?: string;
-}> = ({ footerData, defaultFont, emailBgColor, isInset, isRounded }) => {
+}> = ({
+  footerData,
+  orgFooterDetails,
+  defaultFont,
+  emailBgColor,
+  isInset,
+  isRounded,
+}) => {
   if (!footerData) return null;
 
   const {
@@ -1304,9 +1312,6 @@ const CustomFooter: React.FC<{
     name,
     subtitle,
     links = [],
-    address,
-    reason,
-    copyright_name,
     bg_color = "#ffffff",
     text_color = "#000000",
     secondary_text_color = "#666666",
@@ -1314,6 +1319,8 @@ const CustomFooter: React.FC<{
     socials_color = "#000000",
     socials_icon_color = "#ffffff",
   } = footerData;
+
+  const { address, name: orgName } = orgFooterDetails;
 
   const logoUrl = logo
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${logo}`
@@ -1541,13 +1548,30 @@ const CustomFooter: React.FC<{
                                 lineHeight: "1.2",
                               }}
                             >
-                              {address}
+                              Our mailing address is:
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              align="center"
+                              style={{
+                                fontSize: "12px",
+                                paddingBottom: "8px",
+                                lineHeight: "1.2",
+                              }}
+                            >
+                              {address?.line1 && ` ${address?.line1}`}
+                              {address?.line2 && ` ${address?.line2}`},
+                              {address?.city && ` ${address?.city}`},
+                              {address?.state && ` ${address?.state}`}
+                              {address?.zip && ` ${address?.zip}`}
+                              {address?.country && ` ${address?.country}`}
                             </td>
                           </tr>
                         </table>
                       )}
 
-                      {reason && (
+                      {orgName && (
                         <table
                           cellPadding="0"
                           cellSpacing="0"
@@ -1563,7 +1587,8 @@ const CustomFooter: React.FC<{
                                 lineHeight: "1.2",
                               }}
                             >
-                              {reason}
+                              You are receiving this email because of your
+                              involvment with {orgName}.
                             </td>
                           </tr>
                         </table>
@@ -1585,7 +1610,7 @@ const CustomFooter: React.FC<{
                             }}
                           >
                             <span>
-                              © {new Date().getFullYear()} {copyright_name}
+                              © {new Date().getFullYear()} {orgName}
                             </span>
                             <span style={{ margin: "0 8px" }}>|</span>
                             <a
@@ -1631,6 +1656,7 @@ export function generateEmailCode(
   sections: Section[],
   style: EmailStyle,
   footerData?: any,
+  orgFooterDetails?: any,
 ): React.ReactElement {
   const {
     bgColor = "#ffffff",
@@ -2190,6 +2216,7 @@ export function generateEmailCode(
         </table>
         <CustomFooter
           footerData={footerData}
+          orgFooterDetails={orgFooterDetails}
           defaultFont={emailSafeFont}
           emailBgColor={emailBgColor}
           isInset={isInset}

@@ -12,6 +12,7 @@ import LoadingPage from "./loading-page";
 import { useState, useEffect } from "react";
 import { getSentEmailStatsAction } from "@/actions/get-sent-email-stats";
 import Cookies from "js-cookie";
+import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
 
 export default function Page() {
   const params = useParams();
@@ -34,6 +35,11 @@ export default function Page() {
     queryKey: ["sentEmailStats", emailId],
     queryFn: () => getSentEmailStatsAction({ emailId: emailId }),
     enabled: (emailState?.status || email?.data?.status) === "sent",
+  });
+
+  const { data: orgFooterDetails } = useQuery({
+    queryKey: ["orgFooterDetails", organizationId],
+    queryFn: () => getOrgFooterDetailsAction({ organizationId }),
   });
 
   // Update emailState when email data changes
@@ -63,7 +69,11 @@ export default function Page() {
         <SendingPage subject={currentEmail.subject} />
       )}
       {currentEmail.status === "sent" && (
-        <PostSendPage initialEmail={currentEmail} stats={sentStats} />
+        <PostSendPage
+          initialEmail={currentEmail}
+          stats={sentStats}
+          orgFooterDetails={orgFooterDetails}
+        />
       )}
       {(currentEmail.status === "draft" ||
         currentEmail.status === "failed") && (
@@ -75,10 +85,14 @@ export default function Page() {
               status: newStatus,
             }));
           }}
+          orgFooterDetails={orgFooterDetails}
         />
       )}
       {currentEmail.status === "scheduled" && (
-        <ScheduledPage email={currentEmail} />
+        <ScheduledPage
+          email={currentEmail}
+          orgFooterDetails={orgFooterDetails}
+        />
       )}
     </>
   );

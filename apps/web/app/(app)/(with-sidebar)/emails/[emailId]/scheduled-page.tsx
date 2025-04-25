@@ -67,7 +67,13 @@ const itemVariants = {
   },
 };
 
-export default function ScheduledPage({ email: initialEmail }: { email: any }) {
+export default function ScheduledPage({
+  email: initialEmail,
+  orgFooterDetails,
+}: {
+  email: any;
+  orgFooterDetails: any;
+}) {
   const [email] = useState<typeof initialEmail>(initialEmail);
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const [cancelScheduleOpen, setCancelScheduleOpen] = useState(false);
