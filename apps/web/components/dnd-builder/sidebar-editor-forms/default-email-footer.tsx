@@ -60,9 +60,55 @@ interface Link {
 }
 
 // Define validation schemas
-const urlSchema = z.string().url("Please enter a valid URL");
-const emailSchema = z.string().email("Please enter a valid email address");
-const requiredFieldSchema = z.string().min(1, "This field is required");
+const urlSchema = z.string().superRefine((url, ctx) => {
+  // Empty string is valid
+  if (url === "") return;
+
+  // Check for spaces
+  if (url.trim() !== url) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "URL cannot contain spaces",
+    });
+    return;
+  }
+
+  // Domain and TLD pattern without requiring https://
+  const urlPattern =
+    /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
+  if (!urlPattern.test(url)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
+    });
+    return;
+  }
+});
+
+const emailSchema = z.string().superRefine((email, ctx) => {
+  // Empty string is valid
+  if (email === "") return;
+
+  // Check for spaces
+  if (email.trim() !== email) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Email cannot contain spaces",
+    });
+    return;
+  }
+
+  // Email pattern
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Please enter a valid email address",
+    });
+    return;
+  }
+});
 
 interface EmailFooterFormProps {
   footerData?: any;
@@ -223,13 +269,14 @@ function SortableLinkItem({
                 <Label className="col-span-1">
                   {link.icon === "mail" ? "Email" : "URL"}
                 </Label>
-                <div className="col-span-3">
+                <div className="col-span-3 flex flex-col gap-1">
                   <Input
-                    className={
-                      linkErrors[index] && !typingLinks[index]
-                        ? "border-red-500 bg-background"
-                        : "bg-background"
-                    }
+                    className={cn(
+                      "bg-background",
+                      linkErrors[index] &&
+                        !typingLinks[index] &&
+                        "border-destructive",
+                    )}
                     value={link.url}
                     onChange={(e) => updateLink(index, "url", e.target.value)}
                     onBlur={() => handleLinkBlur(index)}
@@ -239,7 +286,7 @@ function SortableLinkItem({
                     maxLength={500}
                   />
                   {linkErrors[index] && !typingLinks[index] && (
-                    <p className="mt-1 text-xs text-red-500">
+                    <p className="text-xs text-destructive">
                       {linkErrors[index]}
                     </p>
                   )}
@@ -268,6 +315,13 @@ export default function DefaultEmailFooterForm({
   const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
   const colorTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Track validation errors for links
+  const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
+    {},
+  );
+  // Track which links are currently being typed
+  const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
+
   // Local state with default values and validation errors
   const [localState, setLocalState] = useState({
     name: footerData?.name || "",
@@ -278,10 +332,6 @@ export default function DefaultEmailFooterForm({
     socials_style: footerData?.socials_style || "icon-only",
     socials_icon_color: footerData?.socials_icon_color || "#ffffff",
   });
-
-  const [fieldErrors, setFieldErrors] = useState<Record<number, string | null>>(
-    {},
-  );
 
   // Update local state when footerData changes
   useEffect(() => {
@@ -391,18 +441,18 @@ export default function DefaultEmailFooterForm({
       }
 
       // Clear error if validation passes
-      setFieldErrors((prev) => ({ ...prev, [index]: null }));
+      setLinkErrors((prev) => ({ ...prev, [index]: null }));
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Set error message
-        setFieldErrors((prev) => ({
+        setLinkErrors((prev) => ({
           ...prev,
           [index]: error.errors[0].message,
         }));
         return false;
       }
-      return true; // Should ideally handle non-Zod errors differently
+      return true;
     }
   };
 
@@ -413,7 +463,7 @@ export default function DefaultEmailFooterForm({
     // If updating the URL field
     if (key === "url") {
       // Mark as typing
-      setFieldErrors((prev) => ({ ...prev, [index]: null }));
+      setTypingLinks((prev) => ({ ...prev, [index]: true }));
 
       // Clear any existing timer
       if (linkTimersRef.current[index]) {
@@ -422,7 +472,7 @@ export default function DefaultEmailFooterForm({
 
       // Set a new timer to validate after typing stops
       linkTimersRef.current[index] = setTimeout(() => {
-        setFieldErrors((prev) => ({ ...prev, [index]: null }));
+        setTypingLinks((prev) => ({ ...prev, [index]: false }));
 
         // Validate based on the icon type
         const isValid = validateLink(index, value, newLinks[index].icon);
@@ -439,7 +489,7 @@ export default function DefaultEmailFooterForm({
             onFooterChange(newState);
           }
         }
-      }, 500);
+      }, 800); // 800ms debounce
 
       // Update local state immediately for responsive UI
       setLocalState((prev) => ({
@@ -449,7 +499,7 @@ export default function DefaultEmailFooterForm({
     } else {
       // For icon changes, update immediately and clear any existing errors
       if (key === "icon") {
-        setFieldErrors((prev) => ({ ...prev, [index]: null }));
+        setLinkErrors((prev) => ({ ...prev, [index]: null }));
       }
 
       const newState = { ...localState, links: newLinks };
@@ -466,32 +516,24 @@ export default function DefaultEmailFooterForm({
 
   const handleLinkBlur = (index: number) => {
     // When input loses focus, clear typing state and validate
-    if (linkTimersRef.current[index]) {
-      clearTimeout(linkTimersRef.current[index]);
-      linkTimersRef.current[index] = null;
-    }
+    if (typingLinks[index]) {
+      setTypingLinks((prev) => ({ ...prev, [index]: false }));
 
-    const link = localState.links[index];
-    const isValid = validateLink(index, link.url, link.icon);
-
-    if (isValid) {
-      // No need to create a new state object since we're not changing anything
-      // Just trigger the server update through the prop
-      if (onFooterChange) {
-        onFooterChange(localState);
+      if (linkTimersRef.current[index]) {
+        clearTimeout(linkTimersRef.current[index]);
+        linkTimersRef.current[index] = null;
       }
-    }
 
-    // Clean up any errors or timers for this index
-    setFieldErrors((prev) => {
-      const newErrors = { ...prev };
-      delete newErrors[index];
-      return newErrors;
-    });
+      const link = localState.links[index];
+      const isValid = validateLink(index, link.url, link.icon);
 
-    if (linkTimersRef.current[index]) {
-      clearTimeout(linkTimersRef.current[index]);
-      delete linkTimersRef.current[index];
+      if (isValid) {
+        // No need to create a new state object since we're not changing anything
+        // Just trigger the server update through the prop
+        if (onFooterChange) {
+          onFooterChange(localState);
+        }
+      }
     }
   };
 
@@ -511,7 +553,7 @@ export default function DefaultEmailFooterForm({
     }
 
     // Clean up any errors or timers for this index
-    setFieldErrors((prev) => {
+    setLinkErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[index];
       return newErrors;
@@ -691,12 +733,8 @@ export default function DefaultEmailFooterForm({
                     key={index}
                     link={link}
                     index={index}
-                    linkErrors={fieldErrors}
-                    typingLinks={Object.fromEntries(
-                      Object.entries(linkTimersRef.current || {}).map(
-                        ([key]) => [key, true],
-                      ),
-                    )}
+                    linkErrors={linkErrors}
+                    typingLinks={typingLinks}
                     updateLink={updateLink}
                     removeLink={removeLink}
                     handleLinkBlur={handleLinkBlur}
