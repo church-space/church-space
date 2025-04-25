@@ -1213,6 +1213,7 @@ export default function PreSendPage({
                       organizationId={email.organization_id}
                       onChange={(value) => setFromDomain(value)}
                       value={fromDomain}
+                      selectFirstOnLoad={false}
                     />
                   </div>
                 </div>
@@ -1247,6 +1248,7 @@ export default function PreSendPage({
                       organizationId={email.organization_id}
                       onChange={(value) => setReplyToDomain(value)}
                       value={replyToDomain}
+                      selectFirstOnLoad={false}
                     />
                   </div>
                 </div>

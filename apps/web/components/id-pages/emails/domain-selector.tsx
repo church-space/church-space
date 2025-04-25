@@ -29,11 +29,13 @@ export default function DomainSelector({
   onChange,
   value,
   className,
+  selectFirstOnLoad = true,
 }: {
   organizationId: string;
   onChange: (value: string) => void;
   value: string;
   className?: string;
+  selectFirstOnLoad?: boolean;
 }) {
   const supabase = createClient();
   const [domains, setDomains] = useState<Domain[]>([]);
@@ -48,7 +50,12 @@ export default function DomainSelector({
           throw result.error;
         }
         setDomains(result.data || []);
-        if (!value && result.data && result.data.length > 0) {
+        if (
+          selectFirstOnLoad &&
+          !value &&
+          result.data &&
+          result.data.length > 0
+        ) {
           onChange(result.data[0].id.toString());
         }
       } catch (err) {
@@ -59,7 +66,7 @@ export default function DomainSelector({
     };
 
     fetchDomains();
-  }, [organizationId, supabase, value, onChange]);
+  }, [organizationId, supabase, value, onChange, selectFirstOnLoad]);
 
   useEffect(() => {
     const fetchSelectedDomain = async () => {

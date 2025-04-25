@@ -37,6 +37,7 @@ import { updateOrganizationDataAction } from "@/actions/update-organization-data
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@church-space/ui/use-toast";
 import OrgInvites from "@/components/settings/invites";
+import { Label } from "@church-space/ui/label";
 export interface Address {
   line1?: string;
   line2?: string;
@@ -78,6 +79,7 @@ export default function ClientPage({
   const debouncedDefaultEmail = useDebounce(localDefaultEmail, 500);
   const debouncedDefaultEmailDomain = useDebounce(localDefaultEmailDomain, 500);
   const debouncedAddress = useDebounce(localAddress, 500);
+  const [inputOrgName, setInputOrgName] = useState("");
 
   useEffect(() => {
     setIsMounted(true);
@@ -244,6 +246,7 @@ export default function ClientPage({
                     setHasBeenModified(true);
                     setLocalDefaultEmailDomain(value);
                   }}
+                  selectFirstOnLoad={false}
                   value={localDefaultEmailDomain}
                 />
               </div>
@@ -406,9 +409,29 @@ export default function ClientPage({
                       servers.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
+                  <div className="space-y-2">
+                    <Label htmlFor="orgName" className="flex flex-col gap-1">
+                      <div className="font-normal">
+                        Please enter your organization name to confirm:
+                      </div>
+                      <div className="font-bold">{orgName}</div>
+                    </Label>
+                    <Input
+                      id="orgName"
+                      type="text"
+                      aria-placeholder="Enter your organization name"
+                      value={inputOrgName}
+                      onChange={(e) => setInputOrgName(e.target.value)}
+                      placeholder={orgName}
+                      maxLength={200}
+                    />
+                  </div>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    <AlertDialogAction
+                      disabled={inputOrgName !== orgName}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
                       Delete Organization
                     </AlertDialogAction>
                   </AlertDialogFooter>

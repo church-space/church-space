@@ -83,18 +83,31 @@ export const deleteUserAction = authActionClient
             };
           }
 
-          // Delete the organization first (this will cascade delete memberships)
-          const { error: deleteOrgError } = await supabase
-            .from("organizations")
-            .delete()
-            .eq("id", organizationId);
+          // Call the delete organization API endpoint
+          const response = await fetch(
+            "/api/organization/delete-organization",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                organizationId,
+                deleteOrganizationToken: process.env.DELETE_ORGANIZATION_SECRET,
+              }),
+            },
+          );
 
-          if (deleteOrgError) {
+          if (!response.ok) {
+            const errorData = await response.json();
             return {
               success: false,
-              error: "Failed to delete organization",
+              error: `Failed to delete organization: ${errorData.error || response.statusText}`,
             };
           }
+
+          // Since the organization deletion was successful and it will cascade delete memberships,
+          // we can proceed directly to deleting the user from auth
         }
       }
 

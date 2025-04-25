@@ -5,10 +5,6 @@ import { createClient } from "@church-space/supabase/job";
 import Stripe from "stripe";
 import { Resend } from "resend";
 
-// DELETE FROM RESEND TOO
-// DELETE ALL EMAIL AUTOMATION STEPS
-// DELETE ALL WEBHOOKS IN PCO
-
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",

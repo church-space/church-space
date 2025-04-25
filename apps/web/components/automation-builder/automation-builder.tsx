@@ -351,6 +351,7 @@ function SortableStep(props: SortableStepProps) {
                           });
                         }}
                         value={step.from_email_domain?.toString() || ""}
+                        selectFirstOnLoad={false}
                       />
                     </div>
                   </div>
