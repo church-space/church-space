@@ -5,7 +5,6 @@ import { createClient } from "@church-space/supabase/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { headers } from "next/headers";
 import { client as RedisClient } from "@church-space/kv";
-import { getUserQuery } from "@church-space/supabase/get-user";
 import { z } from "zod";
 import { deleteOrganization } from "@/jobs/delete-organization";
 
