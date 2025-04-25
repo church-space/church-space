@@ -24,7 +24,6 @@ import {
   SelectValue,
 } from "@church-space/ui/select";
 import { Separator } from "@church-space/ui/separator";
-import { Textarea } from "@church-space/ui/textarea";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import ColorPicker from "../color-picker";

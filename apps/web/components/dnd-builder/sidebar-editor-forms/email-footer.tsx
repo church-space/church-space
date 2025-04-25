@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
-import { Textarea } from "@church-space/ui/textarea";
 import { AutosizeTextarea } from "@church-space/ui/auto-size-textarea";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
