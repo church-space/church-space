@@ -595,15 +595,12 @@ export type Database = {
       }
       email_org_default_footer_values: {
         Row: {
-          address: string | null
-          copyright_name: string | null
           created_at: string
           id: number
           links: Json | null
           logo: string | null
           name: string | null
           organization_id: string
-          reason: string | null
           socials_color: string | null
           socials_icon_color: string | null
           socials_style: Database["public"]["Enums"]["social_icons_style"]
@@ -611,15 +608,12 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          address?: string | null
-          copyright_name?: string | null
           created_at?: string
           id?: number
           links?: Json | null
           logo?: string | null
           name?: string | null
           organization_id: string
-          reason?: string | null
           socials_color?: string | null
           socials_icon_color?: string | null
           socials_style?: Database["public"]["Enums"]["social_icons_style"]
@@ -627,15 +621,12 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          address?: string | null
-          copyright_name?: string | null
           created_at?: string
           id?: number
           links?: Json | null
           logo?: string | null
           name?: string | null
           organization_id?: string
-          reason?: string | null
           socials_color?: string | null
           socials_icon_color?: string | null
           socials_style?: Database["public"]["Enums"]["social_icons_style"]

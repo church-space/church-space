@@ -7,9 +7,6 @@ interface UpdateOrgDefaultFooterParams {
     name?: string | null;
     subtitle?: string | null;
     logo?: string | null;
-    address?: string | null;
-    reason?: string | null;
-    copyright_name?: string | null;
     links?: any | null;
     socials_color?: string | null;
     socials_style?: "outline" | "filled" | "icon-only";
@@ -30,52 +27,28 @@ export function useUpdateOrgDefaultFooter() {
         throw new Error("Organization ID is required");
       }
 
-      // Check if a default footer already exists for this organization
-      const { data: existingFooter, error: checkError } = await supabase
+      // Perform an upsert operation
+      const { data, error } = await supabase
         .from("email_org_default_footer_values")
-        .select("id")
-        .eq("organization_id", organizationId)
-        .single();
-
-      if (checkError && checkError.code !== "PGRST116") {
-        throw checkError;
-      }
-
-      let result;
-
-      if (existingFooter) {
-        // Update existing footer
-        const { data, error } = await supabase
-          .from("email_org_default_footer_values")
-          .update(updates)
-          .eq("id", existingFooter.id)
-          .select()
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        result = data;
-      } else {
-        // Create new footer
-        const { data, error } = await supabase
-          .from("email_org_default_footer_values")
-          .insert({
+        .upsert(
+          {
             organization_id: organizationId,
             ...updates,
-          })
-          .select()
-          .single();
+          },
+          {
+            onConflict: "organization_id", // Assumes unique constraint on organization_id
+          },
+        )
+        .select()
+        .single();
 
-        if (error) {
-          throw error;
-        }
-
-        result = data;
+      if (error) {
+        // Add more specific error handling if needed
+        console.error("Supabase upsert error:", error);
+        throw error;
       }
 
-      return result;
+      return data;
     },
     onSuccess: (data, variables) => {
       // Invalidate the organization default footer query

@@ -17,14 +17,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Footer from "./footer";
 import { useUpdateOrgDefaultFooter } from "./mutations/use-update-org-default-footer";
 import DefaultEmailFooterForm from "./sidebar-editor-forms/default-email-footer";
+import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
 
 type FooterData = {
-  address: string | null;
-  copyright_name: string | null;
   links: any | null;
   logo: string | null;
   name: string | null;
-  reason: string | null;
   socials_color: string | null;
   socials_icon_color: string | null;
   socials_style: "outline" | "filled" | "icon-only";
@@ -41,12 +39,9 @@ export default function DefaultFooterEditor({
   defaultFont?: string;
 }) {
   const [footerData, setFooterData] = useState<FooterData>({
-    address: null,
-    copyright_name: null,
     links: null,
     logo: null,
     name: null,
-    reason: null,
     socials_color: null,
     socials_icon_color: null,
     socials_style: "outline",
@@ -65,6 +60,16 @@ export default function DefaultFooterEditor({
       }
     },
   });
+
+  const { data: orgFooterDetails } = useQuery({
+    queryKey: ["org-footer-details", organizationId],
+    queryFn: async () => {
+      const result = await getOrgFooterDetailsAction({ organizationId });
+      return result?.data;
+    },
+  });
+
+  console.log(orgFooterDetails);
 
   useEffect(() => {
     if (data) {
@@ -153,6 +158,7 @@ export default function DefaultFooterEditor({
             emailInset={true}
             emailBgColor={emailBgColor}
             defaultFont={defaultFont}
+            orgFooterDetails={orgFooterDetails}
           />
         </div>
       </div>

@@ -40,6 +40,7 @@ interface FooterProps {
   emailBgColor: string;
   defaultFont?: string;
   showHover: boolean;
+  orgFooterDetails?: any;
 }
 
 const socialIcons = {
@@ -64,6 +65,7 @@ export default function Footer({
   emailBgColor,
   defaultFont,
   showHover = true,
+  orgFooterDetails,
 }: FooterProps) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const logo = footerData?.logo || "";
@@ -192,20 +194,37 @@ export default function Footer({
           className="flex flex-col items-center gap-3"
           style={{ color: footerSecondaryTextColor }}
         >
-          {footerData?.address && (
-            <div className="text-pretty text-center text-xs leading-none">
-              {footerData?.address}
+          {orgFooterDetails?.data?.address && (
+            <div className="flex flex-col items-center gap-2 text-center text-xs leading-none">
+              Our mailing address is:
+              <div className="text-pretty text-center text-xs leading-none">
+                {orgFooterDetails?.data?.address?.line1 &&
+                  ` ${orgFooterDetails?.data?.address?.line1}`}
+                {orgFooterDetails?.data?.address?.line2 &&
+                  ` ${orgFooterDetails?.data?.address?.line2}`}
+                ,
+                {orgFooterDetails?.data?.address?.city &&
+                  ` ${orgFooterDetails?.data?.address?.city}`}
+                ,
+                {orgFooterDetails?.data?.address?.state &&
+                  ` ${orgFooterDetails?.data?.address?.state}`}
+                {orgFooterDetails?.data?.address?.zip &&
+                  ` ${orgFooterDetails?.data?.address?.zip}`}
+                {orgFooterDetails?.data?.address?.country &&
+                  ` ${orgFooterDetails?.data?.address?.country}`}
+              </div>
             </div>
           )}
-          {footerData?.reason && (
+          {orgFooterDetails?.data?.name && (
             <div className="text-pretty text-center text-xs leading-none">
-              {footerData?.reason}
+              You are receiving this email because of your involvment with{" "}
+              {orgFooterDetails?.data?.name}.
             </div>
           )}
           <div className="flex w-full flex-col items-center justify-center text-pretty pb-1 text-xs md:flex-row md:gap-2">
             <span>
               &copy; {getYear(new Date())}{" "}
-              {footerData?.copyright_name && footerData?.copyright_name}
+              {orgFooterDetails?.data?.name && orgFooterDetails?.data?.name}
             </span>
             <span className="hidden md:block">|</span>
             <div className="flex items-center gap-2">
