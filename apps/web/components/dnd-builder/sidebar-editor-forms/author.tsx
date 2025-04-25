@@ -52,6 +52,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@church-space/ui/accordion";
+import { nanoid } from "nanoid";
+
+// Add 'id' to the existing link type definition
+type LinkItem = AuthorBlockData["links"][number] & {
+  id: string;
+};
 
 interface AuthorFormProps {
   block: Block & { data?: AuthorBlockData };
@@ -97,6 +103,7 @@ CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
 function SortableLinkItem({
   link,
   index,
+  linkId,
   openItem,
   setOpenItem,
   typingLinks,
@@ -105,12 +112,13 @@ function SortableLinkItem({
   removeLink,
   handleLinkBlur,
 }: {
-  link: any;
+  link: LinkItem;
   index: number;
+  linkId: string;
   openItem: string | undefined;
   setOpenItem: (value: string | undefined) => void;
-  typingLinks: Record<number, boolean>;
-  linkErrors: Record<number, string | null>;
+  typingLinks: Record<string, boolean>;
+  linkErrors: Record<string, string | null>;
   updateLink: (index: number, key: "icon" | "url", value: string) => void;
   removeLink: (index: number) => void;
   handleLinkBlur: (index: number) => void;
@@ -122,7 +130,7 @@ function SortableLinkItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: index.toString() });
+  } = useSortable({ id: link.id });
 
   const style = transform
     ? {
@@ -131,9 +139,6 @@ function SortableLinkItem({
         zIndex: isDragging ? 10 : 1,
       }
     : undefined;
-
-  // Generate a stable ID from link properties
-  const linkId = `link-${index}`;
 
   const socialIcons = {
     mail: MailFilled,
@@ -267,7 +272,7 @@ function SortableLinkItem({
                 <div className="col-span-2 mb-2 flex flex-col gap-1">
                   <Input
                     className={
-                      linkErrors[index] && !typingLinks[index]
+                      linkErrors[linkId] && !typingLinks[linkId]
                         ? "border-red-500 bg-background"
                         : "bg-background"
                     }
@@ -279,8 +284,8 @@ function SortableLinkItem({
                     }
                     maxLength={500}
                   />
-                  {linkErrors[index] && !typingLinks[index] && (
-                    <p className="text-xs text-red-500">{linkErrors[index]}</p>
+                  {linkErrors[linkId] && !typingLinks[linkId] && (
+                    <p className="text-xs text-red-500">{linkErrors[linkId]}</p>
                   )}
                 </div>
                 <Button
@@ -303,24 +308,33 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   const { organizationId } = useUser();
   const [openLink, setOpenLink] = useState<string | undefined>(undefined);
 
-  const [localState, setLocalState] = useState<AuthorBlockData>({
-    name: block.data?.name || "",
-    subtitle: block.data?.subtitle || "",
-    avatar: block.data?.avatar || "",
-    links: block.data?.links || [],
-    textColor: block.data?.textColor || "#000000",
-    hideAvatar: block.data?.hideAvatar || false,
-    linkColor: block.data?.linkColor || "#000000",
+  const [localState, setLocalState] = useState<
+    Omit<AuthorBlockData, "links"> & { links: LinkItem[] }
+  >(() => {
+    const initialLinks = block.data?.links || [];
+    const linksWithIds = initialLinks.map((link: any) => ({
+      ...link,
+      id: link.id || nanoid(),
+    }));
+    return {
+      name: block.data?.name || "",
+      subtitle: block.data?.subtitle || "",
+      avatar: block.data?.avatar || "",
+      links: linksWithIds,
+      textColor: block.data?.textColor || "#000000",
+      hideAvatar: block.data?.hideAvatar || false,
+      linkColor: block.data?.linkColor || "#000000",
+    };
   });
 
   // Track validation errors for links
-  const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
+  const [linkErrors, setLinkErrors] = useState<Record<string, string | null>>(
     {},
   );
   // Track which links are currently being typed
-  const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
+  const [typingLinks, setTypingLinks] = useState<Record<string, boolean>>({});
   // Debounce timers for link validation
-  const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  const linkTimersRef = useRef<Record<string, NodeJS.Timeout | null>>({});
 
   // Set up DND sensors
   const sensors = useSensors(
@@ -339,8 +353,21 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id.toString());
-      const newIndex = parseInt(over.id.toString());
+      const oldIndex = localState.links.findIndex(
+        (link) => link.id === active.id,
+      );
+      const newIndex = localState.links.findIndex(
+        (link) => link.id === over.id,
+      );
+
+      if (oldIndex === -1 || newIndex === -1) {
+        console.error(
+          "Could not find links for DND update:",
+          active.id,
+          over.id,
+        );
+        return;
+      }
 
       // Update the order of the links
       const reorderedLinks = [...localState.links];
@@ -414,7 +441,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   const validateLink = (
     value: string,
     type: string,
-    index: number,
+    linkId: string,
   ): boolean => {
     try {
       if (type === "mail") {
@@ -424,14 +451,14 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
       }
 
       // Clear error if validation passes
-      setLinkErrors((prev) => ({ ...prev, [index]: null }));
+      setLinkErrors((prev) => ({ ...prev, [linkId]: null }));
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Set error message
         setLinkErrors((prev) => ({
           ...prev,
-          [index]: error.errors[0].message,
+          [linkId]: error.errors[0].message,
         }));
         return false;
       }
@@ -447,7 +474,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     // Update the UI
     onUpdate({
       ...block,
-      data: newState,
+      data: newState as AuthorBlockData, // Cast back for onUpdate
     });
   };
 
@@ -460,7 +487,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     if (localState.links.length < 5) {
       const newLinks = [
         ...localState.links,
-        { icon: "", url: "", order: localState.links.length },
+        { icon: "", url: "", order: localState.links.length, id: nanoid() },
       ];
       handleChange("links", newLinks);
     }
@@ -469,23 +496,24 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
   const updateLink = (index: number, key: "icon" | "url", value: string) => {
     const newLinks = [...localState.links];
     newLinks[index] = { ...newLinks[index], [key]: value };
+    const linkId = newLinks[index].id;
 
     // If updating the URL field
     if (key === "url") {
       // Mark as typing
-      setTypingLinks((prev) => ({ ...prev, [index]: true }));
+      setTypingLinks((prev) => ({ ...prev, [linkId]: true }));
 
       // Clear any existing timer
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
       }
 
       // Set a new timer to validate after typing stops
-      linkTimersRef.current[index] = setTimeout(() => {
-        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+      linkTimersRef.current[linkId] = setTimeout(() => {
+        setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
 
         // Validate based on the icon type
-        const isValid = validateLink(value, newLinks[index].icon, index);
+        const isValid = validateLink(value, newLinks[index].icon, linkId);
 
         // Only update if valid
         if (isValid) {
@@ -501,7 +529,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     } else {
       // For icon changes, update immediately and clear any existing errors
       if (key === "icon") {
-        setLinkErrors((prev) => ({ ...prev, [index]: null }));
+        setLinkErrors((prev) => ({ ...prev, [linkId]: null }));
       }
       handleChange("links", newLinks);
     }
@@ -509,16 +537,18 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
 
   const handleLinkBlur = (index: number) => {
     // When input loses focus, clear typing state and validate
-    if (typingLinks[index]) {
-      setTypingLinks((prev) => ({ ...prev, [index]: false }));
+    const linkId = localState.links[index].id;
 
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
-        linkTimersRef.current[index] = null;
+    if (typingLinks[linkId]) {
+      setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
+
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
+        linkTimersRef.current[linkId] = null;
       }
 
       const link = localState.links[index];
-      const isValid = validateLink(link.url, link.icon, index);
+      const isValid = validateLink(link.url, link.icon, linkId);
 
       if (isValid) {
         handleChange("links", localState.links);
@@ -528,18 +558,25 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
 
   const removeLink = (index: number) => {
     const newLinks = localState.links.filter((_, i) => i !== index);
+    const removedLinkId = localState.links[index].id;
     handleChange("links", newLinks);
 
     // Clean up any errors or timers for this index
     setLinkErrors((prev) => {
       const newErrors = { ...prev };
-      delete newErrors[index];
+      delete newErrors[removedLinkId];
       return newErrors;
     });
 
-    if (linkTimersRef.current[index]) {
-      clearTimeout(linkTimersRef.current[index]);
-      delete linkTimersRef.current[index];
+    setTypingLinks((prev) => {
+      const newTyping = { ...prev };
+      delete newTyping[removedLinkId];
+      return newTyping;
+    });
+
+    if (linkTimersRef.current[removedLinkId]) {
+      clearTimeout(linkTimersRef.current[removedLinkId]);
+      delete linkTimersRef.current[removedLinkId];
     }
   };
 
@@ -650,7 +687,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={localState.links.map((_, i) => i.toString())}
+            items={localState.links.map((link) => link.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="w-full">
@@ -659,6 +696,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
                   key={index}
                   link={link}
                   index={index}
+                  linkId={link.id}
                   openItem={openLink}
                   setOpenItem={setOpenLink}
                   typingLinks={typingLinks}

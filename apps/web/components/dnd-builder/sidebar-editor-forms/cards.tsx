@@ -37,6 +37,12 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import React from "react";
+import { nanoid } from "nanoid";
+
+// Add 'id' to the existing card type definition
+type CardItem = CardsBlockData["cards"][number] & {
+  id: string;
+};
 
 interface CardsFormProps {
   block: Block & { data?: CardsBlockData };
@@ -92,12 +98,12 @@ function SortableCardItem({
   onImageRemove,
   organizationId,
 }: {
-  card: any;
+  card: CardItem;
   index: number;
   openItem: string | undefined;
   setOpenItem: (value: string | undefined) => void;
-  typingLinks: Record<number, boolean>;
-  linkErrors: Record<number, string | null>;
+  typingLinks: Record<string, boolean>;
+  linkErrors: Record<string, string | null>;
   updateCard: (index: number, key: string, value: string) => void;
   removeCard: (index: number) => void;
   handleBlur: (index: number) => void;
@@ -111,7 +117,7 @@ function SortableCardItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: index.toString() });
+  } = useSortable({ id: card.id });
 
   const style = transform
     ? {
@@ -120,9 +126,6 @@ function SortableCardItem({
         zIndex: isDragging ? 10 : 1,
       }
     : undefined;
-
-  // Generate a stable ID from card properties
-  const cardId = `card-${card.order}-${index}`;
 
   return (
     <div
@@ -146,13 +149,13 @@ function SortableCardItem({
           type="single"
           collapsible
           className="w-full md:max-w-[226px] lg:max-w-[302px]"
-          value={openItem === cardId ? cardId : undefined}
+          value={openItem === card.id ? card.id : undefined}
           onValueChange={(value) => setOpenItem(value)}
         >
-          <AccordionItem value={cardId} className="border-0">
+          <AccordionItem value={card.id} className="border-0">
             <div
               onClick={() =>
-                setOpenItem(openItem === cardId ? undefined : cardId)
+                setOpenItem(openItem === card.id ? undefined : card.id)
               }
             >
               <CustomAccordionTrigger>
@@ -224,7 +227,7 @@ function SortableCardItem({
                 <div className="col-span-2 mb-2 flex flex-col gap-1">
                   <Input
                     className={
-                      linkErrors[index] && !typingLinks[index]
+                      linkErrors[card.id] && !typingLinks[card.id]
                         ? "border-red-500"
                         : ""
                     }
@@ -236,8 +239,10 @@ function SortableCardItem({
                     onBlur={() => handleBlur(index)}
                     maxLength={500}
                   />
-                  {linkErrors[index] && !typingLinks[index] && (
-                    <p className="text-xs text-red-500">{linkErrors[index]}</p>
+                  {linkErrors[card.id] && !typingLinks[card.id] && (
+                    <p className="text-xs text-red-500">
+                      {linkErrors[card.id]}
+                    </p>
                   )}
                 </div>
                 <Button
@@ -260,20 +265,29 @@ function SortableCardItem({
 export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   const { organizationId } = useUser();
   const [openCard, setOpenCard] = useState<string | undefined>(undefined);
-  const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
+  const [linkErrors, setLinkErrors] = useState<Record<string, string | null>>(
     {},
   );
-  const [isTyping, setIsTyping] = useState<Record<number, boolean>>({});
-  const debounceTimerRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  const [isTyping, setIsTyping] = useState<Record<string, boolean>>({});
+  const debounceTimerRef = useRef<Record<string, NodeJS.Timeout | null>>({});
 
-  const [localState, setLocalState] = useState<CardsBlockData>({
-    title: block.data?.title || "",
-    subtitle: block.data?.subtitle || "",
-    cards: block.data?.cards || [],
-    textColor: block.data?.textColor || "#000000",
-    labelColor: block.data?.labelColor || "#4274D2",
-    buttonColor: block.data?.buttonColor || "#4274D2",
-    buttonTextColor: block.data?.buttonTextColor || "#FFFFFF",
+  const [localState, setLocalState] = useState<
+    Omit<CardsBlockData, "cards"> & { cards: CardItem[] }
+  >(() => {
+    const initialCards = block.data?.cards || [];
+    const cardsWithIds = initialCards.map((card: any) => ({
+      ...card,
+      id: card.id || nanoid(),
+    }));
+    return {
+      title: block.data?.title || "",
+      subtitle: block.data?.subtitle || "",
+      cards: cardsWithIds,
+      textColor: block.data?.textColor || "#000000",
+      labelColor: block.data?.labelColor || "#4274D2",
+      buttonColor: block.data?.buttonColor || "#4274D2",
+      buttonTextColor: block.data?.buttonTextColor || "#FFFFFF",
+    };
   });
 
   // Set up DND sensors
@@ -293,11 +307,24 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id.toString());
-      const newIndex = parseInt(over.id.toString());
+      const oldIndex = localState.cards.findIndex(
+        (card) => card.id === active.id,
+      );
+      const newIndex = localState.cards.findIndex(
+        (card) => card.id === over.id,
+      );
+
+      if (oldIndex === -1 || newIndex === -1) {
+        console.error(
+          "Could not find cards for DND update:",
+          active.id,
+          over.id,
+        );
+        return;
+      }
 
       // Update the order of the cards
-      const reorderedCards = [...localState.cards];
+      const reorderedCards = [...(localState.cards as CardItem[])];
       const [movedItem] = reorderedCards.splice(oldIndex, 1);
       reorderedCards.splice(newIndex, 0, movedItem);
 
@@ -339,16 +366,16 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     }
   });
 
-  const validateUrl = (url: string, index: number) => {
+  const validateUrl = (url: string, cardId: string) => {
     try {
       urlSchema.parse(url);
-      setLinkErrors((prev) => ({ ...prev, [index]: null }));
+      setLinkErrors((prev) => ({ ...prev, [cardId]: null }));
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         setLinkErrors((prev) => ({
           ...prev,
-          [index]: error.errors[0].message,
+          [cardId]: error.errors[0].message,
         }));
         return false;
       }
@@ -364,15 +391,16 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
     // Update the UI
     onUpdate({
       ...block,
-      data: newState,
+      data: newState as CardsBlockData,
     });
   };
 
   const addCard = () => {
     const newCards = [
-      ...localState.cards,
+      ...(localState.cards as CardItem[]),
       {
         title: "",
+        id: nanoid(),
         description: "",
         label: "",
         buttonText: "",
@@ -386,21 +414,26 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
 
   const updateCard = (index: number, key: string, value: string) => {
     const newCards = [...localState.cards];
+    const cards = localState.cards as CardItem[];
+    const cardId = cards[index]?.id;
+
+    if (!cardId) return;
+
     newCards[index] = { ...newCards[index], [key]: value };
 
     // For buttonLink field, handle typing state and validation
     if (key === "buttonLink") {
-      setIsTyping((prev) => ({ ...prev, [index]: true }));
+      setIsTyping((prev) => ({ ...prev, [cardId]: true }));
 
       // Clear any existing timer for this card
-      if (debounceTimerRef.current[index]) {
-        clearTimeout(debounceTimerRef.current[index]);
+      if (debounceTimerRef.current[cardId]) {
+        clearTimeout(debounceTimerRef.current[cardId]);
       }
 
       // Set a new timer to validate after typing stops
-      debounceTimerRef.current[index] = setTimeout(() => {
-        setIsTyping((prev) => ({ ...prev, [index]: false }));
-        const isValid = validateUrl(value, index);
+      debounceTimerRef.current[cardId] = setTimeout(() => {
+        setIsTyping((prev) => ({ ...prev, [cardId]: false }));
+        const isValid = validateUrl(value, cardId);
 
         // Only update parent if valid
         if (isValid) {
@@ -420,47 +453,55 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   };
 
   const handleBlur = (index: number) => {
-    // When input loses focus, clear typing state and validate
-    if (isTyping[index]) {
-      setIsTyping((prev) => ({ ...prev, [index]: false }));
+    const cardId = localState.cards[index]?.id;
+    if (!cardId) return;
 
-      if (debounceTimerRef.current[index]) {
-        clearTimeout(debounceTimerRef.current[index]);
-        debounceTimerRef.current[index] = null;
+    // When input loses focus, clear typing state and validate
+    if (isTyping[cardId]) {
+      setIsTyping((prev) => ({ ...prev, [cardId]: false }));
+
+      if (debounceTimerRef.current[cardId]) {
+        clearTimeout(debounceTimerRef.current[cardId]);
+        debounceTimerRef.current[cardId] = null;
       }
 
-      const buttonLink = localState.cards[index].buttonLink;
-      const isValid = validateUrl(buttonLink, index);
+      const currentCard = localState.cards[index] as CardItem;
+      const buttonLink = currentCard.buttonLink;
+      const isValid = validateUrl(buttonLink, cardId);
 
       if (isValid) {
         onUpdate({
           ...block,
-          data: localState,
+          data: localState as CardsBlockData,
         });
       }
     }
   };
 
   const removeCard = (index: number) => {
-    const newCards = localState.cards.filter((_, i) => i !== index);
+    const cards = localState.cards as CardItem[];
+    const cardId = cards[index]?.id;
+    const newCards = cards.filter((_, i) => i !== index);
     handleChange("cards", newCards);
 
-    // Clean up any validation state for this card
-    setLinkErrors((prev) => {
-      const newErrors = { ...prev };
-      delete newErrors[index];
-      return newErrors;
-    });
+    // Clean up any validation/typing state for this card
+    if (cardId) {
+      setLinkErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[cardId];
+        return newErrors;
+      });
 
-    setIsTyping((prev) => {
-      const newTyping = { ...prev };
-      delete newTyping[index];
-      return newTyping;
-    });
+      setIsTyping((prev) => {
+        const newTyping = { ...prev };
+        delete newTyping[cardId];
+        return newTyping;
+      });
 
-    if (debounceTimerRef.current[index]) {
-      clearTimeout(debounceTimerRef.current[index]);
-      delete debounceTimerRef.current[index];
+      if (debounceTimerRef.current[cardId]) {
+        clearTimeout(debounceTimerRef.current[cardId]);
+        delete debounceTimerRef.current[cardId];
+      }
     }
   };
 
@@ -520,7 +561,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={localState.cards.map((_, i) => i.toString())}
+            items={localState.cards.map((card) => card.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="w-full">

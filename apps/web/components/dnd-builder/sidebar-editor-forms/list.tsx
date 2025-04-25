@@ -30,6 +30,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@church-space/ui/accordion";
+import { nanoid } from "nanoid";
+
+// Add 'id' to the existing item type definition
+type ListItem = ListBlockData["items"][number] & {
+  id: string;
+};
 
 interface ListFormProps {
   block: Block & { data?: ListBlockData };
@@ -75,13 +81,15 @@ CustomAccordionTrigger.displayName = "CustomAccordionTrigger";
 function SortableListItem({
   item,
   index,
+  itemId,
   openItem,
   setOpenItem,
   updateItem,
   removeItem,
 }: {
-  item: any;
+  item: ListItem;
   index: number;
+  itemId: string;
   openItem: string | undefined;
   setOpenItem: (value: string | undefined) => void;
   updateItem: (index: number, field: string, value: string) => void;
@@ -94,7 +102,7 @@ function SortableListItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: index.toString() });
+  } = useSortable({ id: item.id });
 
   const style = transform
     ? {
@@ -103,9 +111,6 @@ function SortableListItem({
         zIndex: isDragging ? 10 : 1,
       }
     : undefined;
-
-  // Generate a stable ID from item properties
-  const itemId = `item-${index}`;
 
   return (
     <div
@@ -130,7 +135,7 @@ function SortableListItem({
           collapsible
           className="w-full"
           value={openItem === itemId ? itemId : undefined}
-          onValueChange={(value) => setOpenItem(value)}
+          onValueChange={(value) => setOpenItem(value ? value : undefined)}
         >
           <AccordionItem value={itemId} className="border-0">
             <div
@@ -180,13 +185,22 @@ function SortableListItem({
 }
 
 export default function ListForm({ block, onUpdate }: ListFormProps) {
-  const [localState, setLocalState] = useState<ListBlockData>({
-    title: block.data?.title || "",
-    subtitle: block.data?.subtitle || "",
-    textColor: block.data?.textColor || "#000000",
-    bulletColor: block.data?.bulletColor || "#000000",
-    bulletType: "number",
-    items: block.data?.items || [],
+  const [localState, setLocalState] = useState<
+    Omit<ListBlockData, "items"> & { items: ListItem[] }
+  >(() => {
+    const initialItems = block.data?.items || [];
+    const itemsWithIds = initialItems.map((item: any) => ({
+      ...item,
+      id: item.id || nanoid(),
+    }));
+    return {
+      title: block.data?.title || "",
+      subtitle: block.data?.subtitle || "",
+      textColor: block.data?.textColor || "#000000",
+      bulletColor: block.data?.bulletColor || "#000000",
+      bulletType: block.data?.bulletType || "number",
+      items: itemsWithIds,
+    };
   });
 
   const [openItem, setOpenItem] = useState<string | undefined>(undefined);
@@ -208,8 +222,21 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id.toString());
-      const newIndex = parseInt(over.id.toString());
+      const oldIndex = localState.items.findIndex(
+        (item) => item.id === active.id,
+      );
+      const newIndex = localState.items.findIndex(
+        (item) => item.id === over.id,
+      );
+
+      if (oldIndex === -1 || newIndex === -1) {
+        console.error(
+          "Could not find items for DND update:",
+          active.id,
+          over.id,
+        );
+        return;
+      }
 
       // Update the order of the items
       const reorderedItems = [...localState.items];
@@ -233,8 +260,12 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
       subtitle: block.data?.subtitle || "",
       textColor: block.data?.textColor || "#000000",
       bulletColor: block.data?.bulletColor || "#000000",
-      bulletType: "number",
-      items: block.data?.items || [],
+      bulletType: block.data?.bulletType || "number",
+      items:
+        block.data?.items?.map((item: any) => ({
+          ...item,
+          id: item.id || nanoid(),
+        })) || [],
     });
   }, [block.data]);
 
@@ -249,7 +280,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
     // Update the UI
     onUpdate({
       ...block,
-      data: newState,
+      data: newState as ListBlockData,
     });
   };
 
@@ -260,6 +291,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
         title: "",
         description: "",
         order: localState.items.length,
+        id: nanoid(),
       },
     ];
     handleChange("items", newItems);
@@ -322,7 +354,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={localState.items.map((_, i) => i.toString())}
+            items={localState.items.map((item) => item.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="w-full px-2">
@@ -331,6 +363,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
                   key={index}
                   item={item}
                   index={index}
+                  itemId={item.id}
                   openItem={openItem}
                   setOpenItem={setOpenItem}
                   updateItem={updateItem}
