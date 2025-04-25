@@ -77,11 +77,6 @@ export async function POST(request: Request) {
 
     // Verify user exists and is authenticated
     const supabase = await createClient();
-    const { data: user, error: userError } = await getUserQuery(supabase);
-
-    if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
     // Authorization check: Verify user is an owner of the organizationId
     const { data: isOwner, error: rpcError } = await supabase.rpc(
