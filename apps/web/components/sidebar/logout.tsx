@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 
 const handleLogout = async () => {
   // Clear cookies first
+  Cookies.remove("sidebar_state");
   Cookies.remove("planning_center_session");
   Cookies.remove("organizationId");
 

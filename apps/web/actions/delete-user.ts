@@ -7,6 +7,7 @@ import { authActionClient } from "./safe-action";
 import { getOrgOwnersQuery } from "@church-space/supabase/queries/all/get-org-owners";
 import { getUserQuery } from "@church-space/supabase/get-user";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export const deleteUserAction = authActionClient
   .schema(
@@ -23,6 +24,7 @@ export const deleteUserAction = authActionClient
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
+      const cookieStore = await cookies();
       const supabase = await createClient();
       const { userId, email, organizationId, organizationName, role } =
         parsedInput.parsedInput;
@@ -142,6 +144,10 @@ export const deleteUserAction = authActionClient
           error: `Failed to delete user: ${errorData.error || response.statusText}`,
         };
       }
+
+      cookieStore.delete("planning_center_session");
+      cookieStore.delete("organizationId");
+      cookieStore.delete("sidebar_state");
 
       await supabase.auth.signOut({
         scope: "global",
