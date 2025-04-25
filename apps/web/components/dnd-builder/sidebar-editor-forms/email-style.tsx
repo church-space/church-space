@@ -37,8 +37,6 @@ interface EmailStyleFormProps {
   onAccentTextColorChange?: (color: string) => void;
   blockSpacing?: number;
   onBlockSpacingChange?: (spacing: number) => void;
-  footerBgColor?: string;
-  onFooterBgColorChange?: (color: string) => void;
   footerTextColor?: string;
   onFooterTextColorChange?: (color: string) => void;
   footerSecondaryTextColor?: string;
@@ -66,8 +64,6 @@ export default function EmailStyleForm({
   onAccentTextColorChange,
   blockSpacing = 20,
   onBlockSpacingChange,
-  footerBgColor = "#ffffff",
-  onFooterBgColorChange,
   footerData,
   onFooterChange,
 }: EmailStyleFormProps) {
