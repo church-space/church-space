@@ -66,7 +66,6 @@ export const importUnsubscribes = task({
     }
 
     if (parseResult.data.length === 0) {
-      console.log("CSV file is empty or contains no data rows.");
       return { message: "CSV file is empty or contains no data rows." };
     }
 
@@ -102,13 +101,10 @@ export const importUnsubscribes = task({
       .filter((item): item is NonNullable<typeof item> => item !== null); // Filter out invalid/missing emails
 
     if (dataToUpsert.length === 0) {
-      console.log("No valid email addresses found in the specified column.");
       return {
         message: "No valid email addresses found in the specified column.",
       };
     }
-
-    console.log(`Preparing to upsert ${dataToUpsert.length} email statuses.`);
 
     // Perform batch UPSERT directly using the Supabase client
     const { error: upsertError } = await supabase
@@ -128,10 +124,6 @@ export const importUnsubscribes = task({
         `Failed to upsert email statuses: ${upsertError.message}`,
       );
     }
-
-    console.log(
-      `Successfully upserted ${dataToUpsert.length} email statuses for organization ${organizationId}.`,
-    );
 
     return {
       message: `Successfully processed ${dataToUpsert.length} records.`,

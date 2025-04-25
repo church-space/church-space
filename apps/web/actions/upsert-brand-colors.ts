@@ -41,11 +41,6 @@ export const upsertBrandColorsAction = authActionClient
       // Call the mutation. It throws on Supabase error.
       const data = await upsertBrandColor(supabase, input);
 
-      // If upsertBrandColor didn't throw, assume success.
-      // The actual returned data might be null or an empty array, which is fine.
-      console.log("Upsert successful. Returned data (could be null):", data);
-      console.log("Input provided:", parsedInput);
-
       return {
         success: true,
         // Optionally return the data, or just indicate success

@@ -125,8 +125,6 @@ export default function EmailDndProvider({
     queryFn: () => getOrgFooterDetailsAction({ organizationId }),
   });
 
-  console.log(orgFooterDetails);
-
   // Initialize blocks and styles
   const initialBlocks =
     (emailData?.blocks?.map((block) => ({

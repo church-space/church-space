@@ -109,7 +109,6 @@ export default function ImportPage() {
     try {
       // 1. Upload CSV and get signed URL
       const signedUrl = await uploadCsv(currentFile, organizationId);
-      console.log("File uploaded successfully. Signed URL:", signedUrl);
 
       // 2. Call the API endpoint to trigger the import job
       const response = await fetch("/api/organization/import-unsubscribes", {
@@ -133,7 +132,7 @@ export default function ImportPage() {
       }
 
       const result = await response.json();
-      console.log("Import job queued successfully:", result);
+
       toast({
         title: "Import Started",
         description: "Your import job has started successfully.",

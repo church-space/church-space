@@ -11,10 +11,6 @@ export const useCsvUpload = () => {
     // Organization ID must be the first part of the path for RLS policies
     const filePath = `organizations/${organizationId}/${fileName}`;
 
-    console.log("filePath", filePath);
-    console.log("file", file);
-    console.log("organizationId", organizationId);
-
     // Upload the file to the unsubscribe-csvs bucket
     const { error: uploadError } = await supabase.storage
       .from("unsubscribe-csvs")

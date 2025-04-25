@@ -205,9 +205,6 @@ export const automationJob = task({
 
           // Check if a subscribed status record was found
           if (!emailStatusData) {
-            console.log(
-              `Email ${personEmailRecord.email} is not subscribed or status record not found. Skipping.`,
-            );
             continue; // Skip if not subscribed or status record missing
           }
 

@@ -69,8 +69,6 @@ export default function DefaultFooterEditor({
     },
   });
 
-  console.log(orgFooterDetails);
-
   useEffect(() => {
     if (data) {
       setFooterData(data);
