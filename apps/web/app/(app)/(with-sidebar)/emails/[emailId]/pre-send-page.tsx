@@ -641,18 +641,28 @@ export default function PreSendPage({
   // Add window beforeunload event listener to catch navigation attempts
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (
+      const isAnySaving =
+        toIsSaving || fromIsSaving || subjectIsSaving || scheduleIsSaving;
+      const hasChanges =
         toHasChanges ||
         fromHasChanges ||
         subjectHasChanges ||
-        scheduleHasChanges
-      ) {
+        scheduleHasChanges;
+
+      let message = "";
+      if (isAnySaving) {
+        message =
+          "A save operation is in progress. Leaving now might discard the changes being saved. Are you sure you want to leave?";
+      } else if (hasChanges) {
+        message = "You have unsaved changes. Are you sure you want to leave?";
+      }
+
+      if (message) {
         // Standard way to show a confirmation dialog before leaving
         e.preventDefault();
         // This message might not be displayed in modern browsers, but the dialog will still appear
-        e.returnValue =
-          "You have unsaved changes. Are you sure you want to leave?";
-        return e.returnValue;
+        e.returnValue = message;
+        return message; // For older browsers
       }
     };
 
@@ -660,7 +670,16 @@ export default function PreSendPage({
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [toHasChanges, fromHasChanges, subjectHasChanges, scheduleHasChanges]);
+  }, [
+    toHasChanges,
+    fromHasChanges,
+    subjectHasChanges,
+    scheduleHasChanges,
+    toIsSaving,
+    fromIsSaving,
+    subjectIsSaving,
+    scheduleIsSaving,
+  ]); // Add isSaving states to dependencies
 
   // Function to check if there are any unsaved changes
   const hasUnsavedChanges = () => {
@@ -671,16 +690,30 @@ export default function PreSendPage({
 
   // Handle protected navigation - returns true if navigation should proceed
   const handleProtectedNavigation = (e?: React.MouseEvent) => {
-    if (hasUnsavedChanges()) {
-      if (e) e.preventDefault();
+    const isAnySaving =
+      toIsSaving || fromIsSaving || subjectIsSaving || scheduleIsSaving;
 
-      // Show confirmation dialog
+    if (isAnySaving) {
+      // Save in progress, prevent navigation and notify user
+      if (e) e.preventDefault();
+      const confirmed = window.confirm(
+        "A save operation is in progress. Leaving now might discard the changes being saved. Are you sure you want to leave?",
+      );
+      // If confirmed, allow navigation, otherwise block.
+      if (!confirmed && e) e.preventDefault(); // Re-prevent if user cancels
+      return confirmed;
+    } else if (hasUnsavedChanges()) {
+      // Unsaved changes (and no save in progress), ask for confirmation
+      if (e) e.preventDefault();
       const confirmed = window.confirm(
         "You have unsaved changes. Are you sure you want to leave?",
       );
+      // If confirmed, allow navigation, otherwise block.
+      if (!confirmed && e) e.preventDefault(); // Re-prevent if user cancels
       return confirmed;
     }
-    return true;
+
+    return true; // No unsaved changes, no save in progress, allow navigation
   };
 
   // Custom link component that checks for unsaved changes
