@@ -16,9 +16,6 @@ export default function NullState({ onClick }: { onClick: () => void }) {
           <div className="h-4 w-full rounded bg-muted"></div>
           <div className="h-4 w-3/4 rounded bg-muted"></div>
         </div>
-        <div className="absolute -right-3 -top-3 rounded-full border bg-card p-1 shadow-sm">
-          <Plus className="h-5 w-5 text-muted-foreground" />
-        </div>
       </div>
 
       <h3 className="mb-4 text-center text-xl font-medium text-muted-foreground">

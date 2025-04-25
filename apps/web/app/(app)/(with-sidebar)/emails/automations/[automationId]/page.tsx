@@ -42,6 +42,7 @@ import { useToast } from "@church-space/ui/use-toast";
 import type { TriggerType } from "@/components/automation-builder/automation-builder";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 import Cookies from "js-cookie";
+import AutomationMembersTable from "@/components/tables/automation-members/table";
 
 // Types for the new schema
 interface AutomationStep {
@@ -530,8 +531,7 @@ export default function Page() {
               </SheetContent>
             </>
           </Sheet>
-          <h2 className="text-2xl font-bold">People</h2>
-          <p>Table here with active steps, people, etc.</p>
+          <AutomationMembersTable organizationId={organizationId ?? ""} />
         </div>
       </div>
     </div>
