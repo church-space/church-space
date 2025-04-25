@@ -5,6 +5,7 @@ import { createClient } from "@church-space/supabase/server";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 import { getOrgOwnersQuery } from "@church-space/supabase/queries/all/get-org-owners";
+import { getUserQuery } from "@church-space/supabase/get-user";
 
 export const deleteUserAction = authActionClient
   .schema(
@@ -25,14 +26,23 @@ export const deleteUserAction = authActionClient
       const { userId, email, organizationId, organizationName, role } =
         parsedInput.parsedInput;
 
+      const { data: userData, error: userError } = await getUserQuery(supabase);
+
+      if (userError || !userData || userData.user?.id !== userId) {
+        return {
+          success: false,
+          error: "Failed to fetch user data",
+        };
+      }
+
       // Get the current user's email to verify
-      const { data: userData, error: userError } = await supabase
+      const { data: userTableData, error: userTableError } = await supabase
         .from("users")
         .select("email")
         .eq("id", userId)
         .single();
 
-      if (userError || !userData) {
+      if (userTableError || !userTableData) {
         return {
           success: false,
           error: "Failed to fetch user data",
@@ -40,7 +50,7 @@ export const deleteUserAction = authActionClient
       }
 
       // Verify email matches
-      if (userData.email !== email) {
+      if (userTableData.email !== email) {
         return {
           success: false,
           error: "Email does not match your account",
