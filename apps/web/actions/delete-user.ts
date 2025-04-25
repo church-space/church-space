@@ -6,6 +6,7 @@ import { z } from "zod";
 import { authActionClient } from "./safe-action";
 import { getOrgOwnersQuery } from "@church-space/supabase/queries/all/get-org-owners";
 import { getUserQuery } from "@church-space/supabase/get-user";
+import { redirect } from "next/navigation";
 
 export const deleteUserAction = authActionClient
   .schema(
@@ -142,10 +143,11 @@ export const deleteUserAction = authActionClient
         };
       }
 
-      return {
-        success: true,
-        data: { message: "User deleted successfully" },
-      };
+      await supabase.auth.signOut({
+        scope: "global",
+      });
+
+      return redirect("/homepage");
     } catch (error) {
       console.error("Error deleting user:", error);
 
