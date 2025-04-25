@@ -36,7 +36,13 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { z } from "zod";
+import { nanoid } from "nanoid";
 import { Link } from "../link-list-builder";
+
+// Add 'id' to the existing link type definition
+type LinkItem = Link & {
+  id: string;
+};
 
 // Override accordion trigger styles for this component
 const CustomAccordionTrigger = React.forwardRef<
@@ -85,12 +91,12 @@ function SortableAccordionItem({
   removeLink,
   handleLinkBlur,
 }: {
-  link: Link;
+  link: LinkItem;
   index: number;
   openItem: string | undefined;
   setOpenItem: (value: string | undefined) => void;
-  typingLinks: Record<number, boolean>;
-  linkErrors: Record<number, string | null>;
+  typingLinks: Record<string, boolean>;
+  linkErrors: Record<string, string | null>;
   updateLink: (index: number, field: keyof Link, value: string) => void;
   removeLink: (index: number) => void;
   handleLinkBlur: (index: number) => void;
@@ -102,7 +108,7 @@ function SortableAccordionItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: index.toString() });
+  } = useSortable({ id: link.id });
 
   const style = transform
     ? {
@@ -111,9 +117,6 @@ function SortableAccordionItem({
         zIndex: isDragging ? 10 : 1,
       }
     : undefined;
-
-  // Generate a stable ID from link properties
-  const linkId = `link-${link.order}-${index}`;
 
   return (
     <div
@@ -137,12 +140,12 @@ function SortableAccordionItem({
           type="single"
           collapsible
           className="w-full"
-          value={openItem === linkId ? linkId : undefined}
+          value={openItem === link.id ? link.id : undefined}
           onValueChange={(value) =>
-            setOpenItem(value === linkId ? undefined : value)
+            setOpenItem(value === link.id ? undefined : value)
           }
         >
-          <AccordionItem value={linkId} className="border-0">
+          <AccordionItem value={link.id} className="border-0">
             <AccordionTrigger className="w-full rounded-sm px-2 py-3">
               <span className="truncate pr-2 text-sm">
                 {link.text ? link.text : `Link ${index + 1}`}
@@ -185,7 +188,7 @@ function SortableAccordionItem({
                 <div className="col-span-3 flex flex-col gap-1">
                   <Input
                     className={
-                      linkErrors[index] && !typingLinks[index]
+                      linkErrors[link.id] && !typingLinks[link.id]
                         ? "border-red-500"
                         : ""
                     }
@@ -197,8 +200,10 @@ function SortableAccordionItem({
                     }
                     maxLength={500}
                   />
-                  {linkErrors[index] && !typingLinks[index] && (
-                    <p className="text-xs text-red-500">{linkErrors[index]}</p>
+                  {linkErrors[link.id] && !typingLinks[link.id] && (
+                    <p className="text-xs text-red-500">
+                      {linkErrors[link.id]}
+                    </p>
                   )}
                 </div>
                 <Button
@@ -239,15 +244,20 @@ export default function LinksForm({
   setBgColor,
 }: LinksFormProps) {
   // Track validation errors for links
-  const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
+  const [linkErrors, setLinkErrors] = useState<Record<string, string | null>>(
     {},
   );
   // Track which links are currently being typed
-  const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
+  const [typingLinks, setTypingLinks] = useState<Record<string, boolean>>({});
   // Debounce timers for link validation
-  const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  const linkTimersRef = useRef<Record<string, NodeJS.Timeout | null>>({});
   // Local links state for UI rendering
-  const [localLinks, setLocalLinks] = useState(links);
+  const [localLinks, setLocalLinks] = useState<LinkItem[]>(() => {
+    return links.map((link) => ({
+      ...link,
+      id: nanoid(),
+    }));
+  });
   // Accordion open state
   const [openLink, setOpenLink] = useState<string | undefined>(undefined);
 
@@ -271,8 +281,17 @@ export default function LinksForm({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id.toString());
-      const newIndex = parseInt(over.id.toString());
+      const oldIndex = localLinks.findIndex((link) => link.id === active.id);
+      const newIndex = localLinks.findIndex((link) => link.id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) {
+        console.error(
+          "Could not find links for DND update:",
+          active.id,
+          over.id,
+        );
+        return;
+      }
 
       // Update the order of the links
       const reorderedLinks = [...localLinks];
@@ -295,7 +314,13 @@ export default function LinksForm({
 
   // Sync local links with props when props change
   useEffect(() => {
-    setLocalLinks(links);
+    // Add IDs to links if they don't have them
+    setLocalLinks(
+      links.map((link) => ({
+        ...link,
+        id: nanoid(),
+      })),
+    );
   }, [links]);
 
   // URL validation schema using Zod
@@ -354,7 +379,7 @@ export default function LinksForm({
   const validateLink = (
     value: string,
     type: string,
-    index: number,
+    linkId: string,
   ): boolean => {
     try {
       if (type === "mail") {
@@ -364,14 +389,14 @@ export default function LinksForm({
       }
 
       // Clear error if validation passes
-      setLinkErrors((prev) => ({ ...prev, [index]: null }));
+      setLinkErrors((prev) => ({ ...prev, [linkId]: null }));
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Set error message
         setLinkErrors((prev) => ({
           ...prev,
-          [index]: error.errors[0].message,
+          [linkId]: error.errors[0].message,
         }));
         return false;
       }
@@ -384,6 +409,7 @@ export default function LinksForm({
     // Create updated links array
     const newLinks = [...localLinks];
     newLinks[index] = { ...newLinks[index], [field]: value };
+    const linkId = newLinks[index].id;
 
     // Update local state immediately for responsive UI
     setLocalLinks(newLinks);
@@ -391,34 +417,34 @@ export default function LinksForm({
     // For URL field, validate but don't immediately update parent
     if (field === "url") {
       // Mark this link as being typed
-      setTypingLinks((prev) => ({ ...prev, [index]: true }));
+      setTypingLinks((prev) => ({ ...prev, [linkId]: true }));
 
       // Clear any existing timer
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
       }
 
       // Set a new timer to validate after typing stops
-      linkTimersRef.current[index] = setTimeout(() => {
+      linkTimersRef.current[linkId] = setTimeout(() => {
         // Clear typing flag
-        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+        setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
 
         // IMPORTANT: Use the current newLinks (not stale localLinks)
         // Validate the URL/email value
-        validateLink(newLinks[index].url, newLinks[index].type, index);
+        validateLink(newLinks[index].url, newLinks[index].type, linkId);
 
         // Only update parent after typing has stopped
         setLinks(newLinks);
       }, 800);
     } else {
       // For non-URL fields, still debounce parent updates
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
       }
 
-      linkTimersRef.current[index] = setTimeout(() => {
+      linkTimersRef.current[linkId] = setTimeout(() => {
         // Clear typing flag
-        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+        setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
 
         // IMPORTANT: Use the current newLinks (not stale localLinks)
         // Only update parent after typing has stopped
@@ -432,14 +458,15 @@ export default function LinksForm({
   // Handle input blur events for URL/email fields
   const handleLinkBlur = (index: number) => {
     // If this link was being typed
-    if (typingLinks[index]) {
+    const linkId = localLinks[index].id;
+    if (typingLinks[linkId]) {
       // Clear typing state
-      setTypingLinks((prev) => ({ ...prev, [index]: false }));
+      setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
 
       // Clear any pending timer
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
-        linkTimersRef.current[index] = null;
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
+        linkTimersRef.current[linkId] = null;
       }
 
       // Get a fresh reference to the current link state
@@ -447,7 +474,7 @@ export default function LinksForm({
       const link = currentLinks[index];
 
       // Validate the URL/email value
-      const isValid = validateLink(link.url, link.type, index);
+      const isValid = validateLink(link.url, link.type, linkId);
 
       // Only update parent state on blur if valid
       if (isValid) {
@@ -477,6 +504,7 @@ export default function LinksForm({
           url: "",
           text: "",
           order: maxOrder + 1,
+          id: nanoid(),
         },
       ];
 
@@ -488,12 +516,14 @@ export default function LinksForm({
       setLinks(newLinks);
 
       // Open the newly created link
-      setOpenLink(`link-${maxOrder + 1}-${localLinks.length}`);
+      setOpenLink(newLinks[newLinks.length - 1].id);
     }
   };
 
   // Remove a link at specified index
   const removeLink = (index: number) => {
+    const linkId = localLinks[index].id;
+
     // Create new links array without the removed link
     const newLinks = localLinks.filter((_, i) => i !== index);
 
@@ -513,14 +543,14 @@ export default function LinksForm({
     // Clean up associated state
     setLinkErrors((prev) => {
       const newErrors = { ...prev };
-      delete newErrors[index];
+      delete newErrors[linkId];
       return newErrors;
     });
 
     // Clear any pending timer
-    if (linkTimersRef.current[index]) {
-      clearTimeout(linkTimersRef.current[index]);
-      delete linkTimersRef.current[index];
+    if (linkTimersRef.current[linkId]) {
+      clearTimeout(linkTimersRef.current[linkId]);
+      delete linkTimersRef.current[linkId];
     }
   };
 
@@ -607,13 +637,13 @@ export default function LinksForm({
           ]}
         >
           <SortableContext
-            items={localLinks.map((_, i) => i.toString())}
+            items={localLinks.map((link) => link.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="w-full">
-              {localLinks.map((link: Link, index: number) => (
+              {localLinks.map((link: LinkItem, index: number) => (
                 <SortableAccordionItem
-                  key={index}
+                  key={link.id}
                   link={link}
                   index={index}
                   openItem={openLink}

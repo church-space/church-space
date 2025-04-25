@@ -27,6 +27,7 @@ import {
 import { AutosizeTextarea } from "@church-space/ui/auto-size-textarea";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
+import { nanoid } from "nanoid";
 import ColorPicker from "../color-picker";
 import FileUpload from "../file-upload";
 import { Separator } from "@church-space/ui/separator";
@@ -74,6 +75,12 @@ interface Link {
   icon: string;
   url: string;
 }
+
+// Add 'id' to the existing link type definition
+type LinkItem = Link & {
+  id: string;
+  order: number;
+};
 
 // Define validation schemas
 const urlSchema = z.string().superRefine((url, ctx) => {
@@ -141,10 +148,10 @@ function SortableLinkItem({
   removeLink,
   handleLinkBlur,
 }: {
-  link: any;
+  link: LinkItem;
   index: number;
-  linkErrors: Record<number, string | null>;
-  typingLinks: Record<number, boolean>;
+  linkErrors: Record<string, string | null>;
+  typingLinks: Record<string, boolean>;
   updateLink: (index: number, key: "icon" | "url", value: string) => void;
   removeLink: (index: number) => void;
   handleLinkBlur: (index: number) => void;
@@ -156,7 +163,7 @@ function SortableLinkItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: index.toString() });
+  } = useSortable({ id: link.id });
 
   const style = transform
     ? {
@@ -200,7 +207,7 @@ function SortableLinkItem({
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
 
-        <AccordionItem value={index.toString()} className="w-full border-0">
+        <AccordionItem value={link.id} className="w-full border-0">
           <AccordionTrigger className="flex w-full items-center justify-between rounded-sm px-2 py-3">
             <div className="flex items-center gap-2">
               {Icon && <Icon height="20" width="20" />}
@@ -293,8 +300,8 @@ function SortableLinkItem({
                   <Input
                     className={cn(
                       "bg-background",
-                      linkErrors[index] &&
-                        !typingLinks[index] &&
+                      linkErrors[link.id] &&
+                        !typingLinks[link.id] &&
                         "border-destructive",
                     )}
                     value={link.url}
@@ -305,9 +312,9 @@ function SortableLinkItem({
                     }
                     maxLength={500}
                   />
-                  {linkErrors[index] && !typingLinks[index] && (
+                  {linkErrors[link.id] && !typingLinks[link.id] && (
                     <p className="text-xs text-destructive">
-                      {linkErrors[index]}
+                      {linkErrors[link.id]}
                     </p>
                   )}
                 </div>
@@ -332,7 +339,7 @@ export default function EmailFooterForm({
   onFooterChange,
 }: EmailFooterFormProps) {
   const { organizationId } = useUser();
-  const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  const linkTimersRef = useRef<Record<string, NodeJS.Timeout | null>>({});
   const colorTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [savingAsDefault, setSavingAsDefault] = useState(false);
@@ -342,30 +349,60 @@ export default function EmailFooterForm({
   const [saveAsDefaultDialogOpen, setSaveAsDefaultDialogOpen] = useState(false);
 
   // Local state with default values and validation errors
-  const [localState, setLocalState] = useState({
-    name: footerData?.name || "",
-    subtitle: footerData?.subtitle || "",
-    logo: footerData?.logo || "",
+  const [localState, setLocalState] = useState<{
+    name: string;
+    subtitle: string;
+    logo: string;
+    bg_color: string;
+    text_color: string;
+    secondary_text_color: string;
+    links: LinkItem[];
+    socials_color: string;
+    socials_style: "outline" | "filled" | "icon-only";
+    socials_icon_color: string;
+  }>(() => {
+    // Add IDs to links if they don't have them
+    const initialLinks = Array.isArray(footerData?.links)
+      ? footerData.links
+      : [];
+    const linksWithIds = initialLinks.map((link: any) => ({
+      ...link,
+      id: link.id || nanoid(),
+      order: link.order || 0,
+    }));
 
-    bg_color: footerData?.bg_color || "#ffffff",
-    text_color: footerData?.text_color || "#000000",
-    secondary_text_color: footerData?.secondary_text_color || "#666666",
-    links: Array.isArray(footerData?.links) ? footerData.links : [],
-    socials_color: footerData?.socials_color || "#000000",
-    socials_style: footerData?.socials_style || "icon-only",
-    socials_icon_color: footerData?.socials_icon_color || "#ffffff",
+    return {
+      name: footerData?.name || "",
+      subtitle: footerData?.subtitle || "",
+      logo: footerData?.logo || "",
+      bg_color: footerData?.bg_color || "#ffffff",
+      text_color: footerData?.text_color || "#000000",
+      secondary_text_color: footerData?.secondary_text_color || "#666666",
+      links: linksWithIds,
+      socials_color: footerData?.socials_color || "#000000",
+      socials_style: footerData?.socials_style || "icon-only",
+      socials_icon_color: footerData?.socials_icon_color || "#ffffff",
+    };
   });
 
   // Track validation errors for links
-  const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
+  const [linkErrors, setLinkErrors] = useState<Record<string, string | null>>(
     {},
   );
   // Track which links are currently being typed
-  const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
+  const [typingLinks, setTypingLinks] = useState<Record<string, boolean>>({});
 
   // Update local state when footerData changes
   useEffect(() => {
     if (footerData) {
+      // Add IDs to links if they don't have them
+      const links = Array.isArray(footerData.links) ? footerData.links : [];
+      const linksWithIds = links.map((link: any) => ({
+        ...link,
+        id: link.id || nanoid(),
+        order: link.order || 0,
+      }));
+
       const newState = {
         name: footerData.name || "",
         subtitle: footerData.subtitle || "",
@@ -373,7 +410,7 @@ export default function EmailFooterForm({
         bg_color: footerData.bg_color || "#ffffff",
         text_color: footerData.text_color || "#000000",
         secondary_text_color: footerData.secondary_text_color || "#666666",
-        links: Array.isArray(footerData.links) ? footerData.links : [],
+        links: linksWithIds,
         socials_color: footerData.socials_color || "#000000",
         socials_style: footerData.socials_style || "icon-only",
         socials_icon_color: footerData.socials_icon_color || "#ffffff",
@@ -432,8 +469,21 @@ export default function EmailFooterForm({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id.toString());
-      const newIndex = parseInt(over.id.toString());
+      const oldIndex = localState.links.findIndex(
+        (link) => link.id === active.id,
+      );
+      const newIndex = localState.links.findIndex(
+        (link) => link.id === over.id,
+      );
+
+      if (oldIndex === -1 || newIndex === -1) {
+        console.error(
+          "Could not find links for DND update:",
+          active.id,
+          over.id,
+        );
+        return;
+      }
 
       // Update the order of the links
       const reorderedLinks = [...localState.links];
@@ -455,7 +505,7 @@ export default function EmailFooterForm({
     if (localState.links.length < 5) {
       const newLinks = [
         ...localState.links,
-        { icon: "", url: "", order: localState.links.length },
+        { icon: "", url: "", order: localState.links.length, id: nanoid() },
       ];
       handleChange("links", newLinks);
     }
@@ -467,6 +517,9 @@ export default function EmailFooterForm({
     type: string,
   ): boolean => {
     try {
+      const linkId = localState.links[index]?.id;
+      if (!linkId) return false;
+
       if (type === "mail") {
         emailSchema.parse(value);
       } else {
@@ -474,15 +527,18 @@ export default function EmailFooterForm({
       }
 
       // Clear error if validation passes
-      setLinkErrors((prev) => ({ ...prev, [index]: null }));
+      setLinkErrors((prev) => ({ ...prev, [linkId]: null }));
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Set error message
-        setLinkErrors((prev) => ({
-          ...prev,
-          [index]: error.errors[0].message,
-        }));
+        const linkId = localState.links[index]?.id;
+        if (linkId) {
+          setLinkErrors((prev) => ({
+            ...prev,
+            [linkId]: error.errors[0].message,
+          }));
+        }
         return false;
       }
       return true;
@@ -492,20 +548,21 @@ export default function EmailFooterForm({
   const updateLink = (index: number, key: "icon" | "url", value: string) => {
     const newLinks = [...localState.links];
     newLinks[index] = { ...newLinks[index], [key]: value };
+    const linkId = newLinks[index].id;
 
     // If updating the URL field
     if (key === "url") {
       // Mark as typing
-      setTypingLinks((prev) => ({ ...prev, [index]: true }));
+      setTypingLinks((prev) => ({ ...prev, [linkId]: true }));
 
       // Clear any existing timer
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
       }
 
       // Set a new timer to validate after typing stops
-      linkTimersRef.current[index] = setTimeout(() => {
-        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+      linkTimersRef.current[linkId] = setTimeout(() => {
+        setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
 
         // Validate based on the icon type
         const isValid = validateLink(index, value, newLinks[index].icon);
@@ -532,7 +589,7 @@ export default function EmailFooterForm({
     } else {
       // For icon changes, update immediately and clear any existing errors
       if (key === "icon") {
-        setLinkErrors((prev) => ({ ...prev, [index]: null }));
+        setLinkErrors((prev) => ({ ...prev, [linkId]: null }));
       }
 
       const newState = { ...localState, links: newLinks };
@@ -549,12 +606,15 @@ export default function EmailFooterForm({
 
   const handleLinkBlur = (index: number) => {
     // When input loses focus, clear typing state and validate
-    if (typingLinks[index]) {
-      setTypingLinks((prev) => ({ ...prev, [index]: false }));
+    const linkId = localState.links[index]?.id;
+    if (!linkId) return;
 
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
-        linkTimersRef.current[index] = null;
+    if (typingLinks[linkId]) {
+      setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
+
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
+        linkTimersRef.current[linkId] = null;
       }
 
       const link = localState.links[index];
@@ -571,8 +631,11 @@ export default function EmailFooterForm({
   };
 
   const removeLink = (index: number) => {
+    const linkId = localState.links[index]?.id;
+    if (!linkId) return;
+
     const newLinks = localState.links.filter(
-      (_: Link, i: number) => i !== index,
+      (_: LinkItem, i: number) => i !== index,
     );
 
     const newState = { ...localState, links: newLinks };
@@ -588,13 +651,13 @@ export default function EmailFooterForm({
     // Clean up any errors or timers for this index
     setLinkErrors((prev) => {
       const newErrors = { ...prev };
-      delete newErrors[index];
+      delete newErrors[linkId];
       return newErrors;
     });
 
-    if (linkTimersRef.current[index]) {
-      clearTimeout(linkTimersRef.current[index]);
-      delete linkTimersRef.current[index];
+    if (linkTimersRef.current[linkId]) {
+      clearTimeout(linkTimersRef.current[linkId]);
+      delete linkTimersRef.current[linkId];
     }
   };
 
@@ -646,9 +709,27 @@ export default function EmailFooterForm({
     try {
       setSavingAsDefault(true);
 
+      // Create a properly typed object without the id field
+      const footerData = {
+        name: localState.name,
+        subtitle: localState.subtitle,
+        logo: localState.logo,
+        bg_color: localState.bg_color,
+        text_color: localState.text_color,
+        secondary_text_color: localState.secondary_text_color,
+        links: localState.links.map((link) => ({
+          icon: link.icon,
+          url: link.url,
+          order: link.order,
+        })),
+        socials_color: localState.socials_color,
+        socials_style: localState.socials_style,
+        socials_icon_color: localState.socials_icon_color,
+      };
+
       await updateDefaultEmailFooterAction({
         organization_id: organizationId,
-        footer_data: localState,
+        footer_data: footerData,
       });
 
       // Close dialog after successful save
@@ -669,6 +750,14 @@ export default function EmailFooterForm({
 
       const footer = result?.data?.footer;
       if (footer) {
+        // Add IDs to links if they don't have them
+        const links = Array.isArray(footer.links) ? footer.links : [];
+        const linksWithIds = links.map((link: any) => ({
+          ...link,
+          id: link.id || nanoid(),
+          order: link.order || 0,
+        }));
+
         const defaultFooter = {
           name: footer.name || "",
           subtitle: footer.subtitle || "",
@@ -676,7 +765,7 @@ export default function EmailFooterForm({
           bg_color: "#ffffff", // Default value
           text_color: "#000000", // Default value
           secondary_text_color: "#666666", // Default value
-          links: Array.isArray(footer.links) ? footer.links : [],
+          links: linksWithIds,
           socials_color: footer.socials_color || "#000000",
           socials_style: footer.socials_style || "icon-only",
           socials_icon_color: footer.socials_icon_color || "#ffffff",
@@ -761,7 +850,12 @@ export default function EmailFooterForm({
           <Label className="font-medium">Social Icon Style</Label>
           <Select
             value={localState.socials_style}
-            onValueChange={(value) => handleChange("socials_style", value)}
+            onValueChange={(value) =>
+              handleChange(
+                "socials_style",
+                value as "outline" | "filled" | "icon-only",
+              )
+            }
           >
             <SelectTrigger className="col-span-2 bg-background">
               <SelectValue placeholder="Select icon style" />
@@ -841,13 +935,13 @@ export default function EmailFooterForm({
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={localState.links.map((_: Link, i: number) => i.toString())}
+              items={localState.links.map((link) => link.id)}
               strategy={verticalListSortingStrategy}
             >
               <Accordion type="single" collapsible className="w-full">
-                {localState.links.map((link: Link, index: number) => (
+                {localState.links.map((link: LinkItem, index: number) => (
                   <SortableLinkItem
-                    key={index}
+                    key={link.id}
                     link={link}
                     index={index}
                     linkErrors={linkErrors || {}}

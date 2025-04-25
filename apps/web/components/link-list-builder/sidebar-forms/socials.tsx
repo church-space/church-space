@@ -47,8 +47,14 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { z } from "zod";
+import { nanoid } from "nanoid";
 import { SocialLink } from "../link-list-builder";
 import { socialIcons } from "../link-list-socials";
+
+// Add 'id' to the existing social link type definition
+type SocialLinkItem = SocialLink & {
+  id: string;
+};
 
 // Override accordion trigger styles for this component
 const CustomAccordionTrigger = React.forwardRef<
@@ -98,12 +104,12 @@ function SortableSocialItem({
   handleLinkBlur,
   getSocialDisplayName,
 }: {
-  link: SocialLink;
+  link: SocialLinkItem;
   index: number;
   openItem: string | undefined;
   setOpenItem: (value: string | undefined) => void;
-  typingLinks: Record<number, boolean>;
-  linkErrors: Record<number, string | null>;
+  typingLinks: Record<string, boolean>;
+  linkErrors: Record<string, string | null>;
   updateLink: (index: number, field: keyof SocialLink, value: string) => void;
   removeLink: (index: number) => void;
   handleLinkBlur: (index: number) => void;
@@ -116,7 +122,7 @@ function SortableSocialItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: index.toString() });
+  } = useSortable({ id: link.id });
 
   const style = transform
     ? {
@@ -125,9 +131,6 @@ function SortableSocialItem({
         zIndex: isDragging ? 10 : 1,
       }
     : undefined;
-
-  // Generate a stable ID from link properties
-  const linkId = `social-${link.order}-${index}`;
 
   return (
     <div
@@ -151,12 +154,12 @@ function SortableSocialItem({
           type="single"
           collapsible
           className="w-full"
-          value={openItem === linkId ? linkId : undefined}
+          value={openItem === link.id ? link.id : undefined}
           onValueChange={(value) =>
-            setOpenItem(value === linkId ? undefined : value)
+            setOpenItem(value === link.id ? undefined : value)
           }
         >
-          <AccordionItem value={linkId} className="border-0">
+          <AccordionItem value={link.id} className="border-0">
             <AccordionTrigger className="w-full rounded-sm px-2 py-3">
               <span className="truncate pr-2 text-sm">
                 {getSocialDisplayName(link.icon)}
@@ -231,7 +234,7 @@ function SortableSocialItem({
                 <div className="col-span-3 flex flex-col gap-1">
                   <Input
                     className={
-                      linkErrors[index] && !typingLinks[index]
+                      linkErrors[link.id] && !typingLinks[link.id]
                         ? "border-red-500"
                         : ""
                     }
@@ -243,8 +246,10 @@ function SortableSocialItem({
                     }
                     maxLength={500}
                   />
-                  {linkErrors[index] && !typingLinks[index] && (
-                    <p className="text-xs text-red-500">{linkErrors[index]}</p>
+                  {linkErrors[link.id] && !typingLinks[link.id] && (
+                    <p className="text-xs text-red-500">
+                      {linkErrors[link.id]}
+                    </p>
                   )}
                 </div>
               </div>
@@ -264,7 +269,7 @@ function SortableSocialItem({
 }
 
 interface LocalState {
-  links: SocialLink[];
+  links: SocialLinkItem[];
   socials_style: string;
 }
 
@@ -289,15 +294,22 @@ export default function SocialsForm({
   setSocialLinks,
 }: SocialsFormProps) {
   // Track validation errors for links
-  const [linkErrors, setLinkErrors] = useState<Record<number, string | null>>(
+  const [linkErrors, setLinkErrors] = useState<Record<string, string | null>>(
     {},
   );
   // Track which links are currently being typed
-  const [typingLinks, setTypingLinks] = useState<Record<number, boolean>>({});
+  const [typingLinks, setTypingLinks] = useState<Record<string, boolean>>({});
   // Debounce timers for link validation
-  const linkTimersRef = useRef<Record<number, NodeJS.Timeout | null>>({});
+  const linkTimersRef = useRef<Record<string, NodeJS.Timeout | null>>({});
   // Local state for social links
-  const [localSocialLinks, setLocalSocialLinks] = useState(socialLinks);
+  const [localSocialLinks, setLocalSocialLinks] = useState<SocialLinkItem[]>(
+    () => {
+      return socialLinks.map((link) => ({
+        ...link,
+        id: nanoid(),
+      }));
+    },
+  );
   // Accordion open state
   const [openSocial, setOpenSocial] = useState<string | undefined>(undefined);
 
@@ -321,8 +333,21 @@ export default function SocialsForm({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id.toString());
-      const newIndex = parseInt(over.id.toString());
+      const oldIndex = localSocialLinks.findIndex(
+        (link) => link.id === active.id,
+      );
+      const newIndex = localSocialLinks.findIndex(
+        (link) => link.id === over.id,
+      );
+
+      if (oldIndex === -1 || newIndex === -1) {
+        console.error(
+          "Could not find links for DND update:",
+          active.id,
+          over.id,
+        );
+        return;
+      }
 
       // Update the order of the social links
       const reorderedLinks = [...localSocialLinks];
@@ -345,7 +370,12 @@ export default function SocialsForm({
 
   // Sync local social links with props when props change
   useEffect(() => {
-    setLocalSocialLinks(socialLinks);
+    setLocalSocialLinks(
+      socialLinks.map((link) => ({
+        ...link,
+        id: nanoid(),
+      })),
+    );
   }, [socialLinks]);
 
   const handleChange = (key: keyof LocalState, value: any) => {
@@ -412,7 +442,7 @@ export default function SocialsForm({
   const validateLink = (
     value: string,
     type: string,
-    index: number,
+    linkId: string,
   ): boolean => {
     try {
       if (type === "mail") {
@@ -422,14 +452,14 @@ export default function SocialsForm({
       }
 
       // Clear error if validation passes
-      setLinkErrors((prev) => ({ ...prev, [index]: null }));
+      setLinkErrors((prev) => ({ ...prev, [linkId]: null }));
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Set error message
         setLinkErrors((prev) => ({
           ...prev,
-          [index]: error.errors[0].message,
+          [linkId]: error.errors[0].message,
         }));
         return false;
       }
@@ -439,15 +469,18 @@ export default function SocialsForm({
 
   // Handle input blur events for URL/email fields
   const handleLinkBlur = (index: number) => {
+    const linkId = localSocialLinks[index]?.id;
+    if (!linkId) return;
+
     // If this link was being typed
-    if (typingLinks[index]) {
+    if (typingLinks[linkId]) {
       // Clear typing state
-      setTypingLinks((prev) => ({ ...prev, [index]: false }));
+      setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
 
       // Clear any pending timer
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
-        linkTimersRef.current[index] = null;
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
+        linkTimersRef.current[linkId] = null;
       }
 
       // Get a fresh reference to the current link state
@@ -455,7 +488,7 @@ export default function SocialsForm({
       const link = currentLinks[index];
 
       // Validate the URL/email value
-      const isValid = validateLink(link.url, link.icon, index);
+      const isValid = validateLink(link.url, link.icon, linkId);
 
       // Only update parent state on blur if valid
       if (isValid) {
@@ -478,14 +511,14 @@ export default function SocialsForm({
           : -1;
 
       // Create new social links array with added empty link
-      const newLinks = [
-        ...localSocialLinks,
-        {
-          icon: "link" as keyof typeof socialIcons,
-          url: "",
-          order: maxOrder + 1,
-        },
-      ];
+      const newLink = {
+        icon: "link" as keyof typeof socialIcons,
+        url: "",
+        order: maxOrder + 1,
+        id: nanoid(),
+      };
+
+      const newLinks = [...localSocialLinks, newLink];
 
       // Update local state for immediate UI feedback
       setLocalSocialLinks(newLinks);
@@ -495,7 +528,7 @@ export default function SocialsForm({
       setSocialLinks(newLinks);
 
       // Open the newly created link
-      setOpenSocial(`social-${maxOrder + 1}-${localSocialLinks.length}`);
+      setOpenSocial(newLink.id);
     }
   };
 
@@ -507,6 +540,8 @@ export default function SocialsForm({
   ) => {
     // Create updated social links array
     const newLinks = [...localSocialLinks];
+    const linkId = newLinks[index]?.id;
+    if (!linkId) return;
 
     // If changing icon type, clear the URL field if switching between mail and non-mail
     if (field === "icon") {
@@ -530,23 +565,23 @@ export default function SocialsForm({
     // For URL field, handle validation and parent updates
     if (field === "url") {
       // Mark this link as being typed
-      setTypingLinks((prev) => ({ ...prev, [index]: true }));
+      setTypingLinks((prev) => ({ ...prev, [linkId]: true }));
 
       // Clear any existing timer
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
       }
 
       // Set a new timer to validate after typing stops
-      linkTimersRef.current[index] = setTimeout(() => {
+      linkTimersRef.current[linkId] = setTimeout(() => {
         // Clear typing flag
-        setTypingLinks((prev) => ({ ...prev, [index]: false }));
+        setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
 
         // Validate the URL/email value using the newLinks that contain the latest changes
         const isValid = validateLink(
           newLinks[index].url,
           newLinks[index].icon,
-          index,
+          linkId,
         );
 
         // Only update parent after typing has stopped and validation passes
@@ -556,11 +591,11 @@ export default function SocialsForm({
       }, 800);
     } else {
       // For non-URL fields, update parent state with a shorter debounce
-      if (linkTimersRef.current[index]) {
-        clearTimeout(linkTimersRef.current[index]);
+      if (linkTimersRef.current[linkId]) {
+        clearTimeout(linkTimersRef.current[linkId]);
       }
 
-      linkTimersRef.current[index] = setTimeout(() => {
+      linkTimersRef.current[linkId] = setTimeout(() => {
         setSocialLinks(newLinks);
       }, 400);
     }
@@ -568,6 +603,9 @@ export default function SocialsForm({
 
   // Remove a social link at specified index
   const removeLink = (index: number) => {
+    const linkId = localSocialLinks[index]?.id;
+    if (!linkId) return;
+
     // Create new social links array without the removed link
     const newLinks = localSocialLinks.filter((_, i) => i !== index);
 
@@ -587,14 +625,14 @@ export default function SocialsForm({
     // Clean up associated state
     setLinkErrors((prev) => {
       const newErrors = { ...prev };
-      delete newErrors[index];
+      delete newErrors[linkId];
       return newErrors;
     });
 
     // Clear any pending timer
-    if (linkTimersRef.current[index]) {
-      clearTimeout(linkTimersRef.current[index]);
-      delete linkTimersRef.current[index];
+    if (linkTimersRef.current[linkId]) {
+      clearTimeout(linkTimersRef.current[linkId]);
+      delete linkTimersRef.current[linkId];
     }
   };
 
@@ -723,13 +761,13 @@ export default function SocialsForm({
           ]}
         >
           <SortableContext
-            items={localSocialLinks.map((_, i) => i.toString())}
+            items={localSocialLinks.map((link) => link.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="w-full">
               {localSocialLinks.map((link, index) => (
                 <SortableSocialItem
-                  key={index}
+                  key={link.id}
                   link={link}
                   index={index}
                   openItem={openSocial}
