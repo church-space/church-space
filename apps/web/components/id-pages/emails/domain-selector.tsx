@@ -13,6 +13,7 @@ import {
 import { createClient } from "@church-space/supabase/client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 
 interface Domain {
   id: number;
@@ -41,6 +42,7 @@ export default function DomainSelector({
   const [domains, setDomains] = useState<Domain[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDomains = async () => {
@@ -62,6 +64,8 @@ export default function DomainSelector({
         setError(
           err instanceof Error ? err : new Error("Failed to fetch domains"),
         );
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -99,6 +103,14 @@ export default function DomainSelector({
 
   if (error) {
     return <div>Error: {error.message}</div>;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-9 w-full items-center justify-center gap-2 rounded-md border text-sm text-muted-foreground">
+        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading...
+      </div>
+    );
   }
 
   if (domains.length === 0) {

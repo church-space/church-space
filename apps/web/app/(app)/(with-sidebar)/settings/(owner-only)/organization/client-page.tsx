@@ -38,6 +38,10 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@church-space/ui/use-toast";
 import OrgInvites from "@/components/settings/invites";
 import { Label } from "@church-space/ui/label";
+import { useTransition } from "react";
+import { deleteUserAction } from "@/actions/delete-organizaion";
+import { useRouter } from "next/navigation";
+
 export interface Address {
   line1?: string;
   line2?: string;
@@ -63,6 +67,8 @@ export default function ClientPage({
   address?: Address;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [hasBeenModified, setHasBeenModified] = useState(false);
@@ -173,6 +179,68 @@ export default function ClientPage({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleDeleteOrganization = async () => {
+    if (inputOrgName !== orgName) {
+      toast({
+        title: "Error",
+        description: "Organization name does not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        const result = await deleteUserAction({
+          organizationId,
+          organizationName: inputOrgName,
+        });
+
+        // Check if the action returned a successful result
+        if (result && "data" in result && result.data) {
+          // Assuming success is indicated by presence of data
+          toast({
+            title: "Organization Deleted",
+            description: "Your organization has been successfully deleted.",
+          });
+          // Redirect to a safe page, e.g., dashboard or home
+          router.push("/"); // Or another appropriate route
+        } else if (result && "error" in result && result.error) {
+          // Handle error case returned by the action
+          const errorMsg =
+            typeof result.error === "string"
+              ? result.error
+              : "An unexpected error occurred during deletion.";
+          setError(errorMsg);
+          toast({
+            title: "Error",
+            description: errorMsg,
+            variant: "destructive",
+          });
+        } else {
+          // Handle unexpected result structure or network failure before action
+          const errorMsg =
+            "Failed to delete organization due to an unexpected issue.";
+          setError(errorMsg);
+          toast({
+            title: "Error",
+            description: errorMsg,
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "An unexpected error occurred.";
+        setError(errorMessage);
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    });
   };
 
   return (
@@ -429,10 +497,11 @@ export default function ClientPage({
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                      disabled={inputOrgName !== orgName}
+                      disabled={inputOrgName !== orgName || isPending}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={handleDeleteOrganization}
                     >
-                      Delete Organization
+                      {isPending ? "Deleting..." : "Delete Organization"}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

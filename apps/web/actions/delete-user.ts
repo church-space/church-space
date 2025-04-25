@@ -2,7 +2,6 @@
 
 import type { ActionResponse } from "@/types/action";
 import { createClient } from "@church-space/supabase/server";
-import { createClient as createJobClient } from "@church-space/supabase/server";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 import { getOrgOwnersQuery } from "@church-space/supabase/queries/all/get-org-owners";
@@ -23,7 +22,6 @@ export const deleteUserAction = authActionClient
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
       const supabase = await createClient();
-      const jobClient = await createJobClient();
       const { userId, email, organizationId, organizationName, role } =
         parsedInput.parsedInput;
 
@@ -111,52 +109,23 @@ export const deleteUserAction = authActionClient
         }
       }
 
-      // Delete from auth first
+      // Call the delete organization API endpoint
+      const response = await fetch("/api/user/delete-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          deleteUserToken: process.env.DELETE_USER_SECRET,
+        }),
+      });
 
-      const { error: deleteAuthError } =
-        await jobClient.auth.admin.deleteUser(userId);
-
-      if (deleteAuthError) {
-        console.error("Auth deletion error details:", {
-          message: deleteAuthError.message,
-          name: deleteAuthError.name,
-          status: deleteAuthError.status,
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
         return {
           success: false,
-          error: `Failed to delete user from auth: ${deleteAuthError.message}`,
-        };
-      }
-
-      // Then delete any remaining database records
-      // Delete organization memberships first
-      const { error: deleteMembershipError } = await supabase
-        .from("organization_memberships")
-        .delete()
-        .eq("user_id", userId);
-
-      if (deleteMembershipError) {
-        console.error(
-          "Error deleting organization memberships:",
-          deleteMembershipError,
-        );
-        return {
-          success: false,
-          error: `Failed to delete organization memberships: ${deleteMembershipError.message}`,
-        };
-      }
-
-      // Finally delete user record
-      const { error: deleteUserError } = await supabase
-        .from("users")
-        .delete()
-        .eq("id", userId);
-
-      if (deleteUserError) {
-        console.error("Error deleting user from database:", deleteUserError);
-        return {
-          success: false,
-          error: `Failed to delete user from database: ${deleteUserError.message}`,
+          error: `Failed to delete user: ${errorData.error || response.statusText}`,
         };
       }
 
