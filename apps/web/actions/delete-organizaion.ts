@@ -2,13 +2,13 @@
 
 import type { ActionResponse } from "@/types/action";
 import { createClient } from "@church-space/supabase/server";
-import { createClient as createJobClient } from "@church-space/supabase/server";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 import { getOrgOwnersQuery } from "@church-space/supabase/queries/all/get-org-owners";
 import { getUserQuery } from "@church-space/supabase/get-user";
+import { redirect } from "next/navigation";
 
-export const deleteUserAction = authActionClient
+export const deleteOrganizationAction = authActionClient
   .schema(
     z.object({
       organizationId: z.string(),
@@ -16,12 +16,11 @@ export const deleteUserAction = authActionClient
     }),
   )
   .metadata({
-    name: "delete-user",
+    name: "delete-organization",
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
       const supabase = await createClient();
-      const jobClient = await createJobClient();
       const { organizationId, organizationName } = parsedInput.parsedInput;
 
       const { data: userData, error: userError } = await getUserQuery(supabase);
@@ -101,10 +100,11 @@ export const deleteUserAction = authActionClient
         };
       }
 
-      return {
-        success: true,
-        data: { message: "Organization deleted successfully" },
-      };
+      await supabase.auth.signOut({
+        scope: "global",
+      });
+
+      return redirect("/homepage");
     } catch (error) {
       console.error("Error deleting organization:", error);
 

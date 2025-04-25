@@ -39,7 +39,7 @@ import { useToast } from "@church-space/ui/use-toast";
 import OrgInvites from "@/components/settings/invites";
 import { Label } from "@church-space/ui/label";
 import { useTransition } from "react";
-import { deleteUserAction } from "@/actions/delete-organizaion";
+import { deleteOrganizationAction } from "@/actions/delete-organizaion";
 import { useRouter } from "next/navigation";
 
 export interface Address {
@@ -193,7 +193,7 @@ export default function ClientPage({
 
     startTransition(async () => {
       try {
-        const result = await deleteUserAction({
+        const result = await deleteOrganizationAction({
           organizationId,
           organizationName: inputOrgName,
         });
