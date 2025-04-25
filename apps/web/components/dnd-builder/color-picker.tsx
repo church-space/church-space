@@ -1,3 +1,4 @@
+"use client";
 import { Input } from "@church-space/ui/input";
 import {
   Popover,
@@ -19,9 +20,11 @@ const hexColorSchema = z
 export default function ColorPicker({
   onChange,
   value,
+  brandColorsDisabled = false,
 }: {
   onChange: (color: string) => void;
   value: string;
+  brandColorsDisabled?: boolean;
 }) {
   const [color, setColor] = useState(value);
   const [error, setError] = useState<string | null>(null);
@@ -74,9 +77,13 @@ export default function ColorPicker({
                 onChange(color.hex);
               }}
               presetColors={[
-                { color: "#f00", title: "red" },
-                { color: "#0f0", title: "green" },
-                { color: "#00f", title: "blue" },
+                ...(brandColorsDisabled
+                  ? []
+                  : [
+                      { color: "#f00", title: "red" },
+                      { color: "#0f0", title: "green" },
+                      { color: "#00f", title: "blue" },
+                    ]),
               ]}
             />
           </PopoverContent>

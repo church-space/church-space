@@ -110,6 +110,10 @@ const data = (role: string | null) => {
             disabled: role !== "owner",
           },
           {
+            title: "Brand Colors",
+            url: "/settings/brand-colors",
+          },
+          {
             title: "Plan and Billing",
             url: "/settings/billing",
             disabled: role !== "owner",
