@@ -83,7 +83,7 @@ export const deleteUserAction = authActionClient
 
           // Call the delete organization API endpoint
           const response = await fetch(
-            "/api/organization/delete-organization",
+            "https://churchspace.co/api/organization/delete-organization",
             {
               method: "POST",
               headers: {
@@ -110,16 +110,19 @@ export const deleteUserAction = authActionClient
       }
 
       // Call the delete organization API endpoint
-      const response = await fetch("/api/user/delete-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "https://churchspace.co/api/user/delete-user",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            deleteUserToken: process.env.DELETE_USER_SECRET,
+          }),
         },
-        body: JSON.stringify({
-          userId,
-          deleteUserToken: process.env.DELETE_USER_SECRET,
-        }),
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
