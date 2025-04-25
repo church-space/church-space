@@ -40,6 +40,7 @@ interface CanvasProps {
   accentTextColor?: string;
   isUndoRedoOperation?: boolean;
   blockSpacing?: number;
+  orgFooterDetails?: any;
 }
 
 export default function DndBuilderCanvas({
@@ -62,6 +63,7 @@ export default function DndBuilderCanvas({
   linkColor,
   accentTextColor,
   isUndoRedoOperation = false,
+  orgFooterDetails,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -277,6 +279,7 @@ export default function DndBuilderCanvas({
           emailBgColor={emailBgColor}
           defaultFont={defaultFont}
           showHover
+          orgFooterDetails={orgFooterDetails}
         />
       )}
     </div>

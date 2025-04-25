@@ -298,9 +298,7 @@ export default function EmailFooterForm({
     name: footerData?.name || "",
     subtitle: footerData?.subtitle || "",
     logo: footerData?.logo || "",
-    address: footerData?.address || "",
-    reason: footerData?.reason || "",
-    copyright_name: footerData?.copyright_name || "",
+
     bg_color: footerData?.bg_color || "#ffffff",
     text_color: footerData?.text_color || "#000000",
     secondary_text_color: footerData?.secondary_text_color || "#666666",
@@ -310,31 +308,8 @@ export default function EmailFooterForm({
     socials_icon_color: footerData?.socials_icon_color || "#ffffff",
   });
 
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string | null>>(
-    {
-      address: null,
-      reason: null,
-      copyright_name: null,
-    },
-  );
-
-  // Validate required fields
-  const validateRequiredField = (key: string, value: string): boolean => {
-    try {
-      requiredFieldSchema.parse(value);
-      setFieldErrors((prev) => ({ ...prev, [key]: null }));
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setFieldErrors((prev) => ({
-          ...prev,
-          [key]: error.errors[0].message,
-        }));
-        return false;
-      }
-      return true;
-    }
-  };
+  const [fieldErrors, setFieldErrors] =
+    useState<Record<string, string | null>>();
 
   // Update local state when footerData changes
   useEffect(() => {
@@ -343,9 +318,6 @@ export default function EmailFooterForm({
         name: footerData.name || "",
         subtitle: footerData.subtitle || "",
         logo: footerData.logo || "",
-        address: footerData.address || "",
-        reason: footerData.reason || "",
-        copyright_name: footerData.copyright_name || "",
         bg_color: footerData.bg_color || "#ffffff",
         text_color: footerData.text_color || "#000000",
         secondary_text_color: footerData.secondary_text_color || "#666666",
@@ -356,27 +328,8 @@ export default function EmailFooterForm({
       };
 
       setLocalState(newState);
-
-      // Validate required fields
-      validateRequiredField("address", newState.address);
-      validateRequiredField("reason", newState.reason);
-      validateRequiredField("copyright_name", newState.copyright_name);
     }
   }, [footerData]);
-
-  // Validate all required fields before triggering onFooterChange
-  const validateAndUpdateFooter = (newState: typeof localState) => {
-    const isAddressValid = validateRequiredField("address", newState.address);
-    const isReasonValid = validateRequiredField("reason", newState.reason);
-    const isCopyrightValid = validateRequiredField(
-      "copyright_name",
-      newState.copyright_name,
-    );
-
-    if (isAddressValid && isReasonValid && isCopyrightValid && onFooterChange) {
-      onFooterChange(newState);
-    }
-  };
 
   // Handle general state changes
   const handleChange = (key: string, value: any) => {
@@ -387,7 +340,9 @@ export default function EmailFooterForm({
     setLocalState(newState);
 
     // Validate required fields and update footer
-    validateAndUpdateFooter(newState);
+    if (onFooterChange) {
+      onFooterChange(newState);
+    }
   };
 
   // Separate handler for color changes to avoid unnecessary validation
@@ -657,9 +612,6 @@ export default function EmailFooterForm({
           name: footer.name || "",
           subtitle: footer.subtitle || "",
           logo: footer.logo || "",
-          address: footer.address || "",
-          reason: footer.reason || "",
-          copyright_name: footer.copyright_name || "",
           bg_color: "#ffffff", // Default value
           text_color: "#000000", // Default value
           secondary_text_color: "#666666", // Default value
@@ -742,73 +694,6 @@ export default function EmailFooterForm({
             onChange={(e) => handleChange("subtitle", e.target.value)}
             maxLength={1000}
           />
-          <Separator className="col-span-3 my-4" />
-          <Label>Address</Label>
-          <div className="col-span-2 flex flex-col gap-1">
-            <Textarea
-              className={
-                fieldErrors.address
-                  ? "border-red-500 bg-background"
-                  : "bg-background"
-              }
-              value={localState.address}
-              onChange={(e) => handleChange("address", e.target.value)}
-              onBlur={() =>
-                validateRequiredField("address", localState.address)
-              }
-              placeholder="Enter address (required)"
-              required
-              maxLength={1000}
-            />
-            {fieldErrors.address && (
-              <p className="text-xs text-red-500">{fieldErrors.address}</p>
-            )}
-          </div>
-          <Label>Reason for Contact</Label>
-          <div className="col-span-2 flex flex-col gap-1">
-            <Textarea
-              className={
-                fieldErrors.reason
-                  ? "border-red-500 bg-background"
-                  : "bg-background"
-              }
-              value={localState.reason}
-              onChange={(e) => handleChange("reason", e.target.value)}
-              onBlur={() => validateRequiredField("reason", localState.reason)}
-              placeholder="Enter reason for contact (required)"
-              required
-              maxLength={1000}
-            />
-            {fieldErrors.reason && (
-              <p className="text-xs text-red-500">{fieldErrors.reason}</p>
-            )}
-          </div>
-          <Label>Copyright Name</Label>
-          <div className="col-span-2 flex flex-col gap-1">
-            <Input
-              className={
-                fieldErrors.copyright_name
-                  ? "border-red-500 bg-background"
-                  : "bg-background"
-              }
-              value={localState.copyright_name}
-              onChange={(e) => handleChange("copyright_name", e.target.value)}
-              onBlur={() =>
-                validateRequiredField(
-                  "copyright_name",
-                  localState.copyright_name,
-                )
-              }
-              placeholder="Enter copyright name (required)"
-              required
-              maxLength={150}
-            />
-            {fieldErrors.copyright_name && (
-              <p className="text-xs text-red-500">
-                {fieldErrors.copyright_name}
-              </p>
-            )}
-          </div>
 
           <Separator className="col-span-3 my-4" />
           <Label className="font-medium">Social Icon Style</Label>
@@ -903,7 +788,7 @@ export default function EmailFooterForm({
                     key={index}
                     link={link}
                     index={index}
-                    linkErrors={fieldErrors}
+                    linkErrors={fieldErrors || {}}
                     typingLinks={Object.fromEntries(
                       Object.entries(linkTimersRef.current || {}).map(
                         ([key]) => [key, true],

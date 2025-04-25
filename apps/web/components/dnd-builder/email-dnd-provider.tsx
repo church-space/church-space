@@ -39,7 +39,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Editor } from "@tiptap/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
@@ -67,6 +67,7 @@ import { deleteEmailAction } from "@/actions/delete-email";
 import { updateEmailAction } from "@/actions/update-email";
 import { useToast } from "@church-space/ui/use-toast";
 import type { ActionResponse } from "@/types/action";
+import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
 
 export default function EmailDndProvider({
   organizationId,
@@ -118,6 +119,13 @@ export default function EmailDndProvider({
   );
   const updateEmailFooter = useUpdateEmailFooter();
   const { toast } = useToast();
+
+  const { data: orgFooterDetails } = useQuery({
+    queryKey: ["orgFooterDetails", organizationId],
+    queryFn: () => getOrgFooterDetailsAction({ organizationId }),
+  });
+
+  console.log(orgFooterDetails);
 
   // Initialize blocks and styles
   const initialBlocks =
@@ -2888,6 +2896,7 @@ export default function EmailDndProvider({
                 linkColor={styles.linkColor}
                 accentTextColor={styles.accentTextColor}
                 isUndoRedoOperation={isUndoRedoOperation}
+                orgFooterDetails={orgFooterDetails?.data}
               />
             </SortableContext>
           </div>
