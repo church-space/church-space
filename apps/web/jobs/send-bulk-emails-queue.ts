@@ -211,6 +211,8 @@ export const sendBulkEmails = task({
         );
       }
 
+      console.log("orgFooterDetails", orgFooterDetails);
+
       // ---- START: Render email template once ----
       let baseHtml: string;
       let baseText: string;

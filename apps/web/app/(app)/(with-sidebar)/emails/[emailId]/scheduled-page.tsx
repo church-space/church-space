@@ -358,7 +358,9 @@ export default function ScheduledPage({
                       <DialogTitle>Preview</DialogTitle>
                     </DialogHeader>
 
-                    <EmailPreview />
+                    <EmailPreview
+                      orgFooterDetails={orgFooterDetails?.data?.data}
+                    />
                   </DialogContent>
                 </Dialog>
               </div>

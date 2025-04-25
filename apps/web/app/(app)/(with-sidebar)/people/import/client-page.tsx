@@ -130,8 +130,6 @@ export default function ImportPage() {
         );
       }
 
-      const result = await response.json();
-
       toast({
         title: "Import Started",
         description: "Your import job has started successfully.",

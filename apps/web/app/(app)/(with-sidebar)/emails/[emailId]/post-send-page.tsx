@@ -306,7 +306,7 @@ export default function PostSendPage({
                 <DialogTitle>Preview</DialogTitle>
               </DialogHeader>
 
-              <EmailPreview />
+              <EmailPreview orgFooterDetails={orgFooterDetails?.data?.data} />
             </DialogContent>
           </Dialog>
         </motion.div>

@@ -286,37 +286,8 @@ export default function PreSendPage({
 
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  // Function to check if all required steps are completed
-  const isAllStepsCompleted = () => {
-    return (
-      email.list_id &&
-      email.from_name &&
-      email.from_email &&
-      email.from_email_domain &&
-      email.subject &&
-      email.email_category &&
-      (email.scheduled_for || email.send_now) &&
-      emailBlockCount > 0
-    );
-  };
-
   // Add a state to track completion status
-  const [isCompleted, setIsCompleted] = useState(isAllStepsCompleted());
-
-  // Add useEffect to update completion status when relevant fields change
-  useEffect(() => {
-    setIsCompleted(isAllStepsCompleted());
-  }, [
-    email.list_id,
-    email.from_name,
-    email.from_email,
-    email.from_email_domain,
-    email.subject,
-    email.email_category,
-    email.scheduled_for,
-    email.send_now,
-    emailBlockCount,
-  ]);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   // Setup the update email mutation using TanStack Query
   const updateEmailMutation = useMutation({
@@ -386,6 +357,50 @@ export default function PreSendPage({
     );
   }, [sendDate, isScheduled, email.scheduled_for, email.send_now, sendNow]);
 
+  // Force check completion after any save operation and prevent race conditions
+  useEffect(() => {
+    // Use a longer timeout to ensure all state updates have completed
+    const checkCompletion = () => {
+      const shouldBeCompleted =
+        email.list_id &&
+        email.from_name &&
+        email.from_email &&
+        email.from_email_domain &&
+        email.subject &&
+        email.email_category &&
+        (email.scheduled_for || email.send_now) &&
+        emailBlockCount > 0;
+
+      if (shouldBeCompleted && !isCompleted) {
+        setIsCompleted(true);
+      }
+    };
+
+    if (!toIsSaving && !fromIsSaving && !subjectIsSaving && !scheduleIsSaving) {
+      // Check immediately
+      checkCompletion();
+
+      // And also after a delay to ensure all state updates have settled
+      const timeoutId = setTimeout(checkCompletion, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [
+    toIsSaving,
+    fromIsSaving,
+    subjectIsSaving,
+    scheduleIsSaving,
+    email.list_id,
+    email.from_name,
+    email.from_email,
+    email.from_email_domain,
+    email.subject,
+    email.email_category,
+    email.scheduled_for,
+    email.send_now,
+    emailBlockCount,
+    isCompleted,
+  ]);
+
   // Save functions for each section
   const saveToSection = async () => {
     try {
@@ -400,6 +415,7 @@ export default function PreSendPage({
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
         list_id: listId ? parseInt(listId) : null,
+        email_category: categoryId ? parseInt(categoryId) : null,
       }));
       setActiveAccordion("");
     } catch (error) {
@@ -688,6 +704,17 @@ export default function PreSendPage({
       toHasChanges || fromHasChanges || subjectHasChanges || scheduleHasChanges
     );
   };
+
+  // Add a useEffect to reset hasChanges states if they somehow get stuck
+  useEffect(() => {
+    if (!activeAccordion) {
+      // If all accordions are closed, reset any lingering change states
+      if (toHasChanges && !toIsSaving) setToHasChanges(false);
+      if (fromHasChanges && !fromIsSaving) setFromHasChanges(false);
+      if (subjectHasChanges && !subjectIsSaving) setSubjectHasChanges(false);
+      if (scheduleHasChanges && !scheduleIsSaving) setScheduleHasChanges(false);
+    }
+  }, [activeAccordion]);
 
   // Handle protected navigation - returns true if navigation should proceed
   const handleProtectedNavigation = (e?: React.MouseEvent) => {
