@@ -130,6 +130,18 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
   return { data: augmentedData, error };
 }
 
+export async function getSubscribedPeopleCount(
+  supabase: Client,
+  organizationId: string
+) {
+  const { data, error } = await supabase
+    .from("people_email_statuses")
+    .select("status")
+    .eq("organization_id", organizationId)
+    .eq("status", "subscribed");
+
+  return data?.length;
+}
 // Keep the old function name for backward compatibility
 export async function getEmailsQuery(supabase: Client, organizationId: string) {
   return getPeopleWithEmailsAndSubscriptionStatus(supabase, organizationId);

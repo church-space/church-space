@@ -10,7 +10,7 @@ import { CircleInfo } from "@church-space/ui/icons";
 import NullState from "./null-state";
 import Link from "next/link";
 import { useUser } from "@/stores/use-user";
-
+import { useSubscribedPeopleCount } from "@/hooks/use-subscribed-people-count";
 interface PeopleTableProps {
   organizationId: string;
 }
@@ -22,6 +22,11 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     usePeople(organizationId, search ?? undefined);
+
+  const {
+    data: subscribedPeopleCount,
+    isLoading: subscribedPeopleCountLoading,
+  } = useSubscribedPeopleCount(organizationId);
 
   const handleSearch = useCallback(
     async (value: string | null) => {
@@ -36,10 +41,15 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
   return (
     <>
       <div className="mb-5 flex w-full flex-col justify-between gap-3">
-        <div className="flex w-full flex-row items-center justify-between gap-2">
-          <h1 className="flex items-center gap-1.5 text-xl font-bold md:text-3xl">
+        <div className="flex w-full flex-row items-baseline gap-2">
+          <h1 className="flex items-center text-xl font-bold md:text-3xl">
             People
           </h1>
+          {!subscribedPeopleCountLoading && (
+            <p className="text-lg font-medium text-muted-foreground md:text-2xl md:font-semibold">
+              {subscribedPeopleCount?.count} subscribed
+            </p>
+          )}
         </div>
         {role === "owner" && (
           <div className="flex w-full flex-col items-center justify-between gap-3 rounded-md border bg-primary/10 p-3 text-sm text-secondary-foreground md:flex-row">
