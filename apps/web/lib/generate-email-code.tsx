@@ -818,7 +818,7 @@ const CustomCards: React.FC<{
                             {card.buttonText && (
                               <tr>
                                 <td>
-                                  <div
+                                  <p
                                     style={{
                                       backgroundColor: buttonColor,
                                       borderRadius: isRounded ? "6px" : "0",
@@ -826,17 +826,20 @@ const CustomCards: React.FC<{
                                       display: "block",
                                       fontFamily: defaultFont || "sans-serif",
                                       fontSize: "14px",
-                                      fontWeight: "500",
+                                      fontWeight: "200",
                                       padding: "8px 16px",
                                       textDecoration: "none",
                                       textAlign: "center",
                                       boxSizing: "border-box",
                                       width: "100%",
                                       marginBottom: "16px",
+                                      marginBlockStart: "0",
+                                      marginBlockEnd: "0",
+                                      textWrap: "balance",
                                     }}
                                   >
                                     {card.buttonText}
-                                  </div>
+                                  </p>
                                 </td>
                               </tr>
                             )}
