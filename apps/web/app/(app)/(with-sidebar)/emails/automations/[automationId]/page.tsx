@@ -154,10 +154,44 @@ export default function Page() {
     const hasEmailCategory = transformedAutomation.email_category_id !== null;
     const hasTriggerType = transformedAutomation.trigger_type !== null;
 
-    setCanActivate(
-      hasEmailStep && hasListId && hasEmailCategory && hasTriggerType,
-    );
-  }, [transformedAutomation]);
+    const meetsRequirements =
+      hasEmailStep && hasListId && hasEmailCategory && hasTriggerType;
+    setCanActivate(meetsRequirements);
+
+    // If currently active but requirements not met, deactivate
+    if (transformedAutomation.is_active && !meetsRequirements) {
+      // Update the automation to inactive
+      updateEmailAutomationAction({
+        automation_id: transformedAutomation.id,
+        automation_data: {
+          id: transformedAutomation.id,
+          is_active: false,
+        },
+      }).then(() => {
+        // Optimistically update the UI
+        queryClient.setQueryData(
+          ["email-automation", automationId],
+          (old: any) => ({
+            ...old,
+            data: {
+              ...old.data,
+              data: {
+                ...old.data.data,
+                is_active: false,
+              },
+            },
+          }),
+        );
+
+        toast({
+          title: "Automation Deactivated",
+          description:
+            "The automation was deactivated because it no longer meets the minimum requirements.",
+          variant: "default",
+        });
+      });
+    }
+  }, [transformedAutomation, automationId, queryClient]);
 
   // Update the state when automation data is loaded
   useEffect(() => {

@@ -976,7 +976,8 @@ export default function EmailAutomationBuilder({
       // First update the automation details if trigger or list has changed
       if (
         trigger !== initialState.current.trigger ||
-        selectedList !== initialState.current.selectedList
+        selectedList !== initialState.current.selectedList ||
+        selectedCategory !== initialState.current.selectedCategory
       ) {
         await updateAutomation({
           automation_id: automation.id,
