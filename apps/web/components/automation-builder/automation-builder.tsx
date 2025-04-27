@@ -335,56 +335,68 @@ function SortableStep(props: SortableStepProps) {
                   </div>
                   <div className="col-span-4">
                     <div className="mb-1 text-xs">From Name</div>
-                    <Input
-                      placeholder="From Name"
-                      value={step.values.fromName}
-                      onChange={(e) => {
-                        updateStepInState(index, {
-                          values: {
-                            ...step.values,
-                            fromName: e.target.value,
-                          },
-                        });
-                        // Clear error when user types
-                        if (e.target.value.trim()) {
-                          clearFieldError(stepId, "fromName");
-                        }
-                      }}
-                      maxLength={60}
-                      className={cn(
-                        emailStepError !== null &&
-                          errorStepIds.includes(stepId) &&
-                          fieldErrors[stepId]?.includes("fromName") &&
-                          "border-destructive ring-1 ring-destructive",
-                      )}
-                    />
-                  </div>
-                  <div className="col-span-4">
-                    <div className="mb-1 text-xs">From Email</div>
-                    <div className="flex items-center gap-2">
+                    <div className="relative w-full">
                       <Input
-                        placeholder="Enter from email"
-                        value={step.values.fromEmail}
+                        placeholder="From Name"
+                        value={step.values.fromName}
                         onChange={(e) => {
                           updateStepInState(index, {
                             values: {
                               ...step.values,
-                              fromEmail: e.target.value,
+                              fromName: e.target.value,
                             },
                           });
                           // Clear error when user types
                           if (e.target.value.trim()) {
-                            clearFieldError(stepId, "fromEmail");
+                            clearFieldError(stepId, "fromName");
                           }
                         }}
-                        maxLength={60}
+                        maxLength={50}
                         className={cn(
+                          "pe-16",
                           emailStepError !== null &&
                             errorStepIds.includes(stepId) &&
-                            fieldErrors[stepId]?.includes("fromEmail") &&
+                            fieldErrors[stepId]?.includes("fromName") &&
                             "border-destructive ring-1 ring-destructive",
                         )}
                       />
+                      <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                        {step.values.fromName.length} / 50
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-span-4">
+                    <div className="mb-1 text-xs">From Email</div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-full">
+                        <Input
+                          placeholder="Enter from email"
+                          value={step.values.fromEmail}
+                          onChange={(e) => {
+                            updateStepInState(index, {
+                              values: {
+                                ...step.values,
+                                fromEmail: e.target.value,
+                              },
+                            });
+                            // Clear error when user types
+                            if (e.target.value.trim()) {
+                              clearFieldError(stepId, "fromEmail");
+                            }
+                          }}
+                          maxLength={50}
+                          className={cn(
+                            "pe-16",
+                            emailStepError !== null &&
+                              errorStepIds.includes(stepId) &&
+                              fieldErrors[stepId]?.includes("fromEmail") &&
+                              "border-destructive ring-1 ring-destructive",
+                          )}
+                        />
+                        <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                          {step.values.fromEmail.length} / 50
+                        </span>
+                      </div>
                       <span className="mb-1 leading-none">@</span>
                       <DomainSelector
                         organizationId={organizationId}
@@ -410,37 +422,44 @@ function SortableStep(props: SortableStepProps) {
                   </div>
                   <div className="col-span-4">
                     <div className="mb-1 text-xs">Subject</div>
-                    <Input
-                      placeholder="Email Subject"
-                      value={step.values.subject}
-                      onChange={(e) => {
-                        updateStepInState(index, {
-                          values: {
-                            ...step.values,
-                            subject: e.target.value,
-                          },
-                        });
-                        // Clear error when user types
-                        if (e.target.value.trim()) {
-                          clearFieldError(stepId, "subject");
-                        }
-                      }}
-                      maxLength={150}
-                      className={cn(
-                        emailStepError !== null &&
-                          errorStepIds.includes(stepId) &&
-                          fieldErrors[stepId]?.includes("subject") &&
-                          "border-destructive ring-1 ring-destructive",
-                      )}
-                    />
+                    <div className="relative">
+                      <Input
+                        placeholder="Email Subject"
+                        value={step.values.subject}
+                        onChange={(e) => {
+                          updateStepInState(index, {
+                            values: {
+                              ...step.values,
+                              subject: e.target.value,
+                            },
+                          });
+                          // Clear error when user types
+                          if (e.target.value.trim()) {
+                            clearFieldError(stepId, "subject");
+                          }
+                        }}
+                        maxLength={60}
+                        className={cn(
+                          "pe-16",
+                          emailStepError !== null &&
+                            errorStepIds.includes(stepId) &&
+                            fieldErrors[stepId]?.includes("subject") &&
+                            "border-destructive ring-1 ring-destructive",
+                        )}
+                      />
+
+                      <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                        {step.values.subject.length} / 60
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => removeStep(index)}
+                      className="col-span-4 mt-3 h-7 w-full hover:bg-destructive hover:text-white"
+                    >
+                      Remove Step
+                    </Button>
                   </div>
-                  <Button
-                    variant="outline"
-                    onClick={() => removeStep(index)}
-                    className="col-span-4 mt-3 h-7 w-full hover:bg-destructive hover:text-white"
-                  >
-                    Remove Step
-                  </Button>
                 </div>
               )}
             </AccordionContent>

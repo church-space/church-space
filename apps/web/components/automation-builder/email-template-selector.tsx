@@ -21,6 +21,7 @@ import { getEmailTemplatesQuery } from "@church-space/supabase/queries/all/get-e
 import { getEmailTemplateQuery } from "@church-space/supabase/queries/all/get-email-templates";
 import { createClient } from "@church-space/supabase/client";
 import { useDebounce } from "@/hooks/use-debounce";
+import Link from "next/link";
 
 export default function EmailTemplateSelector({
   value,
@@ -89,7 +90,18 @@ export default function EmailTemplateSelector({
           />
           <CommandList>
             <CommandEmpty className="py-6 text-center text-sm">
-              {isLoading ? "Loading..." : "No template found."}
+              {isLoading ? (
+                "Loading..."
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <span>No templates found.</span>
+                  <Link href="emails/templates?newEmailTemplateOpen=true">
+                    <Button variant="secondary" size="sm">
+                      Create a new template
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </CommandEmpty>
             {emailTemplates.length > 0 && (
               <CommandGroup>

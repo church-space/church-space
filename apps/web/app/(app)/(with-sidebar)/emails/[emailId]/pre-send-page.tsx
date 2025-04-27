@@ -1267,7 +1267,7 @@ export default function PreSendPage({
                   </Label>
                   <div className="flex items-center gap-2">
                     <Input
-                      placeholder="Enter from"
+                      placeholder="From"
                       value={fromEmail}
                       onChange={handleFromEmailChange}
                       maxLength={50}
@@ -1302,7 +1302,7 @@ export default function PreSendPage({
                   <Label className="ml-0.5">Reply To</Label>
                   <div className="flex items-center gap-2">
                     <Input
-                      placeholder="Enter reply to"
+                      placeholder="Reply to"
                       value={replyToEmail}
                       onChange={handleReplyToEmailChange}
                       maxLength={50}
