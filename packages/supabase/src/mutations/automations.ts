@@ -75,3 +75,19 @@ export async function updateEmailAutomationStep(
     .select();
   return { data, error };
 }
+
+export async function cancelAutomationRuns(
+  supabase: Client,
+  automationId: number,
+  triggerDevId: string,
+  reason: string
+) {
+  const { data, error } = await supabase
+    .from("email_automation_members")
+    .update({ status: "cancelled", reason })
+    .eq("automation_id", automationId)
+    .eq("trigger_dev_id", triggerDevId)
+    .select();
+
+  return { data, error };
+}

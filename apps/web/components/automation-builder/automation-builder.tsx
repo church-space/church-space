@@ -1165,7 +1165,46 @@ export default function EmailAutomationBuilder({
             </AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
-              onClick={() => {
+              onClick={async () => {
+                try {
+                  const response = await fetch("/api/automations/cancel-run", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      automationId: automation.id,
+                      reason: "automation updated",
+                    }),
+                  });
+
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error(
+                      "Failed to cancel automation runs:",
+                      errorData.error,
+                    );
+                    toast({
+                      title: "Error",
+                      description: `Failed to prepare automation for update: ${errorData.error || "Unknown error"}`,
+                      variant: "destructive",
+                    });
+                    // Optionally stop the save process if canceling runs fails critically
+                    return;
+                  }
+                } catch (error) {
+                  console.error("Error calling cancel-run API:", error);
+                  toast({
+                    title: "Error",
+                    description:
+                      error instanceof Error
+                        ? error.message
+                        : "An unexpected error occurred while preparing the automation.",
+                    variant: "destructive",
+                  });
+                  // Optionally stop the save process if canceling runs fails critically
+                  return;
+                }
                 handleSave(true);
               }}
             >

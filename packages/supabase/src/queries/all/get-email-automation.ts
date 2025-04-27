@@ -48,3 +48,16 @@ export async function getEmailAutomationsByPCOIdQuery(
 
   return { data, error };
 }
+
+export async function getEmailAutomationId(
+  supabase: Client,
+  automationId: number
+) {
+  const { data, error } = await supabase
+    .from("email_automations")
+    .select("id")
+    .eq("id", automationId)
+    .single();
+
+  return { data, error };
+}

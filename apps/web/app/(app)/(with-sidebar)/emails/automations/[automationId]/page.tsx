@@ -99,10 +99,7 @@ export default function Page() {
 
   const automation = automationResponse?.data;
 
-  const {
-    data: activeAutomationMembersCountResponse,
-    isLoading: isLoadingActiveAutomationMembersCount,
-  } = useQuery({
+  const { data: activeAutomationMembersCountResponse } = useQuery({
     queryKey: ["active-automation-members-count", automationId],
     queryFn: () =>
       getActiveAutomationMembersCount({ automationId: automationId }),
