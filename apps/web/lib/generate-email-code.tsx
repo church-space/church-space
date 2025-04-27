@@ -1326,7 +1326,7 @@ const CustomFooter: React.FC<{
     socials_icon_color = "#ffffff",
   } = footerData;
 
-  const { address, name: orgName } = orgFooterDetails;
+  const { address, name: orgName } = orgFooterDetails || {};
 
   const logoUrl = logo
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${logo}`
@@ -1538,7 +1538,7 @@ const CustomFooter: React.FC<{
                 <table cellPadding="0" cellSpacing="0" border={0} width="100%">
                   <tr>
                     <td align="center" style={{ color: secondary_text_color }}>
-                      {address && (
+                      {address && orgFooterDetails && (
                         <table
                           cellPadding="0"
                           cellSpacing="0"
@@ -1577,7 +1577,7 @@ const CustomFooter: React.FC<{
                         </table>
                       )}
 
-                      {orgName && (
+                      {orgName && orgFooterDetails && (
                         <table
                           cellPadding="0"
                           cellSpacing="0"
@@ -1616,7 +1616,7 @@ const CustomFooter: React.FC<{
                             }}
                           >
                             <span>
-                              © {new Date().getFullYear()} {orgName}
+                              © {new Date().getFullYear()} {orgName && orgName}
                             </span>
                             <span style={{ margin: "0 8px" }}>|</span>
                             <a

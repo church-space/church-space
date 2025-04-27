@@ -305,7 +305,6 @@ export const sendAutomationEmail = task({
               html: personalizedHtml,
               text: personalizedText,
               headers: {
-                "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-Automation-ID": `${automationId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
                 "X-Entity-Ref-ID": uuidv4(),

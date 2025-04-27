@@ -75,7 +75,7 @@ export default function EmailPreview({
     };
 
     renderEmail();
-  }, [emailData, sections, style]);
+  }, [emailData, sections, style, orgFooterDetails]);
 
   return (
     <Tabs
