@@ -1266,12 +1266,18 @@ export default function PreSendPage({
                     From Email <span className="text-destructive">*</span>
                   </Label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      placeholder="From"
-                      value={fromEmail}
-                      onChange={handleFromEmailChange}
-                      maxLength={50}
-                    />
+                    <div className="relative w-full">
+                      <Input
+                        placeholder="From"
+                        value={fromEmail}
+                        onChange={handleFromEmailChange}
+                        maxLength={50}
+                        className="pr-16"
+                      />
+                      <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                        {fromEmail.length} / 50
+                      </span>
+                    </div>
                     <span className="mb-1 leading-none">@</span>
                     <DomainSelector
                       organizationId={email.organization_id}
@@ -1301,12 +1307,18 @@ export default function PreSendPage({
                 <div className="flex flex-col gap-2">
                   <Label className="ml-0.5">Reply To</Label>
                   <div className="flex items-center gap-2">
-                    <Input
-                      placeholder="Reply to"
-                      value={replyToEmail}
-                      onChange={handleReplyToEmailChange}
-                      maxLength={50}
-                    />
+                    <div className="relative w-full">
+                      <Input
+                        placeholder="Reply to"
+                        value={replyToEmail}
+                        onChange={handleReplyToEmailChange}
+                        maxLength={50}
+                        className="pr-16"
+                      />
+                      <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                        {replyToEmail.length} / 50
+                      </span>
+                    </div>
                     <span className="mb-1 leading-none">@</span>
                     <DomainSelector
                       organizationId={email.organization_id}

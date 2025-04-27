@@ -114,9 +114,11 @@ function getInitialStepValues(
     } as WaitStepValues;
   } else {
     const emailValues = step.values as Partial<EmailStepValues>;
+    const rawFromEmail = emailValues.fromEmail || "";
+    const sanitizedFromEmail = rawFromEmail.replace(/\s+/g, "").toLowerCase();
     return {
       fromName: emailValues.fromName || "",
-      fromEmail: emailValues.fromEmail || "",
+      fromEmail: sanitizedFromEmail,
       subject: emailValues.subject || "",
     } as EmailStepValues;
   }
@@ -373,14 +375,18 @@ function SortableStep(props: SortableStepProps) {
                           placeholder="Enter from email"
                           value={step.values.fromEmail}
                           onChange={(e) => {
+                            const rawValue = e.target.value;
+                            const sanitizedValue = rawValue
+                              .replace(/\s+/g, "")
+                              .toLowerCase();
                             updateStepInState(index, {
                               values: {
                                 ...step.values,
-                                fromEmail: e.target.value,
+                                fromEmail: sanitizedValue,
                               },
                             });
                             // Clear error when user types
-                            if (e.target.value.trim()) {
+                            if (sanitizedValue.trim()) {
                               clearFieldError(stepId, "fromEmail");
                             }
                           }}
