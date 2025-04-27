@@ -12,6 +12,22 @@ export interface EmailAutomationMember {
   automation_id: number;
   person_id: number;
   updated_at: string;
+  status: string;
+  reason: string | null;
+  trigger_dev_id: string | null;
+  person: {
+    id: number;
+    first_name: string | null;
+    last_name: string | null;
+    nickname: string | null;
+    pco_id: string;
+  } | null;
+  step: {
+    id: number;
+    type: string;
+    values: any;
+    order: number | null;
+  } | null;
 }
 
 export interface EmailAutomationMemberParams {
@@ -43,14 +59,20 @@ export async function getEmailAutomationMembers(
 ): Promise<{ data: EmailAutomationMember[] | null; error: any }> {
   let query = supabase
     .from("email_automation_members")
-    .select("*")
+    .select(
+      `
+      *,
+      person:person_id(id, first_name, last_name, nickname, pco_id),
+      step:last_completed_step_id(id, type, values, order)
+    `
+    )
     .eq("automation_id", automationId);
 
   if (params?.step) {
     query = query.eq("step", params.step);
   }
 
-  query = query.order("created_at", { ascending: true });
+  query = query.order("created_at", { ascending: false });
 
   const { data, error } = await query;
 

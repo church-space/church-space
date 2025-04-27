@@ -77,6 +77,7 @@
     "./queries/all/get-organization-invites": "./src/queries/all/get-organization-invites.ts",
     "./queries/all/get-brand-colors": "./src/queries/all/get-brand-colors.ts",
     "./mutations/brand": "./src/mutations/brand.ts",
-    "./queries/all/get-org-footer-details": "./src/queries/all/get-org-footer-details.ts"
+    "./queries/all/get-org-footer-details": "./src/queries/all/get-org-footer-details.ts",
+    "./queries/all/get-active-automation-member-count": "./src/queries/all/get-active-automation-member-count.ts"
   }
 }

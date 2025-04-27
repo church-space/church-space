@@ -15,17 +15,17 @@ import { useEmailAutomationMembers } from "@/hooks/use-email-automation-members"
 import NullState from "./null-state";
 
 interface AutomationMembersTableProps {
-  organizationId: string;
+  automationId: number;
 }
 
 export default function AutomationMembersTable({
-  organizationId,
+  automationId,
 }: AutomationMembersTableProps) {
   const [search, setSearch] = useQueryState("search");
   const [isNewLinkListOpen, setIsNewLinkListOpen] = useState(false);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useEmailAutomationMembers(Number(organizationId));
+    useEmailAutomationMembers(automationId);
 
   const handleSearch = useCallback(
     async (value: string | null) => {

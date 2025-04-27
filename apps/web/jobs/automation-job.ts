@@ -215,6 +215,13 @@ export const automationJob = task({
             console.error(
               `Error fetching email status for ${personEmailRecord.email}: ${emailStatusError.message}`,
             );
+            await supabase
+              .from("email_automation_members")
+              .update({
+                status: "canceled",
+                reason: "Unsubscribed from email category",
+              })
+              .eq("id", newMemberData.id);
             // Decide how to handle: skip person, assume unsubscribed? Let's skip for now.
             continue;
           }

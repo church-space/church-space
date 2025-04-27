@@ -11,6 +11,22 @@ export type EmailAutomationMember = {
   automation_id: number;
   person_id: number;
   updated_at: string;
+  status: string;
+  reason: string | null;
+  trigger_dev_id: string | null;
+  person: {
+    id: number;
+    first_name: string | null;
+    last_name: string | null;
+    nickname: string | null;
+    pco_id: string;
+  } | null;
+  step: {
+    id: number;
+    type: string;
+    values: any;
+    order: number | null;
+  } | null;
 };
 
 export const columns: ColumnDef<EmailAutomationMember>[] = [
@@ -38,19 +54,36 @@ export const columns: ColumnDef<EmailAutomationMember>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "step",
-    header: "Step",
+    accessorKey: "name",
+    header: "Name",
     cell: ({ row }) => {
-      const step = row.getValue("step") as string;
-      return <div className="font-medium">{step}</div>;
+      const person = row.original.person;
+      if (!person) return <div>-</div>;
+
+      const firstName = person.first_name || "";
+      const lastName = person.last_name || "";
+      const fullName =
+        [firstName, lastName].filter(Boolean).join(" ") ||
+        person.nickname ||
+        "-";
+
+      return <div className="font-medium">{fullName}</div>;
     },
   },
   {
-    accessorKey: "person_id",
-    header: "Person ID",
+    accessorKey: "step",
+    header: "Last Completed Step",
     cell: ({ row }) => {
-      const personId = row.getValue("person_id") as number;
-      return <div>{personId}</div>;
+      const step = row.original.step;
+      return <div>{step?.type || "-"}</div>;
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+      return <div>{status}</div>;
     },
   },
   {

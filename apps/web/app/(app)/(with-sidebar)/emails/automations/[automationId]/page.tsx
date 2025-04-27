@@ -598,7 +598,7 @@ export default function Page() {
               </SheetContent>
             </>
           </Sheet>
-          <AutomationMembersTable organizationId={organizationId ?? ""} />
+          <AutomationMembersTable automationId={automationId} />
         </div>
       </div>
     </div>
