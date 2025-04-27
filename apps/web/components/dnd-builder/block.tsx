@@ -15,6 +15,10 @@ import VideoBlock from "./block-types/video";
 import { Avatar, AvatarImage, AvatarFallback } from "@church-space/ui/avatar";
 import QuizBlock from "./block-types/quiz";
 import AudioBlock from "./block-types/audio";
+import { Button } from "@church-space/ui/button";
+import { Trash } from "@church-space/ui/icons";
+import { Copy } from "lucide-react";
+import type { Block as BlockType } from "@/types/blocks";
 
 interface BlockProps {
   type: string;
@@ -33,6 +37,16 @@ interface BlockProps {
   accentTextColor?: string;
   isUndoRedoOperation?: boolean;
   hasEditor?: boolean;
+  onDeleteBlock?: (id: string) => void;
+  onBlockUpdate?: (block: BlockType, isDuplication?: boolean) => void;
+  setActiveForm?: (
+    form:
+      | "default"
+      | "block"
+      | "email-style"
+      | "email-footer"
+      | "email-templates",
+  ) => void;
 }
 
 export default function Block({
@@ -52,6 +66,9 @@ export default function Block({
   accentTextColor,
   isUndoRedoOperation = false,
   hasEditor = false,
+  onDeleteBlock,
+  onBlockUpdate,
+  setActiveForm,
 }: BlockProps) {
   // Add state to track if the editor is focused
   const [isEditorFocused, setIsEditorFocused] = useState(false);
@@ -178,7 +195,7 @@ export default function Block({
         ? listeners
         : {})}
       className={cn(
-        "group/block relative mx-auto w-full max-w-2xl rounded-md border border-transparent p-1 hover:border-border",
+        "group relative mx-auto w-full max-w-2xl rounded-md border border-transparent p-1 hover:border-border",
         isDragging && "opacity-50",
         isSelected && "ring-2 ring-blue-500",
         isOverlay && "opacity-80 shadow-lg",
@@ -197,6 +214,43 @@ export default function Block({
         </div>
       )}
       {renderBlock()}
+      {isSelected && (
+        <div className="absolute -right-[2.7rem] -top-1 flex flex-col gap-0 rounded-md border bg-background">
+          {onBlockUpdate && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (block && onBlockUpdate) {
+                  // Create a deep copy of the selected block with a new ID
+                  const duplicatedBlock = {
+                    ...JSON.parse(JSON.stringify(block)), // Deep clone to avoid reference issues
+                    id: crypto.randomUUID(), // Generate a new unique ID
+                    duplicatedFromId: block.id, // Store the original block's ID
+                  };
+
+                  onBlockUpdate(duplicatedBlock, true);
+                }
+              }}
+            >
+              <Copy />
+            </Button>
+          )}
+          {onDeleteBlock && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                onDeleteBlock(id || "");
+                setActiveForm?.("default");
+              }}
+              className="hover:text-destructive"
+            >
+              <Trash />
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

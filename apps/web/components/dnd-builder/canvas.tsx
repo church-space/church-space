@@ -41,6 +41,8 @@ interface CanvasProps {
   isUndoRedoOperation?: boolean;
   blockSpacing?: number;
   orgFooterDetails?: any;
+  onDeleteBlock?: (id: string) => void;
+  onBlockUpdate?: (block: BlockType, isDuplication?: boolean) => void;
 }
 
 export default function DndBuilderCanvas({
@@ -64,6 +66,8 @@ export default function DndBuilderCanvas({
   accentTextColor,
   isUndoRedoOperation = false,
   orgFooterDetails,
+  onDeleteBlock,
+  onBlockUpdate,
 }: CanvasProps) {
   const { active, over } = useDndContext();
   const isDragging = Boolean(active);
@@ -146,6 +150,9 @@ export default function DndBuilderCanvas({
         linkColor={linkColor}
         accentTextColor={accentTextColor}
         isUndoRedoOperation={isUndoRedoOperation}
+        onDeleteBlock={onDeleteBlock}
+        onBlockUpdate={onBlockUpdate}
+        setActiveForm={setActiveForm}
       />
     );
   };

@@ -2895,6 +2895,8 @@ export default function EmailDndProvider({
                 accentTextColor={styles.accentTextColor}
                 isUndoRedoOperation={isUndoRedoOperation}
                 orgFooterDetails={orgFooterDetails?.data}
+                onDeleteBlock={handleDeleteBlock}
+                onBlockUpdate={handleBlockUpdate}
               />
             </SortableContext>
           </div>
