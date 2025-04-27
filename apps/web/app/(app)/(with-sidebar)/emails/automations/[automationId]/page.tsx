@@ -43,6 +43,7 @@ import type { TriggerType } from "@/components/automation-builder/automation-bui
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 import Cookies from "js-cookie";
 import AutomationMembersTable from "@/components/tables/automation-members/table";
+import { getActiveAutomationMembersCount } from "@/actions/get-active-automation-members-count";
 
 // Types for the new schema
 interface AutomationStep {
@@ -97,6 +98,18 @@ export default function Page() {
   );
 
   const automation = automationResponse?.data;
+
+  const {
+    data: activeAutomationMembersCountResponse,
+    isLoading: isLoadingActiveAutomationMembersCount,
+  } = useQuery({
+    queryKey: ["active-automation-members-count", automationId],
+    queryFn: () =>
+      getActiveAutomationMembersCount({ automationId: automationId }),
+  });
+
+  const activeAutomationMembersCount =
+    activeAutomationMembersCountResponse?.data?.count.length;
 
   // Transform the automation data to match EmailAutomation type
   const transformedAutomation: EmailAutomation | undefined =

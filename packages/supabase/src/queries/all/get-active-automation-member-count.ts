@@ -6,9 +6,9 @@ export async function getActiveAutomationMemberCount(
 ) {
   const { data: count, error: countError } = await supabase
     .from("email_automation_members")
-    .select("*", { count: "exact" })
+    .select("id", { count: "exact" })
     .eq("automation_id", automationId)
-    .eq("status", "active");
+    .eq("status", "in-progress");
 
   if (countError) {
     throw countError;

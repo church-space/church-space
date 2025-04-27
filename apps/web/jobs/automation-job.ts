@@ -197,6 +197,13 @@ export const automationJob = task({
             console.error(
               `Error fetching email record for PCO person ${pcoPersonId}: ${personEmailRecordError?.message || "No email record found"}`,
             );
+            await supabase
+              .from("email_automation_members")
+              .update({
+                status: "canceled",
+                reason: "No email address found",
+              })
+              .eq("id", newMemberData.id);
             continue; // Skip this person if email record not found
           }
 
@@ -219,7 +226,7 @@ export const automationJob = task({
               .from("email_automation_members")
               .update({
                 status: "canceled",
-                reason: "Unsubscribed from email category",
+                reason: "Unsubscribed from emails",
               })
               .eq("id", newMemberData.id);
             // Decide how to handle: skip person, assume unsubscribed? Let's skip for now.
