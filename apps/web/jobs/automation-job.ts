@@ -160,9 +160,25 @@ export const automationJob = task({
               .select("id")
               .single();
 
-          if (createMemberError || !newMemberData) {
+          if (createMemberError) {
+            // Check if this is a unique constraint violation (person already in automation)
+            if (createMemberError.code === "23505") {
+              // PostgreSQL unique violation code
+              console.log(
+                `Skipping person ${pcoPersonId} as they already have a record for automation ${automationId}`,
+              );
+              continue;
+            }
+
             console.error(
-              `Failed to create automation member record for PCO ID ${pcoPersonId}: ${createMemberError?.message || "Insert failed"}`,
+              `Failed to create automation member record for PCO ID ${pcoPersonId}: ${createMemberError.message}`,
+            );
+            continue;
+          }
+
+          if (!newMemberData) {
+            console.error(
+              `Failed to create automation member record for PCO ID ${pcoPersonId}: Insert failed`,
             );
             continue;
           }
