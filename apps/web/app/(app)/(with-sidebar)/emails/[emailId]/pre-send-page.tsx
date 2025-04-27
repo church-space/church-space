@@ -1354,12 +1354,18 @@ export default function PreSendPage({
                   <Label className="ml-0.5">
                     Subject <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    placeholder="Enter subject"
-                    value={subject}
-                    maxLength={60}
-                    onChange={(e) => setSubject(e.target.value.slice(0, 60))}
-                  />
+                  <div className="relative">
+                    <Input
+                      placeholder="Enter subject"
+                      value={subject}
+                      maxLength={60}
+                      className="pr-16"
+                      onChange={(e) => setSubject(e.target.value.slice(0, 60))}
+                    />
+                    <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                      {subject.length} / 60
+                    </span>
+                  </div>
                   {subject && (
                     <div
                       className={cn(

@@ -452,6 +452,51 @@ function SortableStep(props: SortableStepProps) {
                         {step.values.subject.length} / 60
                       </span>
                     </div>
+                    {step.values.subject && (
+                      <div
+                        className={cn(
+                          "flex flex-col gap-1 rounded-md border px-4 py-2.5",
+                          hasWarnings
+                            ? "border-amber-500 bg-amber-500/10"
+                            : "border-green-500 bg-green-500/10",
+                        )}
+                      >
+                        {tooManyWords && (
+                          <span className="text-amber-600">
+                            Warning: Subject has {wordCount} words. Consider
+                            using 9 or fewer words.
+                          </span>
+                        )}
+                        {tooManyChars && (
+                          <span className="text-amber-600">
+                            Warning: Subject has {charCount} characters.
+                            Consider keeping it under 60 characters.
+                          </span>
+                        )}
+                        {tooManyEmojis && (
+                          <span className="text-amber-600">
+                            Warning: Subject has {emojiCount} emojis. Consider
+                            using 2 or fewer emojis.
+                          </span>
+                        )}
+                        {tooManyPunctuations && (
+                          <span className="text-amber-600">
+                            Warning: Subject has {punctuationCount} punctuation
+                            marks. Consider using 2 or fewer.
+                          </span>
+                        )}
+                        {!hasWarnings && (
+                          <span className="text-green-600">
+                            Good! Your subject meets all recommended guidelines.
+                          </span>
+                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {wordCount} words | {charCount}/60 characters |{" "}
+                          {emojiCount} emojis | {punctuationCount} punctuation
+                          marks
+                        </span>
+                      </div>
+                    )}
                     <Button
                       variant="outline"
                       onClick={() => removeStep(index)}
