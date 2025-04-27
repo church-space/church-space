@@ -41,11 +41,17 @@ export default function AutomationMembersTable({
 
   return (
     <>
-      <div className="flex w-full items-center justify-between">
-        <h1 className="mb-6 text-2xl font-bold">
-          <span className="font-normal text-muted-foreground">{count}</span>{" "}
-          Automation Members
-        </h1>
+      <div className="flex w-full flex-col justify-between gap-3 md:flex-row md:items-center">
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-bold">
+            <span className="font-normal text-muted-foreground">{count}</span>{" "}
+            Automation Members
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Note: a person can only go through the automation once.
+          </p>
+        </div>
+
         <Button onClick={() => setIsNewLinkListOpen(true)}>
           New Automation Member
         </Button>

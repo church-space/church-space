@@ -26,10 +26,12 @@ export default function EmailTemplateSelector({
   value,
   onChange,
   organizationId,
+  className,
 }: {
   value: string;
   onChange: (value: string) => void;
   organizationId: string;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -68,7 +70,7 @@ export default function EmailTemplateSelector({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className={cn("w-full justify-between", className)}
         >
           {selectedEmailTemplate?.subject || "Select a template..."}
           <ChevronsUpDown className="opacity-50" />

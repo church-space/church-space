@@ -147,9 +147,13 @@ type SortableStepProps = {
   removeStep: (index: number) => void;
   waitTimeError: string | null;
   setWaitTimeError: (error: string | null) => void;
+  emailStepError: string | null;
+  errorStepIds: string[];
   organizationId: string;
   openItem: string;
   setOpenItem: (value: string) => void;
+  fieldErrors: Record<string, string[]>;
+  clearFieldError: (stepId: string, fieldName: string) => void;
 };
 
 function SortableStep(props: SortableStepProps) {
@@ -161,9 +165,13 @@ function SortableStep(props: SortableStepProps) {
     removeStep,
     waitTimeError,
     setWaitTimeError,
+    emailStepError,
+    errorStepIds,
     organizationId,
     openItem,
     setOpenItem,
+    fieldErrors,
+    clearFieldError,
   } = props;
 
   const {
@@ -222,9 +230,14 @@ function SortableStep(props: SortableStepProps) {
             value={stepId}
             className={cn(
               "border-0",
-              step.type === "wait" &&
+              (step.type === "wait" &&
                 waitTimeError &&
-                "rounded-md ring-2 ring-destructive",
+                errorStepIds.includes(stepId)) ||
+                (step.type === "send_email" &&
+                  emailStepError !== null &&
+                  errorStepIds.includes(stepId))
+                ? "rounded-md border border-destructive ring-1 ring-destructive"
+                : "",
             )}
           >
             <CustomAccordionTrigger>
@@ -306,8 +319,18 @@ function SortableStep(props: SortableStepProps) {
                         updateStepInState(index, {
                           email_template: value ? parseInt(value) : null,
                         });
+                        // Clear error when user selects a template
+                        if (value) {
+                          clearFieldError(stepId, "template");
+                        }
                       }}
                       organizationId={organizationId}
+                      className={cn(
+                        emailStepError !== null &&
+                          errorStepIds.includes(stepId) &&
+                          fieldErrors[stepId]?.includes("template") &&
+                          "border-destructive ring-1 ring-destructive",
+                      )}
                     />
                   </div>
                   <div className="col-span-4">
@@ -322,8 +345,18 @@ function SortableStep(props: SortableStepProps) {
                             fromName: e.target.value,
                           },
                         });
+                        // Clear error when user types
+                        if (e.target.value.trim()) {
+                          clearFieldError(stepId, "fromName");
+                        }
                       }}
                       maxLength={60}
+                      className={cn(
+                        emailStepError !== null &&
+                          errorStepIds.includes(stepId) &&
+                          fieldErrors[stepId]?.includes("fromName") &&
+                          "border-destructive ring-1 ring-destructive",
+                      )}
                     />
                   </div>
                   <div className="col-span-4">
@@ -339,8 +372,18 @@ function SortableStep(props: SortableStepProps) {
                               fromEmail: e.target.value,
                             },
                           });
+                          // Clear error when user types
+                          if (e.target.value.trim()) {
+                            clearFieldError(stepId, "fromEmail");
+                          }
                         }}
                         maxLength={60}
+                        className={cn(
+                          emailStepError !== null &&
+                            errorStepIds.includes(stepId) &&
+                            fieldErrors[stepId]?.includes("fromEmail") &&
+                            "border-destructive ring-1 ring-destructive",
+                        )}
                       />
                       <span className="mb-1 leading-none">@</span>
                       <DomainSelector
@@ -349,9 +392,19 @@ function SortableStep(props: SortableStepProps) {
                           updateStepInState(index, {
                             from_email_domain: value ? parseInt(value) : null,
                           });
+                          // Clear error when user selects a domain
+                          if (value) {
+                            clearFieldError(stepId, "domain");
+                          }
                         }}
                         value={step.from_email_domain?.toString() || ""}
                         selectFirstOnLoad={false}
+                        className={cn(
+                          emailStepError !== null &&
+                            errorStepIds.includes(stepId) &&
+                            fieldErrors[stepId]?.includes("domain") &&
+                            "border-destructive ring-1 ring-destructive",
+                        )}
                       />
                     </div>
                   </div>
@@ -367,8 +420,18 @@ function SortableStep(props: SortableStepProps) {
                             subject: e.target.value,
                           },
                         });
+                        // Clear error when user types
+                        if (e.target.value.trim()) {
+                          clearFieldError(stepId, "subject");
+                        }
                       }}
                       maxLength={150}
+                      className={cn(
+                        emailStepError !== null &&
+                          errorStepIds.includes(stepId) &&
+                          fieldErrors[stepId]?.includes("subject") &&
+                          "border-destructive ring-1 ring-destructive",
+                      )}
                     />
                   </div>
                   <Button
@@ -487,6 +550,37 @@ export default function EmailAutomationBuilder({
   });
 
   const [waitTimeError, setWaitTimeError] = useState<string | null>(null);
+  const [emailStepError, setEmailStepError] = useState<string | null>(null);
+  const [errorStepIds, setErrorStepIds] = useState<string[]>([]);
+  // Track field-specific errors
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+
+  // Function to clear errors for a specific field in a step
+  const clearFieldError = useCallback(
+    (stepId: string, fieldName: string) => {
+      setFieldErrors((prev) => {
+        const stepErrors = prev[stepId] || [];
+        const newStepErrors = stepErrors.filter((field) => field !== fieldName);
+
+        const newErrors = { ...prev };
+        if (newStepErrors.length === 0) {
+          delete newErrors[stepId];
+          // Also remove from errorStepIds if no more errors
+          setErrorStepIds((ids) => ids.filter((id) => id !== stepId));
+        } else {
+          newErrors[stepId] = newStepErrors;
+        }
+
+        return newErrors;
+      });
+
+      // If no more field errors across all steps, clear the general error
+      if (Object.keys(fieldErrors).length === 0) {
+        setEmailStepError(null);
+      }
+    },
+    [fieldErrors],
+  );
 
   // Function to add a new step
   const addStep = (type: ActionType) => {
@@ -641,6 +735,11 @@ export default function EmailAutomationBuilder({
   };
 
   const handleSave = async () => {
+    // Create a more concise list of error types
+    const validationErrors: string[] = [];
+    // Track steps with errors
+    const stepsWithErrors: string[] = [];
+
     // Check for consecutive wait steps
     const hasConsecutiveWaits = steps.some(
       (step, index) =>
@@ -648,58 +747,127 @@ export default function EmailAutomationBuilder({
     );
 
     if (hasConsecutiveWaits) {
-      toast({
-        title: "Invalid automation",
-        description:
-          "You cannot have consecutive wait steps. Please separate wait steps with other actions.",
-        variant: "destructive",
-      });
-      return;
+      validationErrors.push("Wait steps cannot be consecutive");
     }
 
     // Check if the last step is a wait step
     if (steps.length > 0 && steps[steps.length - 1].type === "wait") {
-      toast({
-        title: "Invalid final step",
-        description: "The automation cannot end with a wait step.",
-        variant: "destructive",
-      });
-      return;
+      validationErrors.push("Automation cannot end with a wait step");
     }
 
     // Check if total steps exceed limit
     if (steps.length > 10) {
-      toast({
-        title: "Too many steps",
-        description: "Automation cannot have more than 10 steps.",
-        variant: "destructive",
-      });
-      return;
+      validationErrors.push("Maximum of 10 steps allowed");
     }
+
+    // Clear all error states
+    setWaitTimeError(null);
+    setEmailStepError(null);
+    setErrorStepIds([]);
+
+    // Check for incomplete steps
+    let hasIncompleteSteps = false;
 
     // Validate all wait steps
     const waitSteps = steps.filter(isWaitStep);
-    for (const step of waitSteps) {
-      // First check if value is empty or not a number
+    for (const [index, step] of waitSteps.entries()) {
+      const stepId = step.id
+        ? `step-${step.id}`
+        : step.tempId || `temp-${index}`;
+
+      // Check for invalid wait time
       if (step.values.value === "" || typeof step.values.value !== "number") {
+        hasIncompleteSteps = true;
+        stepsWithErrors.push(stepId);
         setWaitTimeError("Wait time is required");
-        return;
       }
 
-      const numericValue = step.values.value as number; // We've already checked it's a number
+      // Check for excessive wait time
+      const numericValue = step.values.value as number;
       if (
+        typeof numericValue === "number" &&
         !(
           (step.values.unit === "hours" && numericValue <= 24) ||
           (step.values.unit === "days" && numericValue <= 31)
         )
       ) {
+        hasIncompleteSteps = true;
+        stepsWithErrors.push(stepId);
         setWaitTimeError(
           `Maximum wait time is ${step.values.unit === "hours" ? "24 hours" : "31 days"}`,
         );
-        return;
       }
     }
-    setWaitTimeError(null);
+
+    // Validate all email steps
+    const emailSteps = steps.filter(isEmailStep);
+    const newFieldErrors: Record<string, string[]> = {};
+
+    for (const [index, step] of emailSteps.entries()) {
+      const stepId = step.id
+        ? `step-${step.id}`
+        : step.tempId || `temp-${index}`;
+
+      const stepFieldErrors: string[] = [];
+
+      if (!step.email_template) {
+        stepFieldErrors.push("template");
+      }
+
+      if (!step.values.fromName.trim()) {
+        stepFieldErrors.push("fromName");
+      }
+
+      if (!step.values.fromEmail.trim()) {
+        stepFieldErrors.push("fromEmail");
+      }
+
+      if (!step.from_email_domain) {
+        stepFieldErrors.push("domain");
+      }
+
+      if (!step.values.subject.trim()) {
+        stepFieldErrors.push("subject");
+      }
+
+      if (stepFieldErrors.length > 0) {
+        hasIncompleteSteps = true;
+        stepsWithErrors.push(stepId);
+        newFieldErrors[stepId] = stepFieldErrors;
+      }
+    }
+
+    if (hasIncompleteSteps) {
+      setFieldErrors(newFieldErrors);
+      setEmailStepError("Email step is incomplete");
+      validationErrors.push("Some steps are incomplete");
+    }
+
+    // Update error step IDs state
+    setErrorStepIds(stepsWithErrors);
+
+    // If we have validation errors, display them and stop the save process
+    if (validationErrors.length > 0) {
+      // Open the first step with an error if there are any
+      if (stepsWithErrors.length > 0) {
+        setOpenStep(stepsWithErrors[0]);
+      }
+
+      // Show unified error toast
+      toast({
+        title: "Invalid automation",
+        description: (
+          <ul className="list-disc pl-4">
+            {validationErrors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        ),
+        variant: "destructive",
+      });
+
+      return;
+    }
 
     try {
       // First update the automation details if trigger or list has changed
@@ -941,9 +1109,13 @@ export default function EmailAutomationBuilder({
                     removeStep={removeStep}
                     waitTimeError={waitTimeError}
                     setWaitTimeError={setWaitTimeError}
+                    emailStepError={emailStepError}
+                    errorStepIds={errorStepIds}
                     organizationId={organizationId}
                     openItem={openStep}
                     setOpenItem={setOpenStep}
+                    fieldErrors={fieldErrors}
+                    clearFieldError={clearFieldError}
                   />
                 ))}
               </div>
