@@ -215,7 +215,7 @@ export default function Block({
       )}
       {renderBlock()}
       {isSelected && (
-        <div className="absolute -right-[2.7rem] -top-1 flex flex-col gap-0 rounded-md border bg-background">
+        <div className="absolute -right-2 -top-1 flex flex-col gap-0 rounded-md border bg-background md:-right-[2.7rem]">
           {onBlockUpdate && (
             <Button
               variant="ghost"
