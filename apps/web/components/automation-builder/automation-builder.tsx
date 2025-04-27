@@ -648,6 +648,7 @@ export default function EmailAutomationBuilder({
   const initialState = useRef({
     trigger: automation?.trigger_type || null,
     selectedList: automation?.list_id?.toString() || "",
+    selectedCategory: automation?.email_category_id?.toString() || "",
     steps: automation?.steps || [],
   });
 
@@ -983,6 +984,9 @@ export default function EmailAutomationBuilder({
             id: automation.id,
             trigger_type: trigger,
             list_id: selectedList ? parseInt(selectedList) : null,
+            email_category_id: selectedCategory
+              ? parseInt(selectedCategory)
+              : null,
             organization_id: automation.organization_id,
             created_at: automation.created_at,
             name: automation.name,
@@ -1056,6 +1060,7 @@ export default function EmailAutomationBuilder({
       initialState.current = {
         trigger,
         selectedList,
+        selectedCategory,
         steps: updatedSteps,
       };
 

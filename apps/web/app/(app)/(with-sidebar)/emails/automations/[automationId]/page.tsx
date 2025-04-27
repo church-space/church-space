@@ -140,6 +140,25 @@ export default function Page() {
 
   const queryClient = useQueryClient();
 
+  // Add validation state
+  const [canActivate, setCanActivate] = useState(false);
+
+  // Monitor automation state for activation requirements
+  useEffect(() => {
+    if (!transformedAutomation) return;
+
+    const hasEmailStep = transformedAutomation.steps.some(
+      (step) => step.type === "send_email",
+    );
+    const hasListId = transformedAutomation.list_id !== null;
+    const hasEmailCategory = transformedAutomation.email_category_id !== null;
+    const hasTriggerType = transformedAutomation.trigger_type !== null;
+
+    setCanActivate(
+      hasEmailStep && hasListId && hasEmailCategory && hasTriggerType,
+    );
+  }, [transformedAutomation]);
+
   // Update the state when automation data is loaded
   useEffect(() => {
     if (transformedAutomation) {
@@ -172,6 +191,17 @@ export default function Page() {
   }
 
   const handleStatusToggle = () => {
+    // Prevent activation if requirements aren't met
+    if (!transformedAutomation.is_active && !canActivate) {
+      toast({
+        title: "Cannot Activate Automation",
+        description:
+          "Please ensure you have: a list selected, an email category set, at least one email step, and a trigger type configured.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Optimistically update the UI
     queryClient.setQueryData(
       ["email-automation", automationId],
@@ -422,10 +452,13 @@ export default function Page() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={handleStatusToggle}
-                  disabled={isUpdatingStatus}
+                  disabled={
+                    isUpdatingStatus ||
+                    (!transformedAutomation.is_active && !canActivate)
+                  }
                   className="cursor-pointer"
                 >
-                  {editedLinkStatus === "active" ? (
+                  {transformedAutomation.is_active ? (
                     <>
                       <DisableLink /> Disable
                     </>
