@@ -80,7 +80,8 @@ function extractOrganizationId(
   const mailerHeader = getHeaderValue(headers, "X-Mailer");
   if (!mailerHeader) return undefined;
 
-  const match = mailerHeader.match(/Customer (\d+)/);
+  // Updated regex to match UUID format within the Customer identifier
+  const match = mailerHeader.match(/Customer ([0-9a-f-]+)/i);
   return match?.[1];
 }
 
