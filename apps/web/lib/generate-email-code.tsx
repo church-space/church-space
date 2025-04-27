@@ -1019,7 +1019,7 @@ const CustomList: React.FC<{
                                   fontSize: "18px",
                                   fontWeight: "600",
                                   color: defaultTextColor || textColor,
-                                  paddingBottom: item.description ? "4px" : "0",
+                                  lineHeight: "1.2",
                                 }}
                               >
                                 {item.title}
@@ -1032,7 +1032,7 @@ const CustomList: React.FC<{
                                 {item.description
                                   .split("\n")
                                   .map((paragraph, pIndex) => (
-                                    <div
+                                    <p
                                       key={pIndex}
                                       style={{
                                         fontFamily: defaultFont || "sans-serif",
@@ -1046,10 +1046,12 @@ const CustomList: React.FC<{
                                             1
                                             ? "12px"
                                             : "0",
+                                        marginBlockStart: "0",
+                                        marginBlockEnd: "0",
                                       }}
                                     >
                                       {paragraph}
-                                    </div>
+                                    </p>
                                   ))}
                               </td>
                             </tr>
@@ -1157,27 +1159,28 @@ const CustomAuthor: React.FC<{
                       </td>
                     )}
                     <td>
-                      <div
+                      <p
                         style={{
                           fontFamily: ensureFontFallbacks(defaultFont),
                           fontSize: "14px",
                           fontWeight: "600",
                           color: finalTextColor,
-                          marginBottom: "2px",
+                          lineHeight: "7px",
                         }}
                       >
                         {name}
-                      </div>
-                      <div
+                      </p>
+                      <p
                         style={{
                           fontFamily: ensureFontFallbacks(defaultFont),
                           fontSize: "14px",
+                          lineHeight: "0",
                           color: finalTextColor,
                           opacity: 0.8,
                         }}
                       >
                         {subtitle}
-                      </div>
+                      </p>
                     </td>
                   </tr>
                 </table>
