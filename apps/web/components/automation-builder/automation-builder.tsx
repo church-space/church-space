@@ -48,6 +48,24 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 import CategorySelector from "../id-pages/emails/category-selector";
+import { Alert, AlertDescription, AlertTitle } from "@church-space/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@church-space/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@church-space/ui/alert-dialog";
 
 export type TriggerType = "person_added" | "person_removed";
 type ActionType = "wait" | "send_email";
@@ -562,11 +580,13 @@ export default function EmailAutomationBuilder({
   onChangesPending,
   automation,
   closeSheet,
+  activeAutomationMembersCount,
 }: {
   organizationId: string;
   onChangesPending: (hasPendingChanges: boolean) => void;
   automation: EmailAutomation;
   closeSheet: () => void;
+  activeAutomationMembersCount?: number;
 }) {
   const [trigger, setTrigger] = useState<TriggerType | null>(
     automation?.trigger_type || null,
@@ -589,6 +609,8 @@ export default function EmailAutomationBuilder({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isConfirmingChanges, setIsConfirmingChanges] = useState(false);
 
   // Create mutations for each step action
   const { mutateAsync: updateStepMutation, isPending: isUpdating } =
@@ -837,7 +859,20 @@ export default function EmailAutomationBuilder({
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (confirmedByUser = false) => {
+    // If there are active members, show confirmation dialog
+    if (
+      activeAutomationMembersCount &&
+      activeAutomationMembersCount > 0 &&
+      !confirmedByUser
+    ) {
+      setShowConfirmDialog(true);
+      return;
+    }
+
+    // Reset confirmation state
+    setShowConfirmDialog(false);
+
     // Create a more concise list of error types
     const validationErrors: string[] = [];
     // Track steps with errors
@@ -1105,6 +1140,41 @@ export default function EmailAutomationBuilder({
 
   return (
     <div className="flex h-full flex-col">
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Warning: Active Members Will Be Affected
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              There {activeAutomationMembersCount === 1 ? "is" : "are"}{" "}
+              {activeAutomationMembersCount} active{" "}
+              {activeAutomationMembersCount === 1 ? "member" : "members"} in
+              this automation. Saving changes will cancel their current
+              automation progress.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setShowConfirmDialog(false);
+                setIsConfirmingChanges(false);
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              onClick={() => {
+                handleSave(true);
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <SheetHeader>
         <SheetTitle>Automation Steps</SheetTitle>
       </SheetHeader>
@@ -1238,7 +1308,7 @@ export default function EmailAutomationBuilder({
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button onClick={() => handleSave()} disabled={isSaving}>
             {isSaving ? "Saving..." : "Save"}
           </Button>
         </SheetFooter>

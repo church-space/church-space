@@ -607,6 +607,7 @@ export default function Page() {
                   }
                   automation={transformedAutomation}
                   closeSheet={() => setIsSheetOpen(false)}
+                  activeAutomationMembersCount={activeAutomationMembersCount}
                 />
               </SheetContent>
             </>
