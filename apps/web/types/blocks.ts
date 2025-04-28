@@ -36,7 +36,7 @@ export interface ButtonBlockData {
   color: string;
   textColor: string;
   style: "outline" | "filled";
-  size: "fit" | "full" | "medium";
+  size: "fit" | "full" | "medium" | "large";
   centered: boolean;
 }
 

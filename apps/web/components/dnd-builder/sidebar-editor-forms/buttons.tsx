@@ -224,6 +224,7 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             <SelectContent>
               <SelectItem value="fit">Fit Content</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="large">Large</SelectItem>
               <SelectItem value="full">Full Width</SelectItem>
             </SelectContent>
           </Select>

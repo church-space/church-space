@@ -35,10 +35,11 @@ export default function ButtonBlock({
     >
       <div
         className={cn(
-          "inline-flex h-9 items-center px-4 py-2 text-sm font-medium",
+          "inline-flex h-9 items-center px-4 py-2 text-sm font-semibold",
           isRounded && "rounded-md",
           size === "full" && "w-full justify-center",
           size === "medium" && "!text-cetner w-fit justify-center px-16",
+          size === "large" && "!text-cetner h-12 w-fit justify-center px-8",
           style === "filled"
             ? ["hover:opacity-90"]
             : ["border-2", "hover:bg-opacity-10"],
