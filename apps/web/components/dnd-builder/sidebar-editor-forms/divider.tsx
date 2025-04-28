@@ -8,9 +8,14 @@ import { Button } from "@church-space/ui/button";
 interface DividerFormProps {
   block: Block & { data?: DividerBlockData };
   onUpdate: (block: Block) => void;
+  onApplyToAllDividers: () => void;
 }
 
-export default function DividerForm({ block, onUpdate }: DividerFormProps) {
+export default function DividerForm({
+  block,
+  onUpdate,
+  onApplyToAllDividers,
+}: DividerFormProps) {
   const [localState, setLocalState] = useState<DividerBlockData>({
     color: block.data?.color || "#e2e8f0",
     margin: block.data?.margin || 0,
@@ -79,7 +84,11 @@ export default function DividerForm({ block, onUpdate }: DividerFormProps) {
             onValueChange={handleMarginChange}
           />
         </div>
-        <Button variant="outline" className="mt-4 w-full">
+        <Button
+          variant="outline"
+          className="mt-4 w-full"
+          onClick={onApplyToAllDividers}
+        >
           Apply style to all dividers
         </Button>
       </div>

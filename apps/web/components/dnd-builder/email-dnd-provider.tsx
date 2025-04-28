@@ -2,7 +2,12 @@
 
 import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import type { BlockData, Block as BlockType } from "@/types/blocks";
+import type {
+  BlockData,
+  Block as BlockType,
+  ButtonBlockData,
+  DividerBlockData,
+} from "@/types/blocks";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -420,7 +425,11 @@ export default function EmailDndProvider({
         textColor: "#000000",
       };
     } else if (blockType === "divider") {
-      blockData = { color: styles.defaultTextColor, margin: 0 };
+      blockData = {
+        color: styles.defaultTextColor,
+        margin: 0,
+        thickness: 1,
+      };
     } else if (blockType === "button") {
       blockData = {
         text: "",
@@ -901,7 +910,11 @@ export default function EmailDndProvider({
                 };
                 break;
               case "divider":
-                blockValue = { color: "#000000", margin: 20 };
+                blockValue = {
+                  color: "#000000",
+                  margin: 20,
+                  thickness: 1,
+                };
                 break;
               case "image":
                 blockValue = {
@@ -2657,6 +2670,100 @@ export default function EmailDndProvider({
       });
     }
   };
+
+  const handleApplyToAllButtons = (currentBlock: string | null) => {
+    if (!currentBlock) return;
+
+    // Find the source button block
+    const sourceBlock = blocks.find((block) => block.id === currentBlock);
+    if (!sourceBlock || sourceBlock.type !== "button") return;
+
+    // Get all button blocks
+    const updatedBlocks = blocks.map((block) => {
+      if (block.type === "button" && block.id !== currentBlock) {
+        // Apply the source block's styling but keep the original text and link
+        const originalData = block.data as ButtonBlockData;
+        const sourceData = sourceBlock.data as ButtonBlockData;
+        return {
+          ...block,
+          data: {
+            ...sourceData,
+            text: originalData.text,
+            link: originalData.link,
+          } as ButtonBlockData,
+        } as BlockType;
+      }
+      return block;
+    });
+
+    // Update history with the new blocks
+    updateBlocksHistory(updatedBlocks);
+
+    // Update blocks in database if we have an emailId
+    if (emailId) {
+      const contentUpdates: ContentUpdate[] = updatedBlocks
+        .filter(
+          (block) => block.type === "button" && !isNaN(parseInt(block.id, 10)),
+        )
+        .map((block) => ({
+          id: parseInt(block.id, 10),
+          type: block.type as DatabaseBlockType,
+          value: block.data,
+        }));
+
+      if (contentUpdates.length > 0) {
+        batchUpdateEmailBlocks.mutate({
+          emailId,
+          contentUpdates,
+        });
+      }
+    }
+  };
+
+  const handleApplyToAllDividers = (currentBlock: string | null) => {
+    if (!currentBlock) return;
+
+    // Find the source divider block
+    const sourceBlock = blocks.find((block) => block.id === currentBlock);
+    if (!sourceBlock || sourceBlock.type !== "divider") return;
+
+    // Get all divider blocks
+    const updatedBlocks = blocks.map((block) => {
+      if (block.type === "divider" && block.id !== currentBlock) {
+        // Apply the source block's styling
+        const sourceData = sourceBlock.data as DividerBlockData;
+        return {
+          ...block,
+          data: { ...sourceData } as DividerBlockData,
+        } as BlockType;
+      }
+      return block;
+    });
+
+    // Update history with the new blocks
+    updateBlocksHistory(updatedBlocks);
+
+    // Update blocks in database if we have an emailId
+    if (emailId) {
+      const contentUpdates: ContentUpdate[] = updatedBlocks
+        .filter(
+          (block) => block.type === "divider" && !isNaN(parseInt(block.id, 10)),
+        )
+        .map((block) => ({
+          id: parseInt(block.id, 10),
+          type: block.type as DatabaseBlockType,
+          value: block.data,
+        }));
+
+      if (contentUpdates.length > 0) {
+        batchUpdateEmailBlocks.mutate({
+          emailId,
+          contentUpdates,
+        });
+      }
+    }
+  };
+
   return (
     <div className="relative flex h-full flex-col">
       <Dialog
@@ -2850,6 +2957,10 @@ export default function EmailDndProvider({
             emailSubject={emailData?.email?.subject || ""}
             onEmailSubjectChange={handleEmailSubjectChange}
             onDeleteTemplate={handleDeleteTemplate}
+            onApplyToAllButtons={() => handleApplyToAllButtons(selectedBlockId)}
+            onApplyToAllDividers={() =>
+              handleApplyToAllDividers(selectedBlockId)
+            }
           />
           <div className="relative flex-1">
             <AnimatePresence>

@@ -101,6 +101,8 @@ interface DndBuilderSidebarProps {
   emailSubject?: string;
   onEmailSubjectChange?: (subject: string) => void;
   onDeleteTemplate?: () => void;
+  onApplyToAllButtons: () => void;
+  onApplyToAllDividers: () => void;
 }
 
 function DraggableBlock({
@@ -215,6 +217,8 @@ export default function DndBuilderSidebar({
   emailSubject,
   onEmailSubjectChange,
   onDeleteTemplate,
+  onApplyToAllButtons,
+  onApplyToAllDividers,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
 
@@ -320,6 +324,8 @@ export default function DndBuilderSidebar({
                   organizationId={organizationId}
                   blockSpacing={blockSpacing}
                   onBlockSpacingChange={onBlockSpacingChange}
+                  onApplyToAllButtons={onApplyToAllButtons}
+                  onApplyToAllDividers={onApplyToAllDividers}
                 />
               </motion.div>
             ) : (
@@ -556,6 +562,8 @@ export default function DndBuilderSidebar({
                 onAccentTextColorChange={onAccentTextColorChange}
                 blockSpacing={blockSpacing}
                 onBlockSpacingChange={onBlockSpacingChange}
+                onApplyToAllButtons={onApplyToAllButtons}
+                onApplyToAllDividers={onApplyToAllDividers}
               />
             )}
           </SheetContent>

@@ -123,6 +123,8 @@ const Toolbar = ({
         setCurrentHeadingLevel(2);
       } else if (editor.isActive("heading", { level: 3 })) {
         setCurrentHeadingLevel(3);
+      } else if (editor.isActive("heading", { level: 4 })) {
+        setCurrentHeadingLevel(4);
       } else {
         setCurrentHeadingLevel(null);
       }
@@ -255,6 +257,7 @@ const Toolbar = ({
     if (currentHeadingLevel === 1) return "Heading 1";
     if (currentHeadingLevel === 2) return "Heading 2";
     if (currentHeadingLevel === 3) return "Heading 3";
+    if (currentHeadingLevel === 4) return "Giant";
     return "Normal Text";
   };
 
@@ -263,6 +266,7 @@ const Toolbar = ({
     if (currentHeadingLevel === 1) return <Heading1 className="h-5 w-5" />;
     if (currentHeadingLevel === 2) return <Heading2 className="h-5 w-5" />;
     if (currentHeadingLevel === 3) return <Heading3 className="h-5 w-5" />;
+    if (currentHeadingLevel === 4) return <Heading3 className="h-5 w-5" />;
     return <Text className="h-5 w-5" />;
   };
 
@@ -479,6 +483,20 @@ const Toolbar = ({
           >
             <Heading3 className="mr-2 h-4 w-4" />
             Heading 3
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              editor.chain().focus().setHeading({ level: 4 }).run();
+              setCurrentHeadingLevel(4);
+            }}
+            className={
+              currentHeadingLevel === 4
+                ? "bg-accent text-accent-foreground"
+                : ""
+            }
+          >
+            <Heading3 className="mr-2 h-4 w-4" />
+            Giant
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

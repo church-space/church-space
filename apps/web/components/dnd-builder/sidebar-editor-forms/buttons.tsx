@@ -17,9 +17,14 @@ import { Button } from "@church-space/ui/button";
 interface ButtonFormProps {
   block: Block & { data?: ButtonBlockData };
   onUpdate: (block: Block) => void;
+  onApplyToAllButtons: () => void;
 }
 
-export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
+export default function ButtonForm({
+  block,
+  onUpdate,
+  onApplyToAllButtons,
+}: ButtonFormProps) {
   const [localState, setLocalState] = useState<ButtonBlockData>({
     text: block.data?.text ?? "Button",
     link: block.data?.link || "",
@@ -244,7 +249,11 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             </>
           )}
         </div>
-        <Button variant="outline" className="mt-4 w-full">
+        <Button
+          variant="outline"
+          className="mt-4 w-full"
+          onClick={onApplyToAllButtons}
+        >
           Apply style to all buttons
         </Button>
       </div>

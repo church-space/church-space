@@ -55,6 +55,8 @@ export default function DndBuilderSidebarForms({
   onAccentTextColorChange,
   blockSpacing,
   onBlockSpacingChange,
+  onApplyToAllButtons,
+  onApplyToAllDividers,
 }: {
   selectedBlock?: Block;
   setSelectedBlockId?: (id: string | null) => void;
@@ -97,6 +99,8 @@ export default function DndBuilderSidebarForms({
       | "email-footer"
       | "email-templates",
   ) => void;
+  onApplyToAllButtons: () => void;
+  onApplyToAllDividers: () => void;
 }) {
   const handleBack = () => {
     if (onBack) {
@@ -186,6 +190,7 @@ export default function DndBuilderSidebarForms({
               key={selectedBlock.id}
               block={selectedBlock as Block & { data?: ButtonBlockData }}
               onUpdate={handleBlockUpdate}
+              onApplyToAllButtons={onApplyToAllButtons}
             />
           )}
         {selectedBlock &&
