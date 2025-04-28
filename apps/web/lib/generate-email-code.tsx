@@ -2055,7 +2055,10 @@ export function generateEmailCode(
                         {sections.map((section, sectionIndex) => (
                           <EmailSection key={`section-${sectionIndex}`}>
                             {section.blocks.map((block, blockIndex) => {
-                              const blockStyle = { margin: "8px 0" };
+                              const blockStyle = {
+                                margin: "8px 0",
+                                paddingBottom: blockSpacing - 5,
+                              };
                               const Component = (() => {
                                 switch (block.type) {
                                   case "text":
