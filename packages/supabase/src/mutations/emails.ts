@@ -109,10 +109,6 @@ export async function createEmailFromEmail(
             bg_color: sourceFooter.bg_color,
             text_color: sourceFooter.text_color,
             organization_id: organizationId,
-            template_title: sourceFooter.template_title,
-            address: sourceFooter.address,
-            reason: sourceFooter.reason,
-            copyright_name: sourceFooter.copyright_name,
             socials_style: sourceFooter.socials_style,
             socials_color: sourceFooter.socials_color,
             socials_icon_color: sourceFooter.socials_icon_color,
@@ -143,10 +139,6 @@ export async function createEmailFromEmail(
           bg_color: sourceFooter.bg_color,
           text_color: sourceFooter.text_color,
           organization_id: organizationId,
-          template_title: sourceFooter.template_title,
-          address: sourceFooter.address,
-          reason: sourceFooter.reason,
-          copyright_name: sourceFooter.copyright_name,
           email_id: newEmail.id,
           // Ensure socials_style is a valid enum value
           socials_style:
@@ -210,7 +202,8 @@ export async function createEmailFromEmail(
 export async function applyEmailTemplate(
   supabase: Client,
   emailId: number,
-  templateEmailId: number
+  templateEmailId: number,
+  styleOnly: boolean = false
 ) {
   // Get the template email with its footer and blocks
   const { data: templateEmail, error: templateError } =
@@ -251,41 +244,43 @@ export async function applyEmailTemplate(
 
   // Delete all existing blocks from the target email
 
-  const { error: deleteBlocksError } = await supabase
-    .from("email_blocks")
-    .delete()
-    .eq("email_id", emailId);
+  if (!styleOnly) {
+    const { error: deleteBlocksError } = await supabase
+      .from("email_blocks")
+      .delete()
+      .eq("email_id", emailId);
 
-  if (deleteBlocksError) {
-    console.error("Error deleting existing blocks:", deleteBlocksError);
-    throw deleteBlocksError;
-  }
+    if (deleteBlocksError) {
+      console.error("Error deleting existing blocks:", deleteBlocksError);
+      throw deleteBlocksError;
+    }
 
-  // Copy the template blocks to the target email
-  if (
-    templateEmail.email_blocks &&
-    Array.isArray(templateEmail.email_blocks) &&
-    templateEmail.email_blocks.length > 0
-  ) {
-    try {
-      const blocksToInsert = templateEmail.email_blocks.map((block) => ({
-        type: block.type,
-        value: block.value,
-        email_id: emailId,
-        order: block.order,
-      }));
+    // Copy the template blocks to the target email
+    if (
+      templateEmail.email_blocks &&
+      Array.isArray(templateEmail.email_blocks) &&
+      templateEmail.email_blocks.length > 0
+    ) {
+      try {
+        const blocksToInsert = templateEmail.email_blocks.map((block) => ({
+          type: block.type,
+          value: block.value,
+          email_id: emailId,
+          order: block.order,
+        }));
 
-      const { error: blocksError } = await supabase
-        .from("email_blocks")
-        .insert(blocksToInsert);
+        const { error: blocksError } = await supabase
+          .from("email_blocks")
+          .insert(blocksToInsert);
 
-      if (blocksError) {
-        console.error("Error inserting blocks:", blocksError);
-        throw new Error(`Error inserting blocks: ${blocksError.message}`);
+        if (blocksError) {
+          console.error("Error inserting blocks:", blocksError);
+          throw new Error(`Error inserting blocks: ${blocksError.message}`);
+        }
+      } catch (error) {
+        console.error("Error copying blocks:", error);
+        throw error;
       }
-    } catch (error) {
-      console.error("Error copying blocks:", error);
-      throw error;
     }
   }
 
@@ -299,10 +294,10 @@ export async function applyEmailTemplate(
       : null;
 
   if (templateFooter) {
-    // Check if the target email already has a footer
+    // Check if the target email already has a full footer record
     const { data: existingFooter, error: checkFooterError } = await supabase
       .from("email_footers")
-      .select("id")
+      .select("*") // Select all fields
       .eq("email_id", emailId)
       .maybeSingle();
 
@@ -311,52 +306,103 @@ export async function applyEmailTemplate(
       throw checkFooterError;
     }
 
-    // Prepare footer data without id and created_at
-    const footerData = {
-      type: templateFooter.type,
-      name: templateFooter.name,
-      subtitle: templateFooter.subtitle,
-      logo: templateFooter.logo,
-      links: templateFooter.links,
-      bg_color: templateFooter.bg_color,
-      text_color: templateFooter.text_color,
-      organization_id: targetEmail.organization_id,
-      template_title: templateFooter.template_title,
-      address: templateFooter.address,
-      reason: templateFooter.reason,
-      copyright_name: templateFooter.copyright_name,
-      socials_style: templateFooter.socials_style,
-      socials_color: templateFooter.socials_color,
-      socials_icon_color: templateFooter.socials_icon_color,
-      secondary_text_color: templateFooter.secondary_text_color,
-    };
+    // Prepare data holders
+    let updateData:
+      | Database["public"]["Tables"]["email_footers"]["Update"]
+      | null = null;
+    let insertData:
+      | Database["public"]["Tables"]["email_footers"]["Insert"]
+      | null = null;
 
-    if (existingFooter) {
-      // Update existing footer
+    // Ensure organization_id is available and is a string
+    const orgId = targetEmail.organization_id;
+    if (!orgId) {
+      console.error("Target email is missing organization ID.");
+      throw new Error("Target email is missing organization ID.");
+    }
 
-      const { error: updateFooterError } = await supabase
-        .from("email_footers")
-        .update(footerData)
-        .eq("id", existingFooter.id);
-
-      if (updateFooterError) {
-        console.error("Error updating footer:", updateFooterError);
-        throw updateFooterError;
+    if (styleOnly) {
+      if (existingFooter) {
+        // Apply only styles from template, keep content from existing footer
+        updateData = {
+          bg_color: templateFooter.bg_color,
+          text_color: templateFooter.text_color,
+          secondary_text_color: templateFooter.secondary_text_color,
+          socials_style: templateFooter.socials_style,
+          socials_color: templateFooter.socials_color,
+          socials_icon_color: templateFooter.socials_icon_color,
+          // Keep existing content fields
+          name: existingFooter.name,
+          subtitle: existingFooter.subtitle,
+          logo: existingFooter.logo,
+          links: existingFooter.links,
+          // Essential fields
+          type: existingFooter.type, // Keep original type
+          organization_id: orgId,
+        };
       }
+      // If styleOnly and no existing footer, do nothing for the footer.
     } else {
-      // Create new footer
+      // Apply full template footer (content and style)
+      const commonFooterData = {
+        type: templateFooter.type,
+        name: templateFooter.name,
+        subtitle: templateFooter.subtitle,
+        logo: templateFooter.logo,
+        links: templateFooter.links,
+        bg_color: templateFooter.bg_color,
+        text_color: templateFooter.text_color,
+        organization_id: orgId,
+        socials_style: templateFooter.socials_style,
+        socials_color: templateFooter.socials_color,
+        socials_icon_color: templateFooter.socials_icon_color,
+        secondary_text_color: templateFooter.secondary_text_color,
+      };
 
-      const { error: createFooterError } = await supabase
-        .from("email_footers")
-        .insert({
-          ...footerData,
-          email_id: emailId,
-        });
-
-      if (createFooterError) {
-        console.error("Error creating footer:", createFooterError);
-        throw createFooterError;
+      if (existingFooter) {
+        // Prepare update data
+        updateData = commonFooterData;
+      } else {
+        // Prepare insert data
+        insertData = {
+          ...commonFooterData,
+          email_id: emailId, // Add email_id for insert
+        };
       }
+    }
+
+    // Perform DB operations if data was prepared
+    try {
+      if (updateData && existingFooter) {
+        const { error: updateFooterError } = await supabase
+          .from("email_footers")
+          .update(updateData)
+          .eq("id", existingFooter.id);
+
+        if (updateFooterError) {
+          console.error("Error updating footer:", updateFooterError);
+          throw new Error(
+            `Error updating footer: ${updateFooterError.message}`
+          );
+        }
+      } else if (insertData) {
+        // organization_id is already validated as string above
+        const { error: createFooterError } = await supabase
+          .from("email_footers")
+          .insert(insertData);
+
+        if (createFooterError) {
+          console.error("Error creating footer:", createFooterError);
+          throw new Error(
+            `Error creating footer: ${createFooterError.message}`
+          );
+        }
+      }
+    } catch (error) {
+      // Catch potential errors from update/insert and provide context
+      console.error("Failed to apply footer changes:", error);
+      // Re-throw the error to stop execution or handle as needed
+      throw error;
     }
   }
 

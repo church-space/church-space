@@ -8,9 +8,6 @@ interface UpdateEmailFooterParams {
     name?: string;
     subtitle?: string;
     logo?: string;
-    address?: string;
-    reason?: string;
-    copyright_name?: string;
     bg_color?: string;
     text_color?: string;
     secondary_text_color?: string;

@@ -26,6 +26,7 @@ import {
 import { useToast } from "@church-space/ui/use-toast";
 import { createEmailTemplateFromEmailAction } from "@/actions/create-email-template-from-email";
 import { applyEmailTemplateAction } from "@/actions/apply-email-template";
+import { Switch } from "@church-space/ui/switch";
 
 interface EmailTemplateFormProps {
   emailId: number;
@@ -44,6 +45,7 @@ export default function EmailTemplateForm({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [applyStyleOnly, setApplyStyleOnly] = useState(false);
   const supabaseClient = createClient();
   const { ref: loadMoreRef, inView: loadMoreInView } = useInView();
   const { ref: componentRef, inView: componentInView } = useInView({
@@ -202,6 +204,7 @@ export default function EmailTemplateForm({
       const result = await applyEmailTemplateAction({
         target_email_id: emailId,
         template_email_id: selectedTemplate.id,
+        style_only: applyStyleOnly,
       });
 
       // The response is nested, so we need to check both levels
@@ -401,9 +404,17 @@ export default function EmailTemplateForm({
           <DialogDescription>
             Are you sure you want to apply this template?{" "}
             <span className="font-bold">
-              This will overwrite any content you have in the current email.
+              Applying content will overwrite the current email content.
             </span>
           </DialogDescription>
+          <div className="flex items-center space-x-2 py-2">
+            <Switch
+              id="style-only-switch"
+              checked={applyStyleOnly}
+              onCheckedChange={setApplyStyleOnly}
+            />
+            <Label htmlFor="style-only-switch">Apply style only</Label>
+          </div>
           <DialogFooter>
             <Button
               variant="outline"

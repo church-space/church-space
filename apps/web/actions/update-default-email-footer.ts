@@ -28,9 +28,6 @@ export const updateDefaultEmailFooterAction = authActionClient
             )
             .nullable(),
           organization_id: z.string(),
-          address: z.string().nullable(),
-          reason: z.string().nullable(),
-          copyright_name: z.string().nullable(),
           socials_style: z.enum(["filled", "outline", "icon-only"]),
           socials_color: z.string().nullable(),
           socials_icon_color: z.string().nullable(),

@@ -13,6 +13,7 @@ export const applyEmailTemplateAction = authActionClient
     z.object({
       target_email_id: z.number(),
       template_email_id: z.number(),
+      style_only: z.boolean(),
     }),
   )
   .metadata({
@@ -50,6 +51,7 @@ export const applyEmailTemplateAction = authActionClient
           supabase,
           parsedInput.parsedInput.target_email_id,
           parsedInput.parsedInput.template_email_id,
+          parsedInput.parsedInput.style_only,
         );
 
         // Revalidate the email query tag

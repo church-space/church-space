@@ -409,9 +409,7 @@ export type Database = {
       }
       email_footers: {
         Row: {
-          address: string | null
           bg_color: string | null
-          copyright_name: string | null
           created_at: string
           email_id: number | null
           id: number
@@ -419,21 +417,17 @@ export type Database = {
           logo: string | null
           name: string | null
           organization_id: string
-          reason: string | null
           secondary_text_color: string | null
           socials_color: string | null
           socials_icon_color: string | null
           socials_style: Database["public"]["Enums"]["social_icons_style"]
           subtitle: string | null
-          template_title: string | null
           text_color: string | null
           type: Database["public"]["Enums"]["email_types"]
           updated_at: string | null
         }
         Insert: {
-          address?: string | null
           bg_color?: string | null
-          copyright_name?: string | null
           created_at?: string
           email_id?: number | null
           id?: number
@@ -441,21 +435,17 @@ export type Database = {
           logo?: string | null
           name?: string | null
           organization_id: string
-          reason?: string | null
           secondary_text_color?: string | null
           socials_color?: string | null
           socials_icon_color?: string | null
           socials_style?: Database["public"]["Enums"]["social_icons_style"]
           subtitle?: string | null
-          template_title?: string | null
           text_color?: string | null
           type: Database["public"]["Enums"]["email_types"]
           updated_at?: string | null
         }
         Update: {
-          address?: string | null
           bg_color?: string | null
-          copyright_name?: string | null
           created_at?: string
           email_id?: number | null
           id?: number
@@ -463,13 +453,11 @@ export type Database = {
           logo?: string | null
           name?: string | null
           organization_id?: string
-          reason?: string | null
           secondary_text_color?: string | null
           socials_color?: string | null
           socials_icon_color?: string | null
           socials_style?: Database["public"]["Enums"]["social_icons_style"]
           subtitle?: string | null
-          template_title?: string | null
           text_color?: string | null
           type?: Database["public"]["Enums"]["email_types"]
           updated_at?: string | null
