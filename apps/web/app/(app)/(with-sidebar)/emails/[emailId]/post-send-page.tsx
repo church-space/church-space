@@ -59,7 +59,7 @@ import {
 import { useToast } from "@church-space/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Loader2, MoreHorizontal, Save } from "lucide-react";
+import { Loader2, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
