@@ -54,6 +54,13 @@ import { useState } from "react";
 import { getEmailRecipientsAction } from "@/actions/get-email-recipients";
 import { motion } from "framer-motion";
 import { getEmailCategoryById } from "@church-space/supabase/queries/all/get-all-email-categories";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@church-space/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -288,27 +295,40 @@ export default function PostSendPage({
         >
           <h1 className="text-2xl font-bold">{email?.subject}</h1>
 
-          <Dialog
-            open={previewOpen === "true"}
-            onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
-          >
-            <DialogTrigger asChild>
-              <Button
-                onClick={() => {
-                  setPreviewOpen("true");
-                }}
-              >
-                View Email
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="h-[95%] min-w-[95%] p-4">
-              <DialogHeader className="sr-only">
-                <DialogTitle>Preview</DialogTitle>
-              </DialogHeader>
+          <div className="flex items-center gap-2">
+            <Dialog
+              open={previewOpen === "true"}
+              onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  onClick={() => {
+                    setPreviewOpen("true");
+                  }}
+                >
+                  View Email
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="h-[95%] min-w-[95%] p-4">
+                <DialogHeader className="sr-only">
+                  <DialogTitle>Preview</DialogTitle>
+                </DialogHeader>
 
-              <EmailPreview orgFooterDetails={orgFooterDetails?.data?.data} />
-            </DialogContent>
-          </Dialog>
+                <EmailPreview orgFooterDetails={orgFooterDetails?.data?.data} />
+              </DialogContent>
+            </Dialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Save as Template</DropdownMenuItem>
+                <DropdownMenuItem>Duplicate</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </motion.div>
         {email.error_message && (
           <motion.div
