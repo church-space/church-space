@@ -485,11 +485,13 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
 
   const addLink = () => {
     if (localState.links.length < 5) {
+      const newLinkId = nanoid();
       const newLinks = [
         ...localState.links,
-        { icon: "", url: "", order: localState.links.length, id: nanoid() },
+        { icon: "", url: "", order: localState.links.length, id: newLinkId },
       ];
       handleChange("links", newLinks);
+      setOpenLink(newLinkId);
     }
   };
 

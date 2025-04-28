@@ -396,11 +396,12 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
   };
 
   const addCard = () => {
+    const newCardId = nanoid();
     const newCards = [
       ...(localState.cards as CardItem[]),
       {
         title: "",
-        id: nanoid(),
+        id: newCardId,
         description: "",
         label: "",
         buttonText: "",
@@ -410,6 +411,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
       },
     ];
     handleChange("cards", newCards);
+    setOpenCard(newCardId);
   };
 
   const updateCard = (index: number, key: string, value: string) => {

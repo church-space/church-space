@@ -285,16 +285,18 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
   };
 
   const addItem = () => {
+    const newItemId = nanoid();
     const newItems = [
       ...localState.items,
       {
         title: "",
         description: "",
         order: localState.items.length,
-        id: nanoid(),
+        id: newItemId,
       },
     ];
     handleChange("items", newItems);
+    setOpenItem(newItemId);
   };
 
   const updateItem = (index: number, field: string, value: string) => {
