@@ -223,10 +223,11 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="fit">Fit Content</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="full">Full Width</SelectItem>
             </SelectContent>
           </Select>
-          {localState.size === "fit" && (
+          {localState.size !== "full" && (
             <>
               <Label>Centered</Label>
               <Switch

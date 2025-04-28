@@ -326,7 +326,7 @@ const CustomButton: React.FC<{
   color: string;
   textColor: string;
   style: "outline" | "filled";
-  size: "fit" | "full";
+  size: "fit" | "full" | "medium";
   isRounded?: boolean;
   defaultFont?: string;
   centered?: boolean;
@@ -375,7 +375,7 @@ const CustomButton: React.FC<{
                 fontSize: "14px",
                 fontWeight: "normal",
                 lineHeight: "1",
-                padding: "9px 15px",
+                padding: size === "medium" ? "9px 60px" : "9px 15px",
                 textDecoration: "none",
                 textAlign: "center",
                 width: buttonWidth,
@@ -398,7 +398,7 @@ const CustomButton: React.FC<{
                 fontSize: "14px",
                 fontWeight: "normal",
                 lineHeight: "1",
-                padding: "9px 15px",
+                padding: size === "medium" ? "9px 60px" : "9px 15px",
                 textDecoration: "none",
                 textAlign: "center",
                 width: buttonWidth,

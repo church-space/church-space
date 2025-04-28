@@ -24,7 +24,12 @@ export default function ButtonBlock({
     <div
       className={cn(
         "flex w-full items-center gap-2",
-        size === "fit" ? "justify-center" : "justify-stretch",
+        size === "fit"
+          ? "justify-center"
+          : size === "medium"
+            ? "justify-center"
+            : "justify-stretch",
+
         centered ? "justify-center" : "justify-start",
       )}
     >
@@ -33,6 +38,7 @@ export default function ButtonBlock({
           "inline-flex h-9 items-center px-4 py-2 text-sm font-medium",
           isRounded && "rounded-md",
           size === "full" && "w-full justify-center",
+          size === "medium" && "!text-cetner w-fit justify-center px-16",
           style === "filled"
             ? ["hover:opacity-90"]
             : ["border-2", "hover:bg-opacity-10"],
