@@ -12,6 +12,7 @@ import { Switch } from "@church-space/ui/switch";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import ColorPicker from "../color-picker";
+import { Button } from "@church-space/ui/button";
 
 interface ButtonFormProps {
   block: Block & { data?: ButtonBlockData };
@@ -63,6 +64,11 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
         code: z.ZodIssueCode.custom,
         message: "URL cannot contain spaces",
       });
+      return;
+    }
+
+    // Allow mailto links
+    if (url.startsWith("mailto:")) {
       return;
     }
 
@@ -238,6 +244,9 @@ export default function ButtonForm({ block, onUpdate }: ButtonFormProps) {
             </>
           )}
         </div>
+        <Button variant="outline" className="mt-4 w-full">
+          Apply style to all buttons
+        </Button>
       </div>
     </div>
   );

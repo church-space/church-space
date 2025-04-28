@@ -9,6 +9,7 @@ interface DividerBlockProps {
 export default function DividerBlock({ data }: DividerBlockProps) {
   const color = data?.color || "#e2e8f0"; // default color
   const margin = data?.margin || 0; // default margin
+  const thickness = data?.thickness || 1; // default thickness
 
   return (
     <Separator
@@ -17,6 +18,7 @@ export default function DividerBlock({ data }: DividerBlockProps) {
         backgroundColor: color,
         marginTop: margin,
         marginBottom: margin,
+        height: thickness,
       }}
     />
   );

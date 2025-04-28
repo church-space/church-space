@@ -218,6 +218,7 @@ export default function DndBuilderSidebarForms({
               key={selectedBlock.id}
               block={selectedBlock as Block & { data?: DividerBlockData }}
               onUpdate={handleBlockUpdate}
+              onApplyToAllDividers={onApplyToAllDividers}
             />
           )}
         {selectedBlock &&

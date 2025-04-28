@@ -28,6 +28,7 @@ export interface TextBlockData {
 export interface DividerBlockData {
   color: string;
   margin: number;
+  thickness: number;
 }
 
 export interface ButtonBlockData {

@@ -454,16 +454,21 @@ const CustomButton: React.FC<{
 const CustomDivider: React.FC<{
   color: string;
   margin: number;
-}> = ({ color, margin }) => (
-  <Hr
-    style={{
-      borderTop: `1px solid ${color}`,
-      marginTop: `${margin + 10}px`,
-      marginBottom: `${margin + 10}px`,
-      width: "100%",
-    }}
-  />
-);
+  thickness: number;
+}> = ({ color, margin, thickness }) => {
+  const updatedThickness = thickness === undefined ? 1 : thickness;
+
+  return (
+    <Hr
+      style={{
+        borderTop: `${updatedThickness}px solid ${color}`,
+        marginTop: `${margin + 10}px`,
+        marginBottom: `${margin + 10}px`,
+        width: "100%",
+      }}
+    />
+  );
+};
 
 const CustomImage: React.FC<{
   image: string;
