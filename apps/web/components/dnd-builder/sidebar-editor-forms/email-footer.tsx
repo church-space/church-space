@@ -472,6 +472,14 @@ export default function EmailFooterForm({
     useState(false);
   const [saveAsDefaultDialogOpen, setSaveAsDefaultDialogOpen] = useState(false);
 
+  // Track open accordion items
+  const [openSocialLink, setOpenSocialLink] = useState<string | undefined>(
+    undefined,
+  );
+  const [openExtraLink, setOpenExtraLink] = useState<string | undefined>(
+    undefined,
+  );
+
   // Local state with default values and validation errors
   const [localState, setLocalState] = useState<{
     name: string;
@@ -679,26 +687,32 @@ export default function EmailFooterForm({
 
   const addLink = () => {
     if (localState.links.length < 5) {
+      const newLinkId = nanoid();
       const newLinks = [
         ...localState.links,
-        { icon: "", url: "", order: localState.links.length, id: nanoid() },
+        { icon: "", url: "", order: localState.links.length, id: newLinkId },
       ];
       handleChange("links", newLinks);
+      // Set this new link as the open accordion
+      setOpenSocialLink(newLinkId);
     }
   };
 
   const addExtraLink = () => {
     if (localState.extra_links.length < 10) {
+      const newLinkId = nanoid();
       const newExtraLinks = [
         ...localState.extra_links,
         {
           text: "",
           url: "",
           order: localState.extra_links.length,
-          id: nanoid(),
+          id: newLinkId,
         },
       ];
       handleChange("extra_links", newExtraLinks);
+      // Set this new link as the open accordion
+      setOpenExtraLink(newLinkId);
     }
   };
 
@@ -1294,7 +1308,13 @@ export default function EmailFooterForm({
               items={localState.links.map((link) => link.id)}
               strategy={verticalListSortingStrategy}
             >
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion
+                type="single"
+                collapsible
+                className="w-full"
+                value={openSocialLink}
+                onValueChange={setOpenSocialLink}
+              >
                 {localState.links.map((link: LinkItem, index: number) => (
                   <SortableLinkItem
                     key={link.id}
@@ -1331,7 +1351,13 @@ export default function EmailFooterForm({
               items={localState.extra_links.map((link) => link.id)}
               strategy={verticalListSortingStrategy}
             >
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion
+                type="single"
+                collapsible
+                className="w-full"
+                value={openExtraLink}
+                onValueChange={setOpenExtraLink}
+              >
                 {localState.extra_links.map(
                   (link: ExtraLinkItem, index: number) => (
                     <SortableExtraLinkItem
