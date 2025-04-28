@@ -62,6 +62,7 @@ interface Link {
 // Add 'id' to the existing link type definition
 type LinkItem = Link & {
   id: string;
+  order: number;
 };
 
 type ExtraLinkItem = {
@@ -319,12 +320,129 @@ function SortableLinkItem({
   );
 }
 
+function SortableExtraLinkItem({
+  link,
+  index,
+  extraLinkErrors,
+  typingExtraLinks,
+  updateExtraLink,
+  removeExtraLink,
+  handleExtraLinkBlur,
+}: {
+  link: ExtraLinkItem;
+  index: number;
+  extraLinkErrors: Record<string, string | null>;
+  typingExtraLinks: Record<string, boolean>;
+  updateExtraLink: (index: number, key: "text" | "url", value: string) => void;
+  removeExtraLink: (index: number) => void;
+  handleExtraLinkBlur: (index: number) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: link.id });
+
+  const style = transform
+    ? {
+        transform: CSS.Transform.toString(transform),
+        transition: isDragging ? undefined : transition,
+        zIndex: isDragging ? 10 : 1,
+      }
+    : undefined;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "mb-2 w-full rounded-lg border",
+        isDragging ? "border-dashed bg-accent opacity-50" : "",
+      )}
+    >
+      <div className="flex w-full items-center p-0.5 pr-1">
+        <div
+          className="flex cursor-grab touch-none items-center justify-center px-3 py-4"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+
+        <AccordionItem value={link.id} className="w-full border-0">
+          <AccordionTrigger className="flex w-full items-center justify-between rounded-sm px-2 py-3">
+            <div className="flex items-center gap-2">
+              <span className="truncate pr-2 text-sm">
+                {link.text ? link.text : `Link ${index + 1}`}
+              </span>
+            </div>
+          </AccordionTrigger>
+
+          <AccordionContent>
+            <div className="flex flex-col gap-4">
+              <div className="flex w-full flex-col gap-y-2">
+                <Label className="col-span-1">Text</Label>
+                <div className="col-span-2 mb-2 flex">
+                  <Input
+                    className="bg-background"
+                    value={link.text}
+                    onChange={(e) =>
+                      updateExtraLink(index, "text", e.target.value)
+                    }
+                    onBlur={() => handleExtraLinkBlur(index)}
+                    placeholder="Text"
+                  />
+                </div>
+
+                <Label className="col-span-1">URL</Label>
+                <div className="col-span-3 flex flex-col gap-1">
+                  <Input
+                    className={cn(
+                      "bg-background",
+                      extraLinkErrors[link.id] &&
+                        !typingExtraLinks[link.id] &&
+                        "border-destructive",
+                    )}
+                    value={link.url}
+                    onChange={(e) =>
+                      updateExtraLink(index, "url", e.target.value)
+                    }
+                    onBlur={() => handleExtraLinkBlur(index)}
+                    placeholder="https://"
+                    maxLength={500}
+                  />
+                  {extraLinkErrors[link.id] && !typingExtraLinks[link.id] && (
+                    <p className="text-xs text-destructive">
+                      {extraLinkErrors[link.id]}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => removeExtraLink(index)}
+                className="mt-3 h-7 w-full hover:bg-destructive hover:text-white"
+              >
+                Remove Link
+              </Button>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </div>
+    </div>
+  );
+}
+
 export default function DefaultEmailFooterForm({
   footerData,
   onFooterChange,
 }: EmailFooterFormProps) {
   const { organizationId } = useUser();
   const linkTimersRef = useRef<Record<string, NodeJS.Timeout | null>>({});
+  const extraLinkTimersRef = useRef<Record<string, NodeJS.Timeout | null>>({});
   const colorTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Track validation errors for links
@@ -334,6 +452,16 @@ export default function DefaultEmailFooterForm({
   // Track which links are currently being typed
   const [typingLinks, setTypingLinks] = useState<Record<string, boolean>>({});
 
+  // Track validation errors for extra links
+  const [extraLinkErrors, setExtraLinkErrors] = useState<
+    Record<string, string | null>
+  >({});
+
+  // Track which extra links are currently being typed
+  const [typingExtraLinks, setTypingExtraLinks] = useState<
+    Record<string, boolean>
+  >({});
+
   // Local state with default values and validation errors
   const [localState, setLocalState] = useState<{
     name: string;
@@ -342,7 +470,7 @@ export default function DefaultEmailFooterForm({
     links: LinkItem[];
     socials_color: string;
     socials_style: string;
-    extra_links: any;
+    extra_links: ExtraLinkItem[];
     socials_icon_color: string;
   }>(() => {
     // Add IDs to links if they don't have them
@@ -456,35 +584,56 @@ export default function DefaultEmailFooterForm({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = localState.links.findIndex(
+      // Check if the item is in the 'links' array
+      let oldIndex = localState.links.findIndex(
         (link) => link.id === active.id,
       );
-      const newIndex = localState.links.findIndex(
+      let newIndex = localState.links.findIndex((link) => link.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Reorder 'links'
+        const reorderedLinks = [...localState.links];
+        const [movedItem] = reorderedLinks.splice(oldIndex, 1);
+        reorderedLinks.splice(newIndex, 0, movedItem);
+
+        const updatedLinks = reorderedLinks.map((link, index) => ({
+          ...link,
+          order: index,
+        }));
+
+        handleChange("links", updatedLinks);
+        return; // Exit if handled
+      }
+
+      // Check if the item is in the 'extra_links' array
+      oldIndex = localState.extra_links.findIndex(
+        (link) => link.id === active.id,
+      );
+      newIndex = localState.extra_links.findIndex(
         (link) => link.id === over.id,
       );
 
-      if (oldIndex === -1 || newIndex === -1) {
-        console.error(
-          "Could not find links for DND update:",
-          active.id,
-          over.id,
-        );
-        return;
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Reorder 'extra_links'
+        const reorderedExtraLinks = [...localState.extra_links];
+        const [movedItem] = reorderedExtraLinks.splice(oldIndex, 1);
+        reorderedExtraLinks.splice(newIndex, 0, movedItem);
+
+        const updatedExtraLinks = reorderedExtraLinks.map((link, index) => ({
+          ...link,
+          order: index,
+        }));
+
+        handleChange("extra_links", updatedExtraLinks);
+        return; // Exit if handled
       }
 
-      // Update the order of the links
-      const reorderedLinks = [...localState.links];
-      const [movedItem] = reorderedLinks.splice(oldIndex, 1);
-      reorderedLinks.splice(newIndex, 0, movedItem);
-
-      // Update the order property for each link
-      const updatedLinks = reorderedLinks.map((link, index) => ({
-        ...link,
-        order: index,
-      }));
-
-      // Update local state and parent
-      handleChange("links", updatedLinks);
+      // If neither list contains the items, log an error
+      console.error(
+        "Could not find items for DND update in either list:",
+        active.id,
+        over.id,
+      );
     }
   };
 
@@ -495,6 +644,21 @@ export default function DefaultEmailFooterForm({
         { icon: "", url: "", order: localState.links.length, id: nanoid() },
       ];
       handleChange("links", newLinks);
+    }
+  };
+
+  const addExtraLink = () => {
+    if (localState.extra_links.length < 10) {
+      const newExtraLinks = [
+        ...localState.extra_links,
+        {
+          text: "",
+          url: "",
+          order: localState.extra_links.length,
+          id: nanoid(),
+        },
+      ];
+      handleChange("extra_links", newExtraLinks);
     }
   };
 
@@ -648,6 +812,153 @@ export default function DefaultEmailFooterForm({
     }
   };
 
+  const updateExtraLink = (
+    index: number,
+    key: "text" | "url",
+    value: string,
+  ) => {
+    const newExtraLinks = [...localState.extra_links];
+    newExtraLinks[index] = { ...newExtraLinks[index], [key]: value };
+    const linkId = newExtraLinks[index].id;
+
+    // If updating the URL field
+    if (key === "url") {
+      // Mark as typing
+      setTypingExtraLinks((prev) => ({ ...prev, [linkId]: true }));
+
+      // Clear any existing timer
+      if (extraLinkTimersRef.current[linkId]) {
+        clearTimeout(extraLinkTimersRef.current[linkId]);
+      }
+
+      // Set a new timer to validate after typing stops
+      extraLinkTimersRef.current[linkId] = setTimeout(() => {
+        setTypingExtraLinks((prev) => ({ ...prev, [linkId]: false }));
+
+        let isValid = false;
+        try {
+          urlSchema.parse(value);
+          isValid = true;
+          // Clear error if validation passes
+          setExtraLinkErrors((prev) => ({ ...prev, [linkId]: null }));
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            // Set error message
+            setExtraLinkErrors((prev) => ({
+              ...prev,
+              [linkId]: error.errors[0].message,
+            }));
+          }
+        }
+
+        // Only update if valid
+        if (isValid) {
+          const newState = { ...localState, extra_links: newExtraLinks };
+
+          // Update local state
+          setLocalState(newState);
+
+          // Trigger UI update and server update through prop
+          if (onFooterChange) {
+            onFooterChange(newState);
+          }
+        }
+      }, 800); // 800ms debounce
+
+      // Update local state immediately for responsive UI
+      setLocalState((prev) => ({
+        ...prev,
+        extra_links: newExtraLinks,
+      }));
+    } else {
+      // For text changes, update immediately and clear any existing errors
+      if (key === "text") {
+        setExtraLinkErrors((prev) => ({ ...prev, [linkId]: null }));
+      }
+
+      const newState = { ...localState, extra_links: newExtraLinks };
+
+      // Update local state
+      setLocalState(newState);
+
+      // Trigger UI update and server update through prop
+      if (onFooterChange) {
+        onFooterChange(newState);
+      }
+    }
+  };
+
+  const handleExtraLinkBlur = (index: number) => {
+    // When input loses focus, clear typing state and validate
+    const linkId = localState.extra_links[index]?.id;
+    if (!linkId) return;
+
+    if (typingExtraLinks[linkId]) {
+      setTypingExtraLinks((prev) => ({ ...prev, [linkId]: false }));
+
+      if (extraLinkTimersRef.current[linkId]) {
+        clearTimeout(extraLinkTimersRef.current[linkId]);
+        extraLinkTimersRef.current[linkId] = null;
+      }
+
+      const link = localState.extra_links[index];
+      let isValid = false;
+      try {
+        urlSchema.parse(link.url);
+        isValid = true;
+        // Clear error if validation passes
+        setExtraLinkErrors((prev) => ({ ...prev, [linkId]: null }));
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          // Set error message
+          setExtraLinkErrors((prev) => ({
+            ...prev,
+            [linkId]: error.errors[0].message,
+          }));
+        }
+      }
+
+      if (isValid) {
+        // No need to create a new state object since we're not changing anything
+        // Just trigger the server update through the prop
+        if (onFooterChange) {
+          onFooterChange(localState);
+        }
+      }
+    }
+  };
+
+  const removeExtraLink = (index: number) => {
+    const linkId = localState.extra_links[index]?.id;
+    if (!linkId) return;
+
+    const newExtraLinks = localState.extra_links.filter(
+      (_: ExtraLinkItem, i: number) => i !== index,
+    );
+
+    const newState = { ...localState, extra_links: newExtraLinks };
+
+    // Update local state
+    setLocalState(newState);
+
+    // Trigger UI update and server update through prop
+    if (onFooterChange) {
+      onFooterChange(newState);
+    }
+
+    // Clean up any errors or timers for this index
+    setExtraLinkErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[linkId];
+      return newErrors;
+    });
+
+    if (extraLinkTimersRef.current[linkId]) {
+      clearTimeout(extraLinkTimersRef.current[linkId]);
+      delete extraLinkTimersRef.current[linkId];
+    }
+  };
+
   const handleUploadComplete = (path: string) => {
     const newState = { ...localState, logo: path };
 
@@ -676,6 +987,9 @@ export default function DefaultEmailFooterForm({
   useEffect(() => {
     return () => {
       Object.values(linkTimersRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
+      Object.values(extraLinkTimersRef.current).forEach((timer) => {
         if (timer) clearTimeout(timer);
       });
     };
@@ -823,6 +1137,45 @@ export default function DefaultEmailFooterForm({
                     handleLinkBlur={handleLinkBlur}
                   />
                 ))}
+              </Accordion>
+            </SortableContext>
+          </DndContext>
+        </div>
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-md font-bold">Links</Label>
+            <Button
+              onClick={addExtraLink}
+              disabled={localState.extra_links.length >= 10}
+              size="sm"
+            >
+              Add Link
+            </Button>
+          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={localState.extra_links.map((link) => link.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <Accordion type="single" collapsible className="w-full">
+                {localState.extra_links.map(
+                  (link: ExtraLinkItem, index: number) => (
+                    <SortableExtraLinkItem
+                      key={link.id}
+                      link={link}
+                      index={index}
+                      extraLinkErrors={extraLinkErrors || {}}
+                      typingExtraLinks={typingExtraLinks}
+                      updateExtraLink={updateExtraLink}
+                      removeExtraLink={removeExtraLink}
+                      handleExtraLinkBlur={handleExtraLinkBlur}
+                    />
+                  ),
+                )}
               </Accordion>
             </SortableContext>
           </DndContext>
