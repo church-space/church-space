@@ -1,5 +1,4 @@
 import { Section, TextBlockData, ButtonBlockData } from "@/types/blocks";
-import { Spotify } from "@church-space/ui/icons";
 import {
   Container,
   Section as EmailSection,
