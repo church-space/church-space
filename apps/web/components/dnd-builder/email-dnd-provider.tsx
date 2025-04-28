@@ -2610,6 +2610,7 @@ export default function EmailDndProvider({
         title: "Success",
         description: "Template deleted successfully",
       });
+      router.push("/emails/templates");
     } catch (error) {
       console.error("Error deleting template:", error);
       toast({

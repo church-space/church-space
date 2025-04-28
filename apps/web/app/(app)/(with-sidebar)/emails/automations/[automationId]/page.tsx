@@ -37,10 +37,15 @@ import { DisableLink } from "@church-space/ui/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { redirect, useParams } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
 import type { TriggerType } from "@/components/automation-builder/automation-builder";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
+import {
+  deleteEmailAutomationAction,
+  type EmailAutomationResponse,
+} from "@/actions/delete-email-automation";
+import type { ActionResponse } from "@/types/action";
 import Cookies from "js-cookie";
 import AutomationMembersTable from "@/components/tables/automation-members/table";
 import { getActiveAutomationMembersCount } from "@/actions/get-active-automation-members-count";
@@ -156,10 +161,11 @@ export default function Page() {
   const [editedLinkDescription, setEditedLinkDescription] = useState("");
   const [isDeletingLink, setIsDeletingLink] = useState(false);
   const [isUpdatingStatus] = useState(false);
-  const [isDeleting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
 
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   // Add validation state
   const [canActivate, setCanActivate] = useState(false);
@@ -330,8 +336,67 @@ export default function Page() {
     }
   };
 
-  const handleDeleteAutomation = () => {
-    // TODO: Implement delete automation
+  const handleDeleteAutomation = async () => {
+    setIsDeleting(true);
+    try {
+      // Check if there are active members
+      if (activeAutomationMembersCount === 0) {
+        // No active members, call the direct server action
+        const result = await deleteEmailAutomationAction({ automationId });
+
+        // Check if the action returned a server error
+        if (result?.serverError) {
+          throw new Error(
+            result.serverError || "Failed to delete automation directly.",
+          );
+        }
+
+        // If no serverError, assume success
+        toast({
+          title: "Automation Deleted",
+          description: "The automation has been successfully deleted.",
+          variant: "default",
+        });
+        router.push("/emails/automations"); // Redirect after success
+      } else {
+        // Active members exist, call the API route to trigger background deletion
+        const response = await fetch("/api/automations/delete-automation", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ automationId }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || "Failed to initiate background delete.",
+          );
+        }
+
+        toast({
+          title: "Deletion Started",
+          description:
+            "The automation is being deleted in the background as it has active members. This may take a few moments.",
+          variant: "default",
+        });
+        router.push("/emails/automations"); // Redirect after successfully triggering the job
+      }
+    } catch (error) {
+      console.error("Error deleting automation:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete automation. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false); // Reset loading state regardless of outcome
+      setIsDeletingLink(false); // Close the dialog
+    }
   };
 
   const cancelEditingLink = () => {

@@ -6,7 +6,6 @@ import { deleteEmail } from "@church-space/supabase/mutations/emails";
 import { z } from "zod";
 import type { ActionResponse } from "@/types/action";
 import { PostgrestError } from "@supabase/supabase-js";
-import { redirect } from "next/navigation";
 
 export interface EmailResponse {
   id: number;
@@ -56,10 +55,6 @@ export const deleteEmailAction = authActionClient
           success: false,
           error: "No data returned from email deletion",
         };
-      }
-
-      if (parsedInput.parsedInput.isTemplate) {
-        redirect("/emails/templates");
       }
 
       return {
