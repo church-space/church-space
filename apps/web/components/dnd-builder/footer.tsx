@@ -79,6 +79,7 @@ export default function Footer({
   const socialIconStyle = footerData?.socials_style || "icon-only";
   const socialIconColor = footerData?.socials_color || "#000000";
   const socialIconTextColor = footerData?.socials_icon_color || "#ffffff"; // For filled icons text
+  const extraLinks = footerData?.extra_links || [];
 
   // Get links from footer data and sort by order
   const footerLinks = useMemo(() => {

@@ -412,6 +412,7 @@ export type Database = {
           bg_color: string | null
           created_at: string
           email_id: number | null
+          extra_links: Json | null
           id: number
           links: Json | null
           logo: string | null
@@ -430,6 +431,7 @@ export type Database = {
           bg_color?: string | null
           created_at?: string
           email_id?: number | null
+          extra_links?: Json | null
           id?: number
           links?: Json | null
           logo?: string | null
@@ -448,6 +450,7 @@ export type Database = {
           bg_color?: string | null
           created_at?: string
           email_id?: number | null
+          extra_links?: Json | null
           id?: number
           links?: Json | null
           logo?: string | null
@@ -584,6 +587,7 @@ export type Database = {
       email_org_default_footer_values: {
         Row: {
           created_at: string
+          extra_links: Json | null
           id: number
           links: Json | null
           logo: string | null
@@ -597,6 +601,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          extra_links?: Json | null
           id?: number
           links?: Json | null
           logo?: string | null
@@ -610,6 +615,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          extra_links?: Json | null
           id?: number
           links?: Json | null
           logo?: string | null

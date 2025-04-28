@@ -27,6 +27,15 @@ export const updateDefaultEmailFooterAction = authActionClient
               }),
             )
             .nullable(),
+          extra_links: z
+            .array(
+              z.object({
+                text: z.string(),
+                url: z.string(),
+                order: z.number(),
+              }),
+            )
+            .nullable(),
           organization_id: z.string(),
           socials_style: z.enum(["filled", "outline", "icon-only"]),
           socials_color: z.string().nullable(),

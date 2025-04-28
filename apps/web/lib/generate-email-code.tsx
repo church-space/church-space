@@ -1318,6 +1318,7 @@ const CustomFooter: React.FC<{
     name,
     subtitle,
     links = [],
+    extra_links = [],
     bg_color = "#ffffff",
     text_color = "#000000",
     secondary_text_color = "#666666",

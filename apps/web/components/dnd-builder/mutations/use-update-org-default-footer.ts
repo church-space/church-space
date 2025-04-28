@@ -8,6 +8,7 @@ interface UpdateOrgDefaultFooterParams {
     subtitle?: string | null;
     logo?: string | null;
     links?: any | null;
+    extra_links?: any | null;
     socials_color?: string | null;
     socials_style?: "outline" | "filled" | "icon-only";
     socials_icon_color?: string | null;

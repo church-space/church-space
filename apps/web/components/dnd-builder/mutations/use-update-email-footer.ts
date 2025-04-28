@@ -12,6 +12,7 @@ interface UpdateEmailFooterParams {
     text_color?: string;
     secondary_text_color?: string;
     links?: any;
+    extra_links?: any;
     socials_color?: string;
     socials_style?: "filled" | "outline" | "icon-only";
     socials_icon_color?: string;

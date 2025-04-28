@@ -82,6 +82,13 @@ type LinkItem = Link & {
   order: number;
 };
 
+type ExtraLinkItem = {
+  text: string;
+  url: string;
+  id: string;
+  order: number;
+};
+
 // Define validation schemas
 const urlSchema = z.string().superRefine((url, ctx) => {
   // Empty string is valid
@@ -357,6 +364,7 @@ export default function EmailFooterForm({
     text_color: string;
     secondary_text_color: string;
     links: LinkItem[];
+    extra_links: ExtraLinkItem[];
     socials_color: string;
     socials_style: "outline" | "filled" | "icon-only";
     socials_icon_color: string;
@@ -371,6 +379,15 @@ export default function EmailFooterForm({
       order: link.order || 0,
     }));
 
+    const initialExtraLinks = Array.isArray(footerData?.extra_links)
+      ? footerData.extra_links
+      : [];
+    const extraLinksWithIds = initialExtraLinks.map((link: any) => ({
+      ...link,
+      id: link.id || nanoid(),
+      order: link.order || 0,
+    }));
+
     return {
       name: footerData?.name || "",
       subtitle: footerData?.subtitle || "",
@@ -379,6 +396,7 @@ export default function EmailFooterForm({
       text_color: footerData?.text_color || "#000000",
       secondary_text_color: footerData?.secondary_text_color || "#666666",
       links: linksWithIds,
+      extra_links: extraLinksWithIds,
       socials_color: footerData?.socials_color || "#000000",
       socials_style: footerData?.socials_style || "icon-only",
       socials_icon_color: footerData?.socials_icon_color || "#ffffff",
@@ -403,6 +421,15 @@ export default function EmailFooterForm({
         order: link.order || 0,
       }));
 
+      const extraLinks = Array.isArray(footerData.extra_links)
+        ? footerData.extra_links
+        : [];
+      const extraLinksWithIds = extraLinks.map((link: any) => ({
+        ...link,
+        id: link.id || nanoid(),
+        order: link.order || 0,
+      }));
+
       const newState = {
         name: footerData.name || "",
         subtitle: footerData.subtitle || "",
@@ -411,6 +438,7 @@ export default function EmailFooterForm({
         text_color: footerData.text_color || "#000000",
         secondary_text_color: footerData.secondary_text_color || "#666666",
         links: linksWithIds,
+        extra_links: extraLinksWithIds,
         socials_color: footerData.socials_color || "#000000",
         socials_style: footerData.socials_style || "icon-only",
         socials_icon_color: footerData.socials_icon_color || "#ffffff",
@@ -725,6 +753,11 @@ export default function EmailFooterForm({
         socials_color: localState.socials_color,
         socials_style: localState.socials_style,
         socials_icon_color: localState.socials_icon_color,
+        extra_links: localState.extra_links.map((link) => ({
+          text: link.text,
+          url: link.url,
+          order: link.order,
+        })),
       };
 
       await updateDefaultEmailFooterAction({
@@ -758,6 +791,15 @@ export default function EmailFooterForm({
           order: link.order || 0,
         }));
 
+        const extraLinks = Array.isArray(footer.extra_links)
+          ? footer.extra_links
+          : [];
+        const extraLinksWithIds = extraLinks.map((link: any) => ({
+          ...link,
+          id: link.id || nanoid(),
+          order: link.order || 0,
+        }));
+
         const defaultFooter = {
           name: footer.name || "",
           subtitle: footer.subtitle || "",
@@ -766,6 +808,7 @@ export default function EmailFooterForm({
           text_color: "#000000", // Default value
           secondary_text_color: "#666666", // Default value
           links: linksWithIds,
+          extra_links: extraLinksWithIds,
           socials_color: footer.socials_color || "#000000",
           socials_style: footer.socials_style || "icon-only",
           socials_icon_color: footer.socials_icon_color || "#ffffff",

@@ -64,6 +64,13 @@ type LinkItem = Link & {
   id: string;
 };
 
+type ExtraLinkItem = {
+  text: string;
+  url: string;
+  id: string;
+  order: number;
+};
+
 // Define validation schemas
 const urlSchema = z.string().superRefine((url, ctx) => {
   // Empty string is valid
@@ -335,6 +342,7 @@ export default function DefaultEmailFooterForm({
     links: LinkItem[];
     socials_color: string;
     socials_style: string;
+    extra_links: any;
     socials_icon_color: string;
   }>(() => {
     // Add IDs to links if they don't have them
@@ -346,11 +354,20 @@ export default function DefaultEmailFooterForm({
       id: link.id || nanoid(),
     }));
 
+    const initialExtraLinks = Array.isArray(footerData?.extra_links)
+      ? footerData.extra_links
+      : [];
+    const extraLinksWithIds = initialExtraLinks.map((link: any) => ({
+      ...link,
+      id: link.id || nanoid(),
+    }));
+
     return {
       name: footerData?.name || "",
       subtitle: footerData?.subtitle || "",
       logo: footerData?.logo || "",
       links: linksWithIds,
+      extra_links: extraLinksWithIds,
       socials_color: footerData?.socials_color || "#000000",
       socials_style: footerData?.socials_style || "icon-only",
       socials_icon_color: footerData?.socials_icon_color || "#ffffff",
@@ -367,11 +384,20 @@ export default function DefaultEmailFooterForm({
         id: link.id || nanoid(),
       }));
 
+      const extraLinks = Array.isArray(footerData.extra_links)
+        ? footerData.extra_links
+        : [];
+      const extraLinksWithIds = extraLinks.map((link: any) => ({
+        ...link,
+        id: link.id || nanoid(),
+      }));
+
       const newState = {
         name: footerData.name || "",
         subtitle: footerData.subtitle || "",
         logo: footerData.logo || "",
         links: linksWithIds,
+        extra_links: extraLinksWithIds,
         socials_color: footerData.socials_color || "#000000",
         socials_style: footerData.socials_style || "icon-only",
         socials_icon_color: footerData.socials_icon_color || "#ffffff",

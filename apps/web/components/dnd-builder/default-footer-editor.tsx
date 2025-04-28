@@ -21,6 +21,7 @@ import Link from "next/link";
 
 type FooterData = {
   links: any | null;
+  extra_links: any | null;
   logo: string | null;
   name: string | null;
   socials_color: string | null;
@@ -40,6 +41,7 @@ export default function DefaultFooterEditor({
 }) {
   const [footerData, setFooterData] = useState<FooterData>({
     links: null,
+    extra_links: null,
     logo: null,
     name: null,
     socials_color: null,
