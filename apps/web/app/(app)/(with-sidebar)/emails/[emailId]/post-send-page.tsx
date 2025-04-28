@@ -25,10 +25,18 @@ import { cn } from "@church-space/ui/cn";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@church-space/ui/dropdown-menu";
 import {
   EmailBounced,
   EmailComplained,
@@ -37,6 +45,7 @@ import {
   LinkIcon,
   Users,
 } from "@church-space/ui/icons";
+import { Input } from "@church-space/ui/input";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import {
@@ -47,20 +56,16 @@ import {
   TableHeader,
   TableRow,
 } from "@church-space/ui/table";
+import { useToast } from "@church-space/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { Loader2, MoreHorizontal, Save } from "lucide-react";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
+import { createEmailTemplateFromEmailAction } from "@/actions/create-email-template-from-email";
 import { getEmailRecipientsAction } from "@/actions/get-email-recipients";
-import { motion } from "framer-motion";
 import { getEmailCategoryById } from "@church-space/supabase/queries/all/get-all-email-categories";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@church-space/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -102,6 +107,13 @@ export default function PostSendPage({
     parse: (value) => value as EmailRecipientStatus | null,
     serialize: (value) => value || "all",
   });
+
+  // State for Save as Template functionality
+  const [isSaveTemplateDialogOpen, setIsSaveTemplateDialogOpen] =
+    useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const { toast } = useToast();
 
   const supabase = createClient();
 
@@ -176,6 +188,61 @@ export default function PostSendPage({
       return `${formattedDate} at ${formattedTime} (${timeZone})`;
     } else {
       return `${formattedDate} at ${formattedTime}`;
+    }
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a template name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSavingTemplate(true);
+    try {
+      const result = await createEmailTemplateFromEmailAction({
+        subject: templateName,
+        organization_id: email.organization_id,
+        source_email_id: email.id,
+      });
+
+      const resultObj = result as any;
+
+      if (resultObj && resultObj.data) {
+        toast({
+          title: "Success",
+          description: "Email template saved successfully",
+        });
+        setIsSaveTemplateDialogOpen(false);
+        setTemplateName("");
+        // Optionally: Invalidate or refetch template list if needed
+      } else {
+        let errorMessage = "Failed to save template";
+        if (resultObj && typeof resultObj.error === "string") {
+          errorMessage = resultObj.error;
+        }
+        console.error("Error saving template:", errorMessage);
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Exception saving template:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? `Error: ${error.message}`
+            : "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingTemplate(false);
     }
   };
 
@@ -324,8 +391,57 @@ export default function PostSendPage({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Save as Template</DropdownMenuItem>
-                <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                <Dialog
+                  open={isSaveTemplateDialogOpen}
+                  onOpenChange={setIsSaveTemplateDialogOpen}
+                >
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem
+                      onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
+                    >
+                      Save as Template
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Save Email as Template</DialogTitle>
+                      <DialogDescription>
+                        Enter a name for this template. It will be saved with
+                        the current email content.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Input
+                      placeholder="Template name"
+                      className="mb-3 w-full"
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
+                      maxLength={60}
+                    />
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsSaveTemplateDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleSaveTemplate}
+                        disabled={isSavingTemplate}
+                      >
+                        {isSavingTemplate ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          "Save"
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <DropdownMenuItem>Replicate as New Email</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
