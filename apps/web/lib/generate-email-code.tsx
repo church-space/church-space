@@ -190,6 +190,11 @@ const CustomText: React.FC<{
   defaultTextColor,
   linkColor,
 }) => {
+  // Check if content has text-align: center in h1, h2, h3, or p tags
+  const hasTextAlignCenter = content.match(
+    /style="[^"]*text-align:\s*center[^"]*"/i,
+  );
+
   // Parse HTML content and convert to React Email components
   const sanitizedContent = content
     .replace(/class="[^"]*"/g, "")
@@ -299,7 +304,9 @@ const CustomText: React.FC<{
             fontFamily: ensureFontFallbacks(font || defaultFont),
             color: defaultTextColor || "#000000",
             fontSize: "16px",
+            textAlign: hasTextAlignCenter ? "center" : "left",
           }}
+          align={hasTextAlignCenter ? "center" : "left"}
           dangerouslySetInnerHTML={{ __html: processedContent }}
         />
       </tr>
