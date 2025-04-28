@@ -1262,10 +1262,6 @@ export default function EmailAutomationBuilder({
                 )}
               </AnimatePresence>
             </CardContent>
-
-            {trigger && (
-              <div className="absolute -bottom-4 left-1/2 z-10 -ml-0.5 h-4 w-0.5 bg-border"></div>
-            )}
           </Card>
         </div>
 
