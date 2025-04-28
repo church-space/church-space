@@ -107,7 +107,7 @@ export default function ColorPicker({
     }
 
     try {
-      // @ts-ignore - TypeScript might not have EyeDropper types yet
+      // @ts-expect-error - TypeScript might not have EyeDropper types yet
       const eyeDropper = new window.EyeDropper();
       const result = await eyeDropper.open();
       const newColor = result.sRGBHex;

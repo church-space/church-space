@@ -37,14 +37,43 @@ import {
   List,
   ListOrdered,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Palette } from "@church-space/ui/icons";
+import { useEffect, useState, useRef } from "react";
+import { Palette, XIcon } from "@church-space/ui/icons";
+import { cn } from "@church-space/ui/cn";
+import { z } from "zod";
 
 interface ToolbarProps {
   editor: Editor | null;
   defaultTextColor?: string;
   accentTextColor?: string;
 }
+
+// Define validation schema
+const urlSchema = z.string().superRefine((url, ctx) => {
+  // Empty string is valid
+  if (url === "") return;
+
+  // Check for spaces
+  if (url.trim() !== url) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "URL cannot contain spaces",
+    });
+    return;
+  }
+
+  // Domain and TLD pattern without requiring https://
+  const urlPattern =
+    /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
+  if (!urlPattern.test(url)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
+    });
+    return;
+  }
+});
 
 const Toolbar = ({
   editor,
@@ -56,6 +85,9 @@ const Toolbar = ({
   const [currentHeadingLevel, setCurrentHeadingLevel] = useState<number | null>(
     null,
   );
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [isTypingLink, setIsTypingLink] = useState(false);
+  const linkTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Set default alignment to left when editor is initialized
   useEffect(() => {
@@ -89,6 +121,16 @@ const Toolbar = ({
       } else {
         setCurrentHeadingLevel(null);
       }
+
+      // Get current link URL if a link is selected
+      if (editor.isActive("link")) {
+        const attributes = editor.getAttributes("link");
+        if (attributes.href) {
+          setLinkUrl(attributes.href);
+        }
+      } else {
+        setLinkUrl("");
+      }
     };
 
     // Immediate update for toggle state
@@ -110,22 +152,86 @@ const Toolbar = ({
     };
   }, [editor]);
 
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (linkTimerRef.current) {
+        clearTimeout(linkTimerRef.current);
+      }
+    };
+  }, []);
+
   if (!editor) {
     return null;
   }
 
   const setLink = () => {
-    if (linkUrl === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-    } else {
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange("link")
-        .setLink({ href: linkUrl })
-        .run();
+    // Validate URL before setting
+    try {
+      urlSchema.parse(linkUrl);
+
+      if (linkUrl === "") {
+        editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      } else {
+        editor
+          .chain()
+          .focus()
+          .extendMarkRange("link")
+          .setLink({ href: linkUrl })
+          .run();
+      }
+      setLinkUrl("");
+      setLinkError(null);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setLinkError(error.errors[0].message);
+      }
     }
-    setLinkUrl("");
+  };
+
+  const handleLinkChange = (value: string) => {
+    setLinkUrl(value);
+    setIsTypingLink(true);
+
+    // Clear any existing timer
+    if (linkTimerRef.current) {
+      clearTimeout(linkTimerRef.current);
+    }
+
+    // Set a new timer to validate after typing stops
+    linkTimerRef.current = setTimeout(() => {
+      setIsTypingLink(false);
+
+      try {
+        urlSchema.parse(value);
+        setLinkError(null);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          setLinkError(error.errors[0].message);
+        }
+      }
+    }, 800); // 800ms debounce
+  };
+
+  const handleLinkBlur = () => {
+    // When input loses focus, clear typing state and validate
+    if (isTypingLink) {
+      setIsTypingLink(false);
+
+      if (linkTimerRef.current) {
+        clearTimeout(linkTimerRef.current);
+        linkTimerRef.current = null;
+      }
+
+      try {
+        urlSchema.parse(linkUrl);
+        setLinkError(null);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          setLinkError(error.errors[0].message);
+        }
+      }
+    }
   };
 
   // Get current text alignment
@@ -468,7 +574,15 @@ const Toolbar = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  editor.isActive("link")
+                    ? "bg-accent text-accent-foreground"
+                    : "",
+                )}
+              >
                 <Link className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
@@ -477,16 +591,52 @@ const Toolbar = ({
         </Tooltip>
         <PopoverContent className="w-80">
           <div className="flex flex-col gap-4">
-            <Input
-              type="url"
-              placeholder="Enter URL"
-              value={linkUrl}
-              onChange={(e) => setLinkUrl(e.target.value)}
-              maxLength={500}
-            />
-            <Button onClick={setLink}>
-              {editor.isActive("link") ? "Update Link" : "Add Link"}
-            </Button>
+            <div className="flex flex-col gap-1">
+              <Input
+                type="url"
+                placeholder="Enter URL"
+                value={linkUrl}
+                onChange={(e) => handleLinkChange(e.target.value)}
+                onBlur={handleLinkBlur}
+                className={cn(
+                  linkError && !isTypingLink && "border-destructive",
+                )}
+                maxLength={500}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    setLink();
+                  }
+                }}
+              />
+              {linkError && !isTypingLink && (
+                <p className="text-xs text-destructive">{linkError}</p>
+              )}
+            </div>
+            <div className="flex gap-1">
+              <Button
+                onClick={setLink}
+                disabled={linkError !== null && !isTypingLink}
+                className="flex-1"
+              >
+                {editor.isActive("link") ? "Update Link" : "Add Link"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setLinkUrl("");
+                  editor
+                    .chain()
+                    .focus()
+                    .extendMarkRange("link")
+                    .unsetLink()
+                    .run();
+                }}
+                className="h-9 w-9"
+              >
+                <XIcon />
+              </Button>
+            </div>
           </div>
         </PopoverContent>
       </Popover>
