@@ -158,32 +158,37 @@ export default function Footer({
 
         {footerLinks.length > 0 && (
           <div className="flex items-center gap-2">
-            {footerLinks.map((link: any, index: number) => {
-              const IconComponent = getIconComponent(link.icon);
-              return (
-                <div
-                  key={index}
-                  className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-full",
-                  )}
-                  style={{
-                    backgroundColor:
-                      socialIconStyle === "filled" ? socialIconColor : "",
-                    borderColor:
-                      socialIconStyle === "outline" ? socialIconTextColor : "",
-                    borderWidth: socialIconStyle === "outline" ? "1px" : "0px",
-                    height: socialIconStyle === "icon-only" ? "20px" : "35px",
-                    width: socialIconStyle === "icon-only" ? "20px" : "35px",
-                  }}
-                >
-                  <IconComponent
-                    height="18"
-                    width="18"
-                    fill={socialIconTextColor}
-                  />
-                </div>
-              );
-            })}
+            {footerLinks
+              .filter((link: any) => link.icon)
+              .map((link: any, index: number) => {
+                const IconComponent = getIconComponent(link.icon);
+                return (
+                  <div
+                    key={index}
+                    className={cn(
+                      "flex h-7 w-7 items-center justify-center rounded-full",
+                    )}
+                    style={{
+                      backgroundColor:
+                        socialIconStyle === "filled" ? socialIconColor : "",
+                      borderColor:
+                        socialIconStyle === "outline"
+                          ? socialIconTextColor
+                          : "",
+                      borderWidth:
+                        socialIconStyle === "outline" ? "1px" : "0px",
+                      height: socialIconStyle === "icon-only" ? "20px" : "35px",
+                      width: socialIconStyle === "icon-only" ? "20px" : "35px",
+                    }}
+                  >
+                    <IconComponent
+                      height="18"
+                      width="18"
+                      fill={socialIconTextColor}
+                    />
+                  </div>
+                );
+              })}
           </div>
         )}
 
@@ -192,9 +197,11 @@ export default function Footer({
             className="flex flex-col items-center gap-2 text-sm underline"
             style={{ color: footerSecondaryTextColor }}
           >
-            {extraLinks.map((link: any, index: number) => {
-              return <div key={index}>{link.text}</div>;
-            })}
+            {extraLinks
+              .filter((link: any) => link.text)
+              .map((link: any, index: number) => {
+                return <div key={index}>{link.text}</div>;
+              })}
           </div>
         )}
 

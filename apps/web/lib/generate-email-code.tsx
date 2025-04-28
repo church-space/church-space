@@ -1459,7 +1459,7 @@ const CustomFooter: React.FC<{
                 {links && links.length > 0 && (
                   <table
                     cellPadding="0"
-                    cellSpacing="0"
+                    cellSpacing="10px"
                     border={0}
                     width="100%"
                   >
@@ -1510,6 +1510,38 @@ const CustomFooter: React.FC<{
                         })}
                       </td>
                     </tr>
+                  </table>
+                )}
+
+                {extra_links && extra_links.length > 0 && (
+                  <table
+                    cellPadding="0"
+                    cellSpacing="10px"
+                    border={0}
+                    width="100%"
+                  >
+                    {extra_links
+                      .filter((link: any) => link.text)
+                      .map((link: any, index: number) => {
+                        return (
+                          <tr key={index}>
+                            <td align="center">
+                              <a
+                                key={index}
+                                href={link.url}
+                                style={{
+                                  color: secondary_text_color,
+                                  textDecoration: "underline",
+                                  fontSize: "14px",
+                                  fontWeight: "300",
+                                }}
+                              >
+                                {link.text}
+                              </a>
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </table>
                 )}
 

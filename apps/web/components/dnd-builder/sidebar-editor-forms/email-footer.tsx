@@ -688,7 +688,7 @@ export default function EmailFooterForm({
   };
 
   const addExtraLink = () => {
-    if (localState.extra_links.length < 5) {
+    if (localState.extra_links.length < 10) {
       const newExtraLinks = [
         ...localState.extra_links,
         {
@@ -1316,7 +1316,7 @@ export default function EmailFooterForm({
             <Label className="text-md font-bold">Links</Label>
             <Button
               onClick={addExtraLink}
-              disabled={localState.extra_links.length >= 5}
+              disabled={localState.extra_links.length >= 10}
               size="sm"
             >
               Add Link
