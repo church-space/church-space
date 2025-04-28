@@ -66,6 +66,8 @@ import { useState } from "react";
 import { createEmailTemplateFromEmailAction } from "@/actions/create-email-template-from-email";
 import { getEmailRecipientsAction } from "@/actions/get-email-recipients";
 import { getEmailCategoryById } from "@church-space/supabase/queries/all/get-all-email-categories";
+import { duplicateEmailAction } from "@/actions/duplicate-email-action";
+import { useRouter } from "next/navigation";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -108,12 +110,20 @@ export default function PostSendPage({
     serialize: (value) => value || "all",
   });
 
+  const router = useRouter();
+
   // State for Save as Template functionality
   const [isSaveTemplateDialogOpen, setIsSaveTemplateDialogOpen] =
     useState(false);
   const [templateName, setTemplateName] = useState("");
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const [isDuplicatingEmail, setIsDuplicatingEmail] = useState(false);
+  const [duplicateEmailName, setDuplicateEmailName] = useState("");
   const { toast } = useToast();
+
+  // State for duplicate email dialog
+  const [isDuplicateEmailDialogOpen, setIsDuplicateEmailDialogOpen] =
+    useState(false);
 
   const supabase = createClient();
 
@@ -243,6 +253,61 @@ export default function PostSendPage({
       });
     } finally {
       setIsSavingTemplate(false);
+    }
+  };
+
+  const handleDuplicateEmail = async () => {
+    if (!duplicateEmailName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an email subject",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsDuplicatingEmail(true);
+    try {
+      const result = await duplicateEmailAction({
+        subject: duplicateEmailName,
+        organization_id: email.organization_id,
+        source_email_id: email.id,
+      });
+
+      const resultObj = result as any;
+
+      if (resultObj && resultObj.data) {
+        toast({
+          title: "Success",
+          description: "Email duplicated successfully",
+        });
+        router.push(`/emails/${resultObj.data.data.id}`);
+        setIsDuplicatingEmail(false);
+        setDuplicateEmailName("");
+      } else {
+        let errorMessage = "Failed to duplicate email";
+        if (resultObj && typeof resultObj.error === "string") {
+          errorMessage = resultObj.error;
+        }
+        console.error("Error duplicating email:", errorMessage);
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Exception duplicating email:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? `Error: ${error.message}`
+            : "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDuplicatingEmail(false);
     }
   };
 
@@ -441,7 +506,56 @@ export default function PostSendPage({
                   </DialogContent>
                 </Dialog>
 
-                <DropdownMenuItem>Replicate as New Email</DropdownMenuItem>
+                <Dialog
+                  open={isDuplicateEmailDialogOpen}
+                  onOpenChange={setIsDuplicateEmailDialogOpen}
+                >
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem
+                      onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
+                    >
+                      Replicate as New Email
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Duplicate Email</DialogTitle>
+                      <DialogDescription>
+                        Enter a subject for the new email. It will be created as
+                        a draft with the same content and settings as the
+                        original.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Input
+                      placeholder="New email subject"
+                      className="mb-3 w-full"
+                      value={duplicateEmailName}
+                      onChange={(e) => setDuplicateEmailName(e.target.value)}
+                      maxLength={100} // Or appropriate length
+                    />
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsDuplicateEmailDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleDuplicateEmail}
+                        disabled={isDuplicatingEmail}
+                      >
+                        {isDuplicatingEmail ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Duplicating...
+                          </>
+                        ) : (
+                          "Duplicate"
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

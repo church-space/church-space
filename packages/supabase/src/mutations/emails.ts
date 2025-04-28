@@ -3,11 +3,12 @@
 import type { Client, Database } from "../types";
 import { getEmailWithFooterAndBlocksQuery } from "../queries/all/get-email-with-footer-and-blocks";
 
-export async function createEmailTemplateFromEmail(
+export async function createEmailFromEmail(
   supabase: Client,
   templateName: string,
   organizationId: string,
-  sourceEmailId?: number
+  sourceEmailId?: number,
+  type: "template" | "standard" = "template"
 ) {
   // If no sourceEmailId is provided, just create a basic template
   if (!sourceEmailId) {
@@ -15,7 +16,7 @@ export async function createEmailTemplateFromEmail(
       .from("emails")
       .insert({
         subject: templateName,
-        type: "template",
+        type: type,
         organization_id: organizationId,
       })
       .select();
@@ -56,7 +57,7 @@ export async function createEmailTemplateFromEmail(
     .from("emails")
     .insert({
       subject: templateName,
-      type: "template",
+      type: type,
       organization_id: organizationId,
       style: sourceEmail.style,
     })

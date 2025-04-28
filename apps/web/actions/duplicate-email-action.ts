@@ -7,7 +7,7 @@ import { z } from "zod";
 import type { ActionResponse } from "@/types/action";
 import { revalidateTag } from "next/cache";
 
-export const createEmailTemplateFromEmailAction = authActionClient
+export const duplicateEmailAction = authActionClient
   .schema(
     z.object({
       subject: z.string(),
@@ -16,7 +16,7 @@ export const createEmailTemplateFromEmailAction = authActionClient
     }),
   )
   .metadata({
-    name: "create-email-template-from-email",
+    name: "duplicate-email",
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
@@ -28,7 +28,7 @@ export const createEmailTemplateFromEmailAction = authActionClient
           parsedInput.parsedInput.subject,
           parsedInput.parsedInput.organization_id,
           parsedInput.parsedInput.source_email_id,
-          "template",
+          "standard",
         );
 
         // Revalidate the emailTemplates query tag
@@ -48,7 +48,7 @@ export const createEmailTemplateFromEmailAction = authActionClient
           console.error("No data returned from createEmailFromEmail");
           return {
             success: false,
-            error: "Template creation failed: no data returned.",
+            error: "Email duplication failed: no data returned.",
           };
         }
       } catch (createError) {
@@ -56,7 +56,7 @@ export const createEmailTemplateFromEmailAction = authActionClient
         const errorMessage =
           createError instanceof Error
             ? createError.message
-            : "Failed to create template";
+            : "Failed to duplicate email";
 
         console.error("Returning error message:", errorMessage);
 
@@ -66,7 +66,7 @@ export const createEmailTemplateFromEmailAction = authActionClient
         };
       }
     } catch (error) {
-      console.error("Error creating email template:", error);
+      console.error("Error duplicating email:", error);
       console.error("Error details:", {
         name: error instanceof Error ? error.name : "Unknown",
         message: error instanceof Error ? error.message : String(error),
@@ -84,13 +84,13 @@ export const createEmailTemplateFromEmailAction = authActionClient
 
         return {
           success: false,
-          error: `Failed to create template: ${error.message}`,
+          error: `Failed to duplicate email: ${error.message}`,
         };
       }
 
       return {
         success: false,
-        error: "Failed to create template due to an unknown error",
+        error: "Failed to duplicate email due to an unknown error",
       };
     }
   });
