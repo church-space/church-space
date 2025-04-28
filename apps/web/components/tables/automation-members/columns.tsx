@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@church-space/ui/badge";
-import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 
 // Define the type based on the SQL schema

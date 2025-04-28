@@ -216,13 +216,15 @@ export default function Page() {
     }
   }, [transformedAutomation, automationId, queryClient]);
 
-  // Update the state when automation data is loaded
+  // Update the state when automation data is loaded or editing is cancelled
   useEffect(() => {
-    if (transformedAutomation) {
+    // Only reset the state if not currently editing
+    if (transformedAutomation && !isEditingLink) {
       setEditedLinkName(transformedAutomation.name || "");
       setEditedLinkDescription(transformedAutomation.description || "");
     }
-  }, [transformedAutomation]);
+    // Add isEditingLink to dependencies to trigger reset on cancel
+  }, [transformedAutomation, isEditingLink]);
 
   // Function to handle sheet close attempt
   const handleSheetClose = () => {
