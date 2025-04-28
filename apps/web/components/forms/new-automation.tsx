@@ -16,12 +16,14 @@ import {
 import { Input } from "@church-space/ui/input";
 import { createEmailAutomationAction } from "@/actions/create-email-automation";
 import { useState } from "react";
+import { Textarea } from "@church-space/ui/textarea";
 
 const formSchema = z.object({
   name: z
     .string()
     .min(1, "Name is required")
     .max(60, "Name must be 60 characters or less"),
+  description: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -39,6 +41,7 @@ export default function NewEmailAutomation({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      description: "",
     },
   });
 
@@ -47,6 +50,7 @@ export default function NewEmailAutomation({
     try {
       const result = await createEmailAutomationAction({
         name: values.name,
+        description: values.description,
         organization_id: organizationId,
       });
 
@@ -100,6 +104,30 @@ export default function NewEmailAutomation({
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="ml-1">Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Description..."
+                  {...field}
+                  disabled={isLoading}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      form.handleSubmit(onSubmit)();
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="flex justify-end gap-2">
           <Button
             type="button"

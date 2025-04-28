@@ -15,6 +15,7 @@ export const createEmailAutomationAction = authActionClient
   .schema(
     z.object({
       name: z.string(),
+      description: z.string().optional(),
       organization_id: z.string(),
     }),
   )
@@ -30,6 +31,7 @@ export const createEmailAutomationAction = authActionClient
           name: parsedInput.parsedInput.name,
           organization_id: parsedInput.parsedInput.organization_id,
           is_active: false,
+          description: parsedInput.parsedInput.description,
         });
 
         if (error) {
