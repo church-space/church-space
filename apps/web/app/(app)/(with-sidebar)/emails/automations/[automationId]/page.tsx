@@ -662,77 +662,93 @@ export default function Page() {
                 </p>
               </div>
             )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Ellipsis className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={handleStatusToggle}
-                  disabled={
-                    isUpdatingStatus ||
-                    (!transformedAutomation.is_active && !canActivate)
-                  }
-                  className="cursor-pointer"
-                >
-                  {transformedAutomation.is_active ? (
-                    <>
-                      <DisableLink /> Disable
-                    </>
-                  ) : (
-                    <>
-                      <LinkIcon /> Enable
-                    </>
-                  )}
-                </DropdownMenuItem>
-                <Dialog open={isDeletingLink} onOpenChange={setIsDeletingLink}>
-                  <DialogTrigger
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsDeletingLink(true);
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleStatusToggle}
+                disabled={
+                  isUpdatingStatus ||
+                  (!transformedAutomation.is_active && !canActivate)
+                }
+                className="cursor-pointer"
+                variant={
+                  transformedAutomation.is_active ? "outline" : "default"
+                }
+              >
+                {transformedAutomation.is_active ? (
+                  <>
+                    <DisableLink /> Disable
+                  </>
+                ) : (
+                  <>
+                    <LinkIcon /> Enable
+                  </>
+                )}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Ellipsis className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setIsEditingLink(true);
                     }}
-                    asChild
                   >
-                    <DropdownMenuItem className="!hover:text-destructive cursor-pointer">
-                      <Trash /> Delete
-                    </DropdownMenuItem>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Delete Automation</DialogTitle>
-                      <DialogDescription>
-                        Are you sure you want to delete this automation? This
-                        action cannot be undone.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsDeletingLink(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={handleDeleteAutomation}
-                        disabled={isDeleting}
-                      >
-                        {isDeleting ? (
-                          <div className="flex items-center gap-2">
-                            <LoaderIcon className="h-4 w-4 animate-spin" />
-                            <span>Deleting...</span>
-                          </div>
-                        ) : (
-                          "Delete"
-                        )}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <Edit className="h-4 w-4" /> Edit
+                  </DropdownMenuItem>
+
+                  <Dialog
+                    open={isDeletingLink}
+                    onOpenChange={setIsDeletingLink}
+                  >
+                    <DialogTrigger
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsDeletingLink(true);
+                      }}
+                      asChild
+                    >
+                      <DropdownMenuItem className="!hover:text-destructive cursor-pointer">
+                        <Trash /> Delete
+                      </DropdownMenuItem>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Delete Automation</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to delete this automation? This
+                          action cannot be undone.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsDeletingLink(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={handleDeleteAutomation}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <div className="flex items-center gap-2">
+                              <LoaderIcon className="h-4 w-4 animate-spin" />
+                              <span>Deleting...</span>
+                            </div>
+                          ) : (
+                            "Delete"
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           <Sheet
             open={isSheetOpen}
