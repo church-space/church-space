@@ -330,8 +330,8 @@ export default function Page() {
     }
   };
 
-  const handleDeleteLink = () => {
-    // TODO: Implement delete link
+  const handleDeleteAutomation = () => {
+    // TODO: Implement delete automation
   };
 
   const cancelEditingLink = () => {
@@ -638,10 +638,10 @@ export default function Page() {
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Delete Link</DialogTitle>
+                      <DialogTitle>Delete Automation</DialogTitle>
                       <DialogDescription>
-                        Are you sure you want to delete this link? This action
-                        cannot be undone.
+                        Are you sure you want to delete this automation? This
+                        action cannot be undone.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -653,7 +653,7 @@ export default function Page() {
                       </Button>
                       <Button
                         variant="destructive"
-                        onClick={handleDeleteLink}
+                        onClick={handleDeleteAutomation}
                         disabled={isDeleting}
                       >
                         {isDeleting ? (

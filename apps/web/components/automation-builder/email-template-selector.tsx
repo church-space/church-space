@@ -95,7 +95,10 @@ export default function EmailTemplateSelector({
               ) : (
                 <div className="flex flex-col gap-2">
                   <span>No templates found.</span>
-                  <Link href="emails/templates?newEmailTemplateOpen=true">
+                  <Link
+                    href="/emails/templates?newEmailTemplateOpen=true"
+                    target="_blank"
+                  >
                     <Button variant="secondary" size="sm">
                       Create a new template
                     </Button>
