@@ -14,6 +14,8 @@ import {
   Linkedin,
   LinkIcon,
   MailFilled,
+  Podcast,
+  Spotify,
   Threads,
   TikTok,
   XTwitter,
@@ -225,6 +227,16 @@ function SortableSocialItem({
                       <SelectItem value="linkedin">
                         <div className="flex flex-row gap-2">
                           <Linkedin height={"20"} width={"20"} /> LinkedIn
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="spotify">
+                        <div className="flex flex-row gap-2">
+                          <Spotify height={"20"} width={"20"} /> Spotify
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="podcast">
+                        <div className="flex flex-row gap-2">
+                          <Podcast height={"20"} width={"20"} /> Podcast
                         </div>
                       </SelectItem>
                     </SelectContent>
@@ -723,6 +735,10 @@ export default function SocialsForm({
         return "LinkedIn";
       case "mail":
         return "Email";
+      case "spotify":
+        return "Spotify";
+      case "podcast":
+        return "Podcast";
       case "link":
       default:
         return "Website";

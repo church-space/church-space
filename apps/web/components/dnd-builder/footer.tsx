@@ -11,6 +11,8 @@ import {
   XTwitter,
   Youtube,
   Vimeo,
+  Spotify,
+  Podcast,
 } from "@church-space/ui/icons";
 import { Separator } from "@church-space/ui/separator";
 import { getYear } from "date-fns";
@@ -27,6 +29,8 @@ type SocialIconKey =
   | "link"
   | "facebook"
   | "linkedin"
+  | "spotify"
+  | "podcast"
   | "bluesky"
   | "youtube"
   | "threads"
@@ -51,6 +55,8 @@ const socialIcons = {
   link: LinkIcon,
   facebook: Facebook,
   linkedin: Linkedin,
+  spotify: Spotify,
+  podcast: Podcast,
   bluesky: Bluesky,
   youtube: Youtube,
   threads: Threads,

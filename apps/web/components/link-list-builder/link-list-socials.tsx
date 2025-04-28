@@ -12,6 +12,8 @@ import {
   TikTok,
   XTwitter,
   Youtube,
+  Spotify,
+  Podcast,
 } from "@church-space/ui/icons";
 
 const ensureHttps = (url: string, icon: keyof typeof socialIcons) => {
@@ -36,6 +38,8 @@ export const socialIcons = {
   bluesky: Bluesky,
   youtube: Youtube,
   threads: Threads,
+  spotify: Spotify,
+  podcast: Podcast,
 };
 
 export interface SocialLink {

@@ -9,6 +9,8 @@ import {
   MailFilled,
   Refresh,
   Save,
+  Spotify,
+  Podcast,
   Threads,
   TikTok,
   Vimeo,
@@ -192,6 +194,8 @@ function SortableLinkItem({
     threads: Threads,
     bluesky: Bluesky,
     linkedin: Linkedin,
+    spotify: Spotify,
+    podcast: Podcast,
   };
 
   const Icon = socialIcons[link.icon as keyof typeof socialIcons];
@@ -294,6 +298,16 @@ function SortableLinkItem({
                       <SelectItem value="linkedin">
                         <div className="flex flex-row gap-2">
                           <Linkedin height="20" width="20" /> LinkedIn
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="spotify">
+                        <div className="flex flex-row gap-2">
+                          <Spotify height="20" width="20" /> Spotify
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="podcast">
+                        <div className="flex flex-row gap-2">
+                          <Podcast height="20" width="20" /> Podcast
                         </div>
                       </SelectItem>
                     </SelectContent>

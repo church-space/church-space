@@ -1,4 +1,5 @@
 import { Section, TextBlockData, ButtonBlockData } from "@/types/blocks";
+import { Spotify } from "@church-space/ui/icons";
 import {
   Container,
   Section as EmailSection,
@@ -80,6 +81,10 @@ const IconImages = {
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/threads.png",
     vimeo:
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/vimeo.png",
+    spotify:
+      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/spotify.png",
+    podcast:
+      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/podcast.png",
   },
   white: {
     instagram:
@@ -101,6 +106,10 @@ const IconImages = {
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/threads.png",
     vimeo:
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/vimeo.png",
+    spotify:
+      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/spotify.png",
+    podcast:
+      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/podcast.png",
   },
   lightGray: {
     instagram:
@@ -122,6 +131,10 @@ const IconImages = {
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/threads.png",
     vimeo:
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/vimeo.png",
+    spotify:
+      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/spotify.png",
+    podcast:
+      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/podcast.png",
   },
   darkGray: {
     instagram:
@@ -143,6 +156,10 @@ const IconImages = {
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/threads.png",
     vimeo:
       "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/vimeo.png",
+    spotify:
+      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/spotify.png",
+    podcast:
+      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/podcast.png",
   },
 };
 

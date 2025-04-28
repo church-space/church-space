@@ -6,6 +6,8 @@ import {
   Facebook,
   Instagram,
   Linkedin,
+  Spotify,
+  Podcast,
   LinkIcon,
   MailFilled,
   Threads,
@@ -151,6 +153,8 @@ function SortableLinkItem({
     vimeo: Vimeo,
     threads: Threads,
     bluesky: Bluesky,
+    spotify: Spotify,
+    podcast: Podcast,
     linkedin: Linkedin,
   };
 
@@ -263,6 +267,16 @@ function SortableLinkItem({
                       <SelectItem value="linkedin">
                         <div className="flex flex-row gap-2">
                           <Linkedin height={"20"} width={"20"} /> LinkedIn
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="spotify">
+                        <div className="flex flex-row gap-2">
+                          <Spotify height={"20"} width={"20"} /> Spotify
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="podcast">
+                        <div className="flex flex-row gap-2">
+                          <Podcast height={"20"} width={"20"} /> Podcast
                         </div>
                       </SelectItem>
                     </SelectContent>
