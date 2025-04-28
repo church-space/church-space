@@ -187,6 +187,17 @@ export default function Footer({
           </div>
         )}
 
+        {extraLinks.length > 0 && (
+          <div
+            className="flex flex-col items-center gap-2 text-sm underline"
+            style={{ color: footerSecondaryTextColor }}
+          >
+            {extraLinks.map((link: any, index: number) => {
+              return <div key={index}>{link.text}</div>;
+            })}
+          </div>
+        )}
+
         <Separator
           className="mb-2 mt-4 w-full"
           style={{ backgroundColor: footerSecondaryTextColor }}
