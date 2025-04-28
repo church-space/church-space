@@ -397,7 +397,7 @@ function SortableExtraLinkItem({
           <AccordionTrigger className="flex w-full items-center justify-between rounded-sm px-2 py-3">
             <div className="flex items-center gap-2">
               <span className="truncate pr-2 text-sm">
-                {link.text ?? `Link ${index + 1}`}
+                {link.text ? link.text : `Link ${index + 1}`}
               </span>
             </div>
           </AccordionTrigger>
@@ -624,35 +624,56 @@ export default function EmailFooterForm({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = localState.links.findIndex(
+      // Check if the item is in the 'links' array
+      let oldIndex = localState.links.findIndex(
         (link) => link.id === active.id,
       );
-      const newIndex = localState.links.findIndex(
+      let newIndex = localState.links.findIndex((link) => link.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Reorder 'links'
+        const reorderedLinks = [...localState.links];
+        const [movedItem] = reorderedLinks.splice(oldIndex, 1);
+        reorderedLinks.splice(newIndex, 0, movedItem);
+
+        const updatedLinks = reorderedLinks.map((link, index) => ({
+          ...link,
+          order: index,
+        }));
+
+        handleChange("links", updatedLinks);
+        return; // Exit if handled
+      }
+
+      // Check if the item is in the 'extra_links' array
+      oldIndex = localState.extra_links.findIndex(
+        (link) => link.id === active.id,
+      );
+      newIndex = localState.extra_links.findIndex(
         (link) => link.id === over.id,
       );
 
-      if (oldIndex === -1 || newIndex === -1) {
-        console.error(
-          "Could not find links for DND update:",
-          active.id,
-          over.id,
-        );
-        return;
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Reorder 'extra_links'
+        const reorderedExtraLinks = [...localState.extra_links];
+        const [movedItem] = reorderedExtraLinks.splice(oldIndex, 1);
+        reorderedExtraLinks.splice(newIndex, 0, movedItem);
+
+        const updatedExtraLinks = reorderedExtraLinks.map((link, index) => ({
+          ...link,
+          order: index,
+        }));
+
+        handleChange("extra_links", updatedExtraLinks);
+        return; // Exit if handled
       }
 
-      // Update the order of the links
-      const reorderedLinks = [...localState.links];
-      const [movedItem] = reorderedLinks.splice(oldIndex, 1);
-      reorderedLinks.splice(newIndex, 0, movedItem);
-
-      // Update the order property for each link
-      const updatedLinks = reorderedLinks.map((link, index) => ({
-        ...link,
-        order: index,
-      }));
-
-      // Update local state and parent
-      handleChange("links", updatedLinks);
+      // If neither list contains the items, log an error
+      console.error(
+        "Could not find items for DND update in either list:",
+        active.id,
+        over.id,
+      );
     }
   };
 
@@ -786,7 +807,7 @@ export default function EmailFooterForm({
     // If updating the URL field
     if (key === "url") {
       // Mark as typing
-      setTypingLinks((prev) => ({ ...prev, [linkId]: true }));
+      setTypingExtraLinks((prev) => ({ ...prev, [linkId]: true }));
 
       // Clear any existing timer
       if (extraLinkTimersRef.current[linkId]) {
@@ -795,10 +816,23 @@ export default function EmailFooterForm({
 
       // Set a new timer to validate after typing stops
       extraLinkTimersRef.current[linkId] = setTimeout(() => {
-        setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
+        setTypingExtraLinks((prev) => ({ ...prev, [linkId]: false }));
 
-        // Validate based on the icon type
-        const isValid = validateLink(index, value, newExtraLinks[index].text);
+        let isValid = false;
+        try {
+          urlSchema.parse(value);
+          isValid = true;
+          // Clear error if validation passes
+          setExtraLinkErrors((prev) => ({ ...prev, [linkId]: null }));
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            // Set error message
+            setExtraLinkErrors((prev) => ({
+              ...prev,
+              [linkId]: error.errors[0].message,
+            }));
+          }
+        }
 
         // Only update if valid
         if (isValid) {
@@ -868,8 +902,8 @@ export default function EmailFooterForm({
     const linkId = localState.extra_links[index]?.id;
     if (!linkId) return;
 
-    if (typingLinks[linkId]) {
-      setTypingLinks((prev) => ({ ...prev, [linkId]: false }));
+    if (typingExtraLinks[linkId]) {
+      setTypingExtraLinks((prev) => ({ ...prev, [linkId]: false }));
 
       if (extraLinkTimersRef.current[linkId]) {
         clearTimeout(extraLinkTimersRef.current[linkId]);
@@ -877,7 +911,21 @@ export default function EmailFooterForm({
       }
 
       const link = localState.extra_links[index];
-      const isValid = validateLink(index, link.url, link.text);
+      let isValid = false;
+      try {
+        urlSchema.parse(link.url);
+        isValid = true;
+        // Clear error if validation passes
+        setExtraLinkErrors((prev) => ({ ...prev, [linkId]: null }));
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          // Set error message
+          setExtraLinkErrors((prev) => ({
+            ...prev,
+            [linkId]: error.errors[0].message,
+          }));
+        }
+      }
 
       if (isValid) {
         // No need to create a new state object since we're not changing anything
@@ -1263,7 +1311,7 @@ export default function EmailFooterForm({
             </SortableContext>
           </DndContext>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex w-full flex-col gap-4">
           <div className="flex items-center justify-between">
             <Label className="text-md font-bold">Links</Label>
             <Button
