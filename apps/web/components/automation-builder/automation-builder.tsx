@@ -48,14 +48,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 import CategorySelector from "../id-pages/emails/category-selector";
-import { Alert, AlertDescription, AlertTitle } from "@church-space/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@church-space/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -610,7 +602,6 @@ export default function EmailAutomationBuilder({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [isConfirmingChanges, setIsConfirmingChanges] = useState(false);
 
   // Create mutations for each step action
   const { mutateAsync: updateStepMutation, isPending: isUpdating } =
@@ -1158,7 +1149,6 @@ export default function EmailAutomationBuilder({
             <AlertDialogCancel
               onClick={() => {
                 setShowConfirmDialog(false);
-                setIsConfirmingChanges(false);
               }}
             >
               Cancel
