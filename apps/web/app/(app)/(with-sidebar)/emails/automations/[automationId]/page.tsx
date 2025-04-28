@@ -44,6 +44,16 @@ import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 import Cookies from "js-cookie";
 import AutomationMembersTable from "@/components/tables/automation-members/table";
 import { getActiveAutomationMembersCount } from "@/actions/get-active-automation-members-count";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@church-space/ui/alert-dialog";
 
 // Types for the new schema
 interface AutomationStep {
@@ -147,6 +157,7 @@ export default function Page() {
   const [isDeletingLink, setIsDeletingLink] = useState(false);
   const [isUpdatingStatus] = useState(false);
   const [isDeleting] = useState(false);
+  const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -246,6 +257,25 @@ export default function Page() {
       return;
     }
 
+    // Check if deactivating and there are active members
+    if (
+      transformedAutomation.is_active &&
+      activeAutomationMembersCount &&
+      activeAutomationMembersCount > 0
+    ) {
+      setShowDeactivateConfirm(true); // Show confirmation dialog
+      return; // Stop here until user confirms
+    }
+
+    // Proceed with activation or deactivation (if no active members)
+    proceedWithStatusUpdate();
+  };
+
+  // Extracted logic for updating status
+  const proceedWithStatusUpdate = async () => {
+    const originalStatus = transformedAutomation.is_active;
+    const newStatus = !originalStatus;
+
     // Optimistically update the UI
     queryClient.setQueryData(
       ["email-automation", automationId],
@@ -255,47 +285,49 @@ export default function Page() {
           ...old.data,
           data: {
             ...old.data.data,
-            is_active: !transformedAutomation.is_active,
+            is_active: newStatus,
           },
         },
       }),
     );
 
     // Make the API call
-    updateEmailAutomationAction({
-      automation_id: automationId,
-      automation_data: {
-        id: automationId,
-        is_active: !transformedAutomation.is_active,
-      },
-    })
-      .then(() => {
-        // Refetch to ensure we have the latest data
-        queryClient.invalidateQueries({
-          queryKey: ["email-automation", automationId],
-        });
-      })
-      .catch(() => {
-        // Revert on error
-        queryClient.setQueryData(
-          ["email-automation", automationId],
-          (old: any) => ({
-            ...old,
-            data: {
-              ...old.data,
-              data: {
-                ...old.data.data,
-                is_active: transformedAutomation.is_active,
-              },
-            },
-          }),
-        );
-        toast({
-          title: "Error",
-          description: "Failed to update automation status. Please try again.",
-          variant: "destructive",
-        });
+    try {
+      await updateEmailAutomationAction({
+        automation_id: automationId,
+        automation_data: {
+          id: automationId,
+          is_active: newStatus,
+        },
       });
+      // Refetch to ensure we have the latest data
+      queryClient.invalidateQueries({
+        queryKey: ["email-automation", automationId],
+      });
+    } catch (error) {
+      // Revert on error
+      queryClient.setQueryData(
+        ["email-automation", automationId],
+        (old: any) => ({
+          ...old,
+          data: {
+            ...old.data,
+            data: {
+              ...old.data.data,
+              is_active: originalStatus, // Revert to original status
+            },
+          },
+        }),
+      );
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update automation status. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteLink = () => {
@@ -374,6 +406,86 @@ export default function Page() {
 
   return (
     <div className="relative">
+      <AlertDialog
+        open={showDeactivateConfirm}
+        onOpenChange={setShowDeactivateConfirm}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Warning: Active Members Will Be Affected
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              There {activeAutomationMembersCount === 1 ? "is" : "are"}{" "}
+              {activeAutomationMembersCount} active{" "}
+              {activeAutomationMembersCount === 1 ? "member" : "members"} in
+              this automation. Disabling the automation will cancel their
+              current progress.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setShowDeactivateConfirm(false);
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              onClick={async () => {
+                // Call cancel-run API
+                try {
+                  const response = await fetch("/api/automations/cancel-run", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      automationId: automationId,
+                      reason: "automation deactivated",
+                    }),
+                  });
+
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error(
+                      "Failed to cancel automation runs:",
+                      errorData.error,
+                    );
+                    toast({
+                      title: "Error",
+                      description: `Failed to stop active members: ${errorData.error || "Unknown error"}`, // More specific error
+                      variant: "destructive",
+                    });
+                    setShowDeactivateConfirm(false); // Close dialog even on error
+                    return; // Stop if canceling runs fails
+                  }
+                } catch (error) {
+                  console.error("Error calling cancel-run API:", error);
+                  toast({
+                    title: "Error",
+                    description:
+                      error instanceof Error
+                        ? error.message
+                        : "An unexpected error occurred while stopping active members.",
+                    variant: "destructive",
+                  });
+                  setShowDeactivateConfirm(false); // Close dialog even on error
+                  return; // Stop if API call fails
+                }
+
+                // Proceed with deactivation after successful cancel
+                proceedWithStatusUpdate();
+                setShowDeactivateConfirm(false); // Close dialog
+              }}
+            >
+              Disable Anyway
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
