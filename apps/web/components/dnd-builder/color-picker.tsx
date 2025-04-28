@@ -11,6 +11,9 @@ import { z } from "zod";
 import cookies from "js-cookie";
 import { getBrandColors } from "@/actions/get-brand-colors";
 import { useQuery } from "@tanstack/react-query";
+import { Pipette } from "lucide-react";
+import { Button } from "@church-space/ui/button";
+import { cn } from "@church-space/ui/cn";
 
 // Define a Zod schema for hex color validation
 const hexColorSchema = z
@@ -32,8 +35,25 @@ export default function ColorPicker({
   const [color, setColor] = useState(value);
   const [error, setError] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [useNativeColorPicker, setUseNativeColorPicker] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const colorInputRef = useRef<HTMLInputElement>(null);
   const organizationId = cookies.get("organizationId");
+
+  // Check browser compatibility for EyeDropper API
+  useEffect(() => {
+    // Check if browser is Safari
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    // Check if browser is Firefox
+    const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+
+    // Use native color picker for Safari, Firefox, or if EyeDropper is not available
+    const shouldUseNativeColorPicker =
+      isSafari || isFirefox || !("EyeDropper" in window);
+
+    setUseNativeColorPicker(shouldUseNativeColorPicker);
+  }, []);
 
   const { data: brandColors } = useQuery({
     queryKey: ["brandColors", organizationId],
@@ -78,6 +98,26 @@ export default function ColorPicker({
     return colorStr.startsWith("#") ? colorStr : `#${colorStr}`;
   };
 
+  // Function to pick color from screen using EyeDropper API
+  const pickColorFromScreen = async () => {
+    // Check if the EyeDropper API is available
+    if (!("EyeDropper" in window)) {
+      console.warn("EyeDropper API is not supported in this browser");
+      return;
+    }
+
+    try {
+      // @ts-ignore - TypeScript might not have EyeDropper types yet
+      const eyeDropper = new window.EyeDropper();
+      const result = await eyeDropper.open();
+      const newColor = result.sRGBHex;
+      setColor(newColor);
+      onChange(newColor);
+    } catch (error) {
+      console.log("Color picking canceled or failed", error);
+    }
+  };
+
   // Function to validate hex color
   const validateHexColor = (hexColor: string): boolean => {
     const result = hexColorSchema.safeParse(hexColor);
@@ -87,6 +127,15 @@ export default function ColorPicker({
     }
     setError(null);
     return true;
+  };
+
+  // Function to trigger the color picker input
+  const triggerColorPicker = () => {
+    if (useNativeColorPicker && colorInputRef.current) {
+      colorInputRef.current.click();
+    } else {
+      pickColorFromScreen();
+    }
   };
 
   return (
@@ -115,7 +164,10 @@ export default function ColorPicker({
         <div className="relative w-full">
           <Input
             type="text"
-            className={`w-full rounded-l-none bg-background ps-5 ${error && !isTyping ? "border-red-500" : ""}`}
+            className={cn(
+              "w-full rounded-none bg-background ps-5",
+              error && !isTyping ? "border-red-500" : "",
+            )}
             placeholder="ffffff"
             maxLength={7}
             value={stripHash(color)}
@@ -168,6 +220,37 @@ export default function ColorPicker({
             #
           </span>
         </div>
+        {useNativeColorPicker ? (
+          <div className="relative">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-l-none border-l-0"
+              onClick={triggerColorPicker}
+            >
+              <Pipette className="h-4 w-4" />
+            </Button>
+            <Input
+              ref={colorInputRef}
+              type="color"
+              className="absolute right-1.5 top-4 h-4 w-4 opacity-0"
+              value={color}
+              onChange={(e) => {
+                setColor(e.target.value);
+                onChange(e.target.value);
+              }}
+            />
+          </div>
+        ) : (
+          <Button
+            variant="outline"
+            size="icon"
+            className="aspect-square rounded-l-none border-l-0"
+            onClick={pickColorFromScreen}
+          >
+            <Pipette className="h-4 w-4" />
+          </Button>
+        )}
       </div>
       {error && !isTyping && (
         <p className="mt-1 text-xs text-red-500">{error}</p>

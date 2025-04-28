@@ -41,7 +41,7 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => {
       const email = row.original;
       return (
-        <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap px-3">
+        <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap pl-1">
           <Link href={`/emails/${email.id}`} prefetch={true}>
             <Button
               variant="ghost"
