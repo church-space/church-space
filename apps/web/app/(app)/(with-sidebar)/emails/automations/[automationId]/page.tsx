@@ -41,11 +41,7 @@ import { redirect, useParams, useRouter } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
 import type { TriggerType } from "@/components/automation-builder/automation-builder";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
-import {
-  deleteEmailAutomationAction,
-  type EmailAutomationResponse,
-} from "@/actions/delete-email-automation";
-import type { ActionResponse } from "@/types/action";
+import { deleteEmailAutomationAction } from "@/actions/delete-email-automation";
 import Cookies from "js-cookie";
 import AutomationMembersTable from "@/components/tables/automation-members/table";
 import { getActiveAutomationMembersCount } from "@/actions/get-active-automation-members-count";
