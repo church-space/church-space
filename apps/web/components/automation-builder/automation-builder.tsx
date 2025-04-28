@@ -602,6 +602,7 @@ export default function EmailAutomationBuilder({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isCancellingRuns, setIsCancellingRuns] = useState(false);
 
   // Create mutations for each step action
   const { mutateAsync: updateStepMutation, isPending: isUpdating } =
@@ -641,21 +642,23 @@ export default function EmailAutomationBuilder({
     },
   });
 
-  const { mutateAsync: updateAutomation } = useMutation({
-    mutationFn: updateEmailAutomationAction,
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to update automation",
-        variant: "destructive",
-      });
-    },
-  });
+  const { mutateAsync: updateAutomation, isPending: isUpdatingAutomation } =
+    useMutation({
+      mutationFn: updateEmailAutomationAction,
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to update automation",
+          variant: "destructive",
+        });
+      },
+    });
 
-  const isSaving = isUpdating || isCreating || isDeleting;
+  const isSaving =
+    isUpdating || isCreating || isDeleting || isUpdatingAutomation;
 
   // Store initial state for comparison
   const initialState = useRef({
@@ -1194,6 +1197,8 @@ export default function EmailAutomationBuilder({
                   });
                   // Optionally stop the save process if canceling runs fails critically
                   return;
+                } finally {
+                  setIsCancellingRuns(false);
                 }
                 handleSave(true);
               }}
@@ -1333,8 +1338,11 @@ export default function EmailAutomationBuilder({
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={() => handleSave()} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
+          <Button
+            onClick={() => handleSave()}
+            disabled={isSaving || isCancellingRuns}
+          >
+            {isSaving || isCancellingRuns ? "Saving..." : "Save"}
           </Button>
         </SheetFooter>
       </div>
