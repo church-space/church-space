@@ -190,11 +190,6 @@ const CustomText: React.FC<{
   defaultTextColor,
   linkColor,
 }) => {
-  // Check if content has text-align: center in h1, h2, h3, or p tags
-  const hasTextAlignCenter = content.match(
-    /style="[^"]*text-align:\s*center[^"]*"/i,
-  );
-
   // Parse HTML content and convert to React Email components
   const sanitizedContent = content
     .replace(/class="[^"]*"/g, "")
@@ -286,14 +281,40 @@ const CustomText: React.FC<{
       },
     );
 
+  // Ensure all elements with text-align: center also have align attribute
+  // This improves compatibility with email clients
+  const alignedContent = sanitizedContent
+    .replace(
+      /<(h[1-6]|p|div)([^>]*style="[^"]*text-align:\s*center[^"]*")([^>]*)>/gi,
+      '<$1$2$3 align="center">',
+    )
+    .replace(
+      /<(h[1-6]|p|div)([^>]*style="[^"]*text-align:\s*left[^"]*")([^>]*)>/gi,
+      '<$1$2$3 align="left">',
+    )
+    .replace(
+      /<(h[1-6]|p|div)([^>]*style="[^"]*text-align:\s*right[^"]*")([^>]*)>/gi,
+      '<$1$2$3 align="right">',
+    );
+
   // Now add a style tag to handle the first-child rule similar to the CSS
   const processedContent = `
     <style>
       h1:first-child, h2:first-child, h3:first-child {
         margin-top: 0em !important;
       }
+      /* Add email client support for text alignment */
+      [style*="text-align: center"] {
+        text-align: center !important;
+      }
+      [style*="text-align: left"] {
+        text-align: left !important;
+      }
+      [style*="text-align: right"] {
+        text-align: right !important;
+      }
     </style>
-    ${sanitizedContent}
+    ${alignedContent}
   `;
 
   return (
@@ -304,9 +325,7 @@ const CustomText: React.FC<{
             fontFamily: ensureFontFallbacks(font || defaultFont),
             color: defaultTextColor || "#000000",
             fontSize: "16px",
-            textAlign: hasTextAlignCenter ? "center" : "left",
           }}
-          align={hasTextAlignCenter ? "center" : "left"}
           dangerouslySetInnerHTML={{ __html: processedContent }}
         />
       </tr>

@@ -49,27 +49,25 @@ export default function CardsBlock({
       className="flex flex-col gap-5 py-2"
       style={{ fontFamily: defaultFont || "inherit" }}
     >
-      {title ||
-        (subtitle && (
-          <div className="flex flex-col">
-            {title !== undefined && (
-              <span
-                className="text-3xl font-bold"
-                style={{ color: defaultTextColor }}
-              >
-                {title !== "" && title}
-              </span>
-            )}
-            {subtitle !== undefined && (
-              <span
-                className="text-md text-muted-foreground"
-                style={{ color: defaultTextColor }}
-              >
-                {subtitle !== "" && subtitle}
-              </span>
-            )}
-          </div>
-        ))}
+      <div className="flex flex-col">
+        {title !== undefined && (
+          <span
+            className="text-3xl font-bold"
+            style={{ color: defaultTextColor }}
+          >
+            {title !== "" && title}
+          </span>
+        )}
+        {subtitle !== undefined && (
+          <span
+            className="text-md text-muted-foreground"
+            style={{ color: defaultTextColor }}
+          >
+            {subtitle !== "" && subtitle}
+          </span>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
         {cards.map((card, index) => (
           <div className="flex w-full flex-col gap-1" key={index}>
