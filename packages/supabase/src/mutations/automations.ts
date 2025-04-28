@@ -84,7 +84,7 @@ export async function cancelAutomationRuns(
 ) {
   const { data, error } = await supabase
     .from("email_automation_members")
-    .update({ status: "cancelled", reason })
+    .update({ status: "canceled", reason })
     .eq("automation_id", automationId)
     .eq("trigger_dev_id", triggerDevId)
     .select();

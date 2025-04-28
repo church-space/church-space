@@ -48,8 +48,8 @@ export default function OrgInvites({
     } finally {
       setCancellingInvites((prev) => prev.filter((id) => id !== inviteId));
       toast({
-        title: "Invite cancelled",
-        description: "Invite cancelled from organization",
+        title: "Invite canceled",
+        description: "Invite canceled from organization",
       });
     }
   };

@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@church-space/ui/badge";
 import { Checkbox } from "@church-space/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -31,29 +32,6 @@ export type EmailAutomationMember = {
 
 export const columns: ColumnDef<EmailAutomationMember>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="opacity-0 transition-opacity group-hover/table-row:opacity-100 data-[state=checked]:opacity-100"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
@@ -67,7 +45,7 @@ export const columns: ColumnDef<EmailAutomationMember>[] = [
         person.nickname ||
         "-";
 
-      return <div className="font-medium">{fullName}</div>;
+      return <div className="ml-1.5 font-medium">{fullName}</div>;
     },
   },
   {
@@ -75,7 +53,19 @@ export const columns: ColumnDef<EmailAutomationMember>[] = [
     header: "Last Completed Step",
     cell: ({ row }) => {
       const step = row.original.step;
-      return <div>{step?.type || "-"}</div>;
+      const displayOrder = step && step.order !== null ? step.order + 1 : "-";
+      return (
+        <div className="flex flex-col gap-0">
+          <div>Step {displayOrder}</div>
+          <div className="text-xs text-muted-foreground">
+            {step?.type === "send_email"
+              ? "Send Email"
+              : step?.type === "wait"
+                ? "Wait"
+                : "-"}
+          </div>
+        </div>
+      );
     },
   },
   {
@@ -83,7 +73,20 @@ export const columns: ColumnDef<EmailAutomationMember>[] = [
     header: "Status",
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
-      return <div>{status}</div>;
+      return (
+        <Badge
+          variant={
+            status === "canceled"
+              ? "destructive"
+              : status === "in-progress"
+                ? "warning"
+                : "success"
+          }
+          className="capitalize"
+        >
+          {status}
+        </Badge>
+      );
     },
   },
   {

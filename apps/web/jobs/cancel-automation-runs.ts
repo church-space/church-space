@@ -55,7 +55,7 @@ export const cancelAutomationRunsTask = task({
       }
     }
 
-    // Get the IDs of the members whose runs were attempted to be cancelled
+    // Get the IDs of the members whose runs were attempted to be canceled
     const memberIdsToUpdate = automationData.map((member) => member.id);
 
     // Update the status and reason for these members
@@ -63,7 +63,7 @@ export const cancelAutomationRunsTask = task({
       const { error: updateError } = await supabase
         .from("email_automation_members")
         .update({
-          status: "cancelled",
+          status: "canceled",
           reason: payload.reason,
         })
         .in("id", memberIdsToUpdate);
@@ -76,7 +76,7 @@ export const cancelAutomationRunsTask = task({
         );
       } else {
         console.log(
-          `Successfully updated status to 'cancelled' for members: ${memberIdsToUpdate.join(", ")}`,
+          `Successfully updated status to 'canceled' for members: ${memberIdsToUpdate.join(", ")}`,
         );
       }
     }
