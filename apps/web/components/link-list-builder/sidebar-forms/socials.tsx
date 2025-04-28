@@ -368,14 +368,39 @@ export default function SocialsForm({
     }
   };
 
-  // Sync local social links with props when props change
+  // Sync local social links with props, preserving IDs and local edits
   useEffect(() => {
-    setLocalSocialLinks(
-      socialLinks.map((link) => ({
-        ...link,
-        id: nanoid(),
-      })),
-    );
+    setLocalSocialLinks((currentLocalLinks) => {
+      // Map local links by ID for efficient lookup
+      const localLinksMap = new Map(
+        currentLocalLinks.map((link) => [link.id, link]),
+      );
+      const newLocalLinks: SocialLinkItem[] = [];
+
+      socialLinks.forEach((propLink, index) => {
+        const existingLocalLink = currentLocalLinks[index];
+
+        if (existingLocalLink) {
+          // Item exists. Keep ID. Update non-edited fields from props.
+          // Keep local URL value to prevent flicker.
+          newLocalLinks.push({
+            ...propLink, // Takes order, icon from props
+            id: existingLocalLink.id, // Keep stable ID
+            url: localLinksMap.get(existingLocalLink.id)?.url ?? propLink.url, // Prioritize existing local url
+          });
+        } else {
+          // New item from parent, generate ID
+          newLocalLinks.push({
+            ...propLink,
+            id: nanoid(),
+          });
+        }
+      });
+
+      // Ensure final list length matches props
+      return newLocalLinks.slice(0, socialLinks.length);
+    });
+    // Only depend on the socialLinks prop array itself
   }, [socialLinks]);
 
   const handleChange = (key: keyof LocalState, value: any) => {

@@ -133,11 +133,11 @@ function SortableListItem({
         <Accordion
           type="single"
           collapsible
-          className="w-full"
+          className="w-full md:max-w-[226px] lg:max-w-[302px]"
           value={openItem === itemId ? itemId : undefined}
           onValueChange={(value) => setOpenItem(value ? value : undefined)}
         >
-          <AccordionItem value={itemId} className="border-0">
+          <AccordionItem value={itemId} className="w-full border-0">
             <div
               onClick={() =>
                 setOpenItem(openItem === itemId ? undefined : itemId)
@@ -151,7 +151,7 @@ function SortableListItem({
               <div className="flex w-full flex-col gap-y-2 py-1">
                 <Label>Title</Label>
                 <Input
-                  className="col-span-2 mb-2 bg-background"
+                  className="col-span-2 mb-2 w-full bg-background"
                   value={item.title}
                   placeholder="Item Title"
                   onChange={(e) => updateItem(index, "title", e.target.value)}
@@ -159,7 +159,7 @@ function SortableListItem({
                 />
                 <Label>Description</Label>
                 <AutosizeTextarea
-                  className="col-span-2 mb-2"
+                  className="col-span-2 mb-2 w-full"
                   value={item.description}
                   placeholder="Item Description"
                   onChange={(e) =>

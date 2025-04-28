@@ -312,15 +312,44 @@ export default function LinksForm({
     }
   };
 
-  // Sync local links with props when props change
+  // Sync local links with props when props change, preserving IDs and local edits
   useEffect(() => {
-    // Add IDs to links if they don't have them
-    setLocalLinks(
-      links.map((link) => ({
-        ...link,
-        id: nanoid(),
-      })),
-    );
+    setLocalLinks((currentLocalLinks) => {
+      // Map local links by ID for efficient lookup of current text/url values
+      const localLinksMap = new Map(
+        currentLocalLinks.map((link) => [link.id, link]),
+      );
+      const newLocalLinks: LinkItem[] = [];
+
+      links.forEach((propLink, index) => {
+        // Attempt to find the corresponding local link primarily by index,
+        // assuming parent sends the full ordered list.
+        const existingLocalLink = currentLocalLinks[index];
+
+        if (existingLocalLink) {
+          // Item exists at this index. Keep its ID.
+          // Update non-edited fields (like 'order', 'type') from props.
+          // Keep local values for 'text' and 'url' to prevent flicker.
+          newLocalLinks.push({
+            ...propLink, // Takes order, type from props
+            id: existingLocalLink.id, // Keep stable ID
+            text:
+              localLinksMap.get(existingLocalLink.id)?.text ?? propLink.text, // Prioritize existing local text
+            url: localLinksMap.get(existingLocalLink.id)?.url ?? propLink.url, // Prioritize existing local url
+          });
+        } else {
+          // New item from parent props, generate a new ID
+          newLocalLinks.push({
+            ...propLink,
+            id: nanoid(),
+          });
+        }
+      });
+
+      // Ensure the final list length matches the props
+      return newLocalLinks.slice(0, links.length);
+    });
+    // Only depend on the links prop array itself, not its contents' details like text/url
   }, [links]);
 
   // URL validation schema using Zod
