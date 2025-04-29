@@ -375,7 +375,7 @@ const CustomButton: React.FC<{
   centered = true,
 }) => {
   const buttonWidth = size === "full" ? "100%" : "auto";
-  const borderRadius = cornerRadius ? `${cornerRadius}px` : "0";
+  const borderRadius = cornerRadius ? `${cornerRadius * 0.3}px` : "0";
 
   // Format the URL with proper prefix if it's not a mailto link
   const formattedLink = link && link.length > 0 ? formatUrl(link) : "#";
@@ -569,7 +569,7 @@ const CustomFileDownload: React.FC<{
               style={{
                 width: "100%",
                 backgroundColor: bgColor,
-                borderRadius: cornerRadius ? `${cornerRadius}px` : "0",
+                borderRadius: cornerRadius ? `${cornerRadius * 0.4}px` : "0",
                 borderCollapse: "collapse",
               }}
               cellPadding="0"
@@ -614,14 +614,14 @@ const CustomFileDownload: React.FC<{
                           style={{
                             border: `1px solid ${bgColor}`,
                             borderRadius: cornerRadius
-                              ? `${cornerRadius}px`
+                              ? `${cornerRadius * 0.3}px`
                               : "0",
                             color: bgColor,
                             backgroundColor: textColor,
                             display: "inline-block",
                             fontFamily: ensureFontFallbacks(defaultFont),
                             fontSize: "13px",
-                            padding: "6px 18px",
+                            padding: "7px 18px",
                             whiteSpace: "nowrap",
                             fontWeight: "300",
                           }}
@@ -826,7 +826,7 @@ const CustomCards: React.FC<{
                                 display: "block",
                                 objectFit: "cover",
                                 borderRadius: cornerRadius
-                                  ? `${cornerRadius}px`
+                                  ? `${cornerRadius * 0.5}px`
                                   : "0",
                               }}
                             />
@@ -907,7 +907,7 @@ const CustomCards: React.FC<{
                                             : "transparent",
                                         border: `2px solid ${buttonColor}`,
                                         borderRadius: cornerRadius
-                                          ? `${cornerRadius}px`
+                                          ? `${cornerRadius * 0.3}px`
                                           : "0",
                                         color:
                                           buttonStyle === "filled"
@@ -944,7 +944,7 @@ const CustomCards: React.FC<{
                                             : "transparent",
                                         border: `2px solid ${buttonColor}`,
                                         borderRadius: cornerRadius
-                                          ? `${cornerRadius}px`
+                                          ? `${cornerRadius * 0.3}px`
                                           : "0",
                                         color:
                                           buttonStyle === "filled"

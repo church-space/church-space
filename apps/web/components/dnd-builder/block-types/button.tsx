@@ -48,7 +48,7 @@ export default function ButtonBlock({
           borderColor: style === "outline" ? color : "transparent",
           color: style === "outline" ? color : textColor,
           fontFamily: defaultFont || "inherit",
-          borderRadius: `${cornerRadius}px`,
+          borderRadius: cornerRadius ? `${cornerRadius * 0.3}px` : "0",
         }}
       >
         {text && text.length > 0 ? (

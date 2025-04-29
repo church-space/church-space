@@ -22,7 +22,7 @@ export default function FileDownloadBlock({
       style={{
         backgroundColor: bgColor,
         fontFamily: defaultFont || "inherit",
-        borderRadius: `${cornerRadius}px`,
+        borderRadius: cornerRadius ? `${cornerRadius * 0.4}px` : "0",
       }}
     >
       <div className="flex items-center gap-2">
@@ -36,6 +36,7 @@ export default function FileDownloadBlock({
           color: bgColor,
           borderColor: bgColor,
           backgroundColor: textColor,
+          borderRadius: cornerRadius ? `${cornerRadius * 0.3}px` : "0",
         }}
       >
         Download

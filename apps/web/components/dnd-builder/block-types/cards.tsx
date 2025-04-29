@@ -76,7 +76,9 @@ export default function CardsBlock({
                 src={imageUrls[card.image]}
                 alt={card.title}
                 className={cn("aspect-video w-full object-cover")}
-                style={{ borderRadius: `${cornerRadius}px` }}
+                style={{
+                  borderRadius: cornerRadius ? `${cornerRadius * 0.5}px` : "0",
+                }}
                 width={1280}
                 height={720}
               />
@@ -126,7 +128,7 @@ export default function CardsBlock({
                       ? data?.buttonColor
                       : data?.buttonTextColor,
                   fontFamily: defaultFont || "inherit",
-                  borderRadius: `${cornerRadius}px`,
+                  borderRadius: cornerRadius ? `${cornerRadius * 0.3}px` : "0",
                 }}
               >
                 {card.buttonText}
