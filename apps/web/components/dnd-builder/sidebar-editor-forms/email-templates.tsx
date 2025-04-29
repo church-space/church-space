@@ -10,7 +10,6 @@ import {
 import { Loader2, Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { debounce } from "lodash";
-import AssetBrowserModal from "../asset-browser";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@church-space/supabase/client";
 import { useInView } from "react-intersection-observer";
@@ -210,7 +209,7 @@ export default function EmailTemplateForm({
       // The response is nested, so we need to check both levels
       if (result && result.data && result.data.success) {
         // Close the dialog
-        setConfirmDialogOpen(false);
+
         setSelectedTemplate(null);
 
         // Show a success message
@@ -271,6 +270,7 @@ export default function EmailTemplateForm({
         variant: "destructive",
       });
     } finally {
+      setConfirmDialogOpen(false);
       setIsApplying(false);
     }
   };
@@ -288,19 +288,6 @@ export default function EmailTemplateForm({
           <div className="flex gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
-                <AssetBrowserModal
-                  triggerText="Gallery"
-                  buttonClassName="h-8 py-0 px-2.5"
-                  onSelectAsset={() => {}}
-                  organizationId={organizationId}
-                  handleDelete={() => {}}
-                  bucket="organization-assets"
-                />
-              </TooltipTrigger>
-              <TooltipContent>Browse premade templates</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="h-8 px-2 py-0">
@@ -316,7 +303,7 @@ export default function EmailTemplateForm({
                     </DialogDescription>
                     <Input
                       placeholder="Template name"
-                      className="mb-3 w-full"
+                      className="mb-3 w-full bg-background"
                       value={templateName}
                       onChange={(e) => setTemplateName(e.target.value)}
                       maxLength={60}
@@ -350,7 +337,7 @@ export default function EmailTemplateForm({
         </Label>
         <Input
           placeholder="Search your templates"
-          className="mb-3 w-full"
+          className="mb-3 w-full bg-background"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           maxLength={300}
