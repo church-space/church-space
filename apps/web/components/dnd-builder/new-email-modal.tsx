@@ -182,7 +182,7 @@ export default function NewEmailModal() {
     >
       <DialogContent
         className="flex max-w-screen-md flex-col overflow-hidden"
-        style={{ height: "528px", maxHeight: "528px" }}
+        style={{ height: "550px", maxHeight: "550px" }}
       >
         <DialogHeader>
           <DialogTitle>
@@ -212,31 +212,34 @@ export default function NewEmailModal() {
               {view === "main" && (
                 <>
                   <div className="flex gap-8 rounded-lg border bg-muted p-5 shadow-sm">
-                    <div className="flex gap-3">
-                      {/* TODO: Make these clickable */}
-                      <div className="flex flex-col gap-2">
-                        <button className="rounded-lg border bg-background p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
-                          <img
-                            src={UpdatesSvgPath.src}
-                            alt="Updates Template"
-                            style={{ width: "120px", height: "auto" }}
-                          />
-                        </button>
-                        <span className="w-full text-center text-sm font-medium">
-                          Updates
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <button className="rounded-lg border bg-background p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
-                          <img
-                            src={ArticleSvgPath.src}
-                            alt="Article Template"
-                            style={{ width: "120px", height: "auto" }}
-                          />
-                        </button>
-                        <span className="w-full text-center text-sm font-medium">
-                          Article
-                        </span>
+                    <div className="flex flex-col gap-2">
+                      <Label>Email Type</Label>
+                      <div className="flex gap-3">
+                        {/* TODO: Make these clickable */}
+                        <div className="flex flex-col gap-2">
+                          <button className="rounded-lg border bg-background p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
+                            <img
+                              src={UpdatesSvgPath.src}
+                              alt="Updates Template"
+                              style={{ width: "120px", height: "auto" }}
+                            />
+                          </button>
+                          <span className="w-full text-center text-sm font-medium">
+                            Updates
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <button className="rounded-lg border bg-background p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
+                            <img
+                              src={ArticleSvgPath.src}
+                              alt="Article Template"
+                              style={{ width: "120px", height: "auto" }}
+                            />
+                          </button>
+                          <span className="w-full text-center text-sm font-medium">
+                            Article
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex flex-1 flex-col gap-4">
