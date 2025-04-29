@@ -463,10 +463,12 @@ export default function EmailDndProvider({
         labelColor: styles.accentTextColor,
         buttonColor: styles.accentTextColor,
         buttonTextColor: styles.bgColor,
+        buttonSize: "fit",
+        buttonStyle: "filled",
         cards: [
           {
-            title: "",
-            description: "",
+            title: "Card One",
+            description: "Card One Description",
             label: "",
             buttonText: "",
             buttonLink: "",
@@ -474,8 +476,8 @@ export default function EmailDndProvider({
             order: 0,
           },
           {
-            title: "",
-            description: "",
+            title: "Card Two",
+            description: "Card Two Description",
             label: "",
             buttonText: "",
             buttonLink: "",
@@ -947,6 +949,8 @@ export default function EmailDndProvider({
                   labelColor: "#666666",
                   buttonColor: "#000000",
                   buttonTextColor: "#ffffff",
+                  buttonSize: "fit",
+                  buttonStyle: "filled",
                   cards: [],
                 };
                 break;

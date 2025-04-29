@@ -38,6 +38,13 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import React from "react";
 import { nanoid } from "nanoid";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@church-space/ui/select";
 
 // Add 'id' to the existing card type definition
 type CardItem = CardsBlockData["cards"][number] & {
@@ -287,6 +294,8 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
       labelColor: block.data?.labelColor || "#4274D2",
       buttonColor: block.data?.buttonColor || "#4274D2",
       buttonTextColor: block.data?.buttonTextColor || "#FFFFFF",
+      buttonSize: block.data?.buttonSize || "fit",
+      buttonStyle: block.data?.buttonStyle || "outline",
     };
   });
 
@@ -542,11 +551,42 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
             value={localState.buttonColor}
             onChange={(color) => handleChange("buttonColor", color)}
           />
-          <Label>Button Text Color</Label>
-          <ColorPicker
-            value={localState.buttonTextColor}
-            onChange={(color) => handleChange("buttonTextColor", color)}
-          />
+          {localState.buttonStyle === "filled" && (
+            <>
+              <Label>Button Text Color</Label>
+              <ColorPicker
+                value={localState.buttonTextColor}
+                onChange={(color) => handleChange("buttonTextColor", color)}
+              />
+            </>
+          )}
+          <Label>Style</Label>
+          <Select
+            value={localState.buttonStyle}
+            onValueChange={(value) => handleChange("buttonStyle", value)}
+          >
+            <SelectTrigger className="col-span-2 bg-background">
+              <SelectValue placeholder="Select a style" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="filled">Filled</SelectItem>
+              <SelectItem value="outline">Outline</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label>Size</Label>
+          <Select
+            value={localState.buttonSize}
+            onValueChange={(value) => handleChange("buttonSize", value)}
+          >
+            <SelectTrigger className="col-span-2 bg-background">
+              <SelectValue placeholder="Select a size" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fit">Fit Content</SelectItem>
+              <SelectItem value="large">Large</SelectItem>
+              <SelectItem value="full">Full Width</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

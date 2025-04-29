@@ -106,12 +106,29 @@ export default function CardsBlock({
             {card.buttonText && (
               <div
                 className={cn(
-                  "mb-2 flex min-h-8 items-center justify-center text-balance px-4 py-1 text-center text-sm font-medium",
+                  "mb-2 flex min-h-8 items-center justify-center text-balance px-4 py-2 text-center text-sm font-semibold",
                   isRounded && "rounded-md",
+                  data?.buttonSize === "full" && "w-full",
+                  data?.buttonSize === "fit" && "w-fit px-6",
+                  data?.buttonSize === "large" && "h-12 w-fit px-8",
+                  data?.buttonStyle === "filled"
+                    ? ["hover:opacity-90"]
+                    : ["border-2", "hover:bg-opacity-10"],
                 )}
                 style={{
-                  backgroundColor: data?.buttonColor,
-                  color: data?.buttonTextColor,
+                  backgroundColor:
+                    data?.buttonStyle === "filled"
+                      ? data?.buttonColor
+                      : "transparent",
+                  borderColor:
+                    data?.buttonStyle === "outline"
+                      ? data?.buttonColor
+                      : "transparent",
+                  color:
+                    data?.buttonStyle === "outline"
+                      ? data?.buttonColor
+                      : data?.buttonTextColor,
+                  fontFamily: defaultFont || "inherit",
                 }}
               >
                 {card.buttonText}

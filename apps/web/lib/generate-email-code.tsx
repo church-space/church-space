@@ -709,6 +709,8 @@ const CustomCards: React.FC<{
     buttonLink: string;
     image: string;
   }>;
+  buttonStyle?: "outline" | "filled";
+  buttonSize?: "fit" | "full" | "large";
   defaultFont?: string;
   isRounded?: boolean;
   imageAspectRatio?: "16:9" | "square";
@@ -722,6 +724,8 @@ const CustomCards: React.FC<{
   cards,
   defaultFont,
   isRounded,
+  buttonStyle = "filled",
+  buttonSize = "full",
 }) => (
   <table
     width="100%"
@@ -881,29 +885,86 @@ const CustomCards: React.FC<{
                             )}
                             {card.buttonText && (
                               <tr>
-                                <td>
-                                  <p
-                                    style={{
-                                      backgroundColor: buttonColor,
-                                      borderRadius: isRounded ? "6px" : "0",
-                                      color: buttonTextColor,
-                                      display: "block",
-                                      fontFamily: defaultFont || "sans-serif",
-                                      fontSize: "14px",
-                                      fontWeight: "200",
-                                      padding: "8px 16px",
-                                      textDecoration: "none",
-                                      textAlign: "center",
-                                      boxSizing: "border-box",
-                                      width: "100%",
-                                      marginBottom: "16px",
-                                      marginBlockStart: "0",
-                                      marginBlockEnd: "0",
-                                      textWrap: "balance",
-                                    }}
-                                  >
-                                    {card.buttonText}
-                                  </p>
+                                <td
+                                  style={{
+                                    width: "100%",
+                                    textAlign:
+                                      buttonSize === "full" ? "center" : "left",
+                                  }}
+                                >
+                                  {card.buttonLink ? (
+                                    <a
+                                      href={formattedButtonLink}
+                                      target="_blank"
+                                      style={{
+                                        backgroundColor:
+                                          buttonStyle === "filled"
+                                            ? buttonColor
+                                            : "transparent",
+                                        border: `2px solid ${buttonColor}`,
+                                        borderRadius: isRounded ? "6px" : "0",
+                                        color:
+                                          buttonStyle === "filled"
+                                            ? buttonTextColor
+                                            : buttonColor,
+                                        display: "inline-block",
+                                        fontFamily:
+                                          ensureFontFallbacks(defaultFont),
+                                        fontSize: "14px",
+                                        fontWeight: "normal",
+                                        lineHeight: "1",
+                                        padding:
+                                          buttonSize === "large"
+                                            ? "15px 32px"
+                                            : "9px 15px",
+                                        textDecoration: "none",
+                                        textAlign: "center",
+                                        width:
+                                          buttonSize === "full"
+                                            ? "100%"
+                                            : "auto",
+                                        maxWidth: "100%",
+                                        boxSizing: "border-box",
+                                      }}
+                                    >
+                                      {card.buttonText}
+                                    </a>
+                                  ) : (
+                                    <span
+                                      style={{
+                                        backgroundColor:
+                                          buttonStyle === "filled"
+                                            ? buttonColor
+                                            : "transparent",
+                                        border: `2px solid ${buttonColor}`,
+                                        borderRadius: isRounded ? "6px" : "0",
+                                        color:
+                                          buttonStyle === "filled"
+                                            ? buttonTextColor
+                                            : buttonColor,
+                                        display: "inline-block",
+                                        fontFamily:
+                                          ensureFontFallbacks(defaultFont),
+                                        fontSize: "14px",
+                                        fontWeight: "600",
+                                        lineHeight: "1",
+                                        padding:
+                                          buttonSize === "large"
+                                            ? "15px 32px"
+                                            : "9px 15px",
+                                        textDecoration: "none",
+                                        textAlign: "center",
+                                        width:
+                                          buttonSize === "full"
+                                            ? "100%"
+                                            : "auto",
+                                        maxWidth: "100%",
+                                        boxSizing: "border-box",
+                                      }}
+                                    >
+                                      {card.buttonText}
+                                    </span>
+                                  )}
                                 </td>
                               </tr>
                             )}
@@ -2023,6 +2084,12 @@ export function generateEmailCode(
                                               defaultFont={emailSafeFont}
                                               isRounded={isRounded}
                                               textColor={`${defaultTextColor} !important`}
+                                              buttonStyle={
+                                                (block.data as any)?.buttonStyle
+                                              }
+                                              buttonSize={
+                                                (block.data as any)?.buttonSize
+                                              }
                                               imageAspectRatio={
                                                 (block.data as any)
                                                   ?.imageAspectRatio
@@ -2261,6 +2328,12 @@ export function generateEmailCode(
                                               defaultFont={emailSafeFont}
                                               isRounded={isRounded}
                                               textColor={`${defaultTextColor} !important`}
+                                              buttonStyle={
+                                                (block.data as any)?.buttonStyle
+                                              }
+                                              buttonSize={
+                                                (block.data as any)?.buttonSize
+                                              }
                                               imageAspectRatio={
                                                 (block.data as any)
                                                   ?.imageAspectRatio

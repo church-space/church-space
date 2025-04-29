@@ -83,6 +83,8 @@ export interface CardsBlockData {
   labelColor: string;
   buttonColor: string;
   buttonTextColor: string;
+  buttonSize: "fit" | "full" | "large";
+  buttonStyle: "outline" | "filled";
   cards: Array<{
     title: string;
     description: string;
