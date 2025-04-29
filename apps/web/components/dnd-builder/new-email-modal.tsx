@@ -143,6 +143,11 @@ export default function NewEmailModal() {
   );
   const [view, setView] = useState<View>("main");
 
+  const [selectedFont, setSelectedFont] = useState<string>("sans-serif");
+  const [selectedColor, setSelectedColor] = useState<string>("Black on White");
+  const [isInset, setIsInset] = useState<boolean>(true);
+  const [selectedEmailType, setSelectedEmailType] = useState<string>("updates");
+
   const handleBack = () => setView("main");
 
   const variants: Variants = {
@@ -215,9 +220,11 @@ export default function NewEmailModal() {
                     <div className="flex flex-col gap-2">
                       <Label>Email Type</Label>
                       <div className="flex gap-3">
-                        {/* TODO: Make these clickable */}
                         <div className="flex flex-col gap-2">
-                          <button className="rounded-lg border bg-background p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
+                          <button
+                            className={`rounded-lg border ${selectedEmailType === "updates" ? "bg-primary/30 outline-none ring-2 ring-primary" : "bg-background"} p-4 transition-all duration-300 hover:bg-primary/30`}
+                            onClick={() => setSelectedEmailType("updates")}
+                          >
                             <img
                               src={UpdatesSvgPath.src}
                               alt="Updates Template"
@@ -229,7 +236,10 @@ export default function NewEmailModal() {
                           </span>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <button className="rounded-lg border bg-background p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
+                          <button
+                            className={`rounded-lg border ${selectedEmailType === "article" ? "bg-primary/30 outline-none ring-2 ring-primary" : "bg-background"} p-4 transition-all duration-300 hover:bg-primary/30`}
+                            onClick={() => setSelectedEmailType("article")}
+                          >
                             <img
                               src={ArticleSvgPath.src}
                               alt="Article Template"
@@ -245,7 +255,10 @@ export default function NewEmailModal() {
                     <div className="flex flex-1 flex-col gap-4">
                       <div className="flex flex-col gap-1">
                         <Label>Color Scheme</Label>
-                        <Select>
+                        <Select
+                          value={selectedColor}
+                          onValueChange={setSelectedColor}
+                        >
                           <SelectTrigger className="h-20 bg-background">
                             <SelectValue placeholder="Select a color scheme" />
                           </SelectTrigger>
@@ -302,23 +315,107 @@ export default function NewEmailModal() {
                       </div>
                       <div className="flex flex-col gap-1">
                         <Label>Font</Label>
-                        <Select>
-                          <SelectTrigger className="bg-background">
-                            <SelectValue placeholder="Select a template" />
+                        <Select
+                          value={selectedFont}
+                          onValueChange={setSelectedFont}
+                        >
+                          <SelectTrigger
+                            className="col-span-2 bg-background"
+                            style={{
+                              fontFamily: selectedFont,
+                            }}
+                          >
+                            <SelectValue placeholder="Select a font" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="template-1">
-                              Template 1
+                            <SelectItem
+                              value="sans-serif"
+                              style={{ fontFamily: "sans-serif" }}
+                            >
+                              Sans Serif
                             </SelectItem>
-                            <SelectItem value="template-2">
-                              Template 2
+                            <SelectItem
+                              value="serif"
+                              style={{ fontFamily: "serif" }}
+                            >
+                              Serif
+                            </SelectItem>
+
+                            <SelectItem
+                              value="Arial, sans-serif"
+                              style={{ fontFamily: "Arial, sans-serif" }}
+                            >
+                              Arial
+                            </SelectItem>
+                            <SelectItem
+                              value="Georgia, serif"
+                              style={{ fontFamily: "Georgia, serif" }}
+                            >
+                              Georgia
+                            </SelectItem>
+                            <SelectItem
+                              value="Verdana, sans-serif"
+                              style={{ fontFamily: "Verdana, sans-serif" }}
+                            >
+                              Verdana
+                            </SelectItem>
+                            <SelectItem
+                              value="'Courier New', monospace"
+                              style={{ fontFamily: "'Courier New', monospace" }}
+                            >
+                              Courier New
+                            </SelectItem>
+                            <SelectItem
+                              value="Helvetica, Arial, sans-serif"
+                              style={{
+                                fontFamily: "Helvetica, Arial, sans-serif",
+                              }}
+                            >
+                              Helvetica
+                            </SelectItem>
+                            <SelectItem
+                              value="'Lucida Sans Unicode', 'Lucida Grande', sans-serif"
+                              style={{
+                                fontFamily:
+                                  "'Lucida Sans Unicode', 'Lucida Grande', sans-serif",
+                              }}
+                            >
+                              Lucida Sans Unicode
+                            </SelectItem>
+                            <SelectItem
+                              value="Tahoma, Geneva, sans-serif"
+                              style={{
+                                fontFamily: "Tahoma, Geneva, sans-serif",
+                              }}
+                            >
+                              Tahoma
+                            </SelectItem>
+                            <SelectItem
+                              value="'Times New Roman', Times, serif"
+                              style={{
+                                fontFamily: "'Times New Roman', Times, serif",
+                              }}
+                            >
+                              Times New Roman
+                            </SelectItem>
+                            <SelectItem
+                              value="'Trebuchet MS', Helvetica, sans-serif"
+                              style={{
+                                fontFamily:
+                                  "'Trebuchet MS', Helvetica, sans-serif",
+                              }}
+                            >
+                              Trebuchet MS
                             </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       <div className="mt-1.5 flex flex-row items-center gap-2">
-                        <Switch />
+                        <Switch
+                          checked={isInset}
+                          onCheckedChange={setIsInset}
+                        />
                         <Label>Inset</Label>
                       </div>
                     </div>
