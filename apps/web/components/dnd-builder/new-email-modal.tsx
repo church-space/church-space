@@ -31,29 +31,107 @@ type View = "main" | "templates" | "recent";
 
 const pallets = [
   {
-    name: "Black and White no inset",
+    name: "Black on White",
     colors: {
       blocksBgColor: "#ffffff",
       bgColor: "#f2f2f2",
       textColor: "#000000",
       linkColor: "#4c72ff",
       accentTextColor: "#757575",
-      footerBgColor: "#171717",
-      footerTextColor: "#ffffff",
-      footerAccentTextColor: "#d4d4d4",
+      footerBgColor: "#f2f2f2",
+      footerTextColor: "#000000",
+      footerAccentTextColor: "#525252",
     },
   },
   {
-    name: "Black and White inset",
+    name: "White on Black",
     colors: {
-      blocksBgColor: "#ffffff",
-      bgColor: "#f2f2f2",
+      blocksBgColor: "#000000",
+      bgColor: "#1b1a1a",
+      textColor: "#ffffff",
+      linkColor: "#4c72ff",
+      accentTextColor: "#9e9e9e",
+      footerBgColor: "#121212",
+      footerTextColor: "#ffffff",
+      footerAccentTextColor: "#b7b7b7",
+    },
+  },
+  {
+    name: "Blue and Cream",
+    colors: {
+      blocksBgColor: "#eee5d8",
+      bgColor: "#f0edea",
       textColor: "#000000",
       linkColor: "#4c72ff",
-      accentTextColor: "#757575",
-      footerBgColor: "#171717",
+      accentTextColor: "#4c72ff",
+      footerBgColor: "#eee5d8",
+      footerTextColor: "#000000",
+      footerAccentTextColor: "#212121",
+    },
+  },
+  {
+    name: "Green and Cream",
+    colors: {
+      blocksBgColor: "#3a7245",
+      bgColor: "#26492b",
+      textColor: "#ebd7bb",
+      linkColor: "#e4a148",
+      accentTextColor: "#ebd7bb",
+      footerBgColor: "#3a7245",
       footerTextColor: "#ffffff",
-      footerAccentTextColor: "#d4d4d4",
+      footerAccentTextColor: "#e3e3e3",
+    },
+  },
+  {
+    name: "Blue and Yellow",
+    colors: {
+      blocksBgColor: "#303E87",
+      bgColor: "#57609e",
+      textColor: "#ffffff",
+      linkColor: "#ffb400",
+      accentTextColor: "#ffb400",
+      footerBgColor: "#57609e",
+      footerTextColor: "#ffffff",
+      footerAccentTextColor: "#e3e3e3",
+    },
+  },
+  {
+    name: "Red and Yellow",
+    colors: {
+      blocksBgColor: "#873030",
+      bgColor: "#eeeeee",
+      textColor: "#ffffff",
+      linkColor: "#ffb400",
+      accentTextColor: "#ffb400",
+      footerBgColor: "#eeeeee",
+      footerTextColor: "#000000",
+      footerAccentTextColor: "#232323",
+    },
+  },
+  {
+    name: "Purple and Blue",
+    colors: {
+      blocksBgColor: "#1a185a",
+      bgColor: "#976bce",
+      textColor: "#ffffff",
+      linkColor: "#bdcbff",
+      accentTextColor: "#bdcbff",
+      footerBgColor: "#976bce",
+      footerTextColor: "#ffffff",
+      footerAccentTextColor: "#e3e3e3",
+    },
+  },
+  {
+    name: "Orange and Brown",
+    colors: {
+      blocksBgColor: "#d87c13",
+      bgColor: "#3a2100",
+      textColor: "#ffffff",
+      linkColor: "#692b00",
+      accentTextColor: "#3a2100",
+      footerBgColor: "#3a2100",
+      footerTextColor: "#ffffff",
+      footerAccentTextColor: "#e3e3e3",
     },
   },
 ];
@@ -104,7 +182,7 @@ export default function NewEmailModal() {
     >
       <DialogContent
         className="flex max-w-screen-md flex-col overflow-hidden"
-        style={{ height: "508px", maxHeight: "508px" }}
+        style={{ height: "528px", maxHeight: "528px" }}
       >
         <DialogHeader>
           <DialogTitle>
@@ -137,11 +215,11 @@ export default function NewEmailModal() {
                     <div className="flex gap-3">
                       {/* TODO: Make these clickable */}
                       <div className="flex flex-col gap-2">
-                        <button className="rounded-lg border bg-primary/20 p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
+                        <button className="rounded-lg border bg-background p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
                           <img
                             src={UpdatesSvgPath.src}
                             alt="Updates Template"
-                            style={{ width: "100px", height: "auto" }}
+                            style={{ width: "120px", height: "auto" }}
                           />
                         </button>
                         <span className="w-full text-center text-sm font-medium">
@@ -149,11 +227,11 @@ export default function NewEmailModal() {
                         </span>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <button className="rounded-lg border bg-primary/20 p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
+                        <button className="rounded-lg border bg-background p-4 transition-all duration-300 hover:bg-primary/30 focus:bg-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:hover:bg-primary/40">
                           <img
                             src={ArticleSvgPath.src}
                             alt="Article Template"
-                            style={{ width: "100px", height: "auto" }}
+                            style={{ width: "120px", height: "auto" }}
                           />
                         </button>
                         <span className="w-full text-center text-sm font-medium">
@@ -161,16 +239,61 @@ export default function NewEmailModal() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex flex-1 flex-col gap-2">
+                    <div className="flex flex-1 flex-col gap-4">
                       <div className="flex flex-col gap-1">
                         <Label>Color Scheme</Label>
                         <Select>
-                          <SelectTrigger className="bg-background">
-                            <SelectValue placeholder="Select a template" />
+                          <SelectTrigger className="h-20 bg-background">
+                            <SelectValue placeholder="Select a color scheme" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="pallet-1">Pallet 1</SelectItem>
-                            <SelectItem value="pallet-2">Pallet 2</SelectItem>
+                            {pallets.map((pallet) => (
+                              <SelectItem
+                                key={pallet.name}
+                                value={pallet.name}
+                                className="rounded-none border-b"
+                              >
+                                <div className="flex flex-col items-start gap-0.5 font-semibold">
+                                  {pallet.name}
+                                  <div className="flex gap-1.5">
+                                    <div
+                                      className="h-8 w-8 rounded-full border"
+                                      style={{
+                                        backgroundColor: pallet.colors.bgColor,
+                                      }}
+                                    />
+                                    <div
+                                      className="h-8 w-8 rounded-full border"
+                                      style={{
+                                        backgroundColor:
+                                          pallet.colors.textColor,
+                                      }}
+                                    />
+                                    <div
+                                      className="h-8 w-8 rounded-full border"
+                                      style={{
+                                        backgroundColor:
+                                          pallet.colors.accentTextColor,
+                                      }}
+                                    />
+                                    <div
+                                      className="h-8 w-8 rounded-full border"
+                                      style={{
+                                        backgroundColor:
+                                          pallet.colors.footerBgColor,
+                                      }}
+                                    />
+                                    <div
+                                      className="h-8 w-8 rounded-full border"
+                                      style={{
+                                        backgroundColor:
+                                          pallet.colors.linkColor,
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -190,10 +313,7 @@ export default function NewEmailModal() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="mt-1.5 flex flex-row items-center gap-2">
-                        <Switch />
-                        <Label>Rounded Corners</Label>
-                      </div>
+
                       <div className="mt-1.5 flex flex-row items-center gap-2">
                         <Switch />
                         <Label>Inset</Label>
