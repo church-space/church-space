@@ -1866,6 +1866,16 @@ export function generateEmailCode(
           font-size: 3rem !important;
           line-height: 1.2 !important;
         }
+
+        /* Mobile padding for inset container */
+        .inset-container {
+          padding: 12px !important;
+          padding-top: 0px !important;
+        }
+
+        .td-container {
+          padding: 6px !important;
+        }
       }
 
       /* Desktop styles - Using media query syntax for email clients */
@@ -1900,9 +1910,14 @@ export function generateEmailCode(
           style={{ width: "100%" }}
         >
           <tr>
-            <td align="center" style={{ padding: isInset ? "20px" : "0" }}>
+            <td
+              align="center"
+              className="td-container"
+              style={{ padding: isInset ? "20px" : "0" }}
+            >
               {isInset ? (
                 <table
+                  className="inset-container"
                   cellPadding="0"
                   cellSpacing="0"
                   border={0}
@@ -1915,7 +1930,7 @@ export function generateEmailCode(
                     borderRadius: isRounded ? "12px" : "0",
                     borderCollapse: "separate",
                     padding: "22px",
-                    paddingTop: "14px",
+                    paddingTop: "8px",
                     paddingBottom: "20px",
                   }}
                 >
