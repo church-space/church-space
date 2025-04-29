@@ -152,6 +152,14 @@
   margin-bottom: 0.3em;
 }
 
+/* Mobile H4 style within ProseMirror */
+@media (max-width: 767px) {
+  .ProseMirror h4 {
+    font-size: 3rem;
+    line-height: 1.2;
+  }
+}
+
 /* First heading should have less top margin */
 .ProseMirror h1:first-child,
 .ProseMirror h2:first-child,

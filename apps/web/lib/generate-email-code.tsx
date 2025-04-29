@@ -220,7 +220,7 @@ const CustomText: React.FC<{
     })
     .replace(/<h4(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        " font-weight: 600; font-size: 4rem; line-height: 1.2; margin-block-start: 0.3em; margin-block-end: 0.3em";
+        " font-weight: 600; font-size: 4rem; line-height: 1.2; margin-block-start: 0.3em; margin-block-end: 0.3em"; // Default to 4rem
       if (existingStyle) {
         return `<h4 style="${existingStyle}; ${baseStyle}"`;
       }
@@ -1796,6 +1796,14 @@ export function generateEmailCode(
       }
       .empty-card-cell {
         display: none !important;
+      }
+
+      /* Mobile H4 style */
+      @media only screen and (max-width: 479px) {
+        h4 {
+          font-size: 3rem !important;
+          line-height: 1.2 !important;
+        }
       }
 
       /* Desktop styles - Using media query syntax for email clients */
