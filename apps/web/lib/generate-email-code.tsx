@@ -228,7 +228,8 @@ const CustomText: React.FC<{
     })
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = "font-weight: 400; line-height: 1.5; margin: 0em 0 ";
+      const baseStyle =
+        "font-weight: 400; line-height: 1.5; margin: 0em 0 0.2em 0";
       if (existingStyle) {
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
