@@ -6,10 +6,10 @@ import { cn } from "@church-space/ui/cn";
 
 interface VideoBlockProps {
   data?: VideoBlockData;
-  isRounded?: boolean;
+  cornerRadius?: number;
 }
 
-export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
+export default function VideoBlock({ data, cornerRadius }: VideoBlockProps) {
   const [result, setResult] = useState({
     success: false,
     message: "",
@@ -68,21 +68,23 @@ export default function VideoBlock({ data, isRounded }: VideoBlockProps) {
   return (
     <div className="relative" style={style}>
       {result.success ? (
-        <div className={cn("aspect-video", isRounded && "rounded-md")}>
+        <div
+          className={cn("aspect-video")}
+          style={{ borderRadius: `${cornerRadius}px` }}
+        >
           <Image
             src={imageUrl}
             alt="Video Thumbnail"
-            className={cn(
-              "h-full w-full object-cover",
-              isRounded && "rounded-md",
-            )}
+            className={cn("h-full w-full object-cover")}
+            style={{ borderRadius: `${cornerRadius}px` }}
             width={1920}
             height={1080}
           />
         </div>
       ) : (
         <div
-          className={cn("aspect-video bg-zinc-300", isRounded && "rounded-md")}
+          className={cn("aspect-video bg-zinc-300")}
+          style={{ borderRadius: `${cornerRadius}px` }}
         ></div>
       )}
       {/* <div className="absolute left-0 top-0 flex h-full w-full items-center justify-center">

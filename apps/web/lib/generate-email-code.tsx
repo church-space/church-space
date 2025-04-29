@@ -165,7 +165,7 @@ const IconImages = {
 interface EmailStyle {
   bgColor?: string;
   isInset?: boolean;
-  isRounded?: boolean;
+  cornerRadius?: number;
   emailBgColor?: string;
   defaultTextColor?: string;
   accentTextColor?: string;
@@ -360,7 +360,7 @@ const CustomButton: React.FC<{
   textColor: string;
   style: "outline" | "filled";
   size: "fit" | "full" | "medium" | "large";
-  isRounded?: boolean;
+  cornerRadius?: number;
   defaultFont?: string;
   centered?: boolean;
 }> = ({
@@ -370,12 +370,12 @@ const CustomButton: React.FC<{
   textColor,
   style: buttonStyle,
   size,
-  isRounded,
+  cornerRadius,
   defaultFont,
   centered = true,
 }) => {
   const buttonWidth = size === "full" ? "100%" : "auto";
-  const borderRadius = isRounded ? "6px" : "0";
+  const borderRadius = cornerRadius ? `${cornerRadius}px` : "0";
 
   // Format the URL with proper prefix if it's not a mailto link
   const formattedLink = link && link.length > 0 ? formatUrl(link) : "#";
@@ -482,9 +482,9 @@ const CustomImage: React.FC<{
   size: number;
   link: string;
   centered: boolean;
-  isRounded?: boolean;
+  cornerRadius?: number;
   altText?: string;
-}> = ({ image, size, link, centered, isRounded, altText }) => {
+}> = ({ image, size, link, centered, cornerRadius, altText }) => {
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/organization-assets/${image}`;
 
   if (image === "") {
@@ -494,7 +494,7 @@ const CustomImage: React.FC<{
   const imageStyle = {
     maxWidth: "100%",
     height: "auto",
-    borderRadius: isRounded ? "6px" : "0",
+    borderRadius: cornerRadius ? `${cornerRadius}px` : "0",
     display: "block",
   };
 
@@ -543,8 +543,8 @@ const CustomFileDownload: React.FC<{
   bgColor: string;
   textColor: string;
   defaultFont?: string;
-  isRounded?: boolean;
-}> = ({ title, file, bgColor, textColor, defaultFont, isRounded }) => {
+  cornerRadius?: number;
+}> = ({ title, file, bgColor, textColor, defaultFont, cornerRadius }) => {
   if (!file) {
     return null;
   }
@@ -569,7 +569,7 @@ const CustomFileDownload: React.FC<{
               style={{
                 width: "100%",
                 backgroundColor: bgColor,
-                borderRadius: isRounded ? "6px" : "0",
+                borderRadius: cornerRadius ? `${cornerRadius}px` : "0",
                 borderCollapse: "collapse",
               }}
               cellPadding="0"
@@ -613,7 +613,9 @@ const CustomFileDownload: React.FC<{
                         <span
                           style={{
                             border: `1px solid ${bgColor}`,
-                            borderRadius: isRounded ? "6px" : "0",
+                            borderRadius: cornerRadius
+                              ? `${cornerRadius}px`
+                              : "0",
                             color: bgColor,
                             backgroundColor: textColor,
                             display: "inline-block",
@@ -643,8 +645,8 @@ const CustomVideo: React.FC<{
   url: string;
   size: number;
   centered: boolean;
-  isRounded?: boolean;
-}> = ({ url, size, centered, isRounded }) => {
+  cornerRadius?: number;
+}> = ({ url, size, centered, cornerRadius }) => {
   const videoId = extractYouTubeId(url);
   const thumbnailUrl = videoId
     ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
@@ -681,7 +683,7 @@ const CustomVideo: React.FC<{
                     width="100%"
                     style={{
                       display: "block",
-                      borderRadius: isRounded ? "6px" : "0",
+                      borderRadius: cornerRadius ? `${cornerRadius}px` : "0",
                     }}
                   />
                 </td>
@@ -712,7 +714,7 @@ const CustomCards: React.FC<{
   buttonStyle?: "outline" | "filled";
   buttonSize?: "fit" | "full" | "large";
   defaultFont?: string;
-  isRounded?: boolean;
+  cornerRadius?: number;
   imageAspectRatio?: "16:9" | "square";
 }> = ({
   title,
@@ -723,7 +725,7 @@ const CustomCards: React.FC<{
   buttonTextColor,
   cards,
   defaultFont,
-  isRounded,
+  cornerRadius,
   buttonStyle = "filled",
   buttonSize = "full",
 }) => (
@@ -823,7 +825,9 @@ const CustomCards: React.FC<{
                               style={{
                                 display: "block",
                                 objectFit: "cover",
-                                borderRadius: isRounded ? "6px" : "0",
+                                borderRadius: cornerRadius
+                                  ? `${cornerRadius}px`
+                                  : "0",
                               }}
                             />
                           </td>
@@ -902,7 +906,9 @@ const CustomCards: React.FC<{
                                             ? buttonColor
                                             : "transparent",
                                         border: `2px solid ${buttonColor}`,
-                                        borderRadius: isRounded ? "6px" : "0",
+                                        borderRadius: cornerRadius
+                                          ? `${cornerRadius}px`
+                                          : "0",
                                         color:
                                           buttonStyle === "filled"
                                             ? buttonTextColor
@@ -937,7 +943,9 @@ const CustomCards: React.FC<{
                                             ? buttonColor
                                             : "transparent",
                                         border: `2px solid ${buttonColor}`,
-                                        borderRadius: isRounded ? "6px" : "0",
+                                        borderRadius: cornerRadius
+                                          ? `${cornerRadius}px`
+                                          : "0",
                                         color:
                                           buttonStyle === "filled"
                                             ? buttonTextColor
@@ -1426,7 +1434,7 @@ const CustomFooter: React.FC<{
   defaultFont?: string;
   emailBgColor?: string;
   isInset?: boolean;
-  isRounded?: boolean;
+  cornerRadius?: number;
   linkColor?: string;
 }> = ({
   footerData,
@@ -1434,7 +1442,7 @@ const CustomFooter: React.FC<{
   defaultFont,
   emailBgColor,
   isInset,
-  isRounded,
+  cornerRadius,
 }) => {
   if (!footerData) return null;
 
@@ -1515,7 +1523,9 @@ const CustomFooter: React.FC<{
                           height="112"
                           style={{
                             objectFit: "contain",
-                            borderRadius: isRounded ? "6px" : "0",
+                            borderRadius: cornerRadius
+                              ? `${cornerRadius}px`
+                              : "0",
                             marginBottom: "16px",
                           }}
                         />
@@ -1826,7 +1836,7 @@ export function generateEmailCode(
   const {
     bgColor = "#ffffff",
     isInset = false,
-    isRounded = false,
+    cornerRadius = 0,
     emailBgColor = "#eeeeee",
     defaultTextColor = "#000000",
     accentTextColor = "#000000",
@@ -1927,7 +1937,7 @@ export function generateEmailCode(
                     width: "100%",
                     maxWidth: "672px",
                     backgroundColor: bgColor,
-                    borderRadius: isRounded ? "12px" : "0",
+                    borderRadius: `${cornerRadius}px`,
                     borderCollapse: "separate",
                     padding: "22px",
                     paddingTop: "8px",
@@ -1996,7 +2006,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomButton
                                               {...(block.data as ButtonBlockData)}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                               defaultFont={emailSafeFont}
                                             />
                                           </td>
@@ -2036,7 +2046,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomImage
                                               {...(block.data as any)}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                             />
                                           </td>
                                         </tr>
@@ -2057,7 +2067,7 @@ export function generateEmailCode(
                                             <CustomFileDownload
                                               {...(block.data as any)}
                                               defaultFont={emailSafeFont}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                             />
                                           </td>
                                         </tr>
@@ -2077,7 +2087,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomVideo
                                               {...(block.data as any)}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                             />
                                           </td>
                                         </tr>
@@ -2098,7 +2108,7 @@ export function generateEmailCode(
                                             <CustomCards
                                               {...(block.data as any)}
                                               defaultFont={emailSafeFont}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                               textColor={`${defaultTextColor} !important`}
                                               buttonStyle={
                                                 (block.data as any)?.buttonStyle
@@ -2240,7 +2250,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomButton
                                               {...(block.data as ButtonBlockData)}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                               defaultFont={emailSafeFont}
                                             />
                                           </td>
@@ -2280,7 +2290,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomImage
                                               {...(block.data as any)}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                             />
                                           </td>
                                         </tr>
@@ -2301,7 +2311,7 @@ export function generateEmailCode(
                                             <CustomFileDownload
                                               {...(block.data as any)}
                                               defaultFont={emailSafeFont}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                             />
                                           </td>
                                         </tr>
@@ -2321,7 +2331,7 @@ export function generateEmailCode(
                                           <td>
                                             <CustomVideo
                                               {...(block.data as any)}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                             />
                                           </td>
                                         </tr>
@@ -2342,7 +2352,7 @@ export function generateEmailCode(
                                             <CustomCards
                                               {...(block.data as any)}
                                               defaultFont={emailSafeFont}
-                                              isRounded={isRounded}
+                                              cornerRadius={cornerRadius}
                                               textColor={`${defaultTextColor} !important`}
                                               buttonStyle={
                                                 (block.data as any)?.buttonStyle
@@ -2423,7 +2433,7 @@ export function generateEmailCode(
           defaultFont={emailSafeFont}
           emailBgColor={emailBgColor}
           isInset={isInset}
-          isRounded={isRounded}
+          cornerRadius={cornerRadius}
         />
       </Body>
     </Html>

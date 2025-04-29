@@ -8,14 +8,14 @@ interface CardsBlockProps {
   data?: CardsBlockData;
   defaultFont?: string;
   defaultTextColor?: string;
-  isRounded?: boolean;
+  cornerRadius?: number;
 }
 
 export default function CardsBlock({
   data,
   defaultFont,
   defaultTextColor,
-  isRounded,
+  cornerRadius,
 }: CardsBlockProps) {
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const title = data?.title;
@@ -75,10 +75,8 @@ export default function CardsBlock({
               <Image
                 src={imageUrls[card.image]}
                 alt={card.title}
-                className={cn(
-                  "aspect-video w-full object-cover",
-                  isRounded && "rounded-md",
-                )}
+                className={cn("aspect-video w-full object-cover")}
+                style={{ borderRadius: `${cornerRadius}px` }}
                 width={1280}
                 height={720}
               />
@@ -107,7 +105,6 @@ export default function CardsBlock({
               <div
                 className={cn(
                   "mb-2 flex min-h-8 items-center justify-center text-balance px-4 py-2 text-center text-sm font-semibold",
-                  isRounded && "rounded-md",
                   data?.buttonSize === "full" && "w-full",
                   data?.buttonSize === "fit" && "w-fit px-6",
                   data?.buttonSize === "large" && "h-12 w-fit px-8",
@@ -129,6 +126,7 @@ export default function CardsBlock({
                       ? data?.buttonColor
                       : data?.buttonTextColor,
                   fontFamily: defaultFont || "inherit",
+                  borderRadius: `${cornerRadius}px`,
                 }}
               >
                 {card.buttonText}

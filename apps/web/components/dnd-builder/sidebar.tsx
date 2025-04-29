@@ -67,8 +67,8 @@ interface DndBuilderSidebarProps {
   onBlockUpdate: (block: Block) => void;
   isInset?: boolean;
   onIsInsetChange?: (isInset: boolean) => void;
-  isRounded?: boolean;
-  onIsRoundedChange?: (isRounded: boolean) => void;
+  cornerRadius?: number;
+  onCornerRadiusChange?: (cornerRadius: number) => void;
   linkColor?: string;
   onLinkColorChange?: (color: string) => void;
   accentTextColor?: string;
@@ -195,8 +195,8 @@ export default function DndBuilderSidebar({
   onBlockUpdate,
   isInset = false,
   onIsInsetChange,
-  isRounded = false,
-  onIsRoundedChange,
+  cornerRadius = 0,
+  onCornerRadiusChange,
   blockSpacing = 20,
   onBlockSpacingChange,
   emailBgColor = "#ffffff",
@@ -313,8 +313,8 @@ export default function DndBuilderSidebar({
                   emailId={emailId}
                   courseId={courseId}
                   footerData={footerData}
-                  isRounded={isRounded}
-                  onIsRoundedChange={onIsRoundedChange}
+                  cornerRadius={cornerRadius}
+                  onCornerRadiusChange={onCornerRadiusChange}
                   linkColor={linkColor}
                   onLinkColorChange={onLinkColorChange}
                   onFooterChange={onFooterChange}
@@ -554,8 +554,8 @@ export default function DndBuilderSidebar({
                 emailId={emailId}
                 footerData={footerData}
                 onFooterChange={onFooterChange}
-                isRounded={isRounded}
-                onIsRoundedChange={onIsRoundedChange}
+                cornerRadius={cornerRadius}
+                onCornerRadiusChange={onCornerRadiusChange}
                 linkColor={linkColor}
                 onLinkColorChange={onLinkColorChange}
                 accentTextColor={accentTextColor}

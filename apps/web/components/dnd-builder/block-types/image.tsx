@@ -7,10 +7,10 @@ import { Image as ImageIcon } from "@church-space/ui/icons";
 
 interface ImageBlockProps {
   data?: ImageBlockData;
-  isRounded?: boolean;
+  cornerRadius?: number;
 }
 
-export default function ImageBlock({ data, isRounded }: ImageBlockProps) {
+export default function ImageBlock({ data, cornerRadius }: ImageBlockProps) {
   const [imageUrl, setImageUrl] = useState<string>("");
   const image = data?.image || "";
   const size = data?.size || 33;
@@ -30,12 +30,8 @@ export default function ImageBlock({ data, isRounded }: ImageBlockProps) {
 
   const Content = () => (
     <div
-      className={cn(
-        "overflow-hidden",
-        isRounded && "rounded-md",
-        centered && "mx-auto",
-      )}
-      style={{ width: `${size}%` }}
+      className={cn("overflow-hidden", centered && "mx-auto")}
+      style={{ width: `${size}%`, borderRadius: `${cornerRadius}px` }}
     >
       {imageUrl ? (
         <Image

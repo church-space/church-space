@@ -56,7 +56,7 @@ export default function EmailPreview({
     defaultTextColor: emailStyle.default_text_color || "#000000",
     accentTextColor: emailStyle.accent_text_color || "#000000",
     defaultFont: emailStyle.default_font || "Inter",
-    isRounded: emailStyle.is_rounded ?? true,
+    cornerRadius: emailStyle.corner_radius || 0,
     linkColor: emailStyle.link_color || "#0000ff",
     blockSpacing: emailStyle.block_spacing || 20,
   };

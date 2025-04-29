@@ -4,13 +4,13 @@ import { cn } from "@church-space/ui/cn";
 interface FileDownloadBlockProps {
   data?: FileDownloadBlockData;
   defaultFont?: string;
-  isRounded?: boolean;
+  cornerRadius?: number;
 }
 
 export default function FileDownloadBlock({
   data,
   defaultFont,
-  isRounded,
+  cornerRadius,
 }: FileDownloadBlockProps) {
   const title = data?.title || "";
   const bgColor = data?.bgColor || "#f0f0f0";
@@ -18,11 +18,12 @@ export default function FileDownloadBlock({
 
   return (
     <div
-      className={cn(
-        "flex items-center justify-between p-2 pl-4",
-        isRounded && "rounded-md",
-      )}
-      style={{ backgroundColor: bgColor, fontFamily: defaultFont || "inherit" }}
+      className={cn("flex items-center justify-between p-2 pl-4")}
+      style={{
+        backgroundColor: bgColor,
+        fontFamily: defaultFont || "inherit",
+        borderRadius: `${cornerRadius}px`,
+      }}
     >
       <div className="flex items-center gap-2">
         <p className="text-sm" style={{ color: textColor, fontWeight: "400" }}>

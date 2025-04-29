@@ -45,8 +45,8 @@ export default function DndBuilderSidebarForms({
   emailId,
   courseId,
   footerData,
-  isRounded,
-  onIsRoundedChange,
+  cornerRadius,
+  onCornerRadiusChange,
   linkColor,
   onLinkColorChange,
   onFooterChange,
@@ -81,8 +81,8 @@ export default function DndBuilderSidebarForms({
   emailId?: number;
   courseId?: number;
   footerData?: any;
-  isRounded?: boolean;
-  onIsRoundedChange?: (isRounded: boolean) => void;
+  cornerRadius?: number;
+  onCornerRadiusChange?: (cornerRadius: number) => void;
   linkColor?: string;
   onLinkColorChange?: (color: string) => void;
   onFooterChange?: (data: any) => void;
@@ -157,8 +157,8 @@ export default function DndBuilderSidebarForms({
             onDefaultTextColorChange={onDefaultTextColorChange}
             defaultFont={defaultFont}
             onDefaultFontChange={onDefaultFontChange}
-            isRounded={isRounded}
-            onIsRoundedChange={onIsRoundedChange}
+            cornerRadius={cornerRadius}
+            onCornerRadiusChange={onCornerRadiusChange}
             linkColor={linkColor}
             onLinkColorChange={onLinkColorChange}
             accentTextColor={accentTextColor}

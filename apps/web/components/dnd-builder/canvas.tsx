@@ -13,7 +13,7 @@ interface CanvasProps {
   blocks: BlockType[];
   bgColor: string;
   isInset?: boolean;
-  isRounded?: boolean;
+  cornerRadius?: number;
   emailBgColor?: string;
   onBlockSelect: (id: string | null) => void;
   selectedBlockId: string | null;
@@ -50,7 +50,7 @@ export default function DndBuilderCanvas({
   blocks,
   bgColor,
   isInset = false,
-  isRounded = true,
+  cornerRadius = 0,
   emailBgColor = "#ffffff",
   onBlockSelect,
   blockSpacing = 20,
@@ -130,7 +130,7 @@ export default function DndBuilderCanvas({
   const insertionIndex = isDragging ? getInsertionIndex() : -1;
   const insertionIndicatorHeight = getInsertionIndicatorHeight();
 
-  const renderBlock = (block: BlockType, isRounded: boolean) => {
+  const renderBlock = (block: BlockType, cornerRadius: number) => {
     return (
       <Block
         key={block.id}
@@ -146,7 +146,7 @@ export default function DndBuilderCanvas({
         onTextContentChange={onTextContentChange}
         defaultFont={defaultFont}
         defaultTextColor={defaultTextColor}
-        isRounded={isRounded}
+        cornerRadius={cornerRadius}
         linkColor={linkColor}
         accentTextColor={accentTextColor}
         isUndoRedoOperation={isUndoRedoOperation}
@@ -162,13 +162,11 @@ export default function DndBuilderCanvas({
       className={cn(
         "mx-auto mb-20 flex w-full flex-col items-center justify-center border shadow-sm md:mb-0",
         isInset ? "px-3 pt-3" : "",
-        isRounded ? "rounded-md" : "rounded-none",
       )}
-      style={
-        isInset
-          ? { backgroundColor: emailBgColor }
-          : { backgroundColor: bgColor }
-      }
+      style={{
+        borderRadius: `${cornerRadius}px`,
+        backgroundColor: isInset ? emailBgColor : bgColor,
+      }}
       onClick={() => {
         onBlockSelect(null);
         if (activeForm !== "default") {
@@ -181,10 +179,12 @@ export default function DndBuilderCanvas({
         className={cn(
           "mx-auto flex w-full max-w-2xl flex-col p-4",
           isInset && "mb-2 p-6 pb-0 shadow-md",
-          isRounded && "rounded-lg",
           blocks.length === 0 && "min-h-[102px] pb-6",
         )}
-        style={{ backgroundColor: bgColor }}
+        style={{
+          backgroundColor: bgColor,
+          borderRadius: `${cornerRadius}px`,
+        }}
       >
         {blocks.length === 0 ? (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">
@@ -248,7 +248,7 @@ export default function DndBuilderCanvas({
                     {activeId === block.id ? (
                       <div style={{ height: `${heightRef.current}px` }} />
                     ) : (
-                      renderBlock(block, isRounded)
+                      renderBlock(block, cornerRadius)
                     )}
                   </motion.div>
                 </React.Fragment>

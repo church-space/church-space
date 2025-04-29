@@ -32,7 +32,7 @@ interface BlockProps {
   onTextContentChange?: (blockId: string, content: string) => void;
   defaultFont?: string;
   defaultTextColor?: string;
-  isRounded?: boolean;
+  cornerRadius?: number;
   linkColor?: string;
   accentTextColor?: string;
   isUndoRedoOperation?: boolean;
@@ -61,7 +61,7 @@ export default function Block({
   onTextContentChange,
   defaultFont,
   defaultTextColor,
-  isRounded,
+  cornerRadius,
   linkColor,
   accentTextColor,
   isUndoRedoOperation = false,
@@ -133,24 +133,24 @@ export default function Block({
       case "divider":
         return <DividerBlock data={block.data} />;
       case "image":
-        return <ImageBlock data={block.data} isRounded={isRounded} />;
+        return <ImageBlock data={block.data} cornerRadius={cornerRadius} />;
       case "file-download":
         return (
           <FileDownloadBlock
             data={block.data}
             defaultFont={defaultFont}
-            isRounded={isRounded}
+            cornerRadius={cornerRadius}
           />
         );
       case "video":
-        return <VideoBlock data={block.data} isRounded={isRounded} />;
+        return <VideoBlock data={block.data} cornerRadius={cornerRadius} />;
       case "cards":
         return (
           <CardsBlock
             data={block.data}
             defaultFont={defaultFont}
             defaultTextColor={defaultTextColor}
-            isRounded={isRounded}
+            cornerRadius={cornerRadius}
           />
         );
       case "author":
@@ -166,7 +166,7 @@ export default function Block({
           <ButtonBlock
             data={block.data}
             defaultFont={defaultFont}
-            isRounded={isRounded}
+            cornerRadius={cornerRadius}
           />
         );
       case "list":

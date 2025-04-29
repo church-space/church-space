@@ -9,7 +9,7 @@ export interface EmailStyles {
   defaultTextColor: string;
   accentTextColor: string;
   defaultFont: string;
-  isRounded: boolean;
+  cornerRadius: number;
   blockSpacing: number;
   linkColor: string;
 }
@@ -30,7 +30,7 @@ export function useBlockStateManager(
     defaultTextColor: "#000000",
     accentTextColor: "#666666",
     defaultFont: "sans-serif",
-    isRounded: true,
+    cornerRadius: 0,
     linkColor: "#0000ff",
     blockSpacing: 20,
   },

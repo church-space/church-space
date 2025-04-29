@@ -5,13 +5,13 @@ import type { ButtonBlockData } from "@/types/blocks";
 interface ButtonBlockProps {
   data?: ButtonBlockData;
   defaultFont?: string;
-  isRounded?: boolean;
+  cornerRadius?: number;
 }
 
 export default function ButtonBlock({
   data,
   defaultFont,
-  isRounded,
+  cornerRadius,
 }: ButtonBlockProps) {
   const text = data?.text || "";
   const color = data?.color || "#000000";
@@ -36,7 +36,6 @@ export default function ButtonBlock({
       <div
         className={cn(
           "inline-flex h-9 items-center px-4 py-2 text-sm font-semibold",
-          isRounded && "rounded-md",
           size === "full" && "w-full justify-center",
           size === "medium" && "!text-cetner w-fit justify-center px-16",
           size === "large" && "!text-cetner h-12 w-fit justify-center px-8",
@@ -49,6 +48,7 @@ export default function ButtonBlock({
           borderColor: style === "outline" ? color : "transparent",
           color: style === "outline" ? color : textColor,
           fontFamily: defaultFont || "inherit",
+          borderRadius: `${cornerRadius}px`,
         }}
       >
         {text && text.length > 0 ? (

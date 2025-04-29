@@ -159,7 +159,7 @@ export default function SendTestEmail({
       const style = {
         bgColor: emailStyle?.blocks_bg_color || "#ffffff",
         isInset: emailStyle?.is_inset || false,
-        isRounded: emailStyle?.is_rounded || false,
+        cornerRadius: emailStyle?.corner_radius || 0,
         emailBgColor: emailStyle?.bg_color || "#eeeeee",
         defaultTextColor: emailStyle?.default_text_color || "#000000",
         accentTextColor: emailStyle?.accent_text_color || "#000000",

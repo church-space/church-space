@@ -8,7 +8,7 @@ interface StyleUpdates {
   default_font?: string;
   is_inset?: boolean;
   bg_color?: string;
-  is_rounded?: boolean;
+  corner_radius?: number;
   block_spacing?: number;
   link_color?: string;
 }
@@ -45,8 +45,8 @@ export function useUpdateEmailStyle() {
         }),
         ...(updates.is_inset !== undefined && { is_inset: updates.is_inset }),
         ...(updates.bg_color !== undefined && { bg_color: updates.bg_color }),
-        ...(updates.is_rounded !== undefined && {
-          is_rounded: updates.is_rounded,
+        ...(updates.corner_radius !== undefined && {
+          corner_radius: updates.corner_radius,
         }),
         ...(updates.link_color !== undefined && {
           link_color: updates.link_color,

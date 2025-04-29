@@ -150,7 +150,7 @@ export default function EmailDndProvider({
     linkColor: emailStyle.link_color || "#0000ff",
     defaultTextColor: emailStyle.default_text_color || "#000000",
     defaultFont: emailStyle.default_font || "sans-serif",
-    isRounded: emailStyle.is_rounded ?? true,
+    cornerRadius: emailStyle.corner_radius || 0,
     blockSpacing: emailStyle.block_spacing || 20,
     accentTextColor: emailStyle.accent_text_color || "#666666",
   };
@@ -212,7 +212,7 @@ export default function EmailDndProvider({
         accent_text_color: styleObj.accentTextColor,
         default_font: styleObj.defaultFont,
         is_inset: styleObj.isInset,
-        is_rounded: styleObj.isRounded,
+        corner_radius: styleObj.cornerRadius,
         block_spacing: styleObj.blockSpacing,
         bg_color: styleObj.emailBgColor,
         link_color: styleObj.linkColor,
@@ -1168,7 +1168,7 @@ export default function EmailDndProvider({
             block={draggedBlock}
             defaultFont={styles.defaultFont}
             defaultTextColor={styles.defaultTextColor}
-            isRounded={styles.isRounded}
+            cornerRadius={styles.cornerRadius}
           />
         );
       }
@@ -1183,7 +1183,7 @@ export default function EmailDndProvider({
           block={draggedBlock}
           defaultFont={styles.defaultFont}
           defaultTextColor={styles.defaultTextColor}
-          isRounded={styles.isRounded}
+          cornerRadius={styles.cornerRadius}
         />
       );
     }
@@ -1208,7 +1208,7 @@ export default function EmailDndProvider({
           accent_text_color: styles.accentTextColor,
           default_font: styles.defaultFont,
           is_inset: styles.isInset,
-          is_rounded: styles.isRounded,
+          corner_radius: styles.cornerRadius,
           block_spacing: styles.blockSpacing,
           bg_color: styles.emailBgColor,
           link_color: styles.linkColor,
@@ -1312,7 +1312,7 @@ export default function EmailDndProvider({
     styles.defaultTextColor,
     styles.defaultFont,
     styles.isInset,
-    styles.isRounded,
+    styles.cornerRadius,
     styles.blockSpacing,
     styles.emailBgColor,
     styles.linkColor,
@@ -1560,11 +1560,11 @@ export default function EmailDndProvider({
     [emailId, debouncedStyleUpdate, updateStylesHistory],
   );
 
-  // Fix handleIsRoundedChange to include history update
-  const handleIsRoundedChange = useCallback(
-    (rounded: boolean) => {
+  // Fix handleCornerRadiusChange to include history update
+  const handleCornerRadiusChange = useCallback(
+    (rounded: number) => {
       // Update UI immediately - this will add to history
-      updateStylesHistory({ isRounded: rounded });
+      updateStylesHistory({ cornerRadius: rounded });
 
       // Debounce the database update
       if (debouncedStyleUpdateRef.current) {
@@ -1575,7 +1575,7 @@ export default function EmailDndProvider({
         // Update in database if we have an emailId
         if (emailId) {
           debouncedStyleUpdate({
-            is_rounded: rounded,
+            corner_radius: rounded,
           });
         }
       }, 500);
@@ -2933,8 +2933,8 @@ export default function EmailDndProvider({
             onDefaultFontChange={handleDefaultFontChange}
             isInset={styles.isInset}
             onIsInsetChange={handleIsInsetChange}
-            isRounded={styles.isRounded}
-            onIsRoundedChange={handleIsRoundedChange}
+            cornerRadius={styles.cornerRadius}
+            onCornerRadiusChange={handleCornerRadiusChange}
             blockSpacing={styles.blockSpacing}
             onBlockSpacingChange={handleBlockSpacingChange}
             emailBgColor={styles.emailBgColor}
@@ -2995,7 +2995,7 @@ export default function EmailDndProvider({
                 blocks={blocks}
                 bgColor={styles.bgColor}
                 isInset={styles.isInset}
-                isRounded={styles.isRounded}
+                cornerRadius={styles.cornerRadius}
                 blockSpacing={styles.blockSpacing}
                 emailBgColor={styles.emailBgColor}
                 onBlockSelect={setSelectedBlockId}

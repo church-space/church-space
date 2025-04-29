@@ -23,8 +23,8 @@ interface EmailStyleFormProps {
   onBgColorChange?: (color: string) => void;
   isInset?: boolean;
   onIsInsetChange?: (isInset: boolean) => void;
-  isRounded?: boolean;
-  onIsRoundedChange?: (isRounded: boolean) => void;
+  cornerRadius?: number;
+  onCornerRadiusChange?: (cornerRadius: number) => void;
   emailBgColor?: string;
   onEmailBgColorChange?: (color: string) => void;
   defaultTextColor?: string;
@@ -50,8 +50,8 @@ export default function EmailStyleForm({
   onBgColorChange,
   isInset = false,
   onIsInsetChange,
-  isRounded = false,
-  onIsRoundedChange,
+  cornerRadius = 0,
+  onCornerRadiusChange,
   emailBgColor = "#eeeeee",
   onEmailBgColorChange,
   defaultTextColor = "#000000",
@@ -143,7 +143,14 @@ export default function EmailStyleForm({
       )}
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Rounded Corners</Label>
-        <Switch checked={isRounded} onCheckedChange={onIsRoundedChange} />
+        <Slider
+          max={100}
+          min={0}
+          step={1}
+          value={[cornerRadius]}
+          onValueChange={(value) => onCornerRadiusChange?.(value[0])}
+          className="col-span-2"
+        />
       </div>
       <div className="grid grid-cols-3 items-center gap-2">
         <Label>Block Spacing</Label>
