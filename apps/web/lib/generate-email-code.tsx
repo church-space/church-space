@@ -195,7 +195,8 @@ const CustomText: React.FC<{
     .replace(/class="[^"]*"/g, "")
     // Add more space above h1 and h2, reduce space below all headings, and set font weights and sizes
     .replace(/<h1(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = " font-weight: 600; font-size: 2rem; line-height: 1";
+      const baseStyle =
+        " font-weight: 600; font-size: 2rem; line-height: 1.2; margin-block-start: 0.3em; margin-block-end: 0.3em";
       if (existingStyle) {
         return `<h1 style="${existingStyle}; ${baseStyle}"`;
       }
@@ -203,7 +204,7 @@ const CustomText: React.FC<{
     })
     .replace(/<h2(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        " font-weight: 600; font-size: 1.5rem; line-height: 1.3";
+        " font-weight: 600; font-size: 1.5rem; line-height: 1.3; margin-block-start: 0.3em; margin-block-end: 0.3em";
       if (existingStyle) {
         return `<h2 style="${existingStyle}; ${baseStyle}"`;
       }
@@ -211,22 +212,23 @@ const CustomText: React.FC<{
     })
     .replace(/<h3(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        "font-weight: 600; font-size: 1.25rem; line-height: 1.1";
+        "font-weight: 600; font-size: 1.25rem; line-height: 1.3; margin-block-start:0.3em; margin-block-end: 0.3em";
       if (existingStyle) {
         return `<h3 style="${existingStyle}; ${baseStyle}"`;
       }
       return `<h3 style="${baseStyle}"`;
     })
     .replace(/<h4(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = " font-weight: 600; font-size: 4rem; line-height: 1";
+      const baseStyle =
+        " font-weight: 600; font-size: 4rem; line-height: 1.2; margin-block-start: 0.3em; margin-block-end: 0.3em";
       if (existingStyle) {
         return `<h4 style="${existingStyle}; ${baseStyle}"`;
       }
-      return `<h1 style="${baseStyle}"`;
+      return `<h4 style="${baseStyle}"`;
     })
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = "font-weight: 400; line-height: 1.5; margin: 0.5em 0";
+      const baseStyle = "font-weight: 400; line-height: 1.5; margin: 0em 0 ";
       if (existingStyle) {
         return `<p style="${existingStyle}; ${baseStyle}"`;
       }
@@ -307,9 +309,6 @@ const CustomText: React.FC<{
   // Now add a style tag to handle the first-child rule similar to the CSS
   const processedContent = `
     <style>
-      h1:first-child, h2:first-child, h3:first-child {
-        margin-top: 0em !important;
-      }
       /* Add email client support for text alignment */
       [style*="text-align: center"] {
         text-align: center !important;
