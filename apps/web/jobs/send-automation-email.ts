@@ -169,6 +169,7 @@ export const sendAutomationEmail = task({
         accentTextColor: emailStyle.accent_text_color || "#000000",
         defaultFont: emailStyle.default_font || "sans-serif",
         linkColor: emailStyle.link_color || "#0000ff",
+        blockSpacing: emailStyle.block_spacing || 16,
       };
 
       // Get org footer details

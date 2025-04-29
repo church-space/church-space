@@ -1516,6 +1516,7 @@ const CustomFooter: React.FC<{
                           style={{
                             objectFit: "contain",
                             borderRadius: isRounded ? "6px" : "0",
+                            marginBottom: "16px",
                           }}
                         />
                       </td>

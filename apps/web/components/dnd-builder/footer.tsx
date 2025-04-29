@@ -137,7 +137,7 @@ export default function Footer({
             <Image
               src={logoUrl}
               alt="Logo"
-              className="h-28 w-28 rounded-md object-contain"
+              className="mb-6 h-28 w-28 rounded-md object-contain"
               width={112}
               height={112}
             />
