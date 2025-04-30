@@ -71,8 +71,8 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
                 </p>
               </div>
             </div>
-            <Link href={`/people/import`}>
-              <Button className="mr-3 w-full md:w-fit">
+            <Link href={`/people/import`} className="w-full md:mr-3 md:w-fit">
+              <Button className="w-full md:mr-3 md:w-fit">
                 Import Unsubscribes
               </Button>
             </Link>
