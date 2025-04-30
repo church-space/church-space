@@ -33,7 +33,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import AutomationBuilder from "@/components/automation-builder/automation-builder";
-import { DisableLink } from "@church-space/ui/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";

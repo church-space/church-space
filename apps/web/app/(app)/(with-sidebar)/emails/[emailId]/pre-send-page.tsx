@@ -1167,9 +1167,13 @@ export default function PreSendPage({
               <AccordionTrigger className="text-md font-semibold">
                 <div className="flex items-center gap-3">
                   {email.list_id && categoryId ? (
-                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    <span className="flex-shrink-0">
+                      <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    </span>
                   ) : (
-                    <UnfilledCircleDashed height={"24"} width={"24"} />
+                    <span className="flex-shrink-0">
+                      <UnfilledCircleDashed height={"24"} width={"24"} />
+                    </span>
                   )}
                   <div className="flex flex-col">
                     <span>To</span>
@@ -1260,9 +1264,13 @@ export default function PreSendPage({
                   {email.from_name &&
                   email.from_email &&
                   email.from_email_domain ? (
-                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    <span className="flex-shrink-0">
+                      <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    </span>
                   ) : (
-                    <UnfilledCircleDashed height={"24"} width={"24"} />
+                    <span className="flex-shrink-0">
+                      <UnfilledCircleDashed height={"24"} width={"24"} />
+                    </span>
                   )}
                   <div className="flex flex-col">
                     <span>From</span>
@@ -1365,9 +1373,13 @@ export default function PreSendPage({
               <AccordionTrigger className="text-md font-semibold">
                 <div className="flex items-center gap-3">
                   {email.subject ? (
-                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    <span className="flex-shrink-0">
+                      <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    </span>
                   ) : (
-                    <UnfilledCircleDashed height={"24"} width={"24"} />
+                    <span className="flex-shrink-0">
+                      <UnfilledCircleDashed height={"24"} width={"24"} />
+                    </span>
                   )}
                   <div className="flex flex-col">
                     <span>Subject</span>
@@ -1462,9 +1474,13 @@ export default function PreSendPage({
               <AccordionTrigger className="text-md font-semibold">
                 <div className="flex items-center gap-3">
                   {email.scheduled_for || email.send_now ? (
-                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    <span className="flex-shrink-0">
+                      <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    </span>
                   ) : (
-                    <UnfilledCircleDashed height={"24"} width={"24"} />
+                    <span className="flex-shrink-0">
+                      <UnfilledCircleDashed height={"24"} width={"24"} />
+                    </span>
                   )}
                   <div className="flex flex-col">
                     <span>Send Time</span>
@@ -1584,9 +1600,13 @@ export default function PreSendPage({
               >
                 <span className="text-muted-foreground">
                   {emailBlockCount > 0 ? (
-                    <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    <span className="flex-shrink-0">
+                      <CircleCheck height={"24"} width={"24"} fill="#2ECE26" />
+                    </span>
                   ) : (
-                    <UnfilledCircleDashed height={"24"} width={"24"} />
+                    <span className="flex-shrink-0">
+                      <UnfilledCircleDashed height={"24"} width={"24"} />
+                    </span>
                   )}
                 </span>
                 <div className="flex flex-col">
