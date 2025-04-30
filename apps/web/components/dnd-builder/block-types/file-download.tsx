@@ -36,7 +36,7 @@ export default function FileDownloadBlock({
           color: bgColor,
           borderColor: bgColor,
           backgroundColor: textColor,
-          borderRadius: cornerRadius ? `${cornerRadius * 0.3}px` : "0",
+          borderRadius: cornerRadius ? `${cornerRadius * 0.4}px` : "0",
         }}
       >
         Download

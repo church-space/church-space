@@ -424,7 +424,7 @@ const CustomButton: React.FC<{
               {text && text.length > 0 ? text : ""}
             </a>
           ) : (
-            <span
+            <p
               style={{
                 backgroundColor:
                   buttonStyle === "filled" ? color : "transparent",
@@ -450,7 +450,7 @@ const CustomButton: React.FC<{
               }}
             >
               {text}
-            </span>
+            </p>
           )}
         </td>
       </tr>
@@ -588,46 +588,34 @@ const CustomFileDownload: React.FC<{
                           paddingLeft: "8px",
                           verticalAlign: "middle",
                           width: "auto",
+                          fontFamily: ensureFontFallbacks(defaultFont),
+                          fontSize: "14px",
+                          fontWeight: "500",
+                          color: textColor,
                         }}
                       >
-                        <span
-                          style={{
-                            fontFamily: ensureFontFallbacks(defaultFont),
-                            fontSize: "14px",
-                            fontWeight: "500",
-                            color: textColor,
-                            display: "inline-block",
-                          }}
-                        >
-                          {title}
-                        </span>
+                        {title}
                       </td>
                       <td
                         style={{
                           textAlign: "right",
                           verticalAlign: "middle",
                           width: "1%",
+                          border: `1px solid ${bgColor}`,
+                          borderRadius: cornerRadius
+                            ? `${cornerRadius * 0.4}px`
+                            : "0",
+                          color: bgColor,
+                          backgroundColor: textColor,
+                          fontFamily: ensureFontFallbacks(defaultFont),
+                          fontSize: "13px",
+                          padding: "7px 18px",
+                          whiteSpace: "nowrap",
+                          fontWeight: "300",
                         }}
                         width="80"
                       >
-                        <span
-                          style={{
-                            border: `1px solid ${bgColor}`,
-                            borderRadius: cornerRadius
-                              ? `${cornerRadius * 0.3}px`
-                              : "0",
-                            color: bgColor,
-                            backgroundColor: textColor,
-                            display: "inline-block",
-                            fontFamily: ensureFontFallbacks(defaultFont),
-                            fontSize: "13px",
-                            padding: "7px 18px",
-                            whiteSpace: "nowrap",
-                            fontWeight: "300",
-                          }}
-                        >
-                          Download
-                        </span>
+                        Download
                       </td>
                     </tr>
                   </table>
@@ -889,14 +877,16 @@ const CustomCards: React.FC<{
                             )}
                             {card.buttonText && (
                               <tr>
-                                <td
-                                  style={{
-                                    width: "100%",
-                                    textAlign:
-                                      buttonSize === "full" ? "center" : "left",
-                                  }}
-                                >
-                                  {card.buttonLink ? (
+                                {card.buttonLink ? (
+                                  <td
+                                    style={{
+                                      width: "100%",
+                                      textAlign:
+                                        buttonSize === "full"
+                                          ? "center"
+                                          : "left",
+                                    }}
+                                  >
                                     <a
                                       href={formattedButtonLink}
                                       target="_blank"
@@ -935,45 +925,43 @@ const CustomCards: React.FC<{
                                     >
                                       {card.buttonText}
                                     </a>
-                                  ) : (
-                                    <span
-                                      style={{
-                                        backgroundColor:
-                                          buttonStyle === "filled"
-                                            ? buttonColor
-                                            : "transparent",
-                                        border: `2px solid ${buttonColor}`,
-                                        borderRadius: cornerRadius
-                                          ? `${cornerRadius * 0.3}px`
-                                          : "0",
-                                        color:
-                                          buttonStyle === "filled"
-                                            ? buttonTextColor
-                                            : buttonColor,
-                                        display: "inline-block",
-                                        fontFamily:
-                                          ensureFontFallbacks(defaultFont),
-                                        fontSize: "14px",
-                                        fontWeight: "600",
-                                        lineHeight: "1",
-                                        padding:
-                                          buttonSize === "large"
-                                            ? "15px 32px"
-                                            : "9px 15px",
-                                        textDecoration: "none",
-                                        textAlign: "center",
-                                        width:
-                                          buttonSize === "full"
-                                            ? "100%"
-                                            : "auto",
-                                        maxWidth: "100%",
-                                        boxSizing: "border-box",
-                                      }}
-                                    >
-                                      {card.buttonText}
-                                    </span>
-                                  )}
-                                </td>
+                                  </td>
+                                ) : (
+                                  <td
+                                    style={{
+                                      textAlign: "center",
+                                      backgroundColor:
+                                        buttonStyle === "filled"
+                                          ? buttonColor
+                                          : "transparent",
+                                      border: `2px solid ${buttonColor}`,
+                                      borderRadius: cornerRadius
+                                        ? `${cornerRadius * 0.3}px`
+                                        : "0",
+                                      color:
+                                        buttonStyle === "filled"
+                                          ? buttonTextColor
+                                          : buttonColor,
+                                      display: "inline-block",
+                                      fontFamily:
+                                        ensureFontFallbacks(defaultFont),
+                                      fontSize: "14px",
+                                      fontWeight: "600",
+                                      lineHeight: "1",
+                                      padding:
+                                        buttonSize === "large"
+                                          ? "15px 32px"
+                                          : "9px 15px",
+                                      textDecoration: "none",
+                                      width:
+                                        buttonSize === "full" ? "100%" : "auto",
+                                      maxWidth: "100%",
+                                      boxSizing: "border-box",
+                                    }}
+                                  >
+                                    {card.buttonText}
+                                  </td>
+                                )}
                               </tr>
                             )}
                           </table>
@@ -1164,32 +1152,27 @@ const CustomList: React.FC<{
                           )}
                           {item.description && (
                             <tr>
-                              <td>
-                                {item.description
-                                  .split("\n")
-                                  .map((paragraph, pIndex) => (
-                                    <p
-                                      key={pIndex}
-                                      style={{
-                                        fontFamily: defaultFont || "sans-serif",
-                                        fontSize: "14px",
-                                        color: defaultTextColor || textColor,
-                                        opacity: 0.8,
-                                        lineHeight: "1.5",
-                                        marginBottom:
-                                          pIndex <
-                                          item.description.split("\n").length -
-                                            1
-                                            ? "12px"
-                                            : "0",
-                                        marginBlockStart: "0",
-                                        marginBlockEnd: "0",
-                                      }}
-                                    >
-                                      {paragraph}
-                                    </p>
-                                  ))}
-                              </td>
+                              {item.description
+                                .split("\n")
+                                .map((paragraph, pIndex) => (
+                                  <td
+                                    key={pIndex}
+                                    style={{
+                                      fontFamily: defaultFont || "sans-serif",
+                                      fontSize: "14px",
+                                      color: defaultTextColor || textColor,
+                                      opacity: 0.8,
+                                      lineHeight: "1.5",
+                                      marginBottom:
+                                        pIndex <
+                                        item.description.split("\n").length - 1
+                                          ? "12px"
+                                          : "0",
+                                    }}
+                                  >
+                                    {paragraph}
+                                  </td>
+                                ))}
                             </tr>
                           )}
                         </table>
@@ -1247,6 +1230,7 @@ const CustomAuthor: React.FC<{
         <td>
           <table style={{ width: "100%" }} cellPadding="0" cellSpacing="0">
             <tr>
+              {/* TODO: stack on mobile */}
               <td style={{ verticalAlign: "middle" }}>
                 <table cellPadding="0" cellSpacing="0">
                   <tr>
@@ -1322,84 +1306,92 @@ const CustomAuthor: React.FC<{
                 </table>
               </td>
               <td style={{ textAlign: "right" }}>
-                {links?.map((link, index) => {
-                  if (!link.icon) {
-                    return null;
-                  }
+                <table
+                  style={{ width: "100%" }}
+                  cellPadding="5px"
+                  cellSpacing="0px"
+                >
+                  {links?.map((link, index) => {
+                    if (!link.icon) {
+                      return null;
+                    }
 
-                  const iconUrl =
-                    IconImages[iconColorKey as keyof typeof IconImages]?.[
-                      (SocialIconKeys[
-                        link.icon as keyof typeof SocialIconKeys
-                      ] || link.icon) as keyof (typeof IconImages)["black"]
-                    ];
-                  if (!iconUrl) {
-                    return null;
-                  }
+                    const iconUrl =
+                      IconImages[iconColorKey as keyof typeof IconImages]?.[
+                        (SocialIconKeys[
+                          link.icon as keyof typeof SocialIconKeys
+                        ] || link.icon) as keyof (typeof IconImages)["black"]
+                      ];
+                    if (!iconUrl) {
+                      return null;
+                    }
 
-                  if (!link.url) {
+                    if (!link.url) {
+                      return (
+                        <td
+                          key={index}
+                          style={{
+                            width: "20px",
+                            height: "20px",
+                            display: "inline-block",
+                            marginLeft: "8px",
+                            marginBottom: "8px",
+                            color: finalTextColor,
+                            textDecoration: "none",
+                          }}
+                        >
+                          <Img
+                            src={iconUrl}
+                            alt={link.icon}
+                            width="18"
+                            height="18"
+                            style={{
+                              display: "block",
+                            }}
+                          />
+                        </td>
+                      );
+                    }
+
+                    // Format the URL with proper prefix
+                    const formattedUrl = formatUrl(
+                      link.url,
+                      link.icon === "mail" ? "mail" : "link",
+                    );
+
                     return (
-                      <span
+                      <a
                         key={index}
+                        href={formattedUrl}
+                        target="_blank"
                         style={{
-                          width: "20px",
-                          height: "20px",
-                          display: "inline-block",
                           marginLeft: "8px",
                           color: finalTextColor,
                           textDecoration: "none",
                         }}
                       >
-                        <Img
-                          src={iconUrl}
-                          alt={link.icon}
-                          width="18"
-                          height="18"
+                        <td
                           style={{
-                            display: "block",
+                            width: "20px",
+                            height: "20px",
+                            display: "inline-block",
+                            marginBottom: "8px",
                           }}
-                        />
-                      </span>
+                        >
+                          <Img
+                            src={iconUrl}
+                            alt={link.icon}
+                            width="18"
+                            height="18"
+                            style={{
+                              display: "block",
+                            }}
+                          />
+                        </td>
+                      </a>
                     );
-                  }
-
-                  // Format the URL with proper prefix
-                  const formattedUrl = formatUrl(
-                    link.url,
-                    link.icon === "mail" ? "mail" : "link",
-                  );
-
-                  return (
-                    <a
-                      key={index}
-                      href={formattedUrl}
-                      target="_blank"
-                      style={{
-                        marginLeft: "8px",
-                        color: finalTextColor,
-                        textDecoration: "none",
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: "20px",
-                          height: "20px",
-                          display: "inline-block",
-                        }}
-                      >
-                        <Img
-                          src={iconUrl}
-                          alt={link.icon}
-                          width="18"
-                          height="18"
-                          style={{
-                            display: "block",
-                          }}
-                        />
-                      </span>
-                    </a>
-                  );
-                })}
+                  })}
+                </table>
               </td>
             </tr>
           </table>
@@ -1784,10 +1776,9 @@ const CustomFooter: React.FC<{
                               padding: "0 10px",
                             }}
                           >
-                            <span>
-                              © {new Date().getFullYear()} {orgName && orgName}
-                            </span>
-                            <span style={{ margin: "0 8px" }}>|</span>
+                            &copy; {new Date().getFullYear()}{" "}
+                            {orgName && orgName}
+                            {" | "}
                             <a
                               href={"#"}
                               style={{
@@ -1800,7 +1791,7 @@ const CustomFooter: React.FC<{
                             >
                               Update your preferences
                             </a>
-                            <span style={{ margin: "0 8px" }}>|</span>
+                            {" | "}
                             <a
                               href={"#"}
                               style={{
@@ -2154,7 +2145,7 @@ export function generateEmailCode(
                                         cellPadding="0"
                                         cellSpacing="0"
                                         border={0}
-                                        style={{ margin: "18px 0 4px 0" }}
+                                        style={blockStyle}
                                       >
                                         <tr>
                                           <td>
@@ -2398,7 +2389,7 @@ export function generateEmailCode(
                                         cellPadding="0"
                                         cellSpacing="0"
                                         border={0}
-                                        style={{ margin: "24px 0 8px 0" }}
+                                        style={blockStyle}
                                       >
                                         <tr>
                                           <td>

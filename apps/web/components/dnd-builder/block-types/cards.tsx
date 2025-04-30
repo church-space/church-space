@@ -106,7 +106,7 @@ export default function CardsBlock({
             {card.buttonText && (
               <div
                 className={cn(
-                  "mb-2 flex min-h-8 items-center justify-center text-balance px-4 py-2 text-center text-sm font-semibold",
+                  "mb-2 flex min-h-8 items-center justify-center px-4 py-2 text-center text-sm font-semibold",
                   data?.buttonSize === "full" && "w-full",
                   data?.buttonSize === "fit" && "w-fit px-6",
                   data?.buttonSize === "large" && "h-12 w-fit px-8",

@@ -50,7 +50,7 @@ import { debounce } from "lodash";
 import { Eye, SaveIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useQueryState } from "nuqs";
+import { useQueryState, parseAsBoolean } from "nuqs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Block from "./block";
 import DndBuilderCanvas from "./canvas";
@@ -102,6 +102,7 @@ export default function EmailDndProvider({
   const batchUpdateEmailBlocks = useBatchUpdateEmailBlocks();
   const queryClient = useQueryClient();
   const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
+  const [newEmailModalOpen = false] = useQueryState("newEmail", parseAsBoolean);
   const [isSaving, setIsSaving] = useState(false);
   const [blocksBeingDeleted, setBlocksBeingDeleted] = useState<Set<string>>(
     new Set(),
@@ -2796,6 +2797,76 @@ export default function EmailDndProvider({
     }
   };
 
+  // Track last selected style and footer from NewEmailModal
+  const [lastModalStyleUpdates, setLastModalStyleUpdates] =
+    useState<Partial<EmailStyles> | null>(null);
+  const [lastModalFooterUpdates, setLastModalFooterUpdates] =
+    useState<any>(null);
+
+  // Handle style changes from modal with local state tracking
+  const handleModalStyleChanges = useCallback(
+    (styleUpdates: Partial<EmailStyles>) => {
+      // Store the updates for useEffect to process
+      setLastModalStyleUpdates(styleUpdates);
+
+      // Also call the normal handler for DB updates
+      handleAllStyleChanges(styleUpdates);
+    },
+    [handleAllStyleChanges],
+  );
+
+  // Handle footer changes from modal with local state tracking
+  const handleModalFooterChanges = useCallback(
+    (footerUpdates: any) => {
+      // Store the updates for useEffect to process
+      setLastModalFooterUpdates(footerUpdates);
+
+      // Also call the normal handler for DB updates
+      handleFooterChange(footerUpdates);
+    },
+    [handleFooterChange],
+  );
+
+  // Apply stored style and footer updates when modal closes
+  useEffect(() => {
+    if (
+      !newEmailModalOpen &&
+      (lastModalStyleUpdates || lastModalFooterUpdates)
+    ) {
+      // Force an update to the current state
+      setCurrentState((prevState) => {
+        const newState = { ...prevState };
+
+        // Apply style updates if they exist
+        if (lastModalStyleUpdates) {
+          newState.styles = {
+            ...newState.styles,
+            ...lastModalStyleUpdates,
+          };
+        }
+
+        // Apply footer updates if they exist
+        if (lastModalFooterUpdates) {
+          newState.footer = {
+            ...newState.footer,
+            ...lastModalFooterUpdates,
+          };
+        }
+
+        return newState;
+      });
+
+      // Reset the stored updates
+      setLastModalStyleUpdates(null);
+      setLastModalFooterUpdates(null);
+    }
+  }, [
+    newEmailModalOpen,
+    lastModalStyleUpdates,
+    lastModalFooterUpdates,
+    setCurrentState,
+  ]);
+
   return (
     <div className="relative flex h-full flex-col">
       <Dialog
@@ -3049,8 +3120,9 @@ export default function EmailDndProvider({
       </DndContext>
 
       <NewEmailModal
-        onFooterChange={handleFooterChange}
-        onAllStyleChanges={handleAllStyleChanges}
+        onFooterChange={handleModalFooterChanges}
+        onAllStyleChanges={handleModalStyleChanges}
+        setCurrentState={setCurrentState}
       />
     </div>
   );

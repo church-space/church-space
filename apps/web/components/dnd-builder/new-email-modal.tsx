@@ -140,11 +140,13 @@ const pallets = [
 interface NewEmailModalProps {
   onFooterChange?: (data: any) => void;
   onAllStyleChanges?: (styleUpdates: Partial<EmailStyles>) => void;
+  setCurrentState?: (state: any) => void;
 }
 
 export default function NewEmailModal({
   onFooterChange,
   onAllStyleChanges,
+  setCurrentState,
 }: NewEmailModalProps) {
   const [newEmailModalOpen = false, setNewEmailModalOpen] = useQueryState(
     "newEmail",
@@ -166,8 +168,8 @@ export default function NewEmailModal({
     );
 
     if (selectedPallet) {
-      // Handle all style changes at once
-      onAllStyleChanges?.({
+      // Create style updates object
+      const styleUpdates = {
         bgColor: selectedPallet.colors.bgColor,
         emailBgColor: selectedPallet.colors.blocksBgColor,
         defaultTextColor: selectedPallet.colors.textColor,
@@ -175,14 +177,33 @@ export default function NewEmailModal({
         accentTextColor: selectedPallet.colors.accentTextColor,
         defaultFont: selectedFont,
         isInset: isInset,
-      });
+      };
 
-      // Handle footer changes separately
-      onFooterChange?.({
+      // Create footer updates object
+      const footerUpdates = {
         text_color: selectedPallet.colors.footerTextColor,
         secondary_text_color: selectedPallet.colors.footerAccentTextColor,
         bg_color: selectedPallet.colors.footerBgColor,
-      });
+      };
+
+      // First apply updates to local state using direct function call
+      if (setCurrentState) {
+        // We need to use a callback to preserve existing blocks
+        setCurrentState(
+          (prevState: { blocks: any[]; styles: any; footer: any }) => ({
+            blocks: prevState.blocks, // Keep existing blocks
+            styles: styleUpdates, // Apply new styles
+            footer: footerUpdates, // Apply new footer
+          }),
+        );
+      }
+
+      // Then call API handlers for DB updates
+      // Handle all style changes at once (for DB updates)
+      onAllStyleChanges?.(styleUpdates);
+
+      // Handle footer changes separately (for DB updates)
+      onFooterChange?.(footerUpdates);
     }
 
     // Close the modal

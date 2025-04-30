@@ -81,7 +81,7 @@ export default function AuthorBlock({
 
   return (
     <div
-      className="flex w-full items-center justify-between"
+      className="flex w-full flex-col justify-between md:flex-row md:items-center"
       style={{ fontFamily: defaultFont || "inherit" }}
     >
       <div className="flex items-center gap-3">
@@ -116,7 +116,7 @@ export default function AuthorBlock({
           </p>
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="ml-12 mt-1 flex gap-3 md:ml-0 md:mt-0">
         {links.map((link, index) => {
           const Icon = socialIcons[link.icon as keyof typeof socialIcons];
           return Icon ? (
