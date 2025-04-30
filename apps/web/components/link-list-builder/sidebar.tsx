@@ -261,7 +261,7 @@ export default function LinkListBuilderSidebar({
   return (
     <div
       className={cn(
-        "sticky top-16 h-[calc(100vh-7.3rem)] w-full flex-1 flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm lg:h-[calc(100vh-5rem)] lg:w-[400px] xl:w-[600px]",
+        "sticky top-16 h-[calc(100vh-8.6rem)] w-full flex-1 flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm lg:h-[calc(100vh-5rem)] lg:w-[400px] xl:w-[600px]",
         className,
       )}
     >

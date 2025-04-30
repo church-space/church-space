@@ -604,7 +604,7 @@ export default function LinkListBuilder({
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
-                  {linkList?.data?.title}
+                  {linkList?.data?.private_name}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
