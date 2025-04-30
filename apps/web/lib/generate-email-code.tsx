@@ -1571,7 +1571,7 @@ const CustomFooter: React.FC<{
                                 fontSize: "14px",
                                 color: secondary_text_color,
                                 lineHeight: "1.4",
-                                textWrap: "balance",
+                                textAlign: "center",
                                 paddingBottom: "26px",
                               }}
                             >

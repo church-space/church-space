@@ -158,7 +158,7 @@ export default function Footer({
           )}
           {footerData?.subtitle && (
             <div
-              className="w-full max-w-md text-balance pb-4 text-center text-sm leading-tight text-muted-foreground"
+              className="w-full max-w-md pb-4 text-center text-sm leading-tight text-muted-foreground"
               style={{ color: footerSecondaryTextColor }}
             >
               {footerData?.subtitle ||
