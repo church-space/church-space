@@ -26,12 +26,15 @@ interface OrganizationData {
   domains: {
     domain: string;
   } | null;
+  customTrigger?: React.ReactNode;
 }
 
 export default function SendTestEmail({
   orgFooterDetails,
+  customTrigger,
 }: {
   orgFooterDetails: any;
+  customTrigger?: React.ReactNode;
 }) {
   const [emailInput, setEmailInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -243,9 +246,13 @@ export default function SendTestEmail({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="hidden md:block">
-          Send Test
-        </Button>
+        {customTrigger ? (
+          customTrigger
+        ) : (
+          <Button variant="outline" className="hidden md:block">
+            Send Test
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

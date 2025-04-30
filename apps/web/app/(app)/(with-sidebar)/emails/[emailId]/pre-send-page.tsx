@@ -26,6 +26,7 @@ import {
   Trash,
   LoaderIcon,
   Email,
+  PaperPlane,
 } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -36,6 +37,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@church-space/ui/dropdown-menu";
 import { Input } from "@church-space/ui/input";
@@ -829,6 +831,21 @@ export default function PreSendPage({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
+              <SendTestEmail
+                orgFooterDetails={orgFooterDetails?.data?.data}
+                customTrigger={
+                  <DropdownMenuItem
+                    className="flex flex-row items-center gap-2 md:hidden"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <PaperPlane />
+                    Send Test
+                  </DropdownMenuItem>
+                }
+              />
+              <DropdownMenuSeparator className="my-1 block md:hidden" />
               <DropdownMenuItem
                 onClick={() => {
                   setDeleteOpen(true);
@@ -843,7 +860,6 @@ export default function PreSendPage({
             </DropdownMenuContent>
           </DropdownMenu>
           <SendTestEmail orgFooterDetails={orgFooterDetails?.data?.data} />
-
           <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
             <DialogTrigger asChild>
               <Button
