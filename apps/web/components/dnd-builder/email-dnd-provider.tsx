@@ -1514,6 +1514,34 @@ export default function EmailDndProvider({
   // Create a ref for style update debouncing
   const debouncedStyleUpdateRef = useRef<NodeJS.Timeout | null>(null);
 
+  const handleAllStyleChanges = useCallback(
+    (styleUpdates: Partial<EmailStyles>) => {
+      // Update UI immediately with all changes at once
+      updateStylesHistory(styleUpdates);
+
+      // Debounce the database update
+      if (debouncedStyleUpdateRef.current) {
+        clearTimeout(debouncedStyleUpdateRef.current);
+      }
+
+      debouncedStyleUpdateRef.current = setTimeout(() => {
+        if (emailId) {
+          // Convert to database format
+          debouncedStyleUpdate({
+            blocks_bg_color: styleUpdates.bgColor,
+            bg_color: styleUpdates.emailBgColor,
+            default_text_color: styleUpdates.defaultTextColor,
+            link_color: styleUpdates.linkColor,
+            accent_text_color: styleUpdates.accentTextColor,
+            default_font: styleUpdates.defaultFont,
+            is_inset: styleUpdates.isInset,
+          });
+        }
+      }, 500);
+    },
+    [emailId, debouncedStyleUpdate, updateStylesHistory],
+  );
+
   // Fix handleBgColorChange to include history update
   const handleBgColorChange = useCallback(
     (color: string) => {
@@ -3020,7 +3048,10 @@ export default function EmailDndProvider({
         <DragOverlay>{renderDragOverlay()}</DragOverlay>
       </DndContext>
 
-      <NewEmailModal />
+      <NewEmailModal
+        onFooterChange={handleFooterChange}
+        onAllStyleChanges={handleAllStyleChanges}
+      />
     </div>
   );
 }

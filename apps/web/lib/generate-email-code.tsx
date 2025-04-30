@@ -1524,7 +1524,7 @@ const CustomFooter: React.FC<{
                           style={{
                             objectFit: "contain",
                             borderRadius: cornerRadius
-                              ? `${cornerRadius}px`
+                              ? `${cornerRadius * 0.6}px`
                               : "0",
                             marginBottom: "16px",
                           }}
@@ -1937,7 +1937,7 @@ export function generateEmailCode(
                     width: "100%",
                     maxWidth: "672px",
                     backgroundColor: bgColor,
-                    borderRadius: `${cornerRadius}px`,
+                    borderRadius: cornerRadius > 0 ? `12px` : "0px",
                     borderCollapse: "separate",
                     padding: "22px",
                     paddingTop: "8px",

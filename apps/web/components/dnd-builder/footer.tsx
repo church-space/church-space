@@ -45,6 +45,7 @@ interface FooterProps {
   defaultFont?: string;
   showHover: boolean;
   orgFooterDetails?: any;
+  cornerRadius?: number;
 }
 
 const socialIcons = {
@@ -72,6 +73,7 @@ export default function Footer({
   defaultFont,
   showHover = true,
   orgFooterDetails,
+  cornerRadius,
 }: FooterProps) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const logo = footerData?.logo || "";
@@ -137,7 +139,10 @@ export default function Footer({
             <Image
               src={logoUrl}
               alt="Logo"
-              className="mb-6 h-28 w-28 rounded-md object-contain"
+              className="mb-6 h-28 w-28 object-contain"
+              style={{
+                borderRadius: cornerRadius ? `${cornerRadius * 0.6}px` : "0px",
+              }}
               width={112}
               height={112}
             />

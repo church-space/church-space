@@ -160,11 +160,10 @@ export default function DndBuilderCanvas({
   return (
     <div
       className={cn(
-        "mx-auto mb-20 flex w-full flex-col items-center justify-center border shadow-sm md:mb-0",
+        "mx-auto mb-20 flex w-full flex-col items-center justify-center rounded-md border shadow-sm md:mb-0",
         isInset ? "px-3 pt-3" : "",
       )}
       style={{
-        borderRadius: `${cornerRadius}px`,
         backgroundColor: isInset ? emailBgColor : bgColor,
       }}
       onClick={() => {
@@ -180,10 +179,10 @@ export default function DndBuilderCanvas({
           "mx-auto flex w-full max-w-2xl flex-col p-4",
           isInset && "mb-2 p-6 pb-0 shadow-md",
           blocks.length === 0 && "min-h-[102px] pb-6",
+          cornerRadius > 0 && isInset && "rounded-2xl",
         )}
         style={{
           backgroundColor: bgColor,
-          borderRadius: `${cornerRadius}px`,
         }}
       >
         {blocks.length === 0 ? (
@@ -287,6 +286,7 @@ export default function DndBuilderCanvas({
           defaultFont={defaultFont}
           showHover
           orgFooterDetails={orgFooterDetails}
+          cornerRadius={cornerRadius}
         />
       )}
     </div>

@@ -26,6 +26,7 @@ import { parseAsBoolean, useQueryState } from "nuqs";
 import { useState } from "react";
 import ArticleSvgPath from "./article.svg";
 import UpdatesSvgPath from "./updates.svg";
+import { EmailStyles } from "./use-block-state-manager";
 
 type View = "main" | "templates" | "recent";
 
@@ -136,7 +137,15 @@ const pallets = [
   },
 ];
 
-export default function NewEmailModal() {
+interface NewEmailModalProps {
+  onFooterChange?: (data: any) => void;
+  onAllStyleChanges?: (styleUpdates: Partial<EmailStyles>) => void;
+}
+
+export default function NewEmailModal({
+  onFooterChange,
+  onAllStyleChanges,
+}: NewEmailModalProps) {
   const [newEmailModalOpen = false, setNewEmailModalOpen] = useQueryState(
     "newEmail",
     parseAsBoolean,
@@ -149,6 +158,36 @@ export default function NewEmailModal() {
   const [selectedEmailType, setSelectedEmailType] = useState<string>("updates");
 
   const handleBack = () => setView("main");
+
+  const handleCreate = async () => {
+    // Get the selected color palette
+    const selectedPallet = pallets.find(
+      (pallet) => pallet.name === selectedColor,
+    );
+
+    if (selectedPallet) {
+      // Handle all style changes at once
+      onAllStyleChanges?.({
+        bgColor: selectedPallet.colors.bgColor,
+        emailBgColor: selectedPallet.colors.blocksBgColor,
+        defaultTextColor: selectedPallet.colors.textColor,
+        linkColor: selectedPallet.colors.linkColor,
+        accentTextColor: selectedPallet.colors.accentTextColor,
+        defaultFont: selectedFont,
+        isInset: isInset,
+      });
+
+      // Handle footer changes separately
+      onFooterChange?.({
+        text_color: selectedPallet.colors.footerTextColor,
+        secondary_text_color: selectedPallet.colors.footerAccentTextColor,
+        bg_color: selectedPallet.colors.footerBgColor,
+      });
+    }
+
+    // Close the modal
+    setNewEmailModalOpen(null);
+  };
 
   const variants: Variants = {
     enter: (direction: number) => ({
@@ -478,7 +517,9 @@ export default function NewEmailModal() {
           {view === "main" && (
             <Button variant="outline">Start from scratch</Button>
           )}
-          <Button>{view === "main" ? "Create" : "Select"}</Button>
+          <Button onClick={handleCreate}>
+            {view === "main" ? "Create" : "Select"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
