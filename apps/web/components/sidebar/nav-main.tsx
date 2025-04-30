@@ -22,6 +22,7 @@ import { useUser } from "@/stores/use-user";
 import { useCallback } from "react";
 import { useInView } from "react-intersection-observer";
 import React from "react";
+import { useSidebar } from "@church-space/ui/sidebar";
 
 // NavItem wrapper component that handles intersection observer
 function NavItem({
@@ -73,6 +74,7 @@ export function NavMain({
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { organizationId } = useUser();
+  const { setOpenMobile, isMobile } = useSidebar();
   // Track which routes we've already prefetched
   const prefetchedRoutes = React.useRef(new Set<string>());
 
@@ -429,6 +431,11 @@ export function NavMain({
                                 prefetch={true}
                                 scroll={false}
                                 shallow={true}
+                                onClick={() => {
+                                  if (isMobile) {
+                                    setOpenMobile(false);
+                                  }
+                                }}
                               >
                                 <span>{submenuItem.title}</span>
                               </Link>
