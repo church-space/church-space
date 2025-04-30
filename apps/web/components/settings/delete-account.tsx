@@ -149,7 +149,9 @@ export default function DeleteAccount({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">Delete Account</Button>
+        <Button variant="destructive" className="w-full md:w-auto">
+          Delete Account
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

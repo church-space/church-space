@@ -464,7 +464,9 @@ export default function ClientPage({
             <SettingsRowAction>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive">Delete Organization</Button>
+                  <Button variant="destructive" className="w-full md:w-auto">
+                    Delete Organization
+                  </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>

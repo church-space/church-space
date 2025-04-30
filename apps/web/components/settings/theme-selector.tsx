@@ -22,7 +22,7 @@ export function ThemeSelector() {
   if (!mounted) {
     return (
       <Select>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full md:w-[180px]">
           <SelectValue placeholder="Loading..." />
         </SelectTrigger>
         <SelectContent>
@@ -36,7 +36,7 @@ export function ThemeSelector() {
 
   return (
     <Select value={theme} onValueChange={setTheme}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-full md:w-[180px]">
         <SelectValue>
           <div className="flex items-center gap-2">
             {theme === "light" ? (

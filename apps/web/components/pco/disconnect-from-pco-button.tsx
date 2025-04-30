@@ -48,7 +48,9 @@ export default function DisconnectFromPcoButton({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Disconnect</Button>
+        <Button variant="outline" className="w-full md:w-auto">
+          Disconnect
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

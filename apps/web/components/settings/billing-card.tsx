@@ -167,7 +167,7 @@ export default function SubscriptionCard({
               {subscription.cancel_at_period_end ? (
                 <Badge
                   variant="outline"
-                  className="bg-destructive/20 capitalize"
+                  className="text-balance bg-destructive/20 text-center capitalize sm:text-left"
                 >
                   Cancels on{" "}
                   {format(new Date(subscription.current_period_end), "MMM d")}
