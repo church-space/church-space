@@ -73,11 +73,19 @@ export default function OrgInvites({
                   )}
                   key={member.id}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col items-start">
                     <div className="text-sm font-medium">{member.email}</div>
+                    <div className="block text-xs text-muted-foreground md:hidden">
+                      Expires{" "}
+                      {new Date(member.expires).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="text-xs text-muted-foreground">
+                    <div className="hidden text-xs text-muted-foreground md:block">
                       Expires{" "}
                       {new Date(member.expires).toLocaleDateString("en-US", {
                         month: "short",

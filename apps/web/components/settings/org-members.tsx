@@ -119,7 +119,7 @@ export default function OrgMembers({
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <div className="text-xs text-muted-foreground">
+              <div className="hidden text-xs text-muted-foreground md:block">
                 Added{" "}
                 {new Date().toLocaleDateString("en-US", {
                   month: "short",
@@ -194,7 +194,7 @@ export default function OrgMembers({
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="text-xs text-muted-foreground">
+                  <div className="hidden text-xs text-muted-foreground md:block">
                     Added{" "}
                     {new Date(member.created_at).toLocaleDateString("en-US", {
                       month: "short",

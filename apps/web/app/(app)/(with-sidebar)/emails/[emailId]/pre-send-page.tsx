@@ -148,6 +148,7 @@ export default function PreSendPage({
   const [activeAccordion, setActiveAccordion] = useState<string>("");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
 
   // Add a useEffect to update email state when initialEmail changes
@@ -773,6 +774,7 @@ export default function PreSendPage({
       if (deleteOpen && (e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
         try {
+          setIsDeleteLoading(true);
           const response = await deleteEmailAction({
             emailId: email.id,
             isTemplate: false,
@@ -794,6 +796,8 @@ export default function PreSendPage({
             description: "Failed to delete email",
             variant: "destructive",
           });
+        } finally {
+          setIsDeleteLoading(false);
         }
       }
     };
@@ -1289,8 +1293,8 @@ export default function PreSendPage({
                   <Label className="ml-0.5">
                     From Email <span className="text-destructive">*</span>
                   </Label>
-                  <div className="flex items-center gap-2">
-                    <div className="relative w-full">
+                  <div className="flex flex-col items-center gap-2 sm:flex-row">
+                    <div className="relative w-full flex-1">
                       <Input
                         placeholder="From"
                         value={fromEmail}
@@ -1302,13 +1306,15 @@ export default function PreSendPage({
                         {fromEmail.length} / 50
                       </span>
                     </div>
-                    <span className="mb-1 leading-none">@</span>
-                    <DomainSelector
-                      organizationId={email.organization_id}
-                      onChange={(value) => setFromDomain(value)}
-                      value={fromDomain}
-                      selectFirstOnLoad={false}
-                    />
+                    <div className="flex w-full flex-1 items-center gap-2">
+                      <span className="mb-1 leading-none">@</span>
+                      <DomainSelector
+                        organizationId={email.organization_id}
+                        onChange={(value) => setFromDomain(value)}
+                        value={fromDomain}
+                        selectFirstOnLoad={false}
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -1330,8 +1336,8 @@ export default function PreSendPage({
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label className="ml-0.5">Reply To</Label>
-                  <div className="flex items-center gap-2">
-                    <div className="relative w-full">
+                  <div className="flex flex-col items-center gap-2 sm:flex-row">
+                    <div className="relative w-full flex-1">
                       <Input
                         placeholder="Reply to"
                         value={replyToEmail}
@@ -1343,13 +1349,15 @@ export default function PreSendPage({
                         {replyToEmail.length} / 50
                       </span>
                     </div>
-                    <span className="mb-1 leading-none">@</span>
-                    <DomainSelector
-                      organizationId={email.organization_id}
-                      onChange={(value) => setReplyToDomain(value)}
-                      value={replyToDomain}
-                      selectFirstOnLoad={false}
-                    />
+                    <div className="flex w-full flex-1 items-center gap-2">
+                      <span className="mb-1 leading-none">@</span>
+                      <DomainSelector
+                        organizationId={email.organization_id}
+                        onChange={(value) => setReplyToDomain(value)}
+                        value={replyToDomain}
+                        selectFirstOnLoad={false}
+                      />
+                    </div>
                   </div>
                 </div>
                 <SaveButtons
@@ -1672,6 +1680,7 @@ export default function PreSendPage({
               variant="destructive"
               onClick={async () => {
                 try {
+                  setIsDeleteLoading(true);
                   const response = await deleteEmailAction({
                     emailId: email.id,
                     isTemplate: false,
@@ -1693,10 +1702,20 @@ export default function PreSendPage({
                     description: "Failed to delete email",
                     variant: "destructive",
                   });
+                } finally {
+                  setIsDeleteLoading(false);
                 }
               }}
+              disabled={isDeleteLoading}
             >
-              Delete
+              <div className="flex items-center gap-2">
+                Delete
+                {isDeleteLoading && (
+                  <div className="h-4 w-4 animate-spin">
+                    <LoaderIcon />
+                  </div>
+                )}
+              </div>
             </Button>
           </DialogFooter>
         </DialogContent>
