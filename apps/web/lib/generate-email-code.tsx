@@ -220,11 +220,11 @@ const CustomText: React.FC<{
     })
     .replace(/<h4(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =
-        " font-weight: 600; font-size: 4rem; line-height: 1.2; margin-block-start: 0.3em; margin-block-end: 0.3em"; // Default to 4rem
+        " font-weight: 600; font-size: 4rem !important; line-height: 1.2; margin-block-start: 0.3em; margin-block-end: 0.3em; mso-line-height-rule: exactly; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%";
       if (existingStyle) {
-        return `<h4 style="${existingStyle}; ${baseStyle}"`;
+        return `<h4 class="large-text" style="${existingStyle}; ${baseStyle}"`;
       }
-      return `<h4 style="${baseStyle}"`;
+      return `<h4 class="large-text" style="${baseStyle}"`;
     })
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
@@ -320,7 +320,25 @@ const CustomText: React.FC<{
       [style*="text-align: right"] {
         text-align: right !important;
       }
+      
+      /* Fix for h4 size in Yahoo and AOL */
+      h4 {
+        font-size: 4rem !important;
+        line-height: 1.2 !important;
+      }
+      .large-text {
+        font-size: 4rem !important;
+        line-height: 1.2 !important;
+      }
     </style>
+    
+    <!--[if gte mso 9]>
+    <style>
+      h4, .large-text {
+        font-size: 48pt !important;
+      }
+    </style>
+    <![endif]-->
     ${alignedContent}
   `;
 
@@ -1865,10 +1883,7 @@ export function generateEmailCode(
 
       /* Mobile H4 style */
       @media only screen and (max-width: 479px) {
-        h4 {
-          font-size: 3rem !important;
-          line-height: 1.2 !important;
-        }
+   
 
         /* Mobile padding for inset container */
         .inset-container {
