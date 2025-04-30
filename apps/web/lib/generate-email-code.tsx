@@ -1330,89 +1330,89 @@ const CustomAuthor: React.FC<{
               <td style={{ textAlign: "right" }}>
                 <table
                   style={{ width: "100%" }}
-                  cellPadding="5px"
-                  cellSpacing="0px"
+                  cellPadding="0"
+                  cellSpacing="0"
+                  border={0}
                 >
-                  {links?.map((link, index) => {
-                    if (!link.icon) {
-                      return null;
-                    }
+                  <tr>
+                    <td style={{ textAlign: "right" }}>
+                      {/* Render icons in a horizontally aligned row */}
+                      {links?.map((link, index) => {
+                        if (!link.icon) {
+                          return null;
+                        }
 
-                    const iconUrl =
-                      IconImages[iconColorKey as keyof typeof IconImages]?.[
-                        (SocialIconKeys[
-                          link.icon as keyof typeof SocialIconKeys
-                        ] || link.icon) as keyof (typeof IconImages)["black"]
-                      ];
-                    if (!iconUrl) {
-                      return null;
-                    }
+                        const iconUrl =
+                          IconImages[iconColorKey as keyof typeof IconImages]?.[
+                            (SocialIconKeys[
+                              link.icon as keyof typeof SocialIconKeys
+                            ] ||
+                              link.icon) as keyof (typeof IconImages)["black"]
+                          ];
+                        if (!iconUrl) {
+                          return null;
+                        }
 
-                    if (!link.url) {
-                      return (
-                        <td
-                          key={index}
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            display: "inline-block",
-                            marginLeft: "8px",
-                            marginBottom: "8px",
-                            color: finalTextColor,
-                            textDecoration: "none",
-                          }}
-                        >
-                          <Img
-                            src={iconUrl}
-                            alt={link.icon}
-                            width="18"
-                            height="18"
+                        if (!link.url) {
+                          return (
+                            <span
+                              key={index}
+                              style={{
+                                display: "inline-block",
+                                width: "32px",
+                                verticalAlign: "middle",
+                                margin: "0 2px",
+                              }}
+                            >
+                              <Img
+                                src={iconUrl}
+                                alt={link.icon}
+                                width="18"
+                                height="18"
+                                style={{
+                                  display: "block",
+                                }}
+                              />
+                            </span>
+                          );
+                        }
+
+                        // Format the URL with proper prefix
+                        const formattedUrl = formatUrl(
+                          link.url,
+                          link.icon === "mail" ? "mail" : "link",
+                        );
+
+                        return (
+                          <a
+                            key={index}
+                            href={formattedUrl}
+                            target="_blank"
                             style={{
-                              display: "block",
+                              display: "inline-block",
+                              width: "32px",
+                              textAlign: "center",
+                              verticalAlign: "middle",
+                              margin: "0 2px",
+                              color: finalTextColor,
+                              textDecoration: "none",
                             }}
-                          />
-                        </td>
-                      );
-                    }
-
-                    // Format the URL with proper prefix
-                    const formattedUrl = formatUrl(
-                      link.url,
-                      link.icon === "mail" ? "mail" : "link",
-                    );
-
-                    return (
-                      <a
-                        key={index}
-                        href={formattedUrl}
-                        target="_blank"
-                        style={{
-                          marginLeft: "8px",
-                          color: finalTextColor,
-                          textDecoration: "none",
-                        }}
-                      >
-                        <td
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            display: "inline-block",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <Img
-                            src={iconUrl}
-                            alt={link.icon}
-                            width="18"
-                            height="18"
-                            style={{
-                              display: "block",
-                            }}
-                          />
-                        </td>
-                      </a>
-                    );
-                  })}
+                          >
+                            <Img
+                              src={iconUrl}
+                              alt={link.icon}
+                              width="18"
+                              height="18"
+                              style={{
+                                display: "block",
+                                margin: "0 auto",
+                              }}
+                            />
+                          </a>
+                        );
+                      })}
+                    </td>
+                  </tr>
                 </table>
               </td>
             </tr>
