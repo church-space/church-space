@@ -387,6 +387,33 @@ export async function POST(
                 .select("id");
               if (error) throw error;
             });
+
+            // Insert into people_email_statuses
+            try {
+              const { error: statusError } = await supabase
+                .from("people_email_statuses")
+                .insert({
+                  organization_id: organizationId,
+                  email_address: email,
+                  status: "subscribed",
+                });
+
+              if (
+                statusError &&
+                !statusError.message.includes("duplicate key")
+              ) {
+                console.error(
+                  "Error inserting email status (non-critical):",
+                  statusError,
+                );
+              }
+            } catch (error) {
+              console.error(
+                "Error inserting email status (non-critical):",
+                error,
+              );
+              // Continue execution - this is non-critical
+            }
           } catch (error) {
             console.error("Error inserting email after retries:", error);
             return NextResponse.json(
@@ -419,6 +446,7 @@ export async function POST(
             { status: 500 },
           );
         }
+        // No action needed for people_email_statuses on delete as requested
       }
       break;
     case "people.v2.events.email.updated":
@@ -437,7 +465,6 @@ export async function POST(
             organization_id: organizationId,
             pco_email_id: pcoEmailId,
             pco_person_id: pcoPersonId,
-            status: emailData.attributes.blocked ? "pco_blocked" : undefined,
           })
           .eq("pco_email_id", pcoEmailId)
           .eq("organization_id", organizationId);
@@ -448,6 +475,32 @@ export async function POST(
             { received: false, error: "Failed to update email" },
             { status: 500 },
           );
+        }
+
+        // Insert into people_email_statuses table
+        try {
+          const { error: statusError } = await supabase
+            .from("people_email_statuses")
+            .insert({
+              organization_id: organizationId,
+              email_address: email,
+              status: emailData.attributes.blocked
+                ? "pco_blocked"
+                : "subscribed",
+            });
+
+          if (statusError && !statusError.message.includes("duplicate key")) {
+            console.error(
+              "Error inserting email status (non-critical):",
+              statusError,
+            );
+          }
+        } catch (error) {
+          console.error(
+            "Error inserting/updating email status (non-critical):",
+            error,
+          );
+          // Continue execution - this is non-critical
         }
 
         // If the email is no longer primary, delete it.
@@ -465,6 +518,7 @@ export async function POST(
               { status: 500 },
             );
           }
+          // No action needed for people_email_statuses on email removal as requested
         }
       }
       break;
