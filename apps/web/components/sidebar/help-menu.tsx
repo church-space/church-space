@@ -19,12 +19,13 @@ import {
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
 import Link from "next/link";
+import { cn } from "@church-space/ui/cn";
 
-export default function HelpMenu() {
+export default function HelpMenu({ className }: { className?: string }) {
   return (
     <DropdownMenu>
       <Tooltip>
-        <TooltipTrigger asChild className="hidden md:block">
+        <TooltipTrigger asChild className={cn("hidden md:block", className)}>
           <DropdownMenuTrigger asChild className="fixed bottom-3 left-3 z-50">
             <Button
               className="size-6 gap-0 rounded-full p-0 text-muted-foreground [&_svg]:size-6"
