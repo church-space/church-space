@@ -471,7 +471,26 @@ export default function DataTable<TData>({
         </div>
       </div>
 
-      <div className="block md:hidden"></div>
+      <div className="block md:hidden">
+        <div className="flex flex-col gap-2">
+          {table.getRowModel().rows.map((row) => (
+            <div
+              key={row.id}
+              data-state={row.getIsSelected() && "selected"}
+              className="rounded-lg border bg-card hover:bg-accent"
+            >
+              {row
+                .getVisibleCells()
+                .slice(0, 1)
+                .map((cell) => (
+                  <div key={cell.id} className="px-2">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </div>
+                ))}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Action Bar */}
       {selectedRows.length > 0 && (

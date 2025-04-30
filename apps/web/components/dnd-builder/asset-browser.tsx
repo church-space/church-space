@@ -236,6 +236,7 @@ export default function AssetBrowserModal({
       setLoading(true);
       setError(null);
 
+      // TODO: use react query to fetch assets and cache the result
       try {
         const result = await fetchOrgAssets({
           organizationId,

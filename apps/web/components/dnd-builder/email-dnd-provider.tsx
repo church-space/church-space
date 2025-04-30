@@ -148,10 +148,10 @@ export default function EmailDndProvider({
     bgColor: emailStyle.blocks_bg_color || "#f4f4f5",
     isInset: emailStyle.is_inset ?? true,
     emailBgColor: emailStyle.bg_color || "#ffffff",
-    linkColor: emailStyle.link_color || "#0000ff",
+    linkColor: emailStyle.link_color || "#4c72ff",
     defaultTextColor: emailStyle.default_text_color || "#000000",
     defaultFont: emailStyle.default_font || "sans-serif",
-    cornerRadius: emailStyle.corner_radius || 0,
+    cornerRadius: emailStyle.corner_radius || 11,
     blockSpacing: emailStyle.block_spacing || 20,
     accentTextColor: emailStyle.accent_text_color || "#666666",
   };
@@ -2839,84 +2839,206 @@ export default function EmailDndProvider({
     setLastTemplateBlocks(templateBlocks);
   }, []);
 
+  // New function to apply template blocks and update DB
+  const handleApplyTemplateBlocks = useCallback(
+    async (
+      templateBlocks: BlockType[],
+      styleUpdates: Partial<EmailStyles> | null,
+      footerUpdates: any | null,
+    ) => {
+      if (!emailId) {
+        console.error("Email ID is missing, cannot apply template blocks");
+        return;
+      }
+      if (!templateBlocks || templateBlocks.length === 0) {
+        console.warn("No template blocks to apply");
+        return;
+      }
+
+      console.log("Applying template blocks to UI:", templateBlocks);
+      const initialBlocksWithUUIDs = templateBlocks.map((block) => ({
+        ...block,
+      })); // Clone blocks
+
+      // 1. Update UI immediately with UUID blocks, styles, and footer
+      setCurrentState((prevState) => ({
+        ...prevState,
+        blocks: templateBlocks, // Apply new blocks
+        styles: styleUpdates
+          ? { ...prevState.styles, ...styleUpdates }
+          : prevState.styles, // Apply new styles
+        footer: footerUpdates !== null ? footerUpdates : prevState.footer, // Apply new footer
+      }));
+      // Update the ref immediately for use in this function
+      blocksRef.current = initialBlocksWithUUIDs;
+
+      // 2. Initialize editors for new text blocks using UUIDs
+      const initialEditors = { ...editors };
+      initialBlocksWithUUIDs.forEach((block) => {
+        if (block.type === "text") {
+          const initialContent = (block.data as any)?.content || "";
+          const font = (block.data as any)?.font || styles.defaultFont;
+          const textColor =
+            (block.data as any)?.textColor || styles.defaultTextColor;
+          try {
+            const newEditor = createEditor(
+              initialContent,
+              font,
+              textColor,
+              true,
+              styles.accentTextColor,
+            );
+            initialEditors[block.id] = newEditor; // Use UUID as key initially
+          } catch (error) {
+            console.error(
+              "Failed to create editor for template block",
+              block.id,
+              error,
+            );
+          }
+        }
+      });
+      setEditors(initialEditors);
+      console.log(
+        "Initialized editors for template blocks:",
+        Object.keys(initialEditors),
+      );
+
+      // 3. Add blocks to the database and collect results
+      const addBlockPromises = initialBlocksWithUUIDs.map((block) => {
+        const originalUUID = block.id;
+        return addEmailBlock
+          .mutateAsync({
+            emailId,
+            type: block.type as any, // Type assertion needed here
+            value: block.data || ({} as BlockData), // Provide fallback for undefined data
+            order: block.order,
+          })
+          .then((result) => ({
+            uuid: originalUUID,
+            result,
+            status: "fulfilled",
+          }))
+          .catch((error) => ({
+            uuid: originalUUID,
+            reason: error,
+            status: "rejected",
+          }));
+      });
+
+      try {
+        console.log("Waiting for all template blocks to be added to DB...");
+        const results = await Promise.all(addBlockPromises);
+        console.log("DB addition results:", results);
+
+        // 4. Create mapping from UUID to DB ID
+        const uuidToDbIdMap = new Map<string, string>();
+        results.forEach((res) => {
+          if ("result" in res) {
+            const resultData = res.result;
+            if (resultData?.id) {
+              uuidToDbIdMap.set(res.uuid, resultData.id.toString());
+            }
+          } else {
+            const reason = res.reason;
+            console.error(
+              `Failed to add block with temp ID ${res.uuid}:`,
+              reason,
+            );
+          }
+        });
+        console.log("UUID to DB ID Map:", uuidToDbIdMap);
+
+        // 5. Create final blocks array with DB IDs
+        const finalBlocks = initialBlocksWithUUIDs.map((block) => {
+          const dbId = uuidToDbIdMap.get(block.id);
+          return dbId ? { ...block, id: dbId } : block; // Keep UUID if DB add failed
+        });
+
+        // 6. Create final editors object with DB IDs as keys
+        const finalEditors = { ...editors }; // Start with existing editors
+        initialBlocksWithUUIDs.forEach((block) => {
+          const dbId = uuidToDbIdMap.get(block.id);
+          if (dbId && finalEditors[block.id]) {
+            // If block was added and editor exists, map it
+            finalEditors[dbId] = finalEditors[block.id];
+            // Optionally delete the old UUID editor entry if it wasn't overwritten
+            if (finalEditors[block.id] === finalEditors[block.id]) {
+              delete finalEditors[block.id];
+            }
+          }
+          // If DB add failed or it wasn't a text block, finalEditors[block.id] might remain or not exist, which is fine.
+        });
+        // Clean up any remaining UUID editors that weren't mapped
+        Object.keys(finalEditors).forEach((key) => {
+          if (!finalBlocks.some((b) => b.id === key) && key.includes("-")) {
+            // Simple check for UUID
+            // Destroy editor if it exists and belongs to an unmapped UUID
+            if (finalEditors[key] && !finalEditors[key].isDestroyed)
+              finalEditors[key].destroy();
+            delete finalEditors[key];
+          }
+        });
+
+        console.log("Final blocks state:", finalBlocks);
+        console.log("Final editors keys:", Object.keys(finalEditors));
+
+        // 7. Update editor state
+        setEditors(finalEditors);
+
+        // 8. Update block orders in the database (optional but good practice)
+        console.log("Updating final block orders in DB");
+        updateBlockOrdersInDatabase(finalBlocks);
+
+        // 9. Add the final, reconciled state to history and update UI
+        console.log("Updating history with final blocks");
+        updateBlocksHistory(finalBlocks);
+      } catch (error) {
+        // This catch is less likely now with individual error handling
+        console.error(
+          "Unexpected error during template block application:",
+          error,
+        );
+        // Attempt to update history with whatever state we have
+        updateBlocksHistory(blocksRef.current); // Use the ref which might have some DB IDs
+      }
+    },
+    [
+      emailId,
+      setCurrentState,
+      editors,
+      styles.defaultFont,
+      styles.defaultTextColor,
+      styles.accentTextColor,
+      addEmailBlock,
+      updateBlockOrdersInDatabase,
+      updateBlocksHistory, // Add updateBlocksHistory dependency
+    ],
+  );
+
   // Apply stored style and footer updates when modal closes
   useEffect(() => {
     if (!newEmailModalOpen) {
       console.log("Email-dnd-provider: Modal closed, applying updates");
-      console.log(
-        "Email-dnd-provider: Last template blocks:",
-        lastTemplateBlocks,
-      );
 
-      // First update the blocks if they exist
+      // Apply template blocks if they exist
       if (lastTemplateBlocks && lastTemplateBlocks.length > 0) {
         console.log(
-          "Email-dnd-provider: Updating blocks history with",
-          lastTemplateBlocks.length,
-          "blocks",
+          "Email-dnd-provider: Applying template blocks from modal...",
         );
-        updateBlocksHistory(lastTemplateBlocks);
-
-        // Initialize editors for text blocks
-        const newEditors = { ...editors };
-        lastTemplateBlocks.forEach((block) => {
-          if (block.type === "text") {
-            const initialContent = (block.data as any)?.content || "";
-            const font = (block.data as any)?.font || styles.defaultFont;
-            const textColor =
-              (block.data as any)?.textColor || styles.defaultTextColor;
-
-            try {
-              console.log(
-                "Email-dnd-provider: Creating editor for text block",
-                block.id,
-              );
-              const newEditor = createEditor(
-                initialContent,
-                font,
-                textColor,
-                true, // preserve existing styles
-                styles.accentTextColor,
-              );
-              newEditors[block.id] = newEditor;
-            } catch (error) {
-              console.error(
-                "Failed to create editor for block",
-                block.id,
-                error,
-              );
-            }
-          }
-        });
-
-        if (Object.keys(newEditors).length > Object.keys(editors).length) {
-          console.log(
-            "Email-dnd-provider: Setting editors with",
-            Object.keys(newEditors).length,
-            "editors",
-          );
-          setEditors(newEditors);
-        }
-
+        // Pass styles and footer along with blocks
+        handleApplyTemplateBlocks(
+          lastTemplateBlocks,
+          lastModalStyleUpdates,
+          lastModalFooterUpdates,
+        );
         // Reset template blocks after applying
         setLastTemplateBlocks(null);
       }
 
-      // Force an update to the styles and footer
+      // Reset the stored updates regardless of whether blocks were applied
+      // (handleApplyTemplateBlocks now handles applying them if blocks exist)
       if (lastModalStyleUpdates || lastModalFooterUpdates) {
-        console.log("Email-dnd-provider: Applying style/footer updates");
-
-        // Apply style updates if they exist
-        if (lastModalStyleUpdates) {
-          updateStylesHistory(lastModalStyleUpdates);
-        }
-
-        // Apply footer updates if they exist
-        if (lastModalFooterUpdates) {
-          updateFooterHistory(lastModalFooterUpdates);
-        }
-
-        // Reset the stored updates
         setLastModalStyleUpdates(null);
         setLastModalFooterUpdates(null);
       }
@@ -2929,10 +3051,7 @@ export default function EmailDndProvider({
     updateBlocksHistory,
     updateStylesHistory,
     updateFooterHistory,
-    editors,
-    styles.defaultFont,
-    styles.defaultTextColor,
-    styles.accentTextColor,
+    handleApplyTemplateBlocks, // Add new handler dependency
   ]);
 
   // Debug state updates whenever blocks change

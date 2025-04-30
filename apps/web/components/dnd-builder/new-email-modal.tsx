@@ -183,6 +183,8 @@ export default function NewEmailModal({
         accentTextColor: selectedPallet.colors.accentTextColor,
         defaultFont: selectedFont,
         isInset: isInset,
+        cornerRadius: 11,
+        blockSpacing: 20,
       };
       console.log("Style updates:", styleUpdates);
 
@@ -417,23 +419,6 @@ export default function NewEmailModal({
         console.log("State update called");
       } else {
         console.error("setCurrentState is not defined!");
-      }
-
-      // Then call API handlers for DB updates
-      // Handle all style changes at once (for DB updates)
-      if (onAllStyleChanges) {
-        console.log("Calling onAllStyleChanges");
-        onAllStyleChanges(styleUpdates);
-      } else {
-        console.log("onAllStyleChanges is not defined");
-      }
-
-      // Handle footer changes separately (for DB updates)
-      if (onFooterChange) {
-        console.log("Calling onFooterChange");
-        onFooterChange(footerUpdates);
-      } else {
-        console.log("onFooterChange is not defined");
       }
     }
 
