@@ -57,7 +57,7 @@ export default function ListBlock({
           <div key={index} className="flex items-start gap-4">
             <div
               className={cn(
-                "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-lg font-medium",
+                "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full pb-1 text-lg font-medium leading-none",
                 bulletType === "number" && item.description
                   ? "mt-0"
                   : "-mt-0.5",

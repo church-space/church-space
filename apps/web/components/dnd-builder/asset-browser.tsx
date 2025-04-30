@@ -422,7 +422,10 @@ export default function AssetBrowserModal({
                   <AssetCard
                     key={asset.id}
                     asset={asset}
-                    onSelect={() => onSelectAsset(asset)}
+                    onSelect={() => {
+                      onSelectAsset(asset);
+                      setIsOpen(false);
+                    }}
                     onDelete={() => handleAssetDelete(asset)}
                   />
                 ))}
