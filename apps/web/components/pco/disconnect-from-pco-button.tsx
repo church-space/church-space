@@ -10,6 +10,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger,
+  DialogClose,
 } from "@church-space/ui/dialog";
 import {
   Card,
@@ -82,7 +83,9 @@ export default function DisconnectFromPcoButton({
           />
         </div>
         <DialogFooter>
-          <Button variant="outline">Cancel</Button>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
           <Button
             variant="destructive"
             disabled={confirmText.toLowerCase() !== "disconnect" || isLoading}

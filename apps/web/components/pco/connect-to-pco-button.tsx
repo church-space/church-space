@@ -41,12 +41,12 @@ export default function ConnectToPcoButton({
   return (
     <div className="flex flex-col gap-2">
       <Button
-        className="w-full bg-foreground px-4 py-2 text-background"
+        className="h-12 w-full border bg-background px-4 py-2 text-base font-semibold text-foreground shadow-md hover:bg-accent"
         onClick={handleConnect}
         disabled={isLoading}
       >
         <Image src={"/pco-logo.png"} alt="PCO Logo" width={22} height={22} />{" "}
-        {isReconnect ? "Reconnect to PCO" : "Connect to PCO"}
+        {isReconnect ? "Reconnect to PCO" : "Connect to Planning Center"}
       </Button>
       <span className="px-4 text-center text-sm text-muted-foreground">
         {isReconnect

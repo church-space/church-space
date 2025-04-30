@@ -41,14 +41,23 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
   return (
     <>
       <div className="mb-5 flex w-full flex-col justify-between gap-3">
-        <div className="flex w-full flex-row items-baseline gap-2">
-          <h1 className="flex items-center text-xl font-bold md:text-3xl">
-            People
-          </h1>
-          {!subscribedPeopleCountLoading && (
-            <p className="text-lg font-medium text-muted-foreground md:text-2xl md:font-semibold">
-              {subscribedPeopleCount?.count} subscribed
-            </p>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex w-full flex-row items-baseline gap-2">
+            <h1 className="flex items-center text-xl font-bold md:text-3xl">
+              People
+            </h1>
+            {!subscribedPeopleCountLoading && (
+              <p className="text-lg font-medium text-muted-foreground md:text-2xl md:font-semibold">
+                {subscribedPeopleCount?.count} subscribed
+              </p>
+            )}
+          </div>
+          {role === "owner" && (
+            <Link href={`/people/import`} className="w-full md:mr-3 md:w-fit">
+              <Button className="w-full md:mr-3 md:w-fit" variant="outline">
+                Import Unsubscribes
+              </Button>
+            </Link>
           )}
         </div>
         {role === "owner" && (
