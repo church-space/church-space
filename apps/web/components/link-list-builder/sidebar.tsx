@@ -76,6 +76,8 @@ const isValidSlug = (slug: string): boolean => {
   return /^[a-zA-Z0-9-]+$/.test(slug) && !slug.endsWith("-");
 };
 
+type ScreenSize = "small" | "medium" | "large" | "xl";
+
 export default function LinkListBuilderSidebar({
   className,
   links,
@@ -132,7 +134,7 @@ export default function LinkListBuilderSidebar({
     "header" | "socials" | "links" | "default"
   >("default");
   const [hasMounted, setHasMounted] = useState(false);
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [screenSize, setScreenSize] = useState<ScreenSize>("large");
   const [localUrlSlug, setLocalUrlSlug] = useState(urlSlug);
   const [localPrivateName, setLocalPrivateName] = useState(privateName);
   const [urlSlugFormatError, setUrlSlugFormatError] = useState<string | null>(
@@ -149,7 +151,16 @@ export default function LinkListBuilderSidebar({
     setHasMounted(true);
 
     const checkScreenSize = () => {
-      setIsSmallScreen(window.innerWidth < 1024);
+      const width = window.innerWidth;
+      if (width < 600) {
+        setScreenSize("small");
+      } else if (width < 1024) {
+        setScreenSize("medium");
+      } else if (width < 1280) {
+        setScreenSize("large");
+      } else {
+        setScreenSize("xl");
+      }
     };
 
     checkScreenSize();
@@ -217,26 +228,40 @@ export default function LinkListBuilderSidebar({
     }, 800);
   };
 
-  const exitX = isSmallScreen ? 800 : 600;
+  const getExitX = () => {
+    switch (screenSize) {
+      case "small":
+        return 570;
+      case "medium":
+        return 740;
+      case "large":
+        return 400;
+      case "xl":
+        return 600;
+    }
+  };
 
-  const springConfig = isSmallScreen
-    ? {
-        type: "spring",
-        stiffness: 200,
-        damping: 25,
-        mass: 1,
-      }
-    : {
-        type: "spring",
-        stiffness: 200,
-        damping: 20,
-        mass: 0.8,
-      };
+  const exitX = getExitX();
+
+  const springConfig =
+    screenSize === "small"
+      ? {
+          type: "spring",
+          stiffness: 200,
+          damping: 25,
+          mass: 1,
+        }
+      : {
+          type: "spring",
+          stiffness: 200,
+          damping: 20,
+          mass: 0.8,
+        };
 
   return (
     <div
       className={cn(
-        "sticky top-16 h-[calc(100vh-7.3rem)] w-full flex-1 flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm lg:h-[calc(100vh-5rem)] lg:w-[600px]",
+        "sticky top-16 h-[calc(100vh-7.3rem)] w-full flex-1 flex-shrink-0 overflow-hidden rounded-md border bg-sidebar p-4 shadow-sm lg:h-[calc(100vh-5rem)] lg:w-[400px] xl:w-[600px]",
         className,
       )}
     >
