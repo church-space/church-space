@@ -7,7 +7,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  useSidebar,
 } from "@church-space/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

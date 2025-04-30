@@ -1088,8 +1088,9 @@ export default function Page() {
           <Separator className="my-12" />
           <div className="mb-4 mt-12 flex items-center justify-between">
             <h2 className="text-2xl font-bold">Your QR Codes</h2>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Add QR Code
+            <Button className="gap-1 pl-3">
+              <Plus className="mr-1 h-4 w-4" /> New{" "}
+              <span className="hidden sm:inline">QR Code</span>
             </Button>
           </div>
 
@@ -1116,7 +1117,6 @@ export default function Page() {
                       value={editedLinkName}
                       onChange={(e) => setEditedLinkName(e.target.value)}
                       placeholder="Enter a name for this link"
-                      autoFocus
                       className={linkErrors.name ? "border-destructive" : ""}
                       maxLength={80}
                     />
@@ -1414,8 +1414,12 @@ export default function Page() {
           <Separator className="my-12" />
           <div className="mb-4 mt-12 flex items-center justify-between">
             <h2 className="text-2xl font-bold">Your QR Codes</h2>
-            <Button onClick={() => setIsAddingQRCode(true)} className="pl-3">
-              <Plus className="h-4 w-4" /> New QR Code
+            <Button
+              onClick={() => setIsAddingQRCode(true)}
+              className="gap-1 pl-3"
+            >
+              <Plus className="mr-1 h-4 w-4" /> New{" "}
+              <span className="hidden sm:inline">QR Code</span>
             </Button>
           </div>
 
@@ -1439,7 +1443,7 @@ export default function Page() {
                     <Edit className="h-4 w-4" />
                   </CardHeader>
                 </Button>
-                <CardContent className="flex flex-col justify-center gap-2 pb-4 pt-0">
+                <CardContent className="flex flex-col justify-center gap-2 p-1 pb-4 pt-0 sm:p-4 sm:pt-0">
                   <div
                     onClick={() => downloadQRCode(index)}
                     className="group relative mx-auto cursor-pointer transition-transform hover:scale-105"
@@ -1530,7 +1534,7 @@ export default function Page() {
               }
             }}
           >
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="top-[3%] sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Edit QR Code</DialogTitle>
                 <DialogDescription>
