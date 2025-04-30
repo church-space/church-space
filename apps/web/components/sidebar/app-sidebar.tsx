@@ -46,7 +46,6 @@ import { NavUser } from "./nav-user";
 import NewQRCode from "../forms/new-qr-code";
 import { useUser } from "@/stores/use-user";
 import cookies from "js-cookie";
-import HelpMenu from "./help-menu";
 
 const data = (role: string | null) => {
   return {
