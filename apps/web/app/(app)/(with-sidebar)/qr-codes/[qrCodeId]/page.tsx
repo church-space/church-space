@@ -285,6 +285,9 @@ export default function Page() {
   const [isEditingLink, setIsEditingLink] = useState(false);
   const [editedLinkName, setEditedLinkName] = useState(linkData.name);
   const [editedLinkUrl, setEditedLinkUrl] = useState(linkData.url);
+  const [editedLinkStatus, setEditedLinkStatus] = useState<
+    "active" | "inactive"
+  >("active");
 
   const [linkErrors, setLinkErrors] = useState<{
     name?: string;
@@ -667,6 +670,22 @@ export default function Page() {
     }
   };
 
+  const startEditingLink = () => {
+    setEditedLinkName(linkData.name);
+    setEditedLinkUrl(linkData.url);
+    setEditedLinkStatus(
+      qrLinkData?.status === "active" ? "active" : "inactive",
+    );
+    setIsEditingLink(true);
+  };
+
+  const cancelEditingLink = () => {
+    setIsEditingLink(false);
+    setEditedLinkStatus(
+      qrLinkData?.status === "active" ? "active" : "inactive",
+    );
+  };
+
   const saveEditedLink = async () => {
     try {
       // Reset errors
@@ -687,7 +706,8 @@ export default function Page() {
         return;
       }
 
-      const { error } = await updateQRLink(
+      // First update the link details
+      const { error: linkError } = await updateQRLink(
         supabase,
         {
           id: qrLinkId,
@@ -697,16 +717,26 @@ export default function Page() {
         qrLinkId,
       );
 
-      if (error) {
+      if (linkError) {
         // Handle database-level URL validation error
-        if (error.code === "23514") {
+        if (linkError.code === "23514") {
           setLinkErrors({
             ...linkErrors,
             url: "Please enter a valid URL without spaces or special characters",
           });
           return;
         }
-        throw error;
+        throw linkError;
+      }
+
+      // Then update the status if it has changed
+      if (editedLinkStatus !== qrLinkData?.status) {
+        const { error: statusError } = await updateQRLinkStatus(
+          supabase,
+          qrLinkId,
+          editedLinkStatus,
+        );
+        if (statusError) throw statusError;
       }
 
       // Update local state
@@ -819,15 +849,30 @@ export default function Page() {
     }
   };
 
-  // Add functions to handle editing link information
-  const startEditingLink = () => {
-    setEditedLinkName(linkData.name);
-    setEditedLinkUrl(linkData.url);
-    setIsEditingLink(true);
-  };
+  // Update the handleStatusToggle function
+  const handleStatusToggle = async () => {
+    if (!qrLinkData) return;
 
-  const cancelEditingLink = () => {
-    setIsEditingLink(false);
+    try {
+      setIsUpdatingStatus(true);
+      const newStatus = qrLinkData.status === "active" ? "inactive" : "active";
+
+      const { error } = await updateQRLinkStatus(supabase, qrLinkId, newStatus);
+      if (error) throw error;
+
+      // Update the cache with the new status
+      queryClient.setQueryData(["qr-link", qrLinkId], {
+        ...qrLinkData,
+        status: newStatus,
+      });
+
+      // Invalidate the query to refetch fresh data
+      await queryClient.invalidateQueries({ queryKey: ["qr-link", qrLinkId] });
+    } catch (error) {
+      console.error("Error updating link status:", error);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
   };
 
   // Update the back button handler
@@ -919,31 +964,6 @@ export default function Page() {
     }
   };
 
-  const handleStatusToggle = async () => {
-    if (!qrLinkData) return;
-
-    try {
-      setIsUpdatingStatus(true);
-      const newStatus = qrLinkData.status === "active" ? "inactive" : "active";
-
-      const { error } = await updateQRLinkStatus(supabase, qrLinkId, newStatus);
-      if (error) throw error;
-
-      // Update the cache with the new status
-      queryClient.setQueryData(["qr-link", qrLinkId], {
-        ...qrLinkData,
-        status: newStatus,
-      });
-
-      // Invalidate the query to refetch fresh data
-      await queryClient.invalidateQueries({ queryKey: ["qr-link", qrLinkId] });
-    } catch (error) {
-      console.error("Error updating link status:", error);
-    } finally {
-      setIsUpdatingStatus(false);
-    }
-  };
-
   return (
     <div className="relative">
       <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
@@ -966,6 +986,93 @@ export default function Page() {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
+        <div className="flex items-center gap-2 px-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Ellipsis className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  setEditedLinkName(qrLinkData?.name || "");
+                  setEditedLinkUrl(qrLinkData?.url || "");
+                  setIsEditingLink(true);
+                }}
+                className="cursor-pointer"
+              >
+                <Edit className="h-4 w-4" /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleStatusToggle}
+                disabled={isUpdatingStatus}
+                className="cursor-pointer"
+              >
+                {qrLinkData?.status === "active" ? (
+                  <>
+                    <DisableLink /> Set Inactive
+                  </>
+                ) : (
+                  <>
+                    <LinkIcon /> Set Active
+                  </>
+                )}
+              </DropdownMenuItem>
+              <Dialog open={isDeletingLink} onOpenChange={setIsDeletingLink}>
+                <DialogTrigger
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsDeletingLink(true);
+                  }}
+                  asChild
+                >
+                  <DropdownMenuItem className="!hover:text-destructive cursor-pointer">
+                    <Trash /> Delete
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Delete Link</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to delete this link? This action
+                      cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDeletingLink(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={handleDeleteLink}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? (
+                        <div className="flex items-center gap-2">
+                          <LoaderIcon className="h-4 w-4 animate-spin" />
+                          <span>Deleting...</span>
+                        </div>
+                      ) : (
+                        "Delete"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
+            onClick={() => setIsAddingQRCode(true)}
+            className="gap-1 pl-3"
+          >
+            <Plus className="mr-1 h-4 w-4" /> New{" "}
+            <span className="hidden sm:inline">QR Code</span>
+          </Button>
+        </div>
       </header>
 
       {isLoadingQRLink || isLoadingClicks ? (
@@ -984,13 +1091,10 @@ export default function Page() {
                 </div>
                 <p className="mt-1 text-muted-foreground">Loading...</p>
               </div>
-              <Button variant="ghost" size="icon">
-                <Ellipsis className="h-4 w-4" />
-              </Button>
             </div>
 
-            {/* Analytics Section */}
-            <div>
+            {/* Loading Analytics Section */}
+            <div className="hidden md:block">
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xl font-semibold">Analytics</h3>
@@ -1085,13 +1189,9 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <Separator className="my-12" />
-          <div className="mb-4 mt-12 flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Your QR Codes</h2>
-            <Button className="gap-1 pl-3">
-              <Plus className="mr-1 h-4 w-4" /> New{" "}
-              <span className="hidden sm:inline">QR Code</span>
-            </Button>
+          <Separator className="my-12 hidden md:block" />
+          <div className="mb-4 mt-6 flex items-center justify-between md:mt-12">
+            <h2 className="text-2xl font-bold">QR Codes</h2>
           </div>
 
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -1144,6 +1244,18 @@ export default function Page() {
                       </p>
                     )}
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="edit-link-is-public"
+                      checked={editedLinkStatus === "active"}
+                      onCheckedChange={(checked) =>
+                        setEditedLinkStatus(checked ? "active" : "inactive")
+                      }
+                    />
+                    <Label htmlFor="edit-link-is-public" className="block">
+                      Active
+                    </Label>
+                  </div>
                   <div className="flex justify-end space-x-2 pt-2">
                     <Button variant="outline" onClick={cancelEditingLink}>
                       Cancel
@@ -1173,91 +1285,10 @@ export default function Page() {
                   </p>
                 </div>
               )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Ellipsis className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setEditedLinkName(qrLinkData?.name || "");
-                      setEditedLinkUrl(qrLinkData?.url || "");
-                      setIsEditingLink(true);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <Edit className="h-4 w-4" /> Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleStatusToggle}
-                    disabled={isUpdatingStatus}
-                    className="cursor-pointer"
-                  >
-                    {qrLinkData?.status === "active" ? (
-                      <>
-                        <DisableLink /> Set Inactive
-                      </>
-                    ) : (
-                      <>
-                        <LinkIcon /> Set Active
-                      </>
-                    )}
-                  </DropdownMenuItem>
-                  <Dialog
-                    open={isDeletingLink}
-                    onOpenChange={setIsDeletingLink}
-                  >
-                    <DialogTrigger
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setIsDeletingLink(true);
-                      }}
-                      asChild
-                    >
-                      <DropdownMenuItem className="!hover:text-destructive cursor-pointer">
-                        <Trash /> Delete
-                      </DropdownMenuItem>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Delete Link</DialogTitle>
-                        <DialogDescription>
-                          Are you sure you want to delete this link? This action
-                          cannot be undone.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsDeletingLink(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={handleDeleteLink}
-                          disabled={isDeleting}
-                        >
-                          {isDeleting ? (
-                            <div className="flex items-center gap-2">
-                              <LoaderIcon className="h-4 w-4 animate-spin" />
-                              <span>Deleting...</span>
-                            </div>
-                          ) : (
-                            "Delete"
-                          )}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
 
             {/* Analytics Section */}
-            <div>
+            <div className="hidden md:block">
               <div className="mb-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
                 <div className="flex w-fit items-center justify-between gap-2 md:justify-start">
                   <h3 className="text-xl font-semibold">Analytics</h3>
@@ -1411,16 +1442,9 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <Separator className="my-12" />
-          <div className="mb-4 mt-12 flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Your QR Codes</h2>
-            <Button
-              onClick={() => setIsAddingQRCode(true)}
-              className="gap-1 pl-3"
-            >
-              <Plus className="mr-1 h-4 w-4" /> New{" "}
-              <span className="hidden sm:inline">QR Code</span>
-            </Button>
+          <Separator className="my-12 hidden md:block" />
+          <div className="mb-4 mt-6 flex items-center justify-between md:mt-12">
+            <h2 className="text-2xl font-bold">QR Codes</h2>
           </div>
 
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">

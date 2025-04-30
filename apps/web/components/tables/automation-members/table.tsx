@@ -1,16 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, EmailAutomationMember } from "./columns";
 import { useQueryState } from "nuqs";
-import { Button } from "@church-space/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@church-space/ui/dialog";
 import { useEmailAutomationMembers } from "@/hooks/use-email-automation-members";
 import NullState from "./null-state";
 
@@ -22,7 +15,6 @@ export default function AutomationMembersTable({
   automationId,
 }: AutomationMembersTableProps) {
   const [search, setSearch] = useQueryState("search");
-  const [isNewLinkListOpen, setIsNewLinkListOpen] = useState(false);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useEmailAutomationMembers(automationId);
@@ -51,10 +43,6 @@ export default function AutomationMembersTable({
             Note: a person can only go through the automation once.
           </p>
         </div>
-
-        <Button onClick={() => setIsNewLinkListOpen(true)}>
-          New Automation Member
-        </Button>
       </div>
       <DataTable<EmailAutomationMember>
         columns={columns}
@@ -72,15 +60,6 @@ export default function AutomationMembersTable({
         isLoading={isFetchingNextPage || isLoading}
         nullState={<NullState onClick={() => {}} />}
       />
-
-      <Dialog open={isNewLinkListOpen} onOpenChange={setIsNewLinkListOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Link Page</DialogTitle>
-          </DialogHeader>
-          <div>Placeholder for NewLinkList form</div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
