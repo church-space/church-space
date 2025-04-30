@@ -26,8 +26,7 @@ import { parseAsBoolean, useQueryState } from "nuqs";
 import { useState } from "react";
 import ArticleSvgPath from "./article.svg";
 import UpdatesSvgPath from "./updates.svg";
-import { EmailStyles, HistoryState } from "./use-block-state-manager"; // Import HistoryState
-import type { Block as BlockType, BlockData } from "@/types/blocks"; // Import Block types
+import { EmailStyles } from "./use-block-state-manager";
 
 type View = "main" | "templates" | "recent";
 
@@ -139,19 +138,17 @@ const pallets = [
 ];
 
 interface NewEmailModalProps {
-  onFooterChange?: (data: any) => void; // Keep this for separate DB updates if needed
-  onAllStyleChanges?: (styleUpdates: Partial<EmailStyles>) => void; // Keep this for separate DB updates if needed
-  // setCurrentState?: (stateUpdater: (prevState: any) => any) => void; // Remove old prop
-  setManagedState?: (
-    newStateOrFn: HistoryState | ((prevState: HistoryState) => HistoryState),
-  ) => void; // Use new prop type
+  onFooterChange?: (data: any) => void;
+  onAllStyleChanges?: (styleUpdates: Partial<EmailStyles>) => void;
+  setCurrentState?: (state: any) => void;
+  onTemplateBlocks?: (blocks: any[]) => void;
 }
 
 export default function NewEmailModal({
   onFooterChange,
   onAllStyleChanges,
-  // setCurrentState, // Remove old prop
-  setManagedState, // Use new prop
+  setCurrentState,
+  onTemplateBlocks,
 }: NewEmailModalProps) {
   const [newEmailModalOpen = false, setNewEmailModalOpen] = useQueryState(
     "newEmail",
@@ -167,15 +164,18 @@ export default function NewEmailModal({
   const handleBack = () => setView("main");
 
   const handleCreate = async () => {
+    console.log("Create button clicked, email type:", selectedEmailType);
+
     // Get the selected color palette
     const selectedPallet = pallets.find(
       (pallet) => pallet.name === selectedColor,
     );
 
     if (selectedPallet) {
+      console.log("Selected palette:", selectedPallet.name);
+
       // Create style updates object
-      const styleUpdates: EmailStyles = {
-        // Ensure full EmailStyles type
+      const styleUpdates = {
         bgColor: selectedPallet.colors.bgColor,
         emailBgColor: selectedPallet.colors.blocksBgColor,
         defaultTextColor: selectedPallet.colors.textColor,
@@ -183,213 +183,261 @@ export default function NewEmailModal({
         accentTextColor: selectedPallet.colors.accentTextColor,
         defaultFont: selectedFont,
         isInset: isInset,
-        cornerRadius: 0, // Default or get from state if you add a control for it
-        blockSpacing: 20, // Default or get from state
       };
+      console.log("Style updates:", styleUpdates);
 
       // Create footer updates object
       const footerUpdates = {
         text_color: selectedPallet.colors.footerTextColor,
         secondary_text_color: selectedPallet.colors.footerAccentTextColor,
         bg_color: selectedPallet.colors.footerBgColor,
-        // Add other default footer properties if needed
       };
+      console.log("Footer updates:", footerUpdates);
 
-      // --- Template Blocks Logic ---
-      let templateBlocks: BlockType[] = [];
+      // Create template blocks based on selected email type
+      const templateBlocks: Array<{
+        id: string;
+        type: string;
+        order: number;
+        data: any;
+      }> = [];
 
       if (selectedEmailType === "updates") {
-        const textContent = `<h1 class="heading" style="text-align: left">Heading One</h1><p style="text-align: left">"In the beginning was the Word, and the Word was with God, and the Word was God. The same was in the beginning with God. All things were made by him; and without him was not any thing made that was made. In him was life; and the life was the light of men. And the light shineth in darkness; and the darkness comprehended it not."</p><p style="text-align: left">John 1:1-5 KJV</p>`;
-
-        templateBlocks = [
+        // Updates email template blocks
+        templateBlocks.push(
+          // Image block (order 0)
           {
             id: crypto.randomUUID(),
             type: "image",
             order: 0,
-            data: { image: "", size: 100, link: "", centered: true },
+            data: {
+              image: "",
+              size: 100,
+              link: "",
+              centered: true,
+            },
           },
+          // Text block (order 1)
           {
             id: crypto.randomUUID(),
             type: "text",
             order: 1,
             data: {
               font: "'Courier New', monospace",
-              content: textContent,
-              textColor: styleUpdates.defaultTextColor,
+              content:
+                '<h1 class="heading" style="text-align: left">Heading One</h1><p style="text-align: left">"In the beginning was the Word, and the Word was with God, and the Word was God. The same was in the beginning with God. All things were made by him; and without him was not any thing made that was made. In him was life; and the life was the light of men. And the light shineth in darkness; and the darkness comprehended it not."</p><p style="text-align: left">John 1:1-5 KJV</p>',
+              textColor: "#000000",
             },
           },
+          // Button block (order 2)
           {
             id: crypto.randomUUID(),
             type: "button",
             order: 2,
             data: {
-              text: "Learn More",
               link: "",
-              color: styleUpdates.defaultTextColor,
-              textColor: styleUpdates.emailBgColor,
+              size: "large",
+              text: "Learn More",
+              color: "#000000",
               style: "filled",
-              size: "full",
               centered: false,
+              textColor: "#ffffff",
             },
           },
+          // Divider block (order 3)
           {
             id: crypto.randomUUID(),
             type: "divider",
             order: 3,
             data: {
-              color: styleUpdates.defaultTextColor,
+              color: "#000000",
               margin: 40,
               thickness: 2,
             },
           },
+          // Image block (order 4)
           {
             id: crypto.randomUUID(),
             type: "image",
             order: 4,
-            data: { image: "", size: 100, link: "", centered: true },
+            data: {
+              image: "",
+              size: 100,
+              link: "",
+              centered: true,
+            },
           },
+          // Text block (order 5)
           {
             id: crypto.randomUUID(),
             type: "text",
             order: 5,
             data: {
               font: "'Courier New', monospace",
-              content: textContent,
-              textColor: styleUpdates.defaultTextColor,
+              content:
+                '<h1 class="heading" style="text-align: left">Heading One</h1><p style="text-align: left">"In the beginning was the Word, and the Word was with God, and the Word was God. The same was in the beginning with God. All things were made by him; and without him was not any thing made that was made. In him was life; and the life was the light of men. And the light shineth in darkness; and the darkness comprehended it not."</p><p style="text-align: left">John 1:1-5 KJV</p>',
+              textColor: "#000000",
             },
           },
+          // Button block (order 6)
           {
             id: crypto.randomUUID(),
             type: "button",
             order: 6,
             data: {
-              text: "Learn More",
               link: "",
-              color: styleUpdates.defaultTextColor,
-              textColor: styleUpdates.emailBgColor,
+              size: "large",
+              text: "Learn More",
+              color: "#000000",
               style: "filled",
-              size: "full",
               centered: false,
+              textColor: "#ffffff",
             },
           },
+          // Divider block (order 7)
           {
             id: crypto.randomUUID(),
             type: "divider",
             order: 7,
             data: {
-              color: styleUpdates.defaultTextColor,
+              color: "#000000",
               margin: 40,
               thickness: 2,
             },
           },
-          {
-            id: crypto.randomUUID(),
-            type: "image",
-            order: 8,
-            data: { image: "", size: 100, link: "", centered: true },
-          },
-          {
-            id: crypto.randomUUID(),
-            type: "text",
-            order: 9,
-            data: {
-              font: "'Courier New', monospace",
-              content: textContent,
-              textColor: styleUpdates.defaultTextColor,
-            },
-          },
-          {
-            id: crypto.randomUUID(),
-            type: "button",
-            order: 10,
-            data: {
-              text: "Learn More",
-              link: "",
-              color: styleUpdates.defaultTextColor,
-              textColor: styleUpdates.emailBgColor,
-              style: "filled",
-              size: "full",
-              centered: false,
-            },
-          },
-        ];
+        );
       } else if (selectedEmailType === "article") {
-        const textContent1 = `<h1 class="heading">Heading One</h1><p style="text-align: left">"In the beginning was the Word, and the Word was with God, and the Word was God. The same was in the beginning with God. All things were made by him; and without him was not any thing made that was made. In him was life; and the life was the light of men. And the light shineth in darkness; and the darkness comprehended it not."</p><p style="text-align: left"></p><p style="text-align: left">There was a man sent from God, whose name was John.</p><p>The same came for a witness, to bear witness of the Light, that all men through him might believe. He was not that Light, but was sent to bear witness of that Light. That was the true Light, which lighteth every man that cometh into the world. He was in the world, and the world was made by him, and the world knew him not. He came unto his own, and his own received him not. But as many as received him, to them gave he power to become the sons of God, even to them that believe on his name: Which were born, not of blood, nor of the flesh, nor of the will of man, but of God.</p>`;
-        const textContent2 = `<p style="text-align: left">"In the beginning was the Word, and the Word was with God, and the Word was God. The same was in the beginning with God. All things were made by him; and without him was not any thing made that was made. In him was life; and the life was the light of men. And the light shineth in darkness; and the darkness comprehended it not."</p><p style="text-align: left"></p><p style="text-align: left">There was a man sent from God, whose name was John.</p><p>The same came for a witness, to bear witness of the Light, that all men through him might believe. He was not that Light, but was sent to bear witness of that Light. That was the true Light, which lighteth every man that cometh into the world. He was in the world, and the world was made by him, and the world knew him not. He came unto his own, and his own received him not. But as many as received him, to them gave he power to become the sons of God, even to them that believe on his name: Which were born, not of blood, nor of the will of the flesh, nor of the will of man, but of God.</p>`;
-
-        templateBlocks = [
+        // Article email template blocks
+        templateBlocks.push(
+          // Image block (order 0)
           {
             id: crypto.randomUUID(),
             type: "image",
             order: 0,
-            data: { image: "", size: 100, link: "", centered: true },
+            data: {
+              image: "",
+              size: 100,
+              link: "",
+              centered: true,
+            },
           },
+          // Author block (order 1)
           {
             id: crypto.randomUUID(),
             type: "author",
             order: 1,
             data: {
-              name: "Author Name",
-              subtitle: "Author Title",
-              avatar: "",
-              textColor: styleUpdates.defaultTextColor,
-              links: [],
-              linkColor: styleUpdates.linkColor,
-              hideAvatar: false,
+              content: "",
             },
           },
+          // Text block (order 2)
           {
             id: crypto.randomUUID(),
             type: "text",
             order: 2,
             data: {
-              font: styleUpdates.defaultFont,
-              content: textContent1,
-              textColor: styleUpdates.defaultTextColor,
+              font: "sans-serif",
+              content:
+                '<h1 class="heading">Heading One</h1><p style="text-align: left">"In the beginning was the Word, and the Word was with God, and the Word was God. The same was in the beginning with God. All things were made by him; and without him was not any thing made that was made. In him was life; and the life was the light of men. And the light shineth in darkness; and the darkness comprehended it not."</p><p style="text-align: left"></p><p style="text-align: left">There was a man sent from God, whose name was John.</p><p>The same came for a witness, to bear witness of the Light, that all men through him might believe. He was not that Light, but was sent to bear witness of that Light. That was the true Light, which lighteth every man that cometh into the world. He was in the world, and the world was made by him, and the world knew him not. He came unto his own, and his own received him not. But as many as received him, to them gave he power to become the sons of God, even to them that believe on his name: Which were born, not of blood, nor of the will of the flesh, nor of the will of man, but of God.</p>',
+              textColor: "#000000",
             },
           },
+          // Divider block (order 3)
           {
             id: crypto.randomUUID(),
             type: "divider",
             order: 3,
-            data: { color: "#5c5c5c", margin: 24, thickness: 1 }, // Specific color from SQL
+            data: {
+              color: "#5c5c5c",
+              margin: 24,
+              thickness: 1,
+            },
           },
+          // Text block (order 4)
           {
             id: crypto.randomUUID(),
             type: "text",
             order: 4,
             data: {
-              font: styleUpdates.defaultFont,
-              content: textContent2,
-              textColor: styleUpdates.defaultTextColor,
+              font: "sans-serif",
+              content:
+                '<p style="text-align: left">"In the beginning was the Word, and the Word was with God, and the Word was God. The same was in the beginning with God. All things were made by him; and without him was not any thing made that was made. In him was life; and the life was the light of men. And the light shineth in darkness; and the darkness comprehended it not."</p><p style="text-align: left"></p><p style="text-align: left">There was a man sent from God, whose name was John.</p><p>The same came for a witness, to bear witness of the Light, that all men through him might believe. He was not that Light, but was sent to bear witness of that Light. That was the true Light, which lighteth every man that cometh into the world. He was in the world, and the world was made by him, and the world knew him not. He came unto his own, and his own received him not. But as many as received him, to them gave he power to become the sons of God, even to them that believe on his name: Which were born, not of blood, nor of the will of the flesh, nor of the will of man, but of God.</p>',
+              textColor: "#000000",
             },
           },
-        ];
+        );
+      } else if (selectedEmailType === "scratch") {
+        // Empty template with just a single text block
+        templateBlocks.push(
+          // Text block (order 0)
+          {
+            id: crypto.randomUUID(),
+            type: "text",
+            order: 0,
+            data: {
+              font: selectedFont,
+              content:
+                '<p style="text-align: left">Start typing your email content here...</p>',
+              textColor: selectedPallet.colors.textColor,
+            },
+          },
+        );
       }
-      // --- End Template Blocks Logic ---
 
-      // Use the new setManagedState function to update blocks, styles, and footer at once
-      if (setManagedState) {
-        // Provide the full state object expected by HistoryState
-        setManagedState({
-          blocks: templateBlocks, // Set the new blocks directly
-          styles: styleUpdates, // Set the new styles
-          footer: footerUpdates, // Set the new footer
-        });
+      console.log("Template blocks created:", templateBlocks);
+
+      // Send the template blocks to the parent directly
+      if (onTemplateBlocks) {
+        console.log("Calling onTemplateBlocks with blocks");
+        onTemplateBlocks(templateBlocks);
+      } else {
+        console.log("onTemplateBlocks is not defined");
       }
 
-      // These might still be useful if they trigger specific DB updates
-      // not covered by the general state management hooks reacting to state change.
-      // If setManagedState handles all necessary updates (UI + history + triggering DB saves via useEffects),
-      // these might become redundant. Review EmailDndProvider's useEffects.
-      // For now, keep them to ensure separate DB update logic isn't missed.
-      onAllStyleChanges?.(styleUpdates);
-      onFooterChange?.(footerUpdates);
+      console.log(
+        "setCurrentState function:",
+        setCurrentState ? "Defined" : "Undefined",
+      );
 
-      // Note: Adding blocks to the DB will be handled by the email-dnd-provider
-      // when it detects the new blocks with UUIDs in its state (triggered by the state change from setManagedState).
+      // First apply updates to local state using direct function call
+      if (setCurrentState) {
+        // We need to use a callback to preserve existing blocks
+        setCurrentState(
+          (prevState: { blocks: any[]; styles: any; footer: any }) => {
+            console.log("Previous state in callback:", prevState);
+            const newState = {
+              blocks: templateBlocks, // Use template blocks instead of existing blocks
+              styles: styleUpdates, // Apply new styles
+              footer: footerUpdates, // Apply new footer
+            };
+            console.log("New state being set:", newState);
+            return newState;
+          },
+        );
+        console.log("State update called");
+      } else {
+        console.error("setCurrentState is not defined!");
+      }
+
+      // Then call API handlers for DB updates
+      // Handle all style changes at once (for DB updates)
+      if (onAllStyleChanges) {
+        console.log("Calling onAllStyleChanges");
+        onAllStyleChanges(styleUpdates);
+      } else {
+        console.log("onAllStyleChanges is not defined");
+      }
+
+      // Handle footer changes separately (for DB updates)
+      if (onFooterChange) {
+        console.log("Calling onFooterChange");
+        onFooterChange(footerUpdates);
+      } else {
+        console.log("onFooterChange is not defined");
+      }
     }
 
+    console.log("Closing modal");
     // Close the modal
     setNewEmailModalOpen(null);
   };
@@ -413,6 +461,8 @@ export default function NewEmailModal({
   };
 
   // Determine direction for animation
+  // For simplicity, going 'back' is always -1, going 'forward' is always 1
+  // You might want more complex logic if you have more views or deeper navigation
   const direction = view === "main" ? -1 : 1;
 
   return (
@@ -458,11 +508,11 @@ export default function NewEmailModal({
             >
               {view === "main" && (
                 <>
-                  <div className="flex flex-col gap-8 rounded-lg border bg-muted p-5 shadow-sm md:flex-row">
+                  <div className="flex gap-8 rounded-lg border bg-muted p-5 shadow-sm">
                     <div className="flex flex-col gap-2">
                       <Label>Email Type</Label>
                       <div className="flex gap-3">
-                        <div className="flex flex-col items-center gap-2">
+                        <div className="flex flex-col gap-2">
                           <button
                             className={`rounded-lg border ${selectedEmailType === "updates" ? "bg-primary/30 outline-none ring-2 ring-primary" : "bg-background"} p-4 transition-all duration-300 hover:bg-primary/30`}
                             onClick={() => setSelectedEmailType("updates")}
@@ -477,7 +527,7 @@ export default function NewEmailModal({
                             Updates
                           </span>
                         </div>
-                        <div className="flex flex-col items-center gap-2">
+                        <div className="flex flex-col gap-2">
                           <button
                             className={`rounded-lg border ${selectedEmailType === "article" ? "bg-primary/30 outline-none ring-2 ring-primary" : "bg-background"} p-4 transition-all duration-300 hover:bg-primary/30`}
                             onClick={() => setSelectedEmailType("article")}
@@ -693,6 +743,11 @@ export default function NewEmailModal({
                 <div>
                   {/* Placeholder for Templates content */}
                   <p>Templates list will go here.</p>
+                  <p>Templates list will go here.</p>
+                  <p>Templates list will go here.</p>
+                  <p>Templates list will go here.</p>
+                  <p>Templates list will go here.</p>
+                  <p>Templates list will go here.</p>
                 </div>
               )}
 
@@ -715,13 +770,11 @@ export default function NewEmailModal({
           {view === "main" && (
             <Button
               variant="outline"
-              onClick={() =>
-                setManagedState?.({
-                  blocks: [],
-                  styles: initialStyles,
-                  footer: initialFooter,
-                })
-              }
+              onClick={() => {
+                // Set email type to scratch before creating
+                setSelectedEmailType("scratch");
+                handleCreate();
+              }}
             >
               Start from scratch
             </Button>
@@ -734,18 +787,3 @@ export default function NewEmailModal({
     </Dialog>
   );
 }
-
-// Need to define initialStyles and initialFooter or get them from context/props
-// For simplicity, defining defaults here, but ideally they should match useBlockStateManager defaults
-const initialStyles: EmailStyles = {
-  bgColor: "#ffffff",
-  isInset: false,
-  emailBgColor: "#eeeeee",
-  defaultTextColor: "#000000",
-  accentTextColor: "#666666",
-  defaultFont: "sans-serif",
-  cornerRadius: 0,
-  linkColor: "#0000ff",
-  blockSpacing: 20,
-};
-const initialFooter = null;

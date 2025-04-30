@@ -64,11 +64,7 @@ import { createEditor, updateEditorColors } from "./rich-text-editor/editor";
 import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
-import {
-  EmailStyles,
-  useBlockStateManager,
-  HistoryState,
-} from "./use-block-state-manager";
+import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
 import { useUpdateEmailFooter } from "./mutations/use-update-email-footer";
 import { DatabaseBlockType, OrderUpdate, ContentUpdate } from "./dnd-types";
 import NewEmailModal from "./new-email-modal";
@@ -163,7 +159,6 @@ export default function EmailDndProvider({
   const {
     blocks,
     styles,
-    footer,
     updateBlocksHistory,
     updateStylesHistory,
     updateFooterHistory,
@@ -171,7 +166,8 @@ export default function EmailDndProvider({
     redo,
     canUndo,
     canRedo,
-    setManagedState, // <--- Use the new function
+    setCurrentState,
+    footer,
   } = useBlockStateManager(
     initialBlocks,
     initialStyles,
@@ -2280,8 +2276,7 @@ export default function EmailDndProvider({
                   );
 
                   // Update the UI with the new ID
-                  setManagedState({
-                    // Use setManagedState here
+                  setCurrentState({
                     blocks: updatedBlocks,
                     styles: previousState.styles,
                     footer: previousState.footer,
@@ -2327,8 +2322,7 @@ export default function EmailDndProvider({
         // Only update if blocks were actually removed
         if (filteredCurrentBlocks.length < blocksBeforeUndo.length) {
           // Force the UI to update with the filtered blocks
-          setManagedState({
-            // Use setManagedState here
+          setCurrentState({
             blocks: previousState.blocks,
             styles: previousState.styles,
             footer: previousState.footer,
@@ -2398,7 +2392,7 @@ export default function EmailDndProvider({
     editors,
     setEditors,
     setBlocksBeingDeleted,
-    setManagedState, // Updated dependency
+    setCurrentState,
     addEmailBlock,
     emailId,
     footer,
@@ -2462,8 +2456,7 @@ export default function EmailDndProvider({
         // Only update if blocks were actually removed
         if (filteredCurrentBlocks.length < blocksBeforeRedo.length) {
           // Force the UI to update with the filtered blocks
-          setManagedState({
-            // Use setManagedState here
+          setCurrentState({
             blocks: nextState.blocks,
             styles: nextState.styles,
             footer: nextState.footer,
@@ -2576,7 +2569,7 @@ export default function EmailDndProvider({
     styles.defaultTextColor,
     styles.accentTextColor,
     setBlocksBeingDeleted,
-    setManagedState, // Updated dependency
+    setCurrentState,
     footer,
   ]);
 
@@ -2809,6 +2802,9 @@ export default function EmailDndProvider({
     useState<Partial<EmailStyles> | null>(null);
   const [lastModalFooterUpdates, setLastModalFooterUpdates] =
     useState<any>(null);
+  const [lastTemplateBlocks, setLastTemplateBlocks] = useState<
+    BlockType[] | null
+  >(null);
 
   // Handle style changes from modal with local state tracking
   const handleModalStyleChanges = useCallback(
@@ -2834,45 +2830,116 @@ export default function EmailDndProvider({
     [handleFooterChange],
   );
 
+  // Handle template blocks from modal
+  const handleTemplateBlocks = useCallback((templateBlocks: BlockType[]) => {
+    console.log(
+      "Email-dnd-provider: Received template blocks:",
+      templateBlocks,
+    );
+    setLastTemplateBlocks(templateBlocks);
+  }, []);
+
   // Apply stored style and footer updates when modal closes
   useEffect(() => {
-    if (
-      !newEmailModalOpen &&
-      (lastModalStyleUpdates || lastModalFooterUpdates)
-    ) {
-      // Force an update to the current state using setManagedState
-      setManagedState((prevState: HistoryState) => {
-        const newState = { ...prevState };
+    if (!newEmailModalOpen) {
+      console.log("Email-dnd-provider: Modal closed, applying updates");
+      console.log(
+        "Email-dnd-provider: Last template blocks:",
+        lastTemplateBlocks,
+      );
+
+      // First update the blocks if they exist
+      if (lastTemplateBlocks && lastTemplateBlocks.length > 0) {
+        console.log(
+          "Email-dnd-provider: Updating blocks history with",
+          lastTemplateBlocks.length,
+          "blocks",
+        );
+        updateBlocksHistory(lastTemplateBlocks);
+
+        // Initialize editors for text blocks
+        const newEditors = { ...editors };
+        lastTemplateBlocks.forEach((block) => {
+          if (block.type === "text") {
+            const initialContent = (block.data as any)?.content || "";
+            const font = (block.data as any)?.font || styles.defaultFont;
+            const textColor =
+              (block.data as any)?.textColor || styles.defaultTextColor;
+
+            try {
+              console.log(
+                "Email-dnd-provider: Creating editor for text block",
+                block.id,
+              );
+              const newEditor = createEditor(
+                initialContent,
+                font,
+                textColor,
+                true, // preserve existing styles
+                styles.accentTextColor,
+              );
+              newEditors[block.id] = newEditor;
+            } catch (error) {
+              console.error(
+                "Failed to create editor for block",
+                block.id,
+                error,
+              );
+            }
+          }
+        });
+
+        if (Object.keys(newEditors).length > Object.keys(editors).length) {
+          console.log(
+            "Email-dnd-provider: Setting editors with",
+            Object.keys(newEditors).length,
+            "editors",
+          );
+          setEditors(newEditors);
+        }
+
+        // Reset template blocks after applying
+        setLastTemplateBlocks(null);
+      }
+
+      // Force an update to the styles and footer
+      if (lastModalStyleUpdates || lastModalFooterUpdates) {
+        console.log("Email-dnd-provider: Applying style/footer updates");
 
         // Apply style updates if they exist
         if (lastModalStyleUpdates) {
-          newState.styles = {
-            ...newState.styles,
-            ...lastModalStyleUpdates,
-          };
+          updateStylesHistory(lastModalStyleUpdates);
         }
 
         // Apply footer updates if they exist
         if (lastModalFooterUpdates) {
-          newState.footer = {
-            ...newState.footer,
-            ...lastModalFooterUpdates,
-          };
+          updateFooterHistory(lastModalFooterUpdates);
         }
 
-        return newState;
-      });
-
-      // Reset the stored updates
-      setLastModalStyleUpdates(null);
-      setLastModalFooterUpdates(null);
+        // Reset the stored updates
+        setLastModalStyleUpdates(null);
+        setLastModalFooterUpdates(null);
+      }
     }
   }, [
     newEmailModalOpen,
+    lastTemplateBlocks,
     lastModalStyleUpdates,
     lastModalFooterUpdates,
-    setManagedState, // Updated dependency
+    updateBlocksHistory,
+    updateStylesHistory,
+    updateFooterHistory,
+    editors,
+    styles.defaultFont,
+    styles.defaultTextColor,
+    styles.accentTextColor,
   ]);
+
+  // Debug state updates whenever blocks change
+  useEffect(() => {
+    console.log("EmailDndProvider: Blocks changed:", blocks);
+    console.log("EmailDndProvider: Editor keys:", Object.keys(editors));
+  }, [blocks, editors]);
 
   return (
     <div className="relative flex h-full flex-col">
@@ -3129,7 +3196,8 @@ export default function EmailDndProvider({
       <NewEmailModal
         onFooterChange={handleModalFooterChanges}
         onAllStyleChanges={handleModalStyleChanges}
-        setManagedState={setManagedState} // <--- Pass down the new function
+        setCurrentState={setCurrentState}
+        onTemplateBlocks={handleTemplateBlocks}
       />
     </div>
   );
