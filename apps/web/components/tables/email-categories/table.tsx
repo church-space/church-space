@@ -50,8 +50,11 @@ export default function EmailCategoriesTable({
             Email Categories
           </h1>
 
-          <Button onClick={() => setIsNewEmailCategoryOpen(true)}>
-            New Email Category
+          <Button
+            onClick={() => setIsNewEmailCategoryOpen(true)}
+            className="gap-1"
+          >
+            New <span className="hidden md:inline">Category</span>
           </Button>
         </div>
         <div className="flex w-full items-center gap-3 rounded-md border bg-muted p-3 text-sm text-secondary-foreground">

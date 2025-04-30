@@ -3164,7 +3164,7 @@ export default function EmailDndProvider({
             onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
           >
             <DialogTrigger asChild>
-              <Button variant="ghost">
+              <Button variant="ghost" className="hidden sm:block">
                 <span className="hidden md:block">Preview</span>
                 <span className="block md:hidden">
                   <Eye />

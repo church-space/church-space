@@ -6,6 +6,44 @@ import { Badge } from "@church-space/ui/badge";
 import { Button } from "@church-space/ui/button";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 
+const SubjectCell = ({ email }: { email: Email }) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap pl-1">
+          <Link href={`/emails/${email.id}`} prefetch={true}>
+            <Button
+              variant="ghost"
+              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+            >
+              {email.subject || "No Subject"} MBILE
+            </Button>
+          </Link>
+        </div>
+        <div className="flex flex-col gap-2">
+          <span>From</span>
+          <span>{email.from_name}</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap pl-1">
+      <Link href={`/emails/${email.id}`} prefetch={true}>
+        <Button
+          variant="ghost"
+          className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+        >
+          {email.subject || "No Subject"}
+        </Button>
+      </Link>
+    </div>
+  );
+};
+
 export type Email = {
   id: number;
   subject: string | null;
@@ -41,36 +79,7 @@ export const columns: ColumnDef<Email>[] = [
     minSize: 300,
     cell: ({ row }) => {
       const email = row.original;
-      const isMobile = useIsMobile();
-      return isMobile ? (
-        <div className="flex flex-col gap-2">
-          <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap pl-1">
-            <Link href={`/emails/${email.id}`} prefetch={true}>
-              <Button
-                variant="ghost"
-                className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
-              >
-                {email.subject || "No Subject"} MBILE
-              </Button>
-            </Link>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span>From</span>
-            <span>{email.from_name}</span>
-          </div>
-        </div>
-      ) : (
-        <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap pl-1">
-          <Link href={`/emails/${email.id}`} prefetch={true}>
-            <Button
-              variant="ghost"
-              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
-            >
-              {email.subject || "No Subject"}
-            </Button>
-          </Link>
-        </div>
-      );
+      return <SubjectCell email={email} />;
     },
   },
   {

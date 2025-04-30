@@ -18,6 +18,7 @@ import { useUpdateOrgDefaultFooter } from "./mutations/use-update-org-default-fo
 import DefaultEmailFooterForm from "./sidebar-editor-forms/default-email-footer";
 import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
 import Link from "next/link";
+import { Button } from "@church-space/ui/button";
 
 type FooterData = {
   links: any | null;
@@ -134,7 +135,7 @@ export default function DefaultFooterEditor({
         </div>
       </header>
 
-      <div className="relative flex p-2 pt-0 md:gap-4 md:p-4 md:pt-0">
+      <div className="relative hidden p-2 pt-0 md:flex md:gap-4 md:p-4 md:pt-0">
         <div className="hidden md:block">
           <div
             className={cn(
@@ -159,6 +160,19 @@ export default function DefaultFooterEditor({
             orgFooterDetails={orgFooterDetails}
           />
         </div>
+      </div>
+      <div className="mx-4 mt-4 flex flex-col gap-4 rounded-lg border bg-muted p-2 md:hidden">
+        <h2 className="text-lg font-bold">Mobile Editing Coming Soon</h2>
+        <p className="text-sm text-muted-foreground">
+          It looks like you&apos;re on a device with a smaller screen. Editing
+          the default footer is not avaible on mobile yet, but it is coming
+          soon.
+        </p>
+        <Link href="/emails/templates">
+          <Button variant="outline" className="mt-1 w-full">
+            Back to Templates
+          </Button>
+        </Link>
       </div>
     </div>
   );

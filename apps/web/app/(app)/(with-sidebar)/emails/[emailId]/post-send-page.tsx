@@ -437,6 +437,7 @@ export default function PostSendPage({
                   onClick={() => {
                     setPreviewOpen("true");
                   }}
+                  className="hidden sm:block"
                 >
                   View Email
                 </Button>

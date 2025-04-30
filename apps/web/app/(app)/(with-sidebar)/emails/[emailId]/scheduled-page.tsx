@@ -348,7 +348,7 @@ export default function ScheduledPage({
                       onClick={() => {
                         setPreviewOpen("true");
                       }}
-                      className="w-full"
+                      className="hidden w-full sm:flex"
                     >
                       Preview Email
                     </Button>

@@ -933,7 +933,7 @@ export default function PreSendPage({
                     </p>
                   </div>
                 )}
-                <div className="rounded-md border bg-muted px-1 py-2.5 text-sm text-muted-foreground">
+                <div className="hidden rounded-md border bg-muted px-1 py-2.5 text-sm text-muted-foreground sm:block">
                   <div className="flex flex-col gap-1">
                     <div className="flex w-full items-center justify-between px-2.5">
                       <h4 className="font-medium">Preview</h4>
@@ -1590,14 +1590,12 @@ export default function PreSendPage({
                   <DialogTrigger asChild>
                     <Button
                       variant="ghost"
+                      className="hidden sm:block"
                       onClick={() => {
                         setPreviewOpen("true");
                       }}
                     >
-                      <span className="hidden md:block">Preview</span>
-                      <span className="block md:hidden">
-                        <Eye />
-                      </span>
+                      Preview
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="h-[95%] min-w-[95%] p-4">

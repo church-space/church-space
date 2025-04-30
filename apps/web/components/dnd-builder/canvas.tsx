@@ -161,7 +161,7 @@ export default function DndBuilderCanvas({
     <div
       className={cn(
         "mx-auto mb-20 flex w-full flex-col items-center justify-center rounded-md border shadow-sm md:mb-0",
-        isInset ? "px-3 pt-3" : "",
+        isInset ? "px-2 pt-2 sm:px-3 sm:pt-3" : "",
       )}
       style={{
         backgroundColor: isInset ? emailBgColor : bgColor,
@@ -177,7 +177,7 @@ export default function DndBuilderCanvas({
         ref={setNodeRef}
         className={cn(
           "mx-auto flex w-full max-w-2xl flex-col p-4",
-          isInset && "mb-2 p-6 pb-0 shadow-md",
+          isInset && "mb-2 p-2 pb-0 shadow-md sm:p-6",
           blocks.length === 0 && "min-h-[102px] pb-6",
           cornerRadius > 0 && isInset && "rounded-2xl",
         )}

@@ -94,8 +94,11 @@ export default function AutomationsTable({
         <h1 className="flex items-center gap-1.5 text-3xl font-bold">
           Automations
         </h1>
-        <Button onClick={() => setIsNewEmailAutomationOpen(true)}>
-          New Automation
+        <Button
+          onClick={() => setIsNewEmailAutomationOpen(true)}
+          className="gap-1"
+        >
+          New <span className="hidden md:inline">Automation</span>
         </Button>
       </div>
       <DataTable
