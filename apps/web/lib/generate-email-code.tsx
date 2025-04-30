@@ -413,7 +413,9 @@ const CustomButton: React.FC<{
                     ? "9px 60px"
                     : size === "large"
                       ? "12px 80px"
-                      : "9px 15px",
+                      : size === "full"
+                        ? "9px 0px"
+                        : "9px 15px",
                 textDecoration: "none",
                 textAlign: "center",
                 width: buttonWidth,
@@ -441,7 +443,9 @@ const CustomButton: React.FC<{
                     ? "9px 60px"
                     : size === "large"
                       ? "15px 32px"
-                      : "9px 15px",
+                      : size === "full"
+                        ? "9px 0px"
+                        : "9px 15px",
                 textDecoration: "none",
                 textAlign: "center",
                 width: buttonWidth,
@@ -1511,10 +1515,8 @@ const CustomFooter: React.FC<{
                         <Img
                           src={logoUrl}
                           alt="Church Logo"
-                          width="112"
-                          height="112"
+                          width="10%"
                           style={{
-                            objectFit: "contain",
                             borderRadius: cornerRadius
                               ? `${cornerRadius * 0.6}px`
                               : "0",

@@ -614,6 +614,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
               onUploadComplete={handleUploadComplete}
               initialFilePath={localState.avatar}
               onRemove={onImageRemove}
+              type="image"
             />
           </div>
           <Label>Hide Avatar</Label>

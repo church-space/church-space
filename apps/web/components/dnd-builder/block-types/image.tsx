@@ -36,7 +36,7 @@ export default function ImageBlock({ data, cornerRadius }: ImageBlockProps) {
       {imageUrl ? (
         <Image
           src={imageUrl}
-          alt={data?.altText || "Uploaded content"}
+          alt={"Uploaded content"}
           className="h-full w-full object-contain"
           width={1000}
           height={1000}

@@ -49,7 +49,6 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
     query = query.or(
       `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm}`
     );
-    query = query.filter("people_emails.email", "ilike", searchTerm);
   }
 
   if (
