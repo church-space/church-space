@@ -364,7 +364,7 @@ export default function DataTable<TData>({
 
       <div
         className={cn(
-          "max-w-[92vw] overflow-auto",
+          "hidden max-w-[92vw] overflow-auto md:block",
           sidebarState === "expanded" && "md:max-w-[calc(100vw-17rem)]",
           sidebarState === "collapsed" && "md:max-w-[calc(100vw-3.5rem)]",
         )}
@@ -470,6 +470,8 @@ export default function DataTable<TData>({
           )}
         </div>
       </div>
+
+      <div className="block md:hidden"></div>
 
       {/* Action Bar */}
       {selectedRows.length > 0 && (

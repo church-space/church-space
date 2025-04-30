@@ -64,7 +64,11 @@ import { createEditor, updateEditorColors } from "./rich-text-editor/editor";
 import Toolbar from "./rich-text-editor/rich-text-format-bar";
 import SendTestEmail from "./send-test-email";
 import DndBuilderSidebar, { allBlockTypes } from "./sidebar";
-import { EmailStyles, useBlockStateManager } from "./use-block-state-manager";
+import {
+  EmailStyles,
+  useBlockStateManager,
+  HistoryState,
+} from "./use-block-state-manager";
 import { useUpdateEmailFooter } from "./mutations/use-update-email-footer";
 import { DatabaseBlockType, OrderUpdate, ContentUpdate } from "./dnd-types";
 import NewEmailModal from "./new-email-modal";
@@ -159,6 +163,7 @@ export default function EmailDndProvider({
   const {
     blocks,
     styles,
+    footer,
     updateBlocksHistory,
     updateStylesHistory,
     updateFooterHistory,
@@ -166,8 +171,7 @@ export default function EmailDndProvider({
     redo,
     canUndo,
     canRedo,
-    setCurrentState,
-    footer,
+    setManagedState, // <--- Use the new function
   } = useBlockStateManager(
     initialBlocks,
     initialStyles,
@@ -2276,7 +2280,8 @@ export default function EmailDndProvider({
                   );
 
                   // Update the UI with the new ID
-                  setCurrentState({
+                  setManagedState({
+                    // Use setManagedState here
                     blocks: updatedBlocks,
                     styles: previousState.styles,
                     footer: previousState.footer,
@@ -2322,7 +2327,8 @@ export default function EmailDndProvider({
         // Only update if blocks were actually removed
         if (filteredCurrentBlocks.length < blocksBeforeUndo.length) {
           // Force the UI to update with the filtered blocks
-          setCurrentState({
+          setManagedState({
+            // Use setManagedState here
             blocks: previousState.blocks,
             styles: previousState.styles,
             footer: previousState.footer,
@@ -2392,7 +2398,7 @@ export default function EmailDndProvider({
     editors,
     setEditors,
     setBlocksBeingDeleted,
-    setCurrentState,
+    setManagedState, // Updated dependency
     addEmailBlock,
     emailId,
     footer,
@@ -2456,7 +2462,8 @@ export default function EmailDndProvider({
         // Only update if blocks were actually removed
         if (filteredCurrentBlocks.length < blocksBeforeRedo.length) {
           // Force the UI to update with the filtered blocks
-          setCurrentState({
+          setManagedState({
+            // Use setManagedState here
             blocks: nextState.blocks,
             styles: nextState.styles,
             footer: nextState.footer,
@@ -2569,7 +2576,7 @@ export default function EmailDndProvider({
     styles.defaultTextColor,
     styles.accentTextColor,
     setBlocksBeingDeleted,
-    setCurrentState,
+    setManagedState, // Updated dependency
     footer,
   ]);
 
@@ -2833,8 +2840,8 @@ export default function EmailDndProvider({
       !newEmailModalOpen &&
       (lastModalStyleUpdates || lastModalFooterUpdates)
     ) {
-      // Force an update to the current state
-      setCurrentState((prevState) => {
+      // Force an update to the current state using setManagedState
+      setManagedState((prevState: HistoryState) => {
         const newState = { ...prevState };
 
         // Apply style updates if they exist
@@ -2864,7 +2871,7 @@ export default function EmailDndProvider({
     newEmailModalOpen,
     lastModalStyleUpdates,
     lastModalFooterUpdates,
-    setCurrentState,
+    setManagedState, // Updated dependency
   ]);
 
   return (
@@ -3122,7 +3129,7 @@ export default function EmailDndProvider({
       <NewEmailModal
         onFooterChange={handleModalFooterChanges}
         onAllStyleChanges={handleModalStyleChanges}
-        setCurrentState={setCurrentState}
+        setManagedState={setManagedState} // <--- Pass down the new function
       />
     </div>
   );

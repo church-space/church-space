@@ -36,11 +36,11 @@ export function useBlockStateManager(
   },
   initialFooter: any = null, // Add initialFooter parameter
 ) {
-  // State for current values
-  const [currentState, setCurrentState] = useState({
+  // Internal state managed by useState
+  const [_currentState, _setCurrentState] = useState<HistoryState>({
     blocks: initialBlocks,
     styles: initialStyles,
-    footer: initialFooter, // Add footer to current state
+    footer: initialFooter, // Add footer to initial history state
   });
 
   // Add state for undo/redo availability to trigger re-renders
@@ -116,100 +116,100 @@ export function useBlockStateManager(
     [addToHistory],
   );
 
-  // Update blocks immediately for UI
+  // New function to update state and manage history
+  const setManagedState = useCallback(
+    (
+      newStateOrFn: HistoryState | ((prevState: HistoryState) => HistoryState),
+    ) => {
+      let newState: HistoryState;
+      if (typeof newStateOrFn === "function") {
+        // If it's an updater function, apply it to the current internal state
+        // We use _setCurrentState's function form to ensure we get the latest state
+        _setCurrentState((prevState) => {
+          newState = newStateOrFn(prevState);
+          // Add the new state to history using batching inside the updater
+          // to ensure it happens after the state is set.
+          batchHistoryUpdate(newState);
+          return newState; // Return the new state for useState
+        });
+      } else {
+        // If it's a direct state object
+        newState = newStateOrFn;
+        // Update the internal React state
+        _setCurrentState(newState);
+        // Add the new state to history using batching
+        batchHistoryUpdate(newState);
+      }
+    },
+    [batchHistoryUpdate], // Only depends on batchHistoryUpdate
+  );
+
+  // Update blocks immediately for UI and history
   const updateBlocksHistory = useCallback(
     (newBlocks: Block[]) => {
-      // Ensure blocks are sorted by order
       const sortedBlocks = [...newBlocks].sort((a, b) => a.order - b.order);
-
-      const newState = {
+      setManagedState((prevState) => ({
+        ...prevState,
         blocks: sortedBlocks,
-        styles: currentState.styles,
-        footer: currentState.footer,
-      };
-
-      setCurrentState(newState);
-
-      // Add to history with batching
-      batchHistoryUpdate(newState);
+      }));
     },
-    [currentState.styles, batchHistoryUpdate, currentState.footer],
+    [setManagedState], // Depend on the new managed state setter
   );
 
-  // Update styles immediately for UI
+  // Update styles immediately for UI and history
   const updateStylesHistory = useCallback(
     (newStyles: Partial<EmailStyles>) => {
-      const newState = {
-        blocks: currentState.blocks,
+      setManagedState((prevState) => ({
+        ...prevState,
         styles: {
-          ...currentState.styles,
+          ...prevState.styles,
           ...newStyles,
         },
-        footer: currentState.footer,
-      };
-
-      setCurrentState(newState);
-
-      // Add to history with batching
-      batchHistoryUpdate(newState);
+      }));
     },
-    [currentState, batchHistoryUpdate],
+    [setManagedState], // Depend on the new managed state setter
   );
 
-  // Update footer immediately for UI
+  // Update footer immediately for UI and history
   const updateFooterHistory = useCallback(
     (newFooter: any) => {
-      const newState = {
-        blocks: currentState.blocks,
-        styles: currentState.styles,
+      setManagedState((prevState) => ({
+        ...prevState,
         footer: newFooter,
-      };
-
-      setCurrentState(newState);
-
-      // Add to history with batching
-      batchHistoryUpdate(newState);
+      }));
     },
-    [currentState, batchHistoryUpdate],
+    [setManagedState], // Depend on the new managed state setter
   );
 
-  // Undo function
+  // Undo function (updated to use internal state setter)
   const undo = useCallback(() => {
     if (currentIndexRef.current > 0) {
       isUndoRedoOperationRef.current = true;
       currentIndexRef.current--;
       const previousState = historyRef.current[currentIndexRef.current];
-      setCurrentState(previousState);
-
-      // Update undo/redo state immediately
+      _setCurrentState(previousState); // Use internal setter
       updateUndoRedoState();
-
       // Reset the flag after the operation is complete
       setTimeout(() => {
         isUndoRedoOperationRef.current = false;
       }, 0);
-
       return previousState;
     }
     return null;
   }, [updateUndoRedoState]);
 
-  // Redo function
+  // Redo function (updated to use internal state setter)
   const redo = useCallback(() => {
     if (currentIndexRef.current < historyRef.current.length - 1) {
       isUndoRedoOperationRef.current = true;
       currentIndexRef.current++;
       const nextState = historyRef.current[currentIndexRef.current];
-      setCurrentState(nextState);
-
-      // Update undo/redo state immediately
+      _setCurrentState(nextState); // Use internal setter
       updateUndoRedoState();
-
       // Reset the flag after the operation is complete
       setTimeout(() => {
         isUndoRedoOperationRef.current = false;
       }, 0);
-
       return nextState;
     }
     return null;
@@ -231,11 +231,11 @@ export function useBlockStateManager(
   }, [updateUndoRedoState]);
 
   return {
-    // Current state for UI
-    blocks: currentState.blocks,
-    styles: currentState.styles,
-    footer: currentState.footer,
-    // Update functions
+    // Current state for UI (use the internal state value)
+    blocks: _currentState.blocks,
+    styles: _currentState.styles,
+    footer: _currentState.footer,
+    // Update functions (keep these as they now use setManagedState)
     updateBlocksHistory,
     updateStylesHistory,
     updateFooterHistory,
@@ -244,7 +244,8 @@ export function useBlockStateManager(
     redo,
     canUndo,
     canRedo,
-    // Expose setCurrentState for direct state updates
-    setCurrentState,
+    // Expose the new managed state setter
+    setManagedState, // <--- New function exposed
+    // DO NOT expose _setCurrentState directly anymore
   };
 }
