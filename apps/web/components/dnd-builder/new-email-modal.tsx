@@ -401,6 +401,13 @@ export default function NewEmailModal({
         setCurrentState ? "Defined" : "Undefined",
       );
 
+      if (onAllStyleChanges) {
+        onAllStyleChanges(styleUpdates);
+      }
+      if (onFooterChange) {
+        onFooterChange(footerUpdates);
+      }
+
       // First apply updates to local state using direct function call
       if (setCurrentState) {
         // We need to use a callback to preserve existing blocks
@@ -416,6 +423,7 @@ export default function NewEmailModal({
             return newState;
           },
         );
+
         console.log("State update called");
       } else {
         console.error("setCurrentState is not defined!");
