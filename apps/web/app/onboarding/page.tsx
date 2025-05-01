@@ -6,7 +6,7 @@ import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import ClientPage from "./client-page";
 import { redirect } from "next/navigation";
-import { deleteCookie, processInviteSuccess } from "./actions";
+import { processInviteSuccess } from "./actions";
 
 export default async function Page() {
   const cookieStore = await cookies();
