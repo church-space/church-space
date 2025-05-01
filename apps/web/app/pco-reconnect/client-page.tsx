@@ -50,7 +50,10 @@ export default function ClientPage({
                 If you need to cancel your subscription, you can do so by
                 clicking the button below.
               </p>
-              <ManageSubscriptionButton organizationId={organizationId} />
+              <ManageSubscriptionButton
+                organizationId={organizationId}
+                buttonVariant="outline"
+              />
             </div>
           </motion.div>
         </div>

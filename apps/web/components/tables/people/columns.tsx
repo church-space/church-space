@@ -12,7 +12,7 @@ import {
 import { Label } from "@church-space/ui/label";
 import { Button } from "@church-space/ui/button";
 import Link from "next/link";
-import { ExternalLinkIcon, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Badge } from "@church-space/ui/badge";
 import {
   Tooltip,

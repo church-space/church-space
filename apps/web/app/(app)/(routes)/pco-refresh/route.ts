@@ -11,9 +11,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!user.pcoConnection) {
-    return NextResponse.redirect(
-      new URL("/settings#pco-connection", request.url),
-    );
+    return NextResponse.redirect(new URL("/pco-reconnect", request.url));
   }
   if (!user.organizationMembership) {
     return NextResponse.redirect(new URL("/onboarding", request.url));
@@ -27,9 +25,35 @@ export async function GET(request: NextRequest) {
     .single();
 
   if (!pcoConnection) {
-    return NextResponse.redirect(
-      new URL("/settings#pco-connection", request.url),
-    );
+    return NextResponse.redirect(new URL("/pco-reconnect", request.url));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Guard against multiple simultaneous refresh attempts
+  // If the token has already been refreshed by another request within the last
+  // two hours, we can safely skip the refresh call and continue. This prevents
+  // a second request from trying to use a refresh token that has just been
+  // invalidated by the first successful refresh, which results in the
+  // `invalid_grant` error and an unnecessary redirect loop.
+  // ---------------------------------------------------------------------------
+  const now = new Date();
+  const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+
+  if (pcoConnection.last_refreshed) {
+    const lastRefreshed = new Date(pcoConnection.last_refreshed);
+
+    // If we've refreshed within the last two hours, short-circuit early.
+    if (lastRefreshed > twoHoursAgo) {
+      const returnUrl = request.nextUrl.searchParams.get("return_to");
+      const finalReturnUrl =
+        returnUrl && returnUrl !== "/emails"
+          ? returnUrl
+          : request.headers
+              .get("referer")
+              ?.replace(request.headers.get("origin") || "", "") || "/emails";
+
+      return NextResponse.redirect(new URL(finalReturnUrl, request.url));
+    }
   }
 
   // Refresh the token with Planning Center
@@ -58,9 +82,7 @@ export async function GET(request: NextRequest) {
       clientId: process.env.NEXT_PUBLIC_PCO_CLIENT_ID ? "present" : "missing",
       clientSecret: process.env.PCO_SECRET ? "present" : "missing",
     });
-    return NextResponse.redirect(
-      new URL("/settings#pco-connection", request.url),
-    );
+    return NextResponse.redirect(new URL("/pco-reconnect", request.url));
   }
 
   const data = await response.json();

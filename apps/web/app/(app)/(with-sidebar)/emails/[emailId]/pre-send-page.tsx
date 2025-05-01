@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@church-space/ui/dialog";
-import { Ellipsis, Maximize2 } from "lucide-react";
+import { Ellipsis, Loader2, Maximize2 } from "lucide-react";
 import Link from "next/link";
 import {
   UnfilledCircleDashed,
@@ -59,6 +59,7 @@ import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-list
 import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Separator } from "@church-space/ui/separator";
+import { duplicateEmailAction } from "@/actions/duplicate-email-action";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -150,6 +151,14 @@ export default function PreSendPage({
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
+
+  const [duplicateEmailName, setDuplicateEmailName] = useState("");
+
+  // State for duplicate email dialog
+  const [isDuplicateEmailDialogOpen, setIsDuplicateEmailDialogOpen] =
+    useState(false);
+
+  const [isDuplicatingEmail, setIsDuplicatingEmail] = useState(false);
 
   // Add a useEffect to update email state when initialEmail changes
   useEffect(() => {
@@ -434,6 +443,61 @@ export default function PreSendPage({
     setToIsSaving(false);
     setActiveAccordion("");
     setAccordionWithPreventedClose(null);
+  };
+
+  const handleDuplicateEmail = async () => {
+    if (!duplicateEmailName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an email subject",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsDuplicatingEmail(true);
+    try {
+      const result = await duplicateEmailAction({
+        subject: duplicateEmailName,
+        organization_id: email.organization_id,
+        source_email_id: email.id,
+      });
+
+      const resultObj = result as any;
+
+      if (resultObj && resultObj.data) {
+        toast({
+          title: "Success",
+          description: "Email duplicated successfully",
+        });
+        router.push(`/emails/${resultObj.data.data.id}`);
+        setIsDuplicatingEmail(false);
+        setDuplicateEmailName("");
+      } else {
+        let errorMessage = "Failed to duplicate email";
+        if (resultObj && typeof resultObj.error === "string") {
+          errorMessage = resultObj.error;
+        }
+        console.error("Error duplicating email:", errorMessage);
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Exception duplicating email:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? `Error: ${error.message}`
+            : "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDuplicatingEmail(false);
+    }
   };
 
   const saveFromSection = async () => {
@@ -849,6 +913,55 @@ export default function PreSendPage({
                   </DropdownMenuItem>
                 }
               />
+              <Dialog
+                open={isDuplicateEmailDialogOpen}
+                onOpenChange={setIsDuplicateEmailDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <DropdownMenuItem
+                    onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
+                  >
+                    Duplicate as New Email
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Duplicate Email</DialogTitle>
+                    <DialogDescription>
+                      Enter a subject for the new email. It will be created as a
+                      draft with the same content and settings as the original.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Input
+                    placeholder="New email subject"
+                    className="mb-3 w-full"
+                    value={duplicateEmailName}
+                    onChange={(e) => setDuplicateEmailName(e.target.value)}
+                    maxLength={100} // Or appropriate length
+                  />
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDuplicateEmailDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleDuplicateEmail}
+                      disabled={isDuplicatingEmail}
+                    >
+                      {isDuplicatingEmail ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Duplicating...
+                        </>
+                      ) : (
+                        "Duplicate"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
               <DropdownMenuSeparator className="my-1 block md:hidden" />
               <DropdownMenuItem
                 onClick={() => {

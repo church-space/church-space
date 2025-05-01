@@ -6,10 +6,12 @@ import { createPortalSessionAction } from "@/actions/create-portal-session";
 
 interface ManageSubscriptionButtonProps {
   organizationId: string;
+  buttonVariant?: "default" | "outline";
 }
 
 export default function ManageSubscriptionButton({
   organizationId,
+  buttonVariant = "default",
 }: ManageSubscriptionButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,6 +39,7 @@ export default function ManageSubscriptionButton({
       onClick={handleManageSubscription}
       disabled={isLoading}
       className="w-full"
+      variant={buttonVariant}
     >
       {isLoading ? "Loading..." : "Manage Plan and Payment Method"}
     </Button>

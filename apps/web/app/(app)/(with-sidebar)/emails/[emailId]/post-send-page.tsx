@@ -515,7 +515,7 @@ export default function PostSendPage({
                     <DropdownMenuItem
                       onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
                     >
-                      Replicate as New Email
+                      Duplicate as New Email
                     </DropdownMenuItem>
                   </DialogTrigger>
                   <DialogContent>
