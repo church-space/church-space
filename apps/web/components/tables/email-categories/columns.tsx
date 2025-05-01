@@ -29,10 +29,10 @@ import { useToast } from "@church-space/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Pencil } from "lucide-react";
 
 // Define the validation schema
 const formSchema = z.object({
@@ -58,6 +58,25 @@ interface NameCellProps {
   organizationId: string | null;
   id: number;
 }
+
+const currentYear = new Date().getFullYear();
+
+const formatDate = (dateString: string | null | undefined) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  const dateYear = date.getFullYear();
+  const options: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    weekday: "short",
+    hour: "numeric",
+    minute: "numeric",
+  };
+  if (dateYear !== currentYear) {
+    options.year = "numeric";
+  }
+  return date.toLocaleDateString("en-US", options);
+};
 
 const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
   const { toast } = useToast();
@@ -164,7 +183,7 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
             className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
           >
             <span>{name || "Untitled"}</span>
-            <Pencil className="size-6 text-muted-foreground" />
+            <Pencil className="size-6 text-muted-foreground opacity-0 group-hover:opacity-100" />
           </Button>
         </DialogTrigger>
         <DialogContent>
@@ -318,24 +337,14 @@ export const columns: ColumnDef<EmailCategory>[] = [
   },
   {
     accessorKey: "updated_at",
-    header: "Updated At",
+    header: "Updated",
     cell: ({ row }) => {
       const updatedAt = row.getValue("updated_at") as string | null;
       if (!updatedAt) {
         return <span>-</span>;
       }
-      const date = new Date(updatedAt);
-      return (
-        <span>{isNaN(date.getTime()) ? "-" : date.toLocaleDateString()}</span>
-      );
-    },
-  },
-  {
-    accessorKey: "created_at",
-    header: "Created At",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at"));
-      return <span>{date.toLocaleDateString()}</span>;
+
+      return <span>{formatDate(updatedAt)}</span>;
     },
   },
 ];

@@ -24,7 +24,7 @@ const formSchema = z.object({
     .max(60, "Name must be 60 characters or less"),
   url: z
     .string()
-    .min(1, "URL is required")
+    .min(3, "URL is required")
     .refine((val) => !val.includes(" "), {
       message: "URL cannot contain spaces",
     })
@@ -172,7 +172,7 @@ export default function NewQRCode({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || !form.formState.isValid}>
             {isLoading ? "Creating..." : "Create QR Code"}
           </Button>
         </div>

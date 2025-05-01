@@ -167,7 +167,7 @@ const NameCell = ({ person }: { person: Person }) => {
             <div className="text-base font-medium group-hover:underline">
               {person.first_name} {person.last_name}
             </div>
-            <Pencil className="size-4 text-muted-foreground" />
+            <Pencil className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100" />
           </div>
           {person.nickname && (
             <div className="text-sm text-muted-foreground">
@@ -525,25 +525,5 @@ export const columns: ColumnDef<Person>[] = [
     },
     enableHiding: true,
     // This column is hidden by default and only used for filtering
-  },
-  {
-    header: "View in PCO",
-    accessorKey: "pco_id",
-    meta: {
-      filterVariant: "text",
-    },
-    cell: ({ row }) => {
-      const person = row.original;
-      return (
-        <Link
-          href={`https://people.planningcenteronline.com/people/AC${person.pco_id}`}
-          target="_blank"
-        >
-          <Button variant="outline" size="icon">
-            <ExternalLinkIcon className="h-4 w-4" />
-          </Button>
-        </Link>
-      );
-    },
   },
 ];

@@ -26,10 +26,13 @@ import { CircleInfo } from "@church-space/ui/icons";
 
 const formSchema = z.object({
   private_name: z.string().min(1, "Name is required"),
-  url_slug: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
-    message:
-      "URL slug must be lowercase letters, numbers, and hyphens only, and it cannot end in a hyphen",
-  }),
+  url_slug: z
+    .string()
+    .min(3, "URL slug is required")
+    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
+      message:
+        "URL slug must be lowercase letters, numbers, and hyphens only, and it cannot end in a hyphen",
+    }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -91,7 +94,7 @@ export default function NewLinkList({
             <FormItem>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FormLabel className="ml-1 flex items-center gap-1">
+                  <FormLabel className="ml-1 flex w-fit items-center gap-1">
                     Name <CircleInfo />
                   </FormLabel>
                 </TooltipTrigger>
@@ -126,7 +129,7 @@ export default function NewLinkList({
             <FormItem>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FormLabel className="ml-1 flex items-center gap-1">
+                  <FormLabel className="ml-1 flex w-fit items-center gap-1">
                     URL Slug <CircleInfo />
                   </FormLabel>
                 </TooltipTrigger>
@@ -185,7 +188,7 @@ export default function NewLinkList({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || !form.formState.isValid}>
             {isLoading ? "Creating..." : "Create Link Page"}
           </Button>
         </div>

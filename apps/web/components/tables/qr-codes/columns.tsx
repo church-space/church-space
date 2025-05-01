@@ -16,6 +16,25 @@ export type QrLink = {
   status: "active" | "inactive"; // Based on the check constraint
 };
 
+const currentYear = new Date().getFullYear();
+
+const formatDate = (dateString: string | null | undefined) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  const dateYear = date.getFullYear();
+  const options: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    weekday: "short",
+    hour: "numeric",
+    minute: "numeric",
+  };
+  if (dateYear !== currentYear) {
+    options.year = "numeric";
+  }
+  return date.toLocaleDateString("en-US", options);
+};
+
 export const columns: ColumnDef<QrLink>[] = [
   {
     accessorKey: "name",
@@ -73,12 +92,10 @@ export const columns: ColumnDef<QrLink>[] = [
     },
   },
   {
-    accessorKey: "created_at",
-    header: "Created At",
+    accessorKey: "updated_at",
+    header: "Updated",
     cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at"));
-      // Format the date as needed, e.g., MM/DD/YYYY
-      return <span>{date.toLocaleDateString()}</span>;
+      return <span>{formatDate(row.getValue("updated_at"))}</span>;
     },
   },
 ];

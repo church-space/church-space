@@ -4,7 +4,6 @@ import { Badge } from "@church-space/ui/badge";
 import { Button } from "@church-space/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { Checkbox } from "@church-space/ui/checkbox";
 
 export type EmailAutomation = {
   id: number;
@@ -18,22 +17,26 @@ export type EmailAutomation = {
   updated_at: string | null;
 };
 
+const currentYear = new Date().getFullYear();
+
+const formatDate = (dateString: string | null | undefined) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  const dateYear = date.getFullYear();
+  const options: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    weekday: "short",
+    hour: "numeric",
+    minute: "numeric",
+  };
+  if (dateYear !== currentYear) {
+    options.year = "numeric";
+  }
+  return date.toLocaleDateString("en-US", options);
+};
+
 export const columns: ColumnDef<EmailAutomation>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllRowsSelected()}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected()}
-      />
-    ),
-  },
   {
     accessorKey: "name",
     header: "Name",
@@ -74,11 +77,10 @@ export const columns: ColumnDef<EmailAutomation>[] = [
     },
   },
   {
-    accessorKey: "created_at",
-    header: "Created At",
+    accessorKey: "updated_at",
+    header: "Updated",
     cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at"));
-      return <span>{date.toLocaleDateString()}</span>;
+      return <span>{formatDate(row.getValue("updated_at"))}</span>;
     },
   },
 ];
