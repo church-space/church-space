@@ -1,5 +1,6 @@
 import DeleteAccount from "@/components/settings/delete-account";
 import EmailChange from "@/components/settings/email-change";
+import EmailNotifications from "@/components/settings/email-notifications";
 import {
   SettingsContent,
   SettingsHeader,
@@ -23,6 +24,7 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { Switch } from "@church-space/ui/switch";
 import { cookies } from "next/headers";
 
 export default async function Page() {
@@ -46,6 +48,7 @@ export default async function Page() {
     first_name: string | null;
     id: string;
     last_name: string | null;
+    preferences: any;
   };
 
   return (
@@ -102,6 +105,12 @@ export default async function Page() {
                 <EmailChange email={userDetails?.email || ""} />
               </SettingsRowAction>
             </SettingsRow>
+            <EmailNotifications
+              recieveProductUpdates={
+                userDetails?.preferences?.productUpdateEmails ?? false
+              }
+              userId={userDetails?.id || ""}
+            />
           </SettingsContent>
         </SettingsSection>
 
