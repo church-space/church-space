@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@church-space/ui/button";
-import { Card, CardContent } from "@church-space/ui/card";
+import { Card } from "@church-space/ui/card";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { AnimatePresence, motion } from "framer-motion";
@@ -13,10 +13,11 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, X } from "lucide-react";
 import { ThemeSelectorToggles } from "@/components/settings/theme-selector";
-import { Checkbox } from "@church-space/ui/checkbox";
 import cookies from "js-cookie";
 import CountrySelect from "@church-space/ui/country-select";
 import { useDebounce } from "@/hooks/use-debounce";
+import type { ActionResponse } from "@/types/action";
+import { updateOrganizationAddressAction } from "@/actions/update-organization-address";
 
 const addressFormSchema = z.object({
   street: z.string().min(1, "Street address cannot be blank"),
@@ -39,7 +40,13 @@ const emailCategoriesSchema = z.object({
   newCategory: z.string().optional(),
 });
 
-export default function ClientPage({ userId }: { userId: string }) {
+export default function ClientPage({
+  userId,
+  organizationId,
+}: {
+  userId: string;
+  organizationId: string;
+}) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [showBilling, setShowBilling] = useState(false);
@@ -142,15 +149,57 @@ export default function ClientPage({ userId }: { userId: string }) {
     data: z.infer<typeof addressFormSchema>,
   ) => {
     setIsLoading(true);
+
+    // Optimistically proceed to next step
+    setCurrentStep(1);
+
     try {
-      // For now, just simulating a submission
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setCurrentStep(1);
+      console.log("Street", data.street);
+      // Call the update action
+      const result = await updateOrganizationAddressAction({
+        organizationId: organizationId, // Assuming userId is the organization ID
+        address: {
+          line1: data.street,
+          line2: data.streetLine2 || "",
+          city: data.city,
+          state: data.state,
+          zip: data.zipCode,
+          country: data.country,
+        },
+      });
+
+      // Cast the result to ActionResponse type for type safety
+      const typedResult = result as ActionResponse;
+
+      if (!typedResult) {
+        // If there's no response, go back to address form
+        setCurrentStep(0);
+        toast({
+          title: "Error saving address",
+          description: "Failed to save address: no response received",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (typedResult.error) {
+        // If there's an error in the response, go back to address form
+        setCurrentStep(0);
+        toast({
+          title: "Error saving address",
+          description:
+            typedResult.error || "Failed to save address information",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
+      // If there's an exception, go back to address form
+      setCurrentStep(0);
       toast({
         title: "Error saving address",
         description:
           error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -265,6 +314,7 @@ export default function ClientPage({ userId }: { userId: string }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
+      className="h-full py-12"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -273,10 +323,11 @@ export default function ClientPage({ userId }: { userId: string }) {
         className="mb-6 flex flex-col items-center justify-center gap-2"
       >
         <div className="text-center text-2xl font-bold">
-          Tell us your address
+          What&apos;s your church&apos;s address?
         </div>
         <div className="text-center text-sm text-muted-foreground">
-          Where would you like to receive mail from us?
+          We&apos;ll use this address on the bottom of your emails to help with
+          anit-spam laws.
         </div>
       </motion.div>
       <motion.div
@@ -284,10 +335,10 @@ export default function ClientPage({ userId }: { userId: string }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.2 }}
       >
-        <Card className="space-y-4 p-6 pt-1">
+        <Card className="space-y-2 p-6 pt-1">
           <form
             onSubmit={addressForm.handleSubmit(handleAddressSubmit)}
-            className="space-y-4 pt-4"
+            className="space-y-2 pt-4"
           >
             <div className="space-y-1">
               <Label>Street Address</Label>
@@ -341,23 +392,23 @@ export default function ClientPage({ userId }: { userId: string }) {
                   </div>
                 )}
               </div>
-              <div className="col-span-2 space-y-1">
-                <Label>Country</Label>
-                <CountrySelect
-                  value={addressForm.watch("country")}
-                  onValueChange={(value) =>
-                    addressForm.setValue("country", value, {
-                      shouldValidate: true,
-                    })
-                  }
-                  className="w-full"
-                />
-                {addressForm.formState.errors.country && (
-                  <div className="mt-2 text-sm text-red-500">
-                    {addressForm.formState.errors.country.message}
-                  </div>
-                )}
-              </div>
+            </div>
+            <div className="space-y-1 pb-2">
+              <Label>Country</Label>
+              <CountrySelect
+                value={addressForm.watch("country")}
+                onValueChange={(value) =>
+                  addressForm.setValue("country", value, {
+                    shouldValidate: true,
+                  })
+                }
+                className="w-full"
+              />
+              {addressForm.formState.errors.country && (
+                <div className="mt-2 text-sm text-red-500">
+                  {addressForm.formState.errors.country.message}
+                </div>
+              )}
             </div>
             <Button
               type="submit"

@@ -21,9 +21,13 @@ export default async function ProtectedLayout({
     return redirect("/emails");
   }
 
+  if (!user.organization) {
+    return redirect("/onboarding");
+  }
+
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-card/100 to-background/60">
-      <ClientPage userId={user.user.id} />
+    <div className="flex min-h-screen w-full items-center justify-center overflow-auto bg-gradient-to-b from-card/100 to-background/60">
+      <ClientPage userId={user.user.id} organizationId={user.organization.id} />
     </div>
   );
 }

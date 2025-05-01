@@ -107,3 +107,30 @@ export async function removeOrganizationMember(
 
   return result;
 }
+
+export async function updateOrganizationAddress(
+  supabase: Client,
+  organization: {
+    organizationId: string;
+    address: Json;
+  }
+) {
+  const authUser = await getUserQuery(supabase);
+  const userId = authUser.data.user?.id;
+
+  if (!userId) return { data: null, error: new Error("No user found") };
+
+  const result = await supabase
+    .from("organizations")
+    .update({
+      address: organization.address,
+    })
+    .eq("id", organization.organizationId)
+    .select();
+
+  if (result.error) {
+    console.error(result.error);
+  }
+
+  return result;
+}
