@@ -101,6 +101,10 @@ export const deleteUserAction = authActionClient
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                Cookie: cookieStore
+                  .getAll()
+                  .map((cookie) => `${cookie.name}=${cookie.value}`)
+                  .join("; "),
               },
               body: JSON.stringify({
                 organizationId,
