@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { client as RedisClient } from "@church-space/kv";
 import { Ratelimit } from "@upstash/ratelimit";
 import { redirect } from "next/navigation";
-import { getCachedPublicQRCode } from "@church-space/supabase/queries/cached/qr";
+import { getPublicQRCode } from "@church-space/supabase/queries/all/get-public-qr-code";
 
 const ratelimit = new Ratelimit({
   limiter: Ratelimit.fixedWindow(2, "10s"),
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    const qrCode = await getCachedPublicQRCode(qrCodeId);
+    const qrCode = await getPublicQRCode(supabase, qrCodeId);
 
     if (
       !qrCode ||

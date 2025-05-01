@@ -5,60 +5,146 @@ import { Card, CardContent } from "@church-space/ui/card";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateUserAction } from "@/actions/update-user";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, X } from "lucide-react";
 import { ThemeSelectorToggles } from "@/components/settings/theme-selector";
-import { updateOrganizationDataAction } from "@/actions/update-organization-data";
+import { Checkbox } from "@church-space/ui/checkbox";
+import cookies from "js-cookie";
+import CountrySelect from "@church-space/ui/country-select";
+import { useDebounce } from "@/hooks/use-debounce";
 
-const formSchema = z.object({
-  firstName: z.string().min(1, "First name cannot be blank"),
-  lastName: z.string().min(1, "Last name cannot be blank"),
+const addressFormSchema = z.object({
+  street: z.string().min(1, "Street address cannot be blank"),
+  streetLine2: z.string().optional(),
+  city: z.string().min(1, "City cannot be blank"),
+  state: z.string().min(1, "State cannot be blank"),
+  zipCode: z.string().min(5, "Zip code must be at least 5 characters"),
+  country: z.string().min(1, "Country cannot be blank"),
+});
+
+const emailCategoriesSchema = z.object({
+  categories: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      isDefault: z.boolean(),
+      isRemovable: z.boolean(),
+    }),
+  ),
+  newCategory: z.string().optional(),
 });
 
 export default function ClientPage({ userId }: { userId: string }) {
+  const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [showThemeSelect, setShowThemeSelect] = useState(false);
-  const [isPushing, setIsPushing] = useState(false);
+  const [showBilling, setShowBilling] = useState(false);
+  const [zipCodeValue, setZipCodeValue] = useState("");
+  const [zipCodeError, setZipCodeError] = useState<string | null>(null);
+  const debouncedZipCode = useDebounce(zipCodeValue, 800);
   const router = useRouter();
   const { toast } = useToast();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  // Check for selected_plan cookie on mount
+  useEffect(() => {
+    const selectedPlan = cookies.get("selected_plan");
+    setShowBilling(!!selectedPlan);
+  }, []);
+
+  // Auto-redirect to welcome page after final loading screen
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    // If we're on the final loading screen
+    if (currentStep === (showBilling ? 4 : 3)) {
+      timer = setTimeout(() => {
+        router.push("/welcome");
+      }, 3500);
+    }
+    return () => clearTimeout(timer);
+  }, [currentStep, router, showBilling]);
+
+  // Validate zip code with debounce
+  useEffect(() => {
+    if (debouncedZipCode) {
+      if (debouncedZipCode.length < 5) {
+        setZipCodeError("Zip code must be at least 5 characters");
+      } else {
+        setZipCodeError(null);
+      }
+    } else {
+      setZipCodeError(null);
+    }
+  }, [debouncedZipCode]);
+
+  const addressForm = useForm<z.infer<typeof addressFormSchema>>({
+    resolver: zodResolver(addressFormSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      street: "",
+      streetLine2: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
     },
     mode: "onChange",
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  const [emailCategories, setEmailCategories] = useState([
+    {
+      id: "general",
+      name: "General Emails",
+      isDefault: true,
+      isRemovable: false,
+    },
+    { id: "students", name: "Students", isDefault: true, isRemovable: true },
+    { id: "kids", name: "Kids", isDefault: true, isRemovable: true },
+    { id: "events", name: "Events", isDefault: true, isRemovable: true },
+    { id: "finance", name: "Finance", isDefault: true, isRemovable: true },
+  ]);
+  const [newCategory, setNewCategory] = useState("");
+
+  const emailForm = useForm<z.infer<typeof emailCategoriesSchema>>({
+    resolver: zodResolver(emailCategoriesSchema),
+    defaultValues: {
+      categories: emailCategories,
+      newCategory: "",
+    },
+  });
+
+  const handleAddressSubmit = async (
+    data: z.infer<typeof addressFormSchema>,
+  ) => {
     setIsLoading(true);
     try {
-      const result = await updateUserAction({
-        ...data,
-        userId,
-      });
-      if (result?.data?.error) {
-        toast({ title: "Error updating user", description: result.data.error });
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-        setShowThemeSelect(true);
-      }
+      // For now, just simulating a submission
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setCurrentStep(1);
     } catch (error) {
-      console.error(error);
       toast({
-        title: "Error updating user",
+        title: "Error saving address",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailCategoriesSubmit = () => {
+    setIsLoading(true);
+    try {
+      // For now, just simulating a submission
+      setTimeout(() => {
+        setCurrentStep(2);
+        setIsLoading(false);
+      }, 500);
+    } catch (error) {
+      toast({
+        title: "Error saving preferences",
         description:
           error instanceof Error ? error.message : "An error occurred",
       });
@@ -66,106 +152,182 @@ export default function ClientPage({ userId }: { userId: string }) {
     }
   };
 
-  return (
-    <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
-      <AnimatePresence mode="wait">
-        {!showThemeSelect ? (
-          <motion.div
-            key="form"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+  const handleThemeSubmit = () => {
+    if (showBilling) {
+      setCurrentStep(3);
+    } else {
+      setCurrentStep(3); // Go to final loading screen instead of direct navigation
+    }
+  };
+
+  const handleBillingComplete = () => {
+    setCurrentStep(4); // Go to final loading screen instead of direct navigation
+  };
+
+  const toggleCategory = (id: string) => {
+    // This function is now a no-op since we removed checkboxes
+    // Keeping it for future functionality if needed
+  };
+
+  const removeCategory = (id: string) => {
+    setEmailCategories((categories) =>
+      categories.filter((category) => category.id !== id),
+    );
+  };
+
+  const addCategory = () => {
+    if (!newCategory.trim()) return;
+
+    // Check if we've reached the limit of 10 categories
+    if (emailCategories.length >= 10) {
+      toast({
+        title: "Category limit reached",
+        description: "You can only have up to 10 email categories.",
+      });
+      return;
+    }
+
+    // Check if the category already exists
+    if (
+      emailCategories.some(
+        (cat) => cat.name.toLowerCase() === newCategory.trim().toLowerCase(),
+      )
+    ) {
+      toast({
+        title: "Category already exists",
+        description: "Please enter a unique category name.",
+      });
+      return;
+    }
+
+    const newId = `custom-${Date.now()}`;
+    setEmailCategories([
+      ...emailCategories,
+      {
+        id: newId,
+        name: newCategory.trim(),
+        isDefault: false,
+        isRemovable: true,
+      },
+    ]);
+    setNewCategory("");
+  };
+
+  const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setZipCodeValue(value);
+    addressForm.setValue("zipCode", value, { shouldValidate: false });
+  };
+
+  const renderAddressForm = () => (
+    <motion.div
+      key="address-form"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="mb-6 flex flex-col items-center justify-center gap-2"
+      >
+        <div className="text-center text-2xl font-bold">
+          Tell us your address
+        </div>
+        <div className="text-center text-sm text-muted-foreground">
+          Where would you like to receive mail from us?
+        </div>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+      >
+        <Card className="space-y-4 p-6 pt-1">
+          <form
+            onSubmit={addressForm.handleSubmit(handleAddressSubmit)}
+            className="space-y-4 pt-4"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-              className="mb-6 flex flex-col items-center justify-center gap-2"
-            >
-              <div className="text-center text-2xl font-bold">
-                Welcome to Church Space
-              </div>
-              <div className="text-center text-sm text-muted-foreground">
-                Let&apos;s get to know you.
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-            >
-              <Card className="space-y-4 p-6 pt-1">
-                <form
-                  onSubmit={handleSubmit(onSubmit)}
-                  className="space-y-4 pt-4"
-                >
-                  <div className="space-y-1">
-                    <Label>First Name</Label>
-                    <Input
-                      placeholder="First Name"
-                      {...register("firstName")}
-                    />
-                    {errors.firstName && (
-                      <div className="mt-2 text-sm text-red-500">
-                        {errors.firstName.message}
-                      </div>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Last Name</Label>
-                    <Input placeholder="Last Name" {...register("lastName")} />
-                    {errors.lastName && (
-                      <div className="mt-2 text-sm text-red-500">
-                        {errors.lastName.message}
-                      </div>
-                    )}
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading || !isValid}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Let&apos;s get started
-                      </>
-                    ) : (
-                      `Let's get started`
-                    )}
-                  </Button>
-                </form>
-              </Card>
-            </motion.div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="theme-select"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col items-center justify-center gap-6"
-          >
-            <div className="mt-6 text-center text-2xl font-bold">
-              Choose your theme
+            <div className="space-y-1">
+              <Label>Street Address</Label>
+              <Input
+                placeholder="123 Main St"
+                {...addressForm.register("street")}
+              />
+              {addressForm.formState.errors.street && (
+                <div className="mt-2 text-sm text-red-500">
+                  {addressForm.formState.errors.street.message}
+                </div>
+              )}
             </div>
-            <div className="mb-2 text-center text-sm text-muted-foreground">
-              Would you like to use light mode or dark mode?
+            <div className="space-y-1">
+              <Label>Address Line 2 (Optional)</Label>
+              <Input
+                placeholder="Apt, Suite, Building, etc."
+                {...addressForm.register("streetLine2")}
+              />
             </div>
-            <div className="flex w-full justify-center">
-              <ThemeSelectorToggles />
+
+            <div className="space-y-1">
+              <Label>City</Label>
+              <Input placeholder="City" {...addressForm.register("city")} />
+              {addressForm.formState.errors.city && (
+                <div className="mt-2 text-sm text-red-500">
+                  {addressForm.formState.errors.city.message}
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>State/Province</Label>
+                <Input placeholder="State" {...addressForm.register("state")} />
+                {addressForm.formState.errors.state && (
+                  <div className="mt-2 text-sm text-red-500">
+                    {addressForm.formState.errors.state.message}
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1">
+                <Label>Zip/Postal Code</Label>
+                <Input
+                  placeholder="Zip Code"
+                  value={zipCodeValue}
+                  onChange={handleZipCodeChange}
+                />
+                {zipCodeError && (
+                  <div className="mt-2 text-sm text-red-500">
+                    {zipCodeError}
+                  </div>
+                )}
+              </div>
+              <div className="col-span-2 space-y-1">
+                <Label>Country</Label>
+                <CountrySelect
+                  value={addressForm.watch("country")}
+                  onValueChange={(value) =>
+                    addressForm.setValue("country", value, {
+                      shouldValidate: true,
+                    })
+                  }
+                  className="w-full"
+                />
+                {addressForm.formState.errors.country && (
+                  <div className="mt-2 text-sm text-red-500">
+                    {addressForm.formState.errors.country.message}
+                  </div>
+                )}
+              </div>
             </div>
             <Button
-              className="mt-4 w-full"
-              disabled={isPushing}
-              onClick={() => {
-                setIsPushing(true);
-                router.push("/welcome");
-              }}
+              type="submit"
+              className="w-full"
+              disabled={
+                isLoading || !addressForm.formState.isValid || !!zipCodeError
+              }
             >
-              {isPushing ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Continue
@@ -174,8 +336,214 @@ export default function ClientPage({ userId }: { userId: string }) {
                 "Continue"
               )}
             </Button>
-          </motion.div>
+          </form>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
+
+  const renderEmailCategories = () => (
+    <motion.div
+      key="email-categories"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="mb-6 flex flex-col items-center justify-center gap-2"
+      >
+        <div className="text-center text-2xl font-bold">Email Categories</div>
+        <div className="text-center text-sm text-muted-foreground">
+          Set up audience categories for your organization's emails
+        </div>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+      >
+        <Card className="space-y-4 p-6 pt-1">
+          <div className="space-y-4 pt-4">
+            <div className="max-h-[300px] space-y-2 overflow-y-auto pr-1">
+              {emailCategories.map((category) => (
+                <motion.div
+                  key={category.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 30,
+                    mass: 0.8,
+                  }}
+                  layout
+                  className="flex items-center justify-between rounded-md border p-3"
+                >
+                  <div className="font-medium">
+                    {category.name}
+                    {category.isDefault && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        (Default)
+                      </span>
+                    )}
+                  </div>
+                  {category.isRemovable && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeCategory(category.id)}
+                      className="h-7 w-7"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+
+            {emailCategories.length < 10 && (
+              <motion.div
+                className="flex items-center gap-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              >
+                <Input
+                  placeholder="Add new category"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={addCategory}
+                  disabled={!newCategory.trim()}
+                  type="button"
+                  size="icon"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </motion.div>
+            )}
+
+            <div className="pt-4">
+              <Button
+                className="w-full"
+                disabled={isLoading}
+                onClick={handleEmailCategoriesSubmit}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Continue
+                  </>
+                ) : (
+                  "Continue"
+                )}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
+
+  const renderThemeSelector = () => (
+    <motion.div
+      key="theme-select"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col items-center justify-center gap-6"
+    >
+      <div className="mt-6 text-center text-2xl font-bold">
+        Choose your theme
+      </div>
+      <div className="mb-2 text-center text-sm text-muted-foreground">
+        Would you like to use light mode or dark mode?
+      </div>
+      <div className="flex w-full justify-center">
+        <ThemeSelectorToggles />
+      </div>
+      <Button
+        className="mt-4 w-full"
+        disabled={isLoading}
+        onClick={handleThemeSubmit}
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Continue
+          </>
+        ) : (
+          "Continue"
         )}
+      </Button>
+    </motion.div>
+  );
+
+  const renderBillingPage = () => (
+    <motion.div
+      key="billing-page"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col items-center justify-center gap-6"
+    >
+      <div className="mt-6 text-center text-2xl font-bold">
+        Complete Your Billing
+      </div>
+      <div className="mb-2 text-center text-sm text-muted-foreground">
+        Finalize your subscription
+      </div>
+      <Card className="w-full p-6">
+        <div className="space-y-4">
+          <div className="text-lg font-medium">Selected Plan Information</div>
+          <div className="rounded-md bg-muted p-4">
+            <p>Selected Plan:</p>
+            <p>{cookies.get("selected_plan")}</p>
+          </div>
+          <Button className="w-full" onClick={handleBillingComplete}>
+            Complete Setup
+          </Button>
+        </div>
+      </Card>
+    </motion.div>
+  );
+
+  const renderFinalLoading = () => (
+    <motion.div
+      key="final-loading"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col items-center justify-center gap-6 text-center"
+    >
+      <div className="mt-6 text-center text-2xl font-bold">
+        Getting things ready for you
+      </div>
+      <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      <div className="text-center text-sm text-muted-foreground">
+        Setting up your workspace...
+      </div>
+    </motion.div>
+  );
+
+  return (
+    <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
+      <AnimatePresence mode="wait">
+        {currentStep === 0 && renderAddressForm()}
+        {currentStep === 1 && renderEmailCategories()}
+        {currentStep === 2 && renderThemeSelector()}
+        {currentStep === 3 && showBilling && renderBillingPage()}
+        {currentStep === (showBilling ? 4 : 3) && renderFinalLoading()}
       </AnimatePresence>
     </div>
   );

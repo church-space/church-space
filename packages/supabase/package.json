@@ -80,6 +80,7 @@
     "./queries/all/get-org-footer-details": "./src/queries/all/get-org-footer-details.ts",
     "./queries/all/get-active-automation-member-count": "./src/queries/all/get-active-automation-member-count.ts",
     "./queries/all/get-active-automation-members": "./src/queries/all/get-active-automation-members.ts",
-    "./queries/all/get-email-with-blocks": "./src/queries/all/get-email-with-blocks.ts"
+    "./queries/all/get-email-with-blocks": "./src/queries/all/get-email-with-blocks.ts",
+    "./queries/all/get-public-qr-code": "./src/queries/all/get-public-qr-code.ts"
   }
 }

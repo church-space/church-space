@@ -1,5 +1,4 @@
 import type { Client, Database } from "../types";
-import { revalidateTag } from "next/cache";
 
 export async function createQRCode(
   supabase: Client,
@@ -18,10 +17,6 @@ export async function deleteQRCode(supabase: Client, qrCodeId: string) {
     .delete()
     .eq("id", qrCodeId);
 
-  if (data) {
-    revalidateTag(`qr_${qrCodeId}`);
-  }
-
   return { data, error };
 }
 
@@ -34,10 +29,6 @@ export async function updateQRCode(
     .from("qr_codes")
     .update(qrCode)
     .eq("id", qrCodeId);
-
-  if (data) {
-    revalidateTag(`qr_${qrCodeId}`);
-  }
 
   return { data, error };
 }
@@ -52,19 +43,6 @@ export async function updateQRLink(
     .update(qrLink)
     .eq("id", qrLinkId)
     .select();
-
-  if (data) {
-    const { data: qrCodeData } = await supabase
-      .from("qr_codes")
-      .select("*")
-      .eq("qr_link_id", qrLinkId);
-
-    if (qrCodeData) {
-      qrCodeData.forEach((qrCode) => {
-        revalidateTag(`qr_${qrCode.id}`);
-      });
-    }
-  }
 
   return { data, error };
 }
@@ -94,22 +72,11 @@ export async function createQRLink(
 }
 
 export async function deleteQRLink(supabase: Client, qrLinkId: number) {
-  const { data: qrCodeData } = await supabase
-    .from("qr_codes")
-    .select("*")
-    .eq("qr_link_id", qrLinkId);
-
   const { data, error } = await supabase
     .from("qr_links")
     .delete()
     .eq("id", qrLinkId)
     .select();
-
-  if (qrCodeData) {
-    qrCodeData.forEach((qrCode) => {
-      revalidateTag(`qr_${qrCode.id}`);
-    });
-  }
 
   return { data, error };
 }
@@ -125,17 +92,5 @@ export async function updateQRLinkStatus(
     .eq("id", qrLinkId)
     .select();
 
-  if (data) {
-    const { data: qrCodeData } = await supabase
-      .from("qr_codes")
-      .select("*")
-      .eq("qr_link_id", qrLinkId);
-
-    if (qrCodeData) {
-      qrCodeData.forEach((qrCode) => {
-        revalidateTag(`qr_${qrCode.id}`);
-      });
-    }
-  }
   return { data, error };
 }
