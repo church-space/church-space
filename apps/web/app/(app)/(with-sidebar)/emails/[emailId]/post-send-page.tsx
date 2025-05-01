@@ -773,7 +773,6 @@ export default function PostSendPage({
                 new Date(stats?.data?.metrics?.updated_at),
               )}`}
           </p>
-          <p>* Stats updated once per hour for the first week after sending.</p>
         </motion.div>
         <motion.div
           className="mt-8 flex flex-col gap-4"

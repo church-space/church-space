@@ -5,7 +5,7 @@ import { Card, CardContent } from "@church-space/ui/card";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
 import { useForm } from "react-hook-form";
@@ -46,6 +46,14 @@ export default function ClientPage({ userId }: { userId: string }) {
   const [zipCodeValue, setZipCodeValue] = useState("");
   const [zipCodeError, setZipCodeError] = useState<string | null>(null);
   const debouncedZipCode = useDebounce(zipCodeValue, 800);
+  const [hasScrollShadow, setHasScrollShadow] = useState<{
+    top: boolean;
+    bottom: boolean;
+  }>({
+    top: false,
+    bottom: false,
+  });
+  const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -105,6 +113,21 @@ export default function ClientPage({ userId }: { userId: string }) {
     { id: "events", name: "Events", isDefault: true, isRemovable: true },
     { id: "finance", name: "Finance", isDefault: true, isRemovable: true },
   ]);
+
+  // Auto-scroll to bottom when adding a new category
+  useEffect(() => {
+    if (categoriesContainerRef.current && emailCategories.length > 0) {
+      // Small delay to ensure the DOM has updated
+      setTimeout(() => {
+        if (categoriesContainerRef.current) {
+          categoriesContainerRef.current.scrollTop =
+            categoriesContainerRef.current.scrollHeight;
+          updateScrollShadow();
+        }
+      }, 100);
+    }
+  }, [emailCategories.length]);
+
   const [newCategory, setNewCategory] = useState("");
 
   const emailForm = useForm<z.infer<typeof emailCategoriesSchema>>({
@@ -211,6 +234,22 @@ export default function ClientPage({ userId }: { userId: string }) {
       },
     ]);
     setNewCategory("");
+  };
+
+  const updateScrollShadow = () => {
+    const container = categoriesContainerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+
+    setHasScrollShadow({
+      top: scrollTop > 10,
+      bottom: scrollTop + clientHeight < scrollHeight - 10,
+    });
+  };
+
+  const handleCategoriesScroll = () => {
+    updateScrollShadow();
   };
 
   const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -368,42 +407,54 @@ export default function ClientPage({ userId }: { userId: string }) {
       >
         <Card className="space-y-4 p-6 pt-1">
           <div className="space-y-4 pt-4">
-            <div className="max-h-[300px] space-y-2 overflow-y-auto pr-1">
-              {emailCategories.map((category) => (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 30,
-                    mass: 0.8,
-                  }}
-                  layout
-                  className="flex items-center justify-between rounded-md border p-3"
-                >
-                  <div className="font-medium">
-                    {category.name}
-                    {category.isDefault && (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        (Default)
-                      </span>
+            <div className="relative">
+              {hasScrollShadow.top && (
+                <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-4 bg-gradient-to-b from-background to-transparent" />
+              )}
+              <div
+                ref={categoriesContainerRef}
+                className="relative max-h-[300px] space-y-2 overflow-y-auto pr-1"
+                onScroll={handleCategoriesScroll}
+              >
+                {emailCategories.map((category) => (
+                  <motion.div
+                    key={category.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 30,
+                      mass: 0.8,
+                    }}
+                    layout
+                    className="flex items-center justify-between rounded-md border p-3"
+                  >
+                    <div className="font-medium">
+                      {category.name}
+                      {category.isDefault && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          (Default)
+                        </span>
+                      )}
+                    </div>
+                    {category.isRemovable && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeCategory(category.id)}
+                        className="h-7 w-7"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     )}
-                  </div>
-                  {category.isRemovable && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeCategory(category.id)}
-                      className="h-7 w-7"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
+              </div>
+              {hasScrollShadow.bottom && (
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-4 bg-gradient-to-t from-background to-transparent" />
+              )}
             </div>
 
             {emailCategories.length < 10 && (
