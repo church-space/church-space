@@ -18,6 +18,7 @@ import CountrySelect from "@church-space/ui/country-select";
 import { useDebounce } from "@/hooks/use-debounce";
 import type { ActionResponse } from "@/types/action";
 import { updateOrganizationAddressAction } from "@/actions/update-organization-address";
+import { createEmailCategoryAction } from "@/actions/create-email-category";
 
 const addressFormSchema = z.object({
   street: z.string().min(1, "Street address cannot be blank"),
@@ -40,6 +41,15 @@ const emailCategoriesSchema = z.object({
   newCategory: z.string().optional(),
 });
 
+// Add type for email categories
+interface EmailCategory {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  isRemovable: boolean;
+  description: string | null;
+}
+
 export default function ClientPage({
   userId,
   organizationId,
@@ -48,7 +58,10 @@ export default function ClientPage({
   organizationId: string;
 }) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [emailCategoriesLoading, setEmailCategoriesLoading] = useState(false);
+  const [themeLoading, setThemeLoading] = useState(false);
+  const [billingLoading, setBillingLoading] = useState(false);
   const [showBilling, setShowBilling] = useState(false);
   const [zipCodeValue, setZipCodeValue] = useState("");
   const [zipCodeError, setZipCodeError] = useState<string | null>(null);
@@ -108,17 +121,42 @@ export default function ClientPage({
     mode: "onChange",
   });
 
-  const [emailCategories, setEmailCategories] = useState([
+  const [emailCategories, setEmailCategories] = useState<EmailCategory[]>([
     {
       id: "general",
       name: "General Emails",
       isDefault: true,
       isRemovable: false,
+      description: "Updates and announcements for the whole church.",
     },
-    { id: "students", name: "Students", isDefault: true, isRemovable: true },
-    { id: "kids", name: "Kids", isDefault: true, isRemovable: true },
-    { id: "events", name: "Events", isDefault: true, isRemovable: true },
-    { id: "finance", name: "Finance", isDefault: true, isRemovable: true },
+    {
+      id: "students",
+      name: "Students",
+      isDefault: false,
+      isRemovable: true,
+      description: "News and events for the student program.",
+    },
+    {
+      id: "kids",
+      name: "Kids",
+      isDefault: false,
+      isRemovable: true,
+      description: "Info for parents and children's ministry families.",
+    },
+    {
+      id: "events",
+      name: "Events",
+      isDefault: false,
+      isRemovable: true,
+      description: "Upcoming gatherings, registrations, and details.",
+    },
+    {
+      id: "finance",
+      name: "Finance",
+      isDefault: false,
+      isRemovable: true,
+      description: "Giving updates, budget reports, and stewardship info.",
+    },
   ]);
 
   // Auto-scroll to bottom when adding a new category
@@ -148,7 +186,7 @@ export default function ClientPage({
   const handleAddressSubmit = async (
     data: z.infer<typeof addressFormSchema>,
   ) => {
-    setIsLoading(true);
+    setAddressLoading(true);
 
     // Optimistically proceed to next step
     setCurrentStep(1);
@@ -157,7 +195,7 @@ export default function ClientPage({
       console.log("Street", data.street);
       // Call the update action
       const result = await updateOrganizationAddressAction({
-        organizationId: organizationId, // Assuming userId is the organization ID
+        organizationId: organizationId,
         address: {
           line1: data.street,
           line2: data.streetLine2 || "",
@@ -202,38 +240,96 @@ export default function ClientPage({
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setAddressLoading(false);
     }
   };
 
-  const handleEmailCategoriesSubmit = () => {
-    setIsLoading(true);
+  const handleEmailCategoriesSubmit = async () => {
+    setEmailCategoriesLoading(true);
     try {
-      // For now, just simulating a submission
-      setTimeout(() => {
-        setCurrentStep(2);
-        setIsLoading(false);
-      }, 500);
+      console.log("Saving categories:", emailCategories);
+
+      const saveResults = [];
+
+      // Create all email categories in the database
+      // Only save categories that remain in the state (weren't removed by the user)
+      for (const category of emailCategories) {
+        console.log("Saving category:", category.name);
+
+        try {
+          const result = await createEmailCategoryAction({
+            name: category.name,
+            description: category.description,
+            organization_id: organizationId,
+          });
+
+          console.log("Category save result:", result);
+
+          if (result && "error" in result && result.error) {
+            console.error(
+              `Failed to save category ${category.name}:`,
+              result.error,
+            );
+            saveResults.push({
+              category: category.name,
+              success: false,
+              error: result.error,
+            });
+          } else {
+            saveResults.push({ category: category.name, success: true });
+          }
+        } catch (err) {
+          console.error(`Error saving category ${category.name}:`, err);
+          saveResults.push({
+            category: category.name,
+            success: false,
+            error: err instanceof Error ? err.message : "Unknown error",
+          });
+        }
+      }
+
+      const failures = saveResults.filter((r) => !r.success);
+
+      if (failures.length > 0) {
+        console.error("Some categories failed to save:", failures);
+        toast({
+          title: `${failures.length} categories failed to save`,
+          description:
+            "Some email categories could not be saved. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Proceed to next step
+      setCurrentStep(2);
     } catch (error) {
+      console.error("Error saving categories:", error);
       toast({
-        title: "Error saving preferences",
+        title: "Error saving email categories",
         description:
           error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
       });
-      setIsLoading(false);
+    } finally {
+      setEmailCategoriesLoading(false);
     }
   };
 
   const handleThemeSubmit = () => {
+    setThemeLoading(true);
     if (showBilling) {
       setCurrentStep(3);
     } else {
       setCurrentStep(3); // Go to final loading screen instead of direct navigation
     }
+    setThemeLoading(false);
   };
 
   const handleBillingComplete = () => {
+    setBillingLoading(true);
     setCurrentStep(4); // Go to final loading screen instead of direct navigation
+    setBillingLoading(false);
   };
 
   const toggleCategory = (id: string) => {
@@ -272,14 +368,18 @@ export default function ClientPage({
       return;
     }
 
+    // Create a custom category with a default description
     const newId = `custom-${Date.now()}`;
+    const trimmedName = newCategory.trim();
+
     setEmailCategories([
       ...emailCategories,
       {
         id: newId,
-        name: newCategory.trim(),
+        name: trimmedName,
         isDefault: false,
         isRemovable: true,
+        description: `Emails for ${trimmedName}`,
       },
     ]);
     setNewCategory("");
@@ -305,6 +405,13 @@ export default function ClientPage({
     const value = e.target.value;
     setZipCodeValue(value);
     addressForm.setValue("zipCode", value, { shouldValidate: false });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && newCategory.trim()) {
+      e.preventDefault();
+      addCategory();
+    }
   };
 
   const renderAddressForm = () => (
@@ -414,10 +521,12 @@ export default function ClientPage({
               type="submit"
               className="w-full"
               disabled={
-                isLoading || !addressForm.formState.isValid || !!zipCodeError
+                addressLoading ||
+                !addressForm.formState.isValid ||
+                !!zipCodeError
               }
             >
-              {isLoading ? (
+              {addressLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Continue
@@ -448,7 +557,7 @@ export default function ClientPage({
       >
         <div className="text-center text-2xl font-bold">Email Categories</div>
         <div className="text-center text-sm text-muted-foreground">
-          Set up audience categories for your organization's emails
+          Set up audience categories for your church&apos;s emails
         </div>
       </motion.div>
       <motion.div
@@ -480,7 +589,7 @@ export default function ClientPage({
                       mass: 0.8,
                     }}
                     layout
-                    className="flex items-center justify-between rounded-md border p-3"
+                    className="flex items-center justify-between rounded-md border p-1 pl-3"
                   >
                     <div className="font-medium">
                       {category.name}
@@ -519,6 +628,7 @@ export default function ClientPage({
                   placeholder="Add new category"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   className="flex-1"
                 />
                 <Button
@@ -535,10 +645,10 @@ export default function ClientPage({
             <div className="pt-4">
               <Button
                 className="w-full"
-                disabled={isLoading}
+                disabled={emailCategoriesLoading}
                 onClick={handleEmailCategoriesSubmit}
               >
-                {isLoading ? (
+                {emailCategoriesLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Continue
@@ -574,10 +684,10 @@ export default function ClientPage({
       </div>
       <Button
         className="mt-4 w-full"
-        disabled={isLoading}
+        disabled={themeLoading}
         onClick={handleThemeSubmit}
       >
-        {isLoading ? (
+        {themeLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Continue
@@ -611,8 +721,19 @@ export default function ClientPage({
             <p>Selected Plan:</p>
             <p>{cookies.get("selected_plan")}</p>
           </div>
-          <Button className="w-full" onClick={handleBillingComplete}>
-            Complete Setup
+          <Button
+            className="w-full"
+            onClick={handleBillingComplete}
+            disabled={billingLoading}
+          >
+            {billingLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Complete Setup
+              </>
+            ) : (
+              "Complete Setup"
+            )}
           </Button>
         </div>
       </Card>
