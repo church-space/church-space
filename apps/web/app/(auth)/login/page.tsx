@@ -19,7 +19,6 @@ import { ArrowRight, ChurchSpaceBlack } from "@church-space/ui/icons";
 
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
-  const [showOTPForm, setShowOTPForm] = useState(false);
   const [email, setEmail] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendCount, setResendCount] = useState(0);
@@ -154,27 +153,7 @@ export default function Page() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-10">
-                {!showOTPForm && (
-                  <Button
-                    variant="secondary"
-                    className="flex w-full text-sm font-normal"
-                    onClick={() => setShowOTPForm(true)}
-                  >
-                    Enter code manually
-                  </Button>
-                )}
-                <AnimatePresence>
-                  {showOTPForm && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 1 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <InputOTPForm email={email} redirectUrl={"/emails"} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <InputOTPForm email={email} redirectUrl={"/emails"} />
                 <div className="flex w-full flex-col items-center justify-center gap-1">
                   <div
                     className={`flex w-full justify-center gap-1 text-center text-sm font-light ${

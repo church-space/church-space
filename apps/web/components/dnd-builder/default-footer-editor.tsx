@@ -110,7 +110,7 @@ export default function DefaultFooterEditor({
 
   return (
     <div className="relative flex h-full flex-col">
-      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 pr-2 backdrop-blur-sm">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
@@ -133,6 +133,7 @@ export default function DefaultFooterEditor({
             </BreadcrumbList>
           </Breadcrumb>
         </div>
+        <Button size="sm">Save and Exit</Button>
       </header>
 
       <div className="relative hidden p-2 pt-0 md:flex md:gap-4 md:p-4 md:pt-0">
