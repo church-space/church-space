@@ -28,7 +28,7 @@ import ArticleSvgPath from "./article.svg";
 import UpdatesSvgPath from "./updates.svg";
 import { EmailStyles } from "./use-block-state-manager";
 
-type View = "main" | "templates" | "recent";
+type View = "main" | "templates";
 
 const pallets = [
   {
@@ -472,13 +472,12 @@ export default function NewEmailModal({
     >
       <DialogContent
         className="flex max-w-screen-md flex-col overflow-hidden"
-        style={{ height: "550px", maxHeight: "550px" }}
+        style={{ height: "490px", maxHeight: "490px" }}
       >
         <DialogHeader>
           <DialogTitle>
             {view === "main" && "How do you want to start?"}
             {view === "templates" && "My Templates"}
-            {view === "recent" && "Recently Sent Emails"}
           </DialogTitle>
         </DialogHeader>
 
@@ -717,18 +716,6 @@ export default function NewEmailModal({
                       <ChevronRight />
                     </span>
                   </button>
-                  <button
-                    className="group flex w-full items-center justify-between rounded-lg border bg-muted p-2 px-3 font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    onClick={() => setView("recent")}
-                  >
-                    <span className="flex items-center gap-2">
-                      <Email />
-                      Recently Sent Emails
-                    </span>
-                    <span className="transition-transform duration-300 group-hover:translate-x-1">
-                      <ChevronRight />
-                    </span>
-                  </button>
                 </>
               )}
 
@@ -741,13 +728,6 @@ export default function NewEmailModal({
                   <p>Templates list will go here.</p>
                   <p>Templates list will go here.</p>
                   <p>Templates list will go here.</p>
-                </div>
-              )}
-
-              {view === "recent" && (
-                <div>
-                  {/* Placeholder for Recently Sent Emails content */}
-                  <p>Recently Sent Emails list will go here.</p>
                 </div>
               )}
             </motion.div>
