@@ -9,7 +9,6 @@ import {
 import {
   ChevronLeft,
   ChevronRight,
-  Email,
   TemplatesIcon,
 } from "@church-space/ui/icons";
 import { Label } from "@church-space/ui/label";
