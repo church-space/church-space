@@ -4,6 +4,7 @@ import { Button } from "@church-space/ui/button";
 import { Card } from "@church-space/ui/card";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
+import { Switch } from "@church-space/ui/switch";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,9 @@ import { useDebounce } from "@/hooks/use-debounce";
 import type { ActionResponse } from "@/types/action";
 import { updateOrganizationAddressAction } from "@/actions/update-organization-address";
 import { createEmailCategoryAction } from "@/actions/create-email-category";
+import { updateOrganizationOnboardingStatusAction } from "@/actions/update-organization-onboarding-status";
+import { updateUserPreferencesAction } from "@/actions/update-user-preferences";
+import { useUser } from "@/stores/use-user";
 
 const addressFormSchema = z.object({
   street: z.string().min(1, "Street address cannot be blank"),
@@ -51,10 +55,10 @@ interface EmailCategory {
 }
 
 export default function ClientPage({
-  userId,
+  userEmail,
   organizationId,
 }: {
-  userId: string;
+  userEmail?: string;
   organizationId: string;
 }) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -65,6 +69,8 @@ export default function ClientPage({
   const [showBilling, setShowBilling] = useState(false);
   const [zipCodeValue, setZipCodeValue] = useState("");
   const [zipCodeError, setZipCodeError] = useState<string | null>(null);
+  const [productUpdateEmails, setProductUpdateEmails] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const debouncedZipCode = useDebounce(zipCodeValue, 800);
   const [hasScrollShadow, setHasScrollShadow] = useState<{
     top: boolean;
@@ -76,6 +82,7 @@ export default function ClientPage({
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { toast } = useToast();
+  const { id: userId } = useUser();
 
   // Check for selected_plan cookie on mount
   useEffect(() => {
@@ -316,14 +323,47 @@ export default function ClientPage({
     }
   };
 
-  const handleThemeSubmit = () => {
+  const handleThemeSubmit = async () => {
     setThemeLoading(true);
-    if (showBilling) {
-      setCurrentStep(3);
-    } else {
-      setCurrentStep(3); // Go to final loading screen instead of direct navigation
+
+    try {
+      if (userId) {
+        // Save user preferences
+        const result = await updateUserPreferencesAction({
+          userId,
+          preferences: {
+            productUpdateEmails,
+          },
+        });
+
+        // Cast the result to ActionResponse type for type safety
+        const typedResult = result as ActionResponse;
+
+        if (typedResult.error) {
+          toast({
+            title: "Error saving preferences",
+            description: typedResult.error || "Failed to save preferences",
+            variant: "destructive",
+          });
+        }
+      }
+
+      // Continue to next step regardless of preference save result
+      if (showBilling) {
+        setCurrentStep(3);
+      } else {
+        setCurrentStep(3); // Go to final loading screen instead of direct navigation
+      }
+    } catch (error) {
+      toast({
+        title: "Error saving preferences",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setThemeLoading(false);
     }
-    setThemeLoading(false);
   };
 
   const handleBillingComplete = () => {
@@ -413,6 +453,11 @@ export default function ClientPage({
       addCategory();
     }
   };
+
+  // Add useEffect to handle mounting
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const renderAddressForm = () => (
     <motion.div
@@ -674,14 +719,48 @@ export default function ClientPage({
       className="flex flex-col items-center justify-center gap-6"
     >
       <div className="mt-6 text-center text-2xl font-bold">
-        Choose your theme
+        Your Preferences
       </div>
       <div className="mb-2 text-center text-sm text-muted-foreground">
-        Would you like to use light mode or dark mode?
+        Customize your experience with Church Space
       </div>
-      <div className="flex w-full justify-center">
-        <ThemeSelectorToggles />
+
+      <div className="w-full">
+        <div className="space-y-6">
+          <div>
+            <h3 className="mb-2 text-lg font-medium">Display Theme</h3>
+            <div className="flex w-full justify-center">
+              {isMounted && <ThemeSelectorToggles />}
+            </div>
+          </div>
+
+          <div
+            className="flex flex-col space-y-2"
+            onClick={() => setProductUpdateEmails(!productUpdateEmails)}
+          >
+            <h3 className="text-lg font-medium">Communication</h3>
+            <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <div className="text-sm font-medium">Product Updates</div>
+                <div className="text-xs text-muted-foreground">
+                  Receive infrequent emails about new features and updates
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="product-updates" className="sr-only">
+                  Product Updates
+                </Label>
+                <Switch
+                  id="product-updates"
+                  checked={productUpdateEmails}
+                  onCheckedChange={setProductUpdateEmails}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
       <Button
         className="mt-4 w-full"
         disabled={themeLoading}
@@ -762,9 +841,9 @@ export default function ClientPage({
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <AnimatePresence mode="wait">
-        {currentStep === 0 && renderAddressForm()}
-        {currentStep === 1 && renderEmailCategories()}
-        {currentStep === 2 && renderThemeSelector()}
+        {/* {currentStep === 0 && renderAddressForm()}*/}
+        {/* {currentStep === 1 && renderEmailCategories()} */}
+        {currentStep === 0 && renderThemeSelector()}
         {currentStep === 3 && showBilling && renderBillingPage()}
         {currentStep === (showBilling ? 4 : 3) && renderFinalLoading()}
       </AnimatePresence>

@@ -134,3 +134,28 @@ export async function updateOrganizationAddress(
 
   return result;
 }
+
+export async function updateOrganizationOnboardingStatus(
+  supabase: Client,
+  organizationId: string,
+  onboardingStatus: boolean
+) {
+  const authUser = await getUserQuery(supabase);
+  const userId = authUser.data.user?.id;
+
+  if (!userId) return { data: null, error: new Error("No user found") };
+
+  const result = await supabase
+    .from("organizations")
+    .update({
+      finished_onboarding: onboardingStatus,
+    })
+    .eq("id", organizationId)
+    .select();
+
+  if (result.error) {
+    console.error(result.error);
+  }
+
+  return result;
+}

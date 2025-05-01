@@ -3,13 +3,7 @@ import { createClient } from "@church-space/supabase/server";
 import { redirect } from "next/navigation";
 import ClientPage from "./client-page";
 
-interface ProtectedLayoutProps {
-  children: React.ReactNode;
-}
-
-export default async function ProtectedLayout({
-  children,
-}: ProtectedLayoutProps) {
+export default async function Page() {
   const supabase = await createClient();
   const user = await getUserWithDetailsQuery(supabase);
 
@@ -27,7 +21,10 @@ export default async function ProtectedLayout({
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center overflow-auto bg-gradient-to-b from-card/100 to-background/60">
-      <ClientPage userId={user.user.id} organizationId={user.organization.id} />
+      <ClientPage
+        userEmail={user.user.email}
+        organizationId={user.organization.id}
+      />
     </div>
   );
 }

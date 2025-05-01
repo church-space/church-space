@@ -128,8 +128,9 @@ export async function GET(request: NextRequest) {
 
     console.log("organizationId", organizationId);
 
-    const { data: organization, error: insertOrganizationError } =
-      await supabase.from("organizations").insert({
+    const { error: insertOrganizationError } = await supabase
+      .from("organizations")
+      .insert({
         id: organizationId,
         name: pcoOrganizationData.data.attributes.name,
         created_by: user.id,

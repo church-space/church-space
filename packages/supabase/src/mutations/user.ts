@@ -1,4 +1,4 @@
-import type { Client } from "../types";
+import type { Client, Json } from "../types";
 
 export async function updateUser(
   supabase: Client,
@@ -24,4 +24,18 @@ export async function updateUser(
 
 export async function deleteUser(supabase: Client, userId: string) {
   return supabase.auth.admin.deleteUser(userId);
+}
+
+export async function updateUserPreferences(
+  supabase: Client,
+  userId: string,
+  preferences: Json
+) {
+  return supabase
+    .from("users")
+    .update({
+      preferences,
+    })
+    .eq("id", userId)
+    .select();
 }
