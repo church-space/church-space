@@ -4,6 +4,7 @@ import { createClient } from "@church-space/supabase/job";
 import { Resend } from "resend";
 import { SignJWT } from "jose";
 import { add } from "date-fns";
+import { v4 as uuidv4 } from "uuid";
 
 interface InviteMemberData {
   email: string;
@@ -145,6 +146,10 @@ export const inviteMembers = task({
           from: "invites@mail.churchspace.co",
           to: member.email,
           subject: `You've been invited to join ${orgData.name} on Church Space`,
+          headers: {
+            "X-Entity-Ref-ID": uuidv4(),
+            "X-Mailer": `Church Space Auth - **Invite Member**`,
+          },
           html: `<!DOCTYPE html>
 <html lang="en">
 <head>

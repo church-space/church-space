@@ -90,18 +90,6 @@ export default function ClientPage({
     setShowBilling(!!selectedPlan);
   }, []);
 
-  // Auto-redirect to welcome page after final loading screen
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    // If we're on the final loading screen
-    if (currentStep === (showBilling ? 4 : 3)) {
-      timer = setTimeout(() => {
-        router.push("/welcome");
-      }, 3500);
-    }
-    return () => clearTimeout(timer);
-  }, [currentStep, router, showBilling]);
-
   // Validate zip code with debounce
   useEffect(() => {
     if (debouncedZipCode) {
@@ -369,13 +357,12 @@ export default function ClientPage({
             variant: "destructive",
           });
         }
-      }
 
-      // Continue to next step regardless of preference save result
-      if (showBilling) {
-        setCurrentStep(3);
+        // Navigate directly to welcome page
+        router.push("/welcome");
       } else {
-        setCurrentStep(3); // Go to final loading screen instead of direct navigation
+        // Continue to billing step if needed
+        setCurrentStep(3);
       }
     } catch (error) {
       toast({
@@ -415,7 +402,8 @@ export default function ClientPage({
         return;
       }
 
-      setCurrentStep(4); // Go to final loading screen
+      // Navigate directly to welcome page
+      router.push("/welcome");
     } catch (error) {
       toast({
         title: "Error completing setup",
@@ -882,25 +870,6 @@ export default function ClientPage({
     </motion.div>
   );
 
-  const renderFinalLoading = () => (
-    <motion.div
-      key="final-loading"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="flex flex-col items-center justify-center gap-6 text-center"
-    >
-      <div className="mt-6 text-center text-2xl font-bold">
-        Getting things ready for you
-      </div>
-      <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      <div className="text-center text-sm text-muted-foreground">
-        Setting up your workspace...
-      </div>
-    </motion.div>
-  );
-
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <AnimatePresence>
@@ -932,11 +901,10 @@ export default function ClientPage({
         )}
       </AnimatePresence>
       <AnimatePresence mode="wait">
-        {currentStep === 0 && renderAddressForm()}
+        {/* {currentStep === 0 && renderAddressForm()}
         {currentStep === 1 && renderEmailCategories()}
-        {currentStep === 2 && renderThemeSelector()}
-        {currentStep === 3 && showBilling && renderBillingPage()}
-        {currentStep === (showBilling ? 4 : 3) && renderFinalLoading()}
+        {currentStep === 2 && renderThemeSelector()} */}
+        {currentStep === 0 && showBilling && renderBillingPage()}
       </AnimatePresence>
     </div>
   );
