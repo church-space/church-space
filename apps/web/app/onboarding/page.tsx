@@ -5,7 +5,7 @@ import { createClient } from "@church-space/supabase/server";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import ClientPage from "./client-page";
-import { redirect } from "next/navigation";
+import { deleteCookie, processInviteSuccess } from "./actions";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -29,7 +29,7 @@ export default async function Page() {
       const jwtSecret = process.env.INVITE_MEMBERS_SECRET;
       if (!jwtSecret) {
         console.error("INVITE_MEMBERS_SECRET environment variable is not set");
-        cookieStore.delete("invite");
+        await deleteCookie("invite");
         return;
       }
 
@@ -66,12 +66,12 @@ export default async function Page() {
 
         // If the invite has expired, remove it
         if (inviteExpires && inviteExpires < new Date()) {
-          cookieStore.delete("invite");
+          await deleteCookie("invite");
           return;
         }
       } catch (error) {
         console.error("Error verifying invite:", error);
-        cookieStore.delete("invite");
+        await deleteCookie("invite");
         return;
       }
     };
@@ -95,9 +95,7 @@ export default async function Page() {
     if (error) {
       console.error("Error adding user:", error);
     } else {
-      cookieStore.delete("invite");
-      cookieStore.set("organization_id", organizationId);
-      return redirect(`/hello`);
+      return processInviteSuccess(organizationId);
     }
   }
 
