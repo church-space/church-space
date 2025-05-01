@@ -9,7 +9,7 @@ interface ActionBarProps {
 
 export default function ActionBar({ onDeselectAll }: ActionBarProps) {
   return (
-    <div className="mx-auto flex h-10 w-fit items-center rounded-lg border bg-muted px-1">
+    <div className="flex h-12 w-fit items-center rounded-lg border bg-background px-3 shadow-md">
       <Button
         variant="outline"
         className="h-8 gap-1 border-dashed pr-2 text-muted-foreground"

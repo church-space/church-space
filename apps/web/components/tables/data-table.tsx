@@ -266,7 +266,7 @@ export default function DataTable<TData>({
   const selectedRows = table.getSelectedRowModel().rows;
 
   return (
-    <div className="relative space-y-6">
+    <div className="relative space-y-6" style={{ minHeight: "200px" }}>
       {/* Search and Filters */}
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
         {/* Global Search */}
@@ -473,7 +473,7 @@ export default function DataTable<TData>({
 
       {/* Action Bar */}
       {selectedRows.length > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 z-50">
+        <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center">
           <ActionBar onDeselectAll={() => setRowSelection({})} />
         </div>
       )}

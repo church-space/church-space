@@ -1,9 +1,9 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
-import Link from "next/link";
 import { Badge } from "@church-space/ui/badge";
 import { Button } from "@church-space/ui/button";
+import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 
 export type Email = {
   id: number;
@@ -64,7 +64,7 @@ export const columns: ColumnDef<Email>[] = [
           <Link href={`/emails/${email.id}`} prefetch={true}>
             <Button
               variant="ghost"
-              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
             >
               {email.subject || "No Subject"}
             </Button>

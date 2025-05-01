@@ -161,7 +161,7 @@ const NameCell = ({ person }: { person: Person }) => {
       <SheetTrigger className="h-12 min-w-44 px-2 text-left" asChild>
         <Button
           variant="ghost"
-          className="group h-16 w-full flex-col items-start justify-center gap-0 truncate px-1.5 text-left text-base [&_svg]:size-3"
+          className="group h-16 w-full flex-col items-start justify-center gap-0 truncate px-1.5 text-left text-base hover:bg-transparent [&_svg]:size-3"
         >
           <div className="flex items-center gap-2">
             <div className="text-base font-medium group-hover:underline">

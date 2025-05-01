@@ -4,6 +4,7 @@ import { Badge } from "@church-space/ui/badge";
 import { Button } from "@church-space/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import { Checkbox } from "@church-space/ui/checkbox";
 
 export type EmailAutomation = {
   id: number;
@@ -19,6 +20,21 @@ export type EmailAutomation = {
 
 export const columns: ColumnDef<EmailAutomation>[] = [
   {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllRowsSelected()}
+        onCheckedChange={(value) => table.toggleAllRowsSelected()}
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected()}
+      />
+    ),
+  },
+  {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
@@ -27,7 +43,7 @@ export const columns: ColumnDef<EmailAutomation>[] = [
         <Link href={`/emails/automations/${row.original.id}`} prefetch={true}>
           <Button
             variant="ghost"
-            className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+            className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
           >
             <span>{name || "Untitled"}</span>
           </Button>

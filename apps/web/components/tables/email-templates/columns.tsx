@@ -24,7 +24,7 @@ export const columns: ColumnDef<EmailTemplate>[] = [
           <Link href={`/emails/${row.original.id}/editor`}>
             <Button
               variant="ghost"
-              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
             >
               <span>{subject}</span>
             </Button>
