@@ -364,7 +364,7 @@ export default function DataTable<TData>({
 
       <div
         className={cn(
-          "hidden max-w-[92vw] overflow-auto md:block",
+          "max-w-[92vw] overflow-auto",
           sidebarState === "expanded" && "md:max-w-[calc(100vw-17rem)]",
           sidebarState === "collapsed" && "md:max-w-[calc(100vw-3.5rem)]",
         )}
@@ -468,27 +468,6 @@ export default function DataTable<TData>({
               style={{ visibility: "hidden" }}
             />
           )}
-        </div>
-      </div>
-
-      <div className="block md:hidden">
-        <div className="flex flex-col gap-2">
-          {table.getRowModel().rows.map((row) => (
-            <div
-              key={row.id}
-              data-state={row.getIsSelected() && "selected"}
-              className="rounded-lg border bg-card hover:bg-accent"
-            >
-              {row
-                .getVisibleCells()
-                .slice(0, 1)
-                .map((cell) => (
-                  <div key={cell.id} className="px-2">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </div>
-                ))}
-            </div>
-          ))}
         </div>
       </div>
 

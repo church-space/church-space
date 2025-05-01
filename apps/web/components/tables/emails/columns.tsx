@@ -4,45 +4,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { Badge } from "@church-space/ui/badge";
 import { Button } from "@church-space/ui/button";
-import { useIsMobile } from "@/hooks/use-is-mobile";
-
-const SubjectCell = ({ email }: { email: Email }) => {
-  const isMobile = useIsMobile();
-
-  if (isMobile) {
-    return (
-      <div className="flex flex-col gap-2">
-        <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap pl-1">
-          <Link href={`/emails/${email.id}`} prefetch={true}>
-            <Button
-              variant="ghost"
-              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
-            >
-              {email.subject || "No Subject"} MBILE
-            </Button>
-          </Link>
-        </div>
-        <div className="flex flex-col gap-2">
-          <span>From</span>
-          <span>{email.from_name}</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap pl-1">
-      <Link href={`/emails/${email.id}`} prefetch={true}>
-        <Button
-          variant="ghost"
-          className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
-        >
-          {email.subject || "No Subject"}
-        </Button>
-      </Link>
-    </div>
-  );
-};
 
 export type Email = {
   id: number;
@@ -71,6 +32,25 @@ export type Email = {
   } | null;
 };
 
+const currentYear = new Date().getFullYear();
+
+const formatDate = (dateString: string | null | undefined) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  const dateYear = date.getFullYear();
+  const options: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    weekday: "short",
+    hour: "numeric",
+    minute: "numeric",
+  };
+  if (dateYear !== currentYear) {
+    options.year = "numeric";
+  }
+  return date.toLocaleDateString("en-US", options);
+};
+
 export const columns: ColumnDef<Email>[] = [
   {
     header: "Subject",
@@ -79,7 +59,18 @@ export const columns: ColumnDef<Email>[] = [
     minSize: 300,
     cell: ({ row }) => {
       const email = row.original;
-      return <SubjectCell email={email} />;
+      return (
+        <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap pl-1">
+          <Link href={`/emails/${email.id}`} prefetch={true}>
+            <Button
+              variant="ghost"
+              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:underline [&_svg]:size-3"
+            >
+              {email.subject || "No Subject"}
+            </Button>
+          </Link>
+        </div>
+      );
     },
   },
   {
@@ -106,6 +97,13 @@ export const columns: ColumnDef<Email>[] = [
           >
             {row.original.status}
           </Badge>
+
+          <div className="flex min-w-52 flex-col pr-3">
+            <span className="mt-1 text-muted-foreground">
+              {formatDate(row.original.sent_at)}
+              {formatDate(row.original.scheduled_for)}
+            </span>
+          </div>
         </div>
       );
     },
@@ -114,47 +112,6 @@ export const columns: ColumnDef<Email>[] = [
     },
   },
 
-  {
-    header: "Date",
-    accessorKey: "sent_at",
-    cell: ({ row }) => {
-      if (row.original.sent_at) {
-        return (
-          <div className="flex min-w-52 flex-col pr-3">
-            <span>Sent at</span>
-            <span className="font-semibold">
-              {new Date(row.original.sent_at).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-              })}
-            </span>
-          </div>
-        );
-      } else if (row.original.scheduled_for) {
-        return (
-          <div className="flex min-w-52 flex-col pr-3">
-            <span>Scheduled for</span>
-            <span className="font-semibold">
-              {new Date(row.original.scheduled_for).toLocaleDateString(
-                "en-US",
-                {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "numeric",
-                  minute: "numeric",
-                },
-              )}
-            </span>
-          </div>
-        );
-      }
-      return "—";
-    },
-  },
   {
     header: "From",
     accessorKey: "from_name",
@@ -193,16 +150,8 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex min-w-52 flex-col pr-3">
-          <span className="font-semibold">
-            {row.original.updated_at
-              ? new Date(row.original.updated_at).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "numeric",
-                  minute: "numeric",
-                })
-              : "—"}
+          <span className="text-muted-foreground">
+            {formatDate(row.original.updated_at) || "—"}
           </span>
         </div>
       );
