@@ -224,7 +224,6 @@ export default function ClientPage({
   const [addressLoading, setAddressLoading] = useState(false);
   const [emailCategoriesLoading, setEmailCategoriesLoading] = useState(false);
   const [themeLoading, setThemeLoading] = useState(false);
-  const [billingLoading, setBillingLoading] = useState(false);
   const [billingSetupLoading, setBillingSetupLoading] = useState(false);
   const [skipBillingLoading, setSkipBillingLoading] = useState(false);
   const [showBilling, setShowBilling] = useState(false);
@@ -332,14 +331,6 @@ export default function ClientPage({
   }, [emailCategories.length]);
 
   const [newCategory, setNewCategory] = useState("");
-
-  const emailForm = useForm<z.infer<typeof emailCategoriesSchema>>({
-    resolver: zodResolver(emailCategoriesSchema),
-    defaultValues: {
-      categories: emailCategories,
-      newCategory: "",
-    },
-  });
 
   const handleAddressSubmit = async (
     data: z.infer<typeof addressFormSchema>,
@@ -647,14 +638,9 @@ export default function ClientPage({
     }
   };
 
-  const toggleCategory = (id: string) => {
-    // This function is now a no-op since we removed checkboxes
-    // Keeping it for future functionality if needed
-  };
-
-  const removeCategory = (id: string) => {
+  const removeCategory = (_id: string) => {
     setEmailCategories((categories) =>
-      categories.filter((category) => category.id !== id),
+      categories.filter((category) => category.id !== _id),
     );
   };
 
