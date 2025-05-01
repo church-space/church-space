@@ -41,6 +41,12 @@ export default async function ProtectedLayout({
     return redirect("/pco-reconnect");
   }
 
+  if (user.organizationMembership) {
+    if (!user.organization?.finished_onboarding) {
+      return redirect("/get-started");
+    }
+  }
+
   if (user.pcoConnection) {
     const lastRefreshed = new Date(user.pcoConnection.last_refreshed);
     const now = new Date();
@@ -73,6 +79,9 @@ export default async function ProtectedLayout({
         userData={user.userDetails}
         organization_id={user.organizationMembership.organization_id}
         role={user.organizationMembership.role}
+        org_finished_onboarding={
+          user.organization?.finished_onboarding ?? false
+        }
       />
       <InitPco
         pcoData={{

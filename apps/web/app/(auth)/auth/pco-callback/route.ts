@@ -292,7 +292,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/emails?pco_connection_success=true`,
+      `${process.env.NEXT_PUBLIC_SITE_URL}/get-started?pco_connection_success=true`,
     );
   } catch (error) {
     console.error("PCO callback error:", error);

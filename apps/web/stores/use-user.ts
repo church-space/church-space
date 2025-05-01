@@ -12,6 +12,8 @@ interface UserState {
   welcomeStepsCompleted: boolean;
   setWelcomeStepsCompleted: (completed: boolean) => void;
   role: string | null;
+  orgFinishedOnboarding: boolean | null;
+  setOrgFinishedOnboarding: (finished: boolean) => void;
 }
 
 export const useUser = create<UserState>()((set) => ({
@@ -26,6 +28,9 @@ export const useUser = create<UserState>()((set) => ({
   setWelcomeStepsCompleted: (completed: boolean) =>
     set({ welcomeStepsCompleted: completed }),
   role: null,
+  orgFinishedOnboarding: null,
+  setOrgFinishedOnboarding: (finished: boolean) =>
+    set({ orgFinishedOnboarding: finished }),
 }));
 
 export type UserType = UserState;
