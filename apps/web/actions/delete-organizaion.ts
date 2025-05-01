@@ -8,6 +8,7 @@ import { getOrgOwnersQuery } from "@church-space/supabase/queries/all/get-org-ow
 import { getUserQuery } from "@church-space/supabase/get-user";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+
 export const deleteOrganizationAction = authActionClient
   .schema(
     z.object({

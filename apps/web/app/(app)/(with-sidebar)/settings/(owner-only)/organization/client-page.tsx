@@ -70,6 +70,14 @@ export default function ClientPage({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [orgNameError, setOrgNameError] = useState<string | null>(null);
+  const [addressLine1Error, setAddressLine1Error] = useState<string | null>(
+    null,
+  );
+  const [cityError, setCityError] = useState<string | null>(null);
+  const [stateError, setStateError] = useState<string | null>(null);
+  const [zipError, setZipError] = useState<string | null>(null);
+  const [countryError, setCountryError] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [hasBeenModified, setHasBeenModified] = useState(false);
   const [localOrgName, setLocalOrgName] = useState(orgName || "");
@@ -101,6 +109,43 @@ export default function ClientPage({
       debouncedDefaultEmailDomain === defaultEmailDomain?.toString() &&
       JSON.stringify(debouncedAddress) === JSON.stringify(address)
     ) {
+      return;
+    }
+
+    // Validate required fields
+    let hasErrors = false;
+
+    if (!debouncedOrgName.trim()) {
+      setOrgNameError("Organization name cannot be empty");
+      hasErrors = true;
+    }
+
+    if (!debouncedAddress.line1?.trim()) {
+      setAddressLine1Error("Address line 1 cannot be empty");
+      hasErrors = true;
+    }
+
+    if (!debouncedAddress.city?.trim()) {
+      setCityError("City cannot be empty");
+      hasErrors = true;
+    }
+
+    if (!debouncedAddress.state?.trim()) {
+      setStateError("State cannot be empty");
+      hasErrors = true;
+    }
+
+    if (!debouncedAddress.zip?.trim()) {
+      setZipError("Zip code cannot be empty");
+      hasErrors = true;
+    }
+
+    if (!debouncedAddress.country?.trim()) {
+      setCountryError("Country cannot be empty");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
 
@@ -179,6 +224,25 @@ export default function ClientPage({
       ...prev,
       [field]: value,
     }));
+
+    // Clear field-specific errors when user makes changes
+    switch (field) {
+      case "line1":
+        setAddressLine1Error(null);
+        break;
+      case "city":
+        setCityError(null);
+        break;
+      case "state":
+        setStateError(null);
+        break;
+      case "zip":
+        setZipError(null);
+        break;
+      case "country":
+        setCountryError(null);
+        break;
+    }
   };
 
   const handleDeleteOrganization = async () => {
@@ -281,8 +345,18 @@ export default function ClientPage({
                 onChange={(e) => {
                   setHasBeenModified(true);
                   setLocalOrgName(e.target.value);
+                  setOrgNameError(null);
                 }}
+                onBlur={() => {
+                  if (!localOrgName.trim()) {
+                    setOrgNameError("Organization name cannot be empty");
+                  }
+                }}
+                required
               />
+              {orgNameError && (
+                <div className="mt-2 text-sm text-red-500">{orgNameError}</div>
+              )}
             </SettingsRowAction>
           </SettingsRow>
           <SettingsRow larger>
@@ -335,6 +409,12 @@ export default function ClientPage({
                   maxLength={255}
                   value={localAddress.line1 || ""}
                   onChange={(e) => updateAddress("line1", e.target.value)}
+                  onBlur={() => {
+                    if (!localAddress.line1?.trim()) {
+                      setAddressLine1Error("Address line 1 cannot be empty");
+                    }
+                  }}
+                  required
                 />
                 <Input
                   placeholder="Address Line Two"
@@ -349,6 +429,12 @@ export default function ClientPage({
                   maxLength={255}
                   value={localAddress.city || ""}
                   onChange={(e) => updateAddress("city", e.target.value)}
+                  onBlur={() => {
+                    if (!localAddress.city?.trim()) {
+                      setCityError("City cannot be empty");
+                    }
+                  }}
+                  required
                 />
                 <Input
                   placeholder="State"
@@ -356,6 +442,12 @@ export default function ClientPage({
                   maxLength={255}
                   value={localAddress.state || ""}
                   onChange={(e) => updateAddress("state", e.target.value)}
+                  onBlur={() => {
+                    if (!localAddress.state?.trim()) {
+                      setStateError("State cannot be empty");
+                    }
+                  }}
+                  required
                 />
                 <Input
                   placeholder="Zip Code"
@@ -363,6 +455,12 @@ export default function ClientPage({
                   maxLength={255}
                   value={localAddress.zip || ""}
                   onChange={(e) => updateAddress("zip", e.target.value)}
+                  onBlur={() => {
+                    if (!localAddress.zip?.trim()) {
+                      setZipError("Zip code cannot be empty");
+                    }
+                  }}
+                  required
                 />
                 <CountrySelect
                   className="col-span-3 h-8 rounded-t-none bg-background"
@@ -370,8 +468,27 @@ export default function ClientPage({
                   onValueChange={(value) => {
                     setHasBeenModified(true);
                     updateAddress("country", value);
+                    setCountryError(null);
+
+                    // Validate immediately for country since we can't use onBlur
+                    if (!value.trim()) {
+                      setCountryError("Country cannot be empty");
+                    }
                   }}
                 />
+                {(addressLine1Error ||
+                  cityError ||
+                  stateError ||
+                  zipError ||
+                  countryError) && (
+                  <div className="col-span-3 mt-2 flex flex-col gap-1 text-sm text-red-500">
+                    {addressLine1Error && <div>{addressLine1Error}</div>}
+                    {cityError && <div>{cityError}</div>}
+                    {stateError && <div>{stateError}</div>}
+                    {zipError && <div>{zipError}</div>}
+                    {countryError && <div>{countryError}</div>}
+                  </div>
+                )}
               </div>
             </SettingsRowAction>
           </SettingsRow>

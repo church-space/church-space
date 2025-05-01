@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { client as RedisClient } from "@church-space/kv";
 import { z } from "zod";
 import { deleteOrganization } from "@/jobs/delete-organization";
-import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
+import { getUserQuery } from "@church-space/supabase/get-user";
 
 const DeleteOrganizationAPIPayload = z.object({
   organizationId: z.string().uuid(),
@@ -18,6 +18,8 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.fixedWindow(10, "60s"), // Allow 10 requests per minute per IP
   redis: RedisClient,
 });
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
@@ -88,10 +90,11 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     console.log("Supabase client created");
 
-    const userDetails = await getUserWithDetailsQuery(supabase);
+    const userDetails = await getUserQuery(supabase);
+
     console.log("User details retrieved:", userDetails);
 
-    if (!userDetails || !userDetails.user) {
+    if (!userDetails || !userDetails.data.user) {
       console.warn("User not authenticated");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
