@@ -45,10 +45,10 @@ export async function getPeopleWithEmailsAndSubscriptionStatus(
     .eq("organization_id", organizationId);
 
   if (params?.searchTerm) {
-    const searchTerm = `%${params.searchTerm}%`;
-    query = query.or(
-      `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm}`
-    );
+    query = query.textSearch("search_vector", params.searchTerm, {
+      config: "simple",
+      type: "plain",
+    });
   }
 
   if (

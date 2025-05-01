@@ -1472,6 +1472,7 @@ export type Database = {
           nickname: string | null
           organization_id: string
           pco_id: string
+          search_vector: unknown | null
           updated_at: string | null
         }
         Insert: {
@@ -1484,6 +1485,7 @@ export type Database = {
           nickname?: string | null
           organization_id: string
           pco_id: string
+          search_vector?: unknown | null
           updated_at?: string | null
         }
         Update: {
@@ -1496,6 +1498,7 @@ export type Database = {
           nickname?: string | null
           organization_id?: string
           pco_id?: string
+          search_vector?: unknown | null
           updated_at?: string | null
         }
         Relationships: [
