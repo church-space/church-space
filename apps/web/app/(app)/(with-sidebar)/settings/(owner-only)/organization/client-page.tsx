@@ -494,6 +494,7 @@ export default function ClientPage({
                       onChange={(e) => setInputOrgName(e.target.value)}
                       placeholder={orgName}
                       maxLength={200}
+                      autoFocus
                     />
                   </div>
                   <AlertDialogFooter>

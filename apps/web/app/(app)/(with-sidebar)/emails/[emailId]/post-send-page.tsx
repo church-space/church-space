@@ -43,6 +43,7 @@ import {
   EmailOpened,
   EmailUnsubscribed,
   LinkIcon,
+  TemplatesIcon,
   Users,
 } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
@@ -59,7 +60,7 @@ import {
 import { useToast } from "@church-space/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Loader2, MoreHorizontal } from "lucide-react";
+import { Loader2, MoreHorizontal, SaveIcon } from "lucide-react";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
@@ -413,7 +414,140 @@ export default function PostSendPage({
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        <div className="flex items-center gap-2 px-4"></div>
+        <div className="flex items-center gap-2 px-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <Dialog
+                open={isSaveTemplateDialogOpen}
+                onOpenChange={setIsSaveTemplateDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <DropdownMenuItem
+                    onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
+                  >
+                    <SaveIcon />
+                    Save as Template
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Save Email as Template</DialogTitle>
+                    <DialogDescription>
+                      Enter a name for this template. It will be saved with the
+                      current email content.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Input
+                    placeholder="Template name"
+                    className="mb-3 w-full"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    maxLength={60}
+                  />
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsSaveTemplateDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSaveTemplate}
+                      disabled={isSavingTemplate}
+                    >
+                      {isSavingTemplate ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        "Save"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog
+                open={isDuplicateEmailDialogOpen}
+                onOpenChange={setIsDuplicateEmailDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <DropdownMenuItem
+                    onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
+                  >
+                    <TemplatesIcon />
+                    Duplicate as New Email
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Duplicate Email</DialogTitle>
+                    <DialogDescription>
+                      Enter a subject for the new email. It will be created as a
+                      draft with the same content and settings as the original.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Input
+                    placeholder="New email subject"
+                    className="mb-3 w-full"
+                    value={duplicateEmailName}
+                    onChange={(e) => setDuplicateEmailName(e.target.value)}
+                    maxLength={100} // Or appropriate length
+                  />
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDuplicateEmailDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleDuplicateEmail}
+                      disabled={isDuplicatingEmail}
+                    >
+                      {isDuplicatingEmail ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Duplicating...
+                        </>
+                      ) : (
+                        "Duplicate"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Dialog
+            open={previewOpen === "true"}
+            onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
+          >
+            <DialogTrigger asChild>
+              <Button
+                onClick={() => {
+                  setPreviewOpen("true");
+                }}
+                className="hidden sm:block"
+              >
+                View Email
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="h-[95%] min-w-[95%] p-4">
+              <DialogHeader className="sr-only">
+                <DialogTitle>Preview</DialogTitle>
+              </DialogHeader>
+
+              <EmailPreview orgFooterDetails={orgFooterDetails?.data?.data} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </header>
       <motion.div
         className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4"
@@ -426,140 +560,6 @@ export default function PostSendPage({
           variants={itemVariants}
         >
           <h1 className="text-2xl font-bold">{email?.subject}</h1>
-
-          <div className="flex items-center gap-2">
-            <Dialog
-              open={previewOpen === "true"}
-              onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
-            >
-              <DialogTrigger asChild>
-                <Button
-                  onClick={() => {
-                    setPreviewOpen("true");
-                  }}
-                  className="hidden sm:block"
-                >
-                  View Email
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="h-[95%] min-w-[95%] p-4">
-                <DialogHeader className="sr-only">
-                  <DialogTitle>Preview</DialogTitle>
-                </DialogHeader>
-
-                <EmailPreview orgFooterDetails={orgFooterDetails?.data?.data} />
-              </DialogContent>
-            </Dialog>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <MoreHorizontal />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <Dialog
-                  open={isSaveTemplateDialogOpen}
-                  onOpenChange={setIsSaveTemplateDialogOpen}
-                >
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem
-                      onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
-                    >
-                      Save as Template
-                    </DropdownMenuItem>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Save Email as Template</DialogTitle>
-                      <DialogDescription>
-                        Enter a name for this template. It will be saved with
-                        the current email content.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Input
-                      placeholder="Template name"
-                      className="mb-3 w-full"
-                      value={templateName}
-                      onChange={(e) => setTemplateName(e.target.value)}
-                      maxLength={60}
-                    />
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsSaveTemplateDialogOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleSaveTemplate}
-                        disabled={isSavingTemplate}
-                      >
-                        {isSavingTemplate ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Saving...
-                          </>
-                        ) : (
-                          "Save"
-                        )}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-
-                <Dialog
-                  open={isDuplicateEmailDialogOpen}
-                  onOpenChange={setIsDuplicateEmailDialogOpen}
-                >
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem
-                      onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
-                    >
-                      Duplicate as New Email
-                    </DropdownMenuItem>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Duplicate Email</DialogTitle>
-                      <DialogDescription>
-                        Enter a subject for the new email. It will be created as
-                        a draft with the same content and settings as the
-                        original.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Input
-                      placeholder="New email subject"
-                      className="mb-3 w-full"
-                      value={duplicateEmailName}
-                      onChange={(e) => setDuplicateEmailName(e.target.value)}
-                      maxLength={100} // Or appropriate length
-                    />
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsDuplicateEmailDialogOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleDuplicateEmail}
-                        disabled={isDuplicatingEmail}
-                      >
-                        {isDuplicatingEmail ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Duplicating...
-                          </>
-                        ) : (
-                          "Duplicate"
-                        )}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
         </motion.div>
         {email.error_message && (
           <motion.div

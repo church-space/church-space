@@ -81,7 +81,7 @@ export const deleteOrganizationAction = authActionClient
 
       // Call the delete organization API endpoint
       const response = await fetch(
-        "https://churchspace.co/api/organization/delete-organization",
+        `${process.env.NEXT_PUBLIC_SITE_URL}/api/organization/delete-organization`,
         {
           method: "POST",
           headers: {
@@ -102,6 +102,7 @@ export const deleteOrganizationAction = authActionClient
         };
       }
 
+      // Only proceed with logout after successful API response
       cookieStore.delete("planning_center_session");
       cookieStore.delete("organizationId");
       cookieStore.delete("sidebar_state");
