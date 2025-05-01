@@ -34,7 +34,7 @@ interface StripePlans {
   enviorment: "testing" | "live";
 }
 
-const STRIPE_PLANS: StripePlans[] = [
+export const STRIPE_PLANS: StripePlans[] = [
   {
     productId: "prod_Ry0AINZpor4sJ3",
     priceId: "price_1RJxwZJPD51CqUc4CagzIwMK",

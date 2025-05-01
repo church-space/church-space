@@ -55,11 +55,11 @@ interface EmailCategory {
 }
 
 export default function ClientPage({
-  userEmail,
   organizationId,
+  userId,
 }: {
-  userEmail?: string;
   organizationId: string;
+  userId: string;
 }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [addressLoading, setAddressLoading] = useState(false);
@@ -82,7 +82,7 @@ export default function ClientPage({
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { toast } = useToast();
-  const { id: userId, setOrgFinishedOnboarding } = useUser();
+  const { setOrgFinishedOnboarding } = useUser();
 
   // Check for selected_plan cookie on mount
   useEffect(() => {
@@ -515,6 +515,13 @@ export default function ClientPage({
     setIsMounted(true);
   }, []);
 
+  // Back button function to go to the previous step
+  const handleBackButton = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   const renderAddressForm = () => (
     <motion.div
       key="address-form"
@@ -896,10 +903,38 @@ export default function ClientPage({
 
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
+      <AnimatePresence>
+        {currentStep > 0 && (
+          <motion.button
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.2 }}
+            onClick={handleBackButton}
+            className="bg-btn-background hover:bg-btn-background-hover group absolute left-8 top-8 flex items-center rounded-md px-4 py-2 text-sm text-foreground no-underline"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>{" "}
+            Back
+          </motion.button>
+        )}
+      </AnimatePresence>
       <AnimatePresence mode="wait">
-        {/* {currentStep === 0 && renderAddressForm()}*/}
-        {/* {currentStep === 1 && renderEmailCategories()} */}
-        {currentStep === 0 && renderThemeSelector()}
+        {currentStep === 0 && renderAddressForm()}
+        {currentStep === 1 && renderEmailCategories()}
+        {currentStep === 2 && renderThemeSelector()}
         {currentStep === 3 && showBilling && renderBillingPage()}
         {currentStep === (showBilling ? 4 : 3) && renderFinalLoading()}
       </AnimatePresence>
