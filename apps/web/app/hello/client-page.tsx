@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@church-space/ui/button";
-import { Card, CardContent } from "@church-space/ui/card";
+import { Card } from "@church-space/ui/card";
 import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { AnimatePresence, motion } from "framer-motion";

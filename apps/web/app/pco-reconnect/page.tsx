@@ -19,7 +19,6 @@ export default async function ProtectedLayout({}) {
     <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-card/100 to-background/60">
       <ClientPage
         organizationId={user.organizationMembership.organization_id}
-        user_id={user.userDetails.id}
       />
     </div>
   );

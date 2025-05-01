@@ -7,10 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 
 export default function ClientPage({
   organizationId,
-  user_id,
 }: {
   organizationId: string;
-  user_id: string;
 }) {
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
