@@ -27,9 +27,6 @@ export async function getCategories(peopleEmailId: number) {
     },
   );
 
-  console.log("data", data);
-  console.log("error", error);
-
   if (error) {
     throw error;
   }

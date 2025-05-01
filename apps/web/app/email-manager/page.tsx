@@ -51,10 +51,6 @@ export default async function Page({
     }
   }
 
-  console.log("emailId", emailId);
-  console.log("peopleEmailId", peopleEmailId);
-  console.log("automationStepId", automationStepId);
-
   if (!peopleEmailId) {
     return <div>Invalid token</div>;
   }
