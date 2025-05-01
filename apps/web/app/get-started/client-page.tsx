@@ -504,7 +504,7 @@ export default function ClientPage({
         router.push("/welcome");
       } else {
         // Continue to billing step if needed
-        setCurrentStep(0);
+        setCurrentStep(3);
       }
     } catch (error) {
       toast({
