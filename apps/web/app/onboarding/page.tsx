@@ -5,6 +5,7 @@ import { createClient } from "@church-space/supabase/server";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import ClientPage from "./client-page";
+import { redirect } from "next/navigation";
 import { deleteCookie, processInviteSuccess } from "./actions";
 
 export default async function Page() {
@@ -25,79 +26,78 @@ export default async function Page() {
   let emailAddress: string | null = null;
 
   if (invite) {
-    const verifyInvite = async () => {
-      const jwtSecret = process.env.INVITE_MEMBERS_SECRET;
-      if (!jwtSecret) {
-        console.error("INVITE_MEMBERS_SECRET environment variable is not set");
-        await deleteCookie("invite");
-        return;
+    const jwtSecret = process.env.INVITE_MEMBERS_SECRET;
+    if (!jwtSecret) {
+      console.error("INVITE_MEMBERS_SECRET environment variable is not set");
+      // Redirect to client page with inviteError
+      return redirect("/onboarding?inviteError=true");
+    }
+
+    try {
+      const { payload } = await jwtVerify(
+        invite.value,
+        new TextEncoder().encode(jwtSecret),
+      );
+
+      // Verify all required fields are present and of correct type
+      if (!payload.exp || typeof payload.exp !== "number") {
+        throw new Error("Invalid expiration date in invite token");
       }
 
-      try {
-        const { payload } = await jwtVerify(
-          invite.value,
-          new TextEncoder().encode(jwtSecret),
-        );
-
-        if (!payload.exp) {
-          throw new Error("No expiration date found in invite token");
-        }
-
-        if (typeof payload.exp !== "number") {
-          throw new Error("Expiration date is not a number");
-        }
-
-        if (typeof payload.organization_id !== "string") {
-          throw new Error("Organization ID is not a string");
-        }
-
-        if (typeof payload.role !== "string") {
-          throw new Error("Role is not a string");
-        }
-
-        if (typeof payload.email !== "string") {
-          throw new Error("Email is not a string");
-        }
-
-        inviteExpires = new Date(payload.exp * 1000);
-        organizationId = payload.organization_id;
-        role = payload.role;
-        emailAddress = payload.email;
-
-        // If the invite has expired, remove it
-        if (inviteExpires && inviteExpires < new Date()) {
-          await deleteCookie("invite");
-          return;
-        }
-      } catch (error) {
-        console.error("Error verifying invite:", error);
-        await deleteCookie("invite");
-        return;
+      if (
+        !payload.organization_id ||
+        typeof payload.organization_id !== "string"
+      ) {
+        throw new Error("Invalid organization ID in invite token");
       }
-    };
 
-    await verifyInvite();
-  }
+      if (!payload.role || typeof payload.role !== "string") {
+        throw new Error("Invalid role in invite token");
+      }
 
-  if (
-    user?.user?.email === emailAddress &&
-    user?.user?.id &&
-    organizationId &&
-    role
-  ) {
-    const { error } = await supabase.rpc("add_user_to_organization", {
-      target_org_id: organizationId,
-      target_user_id: user.user.id,
-      target_email: emailAddress,
-      target_role: role,
-    });
+      if (!payload.email || typeof payload.email !== "string") {
+        throw new Error("Invalid email in invite token");
+      }
 
-    if (error) {
-      console.error("Error adding user:", error);
-    } else {
-      return processInviteSuccess(organizationId);
+      inviteExpires = new Date(payload.exp * 1000);
+      organizationId = payload.organization_id;
+      role = payload.role;
+      emailAddress = payload.email;
+
+      // If the invite has expired, redirect to client page with inviteError
+      if (inviteExpires < new Date()) {
+        console.log("Invite has expired");
+        return redirect("/onboarding?inviteError=true");
+      }
+    } catch (error) {
+      console.error("Error verifying invite:", error);
+      // Redirect to client page with inviteError
+      return redirect("/onboarding?inviteError=true");
+    }
+
+    // Process valid invite with matching user
+    if (
+      user?.user?.email === emailAddress &&
+      user?.user?.id &&
+      organizationId &&
+      role
+    ) {
+      const { error } = await supabase.rpc("add_user_to_organization", {
+        target_org_id: organizationId,
+        target_user_id: user.user.id,
+        target_email: emailAddress,
+        target_role: role,
+      });
+
+      if (error) {
+        console.error("Error adding user:", error);
+      } else {
+        // Handle successful invite in server action
+        return processInviteSuccess(organizationId);
+      }
     }
   }
 
+  // Default case - render client page
   return <ClientPage />;
 }

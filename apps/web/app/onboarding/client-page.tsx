@@ -3,11 +3,23 @@
 import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
 import { ChurchSpaceBlack } from "@church-space/ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import { Button } from "@church-space/ui/button";
+import { handleExpiredInvite } from "./actions";
+import { useEffect } from "react";
 
 export default function ClientPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const error = params.error;
+  const inviteError = searchParams.get("inviteError") === "true";
+
+  // If there's an invite error, automatically clean up the cookie
+  useEffect(() => {
+    if (inviteError) {
+      handleExpiredInvite();
+    }
+  }, [inviteError]);
 
   return (
     <div className="flex w-full flex-1 -translate-y-16 flex-col justify-center gap-2 px-8 sm:max-w-md">
@@ -57,6 +69,19 @@ export default function ClientPage() {
                 {error && (
                   <div className="rounded-md border border-destructive p-4">
                     {error}
+                  </div>
+                )}
+
+                {inviteError && (
+                  <div className="rounded-md border border-destructive p-4 text-center">
+                    <p className="mb-2">
+                      Your invite link has expired or is invalid.
+                    </p>
+                    <form action={handleExpiredInvite}>
+                      <Button type="submit" variant="outline">
+                        Clear Expired Invite
+                      </Button>
+                    </form>
                   </div>
                 )}
               </div>
