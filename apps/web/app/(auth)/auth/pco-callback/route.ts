@@ -3,12 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { tasks } from "@trigger.dev/sdk/v3";
 import type { syncPcoEmails } from "@/jobs/sync-pco-emails";
 import { syncPcoLists } from "@/jobs/sync-pco-lists";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const code = searchParams.get("code");
     const error = searchParams.get("error");
+
+    const supabase = await createClient();
+
+    // const user_id = searchParams.get("user_id");
+
+    // console.log("user_id", user_id);
 
     if (error) {
       console.error("PCO OAuth error:", error);
@@ -103,7 +110,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Store the connection in Supabase
-    const supabase = await createClient();
+
     const {
       data: { user },
       error: authError,
@@ -115,18 +122,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data: organization, error: upsertOrganizationError } =
-      await supabase
-        .from("organizations")
-        .insert({
-          name: pcoOrganizationData.data.attributes.name,
-          created_by: user.id,
-          pco_org_id: pcoOrganizationData.data.id,
-        })
-        .select("id");
+    const uuid = uuidv4();
 
-    if (upsertOrganizationError) {
-      console.error("Supabase error:", upsertOrganizationError);
+    const organizationId = `${uuid}`;
+
+    console.log("organizationId", organizationId);
+
+    const { data: organization, error: insertOrganizationError } =
+      await supabase.from("organizations").insert({
+        id: organizationId,
+        name: pcoOrganizationData.data.attributes.name,
+        created_by: user.id,
+        pco_org_id: pcoOrganizationData.data.id,
+      });
+
+    if (insertOrganizationError) {
+      console.error("Supabase error:", insertOrganizationError);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?error=organization_db_error`,
       );
@@ -136,11 +147,8 @@ export async function GET(request: NextRequest) {
     const handleError = async (error: any, errorType: string) => {
       console.error("Supabase error:", error);
       // Delete the organization if it exists
-      if (organization?.[0]?.id) {
-        await supabase
-          .from("organizations")
-          .delete()
-          .eq("id", organization[0].id);
+      if (organizationId) {
+        await supabase.from("organizations").delete().eq("id", organizationId);
       }
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?error=${errorType}`,
@@ -150,7 +158,7 @@ export async function GET(request: NextRequest) {
     const { error: insertOrganizationMembershipError } = await supabase
       .from("organization_memberships")
       .insert({
-        organization_id: organization[0].id,
+        organization_id: organizationId,
         user_id: user.id,
         role: "owner",
       });
@@ -183,7 +191,7 @@ export async function GET(request: NextRequest) {
         access_token: tokenData.access_token,
         refresh_token: tokenData.refresh_token,
         scope: tokenData.scope,
-        organization_id: organization[0].id,
+        organization_id: organizationId,
         last_refreshed: new Date().toISOString(),
         pco_organization_id: pcoOrganizationData.data.id,
       })
@@ -224,7 +232,7 @@ export async function GET(request: NextRequest) {
               type: "Subscription",
               attributes: {
                 name: event,
-                url: `https://churchspace.co/api/pco/webhook/${organization[0].id}`,
+                url: `https://churchspace.co/api/pco/webhook/${organizationId}`,
                 active: true,
               },
             },
@@ -246,7 +254,7 @@ export async function GET(request: NextRequest) {
       const { error: webhookError } = await supabase
         .from("pco_webhooks")
         .insert({
-          organization_id: organization[0].id,
+          organization_id: organizationId,
           name: event,
           webhook_id: webhookData.data.id,
           authenticity_secret: webhookData.data.attributes.authenticity_secret,
@@ -275,12 +283,12 @@ export async function GET(request: NextRequest) {
 
     // Trigger the syncPcoEmails task
     await tasks.trigger<typeof syncPcoEmails>("sync-pco-emails", {
-      organization_id: organization[0].id,
+      organization_id: organizationId,
     });
 
     // Trigger the syncPcoLists task
     await tasks.trigger<typeof syncPcoLists>("sync-pco-lists", {
-      organization_id: organization[0].id,
+      organization_id: organizationId,
     });
 
     return NextResponse.redirect(

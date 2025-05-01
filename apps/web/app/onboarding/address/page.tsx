@@ -1,9 +1,8 @@
 "use client";
 
-import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
 import { ChurchSpaceBlack } from "@church-space/ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 
 export default function ClientPage() {
   const params = useParams();
@@ -52,8 +51,6 @@ export default function ClientPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <div className="space-y-6">
-                <ConnectToPcoButton isReconnect={false} />
-
                 {error && (
                   <div className="rounded-md border border-destructive p-4">
                     {error}

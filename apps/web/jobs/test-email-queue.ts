@@ -34,6 +34,7 @@ export const sendEmails = task({
       headers: {
         "X-Entity-Ref-ID": uuidv4(),
         "X-Entity-Church-Space-Test": "true",
+        "X-Mailer": `Church Space Mailer - **Test Email**`,
         ...email.headers,
       },
     }));
