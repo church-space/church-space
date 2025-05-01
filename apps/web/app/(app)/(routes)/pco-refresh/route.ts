@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   if (!user.pcoConnection) {
     return NextResponse.redirect(new URL("/pco-reconnect", request.url));
   }
+
   if (!user.organizationMembership) {
     return NextResponse.redirect(new URL("/onboarding", request.url));
   }
@@ -73,15 +74,19 @@ export async function GET(request: NextRequest) {
     },
   );
 
-  if (!response.ok) {
-    const errorText = await response.text();
+  if (!response || !response.ok) {
+    const errorText = response ? await response.text() : "No response";
     console.error("Failed to refresh PCO token:", {
-      status: response.status,
-      statusText: response.statusText,
+      status: response?.status,
+      statusText: response?.statusText,
       error: errorText,
       clientId: process.env.NEXT_PUBLIC_PCO_CLIENT_ID ? "present" : "missing",
       clientSecret: process.env.PCO_SECRET ? "present" : "missing",
     });
+
+    // Delete the PCO connection
+    await supabase.from("pco_connections").delete().eq("id", pcoConnection.id);
+
     return NextResponse.redirect(new URL("/pco-reconnect", request.url));
   }
 
@@ -107,27 +112,32 @@ export async function GET(request: NextRequest) {
     },
   );
 
+  if (!pcoUserResponse || !pcoUserResponse.ok) {
+    console.error("Failed to get PCO user data:", {
+      status: pcoUserResponse?.status,
+      statusText: pcoUserResponse?.statusText,
+    });
+
+    // Delete the PCO connection
+    await supabase.from("pco_connections").delete().eq("id", pcoConnection.id);
+
+    return NextResponse.redirect(new URL("/pco-reconnect", request.url));
+  }
+
   const pcoUserData = await pcoUserResponse.json();
 
-  if (
-    !(
-      pcoUserData.data.attributes.people_permissions === "Manager" ||
-      pcoUserData.data.attributes.people_permissions === "Editor"
-    ) ||
-    !pcoUserData.data.attributes.can_email_lists
-  ) {
+  if (pcoUserData.data.attributes.people_permissions !== "Manager") {
+    // Delete the PCO connection instead of org membership
     const { error: deleteError } = await supabase
-      .from("organization_memberships")
+      .from("pco_connections")
       .delete()
-      .eq("user_id", user.user.id);
+      .eq("id", pcoConnection.id);
 
     if (deleteError) {
-      console.error("Failed to delete organization membership:", deleteError);
+      console.error("Failed to delete PCO connection:", deleteError);
     }
 
-    return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/pco-no-permissions`,
-    );
+    return NextResponse.redirect(new URL("/pco-reconnect", request.url));
   }
 
   // Redirect back to the original URL

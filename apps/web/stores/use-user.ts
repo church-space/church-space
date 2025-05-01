@@ -9,8 +9,14 @@ interface UserState {
   avatarUrl: string | null;
   email: string | null;
   organizationId: string | null;
-  welcomeStepsCompleted: boolean;
-  setWelcomeStepsCompleted: (completed: boolean) => void;
+  preferences: {
+    welcomeStepsCompleted: boolean | null;
+    productUpdateEmails: boolean | null;
+  };
+  setPreferences: (preferences: {
+    welcomeStepsCompleted: boolean;
+    productUpdateEmails: boolean;
+  }) => void;
   role: string | null;
   orgFinishedOnboarding: boolean | null;
   setOrgFinishedOnboarding: (finished: boolean) => void;
@@ -24,9 +30,14 @@ export const useUser = create<UserState>()((set) => ({
   avatarUrl: null,
   email: null,
   organizationId: null,
-  welcomeStepsCompleted: false,
-  setWelcomeStepsCompleted: (completed: boolean) =>
-    set({ welcomeStepsCompleted: completed }),
+  preferences: {
+    welcomeStepsCompleted: null,
+    productUpdateEmails: null,
+  },
+  setPreferences: (preferences: {
+    welcomeStepsCompleted: boolean;
+    productUpdateEmails: boolean;
+  }) => set({ preferences }),
   role: null,
   orgFinishedOnboarding: null,
   setOrgFinishedOnboarding: (finished: boolean) =>

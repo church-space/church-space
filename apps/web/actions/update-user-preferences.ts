@@ -12,6 +12,7 @@ export const updateUserPreferencesAction = authActionClient
       userId: z.string(),
       preferences: z.object({
         productUpdateEmails: z.boolean(),
+        welcomeStepsCompleted: z.boolean().optional(),
       }),
     }),
   )

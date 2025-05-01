@@ -82,6 +82,15 @@ export default async function ProtectedLayout({
         org_finished_onboarding={
           user.organization?.finished_onboarding ?? false
         }
+        preferences={
+          (user.userDetails.preferences as {
+            welcomeStepsCompleted: boolean;
+            productUpdateEmails: boolean;
+          }) ?? {
+            welcomeStepsCompleted: false,
+            productUpdateEmails: true,
+          }
+        }
       />
       <InitPco
         pcoData={{

@@ -25,8 +25,10 @@ export default function ClientPage({
             </div>
             <div className="text-center text-sm text-muted-foreground">
               Seems like we&apos;ve lost connection to your Planning Center
-              account. To reconnect to Church Space, please click the button
-              below.
+              account. This can happen if the person who connected your account
+              to Church Space is no longer a People Manager or if you
+              haven&apos;t used Church Space in a while. To reconnect to
+              Planning Center, please click the button below.
             </div>
           </motion.div>
           <motion.div

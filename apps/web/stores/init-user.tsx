@@ -18,12 +18,17 @@ export default function InitUser({
   organization_id,
   role,
   org_finished_onboarding,
+  preferences,
 }: {
   user: User | undefined;
   userData: UserData;
   organization_id: string | null;
   role: string | null;
   org_finished_onboarding: boolean | null;
+  preferences: {
+    welcomeStepsCompleted: boolean;
+    productUpdateEmails: boolean;
+  };
 }) {
   const initState = useRef(false);
 
@@ -39,6 +44,7 @@ export default function InitUser({
         organizationId: organization_id,
         role,
         orgFinishedOnboarding: org_finished_onboarding,
+        preferences,
       });
 
       if (organization_id) {
