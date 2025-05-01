@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@church-space/ui/select";
 import { useEffect, useState } from "react";
+import { cn } from "@church-space/ui/cn";
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
@@ -71,5 +72,44 @@ export function ThemeSelector() {
         </SelectItem>
       </SelectContent>
     </Select>
+  );
+}
+
+export function ThemeSelectorToggles() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <div className="grid w-full grid-cols-3 items-center gap-2 rounded-md border bg-card p-2 shadow-sm">
+      <div
+        className={cn(
+          "flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-transparent py-2 text-base transition-all duration-300 hover:bg-muted",
+          theme === "light" && "border-border bg-muted",
+        )}
+        onClick={() => setTheme("light")}
+      >
+        <Sun height={"24"} width={"24"} />
+        Light
+      </div>
+      <div
+        className={cn(
+          "flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-transparent py-2 text-base transition-all duration-300 hover:bg-muted",
+          theme === "dark" && "border-border bg-muted",
+        )}
+        onClick={() => setTheme("dark")}
+      >
+        <Moon height={"24"} width={"24"} />
+        Dark
+      </div>
+      <div
+        className={cn(
+          "flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-transparent py-2 text-base transition-all duration-300 hover:bg-muted",
+          theme === "system" && "border-border bg-muted",
+        )}
+        onClick={() => setTheme("system")}
+      >
+        <Computer height={"24"} width={"24"} />
+        System
+      </div>
+    </div>
   );
 }

@@ -11,16 +11,16 @@ export default async function Page() {
     return redirect("/login");
   }
 
-  if (!user.organizationMembership?.organization_id) {
-    return redirect("/onboarding");
-  }
+  // if (!user.organizationMembership?.organization_id) {
+  //   return redirect("/onboarding");
+  // }
 
-  if (
-    user.userDetails?.first_name !== null &&
-    user.userDetails?.last_name !== null
-  ) {
-    return redirect("/emails");
-  }
+  // if (
+  //   user.userDetails?.first_name !== null &&
+  //   user.userDetails?.last_name !== null
+  // ) {
+  //   return redirect("/emails");
+  // }
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-card/100 to-background/60">
