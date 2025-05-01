@@ -346,97 +346,6 @@ function SortableStep(props: SortableStepProps) {
                     />
                   </div>
                   <div className="col-span-4">
-                    <div className="mb-1 text-xs">From Name</div>
-                    <div className="relative w-full">
-                      <Input
-                        placeholder="From Name"
-                        value={step.values.fromName}
-                        onChange={(e) => {
-                          updateStepInState(index, {
-                            values: {
-                              ...step.values,
-                              fromName: e.target.value,
-                            },
-                          });
-                          // Clear error when user types
-                          if (e.target.value.trim()) {
-                            clearFieldError(stepId, "fromName");
-                          }
-                        }}
-                        maxLength={50}
-                        className={cn(
-                          "pe-16",
-                          emailStepError !== null &&
-                            errorStepIds.includes(stepId) &&
-                            fieldErrors[stepId]?.includes("fromName") &&
-                            "border-destructive ring-1 ring-destructive",
-                        )}
-                      />
-                      <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
-                        {step.values.fromName.length} / 50
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-span-4">
-                    <div className="mb-1 text-xs">From Email</div>
-                    <div className="flex items-center gap-2">
-                      <div className="relative w-full">
-                        <Input
-                          placeholder="Enter from email"
-                          value={step.values.fromEmail}
-                          onChange={(e) => {
-                            const rawValue = e.target.value;
-                            const sanitizedValue = rawValue
-                              .replace(/\s+/g, "")
-                              .toLowerCase();
-                            updateStepInState(index, {
-                              values: {
-                                ...step.values,
-                                fromEmail: sanitizedValue,
-                              },
-                            });
-                            // Clear error when user types
-                            if (sanitizedValue.trim()) {
-                              clearFieldError(stepId, "fromEmail");
-                            }
-                          }}
-                          maxLength={50}
-                          className={cn(
-                            "pe-16",
-                            emailStepError !== null &&
-                              errorStepIds.includes(stepId) &&
-                              fieldErrors[stepId]?.includes("fromEmail") &&
-                              "border-destructive ring-1 ring-destructive",
-                          )}
-                        />
-                        <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
-                          {step.values.fromEmail.length} / 50
-                        </span>
-                      </div>
-                      <span className="mb-1 leading-none">@</span>
-                      <DomainSelector
-                        organizationId={organizationId}
-                        onChange={(value) => {
-                          updateStepInState(index, {
-                            from_email_domain: value ? parseInt(value) : null,
-                          });
-                          // Clear error when user selects a domain
-                          if (value) {
-                            clearFieldError(stepId, "domain");
-                          }
-                        }}
-                        value={step.from_email_domain?.toString() || ""}
-                        selectFirstOnLoad={false}
-                        className={cn(
-                          emailStepError !== null &&
-                            errorStepIds.includes(stepId) &&
-                            fieldErrors[stepId]?.includes("domain") &&
-                            "border-destructive ring-1 ring-destructive",
-                        )}
-                      />
-                    </div>
-                  </div>
-                  <div className="col-span-4">
                     <div className="mb-1 text-xs">Subject</div>
                     <div className="relative">
                       <Input
@@ -501,7 +410,7 @@ function SortableStep(props: SortableStepProps) {
                         return (
                           <div
                             className={cn(
-                              "mt-3 flex flex-col gap-1 rounded-md border px-4 py-2.5",
+                              "my-3 flex flex-col gap-1 rounded-md border px-4 py-2.5",
                               hasWarnings
                                 ? "border-amber-500 bg-amber-500/10"
                                 : "border-green-500 bg-green-500/10",
@@ -545,6 +454,99 @@ function SortableStep(props: SortableStepProps) {
                           </div>
                         );
                       })()}
+                  </div>
+                  <div className="col-span-4">
+                    <div className="mb-1 text-xs">From Email</div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-full">
+                        <Input
+                          placeholder="Enter from email"
+                          value={step.values.fromEmail}
+                          onChange={(e) => {
+                            const rawValue = e.target.value;
+                            const sanitizedValue = rawValue
+                              .replace(/\s+/g, "")
+                              .toLowerCase();
+                            updateStepInState(index, {
+                              values: {
+                                ...step.values,
+                                fromEmail: sanitizedValue,
+                              },
+                            });
+                            // Clear error when user types
+                            if (sanitizedValue.trim()) {
+                              clearFieldError(stepId, "fromEmail");
+                            }
+                          }}
+                          maxLength={50}
+                          className={cn(
+                            "pe-16",
+                            emailStepError !== null &&
+                              errorStepIds.includes(stepId) &&
+                              fieldErrors[stepId]?.includes("fromEmail") &&
+                              "border-destructive ring-1 ring-destructive",
+                          )}
+                        />
+                        <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                          {step.values.fromEmail.length} / 50
+                        </span>
+                      </div>
+                      <span className="mb-1 leading-none">@</span>
+                      <DomainSelector
+                        organizationId={organizationId}
+                        onChange={(value) => {
+                          updateStepInState(index, {
+                            from_email_domain: value ? parseInt(value) : null,
+                          });
+                          // Clear error when user selects a domain
+                          if (value) {
+                            clearFieldError(stepId, "domain");
+                          }
+                        }}
+                        value={step.from_email_domain?.toString() || ""}
+                        selectFirstOnLoad={false}
+                        className={cn(
+                          emailStepError !== null &&
+                            errorStepIds.includes(stepId) &&
+                            fieldErrors[stepId]?.includes("domain") &&
+                            "border-destructive ring-1 ring-destructive",
+                        )}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-span-4">
+                    <div className="mb-1 text-xs">From Name</div>
+                    <div className="relative w-full">
+                      <Input
+                        placeholder="From Name"
+                        value={step.values.fromName}
+                        onChange={(e) => {
+                          updateStepInState(index, {
+                            values: {
+                              ...step.values,
+                              fromName: e.target.value,
+                            },
+                          });
+                          // Clear error when user types
+                          if (e.target.value.trim()) {
+                            clearFieldError(stepId, "fromName");
+                          }
+                        }}
+                        maxLength={50}
+                        className={cn(
+                          "pe-16",
+                          emailStepError !== null &&
+                            errorStepIds.includes(stepId) &&
+                            fieldErrors[stepId]?.includes("fromName") &&
+                            "border-destructive ring-1 ring-destructive",
+                        )}
+                      />
+                      <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                        {step.values.fromName.length} / 50
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-span-4">
                     <Button
                       variant="outline"
                       onClick={() => removeStep(index)}

@@ -136,7 +136,7 @@ export default function NewEmailAutomation({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || !form.formState.isValid}>
             {isLoading ? "Creating..." : "Create Automation"}
           </Button>
         </div>

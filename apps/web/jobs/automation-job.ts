@@ -42,6 +42,9 @@ interface RecipientData {
   firstName?: string;
   lastName?: string;
   memberRecordId: number;
+  personEmailRecord: {
+    id: number;
+  };
 }
 
 export const automationJob = task({
@@ -246,6 +249,9 @@ export const automationJob = task({
             firstName: personEmailRecord.people?.first_name || undefined,
             lastName: personEmailRecord.people?.last_name || undefined,
             memberRecordId: newMemberData.id,
+            personEmailRecord: {
+              id: personEmailRecord.id,
+            },
           });
         } catch (error) {
           console.error(`Error processing person ${pcoPersonId}:`, error);
@@ -354,6 +360,7 @@ export const automationJob = task({
                   firstName?: string;
                   lastName?: string;
                   personId: number;
+                  people_email_id: number;
                 }
               > = {};
 
@@ -365,6 +372,7 @@ export const automationJob = task({
                   firstName: recipient.firstName,
                   lastName: recipient.lastName,
                   personId: recipient.internalPersonId,
+                  people_email_id: recipient.personEmailRecord.id,
                 };
               });
 

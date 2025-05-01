@@ -26,6 +26,7 @@ interface SendAutomationEmailPayload {
       firstName?: string;
       lastName?: string;
       personId: number;
+      people_email_id: number;
     }
   >;
   organizationId: string;
@@ -247,14 +248,20 @@ export const sendAutomationEmail = task({
 
         for (const peopleEmailId of batch) {
           const recipientData = recipients[peopleEmailId];
-          const { email, firstName, lastName, pcoPersonId, personId } =
-            recipientData;
+          const {
+            email,
+            firstName,
+            lastName,
+            pcoPersonId,
+            personId,
+            people_email_id,
+          } = recipientData;
 
           try {
             // Generate unsubscribe token
             const unsubscribeToken = await new SignJWT({
               automation_step_id: automationStepId,
-              people_email_id: parseInt(peopleEmailId),
+              people_email_id: people_email_id,
             })
               .setProtectedHeader({ alg: "HS256" })
               .setIssuedAt()
@@ -307,7 +314,7 @@ export const sendAutomationEmail = task({
               text: personalizedText,
               headers: {
                 "X-Entity-Automation-ID": `${automationId}`,
-                "X-Entity-People-Email-ID": `${peopleEmailId}`,
+                "X-Entity-People-Email-ID": `${people_email_id}`,
                 "X-Entity-Ref-ID": uuidv4(),
                 "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>, mailto:${unsubscribeEmail}`,
                 "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",

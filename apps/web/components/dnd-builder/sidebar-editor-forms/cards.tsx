@@ -362,6 +362,11 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
       return;
     }
 
+    // Allow mailto links
+    if (url.startsWith("mailto:")) {
+      return;
+    }
+
     // Domain and TLD pattern without requiring https://
     const urlPattern =
       /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;

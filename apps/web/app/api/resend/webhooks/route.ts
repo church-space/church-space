@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Return success if no email_id or automation_id
-      if (!clickedIds.email_id || !clickedIds.automation_id) {
+      if (!clickedIds.email_id && !clickedIds.automation_id) {
         return NextResponse.json({ success: true });
       }
 
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
         await insertEmailLinkClicked(supabase, {
           resend_email_id: payload.data.email_id,
           link_clicked: payload.data.click!.link,
-          email_id: clickedIds.email_id,
+          email_id: clickedIds.email_id!,
         });
       }
 
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Return success if no email_id or automation_id
-      if (!sentIds.email_id || !sentIds.automation_id) {
+      if (!sentIds.email_id && !sentIds.automation_id) {
         return NextResponse.json({ success: true });
       }
 
@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Return success if no email_id or automation_id
-      if (!deliveredIds.email_id || !deliveredIds.automation_id) {
+      if (!deliveredIds.email_id && !deliveredIds.automation_id) {
         return NextResponse.json({ success: true });
       }
 
@@ -217,7 +217,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Return success if no email_id or automation_id
-      if (!delayedIds.email_id || !delayedIds.automation_id) {
+      if (!delayedIds.email_id && !delayedIds.automation_id) {
         return NextResponse.json({ success: true });
       }
 
@@ -240,7 +240,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Return success if no email_id or automation_id
-      if (!ids.email_id || !ids.automation_id) {
+      if (!ids.email_id && !ids.automation_id) {
         return NextResponse.json({ success: true });
       }
 
@@ -263,7 +263,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Return success if no email_id or automation_id
-      if (!bouncedIds.email_id || !bouncedIds.automation_id) {
+      if (!bouncedIds.email_id && !bouncedIds.automation_id) {
         return NextResponse.json({ success: true });
       }
 
@@ -299,7 +299,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Return success if no email_id or automation_id
-      if (!openedIds.email_id || !openedIds.automation_id) {
+      if (!openedIds.email_id && !openedIds.automation_id) {
         return NextResponse.json({ success: true });
       }
 

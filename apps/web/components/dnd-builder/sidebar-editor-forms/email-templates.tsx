@@ -277,9 +277,6 @@ export default function EmailTemplateForm({
             : "An unexpected error occurred",
         variant: "destructive",
       });
-    } finally {
-      setConfirmDialogOpen(false);
-      setIsApplying(false);
     }
   };
 
