@@ -384,13 +384,44 @@ export default function ClientPage({
   const handleEmailCategoriesSubmit = async () => {
     setEmailCategoriesLoading(true);
     try {
-      console.log("Saving categories:", emailCategories);
+      // Create a local copy of categories to work with
+      let categoriesToSave = [...emailCategories];
+
+      // If there's text in the new category input, add it
+      if (newCategory.trim()) {
+        // Check if we've reached the limit of 10 categories
+        if (categoriesToSave.length < 10) {
+          // Check if the category already exists
+          const trimmedName = newCategory.trim();
+          if (
+            !categoriesToSave.some(
+              (cat) => cat.name.toLowerCase() === trimmedName.toLowerCase(),
+            )
+          ) {
+            // Create a custom category with a default description
+            const newId = `custom-${Date.now()}`;
+
+            // Add to local array (not state, to avoid race condition)
+            categoriesToSave.push({
+              id: newId,
+              name: trimmedName,
+              isDefault: false,
+              isRemovable: true,
+              description: `Emails for ${trimmedName}`,
+            });
+
+            // Update state separately (for UI consistency)
+            setEmailCategories(categoriesToSave);
+          }
+        }
+      }
+
+      console.log("Saving categories:", categoriesToSave);
 
       const saveResults = [];
 
-      // Create all email categories in the database
-      // Only save categories that remain in the state (weren't removed by the user)
-      for (const category of emailCategories) {
+      // Create all email categories in the database using our local copy
+      for (const category of categoriesToSave) {
         console.log("Saving category:", category.name);
 
         try {
@@ -437,6 +468,9 @@ export default function ClientPage({
         });
         return;
       }
+
+      // Clear new category input
+      setNewCategory("");
 
       // Proceed to next step
       setCurrentStep(2);
