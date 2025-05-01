@@ -59,6 +59,65 @@ export const deleteOrganization = task({
       }
     }
 
+    // Step 8: Cancel automation runs in progress
+    try {
+      // Get all automations for the organization
+      const { data: automations, error: autoError } = await supabase
+        .from("email_automations")
+        .select("id")
+        .eq("organization_id", payload.organization_id);
+
+      if (autoError) {
+        console.error(
+          "Error fetching automations for cancellation:",
+          autoError,
+        );
+      } else if (automations && automations.length > 0) {
+        // For each automation, get in-progress members and cancel their runs
+        for (const automation of automations) {
+          const { data: members, error: membersError } = await supabase
+            .from("email_automation_members")
+            .select("id, trigger_dev_id")
+            .eq("automation_id", automation.id)
+            .eq("status", "in-progress")
+            .not("trigger_dev_id", "is", null);
+
+          if (membersError) {
+            console.error(
+              `Error fetching members for automation ${automation.id}:`,
+              membersError,
+            );
+            continue;
+          }
+
+          if (members && members.length > 0) {
+            // Cancel each run in Trigger.dev
+            const uniqueTriggerDevIds = [
+              ...new Set(
+                members
+                  .map((member) => member.trigger_dev_id)
+                  .filter((id): id is string => id !== null),
+              ),
+            ];
+
+            for (const triggerDevId of uniqueTriggerDevIds) {
+              try {
+                await runs.cancel(triggerDevId);
+                console.log(`Cancelled automation run: ${triggerDevId}`);
+              } catch (error) {
+                console.error(
+                  `Error cancelling automation run: ${triggerDevId}`,
+                  error,
+                );
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error handling automation runs cancellation:", error);
+    }
+
     // Step 3: Delete all email automation steps
     const { data: automations, error: automationsError } = await supabase
       .from("email_automations")
@@ -276,7 +335,45 @@ export const deleteOrganization = task({
       console.error("Error handling organization assets deletion:", error);
     }
 
-    // Step 7: Finally, delete the organization
+    // Step 7: Cancel scheduled emails
+    try {
+      const { data: scheduledEmails, error: emailsError } = await supabase
+        .from("emails")
+        .select("id, trigger_dev_schduled_id")
+        .eq("organization_id", payload.organization_id)
+        .eq("status", "scheduled")
+        .not("trigger_dev_schduled_id", "is", null);
+
+      if (emailsError) {
+        console.error("Error fetching scheduled emails:", emailsError);
+      } else if (scheduledEmails && scheduledEmails.length > 0) {
+        // Extract unique trigger_dev_schduled_id values
+        const uniqueScheduledIds = [
+          ...new Set(
+            scheduledEmails
+              .map((email) => email.trigger_dev_schduled_id)
+              .filter((id): id is string => id !== null),
+          ),
+        ];
+
+        // Cancel each unique scheduled email in Trigger.dev
+        for (const scheduleId of uniqueScheduledIds) {
+          try {
+            await runs.cancel(scheduleId);
+            console.log(`Cancelled scheduled email run: ${scheduleId}`);
+          } catch (error) {
+            console.error(
+              `Error cancelling scheduled email run: ${scheduleId}`,
+              error,
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error handling scheduled emails cancellation:", error);
+    }
+
+    // Step 9: Finally, delete the organization
     const { error: deleteError } = await supabase
       .from("organizations")
       .delete()
