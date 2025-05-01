@@ -23,6 +23,165 @@ import { createEmailCategoryAction } from "@/actions/create-email-category";
 import { updateOrganizationOnboardingStatusAction } from "@/actions/update-organization-onboarding-status";
 import { updateUserPreferencesAction } from "@/actions/update-user-preferences";
 import { useUser } from "@/stores/use-user";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@church-space/ui/select";
+
+// Import STRIPE_PLANS from subscribe-modal.tsx
+interface StripePlans {
+  productId: string;
+  priceId: string;
+  price: number;
+  sendLimit: number;
+  enviorment: "testing" | "live";
+}
+
+export const STRIPE_PLANS: StripePlans[] = [
+  {
+    productId: "prod_Ry0AINZpor4sJ3",
+    priceId: "price_1RJxwZJPD51CqUc4CagzIwMK",
+    price: 9,
+    sendLimit: 5000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0D0QpnB7zNfO",
+    priceId: "price_1RJxxgJPD51CqUc497rj5N6m",
+    price: 18,
+    sendLimit: 10000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0EMgnmn9yzxB",
+    priceId: "price_1RJxyWJPD51CqUc4w6OOdOOt",
+    price: 36,
+    sendLimit: 20000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0E46a7LnSdnp",
+    priceId: "price_1RFlO4JPD51CqUc41nUQizDK",
+    price: 54,
+    sendLimit: 30000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_SA5gwIHqyWktAd",
+    priceId: "price_1RFlV0JPD51CqUc42nzlT0N3",
+    price: 72,
+    sendLimit: 40000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0FtAuo7d83fN",
+    priceId: "price_1RJyByJPD51CqUc49jqPYTyv",
+    price: 90,
+    sendLimit: 50000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_SA5fimnn0jaI8x",
+    priceId: "price_1RFlUUJPD51CqUc4Qr2jgzZA",
+    price: 108,
+    sendLimit: 60000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0GpfPkf6tmuo",
+    priceId: "price_1RFlOqJPD51CqUc4Go9flhn5",
+    price: 126,
+    sendLimit: 70000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_SA5fPv9RJhg6Xb",
+    priceId: "price_1RFlToJPD51CqUc438x89eps",
+    price: 144,
+    sendLimit: 80000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0GuwNyFWV7VZ",
+    priceId: "price_1RJyHRJPD51CqUc4n0u45yq4",
+    price: 180,
+    sendLimit: 100000,
+    enviorment: "testing",
+  },
+  {
+    productId: "prod_Ry0CJ8eQeoXnXR",
+    priceId: "price_1RJyJmJPD51CqUc45o6yUJNp",
+    price: 9,
+    sendLimit: 5000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0DuepmPHWG8b",
+    priceId: "price_1RJyL9JPD51CqUc40iVKe34g",
+    price: 18,
+    sendLimit: 10000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0Ge0OavXMDQV",
+    priceId: "price_1RJyN8JPD51CqUc4SJqQARNN",
+    price: 36,
+    sendLimit: 20000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0GqqHFHHwqAb",
+    priceId: "price_1RJyRuJPD51CqUc4i5XwAbUh",
+    price: 54,
+    sendLimit: 30000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_SA5r59Tp5IYo6V",
+    priceId: "price_1RJySzJPD51CqUc4XBy5SkNF",
+    price: 72,
+    sendLimit: 40000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0GvuSloCxCMF",
+    priceId: "price_1RJyUFJPD51CqUc4eplNB9nE",
+    price: 90,
+    sendLimit: 50000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_SA5s8f3R9F3AmA",
+    priceId: "price_1RJyV2JPD51CqUc4vXN8fv7j",
+    price: 108,
+    sendLimit: 60000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0GTiTk5sNAIS",
+    priceId: "price_1RJyW9JPD51CqUc4NYOTWKoh",
+    price: 126,
+    sendLimit: 70000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_SA5sROshbuf4BN",
+    priceId: "price_1RJyXLJPD51CqUc4Hn9QGmPA",
+    price: 144,
+    sendLimit: 80000,
+    enviorment: "live",
+  },
+  {
+    productId: "prod_Ry0G0Bo4FvAExH",
+    priceId: "price_1RJyXoJPD51CqUc4cB3qK17M",
+    price: 180,
+    sendLimit: 100000,
+    enviorment: "live",
+  },
+];
 
 const addressFormSchema = z.object({
   street: z.string().min(1, "Street address cannot be blank"),
@@ -66,6 +225,8 @@ export default function ClientPage({
   const [emailCategoriesLoading, setEmailCategoriesLoading] = useState(false);
   const [themeLoading, setThemeLoading] = useState(false);
   const [billingLoading, setBillingLoading] = useState(false);
+  const [billingSetupLoading, setBillingSetupLoading] = useState(false);
+  const [skipBillingLoading, setSkipBillingLoading] = useState(false);
   const [showBilling, setShowBilling] = useState(false);
   const [zipCodeValue, setZipCodeValue] = useState("");
   const [zipCodeError, setZipCodeError] = useState<string | null>(null);
@@ -83,11 +244,13 @@ export default function ClientPage({
   const router = useRouter();
   const { toast } = useToast();
   const { setOrgFinishedOnboarding } = useUser();
+  const [selectedPlan, setSelectedPlan] = useState("free");
 
   // Check for selected_plan cookie on mount
   useEffect(() => {
     const selectedPlan = cookies.get("selected_plan");
     setShowBilling(!!selectedPlan);
+    setSelectedPlan(selectedPlan || "free");
   }, []);
 
   // Validate zip code with debounce
@@ -336,8 +499,8 @@ export default function ClientPage({
         }
       }
 
-      // If there is no selected plan, update onboarding status here
-      if (!showBilling) {
+      // If there is no selected plan or selected plan is free, update onboarding status here
+      if (!showBilling || selectedPlan === "free") {
         // Set client-side state first
         setOrgFinishedOnboarding(true);
 
@@ -362,7 +525,7 @@ export default function ClientPage({
         router.push("/welcome");
       } else {
         // Continue to billing step if needed
-        setCurrentStep(3);
+        setCurrentStep(0);
       }
     } catch (error) {
       toast({
@@ -376,8 +539,76 @@ export default function ClientPage({
     }
   };
 
+  const handleBillingSetup = async () => {
+    setBillingSetupLoading(true);
+
+    try {
+      // Get the price ID for the selected plan
+      const environment = process.env.NEXT_PUBLIC_STRIPE_ENV as
+        | "testing"
+        | "live";
+      const priceId = STRIPE_PLANS.find(
+        (plan) =>
+          plan.sendLimit.toString() === selectedPlan &&
+          plan.enviorment === environment,
+      )?.priceId;
+
+      if (!priceId) {
+        toast({
+          title: "Error setting up billing",
+          description: "Invalid plan selected",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create checkout session
+      const response = await fetch("/api/stripe/create-checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          priceId,
+          organizationId,
+          userId,
+          successUrl: "/welcome",
+          cancelUrl: "/welcome",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.error) {
+        toast({
+          title: "Error setting up billing",
+          description: `Error: ${data.error}`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error setting up billing",
+          description:
+            "No checkout URL returned. Please try again or contact support.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+      toast({
+        title: "Error setting up billing",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setBillingSetupLoading(false);
+    }
+  };
+
   const handleBillingComplete = async () => {
-    setBillingLoading(true);
+    setSkipBillingLoading(true);
 
     try {
       // If there is a selected plan, update onboarding status here
@@ -412,7 +643,7 @@ export default function ClientPage({
         variant: "destructive",
       });
     } finally {
-      setBillingLoading(false);
+      setSkipBillingLoading(false);
     }
   };
 
@@ -846,25 +1077,100 @@ export default function ClientPage({
       </div>
       <Card className="w-full p-6">
         <div className="space-y-4">
-          <div className="text-lg font-medium">Selected Plan Information</div>
-          <div className="rounded-md bg-muted p-4">
-            <p>Selected Plan:</p>
-            <p>{cookies.get("selected_plan")}</p>
+          <div className="text-lg font-medium">Your Selected Plan</div>
+
+          {/* Plan Details */}
+          <div className="space-y-2 rounded-md bg-muted p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-lg font-semibold">
+                {selectedPlan === "free"
+                  ? "Free Plan"
+                  : `${Number(selectedPlan).toLocaleString()} emails per month`}
+              </p>
+              <p className="text-lg font-bold">
+                {selectedPlan === "free"
+                  ? "$0"
+                  : `$${
+                      STRIPE_PLANS.find(
+                        (plan) =>
+                          plan.sendLimit.toString() === selectedPlan &&
+                          plan.enviorment ===
+                            process.env.NEXT_PUBLIC_STRIPE_ENV,
+                      )?.price || "0"
+                    }/month`}
+              </p>
+            </div>
           </div>
-          <Button
-            className="w-full"
-            onClick={handleBillingComplete}
-            disabled={billingLoading}
-          >
-            {billingLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Complete Setup
-              </>
-            ) : (
-              "Complete Setup"
-            )}
-          </Button>
+
+          {/* Plan Selector */}
+          <div className="space-y-2">
+            <Label>Change Your Plan</Label>
+            <Select
+              value={selectedPlan}
+              onValueChange={(value: string) => setSelectedPlan(value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a plan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="free">
+                  Free Plan - 500 emails/month
+                </SelectItem>
+                {STRIPE_PLANS.filter(
+                  (plan) =>
+                    plan.enviorment === process.env.NEXT_PUBLIC_STRIPE_ENV,
+                ).map((plan) => (
+                  <SelectItem
+                    key={plan.priceId}
+                    value={plan.sendLimit.toString()}
+                  >
+                    {plan.sendLimit.toLocaleString()} emails - ${plan.price}
+                    /month
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="space-y-3 pt-4">
+            {selectedPlan !== "free" ? (
+              <Button
+                className="w-full"
+                onClick={handleBillingSetup}
+                disabled={billingSetupLoading}
+              >
+                {billingSetupLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Continue to Billing
+                  </>
+                ) : (
+                  "Continue to Billing"
+                )}
+              </Button>
+            ) : null}
+
+            <Button
+              className={`w-full ${selectedPlan !== "free" ? "bg-secondary text-foreground hover:bg-secondary/80" : ""}`}
+              variant={selectedPlan !== "free" ? "secondary" : "default"}
+              onClick={handleBillingComplete}
+              disabled={skipBillingLoading}
+            >
+              {skipBillingLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {selectedPlan === "free"
+                    ? "Continue on Free Plan"
+                    : "Skip Billing for Now"}
+                </>
+              ) : selectedPlan === "free" ? (
+                "Continue on Free Plan"
+              ) : (
+                "Skip Billing for Now"
+              )}
+            </Button>
+          </div>
         </div>
       </Card>
     </motion.div>
@@ -901,10 +1207,13 @@ export default function ClientPage({
         )}
       </AnimatePresence>
       <AnimatePresence mode="wait">
-        {/* {currentStep === 0 && renderAddressForm()}
+        {currentStep === 0 && renderAddressForm()}
         {currentStep === 1 && renderEmailCategories()}
-        {currentStep === 2 && renderThemeSelector()} */}
-        {currentStep === 0 && showBilling && renderBillingPage()}
+        {currentStep === 2 && renderThemeSelector()}
+        {currentStep === 3 &&
+          showBilling &&
+          selectedPlan !== "free" &&
+          renderBillingPage()}
       </AnimatePresence>
     </div>
   );

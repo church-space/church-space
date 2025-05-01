@@ -21,7 +21,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
-    const { priceId, userId, organizationId } = await request.json();
+    const { priceId, userId, organizationId, successUrl, cancelUrl } =
+      await request.json();
 
     if (!userId || !organizationId || !priceId) {
       return NextResponse.json(
@@ -104,6 +105,15 @@ export async function POST(request: NextRequest) {
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const defaultSuccessUrl = `${baseUrl}/settings/billing?success=true&session_id={CHECKOUT_SESSION_ID}`;
+    const defaultCancelUrl = `${baseUrl}/settings/billing?canceled=true`;
+
+    const customSuccessUrl = successUrl
+      ? `${baseUrl}${successUrl}?success=true&session_id={CHECKOUT_SESSION_ID}`
+      : defaultSuccessUrl;
+    const customCancelUrl = cancelUrl
+      ? `${baseUrl}${cancelUrl}?canceled=true`
+      : defaultCancelUrl;
 
     // Create checkout session with the customer ID
     const session = await stripe.checkout.sessions.create({
@@ -117,8 +127,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: "subscription",
-      success_url: `${baseUrl}/settings/billing?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/settings/billing?canceled=true`,
+      success_url: customSuccessUrl,
+      cancel_url: customCancelUrl,
       metadata: {
         organizationId,
         userId,
