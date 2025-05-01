@@ -192,18 +192,6 @@ const addressFormSchema = z.object({
   country: z.string().min(1, "Country cannot be blank"),
 });
 
-const emailCategoriesSchema = z.object({
-  categories: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      isDefault: z.boolean(),
-      isRemovable: z.boolean(),
-    }),
-  ),
-  newCategory: z.string().optional(),
-});
-
 // Add type for email categories
 interface EmailCategory {
   id: string;
