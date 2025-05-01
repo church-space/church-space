@@ -27,6 +27,7 @@ import { useState } from "react";
 import ArticleSvgPath from "./article.svg";
 import UpdatesSvgPath from "./updates.svg";
 import { EmailStyles } from "./use-block-state-manager";
+import EmailTemplateForm from "./sidebar-editor-forms/email-templates";
 
 type View = "main" | "templates";
 
@@ -142,6 +143,8 @@ interface NewEmailModalProps {
   onAllStyleChanges?: (styleUpdates: Partial<EmailStyles>) => void;
   setCurrentState?: (state: any) => void;
   onTemplateBlocks?: (blocks: any[]) => void;
+  organizationId: string;
+  emailId?: number;
 }
 
 export default function NewEmailModal({
@@ -149,6 +152,8 @@ export default function NewEmailModal({
   onAllStyleChanges,
   setCurrentState,
   onTemplateBlocks,
+  organizationId,
+  emailId,
 }: NewEmailModalProps) {
   const [newEmailModalOpen = false, setNewEmailModalOpen] = useQueryState(
     "newEmail",
@@ -472,7 +477,7 @@ export default function NewEmailModal({
     >
       <DialogContent
         className="flex max-w-screen-md flex-col overflow-hidden"
-        style={{ height: "490px", maxHeight: "490px" }}
+        style={{ height: "500px", maxHeight: "500px" }}
       >
         <DialogHeader>
           <DialogTitle>
@@ -720,15 +725,12 @@ export default function NewEmailModal({
               )}
 
               {view === "templates" && (
-                <div>
-                  {/* Placeholder for Templates content */}
-                  <p>Templates list will go here.</p>
-                  <p>Templates list will go here.</p>
-                  <p>Templates list will go here.</p>
-                  <p>Templates list will go here.</p>
-                  <p>Templates list will go here.</p>
-                  <p>Templates list will go here.</p>
-                </div>
+                <EmailTemplateForm
+                  organizationId={organizationId}
+                  emailId={emailId ?? 0}
+                  hideHeader={true}
+                  setNewEmailModalOpen={setNewEmailModalOpen}
+                />
               )}
             </motion.div>
           </AnimatePresence>
@@ -741,20 +743,20 @@ export default function NewEmailModal({
             </Button>
           )}
           {view === "main" && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                // Set email type to scratch before creating
-                setSelectedEmailType("scratch");
-                handleCreate();
-              }}
-            >
-              Start from scratch
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // Set email type to scratch before creating
+                  setSelectedEmailType("scratch");
+                  handleCreate();
+                }}
+              >
+                Start from scratch
+              </Button>
+              <Button onClick={handleCreate}>Create</Button>
+            </>
           )}
-          <Button onClick={handleCreate}>
-            {view === "main" ? "Create" : "Select"}
-          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

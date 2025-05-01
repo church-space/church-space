@@ -3317,6 +3317,8 @@ export default function EmailDndProvider({
         onAllStyleChanges={handleModalStyleChanges}
         setCurrentState={setCurrentState}
         onTemplateBlocks={handleTemplateBlocks}
+        organizationId={organizationId}
+        emailId={emailId}
       />
     </div>
   );

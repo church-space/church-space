@@ -30,11 +30,15 @@ import { Switch } from "@church-space/ui/switch";
 interface EmailTemplateFormProps {
   emailId: number;
   organizationId: string;
+  hideHeader?: boolean;
+  setNewEmailModalOpen?: (open: boolean) => void;
 }
 
 export default function EmailTemplateForm({
   emailId,
   organizationId,
+  hideHeader = false,
+  setNewEmailModalOpen,
 }: EmailTemplateFormProps) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -210,6 +214,10 @@ export default function EmailTemplateForm({
       if (result && result.data && result.data.success) {
         // Close the dialog
 
+        if (setNewEmailModalOpen) {
+          setNewEmailModalOpen(false);
+        }
+
         setSelectedTemplate(null);
 
         // Show a success message
@@ -282,61 +290,64 @@ export default function EmailTemplateForm({
 
   return (
     <div className="flex flex-col gap-5 px-1" ref={componentRef}>
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Email Templates</h2>
-          <div className="flex gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="h-8 px-2 py-0">
-                      <Save />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Save Email as Template</DialogTitle>
-                    </DialogHeader>
-                    <DialogDescription>
-                      Save the current email as a template for future use.
-                    </DialogDescription>
-                    <Input
-                      placeholder="Template name"
-                      className="mb-3 w-full bg-background"
-                      value={templateName}
-                      onChange={(e) => setTemplateName(e.target.value)}
-                      maxLength={60}
-                    />
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setDialogOpen(false)}
-                      >
-                        Cancel
+      {!hideHeader && (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Email Templates</h2>
+            <div className="flex gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="h-8 px-2 py-0">
+                        <Save />
                       </Button>
-                      <Button onClick={handleSaveTemplate} disabled={isSaving}>
-                        {isSaving ? "Saving..." : "Save"}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </TooltipTrigger>
-              <TooltipContent>Save current email as template</TooltipContent>
-            </Tooltip>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Save Email as Template</DialogTitle>
+                      </DialogHeader>
+                      <DialogDescription>
+                        Save the current email as a template for future use.
+                      </DialogDescription>
+                      <Input
+                        placeholder="Template name"
+                        className="mb-3 w-full bg-background"
+                        value={templateName}
+                        onChange={(e) => setTemplateName(e.target.value)}
+                        maxLength={60}
+                      />
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleSaveTemplate}
+                          disabled={isSaving}
+                        >
+                          {isSaving ? "Saving..." : "Save"}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </TooltipTrigger>
+                <TooltipContent>Save current email as template</TooltipContent>
+              </Tooltip>
+            </div>
           </div>
+          <p className="text-sm text-muted-foreground">
+            Select a template from the gallery or use one of your own.
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Select a template from the gallery or use one of your own.
-        </p>
-      </div>
+      )}
 
       <div className="flex flex-col gap-2">
-        <Label className="px-1 text-sm text-secondary-foreground">
-          Your Templates
-        </Label>
+        <Label className="px-1 text-sm text-secondary-foreground">Search</Label>
         <Input
-          placeholder="Search your templates"
+          placeholder="Search templates"
           className="mb-3 w-full bg-background"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -352,7 +363,7 @@ export default function EmailTemplateForm({
             No templates found
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 pb-2">
             {templates.map((template) => (
               <Card
                 key={template.id}
