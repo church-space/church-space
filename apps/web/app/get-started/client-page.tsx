@@ -385,7 +385,7 @@ export default function ClientPage({
     setEmailCategoriesLoading(true);
     try {
       // Create a local copy of categories to work with
-      let categoriesToSave = [...emailCategories];
+      const categoriesToSave = [...emailCategories];
 
       // If there's text in the new category input, add it
       if (newCategory.trim()) {

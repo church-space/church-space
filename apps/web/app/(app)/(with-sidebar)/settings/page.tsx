@@ -24,7 +24,6 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Switch } from "@church-space/ui/switch";
 import { cookies } from "next/headers";
 
 export default async function Page() {
