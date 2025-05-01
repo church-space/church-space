@@ -82,7 +82,7 @@ export default function ClientPage({
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { toast } = useToast();
-  const { id: userId } = useUser();
+  const { id: userId, setOrgFinishedOnboarding } = useUser();
 
   // Check for selected_plan cookie on mount
   useEffect(() => {
@@ -348,6 +348,29 @@ export default function ClientPage({
         }
       }
 
+      // If there is no selected plan, update onboarding status here
+      if (!showBilling) {
+        // Set client-side state first
+        setOrgFinishedOnboarding(true);
+
+        const result = await updateOrganizationOnboardingStatusAction({
+          organizationId,
+          onboardingStatus: true,
+        });
+
+        // Cast the result to ActionResponse type for type safety
+        const typedResult = result as ActionResponse;
+
+        if (typedResult.error) {
+          toast({
+            title: "Error updating onboarding status",
+            description:
+              typedResult.error || "Failed to update onboarding status",
+            variant: "destructive",
+          });
+        }
+      }
+
       // Continue to next step regardless of preference save result
       if (showBilling) {
         setCurrentStep(3);
@@ -366,10 +389,43 @@ export default function ClientPage({
     }
   };
 
-  const handleBillingComplete = () => {
+  const handleBillingComplete = async () => {
     setBillingLoading(true);
-    setCurrentStep(4); // Go to final loading screen instead of direct navigation
-    setBillingLoading(false);
+
+    try {
+      // If there is a selected plan, update onboarding status here
+      // Set client-side state first
+      setOrgFinishedOnboarding(true);
+
+      const result = await updateOrganizationOnboardingStatusAction({
+        organizationId,
+        onboardingStatus: true,
+      });
+
+      // Cast the result to ActionResponse type for type safety
+      const typedResult = result as ActionResponse;
+
+      if (typedResult.error) {
+        toast({
+          title: "Error updating onboarding status",
+          description:
+            typedResult.error || "Failed to update onboarding status",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setCurrentStep(4); // Go to final loading screen
+    } catch (error) {
+      toast({
+        title: "Error completing setup",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setBillingLoading(false);
+    }
   };
 
   const toggleCategory = (id: string) => {
