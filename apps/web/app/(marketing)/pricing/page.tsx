@@ -38,16 +38,16 @@ export default function PricingPage() {
   };
 
   const emailTiers: EmailTier[] = [
-    { volume: 5000, price: 8 },
-    { volume: 10000, price: 16 },
-    { volume: 20000, price: 32 },
-    { volume: 30000, price: 48 },
-    { volume: 40000, price: 64 },
-    { volume: 50000, price: 80 },
-    { volume: 60000, price: 96 },
-    { volume: 70000, price: 112 },
-    { volume: 80000, price: 128 },
-    { volume: 100000, price: 160 },
+    { volume: 5000, price: 9 },
+    { volume: 10000, price: 18 },
+    { volume: 20000, price: 36 },
+    { volume: 30000, price: 54 },
+    { volume: 40000, price: 72 },
+    { volume: 50000, price: 90 },
+    { volume: 60000, price: 108 },
+    { volume: 70000, price: 126 },
+    { volume: 80000, price: 144 },
+    { volume: 100000, price: 180 },
   ];
 
   const formatNumber = (num: number) => {
