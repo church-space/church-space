@@ -1107,7 +1107,7 @@ export default function PreSendPage({
             className="flex items-center gap-2 text-2xl font-bold"
             variants={itemVariants}
           >
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-primary bg-secondary/80 text-primary">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-primary bg-secondary/80 text-primary shadow-lg shadow-primary/20">
               <Email height={"20"} width={"20"} />
             </div>
             {subject}
@@ -1233,12 +1233,14 @@ export default function PreSendPage({
                       </span>
                     )}
                   </div>
-                  <p className="px-2 text-xs text-muted-foreground">
-                    Select the list from PCO that you would like to send this
-                    email to. If they are unsubscribed from the PCO List
-                    Cateogry, the person will not recieve the email. Learn more
-                    about how unsubscribes work here.
-                  </p>
+                  {!listId && (
+                    <p className="px-2 text-xs text-muted-foreground">
+                      Select the Planning Center list that you would like to
+                      send this email to. If they are unsubscribed from the
+                      Cateogry, the person will not recieve the email.
+                    </p>
+                  )}
+                  <Label className="ml-0.5 mt-3">Category</Label>
                   <CategorySelector
                     value={categoryId}
                     onChange={setCategoryId}
@@ -1586,8 +1588,8 @@ export default function PreSendPage({
                     value="send-now"
                     className="mt-4 text-sm text-muted-foreground"
                   >
-                    This email will be sent once the click the send button in
-                    the top right corner.
+                    This email will be sent once you click the &quot;Send
+                    Now&quot; button in the top right corner.
                   </TabsContent>
                 </Tabs>
                 <SaveButtons

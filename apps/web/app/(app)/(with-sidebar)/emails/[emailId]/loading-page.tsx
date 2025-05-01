@@ -1,14 +1,13 @@
-import React from "react";
 import {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
+  BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
+import { Button } from "@church-space/ui/button";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Button } from "@church-space/ui/button";
 import { Skeleton } from "@church-space/ui/skeleton";
 import Link from "next/link";
 
@@ -39,11 +38,11 @@ export default function LoadingPage() {
         </div>
       </header>
       <div className="min-h-[calc(100vh-10rem)] w-full px-8 pt-3">
-        <Skeleton className="flex min-h-[calc(100vh-7rem)] w-full items-center justify-center bg-secondary/30 px-5">
+        <div className="flex min-h-[calc(100vh-7rem)] w-full items-center justify-center px-5">
           <div className="flex flex-col items-center gap-3">
             <div className="text-muted-foreground">Getting things ready...</div>
           </div>
-        </Skeleton>
+        </div>
       </div>
     </div>
   );
