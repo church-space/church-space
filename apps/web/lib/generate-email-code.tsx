@@ -219,12 +219,13 @@ const CustomText: React.FC<{
       return `<h3 style="${baseStyle}"`;
     })
     .replace(/<h4(?: style="([^"]*)")?/g, (match, existingStyle) => {
+      // Use style attributes that Yahoo/AOL will respect, without relying on class or !important
       const baseStyle =
-        " font-weight: 600; font-size: 4rem !important; line-height: 1.2; margin-block-start: 0.3em; margin-block-end: 0.3em; mso-line-height-rule: exactly; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%";
+        "font-weight: 600; font-size: 64px; line-height: 1.2; margin-top: 0.3em; margin-bottom: 0.3em; mso-line-height-rule: exactly; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%";
       if (existingStyle) {
-        return `<h4 class="large-text" style="${existingStyle}; ${baseStyle}"`;
+        return `<h4 style="${existingStyle}; ${baseStyle}" size="6" face="Arial"`;
       }
-      return `<h4 class="large-text" style="${baseStyle}"`;
+      return `<h4 style="${baseStyle}" size="6" face="Arial"`;
     })
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
@@ -323,11 +324,12 @@ const CustomText: React.FC<{
       
       /* Fix for h4 size in Yahoo and AOL */
       h4 {
-        font-size: 4rem !important;
+        font-size: 64px !important;
         line-height: 1.2 !important;
+        font-weight: 600 !important;
       }
       .large-text {
-        font-size: 4rem !important;
+        font-size: 64px !important;
         line-height: 1.2 !important;
       }
     </style>
@@ -335,10 +337,33 @@ const CustomText: React.FC<{
     <!--[if gte mso 9]>
     <style>
       h4, .large-text {
-        font-size: 48pt !important;
+        font-size: 64pt !important;
       }
     </style>
     <![endif]-->
+    
+    <!-- Yahoo-specific styles -->
+    <style type="text/css" id="yahoo-styles">
+      @media yahoo {
+        h4 {
+          font-size: 64px !important;
+          line-height: 1.2 !important;
+          font-weight: 600 !important;
+          margin-top: 0.3em !important;
+          margin-bottom: 0.3em !important;
+        }
+      }
+    </style>
+    
+    <!--[if (gte mso 9)|(IE)]>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    
     ${alignedContent}
   `;
 
@@ -1881,10 +1906,18 @@ export function generateEmailCode(
         display: none !important;
       }
 
+      /* Yahoo and AOL specific styles - IMPORTANT */
+      h4 {
+        font-size: 64px !important;
+        line-height: 1.2 !important;
+        font-weight: 600 !important;
+        margin-top: 0.3em !important;
+        margin-bottom: 0.3em !important;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif !important;
+      }
+
       /* Mobile H4 style */
       @media only screen and (max-width: 479px) {
-   
-
         /* Mobile padding for inset container */
         .inset-container {
           padding: 12px !important;
