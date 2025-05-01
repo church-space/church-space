@@ -33,18 +33,23 @@ type ResendWebhookEvent = {
 
 // Add this helper function at the top of the file
 function getHeaderValue(
-  headers: { name: string; value: string }[],
+  headers: { name: string; value: string }[] | undefined,
   name: string,
 ): string | undefined {
-  return headers.find((h) => h.name === name)?.value;
+  return headers?.find((h) => h.name === name)?.value;
 }
 
 // Add validation helper
-function validateIds(headers: { name: string; value: string }[]): {
+function validateIds(headers: { name: string; value: string }[] | undefined): {
   email_id?: number;
   people_email_id: number;
   automation_id?: number;
 } | null {
+  if (!headers) {
+    console.error("Headers are undefined");
+    return null;
+  }
+
   const emailIdStr = getHeaderValue(headers, "X-Entity-Email-ID");
   const peopleEmailIdStr = getHeaderValue(headers, "X-Entity-People-Email-ID");
   const automationIdStr = getHeaderValue(headers, "X-Entity-Automation-ID");
@@ -75,8 +80,12 @@ function validateIds(headers: { name: string; value: string }[]): {
 
 // Add this helper function after the other helper functions
 function extractOrganizationId(
-  headers: { name: string; value: string }[],
+  headers: { name: string; value: string }[] | undefined,
 ): string | undefined {
+  if (!headers) {
+    return undefined;
+  }
+
   const mailerHeader = getHeaderValue(headers, "X-Mailer");
   if (!mailerHeader) return undefined;
 
@@ -126,6 +135,11 @@ export async function POST(request: NextRequest) {
   // Handle email status events
   switch (payload.type) {
     case "email.clicked":
+      // Return success if headers are undefined
+      if (!payload.data.headers) {
+        return NextResponse.json({ success: true });
+      }
+
       const clickedIds = validateIds(payload.data.headers);
       if (!clickedIds) {
         return new NextResponse(
@@ -162,6 +176,11 @@ export async function POST(request: NextRequest) {
       });
       break;
     case "email.sent":
+      // Return success if headers are undefined
+      if (!payload.data.headers) {
+        return NextResponse.json({ success: true });
+      }
+
       const sentIds = validateIds(payload.data.headers);
       if (!sentIds) {
         return new NextResponse(
@@ -185,6 +204,11 @@ export async function POST(request: NextRequest) {
       });
       break;
     case "email.delivered":
+      // Return success if headers are undefined
+      if (!payload.data.headers) {
+        return NextResponse.json({ success: true });
+      }
+
       const deliveredIds = validateIds(payload.data.headers);
       if (!deliveredIds) {
         return new NextResponse(
@@ -208,6 +232,11 @@ export async function POST(request: NextRequest) {
       });
       break;
     case "email.delivery_delayed":
+      // Return success if headers are undefined
+      if (!payload.data.headers) {
+        return NextResponse.json({ success: true });
+      }
+
       const delayedIds = validateIds(payload.data.headers);
       if (!delayedIds) {
         return new NextResponse(
@@ -231,6 +260,11 @@ export async function POST(request: NextRequest) {
       });
       break;
     case "email.complained":
+      // Return success if headers are undefined
+      if (!payload.data.headers) {
+        return NextResponse.json({ success: true });
+      }
+
       const ids = validateIds(payload.data.headers);
       if (!ids) {
         return new NextResponse(
@@ -254,6 +288,11 @@ export async function POST(request: NextRequest) {
       });
       break;
     case "email.bounced":
+      // Return success if headers are undefined
+      if (!payload.data.headers) {
+        return NextResponse.json({ success: true });
+      }
+
       const bouncedIds = validateIds(payload.data.headers);
       if (!bouncedIds) {
         return new NextResponse(
@@ -290,6 +329,11 @@ export async function POST(request: NextRequest) {
       ]);
       break;
     case "email.opened":
+      // Return success if headers are undefined
+      if (!payload.data.headers) {
+        return NextResponse.json({ success: true });
+      }
+
       const openedIds = validateIds(payload.data.headers);
       if (!openedIds) {
         return new NextResponse(
