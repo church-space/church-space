@@ -1,6 +1,6 @@
 import "server-only";
 
-import { task } from "@trigger.dev/sdk/v3";
+import { task, runs } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 import Stripe from "stripe";
 import { Resend } from "resend";
@@ -222,12 +222,40 @@ export const deleteOrganization = task({
       }
     }
 
+    // Delete Stripe subscription from Supabase
+    if (stripeSubscription?.stripe_subscription_id) {
+      const { error: deleteSubscriptionError } = await supabase
+        .from("stripe_subscriptions")
+        .delete()
+        .eq("organization_id", payload.organization_id);
+
+      if (deleteSubscriptionError) {
+        console.error(
+          "Error deleting Stripe subscription from database:",
+          deleteSubscriptionError,
+        );
+      }
+    }
+
     // Delete customer if it exists
     if (stripeSubscription?.stripe_customer_id) {
       try {
         await stripe.customers.del(stripeSubscription.stripe_customer_id);
       } catch (error) {
         console.error("Error deleting Stripe customer:", error);
+      }
+
+      // Delete Stripe customer from Supabase
+      const { error: deleteCustomerError } = await supabase
+        .from("stripe_customers")
+        .delete()
+        .eq("organization_id", payload.organization_id);
+
+      if (deleteCustomerError) {
+        console.error(
+          "Error deleting Stripe customer from database:",
+          deleteCustomerError,
+        );
       }
     }
 
