@@ -1264,14 +1264,14 @@ export default function PreSendPage({
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="mx-auto w-full max-w-3xl space-y-4 px-4 py-4"
+        className="mx-auto flex w-full gap-4 space-y-4 px-4 py-4"
       >
         <Accordion
           type="single"
           collapsible
           value={activeAccordion}
           onValueChange={handleAccordionChange}
-          className="space-y-4"
+          className="w-full space-y-4"
         >
           <motion.div variants={itemVariants}>
             <AccordionItem
@@ -1774,6 +1774,30 @@ export default function PreSendPage({
             </div>
           </motion.div>
         </Accordion>
+        <div className="flex h-screen w-[25%] flex-col gap-1">
+          <div className="flex w-full items-center justify-between px-2.5">
+            <h4 className="font-medium">Preview</h4>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setPreviewOpen("true");
+              }}
+            >
+              <Maximize2 />
+            </Button>
+          </div>
+          <EmailPreview
+            webOnly={true}
+            orgFooterDetails={orgFooterDetails?.data?.data}
+          />
+          {/* <div className="flex flex-col gap-2 px-2.5">
+            <span className="text-xs text-muted-foreground">
+              {emailBlockCount} blocks
+            </span>
+          </div> */}
+        </div>
       </motion.div>
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>

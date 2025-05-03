@@ -44,13 +44,16 @@ export const addDomainAction = authActionClient
   })
   .action(async (parsedInput): Promise<ActionResponse> => {
     try {
+      // Convert domain to lowercase
+      const domain = parsedInput.parsedInput.domain.toLowerCase();
+
       // First, add the domain to Resend
 
       let resendDomainData: ResendDomainResponse;
       try {
         // The Resend API response structure might be different than expected
         const resendResponse = await resend.domains.create({
-          name: parsedInput.parsedInput.domain,
+          name: domain,
         });
 
         // Handle different response structures - use any type for flexibility
@@ -195,7 +198,7 @@ export const addDomainAction = authActionClient
         const result = await addDomain(
           supabase,
           parsedInput.parsedInput.organization_id,
-          parsedInput.parsedInput.domain,
+          domain,
           parsedInput.parsedInput.is_primary,
           resendDomainData.id,
           formattedRecords, // Pass the records directly without stringifying
@@ -235,7 +238,7 @@ export const addDomainAction = authActionClient
         // Create a simple response object with all required fields in the right format
         const responseData = {
           id: result.data[0].id,
-          domain: parsedInput.parsedInput.domain,
+          domain: domain,
           created_at: result.data[0].created_at,
           records: formattedRecords,
           resend_domain_id: resendDomainData.id,
