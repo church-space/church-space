@@ -5,6 +5,10 @@ import { Label } from "@church-space/ui/label";
 import { useState } from "react";
 import ColorPicker from "../color-picker";
 import FileUpload from "../file-upload";
+import { Tooltip } from "@church-space/ui/tooltip";
+import { TooltipContent } from "@church-space/ui/tooltip";
+import { TooltipTrigger } from "@church-space/ui/tooltip";
+import { CircleInfo } from "@church-space/ui/icons";
 
 interface FileDownloadFormProps {
   block: Block & { data?: FileDownloadBlockData };
@@ -52,14 +56,30 @@ export default function FileDownloadForm({
           <Label className="text-md font-bold">Details</Label>
         </div>
         <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
-          <Label>File</Label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Label className="flex items-center gap-1">
+                File <CircleInfo />
+              </Label>
+            </TooltipTrigger>
+            <TooltipContent>
+              Upload a file to be downloaded when someone clicks on the button.
+            </TooltipContent>
+          </Tooltip>
           <FileUpload
             organizationId={organizationId}
             onUploadComplete={(path) => handleChange("file", path)}
             initialFilePath={localState.file}
             onRemove={onFileRemove}
           />
-          <Label>Title</Label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Label className="flex items-center gap-1">
+                Title <CircleInfo />
+              </Label>
+            </TooltipTrigger>
+            <TooltipContent>Label to be displayed on the block.</TooltipContent>
+          </Tooltip>
           <Input
             className="col-span-2 bg-background"
             value={localState.title}

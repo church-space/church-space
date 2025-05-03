@@ -38,7 +38,7 @@ import {
   ListOrdered,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { Palette, XIcon } from "@church-space/ui/icons";
+import { ExtraLargeText, Palette, XIcon } from "@church-space/ui/icons";
 import { cn } from "@church-space/ui/cn";
 import { z } from "zod";
 
@@ -257,7 +257,7 @@ const Toolbar = ({
     if (currentHeadingLevel === 1) return "Heading 1";
     if (currentHeadingLevel === 2) return "Heading 2";
     if (currentHeadingLevel === 3) return "Heading 3";
-    if (currentHeadingLevel === 4) return "Giant";
+    if (currentHeadingLevel === 4) return "Extra Large";
     return "Normal Text";
   };
 
@@ -266,7 +266,8 @@ const Toolbar = ({
     if (currentHeadingLevel === 1) return <Heading1 className="h-5 w-5" />;
     if (currentHeadingLevel === 2) return <Heading2 className="h-5 w-5" />;
     if (currentHeadingLevel === 3) return <Heading3 className="h-5 w-5" />;
-    if (currentHeadingLevel === 4) return <Heading3 className="h-5 w-5" />;
+    if (currentHeadingLevel === 4)
+      return <ExtraLargeText height="20" width="20" strokewidth={1.5} />;
     return <Text className="h-5 w-5" />;
   };
 
@@ -495,8 +496,8 @@ const Toolbar = ({
                 : ""
             }
           >
-            <Heading3 className="mr-2 h-4 w-4" />
-            Giant
+            <ExtraLargeText height="20" width="20" strokewidth={1.5} />
+            Extra Large
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

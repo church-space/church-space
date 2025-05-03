@@ -13,6 +13,12 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import ColorPicker from "../color-picker";
 import { Button } from "@church-space/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
+import { CircleInfo } from "@church-space/ui/icons";
 
 interface ButtonFormProps {
   block: Block & { data?: ButtonBlockData };
@@ -177,7 +183,16 @@ export default function ButtonForm({
             onChange={(e) => handleChange("text", e.target.value)}
             maxLength={100}
           />
-          <Label>Link</Label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Label className="flex items-center gap-1">
+                Link <CircleInfo />
+              </Label>
+            </TooltipTrigger>
+            <TooltipContent>
+              Link to a webpage when someone clicks on the button.
+            </TooltipContent>
+          </Tooltip>
           <div className="col-span-2 flex flex-col gap-1">
             <Input
               className={
@@ -249,13 +264,20 @@ export default function ButtonForm({
             </>
           )}
         </div>
-        <Button
-          variant="outline"
-          className="mt-4 w-full"
-          onClick={onApplyToAllButtons}
-        >
-          Apply style to all buttons
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              className="mt-4 w-full"
+              onClick={onApplyToAllButtons}
+            >
+              Apply style to all buttons
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            Apply the current style of this button to all buttons in the email.
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
