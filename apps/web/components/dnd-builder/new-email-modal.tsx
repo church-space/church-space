@@ -746,9 +746,7 @@ export default function NewEmailModal({
               <Button
                 variant="outline"
                 onClick={() => {
-                  // Set email type to scratch before creating
-                  setSelectedEmailType("scratch");
-                  handleCreate();
+                  setNewEmailModalOpen(null);
                 }}
               >
                 Start from scratch

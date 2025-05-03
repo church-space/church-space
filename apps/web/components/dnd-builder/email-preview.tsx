@@ -19,10 +19,12 @@ export default function EmailPreview({
   showBackButton = false,
   webOnly = false,
   orgFooterDetails,
+  customHeight,
 }: {
   showBackButton?: boolean;
   webOnly?: boolean;
   orgFooterDetails?: any;
+  customHeight?: string;
 }) {
   const [previewType, setPreviewType] = useQueryState("previewType");
   const [htmlContent, setHtmlContent] = useState<string>("");
@@ -99,11 +101,22 @@ export default function EmailPreview({
           <TabsTrigger value="mobile">Mobile</TabsTrigger>
         </TabsList>
       </div>
-      <TabsContent value="web" className="h-[95%] overflow-auto">
-        <div className="mx-auto flex h-full w-full flex-col items-start gap-4">
+      <TabsContent
+        value="web"
+        className={cn("h-[95%] overflow-auto", customHeight && customHeight)}
+      >
+        <div
+          className={cn(
+            "mx-auto flex h-full w-full flex-col items-start gap-4",
+            customHeight && customHeight,
+          )}
+        >
           <iframe
             srcDoc={htmlContent}
-            className="h-full w-full border-0"
+            className={cn(
+              "h-full w-full border-0",
+              customHeight && customHeight,
+            )}
             title="Email Preview"
           />
         </div>
