@@ -13,7 +13,7 @@ import {
   DialogClose,
   DialogDescription,
 } from "@church-space/ui/dialog";
-import { LoaderIcon } from "@church-space/ui/icons";
+import { LoaderIcon, Refresh } from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
 import {
   Pagination,
@@ -361,14 +361,20 @@ export default function AssetBrowserModal({
             {(searchQuery || selectedType !== "all") && (
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={clearFilters}
-                className="h-9 px-2 text-orange-600"
+                className="h-[38px] px-2 text-orange-600"
               >
                 <X className="h-4 w-4" />
                 Clear
               </Button>
             )}
+            <Button
+              variant="outline"
+              className="h-[38px] px-3"
+              onClick={debouncedLoadAssets}
+            >
+              <Refresh />
+            </Button>
             {setIsUploadModalOpen && (
               <Button
                 variant="default"
