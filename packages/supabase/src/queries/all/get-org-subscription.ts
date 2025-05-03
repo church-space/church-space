@@ -27,13 +27,13 @@ export async function getOrgSubscriptionQuery(
         )`
       )
       .eq("organization_id", organizationId)
-      .single(),
+      .maybeSingle(),
 
     supabase
       .from("org_email_usage")
       .select("sends_used, send_limit")
       .eq("organization_id", organizationId)
-      .single(),
+      .maybeSingle(),
   ]);
 
   const data = {

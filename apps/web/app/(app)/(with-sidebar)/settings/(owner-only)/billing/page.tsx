@@ -83,15 +83,17 @@ export default async function Page() {
             </SettingsDescription>
           </SettingsHeader>
 
-          {subscriptionData && (
+          {subscriptionData && Object.keys(subscriptionData).length > 0 ? (
             <BillingCard
               userId={user.id}
               organizationId={organizationId}
               subscription={subscriptionData}
             />
+          ) : (
+            <div className="py-4">No active subscription found.</div>
           )}
         </SettingsSection>
-        {invoicesData && invoicesData.length > 0 && (
+        {invoicesData && invoicesData.length > 0 ? (
           <SettingsSection>
             <SettingsHeader>
               <SettingsTitle>Recent Invoices</SettingsTitle>
@@ -125,7 +127,7 @@ export default async function Page() {
               ))}
             </SettingsContent>
           </SettingsSection>
-        )}
+        ) : null}
       </div>
     </div>
   );

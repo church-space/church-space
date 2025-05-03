@@ -62,7 +62,7 @@ export const columns: ColumnDef<LinkList>[] = [
     cell: ({ row }) => {
       const isPublic = row.getValue("is_public") as boolean;
       return (
-        <Badge variant={isPublic ? "default" : "secondary"} className="w-fit">
+        <Badge variant={isPublic ? "success" : "secondary"} className="w-fit">
           {isPublic ? "Public" : "Private"}
         </Badge>
       );

@@ -6,11 +6,13 @@ import { useQueryState } from "nuqs";
 import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, type Person } from "./columns";
-import { CircleInfo } from "@church-space/ui/icons";
+import { CircleInfo, XIcon } from "@church-space/ui/icons";
 import NullState from "./null-state";
 import Link from "next/link";
 import { useUser } from "@/stores/use-user";
 import { useSubscribedPeopleCount } from "@/hooks/use-subscribed-people-count";
+import { TooltipContent, TooltipTrigger } from "@church-space/ui/tooltip";
+import { Tooltip } from "@church-space/ui/tooltip";
 interface PeopleTableProps {
   organizationId: string;
 }
@@ -53,40 +55,29 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
             )}
           </div>
           {role === "owner" && (
-            <Link href={`/people/import`} className="w-full md:mr-3 md:w-fit">
-              <Button className="w-full md:mr-3 md:w-fit" variant="outline">
-                Import Unsubscribes
+            <div className="flex w-full flex-row items-center justify-end">
+              <Link href={`/people/import`}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button className="w-fit rounded-r-none">
+                      Import{" "}
+                      <span className="hidden md:inline">Unsubscribes</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Import unsubscribes from a former application to not send
+                    them emails. This helps make sure your emails do not land in
+                    spam folders.
+                  </TooltipContent>
+                </Tooltip>
+              </Link>
+              <Button className="w-8 rounded-l-none px-1" variant="secondary">
+                <XIcon />
               </Button>
-            </Link>
+            </div>
           )}
         </div>
-        {role === "owner" && (
-          <div className="flex w-full flex-col items-center justify-between gap-3 rounded-md border bg-primary/10 p-3 text-sm text-secondary-foreground md:flex-row">
-            <div className="flex flex-1 items-center gap-3">
-              <div className="flex-shrink-0">
-                <CircleInfo height={"20"} width={"20"} />
-              </div>
-              <div className="flex flex-col">
-                <h3 className="text-base font-semibold">
-                  Import Unsubscribed People
-                </h3>
-                <p className="text-sm">
-                  Import unsubscribes from a former application (like Mailchimp
-                  or Constant Contact) in order to not send them emails.{" "}
-                  <span className="underline">
-                    This helps make sure your emails do not end up in
-                    people&apos;s spam folders.
-                  </span>
-                </p>
-              </div>
-            </div>
-            <Link href={`/people/import`} className="w-full md:mr-3 md:w-fit">
-              <Button className="w-full md:mr-3 md:w-fit">
-                Import Unsubscribes
-              </Button>
-            </Link>
-          </div>
-        )}
+
         <div className="flex w-full items-center gap-3 rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
           <div className="flex-shrink-0">
             <CircleInfo height={"20"} width={"20"} />
