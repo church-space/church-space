@@ -52,7 +52,6 @@ export const getEmailRecipientsAction = authActionClient
     );
 
     const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
-
     return {
       data: data ?? [],
       nextPage: hasNextPage ? parsedInput.page + 1 : undefined,
