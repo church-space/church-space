@@ -138,7 +138,9 @@ export function EmailForm({
           "Submit"
         ) : (
           <>
-            <Email height={"16"} width={"16"} />
+            <span className="text-primary">
+              <Email height={"16"} width={"16"} />
+            </span>
             {buttonText}
           </>
         )}

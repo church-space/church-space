@@ -11,11 +11,18 @@ import Link from "next/link";
 import { createClient } from "@church-space/supabase/server";
 import { redirect } from "next/navigation";
 
-type Params = Promise<{ token: string }>;
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}) {
+  const token = (await searchParams).token;
 
-export default async function Page(props: { params: Params }) {
-  const params = await props.params;
-  const token = params.token;
+  console.log(token);
+
+  if (!token) {
+    redirect("/login");
+  }
 
   const supabase = await createClient();
 
@@ -25,7 +32,7 @@ export default async function Page(props: { params: Params }) {
   });
 
   if (error) {
-    throw new Error(error.message);
+    redirect("/login");
   }
 
   if (data) {
