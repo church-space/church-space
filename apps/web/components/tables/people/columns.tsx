@@ -106,6 +106,7 @@ const NameCell = ({ person }: { person: Person }) => {
         status: newStatus,
         organizationId: person.organization_id,
         emailAddress: person.people_emails?.[0]?.email,
+        protectedFromCleaning: newStatus === "subscribed" ? true : false,
       });
       // Invalidate the people query to refresh the table data
       await queryClient.invalidateQueries({ queryKey: ["people"] });

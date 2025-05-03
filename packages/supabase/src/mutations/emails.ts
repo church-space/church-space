@@ -435,11 +435,12 @@ export async function updateEmailStatus(
   supabase: Client,
   emailAddress: string,
   organizationId: string,
-  status: "unsubscribed" | "pco_blocked" | "subscribed" | "cleaned"
+  status: "unsubscribed" | "pco_blocked" | "subscribed" | "cleaned",
+  protectedFromCleaning: boolean = false
 ) {
   const { data, error } = await supabase
     .from("people_email_statuses")
-    .update({ status: status })
+    .update({ status: status, protected_from_cleaning: protectedFromCleaning })
     .eq("email_address", emailAddress)
     .eq("organization_id", organizationId)
     .select();

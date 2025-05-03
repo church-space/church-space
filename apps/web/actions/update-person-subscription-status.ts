@@ -12,6 +12,7 @@ export const updatePersonSubscriptionStatusAction = authActionClient
       emailAddress: z.string(),
       organizationId: z.string(),
       status: z.enum(["unsubscribed", "pco_blocked", "subscribed", "cleaned"]),
+      protectedFromCleaning: z.boolean().optional(),
     }),
   )
   .metadata({
@@ -25,6 +26,7 @@ export const updatePersonSubscriptionStatusAction = authActionClient
         parsedInput.parsedInput.emailAddress,
         parsedInput.parsedInput.organizationId,
         parsedInput.parsedInput.status,
+        parsedInput.parsedInput.protectedFromCleaning,
       );
 
       if (!data) {
