@@ -326,8 +326,10 @@ export default function ClientPage({
           <SettingsRow isFirstRow larger>
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src="/org-avatar.png" alt="Organization" />
-                <AvatarFallback>ORG</AvatarFallback>
+                {/* <AvatarImage src="/org-avatar.png" alt="Organization" /> */}
+                <AvatarFallback>
+                  {orgName?.slice(0, 1).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div>
                 <SettingsRowTitle>Organization Name</SettingsRowTitle>
@@ -516,8 +518,8 @@ export default function ClientPage({
                     <p>
                       Connected by{" "}
                       <span className="font-medium">
-                        {pcoConnection.users.first_name}{" "}
-                        {pcoConnection.users.last_name}
+                        {pcoConnection.users?.first_name || "Unknown"}{" "}
+                        {pcoConnection.users?.last_name || "User"}
                       </span>
                     </p>
                     <p className="text-xs text-muted-foreground">

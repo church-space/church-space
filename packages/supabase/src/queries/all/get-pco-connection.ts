@@ -11,7 +11,7 @@ export async function getPcoConnection(
       connected_by,
       created_at,
       last_refreshed,
-      users!pco_connections_connected_by_fkey (
+      users(
         first_name,
         last_name
       )

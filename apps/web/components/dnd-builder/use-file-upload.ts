@@ -6,8 +6,8 @@ const compressImage = async (
   file: File,
   maxSizeKB: number = 200,
 ): Promise<File> => {
-  // Only compress image files
-  if (!file.type.startsWith("image/")) {
+  // Only compress image files, but skip GIFs
+  if (!file.type.startsWith("image/") || file.type === "image/gif") {
     return file;
   }
 

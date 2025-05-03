@@ -2832,10 +2832,6 @@ export default function EmailDndProvider({
 
   // Handle template blocks from modal
   const handleTemplateBlocks = useCallback((templateBlocks: BlockType[]) => {
-    console.log(
-      "Email-dnd-provider: Received template blocks:",
-      templateBlocks,
-    );
     setLastTemplateBlocks(templateBlocks);
   }, []);
 
@@ -3053,12 +3049,6 @@ export default function EmailDndProvider({
     updateFooterHistory,
     handleApplyTemplateBlocks, // Add new handler dependency
   ]);
-
-  // Debug state updates whenever blocks change
-  useEffect(() => {
-    console.log("EmailDndProvider: Blocks changed:", blocks);
-    console.log("EmailDndProvider: Editor keys:", Object.keys(editors));
-  }, [blocks, editors]);
 
   return (
     <div className="relative flex h-full flex-col">
