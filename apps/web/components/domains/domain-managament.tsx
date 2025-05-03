@@ -743,7 +743,7 @@ export default function DomainManagement({
             </CustomAccordionTrigger>
             <AccordionContent>
               {!domain.has_clicked_verify ? (
-                <div className="mb-4 flex items-center justify-between rounded-md border bg-secondary/50 p-4 text-sm">
+                <div className="mb-4 flex flex-col items-center justify-between rounded-md border bg-secondary/50 p-4 text-sm md:flex-row">
                   <p>
                     Once you have added the domains records, click the
                     &quot;Records Added&quot; button to verify the domain.
@@ -753,6 +753,7 @@ export default function DomainManagement({
                     variant="default"
                     onClick={() => refreshStatus(domainIndex)}
                     disabled={refreshingDomains[domain.id]?.isRefreshing}
+                    className="mt-2 w-full md:mt-0 md:w-auto"
                   >
                     <CircleCheck height="24" width="24" />
                     {refreshingDomains[domain.id]?.isRefreshing
