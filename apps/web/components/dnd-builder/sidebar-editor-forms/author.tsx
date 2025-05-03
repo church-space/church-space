@@ -607,7 +607,7 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
     <div className="flex flex-col gap-10 px-2">
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
-          <Label>Avatar</Label>
+          <Label>Picture</Label>
           <div className="col-span-2">
             <FileUpload
               organizationId={organizationId}
@@ -617,8 +617,8 @@ export default function AuthorForm({ block, onUpdate }: AuthorFormProps) {
               type="image"
             />
           </div>
-          <Label>Hide Avatar</Label>
-          <div className="col-span-2">
+          <Label className="mt-0.5">Hide Picture</Label>
+          <div className="col-span-2 mt-2">
             <Switch
               checked={localState.hideAvatar}
               onCheckedChange={(checked) => handleChange("hideAvatar", checked)}

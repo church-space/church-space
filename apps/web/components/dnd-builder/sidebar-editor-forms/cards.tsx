@@ -565,7 +565,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
               />
             </>
           )}
-          <Label>Style</Label>
+          <Label>Button Style</Label>
           <Select
             value={localState.buttonStyle}
             onValueChange={(value) => handleChange("buttonStyle", value)}
@@ -578,7 +578,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
               <SelectItem value="outline">Outline</SelectItem>
             </SelectContent>
           </Select>
-          <Label>Size</Label>
+          <Label>Button Size</Label>
           <Select
             value={localState.buttonSize}
             onValueChange={(value) => handleChange("buttonSize", value)}

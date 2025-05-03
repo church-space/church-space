@@ -4,6 +4,12 @@ import { Label } from "@church-space/ui/label";
 import { Slider } from "@church-space/ui/slider";
 import { Switch } from "@church-space/ui/switch";
 import { useEffect, useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
+import { CircleInfo } from "@church-space/ui/icons";
 
 interface VideoFormProps {
   block: Block & { data?: VideoBlockData };
@@ -67,7 +73,16 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
           <Label className="text-md font-bold">Details</Label>
         </div>
         <div className="grid grid-cols-3 items-center gap-x-2 gap-y-4">
-          <Label>YouTube URL</Label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Label className="flex items-center gap-1">
+                YouTube URL <CircleInfo />
+              </Label>
+            </TooltipTrigger>
+            <TooltipContent>
+              Enter the URL to the YouTube video you want to display.
+            </TooltipContent>
+          </Tooltip>
           <div className="col-span-2">
             <Input
               value={localState.url}
@@ -80,15 +95,17 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
             />
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
-          <Label>Size</Label>
-          <Slider
-            value={[localState.size]}
-            onValueChange={(value) => handleChange("size", value[0])}
-            max={100}
-            min={40}
-            step={1}
-            className="col-span-2"
-          />
+          <div className="col-span-3 my-2 grid grid-cols-3 items-center gap-x-2">
+            <Label>Size</Label>
+            <Slider
+              value={[localState.size]}
+              onValueChange={(value) => handleChange("size", value[0])}
+              max={100}
+              min={40}
+              step={1}
+              className="col-span-2"
+            />
+          </div>
           <Label>Center Video</Label>
           <Switch
             checked={localState.centered}

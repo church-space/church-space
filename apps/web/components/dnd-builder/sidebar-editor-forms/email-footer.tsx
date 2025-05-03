@@ -1350,6 +1350,7 @@ export default function EmailFooterForm({
             </SortableContext>
           </DndContext>
         </div>
+        <Separator className="col-span-3 my-4" />
         <div className="flex w-full flex-col gap-4">
           <div className="flex items-center justify-between">
             <Label className="text-md font-bold">Links</Label>

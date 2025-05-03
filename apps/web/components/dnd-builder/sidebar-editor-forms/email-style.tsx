@@ -117,12 +117,12 @@ export default function EmailStyleForm({
       <h2 className="text-lg font-semibold">Email Style</h2>
 
       <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Inset Email</Label>
+        <Label className="font-medium">Card Style</Label>
         <Switch checked={isInset} onCheckedChange={onIsInsetChange} />
       </div>
       <div className="grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">
-          {isInset ? "Content BG Color" : "Background Color"}
+          {isInset ? "Card Color" : "Background"}
         </Label>
 
         <ColorPicker
@@ -133,7 +133,7 @@ export default function EmailStyleForm({
 
       {isInset && (
         <div className="grid grid-cols-3 items-center gap-2">
-          <Label className="font-medium">Email BG Color</Label>
+          <Label className="font-medium">Background</Label>
 
           <ColorPicker
             value={emailBgColor}
@@ -141,7 +141,7 @@ export default function EmailStyleForm({
           />
         </div>
       )}
-      <div className="grid grid-cols-3 items-center gap-2">
+      <div className="my-2 grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Rounded Corners</Label>
         <Slider
           max={100}
@@ -152,7 +152,7 @@ export default function EmailStyleForm({
           className="col-span-2"
         />
       </div>
-      <div className="grid grid-cols-3 items-center gap-2">
+      <div className="my-2 grid grid-cols-3 items-center gap-2">
         <Label>Block Spacing</Label>
         <Slider
           max={100}
@@ -165,32 +165,6 @@ export default function EmailStyleForm({
       </div>
       <Separator className="my-4" />
       <Label className="text-lg font-semibold">Text</Label>
-      <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Text Color</Label>
-
-        <ColorPicker
-          value={defaultTextColor}
-          onChange={(color) => onDefaultTextColorChange?.(color)}
-        />
-      </div>
-
-      <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Link Color</Label>
-
-        <ColorPicker
-          value={linkColor}
-          onChange={(color) => onLinkColorChange?.(color)}
-        />
-      </div>
-
-      <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Accent Text Color</Label>
-        <ColorPicker
-          value={accentTextColor}
-          onChange={(color) => onAccentTextColorChange?.(color)}
-        />
-      </div>
-
       <div className="grid grid-cols-3 items-center gap-2">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -281,29 +255,54 @@ export default function EmailStyleForm({
           </SelectContent>
         </Select>
       </div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Text</Label>
+
+        <ColorPicker
+          value={defaultTextColor}
+          onChange={(color) => onDefaultTextColorChange?.(color)}
+        />
+      </div>
+
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Accent Text</Label>
+        <ColorPicker
+          value={accentTextColor}
+          onChange={(color) => onAccentTextColorChange?.(color)}
+        />
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2">
+        <Label className="font-medium">Links</Label>
+
+        <ColorPicker
+          value={linkColor}
+          onChange={(color) => onLinkColorChange?.(color)}
+        />
+      </div>
+
       <Separator className="my-4" />
       <Label className="text-lg font-semibold">Footer</Label>
       <div className="grid grid-cols-3 items-center gap-2">
-        <Label className="font-medium">Footer Title Color</Label>
-        <ColorPicker
-          value={localState.text_color}
-          onChange={(color) => handleColorChange("text_color", color)}
-        />
-
-        <Label className="font-medium">Footer Accent Text Color</Label>
-        <ColorPicker
-          value={localState.secondary_text_color}
-          onChange={(color) => handleColorChange("secondary_text_color", color)}
-        />
         {!isInset && (
           <>
-            <Label className="font-medium">Footer Background Color</Label>
+            <Label className="font-medium">Footer Background</Label>
             <ColorPicker
               value={footerData?.bg_color || "#ffffff"}
               onChange={(color) => handleColorChange("bg_color", color)}
             />
           </>
         )}
+        <Label className="font-medium">Footer Title</Label>
+        <ColorPicker
+          value={localState.text_color}
+          onChange={(color) => handleColorChange("text_color", color)}
+        />
+
+        <Label className="font-medium">Footer Text</Label>
+        <ColorPicker
+          value={localState.secondary_text_color}
+          onChange={(color) => handleColorChange("secondary_text_color", color)}
+        />
       </div>
     </div>
   );
