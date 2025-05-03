@@ -6,7 +6,7 @@ import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import ClientPage from "./client-page";
 import { redirect } from "next/navigation";
-import { processInviteSuccess } from "./actions";
+import { handleExpiredInvite, processInviteSuccess } from "./actions";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -29,7 +29,8 @@ export default async function Page() {
     const jwtSecret = process.env.INVITE_MEMBERS_SECRET;
     if (!jwtSecret) {
       console.error("INVITE_MEMBERS_SECRET environment variable is not set");
-      // Redirect to client page with inviteError
+      // Clean up invite cookie and redirect
+      await handleExpiredInvite();
       return redirect("/onboarding?inviteError=true");
     }
 
@@ -64,14 +65,16 @@ export default async function Page() {
       role = payload.role;
       emailAddress = payload.email;
 
-      // If the invite has expired, redirect to client page with inviteError
+      // If the invite has expired, delete cookie and redirect
       if (inviteExpires < new Date()) {
         console.log("Invite has expired");
+        await handleExpiredInvite();
         return redirect("/onboarding?inviteError=true");
       }
     } catch (error) {
       console.error("Error verifying invite:", error);
-      // Redirect to client page with inviteError
+      // Delete the invalid invite cookie before redirecting
+      await handleExpiredInvite();
       return redirect("/onboarding?inviteError=true");
     }
 
