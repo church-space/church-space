@@ -530,7 +530,12 @@ export default function DomainManagement({
           description: message,
         });
       } else {
-        console.error("Failed to verify domain:", response);
+        // Only log as error if success is not true
+        if (typedResponse.success !== true) {
+          console.error("Failed to verify domain:", response);
+        } else {
+          console.log("Domain verification response:", response);
+        }
         const errorMessage = typedResponse.error || "Failed to verify domain";
         toast({
           title: "Error verifying domain",

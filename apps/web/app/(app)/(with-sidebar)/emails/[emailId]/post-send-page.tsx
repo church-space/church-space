@@ -493,13 +493,24 @@ export default function PostSendPage({
                       draft with the same content and settings as the original.
                     </DialogDescription>
                   </DialogHeader>
-                  <Input
-                    placeholder="New email subject"
-                    className="mb-3 w-full"
-                    value={duplicateEmailName}
-                    onChange={(e) => setDuplicateEmailName(e.target.value)}
-                    maxLength={100} // Or appropriate length
-                  />
+                  <div className="relative mb-3">
+                    <Input
+                      placeholder="New email subject"
+                      className="w-full pr-8"
+                      value={duplicateEmailName}
+                      onChange={(e) => setDuplicateEmailName(e.target.value)}
+                      maxLength={60} // Or appropriate length
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleDuplicateEmail();
+                        }
+                      }}
+                    />
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                      {duplicateEmailName.length} / 60
+                    </span>
+                  </div>
                   <DialogFooter>
                     <Button
                       variant="outline"
