@@ -392,7 +392,7 @@ export const columns: ColumnDef<EmailCategory>[] = [
       return (
         <div
           className={cn(
-            "ml-1 text-base font-medium",
+            "ml-1 text-sm",
             description ? "" : "text-sm text-muted-foreground",
           )}
         >
