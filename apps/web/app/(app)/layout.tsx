@@ -5,6 +5,7 @@ import { createClient } from "@church-space/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import HelpMenu from "@/components/sidebar/help-menu";
+import { ReactQueryProvider } from "@/components/providers/react-query";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -72,34 +73,36 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="relative">
-      {children}
-      <InitUser
-        user={user.user}
-        userData={user.userDetails}
-        organization_id={user.organizationMembership.organization_id}
-        role={user.organizationMembership.role}
-        org_finished_onboarding={
-          user.organization?.finished_onboarding ?? false
-        }
-        preferences={
-          (user.userDetails.preferences as {
-            welcomeStepsCompleted: boolean;
-            productUpdateEmails: boolean;
-          }) ?? {
-            welcomeStepsCompleted: false,
-            productUpdateEmails: true,
+    <ReactQueryProvider>
+      <div className="relative">
+        {children}
+        <InitUser
+          user={user.user}
+          userData={user.userDetails}
+          organization_id={user.organizationMembership.organization_id}
+          role={user.organizationMembership.role}
+          org_finished_onboarding={
+            user.organization?.finished_onboarding ?? false
           }
-        }
-      />
-      <InitPco
-        pcoData={{
-          id: user.pcoConnection?.id.toString() || null,
-          access_token: user.pcoConnection?.access_token || null,
-        }}
-      />
+          preferences={
+            (user.userDetails.preferences as {
+              welcomeStepsCompleted: boolean;
+              productUpdateEmails: boolean;
+            }) ?? {
+              welcomeStepsCompleted: false,
+              productUpdateEmails: true,
+            }
+          }
+        />
+        <InitPco
+          pcoData={{
+            id: user.pcoConnection?.id.toString() || null,
+            access_token: user.pcoConnection?.access_token || null,
+          }}
+        />
 
-      <HelpMenu />
-    </div>
+        <HelpMenu />
+      </div>
+    </ReactQueryProvider>
   );
 }

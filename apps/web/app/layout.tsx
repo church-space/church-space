@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@church-space/ui/toaster";
 import { TooltipProvider } from "@church-space/ui/tooltip";
-import { ReactQueryProvider } from "../components/providers/react-query";
+
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { ThemeProvider } from "../components/providers/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
@@ -26,13 +26,12 @@ export default function RootLayout({
       </head>
       <ReactScan /> */}
       <body className={`${inter.className} antialiased`}>
-        <ReactQueryProvider>
-          <TooltipProvider delayDuration={300}>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <NuqsAdapter>{children}</NuqsAdapter>
-            </ThemeProvider>
-          </TooltipProvider>
-        </ReactQueryProvider>
+        <TooltipProvider delayDuration={300}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <NuqsAdapter>{children}</NuqsAdapter>
+          </ThemeProvider>
+        </TooltipProvider>
+
         <Toaster />
       </body>
     </html>
