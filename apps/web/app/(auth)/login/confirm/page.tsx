@@ -40,15 +40,27 @@ export default async function Page({
     if (data?.session) {
       console.log("Auth successful! User ID:", data.session.user.id);
 
-      // The server client should handle setting cookies automatically
-      // Optionally force refresh the session
-      await supabase.auth.refreshSession();
+      try {
+        // Explicitly set the auth session
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
 
-      // Give a small delay to ensure session is properly established
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log("Session explicitly set");
 
-      // Redirect to the protected page
-      redirect("/emails");
+        // Force a session refresh to ensure cookies are set
+        const { data: refreshData, error: refreshError } =
+          await supabase.auth.refreshSession();
+
+        if (refreshError) {
+          console.error("Session refresh error:", refreshError);
+        } else if (refreshData?.session) {
+          console.log("Session refreshed successfully");
+        }
+      } catch (sessionErr) {
+        console.error("Error setting session:", sessionErr);
+      }
     } else {
       console.log("No session data after verification");
       redirect("/login");
@@ -58,6 +70,16 @@ export default async function Page({
     redirect("/login");
   }
 
+  // After all authentication steps, check if we have a session before redirecting
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (sessionData?.session) {
+    console.log("Final session check passed, redirecting...");
+    redirect("/emails");
+  } else {
+    console.log("No session found in final check");
+  }
+
+  // Fallback UI if everything else fails
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <Link

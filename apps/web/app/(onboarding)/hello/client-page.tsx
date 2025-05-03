@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserAction } from "@/actions/update-user";
 import { Loader2 } from "lucide-react";
 import { ThemeSelectorToggles } from "@/components/settings/theme-selector";
+import { ChurchSpaceBlack } from "@church-space/ui/icons";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name cannot be blank"),
@@ -66,7 +67,7 @@ export default function ClientPage({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
+    <div className="flex w-full flex-1 -translate-y-16 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <AnimatePresence mode="wait">
         {!showThemeSelect ? (
           <motion.div
@@ -76,6 +77,15 @@ export default function ClientPage({ userId }: { userId: string }) {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
+            <motion.div
+              className="mb-4 flex justify-center text-primary"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0 }}
+            >
+              <ChurchSpaceBlack height="60" width="60" fill="currentColor" />
+            </motion.div>
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
