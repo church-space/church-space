@@ -50,21 +50,21 @@ export default function ClientPage() {
               Welcome to Church Space
             </motion.h1>
 
-            <motion.p
-              className="mx-auto mt-4 max-w-72 text-center text-lg text-foreground"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              Let&apos;s begin by connecting to your Planning Center account.
-            </motion.p>
-
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="rounded-xl border bg-background p-6 shadow-md"
             >
-              <div className="mx-auto max-w-md space-y-6">
+              <h2 className="mb-2 text-center text-lg font-medium">
+                Connect to Planning Center
+              </h2>
+              <p className="text-center text-sm">
+                Let&apos;s begin by getting connected to your Planning Center
+                account. We will use this to sync your people and lists to
+                Church Space.
+              </p>
+              <div className="mx-auto mt-5 max-w-md space-y-6">
                 <ConnectToPcoButton isReconnect={false} />
 
                 {error && (

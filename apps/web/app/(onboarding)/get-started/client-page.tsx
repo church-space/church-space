@@ -188,7 +188,7 @@ const addressFormSchema = z.object({
   streetLine2: z.string().optional(),
   city: z.string().min(1, "City cannot be blank"),
   state: z.string().min(1, "State cannot be blank"),
-  zipCode: z.string().min(5, "Zip code must be at least 5 characters"),
+  zipCode: z.string().min(4, "Zip code must be at least 4 characters"),
   country: z.string().min(1, "Country cannot be blank"),
 });
 
@@ -217,7 +217,7 @@ export default function ClientPage({
   const [showBilling, setShowBilling] = useState(false);
   const [zipCodeValue, setZipCodeValue] = useState("");
   const [zipCodeError, setZipCodeError] = useState<string | null>(null);
-  const [productUpdateEmails, setProductUpdateEmails] = useState(false);
+  const [productUpdateEmails, setProductUpdateEmails] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const debouncedZipCode = useDebounce(zipCodeValue, 800);
   const [hasScrollShadow, setHasScrollShadow] = useState<{
@@ -232,6 +232,7 @@ export default function ClientPage({
   const { toast } = useToast();
   const { setOrgFinishedOnboarding } = useUser();
   const [selectedPlan, setSelectedPlan] = useState("free");
+  const [categoryBgSaving, setCategoryBgSaving] = useState(false);
 
   // Check for selected_plan cookie on mount
   useEffect(() => {
@@ -243,8 +244,8 @@ export default function ClientPage({
   // Validate zip code with debounce
   useEffect(() => {
     if (debouncedZipCode) {
-      if (debouncedZipCode.length < 5) {
-        setZipCodeError("Zip code must be at least 5 characters");
+      if (debouncedZipCode.length < 4) {
+        setZipCodeError("Zip code must be at least 4 characters");
       } else {
         setZipCodeError(null);
       }
@@ -383,6 +384,7 @@ export default function ClientPage({
 
   const handleEmailCategoriesSubmit = async () => {
     setEmailCategoriesLoading(true);
+
     try {
       // Create a local copy of categories to work with
       const categoriesToSave = [...emailCategories];
@@ -416,7 +418,13 @@ export default function ClientPage({
         }
       }
 
-      console.log("Saving categories:", categoriesToSave);
+      // Proceed to next step first
+      setCurrentStep(2);
+
+      // Then start saving categories in the background
+      setCategoryBgSaving(true);
+
+      console.log("Saving categories in background:", categoriesToSave);
 
       const saveResults = [];
 
@@ -466,14 +474,10 @@ export default function ClientPage({
             "Some email categories could not be saved. Please try again.",
           variant: "destructive",
         });
-        return;
       }
 
       // Clear new category input
       setNewCategory("");
-
-      // Proceed to next step
-      setCurrentStep(2);
     } catch (error) {
       console.error("Error saving categories:", error);
       toast({
@@ -482,8 +486,11 @@ export default function ClientPage({
           error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
+      // If there's an error, go back to email categories step
+      setCurrentStep(1);
     } finally {
       setEmailCategoriesLoading(false);
+      setCategoryBgSaving(false);
     }
   };
 
@@ -491,6 +498,18 @@ export default function ClientPage({
     setThemeLoading(true);
 
     try {
+      // Wait for categories to finish saving if they're still in progress
+      if (categoryBgSaving) {
+        toast({
+          title: "Saving categories",
+          description:
+            "Please wait while your email categories are being saved...",
+        });
+
+        // We'll just wait for the categoryBgSaving state to become false
+        // This is handled by the email categories saving function
+      }
+
       if (userId) {
         // Save user preferences
         const result = await updateUserPreferencesAction({
@@ -547,8 +566,6 @@ export default function ClientPage({
           error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
-    } finally {
-      setThemeLoading(false);
     }
   };
 
@@ -767,7 +784,7 @@ export default function ClientPage({
         <div className="text-center text-2xl font-bold">
           What&apos;s your church&apos;s address?
         </div>
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-base text-muted-foreground">
           We&apos;ll use this address on the bottom of your emails to help with
           anit-spam laws.
         </div>
@@ -891,8 +908,9 @@ export default function ClientPage({
         className="mb-6 flex flex-col items-center justify-center gap-2"
       >
         <div className="text-center text-2xl font-bold">Email Categories</div>
-        <div className="text-center text-sm text-muted-foreground">
-          Set up audience categories for your church&apos;s emails
+        <div className="text-center text-base text-muted-foreground">
+          Set up audience categories for your church&apos;s emails. Categories
+          help people only recieve the types of emails that they need.
         </div>
       </motion.div>
       <motion.div
@@ -1008,31 +1026,53 @@ export default function ClientPage({
       transition={{ duration: 0.3 }}
       className="flex flex-col items-center justify-center gap-6"
     >
-      <div className="mt-6 text-center text-2xl font-bold">
-        Your Preferences
-      </div>
-      <div className="mb-2 text-center text-sm text-muted-foreground">
-        Customize your experience with Church Space
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="mb-6 flex flex-col items-center justify-center gap-2"
+      >
+        <div className="text-center text-2xl font-bold">Your Preferences</div>
+        <div className="text-center text-base text-muted-foreground">
+          Customize your experience with Church Space
+        </div>
+      </motion.div>
 
-      <div className="w-full">
-        <div className="space-y-6">
-          <div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+        className="w-full"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+          className="space-y-6"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.5 }}
+          >
             <h3 className="mb-2 text-lg font-medium">Display Theme</h3>
             <div className="flex w-full justify-center">
               {isMounted && <ThemeSelectorToggles />}
             </div>
-          </div>
+          </motion.div>
 
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.6 }}
             className="flex flex-col space-y-2"
             onClick={() => setProductUpdateEmails(!productUpdateEmails)}
           >
             <h3 className="text-lg font-medium">Communication</h3>
-            <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="flex items-center justify-between rounded-lg border bg-background p-4">
               <div className="space-y-0.5">
-                <div className="text-sm font-medium">Product Updates</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-base font-medium">Product Updates</div>
+                <div className="text-sm text-muted-foreground">
                   Receive infrequent emails about new features and updates
                 </div>
               </div>
@@ -1047,24 +1087,31 @@ export default function ClientPage({
                 />
               </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
 
-      <Button
-        className="mt-4 w-full"
-        disabled={themeLoading}
-        onClick={handleThemeSubmit}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.7 }}
+        className="w-full"
       >
-        {themeLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Continue
-          </>
-        ) : (
-          "Continue"
-        )}
-      </Button>
+        <Button
+          className="mt-4 w-full"
+          disabled={themeLoading || categoryBgSaving}
+          onClick={handleThemeSubmit}
+        >
+          {themeLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {categoryBgSaving ? "Saving Categories..." : "Continue"}
+            </>
+          ) : (
+            "Continue"
+          )}
+        </Button>
+      </motion.div>
     </motion.div>
   );
 
@@ -1077,110 +1124,143 @@ export default function ClientPage({
       transition={{ duration: 0.3 }}
       className="flex flex-col items-center justify-center gap-6"
     >
-      <div className="mt-6 text-center text-2xl font-bold">
-        Complete Your Billing
-      </div>
-      <div className="mb-2 text-center text-sm text-muted-foreground">
-        Finalize your subscription
-      </div>
-      <Card className="w-full p-6">
-        <div className="space-y-4">
-          <div className="text-lg font-medium">Your Selected Plan</div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="mb-6 flex flex-col items-center justify-center gap-2"
+      >
+        <div className="text-center text-2xl font-bold">Complete Billing</div>
+        <div className="text-center text-base text-muted-foreground">
+          To contiune with your selected plan from the pricing page, continue to
+          billing. Otherwise, you can continue on the free plan.
+        </div>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+        className="w-full"
+      >
+        <Card className="w-full p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.4 }}
+            className="space-y-4"
+          >
+            <div className="text-lg font-medium">Your Selected Plan</div>
 
-          {/* Plan Details */}
-          <div className="space-y-2 rounded-md bg-muted p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-lg font-semibold">
-                {selectedPlan === "free"
-                  ? "Free Plan"
-                  : `${Number(selectedPlan).toLocaleString()} emails per month`}
-              </p>
-              <p className="text-lg font-bold">
-                {selectedPlan === "free"
-                  ? "$0"
-                  : `$${
-                      STRIPE_PLANS.find(
-                        (plan) =>
-                          plan.sendLimit.toString() === selectedPlan &&
-                          plan.enviorment ===
-                            process.env.NEXT_PUBLIC_STRIPE_ENV,
-                      )?.price || "0"
-                    }/month`}
-              </p>
-            </div>
-          </div>
-
-          {/* Plan Selector */}
-          <div className="space-y-2">
-            <Label>Change Your Plan</Label>
-            <Select
-              value={selectedPlan}
-              onValueChange={(value: string) => setSelectedPlan(value)}
+            {/* Plan Details */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+              className="space-y-2 rounded-md bg-muted p-4"
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a plan" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="free">
-                  Free Plan - 500 emails/month
-                </SelectItem>
-                {STRIPE_PLANS.filter(
-                  (plan) =>
-                    plan.enviorment === process.env.NEXT_PUBLIC_STRIPE_ENV,
-                ).map((plan) => (
-                  <SelectItem
-                    key={plan.priceId}
-                    value={plan.sendLimit.toString()}
-                  >
-                    {plan.sendLimit.toLocaleString()} emails - ${plan.price}
-                    /month
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="flex items-center justify-between">
+                <p className="text-lg font-semibold">
+                  {selectedPlan === "free"
+                    ? "Free Plan"
+                    : `${Number(selectedPlan).toLocaleString()} emails per month`}
+                </p>
+                <p className="text-lg font-bold">
+                  {selectedPlan === "free"
+                    ? "$0"
+                    : `$${
+                        STRIPE_PLANS.find(
+                          (plan) =>
+                            plan.sendLimit.toString() === selectedPlan &&
+                            plan.enviorment ===
+                              process.env.NEXT_PUBLIC_STRIPE_ENV,
+                        )?.price || "0"
+                      }/month`}
+                </p>
+              </div>
+            </motion.div>
 
-          {/* Action Buttons */}
-          <div className="space-y-3 pt-4">
-            {selectedPlan !== "free" ? (
-              <Button
-                className="w-full"
-                onClick={handleBillingSetup}
-                disabled={billingSetupLoading}
+            {/* Plan Selector */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.6 }}
+              className="space-y-2"
+            >
+              <Label>Change Your Plan</Label>
+              <Select
+                value={selectedPlan}
+                onValueChange={(value: string) => setSelectedPlan(value)}
               >
-                {billingSetupLoading ? (
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a plan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="free">
+                    Free Plan - 500 emails/month
+                  </SelectItem>
+                  {STRIPE_PLANS.filter(
+                    (plan) =>
+                      plan.enviorment === process.env.NEXT_PUBLIC_STRIPE_ENV,
+                  ).map((plan) => (
+                    <SelectItem
+                      key={plan.priceId}
+                      value={plan.sendLimit.toString()}
+                    >
+                      {plan.sendLimit.toLocaleString()} emails - ${plan.price}
+                      /month
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </motion.div>
+
+            {/* Action Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.7 }}
+              className="space-y-3 pt-4"
+            >
+              {selectedPlan !== "free" ? (
+                <Button
+                  className="w-full"
+                  onClick={handleBillingSetup}
+                  disabled={billingSetupLoading}
+                >
+                  {billingSetupLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Continue to Billing
+                    </>
+                  ) : (
+                    "Continue to Billing"
+                  )}
+                </Button>
+              ) : null}
+
+              <Button
+                className={`w-full ${selectedPlan !== "free" ? "bg-secondary text-foreground hover:bg-secondary/80" : ""}`}
+                variant={selectedPlan !== "free" ? "secondary" : "default"}
+                onClick={handleBillingComplete}
+                disabled={skipBillingLoading}
+              >
+                {skipBillingLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Continue to Billing
+                    {selectedPlan === "free"
+                      ? "Continue on Free Plan"
+                      : "Continue on Free Plan"}
                   </>
+                ) : selectedPlan === "free" ? (
+                  "Continue on Free Plan"
                 ) : (
-                  "Continue to Billing"
+                  "Continue on Free Plan"
                 )}
               </Button>
-            ) : null}
-
-            <Button
-              className={`w-full ${selectedPlan !== "free" ? "bg-secondary text-foreground hover:bg-secondary/80" : ""}`}
-              variant={selectedPlan !== "free" ? "secondary" : "default"}
-              onClick={handleBillingComplete}
-              disabled={skipBillingLoading}
-            >
-              {skipBillingLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {selectedPlan === "free"
-                    ? "Continue on Free Plan"
-                    : "Skip Billing for Now"}
-                </>
-              ) : selectedPlan === "free" ? (
-                "Continue on Free Plan"
-              ) : (
-                "Skip Billing for Now"
-              )}
-            </Button>
-          </div>
-        </div>
-      </Card>
+            </motion.div>
+          </motion.div>
+        </Card>
+      </motion.div>
     </motion.div>
   );
 

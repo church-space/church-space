@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@church-space/ui/button";
 import {
   Card,
@@ -8,76 +10,64 @@ import {
 import { ChurchSpaceBlack } from "@church-space/ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { createClient } from "@church-space/supabase/server";
-import { redirect } from "next/navigation";
+import { createClient } from "@church-space/supabase/client";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default async function Page({
+export default function ConfirmPage({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | undefined }>;
+  searchParams: { token?: string };
 }) {
-  const token = (await searchParams).token;
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const token = searchParams.token;
 
-  if (!token) {
-    redirect("/login");
-  }
-
-  const supabase = await createClient();
-
-  try {
-    // Verify the OTP
-    const { data, error } = await supabase.auth.verifyOtp({
-      token_hash: token,
-      type: "email",
-    });
-
-    if (error) {
-      console.error("OTP verification error:", error);
-      redirect("/login");
+  useEffect(() => {
+    if (!token) {
+      router.push("/login");
     }
+  }, [token, router]);
 
-    // Check if we have session data and authentication was successful
-    if (data?.session) {
-      console.log("Auth successful! User ID:", data.session.user.id);
+  const handleLogin = async () => {
+    if (!token) return;
 
-      try {
-        // Explicitly set the auth session
-        await supabase.auth.setSession({
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token,
-        });
+    setIsLoading(true);
+    setError(null);
 
-        console.log("Session explicitly set");
+    try {
+      const supabase = createClient();
 
-        // Force a session refresh to ensure cookies are set
-        const { data: refreshData, error: refreshError } =
-          await supabase.auth.refreshSession();
+      // Verify the OTP
+      const { data, error } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: "email",
+      });
 
-        if (refreshError) {
-          console.error("Session refresh error:", refreshError);
-        } else if (refreshData?.session) {
-          console.log("Session refreshed successfully");
-        }
-      } catch (sessionErr) {
-        console.error("Error setting session:", sessionErr);
+      if (error) {
+        console.error("OTP verification error:", error);
+        setError(error.message);
+        router.push("/login");
+        return;
       }
-    } else {
-      console.log("No session data after verification");
-      redirect("/login");
-    }
-  } catch (err) {
-    console.error("Unexpected error during authentication:", err);
-    redirect("/login");
-  }
 
-  // After all authentication steps, check if we have a session before redirecting
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (sessionData?.session) {
-    console.log("Final session check passed, redirecting...");
-    redirect("/emails");
-  } else {
-    console.log("No session found in final check");
-  }
+      if (data?.session) {
+        // The client library will automatically handle storing the session
+        console.log("Auth successful! Redirecting...");
+        router.push("/emails");
+      } else {
+        console.log("No session data after verification");
+        setError("Authentication failed. Please try again.");
+        router.push("/login");
+      }
+    } catch (err) {
+      console.error("Unexpected error during authentication:", err);
+      setError("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Fallback UI if everything else fails
   return (
@@ -119,11 +109,14 @@ export default async function Page({
               </CardTitle>
             </CardHeader>
             <CardContent className="relative space-y-4">
+              {error && <p className="text-sm text-red-500">{error}</p>}
               <Button
                 variant="default"
                 className="flex h-11 w-full items-center justify-center gap-2 rounded-md border px-2.5 text-sm font-semibold"
+                onClick={handleLogin}
+                disabled={isLoading}
               >
-                Continue to Church Space
+                {isLoading ? "Authenticating..." : "Continue to Church Space"}
               </Button>
             </CardContent>
           </Card>

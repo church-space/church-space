@@ -12,13 +12,13 @@ export default async function ProtectedLayout({
   const supabase = await createClient();
   const user = await getUserWithDetailsQuery(supabase);
 
-  if (!user) {
-    return redirect("/login");
-  }
+  // if (!user) {
+  //   return redirect("/login");
+  // }
 
-  if (user.organizationMembership) {
-    return redirect("/get-started");
-  }
+  // if (user.organizationMembership) {
+  //   return redirect("/get-started");
+  // }
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-secondary/70 to-background/60 dark:from-secondary/30">
