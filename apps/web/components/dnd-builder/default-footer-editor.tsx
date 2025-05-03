@@ -19,6 +19,7 @@ import DefaultEmailFooterForm from "./sidebar-editor-forms/default-email-footer"
 import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
 import Link from "next/link";
 import { Button } from "@church-space/ui/button";
+import { Skeleton } from "@church-space/ui/skeleton";
 
 type FooterData = {
   links: any | null;
@@ -64,13 +65,14 @@ export default function DefaultFooterEditor({
     },
   });
 
-  const { data: orgFooterDetails } = useQuery({
-    queryKey: ["org-footer-details", organizationId],
-    queryFn: async () => {
-      const result = await getOrgFooterDetailsAction({ organizationId });
-      return result?.data;
-    },
-  });
+  const { data: orgFooterDetails, isLoading: isOrgFooterDetailsLoading } =
+    useQuery({
+      queryKey: ["org-footer-details", organizationId],
+      queryFn: async () => {
+        const result = await getOrgFooterDetailsAction({ organizationId });
+        return result?.data;
+      },
+    });
 
   useEffect(() => {
     if (data) {
@@ -133,7 +135,9 @@ export default function DefaultFooterEditor({
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        <Button size="sm">Save and Exit</Button>
+        <Link href="/emails/templates">
+          <Button size="sm">Save and Exit</Button>
+        </Link>
       </header>
 
       <div className="relative hidden p-2 pt-0 md:flex md:gap-4 md:p-4 md:pt-0">
@@ -150,16 +154,20 @@ export default function DefaultFooterEditor({
           </div>
         </div>
         <div className="relative flex-1">
-          <Footer
-            onClick={() => {}}
-            isActive={false}
-            showHover={false}
-            footerData={footerData}
-            emailInset={true}
-            emailBgColor={emailBgColor}
-            defaultFont={defaultFont}
-            orgFooterDetails={orgFooterDetails}
-          />
+          {isOrgFooterDetailsLoading ? (
+            <Skeleton className="h-[350px] w-full" />
+          ) : (
+            <Footer
+              onClick={() => {}}
+              isActive={false}
+              showHover={false}
+              footerData={footerData}
+              emailInset={true}
+              emailBgColor={emailBgColor}
+              defaultFont={defaultFont}
+              orgFooterDetails={orgFooterDetails}
+            />
+          )}
         </div>
       </div>
       <div className="mx-4 mt-4 flex flex-col gap-4 rounded-lg border bg-muted p-2 md:hidden">

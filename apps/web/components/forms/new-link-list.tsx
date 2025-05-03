@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
 import { CircleInfo } from "@church-space/ui/icons";
+import { useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   private_name: z.string().min(1, "Name is required"),
@@ -46,6 +47,7 @@ export default function NewLinkList({
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -66,6 +68,7 @@ export default function NewLinkList({
       });
 
       if (!result?.data?.error) {
+        queryClient.invalidateQueries({ queryKey: ["link-lists"] });
         await router.push(`/link-pages/${result?.data?.data?.id}?newList=true`);
       } else if (result?.data?.error) {
         form.setError("url_slug", {

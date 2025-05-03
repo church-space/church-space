@@ -52,10 +52,10 @@ export function useLinkLists(
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
     initialData: options?.initialData,
-    staleTime: 60000,
-    gcTime: 60000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
+    staleTime: 30000,
+    gcTime: 300000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: true,
     refetchInterval: false,
   });
 }
