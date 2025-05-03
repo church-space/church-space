@@ -18,25 +18,44 @@ export default async function Page({
 }) {
   const token = (await searchParams).token;
 
-  console.log(token);
-
   if (!token) {
     redirect("/login");
   }
 
   const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.verifyOtp({
-    token_hash: token,
-    type: "email",
-  });
+  try {
+    // Verify the OTP
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: token,
+      type: "email",
+    });
 
-  if (error) {
+    if (error) {
+      console.error("OTP verification error:", error);
+      redirect("/login");
+    }
+
+    // Check if we have session data and authentication was successful
+    if (data?.session) {
+      console.log("Auth successful! User ID:", data.session.user.id);
+
+      // The server client should handle setting cookies automatically
+      // Optionally force refresh the session
+      await supabase.auth.refreshSession();
+
+      // Give a small delay to ensure session is properly established
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Redirect to the protected page
+      redirect("/emails");
+    } else {
+      console.log("No session data after verification");
+      redirect("/login");
+    }
+  } catch (err) {
+    console.error("Unexpected error during authentication:", err);
     redirect("/login");
-  }
-
-  if (data) {
-    redirect("/emails");
   }
 
   return (

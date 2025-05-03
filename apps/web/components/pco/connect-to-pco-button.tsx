@@ -48,7 +48,7 @@ export default function ConnectToPcoButton({
         <Image src={"/pco-logo.png"} alt="PCO Logo" width={22} height={22} />{" "}
         {isReconnect ? "Reconnect to PCO" : "Connect to Planning Center"}
       </Button>
-      <span className="px-4 text-center text-sm text-muted-foreground">
+      <span className="text-balance px-4 text-center text-sm text-muted-foreground">
         {isReconnect
           ? "Click the button above to reconnect to your Planning Center account."
           : "Click the button above to connect to your Planning Center account."}
