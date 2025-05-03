@@ -54,7 +54,7 @@ import { useEffect, useState } from "react";
 import { useToast } from "@church-space/ui/use-toast";
 import { updateEmailAction } from "@/actions/update-email";
 import { createClient } from "@church-space/supabase/client";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPcoListQuery } from "@church-space/supabase/queries/all/get-pco-lists";
 import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
@@ -148,6 +148,7 @@ export default function PreSendPage({
   const { toast } = useToast();
   const [activeAccordion, setActiveAccordion] = useState<string>("");
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
@@ -466,6 +467,9 @@ export default function PreSendPage({
       const resultObj = result as any;
 
       if (resultObj && resultObj.data) {
+        // Invalidate emails query to refresh the list
+        queryClient.invalidateQueries({ queryKey: ["emails"] });
+
         toast({
           title: "Success",
           description: "Email duplicated successfully",
@@ -847,6 +851,9 @@ export default function PreSendPage({
           if (!response?.data) {
             throw new Error("Failed to delete email");
           }
+
+          // Invalidate emails query to refresh the list
+          queryClient.invalidateQueries({ queryKey: ["emails"] });
 
           toast({
             title: "Email deleted",
@@ -1854,6 +1861,9 @@ export default function PreSendPage({
                   if (!response?.data) {
                     throw new Error("Failed to delete email");
                   }
+
+                  // Invalidate emails query to refresh the list
+                  queryClient.invalidateQueries({ queryKey: ["emails"] });
 
                   toast({
                     title: "Email deleted",

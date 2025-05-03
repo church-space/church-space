@@ -58,7 +58,7 @@ import {
   TableRow,
 } from "@church-space/ui/table";
 import { useToast } from "@church-space/ui/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Loader2, MoreHorizontal, SaveIcon } from "lucide-react";
 import Link from "next/link";
@@ -112,6 +112,7 @@ export default function PostSendPage({
   });
 
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // State for Save as Template functionality
   const [isSaveTemplateDialogOpen, setIsSaveTemplateDialogOpen] =
@@ -278,6 +279,9 @@ export default function PostSendPage({
       const resultObj = result as any;
 
       if (resultObj && resultObj.data) {
+        // Invalidate emails query to refresh the list
+        queryClient.invalidateQueries({ queryKey: ["emails"] });
+
         toast({
           title: "Success",
           description: "Email duplicated successfully",

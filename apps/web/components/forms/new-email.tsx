@@ -16,6 +16,7 @@ import {
 import { Input } from "@church-space/ui/input";
 import { createEmailAction } from "@/actions/create-email";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   subject: z
@@ -35,6 +36,7 @@ export default function NewEmail({
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,6 +54,7 @@ export default function NewEmail({
       });
 
       if (result?.data?.success && result?.data?.data) {
+        queryClient.invalidateQueries({ queryKey: ["emails"] });
         await router.push(
           `/emails/${result.data.data.id}/editor?newEmail=true`,
         );
