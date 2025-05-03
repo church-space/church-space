@@ -61,7 +61,7 @@ export const columns: ColumnDef<EmailAutomation>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <Badge variant={isActive ? "default" : "secondary"} className="w-fit">
+        <Badge variant={isActive ? "success" : "secondary"} className="w-fit">
           {isActive ? "Active" : "Inactive"}
         </Badge>
       );

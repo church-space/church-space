@@ -16,6 +16,11 @@ import { useCallback, useState } from "react";
 import DataTable from "../data-table";
 import { columns, EmailCategory } from "./columns";
 import NullState from "./null-state";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
 
 interface EmailCategoriesTableProps {
   organizationId: string;
@@ -50,12 +55,26 @@ export default function EmailCategoriesTable({
             Email Categories
           </h1>
 
-          <Button
-            onClick={() => setIsNewEmailCategoryOpen(true)}
-            className="gap-1"
-          >
-            New <span className="hidden md:inline">Category</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Button
+                  onClick={() => setIsNewEmailCategoryOpen(true)}
+                  className="gap-1"
+                  disabled={categories.length >= 10}
+                >
+                  New <span className="hidden md:inline">Category</span>
+                </Button>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {categories.length >= 10 ? (
+                <p>You can only have up to 10 email categories.</p>
+              ) : (
+                <p>Create up to 10 email categories to start sending emails.</p>
+              )}
+            </TooltipContent>
+          </Tooltip>
         </div>
         <div className="flex w-full items-center gap-3 rounded-md border bg-muted p-3 text-sm text-secondary-foreground">
           <div className="flex-shrink-0">

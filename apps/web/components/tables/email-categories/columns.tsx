@@ -33,6 +33,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Pencil } from "lucide-react";
+import type { EmailCategoryResponse } from "@/actions/delete-email-category";
 
 // Define the validation schema
 const formSchema = z.object({
@@ -82,6 +83,11 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [automationsInCategory, setAutomationsInCategory] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [showingAutomations, setShowingAutomations] = useState(false);
   const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
@@ -154,14 +160,26 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
             queryKey: ["email-categories", organizationId],
           });
         }
-        // Close both dialogs
+        // Close the dialogs
         setIsOpen(false);
+        setIsDeleteDialogOpen(false);
       } else {
-        toast({
-          title: "Error",
-          description: result.data?.error || "Failed to delete category",
-          variant: "destructive",
-        });
+        if (
+          result.data?.error ===
+            "Email category is associated with active automations" &&
+          result.data?.data?.automationsInCategory &&
+          result.data.data.automationsInCategory.length > 0
+        ) {
+          // Show the automations in the dialog
+          setAutomationsInCategory(result.data.data.automationsInCategory);
+          setShowingAutomations(true);
+        } else {
+          toast({
+            title: "Error",
+            description: result.data?.error || "Failed to delete category",
+            variant: "destructive",
+          });
+        }
       }
     } catch {
       toast({
@@ -243,7 +261,10 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
                 )}
               />
               <DialogFooter className="flex w-full flex-row items-center justify-between gap-2 sm:justify-between">
-                <Dialog>
+                <Dialog
+                  open={isDeleteDialogOpen}
+                  onOpenChange={setIsDeleteDialogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button
                       variant="destructive"
@@ -258,26 +279,71 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Delete Category</DialogTitle>
-                    </DialogHeader>
-                    <DialogDescription>
-                      Are you sure you want to delete this category?
-                    </DialogDescription>
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button variant="outline" type="button">
-                          Cancel
-                        </Button>
-                      </DialogClose>
-                      <Button
-                        variant="destructive"
-                        onClick={handleDeleteCategory}
-                        disabled={isLoading}
-                      >
-                        Delete
-                      </Button>
-                    </DialogFooter>
+                    {showingAutomations ? (
+                      <>
+                        <DialogHeader>
+                          <DialogTitle>Cannot Delete Category</DialogTitle>
+                        </DialogHeader>
+                        <div className="py-2">
+                          <p className="mb-2">
+                            This category cannot be deleted because it's used in
+                            the following automations:
+                          </p>
+                          <ul className="list-disc pl-5">
+                            {automationsInCategory.map((automation) => (
+                              <li key={automation.id} className="py-1">
+                                <a
+                                  href={`/emails/automations/${automation.id}`}
+                                  className="text-primary hover:underline"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {automation.name}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                          <p className="mt-2">
+                            Please remove this category from these automations
+                            first.
+                          </p>
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button
+                              variant="default"
+                              type="button"
+                              onClick={() => setShowingAutomations(false)}
+                            >
+                              OK
+                            </Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </>
+                    ) : (
+                      <>
+                        <DialogHeader>
+                          <DialogTitle>Delete Category</DialogTitle>
+                        </DialogHeader>
+                        <DialogDescription>
+                          Are you sure you want to delete this category?
+                        </DialogDescription>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline" type="button">
+                              Cancel
+                            </Button>
+                          </DialogClose>
+                          <Button
+                            variant="destructive"
+                            onClick={handleDeleteCategory}
+                            disabled={isLoading}
+                          >
+                            Delete
+                          </Button>
+                        </DialogFooter>
+                      </>
+                    )}
                   </DialogContent>
                 </Dialog>
                 <div className="flex items-center gap-2">

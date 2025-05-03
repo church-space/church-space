@@ -6,9 +6,14 @@ import { deleteEmailCategory } from "@church-space/supabase/mutations/emails";
 import { z } from "zod";
 import type { ActionResponse } from "@/types/action";
 import { PostgrestError } from "@supabase/supabase-js";
+import { getAutomationsInCategory } from "@church-space/supabase/queries/all/get-automations-in-category";
 
 export interface EmailCategoryResponse {
-  id: number;
+  id?: number;
+  automationsInCategory?: {
+    id: number;
+    name: string;
+  }[];
 }
 
 export const deleteEmailCategoryAction = authActionClient
@@ -24,6 +29,28 @@ export const deleteEmailCategoryAction = authActionClient
     async (parsedInput): Promise<ActionResponse<EmailCategoryResponse>> => {
       try {
         const supabase = await createClient();
+
+        const {
+          data: automationsInCategory,
+          error: automationsInCategoryError,
+        } = await getAutomationsInCategory(
+          supabase,
+          parsedInput.parsedInput.emailCategoryId,
+        );
+
+        if (automationsInCategoryError) {
+          throw automationsInCategoryError;
+        }
+
+        if (automationsInCategory.length > 0) {
+          return {
+            success: false,
+            error: "Email category is associated with active automations",
+            data: {
+              automationsInCategory,
+            },
+          };
+        }
 
         const { data, error } = await deleteEmailCategory(
           supabase,
