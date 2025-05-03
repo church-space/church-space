@@ -348,7 +348,7 @@ export default function AssetBrowserModal({
               {/* Only show type selector if type is not "image" */}
               {type !== "image" && (
                 <Select value={selectedType} onValueChange={handleTypeChange}>
-                  <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectTrigger className="w-full sm:w-[125px]">
                     <SelectValue placeholder="Filter by type" />
                   </SelectTrigger>
                   <SelectContent>

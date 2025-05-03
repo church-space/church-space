@@ -84,37 +84,69 @@ export async function fetchOrgAssets({
 
     const totalCount = countData || 0;
 
-    // Calculate pagination
+    // Calculate pagination helper (will be applied _after_ all filtering)
     const offset = (currentPage - 1) * itemsPerPage;
 
-    // Fetch only the files for the current page
-    const { data: files, error: filesError } = await supabase.storage
-      .from("organization-assets")
-      .list(path, {
-        limit: itemsPerPage,
-        offset: offset,
-        sortBy: { column: "created_at", order: "desc" },
-      });
+    // ----------------------------
+    // 1. Load files
+    // ----------------------------
+    // When a search query or custom filter is applied we need to inspect the *full* list
+    // of files, otherwise we might exclude matching items that live on a different page.
+    // If no query/filters are present we keep the efficient paginated fetch that was
+    // already in place.
+
+    let files: any[] = [];
+    let filesError: any;
+
+    const needsFullList =
+      Boolean(searchQuery) || selectedType !== "all" || type === "image";
+
+    if (needsFullList) {
+      // Fetch everything in the folder (supabase caps this to 1000 items per call)
+      const { data: allFiles, error: allFilesError } = await supabase.storage
+        .from("organization-assets")
+        .list(path, {
+          sortBy: { column: "created_at", order: "desc" },
+        });
+
+      files = allFiles ?? [];
+      filesError = allFilesError;
+    } else {
+      // Keep the original paginated fetch to minimise data transfer when no filters are active
+      const resp = await supabase.storage
+        .from("organization-assets")
+        .list(path, {
+          limit: itemsPerPage,
+          offset: offset,
+          sortBy: { column: "created_at", order: "desc" },
+        });
+
+      files = resp.data ?? [];
+      filesError = resp.error;
+    }
 
     if (filesError) {
       throw filesError;
     }
 
-    // Apply filters to the paginated results
-    let filteredFiles = files || [];
+    // ----------------------------
+    // 2. Filtering
+    // ----------------------------
+    let filteredFiles = files;
 
     // Filter by type if needed
     if (type === "image") {
       const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
-      filteredFiles = filteredFiles.filter((file) => {
-        const extension = file.name.split(".").pop()?.toLowerCase() || "";
+      filteredFiles = filteredFiles.filter((file: any) => {
+        const extension: string =
+          file.name.split(".").pop()?.toLowerCase() || "";
         return imageExtensions.includes(extension);
       });
     }
 
     // Additional filtering based on selected type in the dropdown
     if (selectedType !== "all") {
-      filteredFiles = filteredFiles.filter((file) => {
+      filteredFiles = filteredFiles.filter((file: any) => {
         const fileType = getFileType(file.name);
         return fileType === selectedType;
       });
@@ -123,14 +155,29 @@ export async function fetchOrgAssets({
     // Filter by search query if provided
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filteredFiles = filteredFiles.filter((file) =>
+      filteredFiles = filteredFiles.filter((file: any) =>
         file.name.toLowerCase().includes(query),
       );
     }
 
-    // Get public URLs for each file
+    // --------------------------------------
+    // 3. Pagination AFTER filtering
+    // --------------------------------------
+    let paginatedFiles: any[] = [];
+    let effectiveTotalCount = 0;
+
+    if (needsFullList) {
+      effectiveTotalCount = filteredFiles.length;
+      paginatedFiles = filteredFiles.slice(offset, offset + itemsPerPage);
+    } else {
+      // We already fetched paginated results, so filteredFiles is the paginated set
+      effectiveTotalCount = totalCount; // from DB / RPC
+      paginatedFiles = filteredFiles;
+    }
+
+    // Get public URLs for each paginated file
     const assetsWithUrls = await Promise.all(
-      filteredFiles.map(async (file) => {
+      paginatedFiles.map(async (file: any) => {
         const filePath = `${path}/${file.name}`;
         const fileType = getFileType(file.name);
 
@@ -159,21 +206,17 @@ export async function fetchOrgAssets({
           path: filePath,
           created_at: file.created_at || new Date().toISOString(),
           size: file.metadata?.size || undefined,
-        };
+        } as Asset;
       }),
     );
 
     return {
       assets: assetsWithUrls,
-      totalCount: totalCount,
+      totalCount: effectiveTotalCount,
       error: null,
     };
-  } catch (err) {
-    console.error("Error fetching assets:", err);
-    return {
-      assets: [],
-      totalCount: 0,
-      error: "Failed to load assets. Please try again.",
-    };
+  } catch (error) {
+    console.error("Error fetching organization assets:", error);
+    return { assets: [], totalCount: 0, error: "An error occurred" };
   }
 }
