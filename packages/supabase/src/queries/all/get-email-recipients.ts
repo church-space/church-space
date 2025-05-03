@@ -54,7 +54,7 @@ export async function getEmailRecipientsQuery(
     email_search: params?.emailAddress ?? undefined,
     recipient_status: params?.recipientStatus ?? undefined,
     start_index: params?.start ?? 0,
-    end_index: params?.end ?? 49,
+    end_index: params?.end ?? 24,
   });
 
   return { data, error };

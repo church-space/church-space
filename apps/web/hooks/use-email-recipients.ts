@@ -76,6 +76,6 @@ export function useEmailRecipients(
     gcTime: 60000,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
-    refetchInterval: false,
+    refetchOnReconnect: false,
   });
 }

@@ -2,7 +2,7 @@
 
 import { useEmailRecipients } from "@/hooks/use-email-recipients";
 import { useQueryState } from "nuqs";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import DataTable from "../data-table";
 import { columns, type EmailRecipient } from "./columns";
 import {
@@ -58,26 +58,39 @@ export default function EmailRecipientsTable({
   const effectiveSearch = search ?? initialSearch ?? "";
   const effectiveStatus = status ?? initialStatus ?? "all";
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useEmailRecipients(
-      emailId,
-      effectiveSearch || undefined,
-      effectiveStatus === "all" ? undefined : effectiveStatus,
-      {
-        initialData: initialData?.length
-          ? {
-              pages: [
-                {
-                  data: initialData,
-                  count: initialCount,
-                  nextPage: initialData.length >= 50 ? 1 : undefined,
-                },
-              ],
-              pageParams: [0],
-            }
-          : undefined,
-      },
-    );
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  } = useEmailRecipients(
+    emailId,
+    effectiveSearch || undefined,
+    effectiveStatus === "all" ? undefined : effectiveStatus,
+    {
+      initialData: initialData?.length
+        ? {
+            pages: [
+              {
+                data: initialData,
+                count: initialCount,
+                nextPage: initialData.length >= 50 ? 1 : undefined,
+              },
+            ],
+            pageParams: [0],
+          }
+        : undefined,
+    },
+  );
+
+  // Force refetch when search changes
+  useEffect(() => {
+    if (search !== null || effectiveStatus !== "all") {
+      refetch();
+    }
+  }, [search, effectiveStatus, refetch]);
 
   const handleSearch = useCallback(
     async (value: string | null) => {

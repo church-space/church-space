@@ -162,9 +162,12 @@ export default function DataTable<TData>({
   const handleSearchChange = useCallback(
     (value: string) => {
       setGlobalFilter(value);
+      // Immediately call the search function without debounce for better user feedback
+      onSearch?.(value);
+      // Still keep the debounced version for rapid typing
       debouncedSearch(value);
     },
-    [debouncedSearch],
+    [debouncedSearch, onSearch],
   );
 
   // Clean up the debounced function on unmount
