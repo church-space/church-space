@@ -37,10 +37,12 @@ export default function Page(props: { searchParams: SearchParams }) {
           >
             <Card className="px-0">
               <CardContent className="pt-[30px] text-center">
-                {searchParams.connectedByFirstName}{" "}
-                {searchParams.connectedByLastName} already connected your
-                organization to Church Space. Please contact them directly to
-                gain access.
+                <span className="font-semibold">
+                  {searchParams.connectedByFirstName}{" "}
+                  {searchParams.connectedByLastName}
+                </span>{" "}
+                already connected your organization to Church Space. Please
+                contact them directly to gain access.
               </CardContent>
             </Card>
             <div className="pt-4 text-center">

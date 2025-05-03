@@ -1,18 +1,24 @@
 "use client";
+
 import { Button } from "@church-space/ui/button";
 import { LoaderIcon } from "@church-space/ui/icons";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Unsubscribe({
   unsubscribe,
   resubscribeAll,
+  token,
 }: {
   unsubscribe: () => Promise<void>;
   resubscribeAll: () => Promise<void>;
+  token: string;
 }) {
   const [unsubscribed, setUnsubscribed] = useState(false);
   const [isUnsubscribing, setIsUnsubscribing] = useState(false);
   const [isResubscribing, setIsResubscribing] = useState(false);
+
+  const router = useRouter();
 
   const handleUnsubscribe = async () => {
     try {
@@ -32,6 +38,10 @@ export default function Unsubscribe({
     } finally {
       setIsResubscribing(false);
     }
+  };
+
+  const setType = (type: string, token: string) => {
+    router.push(`/email-manager?type=${type}&tk=${token}`);
   };
 
   return (
@@ -75,8 +85,15 @@ export default function Unsubscribe({
                   <LoaderIcon />
                 </span>
               ) : (
-                "Unsubscribe"
+                "Unsubscribe from All Emails"
               )}
+            </Button>
+            <Button
+              className="mt-4 w-full"
+              onClick={() => setType("manage", token)}
+              variant="outline"
+            >
+              Manage Email Preferences
             </Button>
           </>
         )}

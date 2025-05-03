@@ -11,7 +11,7 @@ export default function ClientPage({
   organizationId: string;
 }) {
   return (
-    <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
+    <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-lg">
       <AnimatePresence mode="wait">
         <div>
           <motion.div
@@ -23,12 +23,11 @@ export default function ClientPage({
             <div className="text-center text-2xl font-bold">
               Reconnect to Planning Center
             </div>
-            <div className="text-center text-sm text-muted-foreground">
-              Seems like we&apos;ve lost connection to your Planning Center
+            <div className="text-balance text-center">
+              It seems like we&apos;ve lost connection to your Planning Center
               account. This can happen if the person who connected your account
               to Church Space is no longer a People Manager or if you
-              haven&apos;t used Church Space in a while. To reconnect to
-              Planning Center, please click the button below.
+              haven&apos;t used Church Space in a few months.
             </div>
           </motion.div>
           <motion.div

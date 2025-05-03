@@ -103,11 +103,12 @@ export default async function Page({
   }
 
   return (
-    <>
+    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-b from-secondary/70 to-background/60 py-10 dark:from-secondary/30">
       {type === "unsubscribe" && peopleEmailId && (
         <Unsubscribe
           unsubscribe={handleServerUnsubscribe}
           resubscribeAll={handleServerResubscribeAll}
+          token={tk ?? ""}
         />
       )}
       {type === "manage" && peopleEmailId && (
@@ -119,6 +120,6 @@ export default async function Page({
           resubscribeAll={handleServerResubscribeAll}
         />
       )}
-    </>
+    </div>
   );
 }
