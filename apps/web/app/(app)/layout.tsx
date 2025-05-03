@@ -5,6 +5,7 @@ import { createClient } from "@church-space/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import HelpMenu from "@/components/sidebar/help-menu";
+import { setOrgCookie } from "@/actions/set-org-cookie";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -28,6 +29,10 @@ export default async function ProtectedLayout({
 
   if (!user.organizationMembership) {
     return redirect("/onboarding");
+  }
+
+  if (user.organizationMembership) {
+    setOrgCookie(user.organizationMembership.organization_id);
   }
 
   if (

@@ -1,8 +1,9 @@
 "use client";
+
 import { User } from "@supabase/supabase-js";
 import { useEffect, useRef } from "react";
 import { useUser } from "./use-user";
-import Cookies from "js-cookie";
+import { setOrgCookie } from "@/actions/set-org-cookie";
 
 interface UserData {
   id: string | null;
@@ -48,7 +49,7 @@ export default function InitUser({
       });
 
       if (organization_id) {
-        Cookies.set("organizationId", organization_id);
+        setOrgCookie(organization_id);
       }
 
       initState.current = true;
