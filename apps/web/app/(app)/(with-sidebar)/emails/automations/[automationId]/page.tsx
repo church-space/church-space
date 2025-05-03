@@ -30,7 +30,7 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Edit, Ellipsis, LoaderIcon, Trash } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import AutomationBuilder from "@/components/automation-builder/automation-builder";
 import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
@@ -54,6 +54,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@church-space/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
 
 // Types for the new schema
 interface AutomationStep {
@@ -164,6 +169,21 @@ export default function Page() {
 
   // Add validation state
   const [canActivate, setCanActivate] = useState(false);
+
+  // Track if we've already auto-opened the sheet
+  const initialLoadDone = useRef(false);
+
+  // Auto-open sheet when there are no steps, but only on initial load
+  useEffect(() => {
+    if (
+      !initialLoadDone.current &&
+      transformedAutomation &&
+      transformedAutomation.steps.length === 0
+    ) {
+      setIsSheetOpen(true);
+      initialLoadDone.current = true;
+    }
+  }, [transformedAutomation]);
 
   // Monitor automation state for activation requirements
   useEffect(() => {
@@ -634,17 +654,36 @@ export default function Page() {
               </Dialog>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
-            onClick={handleStatusToggle}
-            disabled={
-              isUpdatingStatus ||
-              (!transformedAutomation.is_active && !canActivate)
-            }
-            className="cursor-pointer"
-            variant={transformedAutomation.is_active ? "outline" : "default"}
-          >
-            {transformedAutomation.is_active ? "Disable" : "Enable"}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Button
+                  onClick={handleStatusToggle}
+                  disabled={
+                    isUpdatingStatus ||
+                    (!transformedAutomation.is_active && !canActivate)
+                  }
+                  className="cursor-pointer"
+                  variant={
+                    transformedAutomation.is_active ? "outline" : "default"
+                  }
+                >
+                  {transformedAutomation.is_active ? "Disable" : "Enable"}
+                </Button>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              {!transformedAutomation.is_active && !canActivate ? (
+                <>
+                  To enable this automation, please ensure you have: a list
+                  selected, an email category set, at least one email step, and
+                  a trigger type configured
+                </>
+              ) : (
+                <>Toggle if this automation is active or inactive</>
+              )}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </header>
 
@@ -702,90 +741,81 @@ export default function Page() {
               </div>
             ) : (
               // Display mode
-              <div
-                className="group flex-1 cursor-pointer"
-                onClick={startEditingLink}
-              >
-                <div className="flex items-center">
-                  <div className="flex items-center gap-2">
-                    <div className="flex flex-row items-center gap-2">
-                      <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
-                        {transformedAutomation.name}
-                      </h2>
-                      <Badge
-                        variant={
-                          transformedAutomation.is_active
-                            ? "default"
-                            : "outline"
-                        }
-                      >
-                        {transformedAutomation.is_active
-                          ? "Active"
-                          : "Disabled"}
-                      </Badge>
+              <div className="flex w-full items-center justify-between gap-4">
+                <div
+                  className="group flex-1 cursor-pointer"
+                  onClick={startEditingLink}
+                >
+                  <div className="flex items-center">
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-row items-center gap-2">
+                        <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
+                          {transformedAutomation.name}
+                        </h2>
+                        <Badge
+                          variant={
+                            transformedAutomation.is_active
+                              ? "default"
+                              : "outline"
+                          }
+                        >
+                          {transformedAutomation.is_active
+                            ? "Active"
+                            : "Disabled"}
+                        </Badge>
+                      </div>
+                      {editedLinkStatus === "inactive" && (
+                        <Badge variant="outline">Disabled</Badge>
+                      )}
                     </div>
-                    {editedLinkStatus === "inactive" && (
-                      <Badge variant="outline">Disabled</Badge>
-                    )}
+                    <Edit className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
                   </div>
-                  <Edit className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+                  <p className="mt-1 text-muted-foreground">
+                    {transformedAutomation.description}
+                  </p>
                 </div>
-                <p className="mt-1 text-muted-foreground">
-                  {transformedAutomation.description}
-                </p>
+
+                <Sheet
+                  open={isSheetOpen}
+                  onOpenChange={(open) => {
+                    if (!open) {
+                      // If trying to close
+                      if (handleSheetClose()) {
+                        setIsSheetOpen(false);
+                      }
+                    } else {
+                      setIsSheetOpen(true);
+                    }
+                  }}
+                >
+                  <>
+                    <SheetTrigger asChild>
+                      <Button onClick={() => setIsSheetOpen(true)}>
+                        Edit Steps
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent
+                      className="flex h-[95%] w-full flex-col overflow-hidden md:h-full md:max-w-3xl"
+                      side={isMobile ? "bottom" : "right"}
+                    >
+                      <AutomationBuilder
+                        organizationId={organizationId ?? ""}
+                        onChangesPending={(hasPendingChanges) =>
+                          setHasUnsavedChanges(hasPendingChanges)
+                        }
+                        automation={transformedAutomation}
+                        closeSheet={() => setIsSheetOpen(false)}
+                        activeAutomationMembersCount={
+                          activeAutomationMembersCount
+                        }
+                      />
+                    </SheetContent>
+                  </>
+                </Sheet>
               </div>
             )}
           </div>
-          <Sheet
-            open={isSheetOpen}
-            onOpenChange={(open) => {
-              if (!open) {
-                // If trying to close
-                if (handleSheetClose()) {
-                  setIsSheetOpen(false);
-                }
-              } else {
-                setIsSheetOpen(true);
-              }
-            }}
-          >
-            <>
-              <SheetTrigger asChild>
-                <Button
-                  className="h-fit w-full cursor-pointer bg-foreground text-background transition-colors hover:bg-foreground/90"
-                  onClick={() => setIsSheetOpen(true)}
-                >
-                  <div className="flex w-full flex-row items-center justify-between space-y-0 px-3 py-6 pl-6 text-left">
-                    <div className="p-0">
-                      <div className="text-lg font-medium">
-                        Automation Steps
-                      </div>
-                      <div className="text-sm text-secondary">
-                        Manage the steps of this automation.
-                      </div>
-                    </div>
-                    <div className="flex h-9 items-center justify-center rounded-md bg-primary px-4 py-1 text-center text-sm">
-                      Edit
-                    </div>
-                  </div>
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                className="flex h-[95%] w-full flex-col overflow-hidden md:h-full md:max-w-3xl"
-                side={isMobile ? "bottom" : "right"}
-              >
-                <AutomationBuilder
-                  organizationId={organizationId ?? ""}
-                  onChangesPending={(hasPendingChanges) =>
-                    setHasUnsavedChanges(hasPendingChanges)
-                  }
-                  automation={transformedAutomation}
-                  closeSheet={() => setIsSheetOpen(false)}
-                  activeAutomationMembersCount={activeAutomationMembersCount}
-                />
-              </SheetContent>
-            </>
-          </Sheet>
+
           <AutomationMembersTable automationId={automationId} />
         </div>
       </div>

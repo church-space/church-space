@@ -56,6 +56,10 @@ export default function OrgInvites({
 
   if (isLoading) return null;
   if (isError) return null;
+
+  if (data?.pages[0].data.length === 0) {
+    return null;
+  }
   return (
     <>
       <div className="ml-1 mt-6 font-medium">Pending Invites</div>
