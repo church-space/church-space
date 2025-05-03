@@ -62,8 +62,6 @@ export default function ConfirmPage() {
     } catch (err) {
       console.error("Unexpected error during authentication:", err);
       setError("An unexpected error occurred");
-    } finally {
-      setIsLoading(false);
     }
   };
 
