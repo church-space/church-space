@@ -242,6 +242,17 @@ export async function GET(request: NextRequest) {
       );
 
       if (!createWebhookResponse.ok) {
+        const errorData = await createWebhookResponse.json();
+        // Check if error is because webhook already exists
+        const isDuplicateError = errorData.errors?.some((error: any) =>
+          error.detail?.includes("has already been taken"),
+        );
+
+        if (isDuplicateError) {
+          console.log(`Webhook for ${event} already exists, continuing...`);
+          continue;
+        }
+
         console.error(`Failed to create PCO webhook for ${event}`);
         return handleError(
           new Error(`Failed to create PCO webhook for ${event}`),
