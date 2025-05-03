@@ -15,5 +15,9 @@ export default async function Layout({
     return redirect("/login");
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-secondary/70 to-background/60 dark:from-secondary/30">
+      {children}
+    </div>
+  );
 }

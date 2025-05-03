@@ -13,16 +13,14 @@ import Link from "next/link";
 import { createClient } from "@church-space/supabase/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function ConfirmPage({
-  searchParams,
-}: {
-  searchParams: { token?: string };
-}) {
+export default function ConfirmPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const token = searchParams.token;
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
   useEffect(() => {
     if (!token) {
