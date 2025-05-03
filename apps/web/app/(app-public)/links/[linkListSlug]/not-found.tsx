@@ -4,7 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
-import { ArrowRight, ChurchSpaceBlack, Qrcode } from "@church-space/ui/icons";
+import { ArrowRight, ChurchSpaceBlack, LinkIcon } from "@church-space/ui/icons";
 import Link from "next/link";
 
 export default function NotFound() {
@@ -14,15 +14,15 @@ export default function NotFound() {
         <CardHeader>
           <CardTitle className="flex w-full items-center justify-center gap-2 text-center text-lg font-bold">
             <span className="text-primary">
-              <Qrcode height={"24"} width={"24"} />
+              <LinkIcon height={"24"} width={"24"} />
             </span>
-            QR Code not found
+            Link Page Not Found
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            We couldn&apos;t find the QR code you were looking for. It may have
-            been deleted or disabled.
+            We couldn&apos;t find the link page you were looking for. It may
+            have been deleted or disabled.
           </p>
         </CardContent>
       </Card>
