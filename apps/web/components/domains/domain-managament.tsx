@@ -279,36 +279,32 @@ export default function DomainManagement({
     const value = e.target.value;
     setNewDomain(value);
     setIsTyping(true);
+    setValidationError(null);
 
     // Clear any existing timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
 
-    // Set a new timer for validation
+    // Set a new timer to turn off isTyping
     debounceTimerRef.current = setTimeout(() => {
-      try {
-        if (value) {
-          domainSchema.parse(value);
-          setValidationError(null);
-        } else {
-          setValidationError(null);
-        }
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          setValidationError(error.errors[0].message);
-        }
-      }
       setIsTyping(false);
-    }, 500); // 500ms debounce
+    }, 500);
   };
 
   const handleAddDomain = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDomain) return;
+    setIsTyping(false);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    if (!newDomain) {
+      setValidationError("Domain name cannot be empty.");
+      return;
+    }
 
     try {
-      // Validate and transform domain with Zod
+      // Validate and transform domain with Zod *before* proceeding
       const cleanedDomain = domainSchema.parse(newDomain);
       setValidationError(null);
 
@@ -413,13 +409,14 @@ export default function DomainManagement({
         setValidationError(error.errors[0].message);
       } else {
         console.error("Error adding domain:", error);
-        setValidationError(
-          typeof error === "string" ? error : "Invalid domain name",
-        );
+        const errorMessage =
+          typeof error === "string"
+            ? error
+            : "An unexpected error occurred while adding the domain.";
+        setValidationError(errorMessage);
         toast({
           title: "Error adding domain",
-          description:
-            "There was a problem adding your domain. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       }
