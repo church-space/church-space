@@ -49,41 +49,13 @@ export async function getEmailRecipientsQuery(
   emailId: number,
   params?: QueryParams
 ) {
-  let query = supabase
-    .from("email_recipients")
-    .select(
-      `
-      id,
-      email_address,
-      status,
-      created_at,
-      updated_at,
-      person:people_emails!left(
-        email,
-        person:people(
-          first_name,
-          last_name
-        )
-      )
-    `
-    )
-    .order("updated_at", { ascending: false, nullsFirst: false })
-    .eq("email_id", emailId);
+  const { data, error } = await supabase.rpc("get_email_recipients_details", {
+    email_id_input: emailId,
+    email_search: params?.emailAddress ?? undefined,
+    recipient_status: params?.recipientStatus ?? undefined,
+    start_index: params?.start ?? 0,
+    end_index: params?.end ?? 49,
+  });
 
-  if (params?.emailAddress) {
-    const emailSearch = `%${params.emailAddress}%`;
-    query = query.ilike("email_address", emailSearch);
-  }
-
-  if (params?.recipientStatus) {
-    query = query.eq("status", params.recipientStatus);
-  }
-
-  // Apply pagination if provided
-  if (params?.start !== undefined && params?.end !== undefined) {
-    query = query.range(params.start, params.end);
-  }
-
-  const { data, error } = await query;
   return { data, error };
 }

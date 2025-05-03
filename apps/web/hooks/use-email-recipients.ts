@@ -7,10 +7,10 @@ interface EmailRecipient {
   status: string | null;
   created_at: string;
   updated_at: string | null;
-  person: {
-    first_name: string | null;
-    last_name: string | null;
-  } | null;
+  first_name: string | null;
+  last_name: string | null;
+  unsubscribed: boolean;
+  clicked: boolean;
 }
 
 interface UseEmailRecipientsOptions {
@@ -60,12 +60,10 @@ export function useEmailRecipients(
             status: emailRecipient.status,
             created_at: emailRecipient.created_at,
             updated_at: emailRecipient.updated_at,
-            person: emailRecipient.person?.person
-              ? {
-                  first_name: emailRecipient.person.person.first_name,
-                  last_name: emailRecipient.person.person.last_name,
-                }
-              : null,
+            first_name: emailRecipient.first_name,
+            last_name: emailRecipient.last_name,
+            unsubscribed: emailRecipient.unsubscribed,
+            clicked: emailRecipient.clicked,
           })) ?? [],
         count: result.data.count ?? 0,
         nextPage: result.data.nextPage,

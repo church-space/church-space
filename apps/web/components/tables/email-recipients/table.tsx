@@ -68,12 +68,9 @@ export default function EmailRecipientsTable({
           ? {
               pages: [
                 {
-                  data: initialData.map((recipient) => ({
-                    ...recipient,
-                    person: recipient.person || null,
-                  })),
+                  data: initialData,
                   count: initialCount,
-                  nextPage: initialData.length >= 25 ? 1 : undefined,
+                  nextPage: initialData.length >= 50 ? 1 : undefined,
                 },
               ],
               pageParams: [0],
@@ -97,29 +94,20 @@ export default function EmailRecipientsTable({
   );
 
   // Flatten all pages of data and cast to Email type
-  const emails = (
-    data?.pages.flatMap((page) => page?.data ?? []) ??
+  const emails = (data?.pages.flatMap((page) => page?.data ?? []) ??
     initialData ??
-    []
-  ).map((recipient) => ({
-    ...recipient,
-    person: recipient.person || null,
-  })) as EmailRecipient[];
+    []) as EmailRecipient[];
 
   return (
     <>
       <DataTable
         columns={columns}
         data={emails}
-        pageSize={25}
+        pageSize={50}
         loadMore={async () => {
           const result = await fetchNextPage();
-          const nextPageData = (
-            result.data?.pages[result.data.pages.length - 1]?.data ?? []
-          ).map((recipient) => ({
-            ...recipient,
-            person: recipient.person || null,
-          })) as EmailRecipient[];
+          const nextPageData = (result.data?.pages[result.data.pages.length - 1]
+            ?.data ?? []) as EmailRecipient[];
           return {
             data: nextPageData,
           };

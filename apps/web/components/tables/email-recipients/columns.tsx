@@ -9,25 +9,23 @@ export type EmailRecipient = {
   status: string | null;
   created_at: string;
   updated_at: string | null;
-  person: {
-    first_name: string | null;
-    last_name: string | null;
-  } | null;
+  first_name: string | null;
+  last_name: string | null;
+  unsubscribed: boolean;
+  clicked: boolean;
 };
 
 export const columns: ColumnDef<EmailRecipient>[] = [
   {
     header: "Name",
-    accessorKey: "person",
+    accessorKey: "last_name",
     cell: ({ row }) => {
-      const person = row.original.person;
+      const { first_name, last_name } = row.original;
       return (
         <div className="flex min-w-52 flex-col pr-3">
-          {person && (person.first_name || person.last_name) ? (
+          {first_name || last_name ? (
             <span className="font-semibold">
-              {[person.first_name, person.last_name]
-                .filter(Boolean)
-                .join(" ") || "No Name"}
+              {[first_name, last_name].filter(Boolean).join(" ") || "No Name"}
             </span>
           ) : (
             <span className="text-muted-foreground">No Name</span>
@@ -55,29 +53,40 @@ export const columns: ColumnDef<EmailRecipient>[] = [
     accessorKey: "status",
     enableHiding: true,
     cell: ({ row }) => {
+      const { unsubscribed, clicked, status } = row.original;
+
+      let displayText: string;
+      let variant: React.ComponentProps<typeof Badge>["variant"];
+
+      if (unsubscribed) {
+        displayText = "Unsubscribed";
+        variant = "warning";
+      } else if (clicked) {
+        displayText = "Clicked";
+        variant = "outline";
+      } else {
+        displayText = status || "Unknown";
+        variant =
+          status === "sent"
+            ? "successOutline"
+            : status === "opened"
+              ? "success"
+              : status === "delivered"
+                ? "successOutline"
+                : status === "bounced"
+                  ? "destructive"
+                  : status === "complained"
+                    ? "destructive"
+                    : status === "pending"
+                      ? "warning"
+                      : status === "did-not-send"
+                        ? "destructive"
+                        : "secondary";
+      }
       return (
         <div className="pr-3">
-          <Badge
-            variant={
-              row.original.status === "sent"
-                ? "successOutline"
-                : row.original.status === "opened"
-                  ? "success"
-                  : row.original.status === "delivered"
-                    ? "successOutline"
-                    : row.original.status === "bounced"
-                      ? "destructive"
-                      : row.original.status === "complained"
-                        ? "destructive"
-                        : row.original.status === "pending"
-                          ? "warning"
-                          : row.original.status === "did-not-send"
-                            ? "destructive"
-                            : "secondary"
-            }
-            className="capitalize"
-          >
-            {row.original.status}
+          <Badge variant={variant} className="capitalize">
+            {displayText} {clicked ? "🔍" : ""}
           </Badge>
         </div>
       );

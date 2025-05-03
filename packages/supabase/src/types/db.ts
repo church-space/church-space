@@ -639,33 +639,39 @@ export type Database = {
       }
       email_recipients: {
         Row: {
+          apple_mpp: boolean | null
           automation_id: number | null
           created_at: string
           email_address: string | null
           email_id: number | null
           id: number
+          is_opened: boolean | null
           people_email_id: number | null
           resend_email_id: string | null
           status: Database["public"]["Enums"]["email_delivery_status"] | null
           updated_at: string | null
         }
         Insert: {
+          apple_mpp?: boolean | null
           automation_id?: number | null
           created_at?: string
           email_address?: string | null
           email_id?: number | null
           id?: number
+          is_opened?: boolean | null
           people_email_id?: number | null
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
           updated_at?: string | null
         }
         Update: {
+          apple_mpp?: boolean | null
           automation_id?: number | null
           created_at?: string
           email_address?: string | null
           email_id?: number | null
           id?: number
+          is_opened?: boolean | null
           people_email_id?: number | null
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
@@ -2166,6 +2172,26 @@ export type Database = {
           _org: string
         }
         Returns: boolean
+      }
+      get_email_recipients_details: {
+        Args: {
+          email_id_input: number
+          email_search?: string
+          recipient_status?: Database["public"]["Enums"]["email_delivery_status"]
+          start_index?: number
+          end_index?: number
+        }
+        Returns: {
+          id: number
+          email_address: string
+          status: Database["public"]["Enums"]["email_delivery_status"]
+          created_at: string
+          updated_at: string
+          first_name: string
+          last_name: string
+          unsubscribed: boolean
+          clicked: boolean
+        }[]
       }
       get_public_list_categories_with_unsub_status: {
         Args: { input_people_email_id: number }

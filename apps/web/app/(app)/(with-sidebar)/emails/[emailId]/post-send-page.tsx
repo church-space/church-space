@@ -375,19 +375,14 @@ export default function PostSendPage({
     recipients?.data?.data?.map((recipient: any) => {
       return {
         id: recipient.id,
-        email_address:
-          recipient.email_address || recipient.person?.email || null,
+        email_address: recipient.email_address || null,
         status: recipient.status,
         created_at: recipient.created_at,
         updated_at: recipient.updated_at,
-        person:
-          recipient.person &&
-          (recipient.person.first_name || recipient.person.last_name)
-            ? {
-                first_name: recipient.person.first_name || null,
-                last_name: recipient.person.last_name || null,
-              }
-            : null,
+        first_name: recipient.first_name || null,
+        last_name: recipient.last_name || null,
+        unsubscribed: recipient.unsubscribed || false,
+        clicked: recipient.clicked || false,
       };
     }) || [];
 
