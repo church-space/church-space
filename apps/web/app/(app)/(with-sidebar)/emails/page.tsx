@@ -11,6 +11,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@church-space/supabase/server";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
+import Cookies from "js-cookie";
 
 function EmailsContent({ organizationId }: { organizationId: string }) {
   return (
@@ -46,6 +47,10 @@ export default async function Page() {
   // If no user or no organization membership, redirect to onboarding
   if (!user || !user.organizationMembership) {
     redirect("/onboarding");
+  }
+
+  if (!organizationId && user.organizationMembership.organization_id) {
+    Cookies.set("organizationId", user.organizationMembership.organization_id);
   }
 
   // If no organization ID in cookies but user has organization membership,
