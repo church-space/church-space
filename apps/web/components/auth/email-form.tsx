@@ -16,8 +16,8 @@ import { useToast } from "@church-space/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { signInWithOtp } from "@/app/(auth)/actions";
 import { sanitizeInput } from "@/lib/sanitize-inputs";
-import { Mail } from "lucide-react";
 import { cn } from "@church-space/ui/cn";
+import { Email } from "@church-space/ui/icons";
 
 const FormSchema = z.object({
   email: z.string().email({
@@ -28,9 +28,14 @@ const FormSchema = z.object({
 interface EmailFormProps {
   onSubmit: (email: string) => void;
   showLastUsed?: boolean;
+  buttonText?: string;
 }
 
-export function EmailForm({ onSubmit, showLastUsed = false }: EmailFormProps) {
+export function EmailForm({
+  onSubmit,
+  showLastUsed = false,
+  buttonText = "Email",
+}: EmailFormProps) {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -133,8 +138,8 @@ export function EmailForm({ onSubmit, showLastUsed = false }: EmailFormProps) {
           "Submit"
         ) : (
           <>
-            <Mail className="h-4 w-4" />
-            Email
+            <Email height={"16"} width={"16"} />
+            {buttonText}
           </>
         )}
       </motion.button>
