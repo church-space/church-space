@@ -330,119 +330,121 @@ export default function AssetBrowserModal({
           </div>
         </DialogHeader>
 
-        <div className="h-flex-1 flex flex-col space-y-4">
+        <div className="h-flex-1 flex h-full flex-col justify-between space-y-4">
           {/* Search and filter controls */}
-          <div className="flex flex-col items-start gap-1.5 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search assets..."
-                className="pl-8"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                maxLength={150}
-              />
-            </div>
-
-            {/* Only show type selector if type is not "image" */}
-            {type !== "image" && (
-              <Select value={selectedType} onValueChange={handleTypeChange}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Filter by type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="image">Images</SelectItem>
-                  <SelectItem value="document">Documents</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-
-            {(searchQuery || selectedType !== "all") && (
-              <Button
-                variant="ghost"
-                onClick={clearFilters}
-                className="h-[38px] px-2 text-orange-600"
-              >
-                <X className="h-4 w-4" />
-                Clear
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              className="h-[38px] px-3"
-              onClick={debouncedLoadAssets}
-            >
-              <Refresh />
-            </Button>
-            {setIsUploadModalOpen && (
-              <Button
-                variant="default"
-                className="h-[38px] px-3"
-                onClick={() => {
-                  setIsUploadModalOpen(true);
-                  setIsOpen(false);
-                }}
-              >
-                Upload
-              </Button>
-            )}
-          </div>
-
-          {/* Asset grid */}
-          <div className="min-h-[300px]">
-            {" "}
-            {/* Added min-height to prevent layout shift */}
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <Card
-                      key={index}
-                      className="w-full cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
-                    >
-                      <Skeleton className="relative aspect-video w-full rounded-b-none">
-                        <div className="absolute right-2 top-2 h-6 w-12 animate-pulse rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground"></div>
-                      </Skeleton>
-                      <CardFooter className="p-3">
-                        <Skeleton className="h-5 w-[70%]" />
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
+          <div className="h-flex-1 flex flex-col space-y-4">
+            <div className="flex w-full flex-col items-start gap-1.5 sm:flex-row sm:items-center">
+              <div className="relative w-full flex-1">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search assets..."
+                  className="pl-8"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  maxLength={150}
+                />
               </div>
-            ) : error ? (
-              <div className="py-8 text-center text-destructive">
-                <p>{error}</p>
+
+              {/* Only show type selector if type is not "image" */}
+              {type !== "image" && (
+                <Select value={selectedType} onValueChange={handleTypeChange}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter by type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="image">Images</SelectItem>
+                    <SelectItem value="document">Documents</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+              <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
+                {(searchQuery || selectedType !== "all") && (
+                  <Button
+                    variant="ghost"
+                    onClick={clearFilters}
+                    className="h-[38px] px-2 text-orange-600"
+                  >
+                    <X className="h-4 w-4" />
+                    Clear
+                  </Button>
+                )}
                 <Button
                   variant="outline"
-                  className="mt-4"
+                  className="h-[38px] px-3"
                   onClick={debouncedLoadAssets}
                 >
-                  Try Again
+                  <Refresh />
                 </Button>
-              </div>
-            ) : assets.length > 0 ? (
-              <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {assets.map((asset) => (
-                  <AssetCard
-                    key={asset.id}
-                    asset={asset}
-                    onSelect={() => {
-                      onSelectAsset(asset);
+                {setIsUploadModalOpen && (
+                  <Button
+                    variant="default"
+                    className="h-[38px] px-3"
+                    onClick={() => {
+                      setIsUploadModalOpen(true);
                       setIsOpen(false);
                     }}
-                    onDelete={() => handleAssetDelete(asset)}
-                  />
-                ))}
+                  >
+                    Upload
+                  </Button>
+                )}
               </div>
-            ) : (
-              <div className="py-8 text-center text-muted-foreground">
-                No assets found matching your criteria.
-              </div>
-            )}
-          </div>
+            </div>
 
+            {/* Asset grid */}
+            <div className="min-h-[300px]">
+              {" "}
+              {/* Added min-height to prevent layout shift */}
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <Card
+                        key={index}
+                        className="w-full cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+                      >
+                        <Skeleton className="relative aspect-video w-full rounded-b-none">
+                          <div className="absolute right-2 top-2 h-6 w-12 animate-pulse rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground"></div>
+                        </Skeleton>
+                        <CardFooter className="p-3">
+                          <Skeleton className="h-5 w-[70%]" />
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              ) : error ? (
+                <div className="py-8 text-center text-destructive">
+                  <p>{error}</p>
+                  <Button
+                    variant="outline"
+                    className="mt-4"
+                    onClick={debouncedLoadAssets}
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              ) : assets.length > 0 ? (
+                <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {assets.map((asset) => (
+                    <AssetCard
+                      key={asset.id}
+                      asset={asset}
+                      onSelect={() => {
+                        onSelectAsset(asset);
+                        setIsOpen(false);
+                      }}
+                      onDelete={() => handleAssetDelete(asset)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center text-muted-foreground">
+                  No assets found matching your criteria.
+                </div>
+              )}
+            </div>
+          </div>
           {/* Pagination - always show if there are items to paginate */}
           {totalCount > itemsPerPage && (
             <Pagination className="mx-auto">
