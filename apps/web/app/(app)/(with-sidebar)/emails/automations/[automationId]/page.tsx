@@ -327,6 +327,10 @@ export default function Page() {
       queryClient.invalidateQueries({
         queryKey: ["email-automation", automationId],
       });
+      // Also refresh the automations list to reflect status change
+      queryClient.invalidateQueries({
+        queryKey: ["email-automations", organizationId],
+      });
     } catch (error) {
       // Revert on error
       queryClient.setQueryData(
@@ -455,6 +459,10 @@ export default function Page() {
         // Refetch to ensure we have the latest data
         queryClient.invalidateQueries({
           queryKey: ["email-automation", automationId],
+        });
+        // Also invalidate the automations list to reflect the renamed automation
+        queryClient.invalidateQueries({
+          queryKey: ["email-automations", organizationId],
         });
       })
       .catch(() => {
