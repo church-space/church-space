@@ -146,12 +146,14 @@ export const columns: ColumnDef<Email>[] = [
           <span className="text-muted-foreground">
             {row.original.category?.name}
           </span>
-          <span className="text-muted-foreground">
-            {row.original.metrics?.total_sent
-              ? formatNumber(row.original.metrics.total_sent)
-              : "—"}{" "}
-            Recipients
-          </span>
+          {row.original.metrics?.total_sent && (
+            <span className="text-muted-foreground">
+              {row.original.metrics?.total_sent
+                ? formatNumber(row.original.metrics.total_sent)
+                : "—"}{" "}
+              recipients
+            </span>
+          )}
         </div>
       );
     },
@@ -165,21 +167,17 @@ export const columns: ColumnDef<Email>[] = [
       const opens = metrics?.total_opens || 0;
       const clicks = metrics?.total_clicks || 0;
 
-      const openRate = sent > 0 ? ((opens / sent) * 100).toFixed(1) : 0;
-      const clickRate = sent > 0 ? ((clicks / sent) * 100).toFixed(1) : 0;
-
       if (sent === 0) {
         return null;
       }
 
       return (
-        <div className="flex min-w-64 flex-col">
-          <div>Sent: {formatNumber(sent)}</div>
+        <div className="flex min-w-64 flex-col gap-1">
           <div>
-            Opens: {formatNumber(opens)} ({openRate}%)
+            <span className="font-semibold">{formatNumber(opens)}</span> Opens
           </div>
           <div>
-            Clicks: {formatNumber(clicks)} ({clickRate}%)
+            <span className="font-semibold">{formatNumber(clicks)}</span> Clicks
           </div>
         </div>
       );
