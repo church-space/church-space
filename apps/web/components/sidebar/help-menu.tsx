@@ -2,8 +2,8 @@ import { Button } from "@church-space/ui/button";
 import {
   Email,
   FilledCircleQuestion,
-  Search,
   HandWave,
+  LifeRing,
 } from "@church-space/ui/icons";
 import React from "react";
 import {
@@ -42,7 +42,7 @@ export default function HelpMenu({ className }: { className?: string }) {
         align="start"
         className="min-w-52 -translate-x-1"
       >
-        <Link href="/welcome" prefetch={false} target="_blank">
+        <Link href="/welcome" prefetch={false}>
           <DropdownMenuItem>
             <HandWave />
             Welcome Steps
@@ -55,8 +55,8 @@ export default function HelpMenu({ className }: { className?: string }) {
           target="_blank"
         >
           <DropdownMenuItem>
-            <Search />
-            Search for Help
+            <LifeRing />
+            Help Center
           </DropdownMenuItem>
         </Link>
         <a href="mailto:support@churchspace.co">
