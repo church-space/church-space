@@ -188,7 +188,9 @@ export default function ScheduledPage({
             onOpenChange={setCancelScheduleOpen}
           >
             <DialogTrigger asChild>
-              <Button className="w-full">Cancel Schedule</Button>
+              <Button className="w-full gap-1">
+                Cancel<span className="hidden md:inline"> Schedule</span>
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
