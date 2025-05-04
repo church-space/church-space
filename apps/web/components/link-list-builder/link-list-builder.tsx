@@ -79,12 +79,6 @@ export default function LinkListBuilder({
 }) {
   const params = useParams();
   const linkListId = params.linkListId as unknown as number;
-
-  // Early return for no linkListId before any hooks are called
-  if (!linkListId) {
-    return <div>No link page ID</div>;
-  }
-
   const supabase = createClient();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -134,9 +128,6 @@ export default function LinkListBuilder({
     headerBlur: false,
   });
 
-  const linkDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const socialDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
   // Query hook
   const { data: linkList, isLoading } = useQuery({
     queryKey: ["linkList", linkListId],
@@ -144,7 +135,12 @@ export default function LinkListBuilder({
     enabled: !!linkListId,
   });
 
-  // Parse initial data from database - must be after useQuery and before useEffect that uses them
+  // Return LinkNotFound component if data is loaded but no link list is found
+  if (!isLoading && (!linkList || !linkList.data)) {
+    return <LinkNotFound />;
+  }
+
+  // Parse initial data from database
   const style = linkList?.data?.style as Style | null;
   const primaryButton = linkList?.data?.primary_button as PrimaryButton | null;
 
@@ -494,6 +490,9 @@ export default function LinkListBuilder({
     debouncedUpdateText(updates);
   };
 
+  const linkDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const socialDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleSetLinks = (newLinks: Link[]) => {
     // Immediately update UI state for optimistic updates
     setLinks(newLinks);
@@ -592,9 +591,9 @@ export default function LinkListBuilder({
     }, 1000); // 1 second debounce
   };
 
-  // Return LinkNotFound component if data is loaded but no link list is found
-  if (!isLoading && (!linkList || !linkList.data)) {
-    return <LinkNotFound />;
+  // Early return for no linkListId, but now all hooks are declared above
+  if (!linkListId) {
+    return <div>No link page ID</div>;
   }
 
   return (
