@@ -93,6 +93,7 @@ import {
   Tooltip as TooltipComponent,
 } from "@church-space/ui/tooltip";
 import ColorPicker from "@/components/dnd-builder/color-picker";
+import QRCodeNotFound from "@/components/not-found/qr-code";
 
 // Types
 type QRCodeData = {
@@ -244,6 +245,11 @@ export default function Page() {
       return data;
     },
   });
+
+  // Return QRCodeNotFound component if data is loaded but no QR link is found
+  if (!isLoadingQRLink && !qrLinkData) {
+    return <QRCodeNotFound />;
+  }
 
   // Add a new query for QR code clicks with staleTime to prevent unnecessary refetches
   const {

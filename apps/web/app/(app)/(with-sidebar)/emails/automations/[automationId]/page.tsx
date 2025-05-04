@@ -60,6 +60,7 @@ import {
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
 import LoadingPage from "./loading-page";
+import AutomationNotFound from "@/components/not-found/automation";
 
 // Types for the new schema
 interface AutomationStep {
@@ -266,7 +267,7 @@ export default function Page() {
   }
 
   if (!transformedAutomation) {
-    return <div>Automation not found</div>;
+    return <AutomationNotFound />;
   }
 
   const handleStatusToggle = () => {

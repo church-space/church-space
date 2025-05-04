@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { getSentEmailStatsAction } from "@/actions/get-sent-email-stats";
 import Cookies from "js-cookie";
 import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
+import EmailNotFound from "@/components/not-found/email";
 
 export default function Page() {
   const params = useParams();
@@ -54,7 +55,7 @@ export default function Page() {
   }
 
   if (!emailState && !email?.data) {
-    return <div>Email not found</div>;
+    return <EmailNotFound />;
   }
 
   if ((emailState || email?.data)?.type === "template") {

@@ -37,6 +37,7 @@ import {
   BreadcrumbSeparator,
 } from "@church-space/ui/breadcrumb";
 import Link from "next/link";
+import LinkNotFound from "@/components/not-found/link-page";
 
 export interface Link {
   type: string;
@@ -133,6 +134,11 @@ export default function LinkListBuilder({
     queryFn: () => getLinkListQuery(supabase, linkListId, organizationId),
     enabled: !!linkListId,
   });
+
+  // Return LinkNotFound component if data is loaded but no link list is found
+  if (!isLoading && (!linkList || !linkList.data)) {
+    return <LinkNotFound />;
+  }
 
   // Parse initial data from database
   const style = linkList?.data?.style as Style | null;
