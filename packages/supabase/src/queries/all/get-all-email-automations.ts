@@ -23,7 +23,10 @@ export async function getAllEmailAutomations(
       list_id,
       description,
       is_active,
-      updated_at
+      updated_at, 
+          list:list_id(
+        pco_list_description
+      )
     `
     )
     .order("updated_at", { ascending: false })

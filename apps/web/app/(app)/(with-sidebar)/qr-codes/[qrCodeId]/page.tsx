@@ -78,6 +78,7 @@ import {
   Trash,
   DisableLink,
   LinkIcon,
+  CircleInfo,
 } from "@church-space/ui/icons";
 import { createRoot } from "react-dom/client";
 import FileUpload from "@/components/dnd-builder/file-upload";
@@ -86,6 +87,12 @@ import { z } from "zod";
 import Link from "next/link";
 import { Skeleton } from "@church-space/ui/skeleton";
 import Cookies from "js-cookie";
+import {
+  TooltipTrigger,
+  TooltipContent,
+  Tooltip as TooltipComponent,
+} from "@church-space/ui/tooltip";
+import ColorPicker from "@/components/dnd-builder/color-picker";
 
 // Types
 type QRCodeData = {
@@ -1444,7 +1451,14 @@ export default function Page() {
           </div>
           <Separator className="my-12 hidden md:block" />
           <div className="mb-4 mt-6 flex items-center justify-between md:mt-12">
-            <h2 className="text-2xl font-bold">QR Codes</h2>
+            <Button
+              variant="ghost"
+              onClick={() => setIsAddingQRCode(true)}
+              className="group gap-1 px-1.5"
+            >
+              <h2 className="text-2xl font-bold">QR Codes</h2>
+              <Plus className="h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+            </Button>
           </div>
 
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -1559,16 +1573,29 @@ export default function Page() {
             }}
           >
             <DialogContent className="top-[3%] sm:max-w-[425px]">
-              <DialogHeader>
+              <DialogHeader className="pb-0">
                 <DialogTitle>Edit QR Code</DialogTitle>
                 <DialogDescription>
                   Customize the appearance of your QR code.
                 </DialogDescription>
               </DialogHeader>
               {editingQRCode && (
-                <div className="space-y-4 py-4">
+                <div className="space-y-4 pb-4">
                   <div className="space-y-2">
-                    <Label htmlFor="edit-qr-name">QR Code Name</Label>
+                    <TooltipComponent>
+                      <TooltipTrigger asChild>
+                        <Label className="flex items-center gap-1">
+                          Private Name <CircleInfo />
+                        </Label>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>
+                          This name is only visible to you and is not shared
+                          with people who scan the QR code.
+                        </p>
+                      </TooltipContent>
+                    </TooltipComponent>
+
                     <Input
                       id="edit-qr-name"
                       value={editingQRCode.name}
@@ -1584,26 +1611,20 @@ export default function Page() {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="edit-bg-color">Background Color</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="edit-bg-color"
-                          type="color"
-                          value={editingQRCode.bgColor}
-                          onChange={(e) =>
-                            setEditingQRCode({
-                              ...editingQRCode,
-                              bgColor: e.target.value,
-                            })
-                          }
-                          className="h-10 w-10 p-1"
-                          maxLength={6}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
+                    <Label htmlFor="edit-bg-color">Background Color</Label>
+                    {!editingQRCode.isTransparent && (
+                      <ColorPicker
+                        value={editingQRCode.bgColor}
+                        onChange={(color) =>
+                          setEditingQRCode({
+                            ...editingQRCode,
+                            bgColor: color,
+                          })
+                        }
+                        className="w-full"
+                      />
+                    )}
+                    <div className="flex items-center space-x-2 pt-1">
                       <Switch
                         id="edit-transparent-bg"
                         checked={editingQRCode.isTransparent}
@@ -1621,27 +1642,18 @@ export default function Page() {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="edit-qr-color">QR Code Color</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="edit-qr-color"
-                          type="color"
-                          value={editingQRCode.qrColor}
-                          onChange={(e) =>
-                            setEditingQRCode({
-                              ...editingQRCode,
-                              qrColor: e.target.value,
-                            })
-                          }
-                          className="h-10 w-10 p-1"
-                          maxLength={6}
-                        />
-                      </div>
-                    </div>
+                    <Label htmlFor="edit-qr-color">QR Code Color</Label>
+
+                    <ColorPicker
+                      value={editingQRCode.qrColor}
+                      onChange={(color) =>
+                        setEditingQRCode({ ...editingQRCode, qrColor: color })
+                      }
+                      className="w-full"
+                    />
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 pt-1">
                     <Switch
                       id="edit-rounded-corners"
                       checked={editingQRCode.isRounded}

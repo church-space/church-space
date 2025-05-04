@@ -27,10 +27,12 @@ export default function ColorPicker({
   onChange,
   value,
   brandColorsDisabled = false,
+  className,
 }: {
   onChange: (color: string) => void;
   value: string;
   brandColorsDisabled?: boolean;
+  className?: string;
 }) {
   const [color, setColor] = useState(value);
   const [error, setError] = useState<string | null>(null);
@@ -139,7 +141,7 @@ export default function ColorPicker({
   };
 
   return (
-    <div className="col-span-2 flex flex-col">
+    <div className={cn("col-span-2 flex flex-col", className)}>
       <div className="flex items-center">
         <Popover>
           <PopoverTrigger>

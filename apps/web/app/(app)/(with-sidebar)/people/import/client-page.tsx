@@ -23,7 +23,8 @@ import {
 import { useUser } from "@/stores/use-user";
 import { useCsvUpload } from "./use-csv-upload";
 import { useToast } from "@church-space/ui/use-toast";
-import { Link, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function ImportPage() {
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);

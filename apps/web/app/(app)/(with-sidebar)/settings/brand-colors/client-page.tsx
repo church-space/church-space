@@ -14,6 +14,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { getBrandColors } from "@/actions/get-brand-colors";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@church-space/ui/use-toast";
+import { Skeleton } from "@church-space/ui/skeleton";
 
 export default function ClientPage({
   organizationId,
@@ -149,9 +150,41 @@ export default function ClientPage({
   // Show loading state or placeholder?
   if (isLoading) {
     return (
-      <SettingsRow isFirstRow={true}>
-        <SettingsRowTitle>Loading brand colors...</SettingsRowTitle>
-      </SettingsRow>
+      <>
+        <Skeleton className="flex w-full items-center justify-between rounded-b-none border-b p-4">
+          <Skeleton className="h-5 w-32" />
+          <div className="flex gap-1">
+            <Skeleton className="h-9 w-64" />
+            <Skeleton className="h-9 w-9" />
+          </div>
+        </Skeleton>
+        <Skeleton className="flex w-full items-center justify-between rounded-none border-b p-4">
+          <Skeleton className="h-5 w-32" />
+          <div className="flex gap-1">
+            <Skeleton className="h-9 w-64" />
+            <Skeleton className="h-9 w-9" />
+          </div>
+        </Skeleton>
+        <Skeleton className="flex w-full items-center justify-between rounded-none p-4">
+          <Skeleton className="h-5 w-32" />
+          <div className="flex gap-1">
+            <Skeleton className="h-9 w-64" />
+            <Skeleton className="h-9 w-9" />
+          </div>
+        </Skeleton>
+
+        <SettingsRow
+          isFirstRow={colors.length === 0}
+          className={cn(
+            "cursor-pointer rounded-b-lg bg-muted text-muted-foreground transition-colors duration-200 hover:bg-background hover:text-foreground",
+            colors.length === 0 && "rounded-t-lg",
+          )}
+        >
+          <SettingsRowTitle className="flex items-center gap-2">
+            <Plus className="h-4 w-4" /> Add Color
+          </SettingsRowTitle>
+        </SettingsRow>
+      </>
     ); // Replace with a proper loader/skeleton
   }
 

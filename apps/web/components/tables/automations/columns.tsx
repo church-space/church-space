@@ -15,6 +15,9 @@ export type EmailAutomation = {
   organization_id: string;
   is_active: boolean;
   updated_at: string | null;
+  list: {
+    pco_list_description: string | null;
+  } | null;
 };
 
 const currentYear = new Date().getFullYear();
@@ -74,6 +77,16 @@ export const columns: ColumnDef<EmailAutomation>[] = [
       if (filterValue === "all") return true;
       const value = row.getValue(id) as boolean;
       return value === (filterValue === "true");
+    },
+  },
+  {
+    accessorKey: "list",
+    header: "Planning Center List",
+    cell: ({ row }) => {
+      const list = row.getValue("list") as {
+        pco_list_description: string | null;
+      } | null;
+      return <span>{list?.pco_list_description || "None"}</span>;
     },
   },
   {
