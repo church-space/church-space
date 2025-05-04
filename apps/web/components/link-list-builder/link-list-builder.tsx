@@ -83,7 +83,14 @@ export default function LinkListBuilder({
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // State management with database integration
+  // Query hook (MUST be called unconditionally)
+  const { data: linkList, isLoading } = useQuery({
+    queryKey: ["linkList", linkListId],
+    queryFn: () => getLinkListQuery(supabase, linkListId, organizationId),
+    enabled: !!linkListId,
+  });
+
+  // State management with database integration (State Hooks are fine before query)
   const [links, setLinks] = useState<Link[]>([]);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [bgColor, setBgColor] = useState<string>("#ffffff");
@@ -114,7 +121,7 @@ export default function LinkListBuilder({
   const [privateName, setPrivateName] = useState<string>("");
   const [urlSlugError, setUrlSlugError] = useState<string | null>(null);
 
-  // Use a ref to track the latest complete style object
+  // Use a ref to track the latest complete style object (Ref Hooks must be called unconditionally)
   const latestStyleRef = useRef<Style>({
     backgroundColor: "#ffffff",
     buttonColor: "#000000",
@@ -127,24 +134,10 @@ export default function LinkListBuilder({
     headerSecondaryTextColor: "#454545",
     headerBlur: false,
   });
+  const linkDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const socialDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Query hook
-  const { data: linkList, isLoading } = useQuery({
-    queryKey: ["linkList", linkListId],
-    queryFn: () => getLinkListQuery(supabase, linkListId, organizationId),
-    enabled: !!linkListId,
-  });
-
-  // Return LinkNotFound component if data is loaded but no link list is found
-  if (!isLoading && (!linkList || !linkList.data)) {
-    return <LinkNotFound />;
-  }
-
-  // Parse initial data from database
-  const style = linkList?.data?.style as Style | null;
-  const primaryButton = linkList?.data?.primary_button as PrimaryButton | null;
-
-  // Mutations
+  // Mutations (Must be called unconditionally)
   const updateLinkListMutation = useMutation({
     mutationFn: async (data: {
       style?: any;
@@ -158,6 +151,8 @@ export default function LinkListBuilder({
       is_public?: boolean;
       private_name?: string;
     }) => {
+      // Need to ensure linkListId is available before calling mutation if it relies on it
+      if (!linkListId) throw new Error("linkListId is not defined");
       const { data: result, error } = await updateLinkList(
         supabase,
         data,
@@ -207,6 +202,7 @@ export default function LinkListBuilder({
 
   const createLinkMutation = useMutation({
     mutationFn: async (link: Link) => {
+      if (!linkListId) throw new Error("linkListId is not defined");
       const { data: result, error } = await createLinkListLink(
         supabase,
         {
@@ -257,7 +253,7 @@ export default function LinkListBuilder({
     },
   });
 
-  // Social link mutations
+  // Social link mutations (Must be called unconditionally)
   const updateSocialMutation = useMutation({
     mutationFn: async ({ social, id }: { social: SocialLink; id: number }) => {
       const { data: result, error } = await updateLinkListSocial(
@@ -289,6 +285,7 @@ export default function LinkListBuilder({
 
   const createSocialMutation = useMutation({
     mutationFn: async (social: SocialLink) => {
+      if (!linkListId) throw new Error("linkListId is not defined");
       const { data: result, error } = await createLinkListSocial(
         supabase,
         {
@@ -338,7 +335,7 @@ export default function LinkListBuilder({
     },
   });
 
-  // Debounced update functions
+  // Debounced update functions (Must be called unconditionally)
   const debouncedUpdateStyle = useDebounceCallback((partialStyle: any) => {
     if (!partialStyle) return;
 
@@ -391,7 +388,21 @@ export default function LinkListBuilder({
     });
   }, 1000);
 
-  // Update state when data loads
+  // Early return for no linkListId, but now all hooks are declared above
+  if (!linkListId) {
+    return <div>No link page ID</div>;
+  }
+
+  // Return LinkNotFound component if data is loaded but no link list is found
+  if (!isLoading && (!linkList || !linkList.data)) {
+    return <LinkNotFound />;
+  }
+
+  // Parse initial data from database (Now safe after hooks and early returns)
+  const style = linkList?.data?.style as Style | null;
+  const primaryButton = linkList?.data?.primary_button as PrimaryButton | null;
+
+  // Update state when data loads (Effect Hook must be called unconditionally)
   useEffect(() => {
     if (linkList?.data) {
       // Update links
@@ -464,7 +475,7 @@ export default function LinkListBuilder({
       setHeaderImage(linkList.data.bg_image || "");
       setLogoImage(linkList.data.logo_asset || "");
     }
-  }, [linkList?.data, primaryButton]);
+  }, [linkList?.data, primaryButton, style]); // Added 'style' dependency
 
   // Update handlers
   const handleStyleUpdate = (newStyle: any) => {
@@ -489,9 +500,6 @@ export default function LinkListBuilder({
     if (!updates) return;
     debouncedUpdateText(updates);
   };
-
-  const linkDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const socialDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSetLinks = (newLinks: Link[]) => {
     // Immediately update UI state for optimistic updates
@@ -591,10 +599,7 @@ export default function LinkListBuilder({
     }, 1000); // 1 second debounce
   };
 
-  // Early return for no linkListId, but now all hooks are declared above
-  if (!linkListId) {
-    return <div>No link page ID</div>;
-  }
+  // No need for early return here as it's handled above
 
   return (
     <div className="relative">
