@@ -33,7 +33,8 @@
     ".next/types/**/*.ts",
     "postcss.config.js",
     "trigger.config.ts",
-    ". prettierrc"
+    ". prettierrc",
+    "pages/404.js"
   ],
   "exclude": ["node_modules"]
 }

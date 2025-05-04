@@ -63,37 +63,50 @@ export default function Page() {
 
   const currentEmail = emailState || email?.data;
 
-  return (
-    <>
-      {currentEmail.status === "sending" && (
-        <SendingPage subject={currentEmail.subject} />
-      )}
-      {currentEmail.status === "sent" && (
+  // Determine which component to show based on the email status
+  const renderEmailPage = () => {
+    // Use the most up-to-date status
+    const status = currentEmail.status;
+
+    if (status === "sending") {
+      return <SendingPage subject={currentEmail.subject} />;
+    } else if (status === "sent") {
+      return (
         <PostSendPage
           initialEmail={currentEmail}
           stats={sentStats}
           orgFooterDetails={orgFooterDetails}
         />
-      )}
-      {(currentEmail.status === "draft" ||
-        currentEmail.status === "failed") && (
-        <PreSendPage
-          email={currentEmail}
-          onStatusChange={(newStatus) => {
-            setEmailState((prev: any) => ({
-              ...prev,
-              status: newStatus,
-            }));
-          }}
-          orgFooterDetails={orgFooterDetails}
-        />
-      )}
-      {currentEmail.status === "scheduled" && (
+      );
+    } else if (status === "scheduled") {
+      return (
         <ScheduledPage
           email={currentEmail}
           orgFooterDetails={orgFooterDetails}
         />
-      )}
-    </>
-  );
+      );
+    } else {
+      // "draft" or "failed"
+      return (
+        <PreSendPage
+          email={currentEmail}
+          onStatusChange={(
+            newStatus: "sending" | "scheduled",
+            updatedEmail?: any,
+          ) => {
+            // Merge the updated email with the current email to ensure all fields are preserved
+            const updatedState = {
+              ...currentEmail,
+              ...updatedEmail,
+              status: newStatus,
+            };
+            setEmailState(updatedState);
+          }}
+          orgFooterDetails={orgFooterDetails}
+        />
+      );
+    }
+  };
+
+  return <>{renderEmailPage()}</>;
 }

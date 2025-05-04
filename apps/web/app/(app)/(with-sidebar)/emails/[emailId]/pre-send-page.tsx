@@ -141,7 +141,7 @@ export default function PreSendPage({
   orgFooterDetails,
 }: {
   email: any;
-  onStatusChange: (status: "sending" | "scheduled") => void;
+  onStatusChange: (status: "sending" | "scheduled", updatedEmail?: any) => void;
   orgFooterDetails: any;
 }) {
   const [email, setEmail] = useState<typeof initialEmail>(initialEmail);
@@ -1137,12 +1137,18 @@ export default function PreSendPage({
                           );
                         }
 
+                        // Create updated email object with all necessary properties
+                        const updatedEmail = {
+                          ...email,
+                          status: "scheduled",
+                        };
+
                         // Optimistically update both local and parent state
                         setEmail((prev: typeof initialEmail) => ({
                           ...prev,
                           status: "scheduled",
                         }));
-                        onStatusChange("scheduled");
+                        onStatusChange("scheduled", updatedEmail);
                         setSendDialogOpen(false);
 
                         toast({
@@ -1174,12 +1180,18 @@ export default function PreSendPage({
                           );
                         }
 
+                        // Create updated email object with all necessary properties
+                        const updatedEmail = {
+                          ...email,
+                          status: "sending",
+                        };
+
                         // Optimistically update both local and parent state
                         setEmail((prev: typeof initialEmail) => ({
                           ...prev,
                           status: "sending",
                         }));
-                        onStatusChange("sending");
+                        onStatusChange("sending", updatedEmail);
                         setSendDialogOpen(false);
 
                         toast({
