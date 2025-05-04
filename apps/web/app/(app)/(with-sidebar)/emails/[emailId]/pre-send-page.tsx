@@ -27,6 +27,7 @@ import {
   LoaderIcon,
   Email,
   PaperPlane,
+  TemplatesIcon,
 } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -928,6 +929,7 @@ export default function PreSendPage({
                   <DropdownMenuItem
                     onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
                   >
+                    <TemplatesIcon />
                     Duplicate as New Email
                   </DropdownMenuItem>
                 </DialogTrigger>
@@ -1219,7 +1221,7 @@ export default function PreSendPage({
         </div>
       </header>
       <motion.div
-        className="mx-auto mb-2 mt-8 flex w-full max-w-7xl items-center justify-between px-5"
+        className="mx-auto mb-2 mt-8 flex w-full items-center justify-between px-5 md:px-9"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -1248,7 +1250,7 @@ export default function PreSendPage({
           initial="hidden"
           animate="visible"
           variants={itemVariants}
-          className="mx-auto mt-4 w-full max-w-7xl px-4"
+          className="mx-auto mt-4 w-full px-4 md:px-8"
         >
           <Card className="mx-auto w-full rounded-md border-destructive bg-destructive/10 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2 pt-2">
@@ -1273,15 +1275,15 @@ export default function PreSendPage({
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="mx-auto flex w-full max-w-7xl gap-4 space-y-4 px-4 py-4"
+        className="mx-auto flex w-full gap-4 space-y-4 px-4 py-4 md:px-8"
       >
-        <div className="flex w-full items-start gap-4">
+        <div className="flex h-[calc(100vh-170px)] w-full items-start gap-4 xl:gap-8">
           <Accordion
             type="single"
             collapsible
             value={activeAccordion}
             onValueChange={handleAccordionChange}
-            className="w-full space-y-4"
+            className="w-full max-w-4xl space-y-4 overflow-y-auto"
           >
             <motion.div variants={itemVariants}>
               <AccordionItem
@@ -1801,15 +1803,21 @@ export default function PreSendPage({
                       />
                     </DialogContent>
                   </Dialog>
-                  <Button variant="outline" className="cursor-pointer px-5">
+                  <Button
+                    variant="outline"
+                    className="cursor-pointer px-5"
+                    onClick={() => {
+                      router.push(`/emails/${email.id}/editor`);
+                    }}
+                  >
                     Edit
                   </Button>
                 </div>
               </div>
             </motion.div>
           </Accordion>
-          <div className="hidden w-[50%] flex-col gap-1 rounded-lg border bg-muted shadow-sm lg:flex">
-            <div className="flex w-full items-center justify-between px-3.5 pt-2">
+          <div className="relative hidden w-[50%] flex-col gap-1 overflow-y-auto rounded-lg border bg-muted shadow-sm lg:flex">
+            <div className="sticky top-0 flex w-full items-center justify-between px-3.5 pt-2">
               <h4 className="font-medium">Preview</h4>
 
               <Button
@@ -1822,11 +1830,11 @@ export default function PreSendPage({
                 <Maximize2 />
               </Button>
             </div>
-            <div className="overflow-hidden p-2">
+            <div className="overflow-auto p-2">
               <EmailPreview
                 webOnly={true}
                 orgFooterDetails={orgFooterDetails?.data?.data}
-                customHeight="!max-h-[calc(100vh-100px)] !h-auto !min-h-[calc(37vh)] rounded-lg"
+                customHeight="h-[calc(100vh-252px)] rounded-lg"
               />
             </div>
           </div>

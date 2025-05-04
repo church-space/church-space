@@ -70,7 +70,7 @@ export const columns: ColumnDef<Email>[] = [
           <Link href={`/emails/${email.id}`} prefetch={true}>
             <Button
               variant="ghost"
-              className="group h-16 w-full items-center justify-start gap-3 truncate px-1.5 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
+              className="group h-16 w-full items-center justify-start gap-3 truncate text-wrap px-1.5 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
             >
               {email.subject || "No Subject"}
             </Button>
@@ -117,23 +117,6 @@ export const columns: ColumnDef<Email>[] = [
       filterVariant: "select",
     },
   },
-
-  {
-    header: "From",
-    accessorKey: "from_name",
-    cell: ({ row }) => {
-      return (
-        <div className="flex min-w-64 flex-col pr-3">
-          <span className="font-semibold">{row.original.from_name}</span>
-          <span className="text-muted-foreground">
-            {row.original.from_email && row.original.from_domain
-              ? `${row.original.from_email}@${row.original.from_domain.domain}`
-              : row.original.from_email || "—"}
-          </span>
-        </div>
-      );
-    },
-  },
   {
     header: "To",
     accessorKey: "list",
@@ -158,6 +141,23 @@ export const columns: ColumnDef<Email>[] = [
       );
     },
   },
+  {
+    header: "From",
+    accessorKey: "from_name",
+    cell: ({ row }) => {
+      return (
+        <div className="flex min-w-64 flex-col pr-3">
+          <span className="font-semibold">{row.original.from_name}</span>
+          <span className="text-muted-foreground">
+            {row.original.from_email && row.original.from_domain
+              ? `${row.original.from_email}@${row.original.from_domain.domain}`
+              : row.original.from_email || "—"}
+          </span>
+        </div>
+      );
+    },
+  },
+
   {
     header: "Metrics",
     accessorKey: "metrics",
