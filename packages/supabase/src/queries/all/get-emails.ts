@@ -41,14 +41,15 @@ export async function getEmailsQuery(
       from_domain:from_email_domain(domain),
       reply_to_domain:reply_to_domain(domain),
       list:list_id(
-        pco_list_description,
-        pco_list_category:pco_list_category_id(
-          pco_name,
-          description
-        )
+        pco_list_description
       ), 
       category:email_category(
         name
+      ),
+      metrics:email_metrics(
+        total_sent,
+        total_opens,
+        total_clicks
       )
     `
     )

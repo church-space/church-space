@@ -82,6 +82,7 @@
     "./queries/all/get-active-automation-members": "./src/queries/all/get-active-automation-members.ts",
     "./queries/all/get-email-with-blocks": "./src/queries/all/get-email-with-blocks.ts",
     "./queries/all/get-public-qr-code": "./src/queries/all/get-public-qr-code.ts",
-    "./queries/all/get-automations-in-category": "./src/queries/all/get-automations-in-category.ts"
+    "./queries/all/get-automations-in-category": "./src/queries/all/get-automations-in-category.ts",
+    "./queries/all/get-scheduled-emails-in-category": "./src/queries/all/get-scheduled-emails-in-category.ts"
   }
 }

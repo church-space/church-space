@@ -22,17 +22,23 @@ export type Email = {
   reply_to_domain: { domain: string } | null;
   list: {
     pco_list_description: string | null;
-    pco_list_category: {
-      pco_name: string | null;
-      description: string | null;
-    } | null;
   } | null;
   category: {
     name: string | null;
   } | null;
+  metrics: {
+    total_sent: number | null;
+    total_opens: number | null;
+    total_clicks: number | null;
+  } | null;
 };
 
 const currentYear = new Date().getFullYear();
+
+const formatNumber = (num: number | null | undefined) => {
+  if (num === null || num === undefined) return "0";
+  return num.toLocaleString();
+};
 
 const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return null;
@@ -140,6 +146,41 @@ export const columns: ColumnDef<Email>[] = [
           <span className="text-muted-foreground">
             {row.original.category?.name}
           </span>
+          <span className="text-muted-foreground">
+            {row.original.metrics?.total_sent
+              ? formatNumber(row.original.metrics.total_sent)
+              : "—"}{" "}
+            Recipients
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    header: "Metrics",
+    accessorKey: "metrics",
+    cell: ({ row }) => {
+      const metrics = row.original.metrics;
+      const sent = metrics?.total_sent || 0;
+      const opens = metrics?.total_opens || 0;
+      const clicks = metrics?.total_clicks || 0;
+
+      const openRate = sent > 0 ? ((opens / sent) * 100).toFixed(1) : 0;
+      const clickRate = sent > 0 ? ((clicks / sent) * 100).toFixed(1) : 0;
+
+      if (sent === 0) {
+        return null;
+      }
+
+      return (
+        <div className="flex min-w-64 flex-col">
+          <div>Sent: {formatNumber(sent)}</div>
+          <div>
+            Opens: {formatNumber(opens)} ({openRate}%)
+          </div>
+          <div>
+            Clicks: {formatNumber(clicks)} ({clickRate}%)
+          </div>
         </div>
       );
     },

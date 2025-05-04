@@ -188,12 +188,15 @@ const NameCell = ({ person }: { person: Person }) => {
               className="w-fit -translate-x-0.5 capitalize"
               variant={
                 currentStatus === "unsubscribed"
-                  ? "outline"
+                  ? "destructive"
                   : currentCategoryUnsubscribes.length > 0
-                    ? "default"
+                    ? "warning"
                     : currentStatus === "subscribed"
                       ? "success"
-                      : "outline"
+                      : currentStatus === "cleaned" ||
+                          currentStatus === "pco_blocked"
+                        ? "secondary"
+                        : "outline"
               }
             >
               {currentStatus === "unsubscribed"
@@ -461,7 +464,9 @@ export const columns: ColumnDef<Person>[] = [
         return (
           <Tooltip>
             <TooltipTrigger>
-              <Badge className="w-fit capitalize">Partially Subscribed</Badge>
+              <Badge variant="warning" className="w-fit capitalize">
+                Partially Subscribed
+              </Badge>
             </TooltipTrigger>
             <TooltipContent>
               {row.original.email_category_unsubscribes.length > 0 && (
@@ -484,7 +489,7 @@ export const columns: ColumnDef<Person>[] = [
         return (
           <Tooltip>
             <TooltipTrigger>
-              <Badge variant={"outline"} className="w-fit capitalize">
+              <Badge variant="secondary" className="w-fit capitalize">
                 Cleaned
               </Badge>
             </TooltipTrigger>
@@ -517,7 +522,15 @@ export const columns: ColumnDef<Person>[] = [
 
       return (
         <Badge
-          variant={firstEmail.status === "subscribed" ? "success" : "outline"}
+          variant={
+            firstEmail.status === "subscribed"
+              ? "success"
+              : firstEmail.status === "unsubscribed"
+                ? "destructive"
+                : firstEmail.status === "pco_blocked"
+                  ? "secondary"
+                  : "outline"
+          }
           className="w-fit capitalize"
         >
           {firstEmail.status}

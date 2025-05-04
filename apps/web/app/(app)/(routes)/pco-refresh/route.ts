@@ -3,6 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
 
 export async function GET(request: NextRequest) {
+  // Check for 307 error and redirect if needed (can occur during Next.js routing)
+  if (request.headers.get("x-nextjs-error-code") === "307") {
+    return NextResponse.redirect(new URL("/homepage", request.url));
+  }
+
   const supabase = await createClient();
   const user = await getUserWithDetailsQuery(supabase);
 
@@ -75,6 +80,11 @@ export async function GET(request: NextRequest) {
   );
 
   if (!response || !response.ok) {
+    // Check for 307 status and redirect to homepage
+    if (response?.status === 307) {
+      return NextResponse.redirect(new URL("/homepage", request.url));
+    }
+
     const errorText = response ? await response.text() : "No response";
     console.error("Failed to refresh PCO token:", {
       status: response?.status,
@@ -113,6 +123,11 @@ export async function GET(request: NextRequest) {
   );
 
   if (!pcoUserResponse || !pcoUserResponse.ok) {
+    // Check for 307 status and redirect to homepage
+    if (pcoUserResponse?.status === 307) {
+      return NextResponse.redirect(new URL("/homepage", request.url));
+    }
+
     console.error("Failed to get PCO user data:", {
       status: pcoUserResponse?.status,
       statusText: pcoUserResponse?.statusText,

@@ -87,7 +87,11 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
   const [automationsInCategory, setAutomationsInCategory] = useState<
     { id: number; name: string }[]
   >([]);
+  const [scheduledEmailsInCategory, setScheduledEmailsInCategory] = useState<
+    { id: number; subject: string | null }[]
+  >([]);
   const [showingAutomations, setShowingAutomations] = useState(false);
+  const [showingScheduledEmails, setShowingScheduledEmails] = useState(false);
   const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
@@ -173,6 +177,19 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
           // Show the automations in the dialog
           setAutomationsInCategory(result.data.data.automationsInCategory);
           setShowingAutomations(true);
+          setShowingScheduledEmails(false);
+        } else if (
+          result.data?.error ===
+            "Email category is associated with scheduled emails" &&
+          result.data?.data?.scheduledEmailsInCategory &&
+          result.data.data.scheduledEmailsInCategory.length > 0
+        ) {
+          // Show the scheduled emails in the dialog
+          setScheduledEmailsInCategory(
+            result.data.data.scheduledEmailsInCategory,
+          );
+          setShowingScheduledEmails(true);
+          setShowingAutomations(false);
         } else {
           toast({
             title: "Error",
@@ -314,6 +331,47 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
                               variant="default"
                               type="button"
                               onClick={() => setShowingAutomations(false)}
+                            >
+                              OK
+                            </Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </>
+                    ) : showingScheduledEmails ? (
+                      <>
+                        <DialogHeader>
+                          <DialogTitle>Cannot Delete Category</DialogTitle>
+                        </DialogHeader>
+                        <div className="py-2">
+                          <p className="mb-2">
+                            This category cannot be deleted because it's used in
+                            the following scheduled emails:
+                          </p>
+                          <ul className="list-disc pl-5">
+                            {scheduledEmailsInCategory.map((email) => (
+                              <li key={email.id} className="py-1">
+                                <a
+                                  href={`/emails/scheduled/${email.id}`}
+                                  className="text-primary hover:underline"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {email.subject || "Untitled Email"}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                          <p className="mt-2">
+                            Please remove this category from these scheduled
+                            emails first.
+                          </p>
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button
+                              variant="default"
+                              type="button"
+                              onClick={() => setShowingScheduledEmails(false)}
                             >
                               OK
                             </Button>

@@ -3,7 +3,7 @@
 import { usePeople } from "@/hooks/use-people";
 import { Button } from "@church-space/ui/button";
 import { useQueryState } from "nuqs";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import DataTable from "../data-table";
 import { columns, type Person } from "./columns";
 import { CircleInfo, XIcon } from "@church-space/ui/icons";
@@ -13,6 +13,7 @@ import { useUser } from "@/stores/use-user";
 import { useSubscribedPeopleCount } from "@/hooks/use-subscribed-people-count";
 import { TooltipContent, TooltipTrigger } from "@church-space/ui/tooltip";
 import { Tooltip } from "@church-space/ui/tooltip";
+
 interface PeopleTableProps {
   organizationId: string;
 }
@@ -59,7 +60,7 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
               <Link href={`/people/import`}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button className="w-fit rounded-r-none">
+                    <Button className="w-fit gap-1">
                       Import{" "}
                       <span className="hidden md:inline">Unsubscribes</span>
                     </Button>
@@ -71,9 +72,6 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
                   </TooltipContent>
                 </Tooltip>
               </Link>
-              <Button className="w-8 rounded-l-none px-1" variant="secondary">
-                <XIcon />
-              </Button>
             </div>
           )}
         </div>

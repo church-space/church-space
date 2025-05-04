@@ -7,12 +7,17 @@ import { z } from "zod";
 import type { ActionResponse } from "@/types/action";
 import { PostgrestError } from "@supabase/supabase-js";
 import { getAutomationsInCategory } from "@church-space/supabase/queries/all/get-automations-in-category";
+import { getScheduledEmailsInCategory } from "@church-space/supabase/queries/all/get-scheduled-emails-in-category";
 
 export interface EmailCategoryResponse {
   id?: number;
   automationsInCategory?: {
     id: number;
     name: string;
+  }[];
+  scheduledEmailsInCategory?: {
+    id: number;
+    subject: string | null;
   }[];
 }
 
@@ -42,12 +47,34 @@ export const deleteEmailCategoryAction = authActionClient
           throw automationsInCategoryError;
         }
 
+        const {
+          data: scheduledEmailsInCategory,
+          error: scheduledEmailsInCategoryError,
+        } = await getScheduledEmailsInCategory(
+          supabase,
+          parsedInput.parsedInput.emailCategoryId,
+        );
+
+        if (scheduledEmailsInCategoryError) {
+          throw scheduledEmailsInCategoryError;
+        }
+
         if (automationsInCategory.length > 0) {
           return {
             success: false,
             error: "Email category is associated with active automations",
             data: {
               automationsInCategory,
+            },
+          };
+        }
+
+        if (scheduledEmailsInCategory.length > 0) {
+          return {
+            success: false,
+            error: "Email category is associated with scheduled emails",
+            data: {
+              scheduledEmailsInCategory,
             },
           };
         }
