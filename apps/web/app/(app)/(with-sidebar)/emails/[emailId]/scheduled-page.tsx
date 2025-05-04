@@ -271,24 +271,23 @@ export default function ScheduledPage({
             className="w-full max-w-4xl space-y-4 overflow-y-auto"
           >
             <Card className="w-full max-w-4xl space-y-4 overflow-y-auto">
-              <CardHeader className="sr-only">
-                <CardTitle className="sr-only text-lg font-bold">
-                  Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6 pt-2.5">
-                <div className="flex flex-col items-start font-medium text-primary">
-                  <div className="flex items-center gap-1">
-                    <Users /> To:
-                  </div>
-                  <div className="ml-5 text-foreground">
-                    <div className="flex items-baseline gap-2">
-                      {listData?.data?.[0]?.pco_list_description}{" "}
+              <CardContent className="flex flex-row items-center gap-3.5 py-4">
+                <span className="text-primary">
+                  <Users height={"20"} width={"20"} />
+                </span>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-bold text-primary">To:</span>
+                  <div className="text-foreground">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="font-medium">
+                        {listData?.data?.[0]?.pco_list_description}{" "}
+                      </span>
                       <div className="text-sm text-muted-foreground">
-                        {listData?.data?.[0]?.pco_total_people}{" "}
+                        ({listData?.data?.[0]?.pco_total_people}{" "}
                         {listData?.data?.[0]?.pco_total_people === "1"
                           ? "person"
                           : "people"}
+                        ))
                       </div>
                     </div>
 
@@ -297,45 +296,93 @@ export default function ScheduledPage({
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col items-start font-medium text-primary">
-                  <div className="flex items-center gap-1">
-                    <UserPen /> From:
-                  </div>
-                  <div className="ml-5 text-foreground">
-                    <div className="flex items-baseline gap-2">{fromName}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {fromEmail}
-                      {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
-                    </div>
-                  </div>
-                </div>
-                {replyToEmail && (
-                  <div className="flex flex-col items-start font-medium text-primary">
-                    <div className="flex items-center gap-1">
-                      <Reply /> Reply-To:
-                    </div>
-                    <div className="ml-5 text-foreground">
-                      <div className="flex items-baseline gap-2">
-                        {replyToEmail}
-                        {replyToDomain
-                          ? `@${replyToDomainData?.data?.[0]?.domain}`
-                          : ""}
+              </CardContent>
+            </Card>
+            <Card className="w-full max-w-4xl space-y-4 overflow-y-auto">
+              <CardContent className="flex flex-row items-center gap-3.5 py-4">
+                <span className="text-primary">
+                  <UserPen height={"20"} width={"20"} />
+                </span>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-bold text-primary">From:</span>
+                  <div className="text-foreground">
+                    <div className="flex items-baseline gap-1.5">
+                      <div className="flex items-baseline gap-2 font-medium">
+                        {fromName}
                       </div>
                     </div>
                   </div>
-                )}
-                <div className="flex flex-col items-start gap-1 font-medium text-primary">
-                  <div className="flex items-center gap-1">
-                    <FountainPen /> Subject:
+                  <div className="text-sm text-muted-foreground">
+                    {fromEmail}
+                    {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
                   </div>
-                  <div className="ml-5 text-foreground">{subject}</div>
                 </div>
-                <div className="flex flex-col items-start font-medium text-primary">
-                  <div className="flex items-center gap-1">
-                    <PaperPlaneClock /> Scheduled For:
+              </CardContent>
+            </Card>
+            {replyToEmail && (
+              <Card className="w-full max-w-4xl space-y-4 overflow-y-auto">
+                <CardContent className="flex flex-row items-center gap-3.5 py-4">
+                  <span className="text-primary">
+                    <Reply height={"20"} width={"20"} />
+                  </span>
+                  <div className="flex flex-col items-start">
+                    <span className="text-xs font-bold text-primary">
+                      Reply-To:
+                    </span>
+                    <div className="text-foreground">
+                      <div className="flex items-baseline gap-1.5">
+                        <div className="flex items-baseline gap-2 font-medium">
+                          {replyToEmail}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {replyToEmail}
+                      {replyToDomain
+                        ? `@${replyToDomainData?.data?.[0]?.domain}`
+                        : ""}
+                    </div>
                   </div>
-                  <div className="ml-5 text-foreground">
-                    {formatDate(sendDate)}
+                </CardContent>
+              </Card>
+            )}
+            <Card className="w-full max-w-4xl space-y-4 overflow-y-auto">
+              <CardContent className="flex flex-row items-center gap-3.5 py-4">
+                <span className="text-primary">
+                  <FountainPen height={"20"} width={"20"} />
+                </span>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-bold text-primary">
+                    Subject:
+                  </span>
+                  <div className="text-foreground">
+                    <div className="flex items-baseline gap-1.5">
+                      <div className="flex items-baseline gap-2 font-medium">
+                        {subject}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="w-full max-w-4xl space-y-4 overflow-y-auto">
+              <CardContent className="flex flex-row items-center gap-3.5 py-4">
+                <span className="text-primary">
+                  <PaperPlaneClock height={"20"} width={"20"} />
+                </span>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-bold text-primary">
+                    Scheduled For:
+                  </span>
+                  <div className="text-foreground">
+                    <div className="flex items-baseline gap-1.5">
+                      <div className="flex items-baseline gap-2 font-medium">
+                        {formatDate(sendDate, false)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {Intl.DateTimeFormat().resolvedOptions().timeZone}
                   </div>
                 </div>
               </CardContent>
