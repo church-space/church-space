@@ -35,6 +35,7 @@ import { useQueryState } from "nuqs";
 import { useState } from "react";
 import { getDomainQuery } from "@church-space/supabase/queries/all/get-domains";
 import {
+  Email,
   FountainPen,
   LoaderIcon,
   PaperPlaneClock,
@@ -45,6 +46,7 @@ import {
 import { motion } from "framer-motion";
 import { getEmailCategoryById } from "@church-space/supabase/queries/all/get-all-email-categories";
 import Link from "next/link";
+import { Maximize2 } from "lucide-react";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -180,193 +182,186 @@ export default function ScheduledPage({
             </BreadcrumbList>
           </Breadcrumb>
         </div>
+        <div className="flex items-center gap-2 px-2">
+          <Dialog
+            open={cancelScheduleOpen}
+            onOpenChange={setCancelScheduleOpen}
+          >
+            <DialogTrigger asChild>
+              <Button className="w-full">Cancel Schedule</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Cancel Schedule</DialogTitle>
+              </DialogHeader>
+              <DialogDescription>
+                Are you sure you want to cancel this schedule?
+              </DialogDescription>
+              <DialogFooter>
+                <Button variant="outline">
+                  Close{" "}
+                  <span className="rounded bg-muted px-1 text-xs text-muted-foreground">
+                    Esc
+                  </span>
+                </Button>
+                <Button
+                  onClick={async () => {
+                    setIsLoading(true);
+                    try {
+                      await cancelScheduledEmail({ emailId: email.id });
+                      setCancelScheduleOpen(false);
+                      router.refresh();
+                      window.location.reload();
+                    } catch (error) {
+                      console.error("Failed to cancel schedule", error);
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  Cancel Schedule
+                  {isLoading && (
+                    <div className="animate-spin">
+                      <LoaderIcon />
+                    </div>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </header>
-      <motion.h1
-        className="mx-auto mb-2 mt-8 w-full max-w-3xl items-center text-balance px-5"
+      <motion.div
+        className="mx-auto mb-2 mt-8 flex items-center px-5 md:px-9"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
-        {subject ? (
-          <motion.span className="text-2xl font-bold" variants={itemVariants}>
-            {subject}
-          </motion.span>
-        ) : (
+        <div className="mr-3 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-primary bg-secondary/80 text-primary shadow-lg shadow-primary/20">
+          <Email height={"20"} width={"20"} />
+        </div>
+        <h1 className="text-2xl">
+          <motion.span className="font-bold" variants={itemVariants}>
+            {subject || "New email"}
+          </motion.span>{" "}
           <motion.span
-            className="text-2xl font-bold text-muted-foreground"
+            className="text-muted-foreground"
             variants={itemVariants}
           >
-            Email
+            is scheduled for
+          </motion.span>{" "}
+          <motion.span className="font-bold" variants={itemVariants}>
+            {formatDate(sendDate, false)}
           </motion.span>
-        )}{" "}
-        <motion.span
-          className="ml-1.5 text-2xl text-muted-foreground"
-          variants={itemVariants}
-        >
-          is scheduled for
-        </motion.span>
-        <motion.span
-          className="ml-1.5 text-2xl font-bold text-foreground"
-          variants={itemVariants}
-        >
-          {formatDate(sendDate, false)}
-        </motion.span>
-      </motion.h1>
+        </h1>
+      </motion.div>
 
       <motion.div
-        className="mx-auto w-full max-w-3xl space-y-4 px-4 py-4"
+        className="mx-auto w-full space-y-4 px-4 py-4 md:px-8"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
-        <motion.div variants={itemVariants}>
-          <Card>
-            <CardHeader className="sr-only">
-              <CardTitle className="sr-only text-lg font-bold">
-                Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <div className="flex flex-col items-start font-medium text-primary">
-                <div className="flex items-center gap-1">
-                  <Users /> To:
-                </div>
-                <div className="ml-5 text-foreground">
-                  <div className="flex items-baseline gap-2">
-                    {listData?.data?.[0]?.pco_list_description}{" "}
-                    <div className="text-sm text-muted-foreground">
-                      {listData?.data?.[0]?.pco_total_people}{" "}
-                      {listData?.data?.[0]?.pco_total_people === "1"
-                        ? "person"
-                        : "people"}
-                    </div>
-                  </div>
-
-                  <div className="text-sm text-muted-foreground">
-                    {categoryData?.data?.[0]?.name}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-start font-medium text-primary">
-                <div className="flex items-center gap-1">
-                  <UserPen /> From:
-                </div>
-                <div className="ml-5 text-foreground">
-                  <div className="flex items-baseline gap-2">{fromName}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {fromEmail}
-                    {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
-                  </div>
-                </div>
-              </div>
-              {replyToEmail && (
+        <div className="flex h-[calc(100vh-170px)] w-full items-start gap-4 xl:gap-8">
+          <motion.div
+            variants={itemVariants}
+            className="w-full max-w-4xl space-y-4 overflow-y-auto"
+          >
+            <Card className="w-full max-w-4xl space-y-4 overflow-y-auto">
+              <CardHeader className="sr-only">
+                <CardTitle className="sr-only text-lg font-bold">
+                  Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-2.5">
                 <div className="flex flex-col items-start font-medium text-primary">
                   <div className="flex items-center gap-1">
-                    <Reply /> Reply-To:
+                    <Users /> To:
                   </div>
                   <div className="ml-5 text-foreground">
                     <div className="flex items-baseline gap-2">
-                      {replyToEmail}
-                      {replyToDomain
-                        ? `@${replyToDomainData?.data?.[0]?.domain}`
-                        : ""}
+                      {listData?.data?.[0]?.pco_list_description}{" "}
+                      <div className="text-sm text-muted-foreground">
+                        {listData?.data?.[0]?.pco_total_people}{" "}
+                        {listData?.data?.[0]?.pco_total_people === "1"
+                          ? "person"
+                          : "people"}
+                      </div>
+                    </div>
+
+                    <div className="text-sm text-muted-foreground">
+                      {categoryData?.data?.[0]?.name}
                     </div>
                   </div>
                 </div>
-              )}
-              <div className="flex flex-col items-start gap-1 font-medium text-primary">
-                <div className="flex items-center gap-1">
-                  <FountainPen /> Subject:
+                <div className="flex flex-col items-start font-medium text-primary">
+                  <div className="flex items-center gap-1">
+                    <UserPen /> From:
+                  </div>
+                  <div className="ml-5 text-foreground">
+                    <div className="flex items-baseline gap-2">{fromName}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {fromEmail}
+                      {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
+                    </div>
+                  </div>
                 </div>
-                <div className="ml-5 text-foreground">{subject}</div>
-              </div>
-              <div className="flex flex-col items-start font-medium text-primary">
-                <div className="flex items-center gap-1">
-                  <PaperPlaneClock /> Scheduled For:
+                {replyToEmail && (
+                  <div className="flex flex-col items-start font-medium text-primary">
+                    <div className="flex items-center gap-1">
+                      <Reply /> Reply-To:
+                    </div>
+                    <div className="ml-5 text-foreground">
+                      <div className="flex items-baseline gap-2">
+                        {replyToEmail}
+                        {replyToDomain
+                          ? `@${replyToDomainData?.data?.[0]?.domain}`
+                          : ""}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="flex flex-col items-start gap-1 font-medium text-primary">
+                  <div className="flex items-center gap-1">
+                    <FountainPen /> Subject:
+                  </div>
+                  <div className="ml-5 text-foreground">{subject}</div>
                 </div>
-                <div className="ml-5 text-foreground">
-                  {formatDate(sendDate)}
+                <div className="flex flex-col items-start font-medium text-primary">
+                  <div className="flex items-center gap-1">
+                    <PaperPlaneClock /> Scheduled For:
+                  </div>
+                  <div className="ml-5 text-foreground">
+                    {formatDate(sendDate)}
+                  </div>
                 </div>
-              </div>
-              <Separator className="my-4" />
-              <div className="flex w-full flex-col items-center gap-2 sm:flex-row">
-                <Dialog
-                  open={cancelScheduleOpen}
-                  onOpenChange={setCancelScheduleOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button className="w-full" variant="outline">
-                      Cancel Schedule
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Cancel Schedule</DialogTitle>
-                    </DialogHeader>
-                    <DialogDescription>
-                      Are you sure you want to cancel this schedule?
-                    </DialogDescription>
-                    <DialogFooter>
-                      <Button variant="outline">
-                        Close{" "}
-                        <span className="rounded bg-muted px-1 text-xs text-muted-foreground">
-                          Esc
-                        </span>
-                      </Button>
-                      <Button
-                        onClick={async () => {
-                          setIsLoading(true);
-                          try {
-                            await cancelScheduledEmail({ emailId: email.id });
-                            setCancelScheduleOpen(false);
-                            router.refresh();
-                            window.location.reload();
-                          } catch (error) {
-                            console.error("Failed to cancel schedule", error);
-                          } finally {
-                            setIsLoading(false);
-                          }
-                        }}
-                        className="flex items-center gap-2"
-                      >
-                        Cancel Schedule
-                        {isLoading && (
-                          <div className="animate-spin">
-                            <LoaderIcon />
-                          </div>
-                        )}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-                <Dialog
-                  open={previewOpen === "true"}
-                  onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
-                >
-                  <DialogTrigger asChild>
-                    <Button
-                      onClick={() => {
-                        setPreviewOpen("true");
-                      }}
-                      className="hidden w-full sm:flex"
-                    >
-                      Preview Email
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="h-[95%] min-w-[95%] p-4">
-                    <DialogHeader className="sr-only">
-                      <DialogTitle>Preview</DialogTitle>
-                    </DialogHeader>
+              </CardContent>
+            </Card>
+          </motion.div>
+          <div className="relative hidden w-[50%] flex-col gap-1 overflow-y-auto rounded-lg border bg-muted shadow-sm lg:flex">
+            <div className="sticky top-0 flex w-full items-center justify-between px-3.5 pt-2">
+              <h4 className="font-medium">Preview</h4>
 
-                    <EmailPreview
-                      orgFooterDetails={orgFooterDetails?.data?.data}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setPreviewOpen("true");
+                }}
+              >
+                <Maximize2 />
+              </Button>
+            </div>
+            <div className="overflow-auto p-2">
+              <EmailPreview
+                webOnly={true}
+                orgFooterDetails={orgFooterDetails?.data?.data}
+                customHeight="h-[calc(100vh-252px)] rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
