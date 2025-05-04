@@ -786,7 +786,17 @@ export default function PreSendPage({
       if (subjectHasChanges && !subjectIsSaving) setSubjectHasChanges(false);
       if (scheduleHasChanges && !scheduleIsSaving) setScheduleHasChanges(false);
     }
-  }, [activeAccordion]);
+  }, [
+    activeAccordion,
+    toHasChanges,
+    fromHasChanges,
+    subjectHasChanges,
+    scheduleHasChanges,
+    toIsSaving,
+    fromIsSaving,
+    subjectIsSaving,
+    scheduleIsSaving,
+  ]);
 
   // Handle protected navigation - returns true if navigation should proceed
   const handleProtectedNavigation = (e?: React.MouseEvent) => {
@@ -876,7 +886,7 @@ export default function PreSendPage({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [deleteOpen, email.id, router, toast]);
+  }, [deleteOpen, email.id, router, toast, queryClient]);
 
   return (
     <div className="relative">

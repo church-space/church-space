@@ -76,7 +76,8 @@ const steps = [
     href: "/emails?newEmailOpen=true",
     buttonText: "Create Email",
     icon: Email,
-    completed: true,
+    completed: false,
+    openDialog: "email",
   },
   {
     title: "Create a link page",
@@ -93,7 +94,8 @@ const steps = [
     href: "/qr-codes?newQrCodeOpen=true",
     buttonText: "Create QR Code",
     icon: Qrcode,
-    completed: true,
+    completed: false,
+    openDialog: "qrcode",
   },
 ];
 
@@ -138,7 +140,21 @@ export default function WelcomePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="w-full sm:w-fit sm:p-0 sm:pr-4">
-                  {step.completed ? (
+                  {step.openDialog ? (
+                    <Button
+                      variant={step.completed ? "secondary" : "default"}
+                      className="w-full sm:w-fit"
+                      onClick={() => {
+                        if (step.openDialog === "email") {
+                          setNewEmailDialogOpen(true);
+                        } else if (step.openDialog === "qrcode") {
+                          setNewQrCodeDialogOpen(true);
+                        }
+                      }}
+                    >
+                      {step.buttonText}
+                    </Button>
+                  ) : step.completed ? (
                     <Button variant="secondary" className="w-full sm:w-fit">
                       {step.buttonText}
                     </Button>

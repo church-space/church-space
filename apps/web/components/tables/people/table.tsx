@@ -3,10 +3,10 @@
 import { usePeople } from "@/hooks/use-people";
 import { Button } from "@church-space/ui/button";
 import { useQueryState } from "nuqs";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, type Person } from "./columns";
-import { CircleInfo, XIcon } from "@church-space/ui/icons";
+import { CircleInfo } from "@church-space/ui/icons";
 import NullState from "./null-state";
 import Link from "next/link";
 import { useUser } from "@/stores/use-user";

@@ -214,11 +214,14 @@ export default function Page() {
   const qrLinkId = Number(params.qrCodeId);
   const queryClient = useQueryClient();
   const router = useRouter();
-  const organizationId = Cookies.get("organizationId");
+  const organizationId = Cookies.get("organizationId") || "";
 
-  if (!organizationId) {
-    redirect("/onboarding");
-  }
+  // Early redirects
+  useEffect(() => {
+    if (!organizationId) {
+      redirect("/onboarding");
+    }
+  }, [organizationId]);
 
   const [isDeletingLink, setIsDeletingLink] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -232,6 +235,7 @@ export default function Page() {
     day: null,
   });
 
+  // Move all hook calls to the top level
   const { data: qrLinkData, isLoading: isLoadingQRLink } = useQuery({
     queryKey: ["qr-link", qrLinkId],
     queryFn: async () => {
@@ -246,19 +250,11 @@ export default function Page() {
     },
   });
 
-  // Return QRCodeNotFound component if data is loaded but no QR link is found
-  if (!isLoadingQRLink && !qrLinkData) {
-    return <QRCodeNotFound />;
-  }
-
-  // Add a new query for QR code clicks with staleTime to prevent unnecessary refetches
   const {
     data: clicksData,
     isLoading: isLoadingClicks,
     refetch,
   } = useQuery({
-    // Don't include dateFilter in queryKey since we want to keep all data in memory
-    // and filter it client-side when zooming in/out
     queryKey: ["qr-clicks", qrLinkId],
     queryFn: async () => {
       if (!qrLinkData?.qr_codes) return null;
@@ -296,8 +292,8 @@ export default function Page() {
   const [newQRCodeName, setNewQRCodeName] = useState("");
   const [chartData, setChartData] = useState<any[]>([]);
   const [isEditingLink, setIsEditingLink] = useState(false);
-  const [editedLinkName, setEditedLinkName] = useState(linkData.name);
-  const [editedLinkUrl, setEditedLinkUrl] = useState(linkData.url);
+  const [editedLinkName, setEditedLinkName] = useState("");
+  const [editedLinkUrl, setEditedLinkUrl] = useState("");
   const [editedLinkStatus, setEditedLinkStatus] = useState<
     "active" | "inactive"
   >("active");
@@ -330,6 +326,13 @@ export default function Page() {
         name: qrLinkData.name || "Untitled Link",
         qrCodes: mappedQRCodes,
       });
+
+      // Initialize these states that previously were initialized conditionally
+      setEditedLinkName(qrLinkData.name || "");
+      setEditedLinkUrl(qrLinkData.url || "");
+      setEditedLinkStatus(
+        qrLinkData.status === "active" ? "active" : "inactive",
+      );
     }
   }, [qrLinkData]);
 
@@ -444,6 +447,11 @@ export default function Page() {
 
     setChartData(data);
   }, [dateFilter, qrLinkData?.qr_codes, clicksData]);
+
+  // Return QRCodeNotFound component if data is loaded but no QR link is found
+  if (!isLoadingQRLink && !qrLinkData) {
+    return <QRCodeNotFound />;
+  }
 
   const handleLogoUpload = async (path: string) => {
     if (editingQRCode) {

@@ -46,6 +46,7 @@ export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
   } catch (error) {
     console.warn(
       "Failed to create QueryClient with useMemo, using default client",
+      error,
     );
     queryClient = defaultQueryClient;
   }

@@ -1,4 +1,3 @@
-import AutomationMembersTable from "@/components/tables/automation-members/table";
 import React from "react";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Separator } from "@church-space/ui/separator";
@@ -11,15 +10,10 @@ import {
 } from "@church-space/ui/breadcrumb";
 import Link from "next/link";
 import { Button } from "@church-space/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@church-space/ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
 import DataTableLoading from "@/components/tables/data-table-loading";
 import { columns } from "@/components/tables/automation-members/columns";
+
 export default function LoadingPage() {
   return (
     <div className="relative">

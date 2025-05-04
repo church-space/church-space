@@ -235,7 +235,7 @@ export default function Page() {
         });
       });
     }
-  }, [transformedAutomation, automationId, queryClient]);
+  }, [transformedAutomation, automationId, queryClient, toast]);
 
   // Update the state when automation data is loaded or editing is cancelled
   useEffect(() => {

@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@church-space/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@church-space/ui/avatar";
+import { Avatar, AvatarFallback } from "@church-space/ui/avatar";
 import { Button } from "@church-space/ui/button";
 import { Input } from "@church-space/ui/input";
 import CountrySelect from "@church-space/ui/country-select";
@@ -216,6 +216,8 @@ export default function ClientPage({
     defaultEmail,
     defaultEmailDomain,
     address,
+    toast,
+    hasBeenModified,
   ]);
 
   const updateAddress = (field: keyof Address, value: string) => {

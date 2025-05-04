@@ -837,7 +837,7 @@ export default function EmailDndProvider({
       // Clear the permanently deleted blocks ref when component unmounts
       permanentlyDeletedBlocksRef.current.clear();
     };
-  }, []);
+  }, [editors]);
 
   const handleDragStart = (event: any) => {
     const { active } = event;
@@ -1112,6 +1112,7 @@ export default function EmailDndProvider({
       addEmailBlock,
       setSelectedBlockId,
       updateBlockOrdersInDatabase,
+      toast,
     ],
   );
 
@@ -2571,6 +2572,9 @@ export default function EmailDndProvider({
     setBlocksBeingDeleted,
     setCurrentState,
     footer,
+    styles.accentTextColor,
+    styles.defaultFont,
+    styles.defaultTextColor,
   ]);
 
   // UNDO REDO KEY COMMANDS

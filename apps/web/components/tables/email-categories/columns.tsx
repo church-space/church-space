@@ -33,7 +33,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Pencil } from "lucide-react";
-import type { EmailCategoryResponse } from "@/actions/delete-email-category";
 
 // Define the validation schema
 const formSchema = z.object({
@@ -303,8 +302,8 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
                         </DialogHeader>
                         <div className="py-2">
                           <p className="mb-2">
-                            This category cannot be deleted because it's used in
-                            the following automations:
+                            This category cannot be deleted because it&apos;s
+                            used in the following automations:
                           </p>
                           <ul className="list-disc pl-5">
                             {automationsInCategory.map((automation) => (
@@ -344,8 +343,8 @@ const NameCell = ({ name, description, organizationId, id }: NameCellProps) => {
                         </DialogHeader>
                         <div className="py-2">
                           <p className="mb-2">
-                            This category cannot be deleted because it's used in
-                            the following scheduled emails:
+                            This category cannot be deleted because it&apos;s
+                            used in the following scheduled emails:
                           </p>
                           <ul className="list-disc pl-5">
                             {scheduledEmailsInCategory.map((email) => (
