@@ -59,6 +59,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
+import LoadingPage from "./loading-page";
 
 // Types for the new schema
 interface AutomationStep {
@@ -261,7 +262,7 @@ export default function Page() {
   };
 
   if (isLoadingAutomation) {
-    return <div>Loading...</div>;
+    return <LoadingPage />;
   }
 
   if (!transformedAutomation) {

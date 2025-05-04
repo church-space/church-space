@@ -1112,6 +1112,10 @@ export default function EmailAutomationBuilder({
       queryClient.invalidateQueries({
         queryKey: ["email-automation", automation.id],
       });
+      // Also invalidate the email automations list to reflect changes in listing
+      queryClient.invalidateQueries({
+        queryKey: ["email-automations", organizationId],
+      });
     } catch (error) {
       toast({
         title: "Error",

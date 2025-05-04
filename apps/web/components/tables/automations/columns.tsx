@@ -86,7 +86,7 @@ export const columns: ColumnDef<EmailAutomation>[] = [
       const list = row.getValue("list") as {
         pco_list_description: string | null;
       } | null;
-      return <span>{list?.pco_list_description || "None"}</span>;
+      return <span>{list?.pco_list_description || ""}</span>;
     },
   },
   {
