@@ -388,23 +388,15 @@ export default function LinkListBuilder({
     });
   }, 1000);
 
-  // Early return for no linkListId, but now all hooks are declared above
-  if (!linkListId) {
-    return <div>No link page ID</div>;
-  }
-
-  // Return LinkNotFound component if data is loaded but no link list is found
-  if (!isLoading && (!linkList || !linkList.data)) {
-    return <LinkNotFound />;
-  }
-
-  // Parse initial data from database (Now safe after hooks and early returns)
-  const style = linkList?.data?.style as Style | null;
-  const primaryButton = linkList?.data?.primary_button as PrimaryButton | null;
-
   // Update state when data loads (Effect Hook must be called unconditionally)
   useEffect(() => {
+    // Check if linkList and linkList.data are available before trying to access properties
     if (linkList?.data) {
+      // Parse style and primaryButton inside the effect, only when data is ready
+      const style = linkList.data.style as Style | null;
+      const primaryButton = linkList.data
+        .primary_button as PrimaryButton | null;
+
       // Update links
       const dbLinks =
         linkList.data.link_list_links?.map((link) => ({
@@ -475,7 +467,23 @@ export default function LinkListBuilder({
       setHeaderImage(linkList.data.bg_image || "");
       setLogoImage(linkList.data.logo_asset || "");
     }
-  }, [linkList?.data, primaryButton, style]); // Added 'style' dependency
+    // Depend only on linkList.data as style and primaryButton are derived from it inside the effect
+  }, [linkList?.data]);
+
+  // Early return for no linkListId, but now all hooks are declared above
+  if (!linkListId) {
+    return <div>No link page ID</div>;
+  }
+
+  // Return LinkNotFound component if data is loaded but no link list is found
+  if (!isLoading && (!linkList || !linkList.data)) {
+    return <LinkNotFound />;
+  }
+
+  // Parse initial data from database (Now safe after hooks and early returns)
+  // These are only needed if used outside the useEffect, otherwise they can be removed or kept inside the effect
+  // const style = linkList?.data?.style as Style | null;
+  // const primaryButton = linkList?.data?.primary_button as PrimaryButton | null;
 
   // Update handlers
   const handleStyleUpdate = (newStyle: any) => {
@@ -598,8 +606,6 @@ export default function LinkListBuilder({
       });
     }, 1000); // 1 second debounce
   };
-
-  // No need for early return here as it's handled above
 
   return (
     <div className="relative">
