@@ -24,7 +24,9 @@
   },
   "pnpm": {
     "overrides": {
-      "prettier": "^3.5.3"
+      "prettier": "^3.5.3",
+      "@types/react": "19.0.10",
+      "@types/react-dom": "19.0.4"
     }
   }
 }

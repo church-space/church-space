@@ -7,49 +7,25 @@ interface ReactQueryProviderProps {
   children: ReactNode;
 }
 
-// Create a default QueryClient that can be used as fallback
-const defaultQueryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000, // 1 minute
-      gcTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-    mutations: {
-      retry: 1,
-    },
-  },
-});
-
 export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
   // Use try/catch to handle potential errors with useMemo
-  let queryClient;
-  try {
-    queryClient = useMemo(
-      () =>
-        new QueryClient({
-          defaultOptions: {
-            queries: {
-              staleTime: 60 * 1000, // 1 minute
-              gcTime: 5 * 60 * 1000, // 5 minutes
-              retry: 1,
-              refetchOnWindowFocus: false,
-            },
-            mutations: {
-              retry: 1,
-            },
+  const queryClient = useMemo(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000, // 1 minute
+            gcTime: 5 * 60 * 1000, // 5 minutes
+            retry: 1,
+            refetchOnWindowFocus: false,
           },
-        }),
-      [],
-    );
-  } catch (error) {
-    console.warn(
-      "Failed to create QueryClient with useMemo, using default client",
-      error,
-    );
-    queryClient = defaultQueryClient;
-  }
+          mutations: {
+            retry: 1,
+          },
+        },
+      }),
+    [],
+  );
 
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
