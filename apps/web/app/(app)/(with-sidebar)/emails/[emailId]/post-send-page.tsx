@@ -609,16 +609,18 @@ export default function PostSendPage({
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
               <div className="flex flex-col items-start font-medium text-primary">
-                <div className="flex items-start gap-1">
-                  To:
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-bold text-primary">To:</span>
+
                   <div className="text-foreground">
                     <div className="items-baseline space-x-2">
                       {listData?.data?.[0]?.pco_list_description}{" "}
                       <span className="text-sm text-muted-foreground">
-                        {listData?.data?.[0]?.pco_total_people}{" "}
+                        ({listData?.data?.[0]?.pco_total_people}{" "}
                         {listData?.data?.[0]?.pco_total_people === "1"
                           ? "person"
                           : "people"}
+                        )
                       </span>
                     </div>
                   </div>
@@ -630,21 +632,23 @@ export default function PostSendPage({
                 </div>
               </div>
               <div className="flex flex-col items-start font-medium text-primary">
-                <div className="flex items-center gap-1">
-                  From:
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-bold text-primary">From:</span>
+
                   <div className="text-foreground">{fromName}</div>
                 </div>
-                <div className="text-foreground">
-                  <div className="text-sm text-muted-foreground">
-                    {fromEmail}
-                    {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
-                  </div>
+
+                <div className="text-sm text-muted-foreground">
+                  {fromEmail}
+                  {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
                 </div>
               </div>
               {replyToEmail && (
                 <div className="flex flex-col items-start font-medium text-primary">
-                  <div className="flex items-center gap-1">
-                    Reply-To:
+                  <div className="flex flex-col items-start">
+                    <span className="text-xs font-bold text-primary">
+                      Reply-To:
+                    </span>
                     <div className="text-foreground">
                       <div className="flex items-baseline gap-2">
                         {replyToEmail}
@@ -658,9 +662,17 @@ export default function PostSendPage({
               )}
 
               <div className="flex flex-col items-start font-medium text-primary">
-                <div className="flex flex-shrink-0 items-center gap-1">
-                  Sent At:
-                  <div className="text-foreground">{formatDate(sendDate)}</div>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-bold text-primary">
+                    Sent At:
+                  </span>
+
+                  <div className="text-foreground">
+                    {formatDate(sendDate, false)}
+                    <div className="text-sm text-muted-foreground">
+                      {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
