@@ -61,9 +61,7 @@ export default function Hero() {
         <div className="flex min-w-[500px] flex-col items-center justify-center gap-3 px-6 md:max-w-[690px] lg:gap-6">
           <h1 className="text-balance text-center text-4xl font-bold sm:text-6xl lg:text-7xl">
             <span className="relative z-[2] mb-2 pb-10">The better way to</span>{" "}
-            <span className="relative bg-yellow-300/80 px-2">
-              email your church
-            </span>
+            <span className="relative px-2">email your church</span>
           </h1>
           <HeroSubtitle />
           <div className="flex flex-col items-center justify-center gap-2 pt-2 md:flex-row lg:gap-4">
@@ -72,19 +70,22 @@ export default function Hero() {
                 Start Sending
               </Button>
             </Link>
-            <Link href="https://cal.com/thomasharmond/15min">
+            <Link href="https://cal.com/thomasharmond/15min" target="_blank">
               <Button
                 variant="ghost"
                 className="h-10 gap-1 px-2 text-base text-secondary-foreground sm:h-12 [&_svg]:size-3.5"
               >
-                Talk to Foudner <ChevronRight />
+                Talk to Founder <ChevronRight />
               </Button>
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col justify-center gap-6">
+      <div
+        className="flex flex-col justify-center gap-6 px-4 md:px-8"
+        id="emails"
+      >
         <div className="mx-auto flex max-w-[300px] flex-wrap items-center justify-center gap-2 sm:max-w-2xl sm:gap-4">
           <Button
             size="sm"
@@ -143,7 +144,7 @@ export default function Hero() {
             QR Codes
           </Button>
         </div>
-        <div className="relative mx-auto aspect-video w-full max-w-7xl rounded-xl bg-card outline outline-[3px] outline-muted">
+        <div className="relative mx-auto aspect-video w-full max-w-7xl rounded-md bg-card outline outline-[1px] outline-muted md:rounded-xl">
           <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gradient-to-b from-transparent via-transparent to-background p-4 text-center backdrop-blur-sm">
             <div
               className={cn(

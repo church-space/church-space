@@ -25,7 +25,7 @@ export default function AboutPage() {
         So we set out with a simple goal:{" "}
         <b>
           create well-crafted, affordable software that help local churches
-          operate effectively, communicate clearly, and care intentaiolly.
+          operate effectively, communicate clearly, and care intentionally.
         </b>
       </p>
       <p className="text-lg">

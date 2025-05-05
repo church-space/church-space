@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function CallToAction() {
   return (
-    <section className="px-4">
+    <section className="mt-10 px-4">
       <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between rounded-xl border px-6 py-12 md:flex-row md:py-20 lg:px-12">
         <h2 className="mb-8 text-balance text-3xl font-semibold md:mb-0 md:text-4xl">
           Engage Your Church.
@@ -19,7 +19,7 @@ export default function CallToAction() {
             <Button
               asChild
               size="lg"
-              className="bg-foreground/90 hover:bg-foreground"
+              className="bg-foreground/90 hover:bg-foreground dark:text-black"
             >
               <span>Get Started for Free</span>
             </Button>

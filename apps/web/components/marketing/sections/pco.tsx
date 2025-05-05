@@ -9,7 +9,7 @@ import { Badge } from "@church-space/ui/badge";
 
 export default function PcoSection() {
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className="flex flex-col items-center gap-8" id="pco">
       <div className="flex flex-col items-center gap-2">
         <h2 className="text-lg font-bold">Designed for</h2>
         <div className="flex items-center gap-4">

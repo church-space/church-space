@@ -17,19 +17,20 @@ const links = [
       },
       {
         title: "Automations",
-        href: "/homepage/#automations",
+        href: "/homepage/#pco",
+        target: "_self",
       },
       {
         title: "QR Codes",
-        href: "/homepage/#qr-codes",
+        href: "/homepage/#links",
       },
       {
         title: "Link Pages",
-        href: "/homepage/#link-pages",
+        href: "/homepage/#links",
       },
       {
         title: "PCO Integration",
-        href: "/homepage/#pco-integration",
+        href: "/homepage/#pco",
       },
     ],
   },
@@ -39,14 +40,17 @@ const links = [
       {
         title: "Support",
         href: "https://help.churchspace.co",
+        target: "_blank",
       },
       {
         title: "Pricing",
         href: "/pricing",
+        target: "_self",
       },
       {
         title: "Getting Started",
         href: "https://help.churchspace.co/getting-started",
+        target: "_blank",
       },
     ],
   },
@@ -57,14 +61,18 @@ const links = [
       {
         title: "Terms of Service",
         href: "https://churchspace.co/policies/terms",
+        target: "_self",
       },
       {
         title: "Privacy Policy",
         href: "https://churchspace.co/policies/privacy",
+        target: "_self",
       },
+
       {
         title: "All Policies",
         href: "https://churchspace.co/policies",
+        target: "_self",
       },
     ],
   },
@@ -74,6 +82,7 @@ const links = [
       {
         title: "About",
         href: "/about",
+        target: "_self",
       },
       {
         title: "Contact",
@@ -110,6 +119,7 @@ export default function Footer() {
                     key={index}
                     href={item.href}
                     className="block text-muted-foreground duration-150 hover:text-primary"
+                    target={item.target}
                   >
                     <span>{item.title}</span>
                   </Link>

@@ -503,6 +503,7 @@ export default function Page() {
           logoHeight={Math.round(qrCode.logoSize * (960 / 180))}
           removeQrCodeBehindLogo={true}
           ecLevel="M"
+          quietZone={10}
         />
       );
 
@@ -547,6 +548,7 @@ export default function Page() {
           eyeRadius={qrCode.isRounded ? 8 : 0}
           removeQrCodeBehindLogo={true}
           ecLevel="M"
+          quietZone={10}
         />
       );
 
@@ -1525,6 +1527,7 @@ export default function Page() {
                       logoHeight={Math.round(qrCode.logoSize * (120 / 180))}
                       removeQrCodeBehindLogo={true}
                       ecLevel="M"
+                      quietZone={10}
                     />
                     <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
                       <Download className="h-8 w-8 text-white" />
@@ -1765,6 +1768,7 @@ export default function Page() {
                         )}
                         removeQrCodeBehindLogo={true}
                         ecLevel="M"
+                        quietZone={10}
                       />
                     </div>
                   </div>

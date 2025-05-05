@@ -85,9 +85,8 @@ export function NavMain({
         page: 0,
       });
 
-      if (!result?.data) {
-        throw new Error("Failed to fetch emails");
-      }
+      // If data is null, just return without error
+      if (!result?.data) return;
 
       const data = {
         pages: [
@@ -124,9 +123,8 @@ export function NavMain({
         page: 0,
       });
 
-      if (!result?.data) {
-        throw new Error("Failed to fetch link pages");
-      }
+      // If data is null, just return without error
+      if (!result?.data) return;
 
       const data = {
         pages: [
@@ -157,9 +155,8 @@ export function NavMain({
         page: 0,
       });
 
-      if (!result?.data) {
-        throw new Error("Failed to fetch people");
-      }
+      // If data is null, just return without error
+      if (!result?.data) return;
 
       const data = {
         pages: [
@@ -190,9 +187,8 @@ export function NavMain({
         page: 0,
       });
 
-      if (!result?.data) {
-        throw new Error("Failed to fetch email templates");
-      }
+      // If data is null, just return without error
+      if (!result?.data) return;
 
       const data = {
         pages: [
@@ -220,9 +216,8 @@ export function NavMain({
         page: 0,
       });
 
-      if (!result?.data) {
-        throw new Error("Failed to fetch email automations");
-      }
+      // If data is null, just return without error
+      if (!result?.data) return;
 
       const data = {
         pages: [
@@ -253,9 +248,8 @@ export function NavMain({
         page: 0,
       });
 
-      if (!result?.data) {
-        throw new Error("Failed to fetch email categories");
-      }
+      // If data is null, just return without error
+      if (!result?.data) return;
 
       const data = {
         pages: [
@@ -283,9 +277,8 @@ export function NavMain({
         page: 0,
       });
 
-      if (!result?.data) {
-        throw new Error("Failed to fetch QR codes");
-      }
+      // If data is null, just return without error
+      if (!result?.data) return;
 
       const data = {
         pages: [

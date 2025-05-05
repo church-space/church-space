@@ -50,21 +50,17 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
                     Send beautifully crafted emails to your people
                   </ListItem>
                   <ListItem
-                    href="/#automations"
+                    href="/#pco"
                     title="Automations"
                     icon={<Waypoints />}
                   >
                     Automate your communications with powerful automation tools
                   </ListItem>
-                  <ListItem
-                    href="/#qr-codes"
-                    title="QR Codes"
-                    icon={<Qrcode />}
-                  >
+                  <ListItem href="/#links" title="QR Codes" icon={<Qrcode />}>
                     Manage, track, and update your QR codes
                   </ListItem>
                   <ListItem
-                    href="/#link-pages"
+                    href="/#links"
                     title="Link Pages"
                     icon={<LinkIcon />}
                   >
@@ -75,7 +71,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
                     Integrations
                   </Label>
                   <ListItem
-                    href="/#pco-integration"
+                    href="/#pco"
                     title="Planning Center"
                     listItemClassName="col-span-2"
                     icon={<PcoLogo />}

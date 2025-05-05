@@ -2,6 +2,7 @@ import React from "react";
 import Hero from "@/components/marketing/hero";
 import LinksSection from "@/components/marketing/sections/links";
 import PcoSection from "@/components/marketing/sections/pco";
+import FAQSection from "@/components/marketing/sections/faq";
 
 export default function Homepage() {
   return (
@@ -10,6 +11,7 @@ export default function Homepage() {
       <div className="mx-auto w-full max-w-7xl space-y-16 px-4 py-12">
         <PcoSection />
         <LinksSection />
+        <FAQSection />
       </div>
     </div>
   );
