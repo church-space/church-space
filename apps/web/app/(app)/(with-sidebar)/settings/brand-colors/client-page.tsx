@@ -35,14 +35,7 @@ export default function ClientPage({
 
   const { mutate: saveColors } = useMutation({
     mutationFn: upsertBrandColorsAction,
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Brand colors saved successfully!",
-        variant: "default",
-      });
-      // Optionally refetch or update query data here if needed
-    },
+
     onError: (error) => {
       const errorMessage =
         error && typeof error === "object" && "message" in error
