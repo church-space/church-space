@@ -500,12 +500,17 @@ export default function DomainManagement({
       const typedResponse = response as ActionResponse;
 
       // Check if success is true, regardless of the nested structure
-      if (typedResponse.success === true) {
+      // More flexible check: considers success:true OR data without error
+      const isSuccess =
+        (typedResponse && typedResponse.success === true) ||
+        (typedResponse && typedResponse.data && !typedResponse.error);
+
+      if (isSuccess) {
         // Update domains state with the new verification status
         const domainStatus =
-          typedResponse.data?.data?.domain?.[0]?.status ||
-          typedResponse.data?.data?.resendData?.status ||
-          "pending";
+          typedResponse.data?.data?.domain?.[0]?.status || // Check our DB first
+          typedResponse.data?.data?.resendData?.status || // Fallback to Resend status
+          "pending"; // Default to pending if status is missing
 
         setDomains((prevDomains) =>
           prevDomains.map((d) =>
@@ -519,15 +524,24 @@ export default function DomainManagement({
           ),
         );
 
-        const message =
-          domainStatus === "pending"
-            ? "Domain verification is pending. This may take a few minutes."
-            : "Domain verification process has started.";
-
-        toast({
-          title: "Records added",
-          description: message,
-        });
+        // Provide more specific toast messages based on the status
+        if (domainStatus === "verified") {
+          toast({
+            title: "Domain Verified",
+            description: `${domain.name} has been successfully verified.`,
+          });
+        } else if (domainStatus === "pending") {
+          toast({
+            title: "Verification Pending",
+            description: `Verification for ${domain.name} is still pending. DNS changes can take time to propagate.`,
+          });
+        } else {
+          // Handle other statuses if needed, or default message
+          toast({
+            title: "Verification Started",
+            description: `Verification process initiated for ${domain.name}. Status: ${domainStatus}`,
+          });
+        }
       } else {
         console.error("Failed to verify domain:", response);
         const errorMessage = typedResponse.error || "Failed to verify domain";
