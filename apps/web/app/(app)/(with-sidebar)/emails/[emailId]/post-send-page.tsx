@@ -603,19 +603,19 @@ export default function PostSendPage({
           className="grid gap-4 lg:grid-cols-2"
           variants={itemVariants}
         >
-          <Card className="border-primary/20 bg-gradient-to-br from-secondary/60 to-secondary/80 dark:from-secondary/20 dark:to-secondary/30">
+          <Card className="bg-gradient-to-br from-[#4E52CB] to-[#1d3562] text-white dark:from-[#363AA0] dark:to-[#122953]">
             <CardHeader className="pb-4">
               <CardTitle>Details</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
               <div className="flex flex-col items-start font-medium text-primary">
                 <div className="flex flex-col items-start">
-                  <span className="text-xs font-bold text-primary">To:</span>
+                  <span className="text-xs font-bold text-white">To:</span>
 
-                  <div className="text-foreground">
+                  <div className="text-white">
                     <div className="items-baseline space-x-2">
                       {listData?.data?.[0]?.pco_list_description}{" "}
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-white/80">
                         ({listData?.data?.[0]?.pco_total_people}{" "}
                         {listData?.data?.[0]?.pco_total_people === "1"
                           ? "person"
@@ -625,20 +625,20 @@ export default function PostSendPage({
                     </div>
                   </div>
                 </div>
-                <div className="text-foreground">
-                  <div className="text-sm text-muted-foreground">
+                <div className="text-white">
+                  <div className="text-sm text-white/80">
                     {categoryData?.data?.[0]?.name}
                   </div>
                 </div>
               </div>
               <div className="flex flex-col items-start font-medium text-primary">
                 <div className="flex flex-col items-start">
-                  <span className="text-xs font-bold text-primary">From:</span>
+                  <span className="text-xs font-bold text-white">From:</span>
 
-                  <div className="text-foreground">{fromName}</div>
+                  <div className="text-white">{fromName}</div>
                 </div>
 
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-white/80">
                   {fromEmail}
                   {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
                 </div>
@@ -646,10 +646,10 @@ export default function PostSendPage({
               {replyToEmail && (
                 <div className="flex flex-col items-start font-medium text-primary">
                   <div className="flex flex-col items-start">
-                    <span className="text-xs font-bold text-primary">
+                    <span className="text-xs font-bold text-white">
                       Reply-To:
                     </span>
-                    <div className="text-foreground">
+                    <div className="text-white">
                       <div className="flex items-baseline gap-2">
                         {replyToEmail}
                         {replyToDomain
@@ -663,13 +663,11 @@ export default function PostSendPage({
 
               <div className="flex flex-col items-start font-medium text-primary">
                 <div className="flex flex-col items-start">
-                  <span className="text-xs font-bold text-primary">
-                    Sent At:
-                  </span>
+                  <span className="text-xs font-bold text-white">Sent At:</span>
 
-                  <div className="text-foreground">
+                  <div className="text-white">
                     {formatDate(sendDate, false)}
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-white/80">
                       {Intl.DateTimeFormat().resolvedOptions().timeZone}
                     </div>
                   </div>
