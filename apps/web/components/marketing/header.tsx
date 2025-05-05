@@ -77,7 +77,6 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
                   <ListItem
                     href="/#pco-integration"
                     title="Planning Center"
-                    className="bg-blue-500/10"
                     listItemClassName="col-span-2"
                     icon={<PcoLogo />}
                   >
