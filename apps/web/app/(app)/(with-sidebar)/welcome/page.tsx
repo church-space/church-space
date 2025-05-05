@@ -19,6 +19,7 @@ import {
   Users,
   CreditCard,
   Robot,
+  LinkIcon,
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
@@ -41,6 +42,7 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Separator } from "@church-space/ui/separator";
+import NewLinkList from "@/components/forms/new-link-list";
 
 // Add animation variants
 const containerVariants = {
@@ -78,7 +80,7 @@ const steps = [
     title: "Import your unsubscribes",
     description:
       "Import your unsubscribes from your previous email provider to prevent emails from being sent to people who have unsubscribed in the past.",
-    href: "/settings/unsubscribes",
+    href: "/people/import",
     buttonText: "Import",
     icon: Users,
     completed: false,
@@ -112,6 +114,7 @@ const steps = [
     buttonText: "Create",
     icon: LinkFilled,
     completed: false,
+    openDialog: "linkpage",
     ownerOnly: false,
   },
   {
@@ -122,16 +125,6 @@ const steps = [
     icon: Qrcode,
     completed: false,
     openDialog: "qrcode",
-    ownerOnly: false,
-  },
-  {
-    title: "Create an Automation",
-    description: "Create an automation connected to a Planning Center list.",
-    href: "/automations?newAutomationOpen=true",
-    buttonText: "Create",
-    icon: Robot,
-    completed: false,
-    openDialog: "automation",
     ownerOnly: false,
   },
   {
@@ -149,6 +142,7 @@ const steps = [
 export default function WelcomePage() {
   const [newEmailDialogOpen, setNewEmailDialogOpen] = useState(false);
   const [newQrCodeDialogOpen, setNewQrCodeDialogOpen] = useState(false);
+  const [newLinkPageDialogOpen, setNewLinkPageDialogOpen] = useState(false);
 
   const { organizationId, role } = useUser();
   return (
@@ -182,56 +176,58 @@ export default function WelcomePage() {
           className="mt-4 flex flex-col gap-4"
           variants={containerVariants}
         >
-          {steps.map((step, index) => (
-            <motion.div key={index} variants={itemVariants}>
-              <Card
-                className={cn(
-                  "flex flex-col justify-between gap-2 sm:flex-row sm:items-center sm:gap-2",
-                  step.completed && "opacity-40",
-                )}
-              >
-                <CardHeader className="flex-row items-start gap-2.5 pb-2 pt-5 sm:pb-5">
-                  <div className="mt-1 aspect-square flex-shrink-0 rounded-md border border-primary bg-secondary p-1 text-primary">
-                    <step.icon height={"24"} width={"24"} />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <CardTitle>{step.title}</CardTitle>
-                    <CardDescription>{step.description}</CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent className="w-full sm:w-fit sm:p-0 sm:pr-4">
-                  {step.openDialog ? (
-                    <Button
-                      variant={step.completed ? "secondary" : "default"}
-                      className="w-full sm:w-fit"
-                      onClick={() => {
-                        if (step.openDialog === "email") {
-                          setNewEmailDialogOpen(true);
-                        } else if (step.openDialog === "qrcode") {
-                          setNewQrCodeDialogOpen(true);
-                        }
-                      }}
-                    >
-                      {step.buttonText}
-                    </Button>
-                  ) : step.completed ? (
-                    <Button variant="secondary" className="w-full sm:w-fit">
-                      {step.buttonText}
-                    </Button>
-                  ) : (
-                    <Link href={step.href}>
+          {steps
+            .filter((step) => !step.ownerOnly || role === "owner")
+            .map((step, index) => (
+              <motion.div key={index} variants={itemVariants}>
+                <Card
+                  className={cn(
+                    "flex flex-col justify-between gap-2 sm:flex-row sm:items-center sm:gap-2",
+                    step.completed && "opacity-40",
+                  )}
+                >
+                  <CardHeader className="flex-row items-start gap-2.5 pb-2 pt-5 sm:pb-5">
+                    <div className="mt-1 aspect-square flex-shrink-0 rounded-md border border-primary bg-secondary p-1 text-primary">
+                      <step.icon height={"24"} width={"24"} />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <CardTitle>{step.title}</CardTitle>
+                      <CardDescription>{step.description}</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="w-full sm:w-fit sm:p-0 sm:pr-4">
+                    {step.openDialog ? (
                       <Button
+                        variant={step.completed ? "secondary" : "default"}
                         className="w-full sm:w-fit"
-                        disabled={step.completed}
+                        onClick={() => {
+                          if (step.openDialog === "email") {
+                            setNewEmailDialogOpen(true);
+                          } else if (step.openDialog === "qrcode") {
+                            setNewQrCodeDialogOpen(true);
+                          }
+                        }}
                       >
                         {step.buttonText}
                       </Button>
-                    </Link>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                    ) : step.completed ? (
+                      <Button variant="secondary" className="w-full sm:w-fit">
+                        {step.buttonText}
+                      </Button>
+                    ) : (
+                      <Link href={step.href}>
+                        <Button
+                          className="w-full sm:w-fit"
+                          disabled={step.completed}
+                        >
+                          {step.buttonText}
+                        </Button>
+                      </Link>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
         </motion.div>
       </motion.div>
       <Dialog open={newEmailDialogOpen} onOpenChange={setNewEmailDialogOpen}>
@@ -262,6 +258,22 @@ export default function WelcomePage() {
           <NewQRCode
             organizationId={organizationId ?? ""}
             setIsNewQRCodeOpen={setNewQrCodeDialogOpen}
+          />
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={newLinkPageDialogOpen}
+        onOpenChange={setNewLinkPageDialogOpen}
+      >
+        <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">
+          <DialogHeader className="p-2 pb-0">
+            <DialogTitle className="flex items-center gap-1">
+              <LinkIcon height={"20"} width={"20"} /> Create New Link Page
+            </DialogTitle>
+          </DialogHeader>
+          <NewLinkList
+            organizationId={organizationId ?? ""}
+            setIsNewLinkListOpen={setNewLinkPageDialogOpen}
           />
         </DialogContent>
       </Dialog>
