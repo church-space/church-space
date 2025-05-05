@@ -202,6 +202,8 @@ export default function WelcomePage() {
                         onClick={() => {
                           if (step.openDialog === "email") {
                             setNewEmailDialogOpen(true);
+                          } else if (step.openDialog === "linkpage") {
+                            setNewLinkPageDialogOpen(true);
                           } else if (step.openDialog === "qrcode") {
                             setNewQrCodeDialogOpen(true);
                           }
