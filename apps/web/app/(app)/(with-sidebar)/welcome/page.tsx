@@ -19,6 +19,7 @@ import {
   Users,
   CreditCard,
   LinkIcon,
+  Palette,
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
@@ -84,6 +85,15 @@ const steps = [
     icon: Users,
     completed: false,
     ownerOnly: true,
+  },
+  {
+    title: "Add your brand colors",
+    description: "Add your brand colors to your church space.",
+    href: "/settings/brand-colors",
+    buttonText: "Add",
+    icon: Palette,
+    completed: false,
+    ownerOnly: false,
   },
   {
     title: "Create your default email footer",
