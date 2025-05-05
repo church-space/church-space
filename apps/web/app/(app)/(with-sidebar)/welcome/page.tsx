@@ -18,7 +18,6 @@ import {
   NewEmail as NewEmailIcon,
   Users,
   CreditCard,
-  Robot,
   LinkIcon,
 } from "@church-space/ui/icons";
 import Link from "next/link";
