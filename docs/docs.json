@@ -1,0 +1,73 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Church Space Help Center",
+  "colors": {
+    "primary": "#6065FE",
+    "light": "#6065FE",
+    "dark": "#4A4ED1"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "anchors": [
+      {
+        "anchor": "Documentation",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["getting-started", "connect-to-pco", "connect-domain"]
+          },
+          {
+            "group": "Essentials",
+            "pages": [
+              "essentials/markdown",
+              "essentials/code",
+              "essentials/images",
+              "essentials/settings",
+              "essentials/navigation",
+              "essentials/reusable-snippets"
+            ]
+          }
+        ]
+      },
+      {
+        "anchor": "API References",
+        "icon": "sqaure-terminal",
+        "pages": [
+          "api-reference/get",
+          "api-reference/post",
+          "api-reference/delete"
+        ]
+      },
+      {
+        "anchor": "Blog",
+        "href": "https://external-link.com/blog"
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Contact Support",
+        "href": "mailto:support@churchspace.co"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://churchspace.co/emails/"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/churchspacehq",
+      "instagram": "https://www.instagram.com/churchspacehq/",
+      "youtube": "https://www.youtube.com/@churchspacehq"
+    }
+  }
+}
