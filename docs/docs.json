@@ -8,41 +8,22 @@
     "dark": "#4A4ED1"
   },
   "favicon": "/favicon.svg",
+
   "navigation": {
-    "anchors": [
+    "groups": [
       {
-        "anchor": "Documentation",
-        "icon": "book-open",
-        "groups": [
+        "group": "Getting Started",
+        "pages": [
+          "quickstart",
           {
-            "group": "Get Started",
-            "pages": ["getting-started", "connect-to-pco", "connect-domain"]
-          },
-          {
-            "group": "Essentials",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
-            ]
+            "group": "Editing",
+            "pages": ["installation", "editor"]
           }
         ]
       },
       {
-        "anchor": "API References",
-        "icon": "sqaure-terminal",
-        "pages": [
-          "api-reference/get",
-          "api-reference/post",
-          "api-reference/delete"
-        ]
-      },
-      {
-        "anchor": "Blog",
-        "href": "https://external-link.com/blog"
+        "group": "Writing Content",
+        "pages": ["writing-content/page", "writing-content/text"]
       }
     ]
   },
