@@ -17,6 +17,8 @@ import {
   Qrcode,
   NewEmail as NewEmailIcon,
   Users,
+  CreditCard,
+  Robot,
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
@@ -122,6 +124,26 @@ const steps = [
     openDialog: "qrcode",
     ownerOnly: false,
   },
+  {
+    title: "Create an Automation",
+    description: "Create an automation connected to a Planning Center list.",
+    href: "/automations?newAutomationOpen=true",
+    buttonText: "Create",
+    icon: Robot,
+    completed: false,
+    openDialog: "automation",
+    ownerOnly: false,
+  },
+  {
+    title: "Upgrade your plan",
+    description:
+      "Upgrade your plan to the right number of email sends for your church",
+    href: "/settings/billing",
+    buttonText: "Upgrade",
+    icon: CreditCard,
+    completed: false,
+    ownerOnly: false,
+  },
 ];
 
 export default function WelcomePage() {
@@ -145,7 +167,7 @@ export default function WelcomePage() {
         </div>
       </header>
       <motion.div
-        className="mx-auto flex h-screen w-full max-w-2xl flex-col gap-2 px-4 pt-8 md:pt-20"
+        className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-2 px-4 py-8 md:py-16"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
