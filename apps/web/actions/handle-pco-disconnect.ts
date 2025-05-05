@@ -29,10 +29,11 @@ const handlePcoDisconnect = authActionClient
 
     // Get existing webhooks from PCO
     const webhooksResponse = await fetch(
-      "https://api.planningcenteronline.com/webhooks/v2/subscriptions",
+      "https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions",
       {
         headers: {
           Authorization: `Bearer ${pcoConnection.access_token}`,
+          "X-PCO-API-Version": "2022-10-20",
         },
       },
     );
@@ -47,11 +48,12 @@ const handlePcoDisconnect = authActionClient
         )
       ) {
         await fetch(
-          `https://api.planningcenteronline.com/webhooks/v2/subscriptions/${webhook.id}`,
+          `https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions/${webhook.id}`,
           {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${pcoConnection.access_token}`,
+              "X-PCO-API-Version": "2022-10-20",
             },
           },
         );

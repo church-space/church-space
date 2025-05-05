@@ -202,10 +202,11 @@ export const deleteOrganization = task({
       // Get existing webhooks from PCO
       try {
         const webhooksResponse = await fetch(
-          "https://api.planningcenteronline.com/webhooks/v2/subscriptions",
+          "https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
+              "X-PCO-API-Version": "2022-10-20",
             },
           },
         );
@@ -220,11 +221,12 @@ export const deleteOrganization = task({
             )
           ) {
             await fetch(
-              `https://api.planningcenteronline.com/webhooks/v2/subscriptions/${webhook.id}`,
+              `https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions/${webhook.id}`,
               {
                 method: "DELETE",
                 headers: {
                   Authorization: `Bearer ${accessToken}`,
+                  "X-PCO-API-Version": "2022-10-20",
                 },
               },
             );

@@ -123,10 +123,11 @@ export async function GET(request: NextRequest) {
 
     // Get existing webhooks from PCO
     const webhooksResponse = await fetch(
-      "https://api.planningcenteronline.com/webhooks/v2/subscriptions",
+      "https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions",
       {
         headers: {
           Authorization: `Bearer ${tokenData.access_token}`,
+          "X-PCO-API-Version": "2022-10-20",
         },
       },
     );
@@ -141,11 +142,12 @@ export async function GET(request: NextRequest) {
         )
       ) {
         await fetch(
-          `https://api.planningcenteronline.com/webhooks/v2/subscriptions/${webhook.id}`,
+          `https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions/${webhook.id}`,
           {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${tokenData.access_token}`,
+              "X-PCO-API-Version": "2022-10-20",
             },
           },
         );
@@ -211,16 +213,17 @@ export async function GET(request: NextRequest) {
     for (const event of webhookEvents) {
       // Create the webhook in PCO
       const createWebhookResponse = await fetch(
-        "https://api.planningcenteronline.com/webhooks/v2/subscriptions",
+        "https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions",
         {
           method: "POST",
           headers: {
             Authorization: `Bearer ${tokenData.access_token}`,
             "Content-Type": "application/json",
+            "X-PCO-API-Version": "2022-10-20",
           },
           body: JSON.stringify({
             data: {
-              type: "Subscription",
+              type: "WebhookSubscription",
               attributes: {
                 name: event,
                 url: `https://churchspace.co/api/pco/webhook/${userDetails[0].organization_id}`,
@@ -257,11 +260,12 @@ export async function GET(request: NextRequest) {
         );
         // Delete the PCO webhook we just created
         await fetch(
-          `https://api.planningcenteronline.com/webhooks/v2/subscriptions/${webhookData.data.id}`,
+          `https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions/${webhookData.data.id}`,
           {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${tokenData.access_token}`,
+              "X-PCO-API-Version": "2022-10-20",
             },
           },
         );
