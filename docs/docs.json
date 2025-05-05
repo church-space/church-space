@@ -14,7 +14,7 @@
       {
         "group": "Getting Started",
         "pages": [
-          "quickstart",
+          "getting-started",
           {
             "group": "Editing",
             "pages": ["installation", "editor"]
