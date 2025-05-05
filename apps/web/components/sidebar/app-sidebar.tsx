@@ -130,7 +130,7 @@ const data = (role: string | null) => {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [newEmailDialogOpen, setNewEmailDialogOpen] = useState(false);
   const [newQrCodeDialogOpen, setNewQrCodeDialogOpen] = useState(false);
-  const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(false);
+  const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(true);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const { organizationId, preferences, role, user } = useUser();
 
@@ -211,7 +211,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {preferencesLoaded &&
           welcomeDialogOpen &&
           (preferences?.welcomeStepsCompleted === false ||
-            preferences?.welcomeStepsCompleted === null) ? (
+            preferences?.welcomeStepsCompleted === undefined) ? (
             <SidebarFooter>
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
