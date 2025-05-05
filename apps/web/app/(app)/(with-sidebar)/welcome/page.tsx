@@ -16,6 +16,7 @@ import {
   LinkFilled,
   Qrcode,
   NewEmail as NewEmailIcon,
+  Users,
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
@@ -30,6 +31,14 @@ import NewEmail from "@/components/forms/new-email";
 import NewQRCode from "@/components/forms/new-qr-code";
 import { useUser } from "@/stores/use-user";
 import { motion } from "framer-motion";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@church-space/ui/breadcrumb";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
+import { Separator } from "@church-space/ui/separator";
 
 // Add animation variants
 const containerVariants = {
@@ -55,47 +64,63 @@ const itemVariants = {
 
 const steps = [
   {
-    title: "Add Your Domains",
+    title: "Add your domains",
     description: "Add the domains that you want to send emails from.",
     href: "/settings/domains",
-    buttonText: "Add Domains",
+    buttonText: "Add",
     icon: Globe,
     completed: false,
+    ownerOnly: true,
   },
   {
-    title: "Add Footer Details",
-    description: "Create your default email footer.",
+    title: "Import your unsubscribes",
+    description:
+      "Import your unsubscribes from your previous email provider to prevent emails from being sent to people who have unsubscribed in the past.",
+    href: "/settings/unsubscribes",
+    buttonText: "Import",
+    icon: Users,
+    completed: false,
+    ownerOnly: true,
+  },
+  {
+    title: "Create your default email footer",
+    description:
+      "Design the footer that will be used as a deafult for new emails.",
     href: "/emails/templates/edit-footer",
-    buttonText: "Edit Footer",
+    buttonText: "Create",
     icon: FooterIcon,
-    completed: true,
+    completed: false,
+    ownerOnly: true,
   },
   {
     title: "Create your first email",
     description: "Design your first email.",
     href: "/emails?newEmailOpen=true",
-    buttonText: "Create Email",
+    buttonText: "Create",
     icon: Email,
     completed: false,
     openDialog: "email",
+    ownerOnly: false,
   },
   {
     title: "Create a link page",
     description:
       "Create a link page to share important links with your people.",
     href: "/link-pages?newLinkListOpen=true",
-    buttonText: "Create Link Page",
+    buttonText: "Create",
     icon: LinkFilled,
-    completed: true,
+    completed: false,
+    ownerOnly: false,
   },
   {
     title: "Create a QR Code",
     description: "Create a QR code to share your link page.",
     href: "/qr-codes?newQrCodeOpen=true",
-    buttonText: "Create QR Code",
+    buttonText: "Create",
     icon: Qrcode,
     completed: false,
     openDialog: "qrcode",
+    ownerOnly: false,
   },
 ];
 
@@ -103,11 +128,24 @@ export default function WelcomePage() {
   const [newEmailDialogOpen, setNewEmailDialogOpen] = useState(false);
   const [newQrCodeDialogOpen, setNewQrCodeDialogOpen] = useState(false);
 
-  const { organizationId } = useUser();
+  const { organizationId, role } = useUser();
   return (
-    <>
+    <div className="relative">
+      <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbPage>Welcome</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </header>
       <motion.div
-        className="mx-auto flex h-screen w-full max-w-2xl flex-col gap-2 px-4 pt-20"
+        className="mx-auto flex h-screen w-full max-w-2xl flex-col gap-2 px-4 pt-8 md:pt-20"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -205,6 +243,6 @@ export default function WelcomePage() {
           />
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
