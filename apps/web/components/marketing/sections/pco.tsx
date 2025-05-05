@@ -163,9 +163,7 @@ export default function PcoSection() {
             </div>
           </div>
           <div className="flex flex-col gap-4">
-            <h3 className="text-lg font-bold">
-              Sync unlimited people and lists
-            </h3>
+            <h3 className="text-lg font-bold">Sync unlimited people</h3>
             <p className="text-sm text-muted-foreground">
               Your Planning Center people and lists are automatically synced.
               You can have as many contacts as you need.

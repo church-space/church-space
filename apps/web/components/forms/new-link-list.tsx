@@ -69,6 +69,7 @@ export default function NewLinkList({
 
       if (!result?.data?.error) {
         queryClient.invalidateQueries({ queryKey: ["link-lists"] });
+        setIsNewLinkListOpen(false);
         await router.push(`/link-pages/${result?.data?.data?.id}?newList=true`);
       } else if (result?.data?.error) {
         form.setError("url_slug", {

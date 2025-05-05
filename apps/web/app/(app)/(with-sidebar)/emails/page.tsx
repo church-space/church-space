@@ -11,6 +11,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@church-space/supabase/server";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
+import { setOrgCookie } from "@/actions/set-org-cookie";
 
 function EmailsContent({ organizationId }: { organizationId: string }) {
   return (
@@ -49,10 +50,7 @@ export default async function Page() {
   }
 
   if (!organizationId && user.organizationMembership.organization_id) {
-    cookiesStore.set(
-      "organizationId",
-      user.organizationMembership.organization_id,
-    );
+    await setOrgCookie(user.organizationMembership.organization_id);
   }
 
   // If no organization ID in cookies but user has organization membership,

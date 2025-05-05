@@ -52,6 +52,7 @@ export default function NewEmailTemplate({
       });
 
       if (result?.data?.success && result?.data?.data) {
+        setIsNewEmailTemplateOpen(false);
         await router.push(`/emails/${result.data.data.id}/editor`);
       }
     } catch (error) {
