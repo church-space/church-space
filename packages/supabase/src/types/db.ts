@@ -639,39 +639,33 @@ export type Database = {
       }
       email_recipients: {
         Row: {
-          apple_mpp: boolean | null
           automation_id: number | null
           created_at: string
           email_address: string | null
           email_id: number | null
           id: number
-          is_opened: boolean | null
           people_email_id: number | null
           resend_email_id: string | null
           status: Database["public"]["Enums"]["email_delivery_status"] | null
           updated_at: string | null
         }
         Insert: {
-          apple_mpp?: boolean | null
           automation_id?: number | null
           created_at?: string
           email_address?: string | null
           email_id?: number | null
           id?: number
-          is_opened?: boolean | null
           people_email_id?: number | null
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
           updated_at?: string | null
         }
         Update: {
-          apple_mpp?: boolean | null
           automation_id?: number | null
           created_at?: string
           email_address?: string | null
           email_id?: number | null
           id?: number
-          is_opened?: boolean | null
           people_email_id?: number | null
           resend_email_id?: string | null
           status?: Database["public"]["Enums"]["email_delivery_status"] | null
@@ -1603,98 +1597,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "people"
             referencedColumns: ["pco_id"]
-          },
-        ]
-      }
-      pinned_email_templates: {
-        Row: {
-          created_at: string
-          email_id: number | null
-          id: number
-          organization_id: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          email_id?: number | null
-          id?: number
-          organization_id: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          email_id?: number | null
-          id?: number
-          organization_id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pinned_email_templates_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pinned_emails_email_id_fkey"
-            columns: ["email_id"]
-            isOneToOne: false
-            referencedRelation: "emails"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pinned_emails_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      pinned_lists: {
-        Row: {
-          created_at: string
-          id: number
-          list_id: number
-          organization_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          list_id: number
-          organization_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          list_id?: number
-          organization_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pinned_lists_list_id_fkey"
-            columns: ["list_id"]
-            isOneToOne: false
-            referencedRelation: "pco_lists"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pinned_lists_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pinned_lists_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
           },
         ]
       }
