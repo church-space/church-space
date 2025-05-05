@@ -1,23 +1,36 @@
+"use client";
+
 import { Button } from "@church-space/ui/button";
 import {
   LinkIcon,
-  MailFilled,
   Qrcode,
   Waypoints,
   ChevronRight,
   Email,
-  Robot,
 } from "@church-space/ui/icons";
-import { createClient } from "@church-space/supabase/server";
 import Link from "next/link";
 import HeroSubtitle from "./hero-subtitle";
+import { useState } from "react";
+import { cn } from "@church-space/ui/cn";
 
-export default async function Hero() {
-  const supabase = await createClient();
+export default function Hero() {
+  const [activePreview, setActivePreview] = useState("emails");
 
-  const { data: session } = await supabase.auth.getSession();
+  const getPreviewContent = () => {
+    switch (activePreview) {
+      case "emails":
+        return "Email preview content here";
+      case "automations":
+        return "Automation workflow preview here";
+      case "links":
+        return "Link pages preview content here";
+      case "qr":
+        return "QR codes preview content here";
+      default:
+        return "emails / automations / links / qr codes";
+    }
+  };
 
-  const isLoggedIn = session?.session !== null;
   return (
     <section className="overflow-hidden py-16 lg:py-32">
       <div className="mx-auto mb-12 flex w-full max-w-7xl flex-col items-center gap-8 sm:mb-28">
@@ -30,19 +43,11 @@ export default async function Hero() {
           </h1>
           <HeroSubtitle />
           <div className="flex flex-col items-center justify-center gap-2 pt-2 md:flex-row lg:gap-4">
-            {!isLoggedIn ? (
-              <Link href="/signup">
-                <Button className="h-10 px-4 text-base sm:h-12 sm:px-6">
-                  Start Sending
-                </Button>
-              </Link>
-            ) : (
-              <Link href="/emails">
-                <Button className="h-10 px-4 text-base sm:h-12 sm:px-6">
-                  Go to Dashboard
-                </Button>
-              </Link>
-            )}
+            <Link href="/signup">
+              <Button className="h-10 px-4 text-base sm:h-12 sm:px-6">
+                Start Sending
+              </Button>
+            </Link>
             <Link href="https://cal.com/thomasharmond/15min">
               <Button
                 variant="ghost"
@@ -59,8 +64,12 @@ export default async function Hero() {
         <div className="mx-auto flex max-w-[300px] flex-wrap items-center justify-center gap-2 sm:max-w-2xl sm:gap-4">
           <Button
             size="sm"
-            variant="outline"
-            className="text-base [&_svg]:size-5"
+            variant={activePreview === "emails" ? "secondary" : "outline"}
+            className={cn(
+              "text-base [&_svg]:size-5",
+              activePreview === "emails" && "border border-transparent",
+            )}
+            onClick={() => setActivePreview("emails")}
           >
             <span className="hidden sm:block">
               <Email />
@@ -69,8 +78,12 @@ export default async function Hero() {
           </Button>
           <Button
             size="sm"
-            variant="outline"
-            className="text-base [&_svg]:size-5"
+            variant={activePreview === "automations" ? "secondary" : "outline"}
+            className={cn(
+              "text-base [&_svg]:size-5",
+              activePreview === "automations" && "border border-transparent",
+            )}
+            onClick={() => setActivePreview("automations")}
           >
             <span className="hidden sm:block">
               <Waypoints />
@@ -79,8 +92,12 @@ export default async function Hero() {
           </Button>
           <Button
             size="sm"
-            variant="outline"
-            className="text-base [&_svg]:size-5"
+            variant={activePreview === "links" ? "secondary" : "outline"}
+            className={cn(
+              "text-base [&_svg]:size-5",
+              activePreview === "links" && "border border-transparent",
+            )}
+            onClick={() => setActivePreview("links")}
           >
             <span className="hidden sm:block">
               <LinkIcon />
@@ -89,8 +106,12 @@ export default async function Hero() {
           </Button>
           <Button
             size="sm"
-            variant="outline"
-            className="text-base [&_svg]:size-5"
+            variant={activePreview === "qr" ? "secondary" : "outline"}
+            className={cn(
+              "text-base [&_svg]:size-5",
+              activePreview === "qr" && "border border-transparent",
+            )}
+            onClick={() => setActivePreview("qr")}
           >
             <span className="hidden sm:block">
               <Qrcode />
@@ -99,8 +120,8 @@ export default async function Hero() {
           </Button>
         </div>
         <div className="relative mx-auto aspect-video w-full max-w-7xl rounded-xl bg-card outline outline-[3px] outline-muted">
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-transparent via-transparent to-background backdrop-blur-sm">
-            emails / automations / links / qr codes
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gradient-to-b from-transparent via-transparent to-background p-4 text-center backdrop-blur-sm">
+            {getPreviewContent()}
           </div>
         </div>
       </div>
