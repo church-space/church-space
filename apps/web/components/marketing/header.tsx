@@ -21,6 +21,7 @@ import {
   PcoLogo,
   Email,
 } from "@church-space/ui/icons";
+
 import MobileHeaderSheet from "./mobile-header-sheet";
 import HeaderButtons from "./header-buttons";
 import { Separator } from "@church-space/ui/separator";
@@ -113,19 +114,25 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
-            <NavigationMenuItem className="hidden h-8 bg-transparent px-2.5 text-foreground hover:bg-background sm:block">
+            <NavigationMenuItem className="hidden h-8 bg-transparent px-2.5 text-foreground sm:block">
               <NavigationMenuLink
                 href="/pricing"
-                className={navigationMenuTriggerStyle()}
+                className={cn(
+                  navigationMenuTriggerStyle(),
+                  "bg-transparent text-foreground hover:bg-background",
+                )}
               >
                 Pricing
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            <NavigationMenuItem className="hidden h-8 bg-transparent px-2.5 text-foreground hover:bg-background lg:block">
+            <NavigationMenuItem className="hidden h-8 bg-transparent px-2.5 text-foreground lg:block">
               <NavigationMenuLink
                 href="mailto:hello@churchspace.co?subject=Question%20about%20Church%20Space&body=NAME%3A%20%0ACHURCH%3A%20%0A%0AQUESTION%3A%20%0A"
-                className={navigationMenuTriggerStyle()}
+                className={cn(
+                  navigationMenuTriggerStyle(),
+                  "bg-transparent text-foreground hover:bg-background",
+                )}
               >
                 Contact
               </NavigationMenuLink>

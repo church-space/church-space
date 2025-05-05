@@ -99,7 +99,9 @@ export default async function Hero() {
           </Button>
         </div>
         <div className="relative mx-auto aspect-video w-full max-w-7xl rounded-xl bg-card outline outline-[3px] outline-muted">
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-transparent via-transparent to-background backdrop-blur-sm" />
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-transparent via-transparent to-background backdrop-blur-sm">
+            emails / automations / links / qr codes
+          </div>
         </div>
       </div>
     </section>

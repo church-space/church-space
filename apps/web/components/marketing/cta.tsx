@@ -9,7 +9,7 @@ export default function CallToAction() {
           Engage Your Church.
         </h2>
 
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-col-reverse items-center justify-center gap-4 md:flex-row">
           <Link href="mailto:hello@churchspace.co?subject=Question%20about%20Church%20Space&body=NAME%3A%20%0ACHURCH%3A%20%0A%0AQUESTION%3A%20%0A">
             <Button asChild size="lg" variant="outline">
               <span>Contact Us</span>
@@ -21,7 +21,7 @@ export default function CallToAction() {
               size="lg"
               className="bg-foreground/90 hover:bg-foreground"
             >
-              <span>Get Started</span>
+              <span>Get Started for Free</span>
             </Button>
           </Link>
         </div>
