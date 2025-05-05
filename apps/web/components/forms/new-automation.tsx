@@ -55,7 +55,6 @@ export default function NewEmailAutomation({
       });
 
       if (result?.data?.success && result?.data?.data) {
-        setIsNewEmailAutomationOpen(false);
         await router.push(
           `/emails/automations/${result.data.data.id}?newAutomation=true`,
         );

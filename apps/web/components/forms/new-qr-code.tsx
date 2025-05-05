@@ -99,7 +99,6 @@ export default function NewQRCode({
       });
 
       if (result?.data?.success && result?.data?.data) {
-        setIsNewQRCodeOpen(false);
         await router.push(`/qr-codes/${result.data.data.id}?newQRCode=true`);
       }
     } catch (error) {

@@ -55,7 +55,6 @@ export default function NewEmail({
 
       if (result?.data?.success && result?.data?.data) {
         queryClient.invalidateQueries({ queryKey: ["emails"] });
-        setIsNewEmailOpen(false);
         await router.push(
           `/emails/${result.data.data.id}/editor?newEmail=true`,
         );
