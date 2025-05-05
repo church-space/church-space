@@ -49,7 +49,7 @@ const data = (role: string | null) => {
   return {
     navMain: [
       {
-        title: "Email",
+        title: "Emails",
         url: "/emails",
         icon: Email,
         submenu: [
