@@ -10,14 +10,20 @@ import {
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import HeroSubtitle from "./hero-subtitle";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@church-space/ui/cn";
 
 export default function Hero() {
-  const [activePreview, setActivePreview] = useState("emails");
+  type PreviewType = "emails" | "automations" | "links" | "qr";
 
-  const getPreviewContent = () => {
-    switch (activePreview) {
+  const [activePreview, setActivePreview] = useState<PreviewType>("emails");
+  const [previewContent, setPreviewContent] = useState(
+    "Email preview content here",
+  );
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const getPreviewContent = (type: PreviewType) => {
+    switch (type) {
       case "emails":
         return "Email preview content here";
       case "automations":
@@ -30,6 +36,24 @@ export default function Hero() {
         return "emails / automations / links / qr codes";
     }
   };
+
+  const handlePreviewChange = (previewType: PreviewType) => {
+    if (previewType === activePreview) return;
+
+    setIsTransitioning(true);
+    setActivePreview(previewType);
+
+    // Wait for fade out, then update content
+    setTimeout(() => {
+      setPreviewContent(getPreviewContent(previewType));
+      setIsTransitioning(false);
+    }, 300); // Match this duration with CSS transition
+  };
+
+  // Set initial content
+  useEffect(() => {
+    setPreviewContent(getPreviewContent(activePreview));
+  }, []);
 
   return (
     <section className="overflow-hidden py-16 lg:py-32">
@@ -69,7 +93,7 @@ export default function Hero() {
               "text-base [&_svg]:size-5",
               activePreview === "emails" && "border border-transparent",
             )}
-            onClick={() => setActivePreview("emails")}
+            onClick={() => handlePreviewChange("emails")}
           >
             <span className="hidden sm:block">
               <Email />
@@ -83,7 +107,7 @@ export default function Hero() {
               "text-base [&_svg]:size-5",
               activePreview === "automations" && "border border-transparent",
             )}
-            onClick={() => setActivePreview("automations")}
+            onClick={() => handlePreviewChange("automations")}
           >
             <span className="hidden sm:block">
               <Waypoints />
@@ -97,7 +121,7 @@ export default function Hero() {
               "text-base [&_svg]:size-5",
               activePreview === "links" && "border border-transparent",
             )}
-            onClick={() => setActivePreview("links")}
+            onClick={() => handlePreviewChange("links")}
           >
             <span className="hidden sm:block">
               <LinkIcon />
@@ -111,7 +135,7 @@ export default function Hero() {
               "text-base [&_svg]:size-5",
               activePreview === "qr" && "border border-transparent",
             )}
-            onClick={() => setActivePreview("qr")}
+            onClick={() => handlePreviewChange("qr")}
           >
             <span className="hidden sm:block">
               <Qrcode />
@@ -121,7 +145,14 @@ export default function Hero() {
         </div>
         <div className="relative mx-auto aspect-video w-full max-w-7xl rounded-xl bg-card outline outline-[3px] outline-muted">
           <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gradient-to-b from-transparent via-transparent to-background p-4 text-center backdrop-blur-sm">
-            {getPreviewContent()}
+            <div
+              className={cn(
+                "transition-opacity duration-300 ease-in-out",
+                isTransitioning ? "opacity-0" : "opacity-100",
+              )}
+            >
+              {previewContent}
+            </div>
           </div>
         </div>
       </div>
