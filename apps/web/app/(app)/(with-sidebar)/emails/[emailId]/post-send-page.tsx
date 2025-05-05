@@ -603,7 +603,7 @@ export default function PostSendPage({
           className="grid gap-4 lg:grid-cols-2"
           variants={itemVariants}
         >
-          <Card>
+          <Card className="border-primary/20 bg-gradient-to-br from-secondary/60 to-secondary/80 dark:from-secondary/20 dark:to-secondary/30">
             <CardHeader className="pb-4">
               <CardTitle>Details</CardTitle>
             </CardHeader>
