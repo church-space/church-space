@@ -37,7 +37,7 @@
           {
             "group": "Organization",
             "pages": [
-              "storage-limits",
+              "assets-and-storage",
               "manage-domains",
               "delete-organization",
               "manage-and-invite-members",
@@ -85,6 +85,7 @@
           {
             "group": "People",
             "pages": [
+              "adding-people",
               "manage-a-persons-subscription-status",
               "subscription-types",
               "importing-unsubscribes"
