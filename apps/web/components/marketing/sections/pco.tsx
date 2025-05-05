@@ -5,7 +5,6 @@ import {
   PcoLogo,
   Waypoints,
 } from "@church-space/ui/icons";
-import Image from "next/image";
 import { Badge } from "@church-space/ui/badge";
 
 export default function PcoSection() {
