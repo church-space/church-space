@@ -7,11 +7,9 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@church-space/supabase/server";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
-import Cookies from "js-cookie";
 
 function EmailsContent({ organizationId }: { organizationId: string }) {
   return (
@@ -37,9 +35,6 @@ function EmailsContent({ organizationId }: { organizationId: string }) {
 }
 
 export default async function Page() {
-  const cookiesStore = await cookies();
-  const organizationId = cookiesStore.get("organizationId")?.value;
-
   // Get user details to verify organization membership
   const supabase = await createClient();
   const user = await getUserWithDetailsQuery(supabase);
@@ -49,24 +44,14 @@ export default async function Page() {
     redirect("/onboarding");
   }
 
-  if (!organizationId && user.organizationMembership.organization_id) {
-    Cookies.set("organizationId", user.organizationMembership.organization_id);
-  }
+  // If we have an organization membership, always use that ID
+  const orgId = user.organizationMembership.organization_id;
 
-  // If no organization ID in cookies but user has organization membership,
-  // use the organization ID from membership
-  if (!organizationId && user.organizationMembership.organization_id) {
-    return (
-      <EmailsContent
-        organizationId={user.organizationMembership.organization_id}
-      />
-    );
-  }
-
-  // If no organization ID at all, redirect to onboarding
-  if (!organizationId) {
+  // If no organization ID at all (which shouldn't happen at this point),
+  // redirect to onboarding as a failsafe
+  if (!orgId) {
     redirect("/onboarding");
   }
 
-  return <EmailsContent organizationId={organizationId} />;
+  return <EmailsContent organizationId={orgId} />;
 }

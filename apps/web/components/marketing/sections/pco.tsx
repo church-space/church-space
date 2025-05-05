@@ -15,7 +15,7 @@ export default function PcoSection() {
         <div className="flex items-center gap-4">
           <div className="relative">
             <PcoLogo width={"45"} height={"45"} fill="#2266F7" />
-            <div className="absolute bottom-2 right-2 -z-10 h-[32px] w-[30px] bg-foreground" />
+            <div className="absolute bottom-2 right-2 -z-10 h-[32px] w-[30px] bg-white" />
           </div>
           <svg
             width="270"
