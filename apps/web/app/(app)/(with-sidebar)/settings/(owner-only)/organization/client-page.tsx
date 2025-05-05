@@ -89,10 +89,10 @@ export default function ClientPage({
   );
   const [localAddress, setLocalAddress] = useState<Address>(address || {});
 
-  const debouncedOrgName = useDebounce(localOrgName, 500);
-  const debouncedDefaultEmail = useDebounce(localDefaultEmail, 500);
-  const debouncedDefaultEmailDomain = useDebounce(localDefaultEmailDomain, 500);
-  const debouncedAddress = useDebounce(localAddress, 500);
+  const debouncedOrgName = useDebounce(localOrgName, 800);
+  const debouncedDefaultEmail = useDebounce(localDefaultEmail, 800);
+  const debouncedDefaultEmailDomain = useDebounce(localDefaultEmailDomain, 800);
+  const debouncedAddress = useDebounce(localAddress, 800);
   const [inputOrgName, setInputOrgName] = useState("");
 
   useEffect(() => {

@@ -5,6 +5,8 @@ import {
   Qrcode,
   Waypoints,
   ChevronRight,
+  Email,
+  Robot,
 } from "@church-space/ui/icons";
 import { createClient } from "@church-space/supabase/server";
 import Link from "next/link";
@@ -17,17 +19,17 @@ export default async function Hero() {
 
   const isLoggedIn = session?.session !== null;
   return (
-    <section className="overflow-hidden py-16 md:py-32">
-      <div className="mx-auto mb-28 flex w-full max-w-7xl flex-col items-center gap-8 lg:flex-row">
-        <div className="flex min-w-[500px] flex-col items-center justify-center gap-3 px-6 md:max-w-[690px] lg:items-start lg:justify-start lg:gap-6">
-          <h1 className="text-balance text-center text-4xl font-bold sm:text-6xl lg:text-left lg:text-7xl">
+    <section className="overflow-hidden py-16 lg:py-32">
+      <div className="mx-auto mb-12 flex w-full max-w-7xl flex-col items-center gap-8 sm:mb-28">
+        <div className="flex min-w-[500px] flex-col items-center justify-center gap-3 px-6 md:max-w-[690px] lg:gap-6">
+          <h1 className="text-balance text-center text-4xl font-bold sm:text-6xl lg:text-7xl">
             <span className="relative z-[2] mb-2 pb-10">The better way to</span>{" "}
             <span className="relative bg-yellow-300/80 px-2">
               email your church
             </span>
           </h1>
           <HeroSubtitle />
-          <div className="flex flex-col items-center justify-center gap-2 pt-2 lg:flex-row lg:gap-4">
+          <div className="flex flex-col items-center justify-center gap-2 pt-2 md:flex-row lg:gap-4">
             {!isLoggedIn ? (
               <Link href="/signup">
                 <Button className="h-10 px-4 text-base sm:h-12 sm:px-6">
@@ -51,29 +53,48 @@ export default async function Hero() {
             </Link>
           </div>
         </div>
-        <div className="hidden w-full flex-1 lg:flex lg:pr-4">
-          <div className="h-96 w-full rounded-xl border bg-muted">
-            Image of link page, email, and QR code
-          </div>
-        </div>
       </div>
 
       <div className="flex flex-col justify-center gap-6">
-        <div className="mx-auto flex items-center justify-center gap-4">
-          <Button size="sm" variant="outline">
-            <MailFilled />
-            Email
+        <div className="mx-auto flex max-w-[300px] flex-wrap items-center justify-center gap-2 sm:max-w-2xl sm:gap-4">
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-base [&_svg]:size-5"
+          >
+            <span className="hidden sm:block">
+              <Email />
+            </span>
+            Emails
           </Button>
-          <Button size="sm" variant="outline">
-            <Waypoints />
-            Automation
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-base [&_svg]:size-5"
+          >
+            <span className="hidden sm:block">
+              <Waypoints />
+            </span>
+            Automations
           </Button>
-          <Button size="sm" variant="outline">
-            <LinkIcon />
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-base [&_svg]:size-5"
+          >
+            <span className="hidden sm:block">
+              <LinkIcon />
+            </span>
             Link Pages
           </Button>
-          <Button size="sm" variant="outline">
-            <Qrcode />
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-base [&_svg]:size-5"
+          >
+            <span className="hidden sm:block">
+              <Qrcode />
+            </span>
             QR Codes
           </Button>
         </div>

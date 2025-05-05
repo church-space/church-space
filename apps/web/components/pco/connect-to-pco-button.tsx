@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@church-space/ui/button";
-import Image from "next/image";
+import { PcoLogo } from "@church-space/ui/icons";
 
 interface ConnectToPcoButtonProps {
   isReconnect: boolean;
@@ -45,7 +45,7 @@ export default function ConnectToPcoButton({
         onClick={handleConnect}
         disabled={isLoading}
       >
-        <Image src={"/pco-logo.png"} alt="PCO Logo" width={22} height={22} />{" "}
+        <PcoLogo width={"22"} height={"22"} fill="#2266F7" />{" "}
         {isReconnect ? "Reconnect to PCO" : "Connect to Planning Center"}
       </Button>
       {isReconnect && (

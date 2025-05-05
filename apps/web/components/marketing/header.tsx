@@ -11,7 +11,6 @@ import {
 import { cn } from "@church-space/ui/cn";
 import Link from "next/link";
 import {
-  MailFilled,
   Qrcode,
   LinkIcon,
   LifeRing,
@@ -19,9 +18,9 @@ import {
   Waypoints,
   Map,
   ChurchSpaceBlack,
+  PcoLogo,
+  Email,
 } from "@church-space/ui/icons";
-import PCOlogo from "@/public/pco-logo.png";
-import Image from "next/image";
 import MobileHeaderSheet from "./mobile-header-sheet";
 import HeaderButtons from "./header-buttons";
 import { Separator } from "@church-space/ui/separator";
@@ -46,7 +45,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-1 p-3 md:w-[500px] md:grid-cols-2">
-                  <ListItem href="/#email" title="Email" icon={<MailFilled />}>
+                  <ListItem href="/#email" title="Email" icon={<Email />}>
                     Send beautifully crafted emails to your people
                   </ListItem>
                   <ListItem
@@ -79,15 +78,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
                     title="Planning Center"
                     className="bg-blue-500/10"
                     listItemClassName="col-span-2"
-                    icon={
-                      <Image
-                        src={PCOlogo}
-                        alt="PCO Logo"
-                        height={16}
-                        width={16}
-                        className="mr-1"
-                      />
-                    }
+                    icon={<PcoLogo />}
                   >
                     Sync your data from Planning Center
                   </ListItem>

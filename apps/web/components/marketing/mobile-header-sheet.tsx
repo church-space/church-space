@@ -19,9 +19,8 @@ import {
   Map,
   CircleInfo,
   Megaphone,
+  PcoLogo,
 } from "@church-space/ui/icons";
-import PCOlogo from "@/public/pco-logo.png";
-import Image from "next/image";
 import { MarketingLogoutButton } from "../sidebar/logout";
 
 export default function MobileHeaderSheet({
@@ -84,14 +83,7 @@ export default function MobileHeaderSheet({
             href="/integrations"
             onClick={() => setOpen(false)}
           >
-            <Image
-              src={PCOlogo}
-              alt="PCO Logo"
-              height={16}
-              width={16}
-              className="mr-1"
-              priority
-            />
+            <PcoLogo />
             Planning Center
           </Link>
         </div>

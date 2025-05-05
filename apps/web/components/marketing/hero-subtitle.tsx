@@ -21,7 +21,7 @@ export default function HeroSubtitle() {
   }, []);
 
   return (
-    <div className="w-full max-w-sm items-center text-pretty pt-0 text-center text-xl font-semibold text-secondary-foreground sm:pt-2 sm:text-2xl md:text-3xl lg:items-start lg:pt-0 lg:text-left">
+    <div className="w-full max-w-sm items-center text-pretty pt-0 text-center text-xl font-semibold text-secondary-foreground sm:max-w-md sm:pt-2 sm:text-3xl lg:text-4xl">
       Engage your people with{" "}
       <div className="inline-block min-w-[200px] text-primary">
         <AnimatePresence mode="wait">
