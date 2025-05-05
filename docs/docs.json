@@ -15,15 +15,55 @@
         "group": "Getting Started",
         "pages": [
           "getting-started",
+          "pco-integration",
+          "switch-to-church-space",
           {
-            "group": "Editing",
+            "group": "Switch to Church Space",
+            "pages": ["from-mailchimp"]
+          }
+        ]
+      },
+      {
+        "group": "Account",
+        "pages": [
+          {
+            "group": "Account",
+            "pages": ["installation", "editor"]
+          },
+          {
+            "group": "Organization",
+            "pages": ["installation", "editor"]
+          },
+          {
+            "group": "Billing",
             "pages": ["installation", "editor"]
           }
         ]
       },
       {
-        "group": "Writing Content",
-        "pages": ["writing-content/page", "writing-content/text"]
+        "group": "Application",
+        "pages": [
+          {
+            "group": "Emails",
+            "pages": ["installation", "editor"]
+          },
+          {
+            "group": "Automations",
+            "pages": ["installation", "editor"]
+          },
+          {
+            "group": "QR Codes",
+            "pages": ["installation", "editor"]
+          },
+          {
+            "group": "Link Pages",
+            "pages": ["installation", "editor"]
+          },
+          {
+            "group": "People",
+            "pages": ["installation", "editor"]
+          }
+        ]
       }
     ]
   },
