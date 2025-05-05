@@ -210,7 +210,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <AnimatePresence>
           {preferencesLoaded &&
           welcomeDialogOpen &&
-          preferences?.welcomeStepsCompleted === false ? (
+          (preferences?.welcomeStepsCompleted === false ||
+            preferences?.welcomeStepsCompleted === null) ? (
             <SidebarFooter>
               <motion.div
                 initial={{ opacity: 0, y: 10 }}

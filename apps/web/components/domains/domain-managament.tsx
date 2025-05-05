@@ -499,26 +499,28 @@ export default function DomainManagement({
       // Cast response to ActionResponse type
       const typedResponse = response as ActionResponse;
 
-      // Check if we have a successful response with data
-      if (typedResponse.success === true && typedResponse.data) {
+      // Check if success is true, regardless of the nested structure
+      if (typedResponse.success === true) {
         // Update domains state with the new verification status
+        const domainStatus =
+          typedResponse.data?.data?.domain?.[0]?.status ||
+          typedResponse.data?.data?.resendData?.status ||
+          "pending";
+
         setDomains((prevDomains) =>
           prevDomains.map((d) =>
             d.id === domain.id
               ? {
                   ...d,
                   has_clicked_verify: true,
-                  is_verified:
-                    typedResponse.data?.data?.domain?.[0]?.status ===
-                    "verified",
+                  is_verified: domainStatus === "verified",
                 }
               : d,
           ),
         );
 
-        const status = typedResponse.data?.data?.domain?.[0]?.status;
         const message =
-          status === "pending"
+          domainStatus === "pending"
             ? "Domain verification is pending. This may take a few minutes."
             : "Domain verification process has started.";
 
@@ -527,12 +529,7 @@ export default function DomainManagement({
           description: message,
         });
       } else {
-        // Only log as error if success is not true
-        if (typedResponse.success !== true) {
-          console.error("Failed to verify domain:", response);
-        } else {
-          console.log("Domain verification response:", response);
-        }
+        console.error("Failed to verify domain:", response);
         const errorMessage = typedResponse.error || "Failed to verify domain";
         toast({
           title: "Error verifying domain",
