@@ -13,24 +13,28 @@ const links = [
     items: [
       {
         title: "Email",
-        href: "/homepage/#email",
+        href: "/homepage/#emails",
+        target: "_self",
       },
       {
         title: "Automations",
-        href: "/homepage/#pco",
+        href: "/homepage/#automations",
         target: "_self",
       },
       {
         title: "QR Codes",
         href: "/homepage/#links",
+        target: "_self",
       },
       {
         title: "Link Pages",
         href: "/homepage/#links",
+        target: "_self",
       },
       {
         title: "PCO Integration",
         href: "/homepage/#pco",
+        target: "_self",
       },
     ],
   },

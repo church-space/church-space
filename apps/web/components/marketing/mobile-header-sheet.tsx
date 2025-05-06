@@ -1,26 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
 import { Button } from "@church-space/ui/button";
-import { Menu } from "lucide-react";
-import Link from "next/link";
+import {
+  CircleInfo,
+  CreditCard,
+  Email,
+  LifeRing,
+  LinkIcon,
+  Map,
+  Megaphone,
+  PcoLogo,
+  Qrcode,
+  Waypoints,
+} from "@church-space/ui/icons";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@church-space/ui/popover";
-import {
-  MailFilled,
-  Qrcode,
-  Waypoints,
-  LinkIcon,
-  CreditCard,
-  LifeRing,
-  Map,
-  CircleInfo,
-  Megaphone,
-  PcoLogo,
-} from "@church-space/ui/icons";
+import { Menu } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { MarketingLogoutButton } from "../sidebar/logout";
 
 export default function MobileHeaderSheet({
@@ -45,15 +45,15 @@ export default function MobileHeaderSheet({
           <span className="text-sm text-muted-foreground">Features</span>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/homepage#emails"
+            href="/#emails"
             onClick={() => setOpen(false)}
           >
-            <MailFilled />
+            <Email />
             Email
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/homepage#links"
+            href="/#links"
             onClick={() => setOpen(false)}
           >
             <Qrcode />
@@ -61,7 +61,7 @@ export default function MobileHeaderSheet({
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/homepage#links"
+            href="/#links"
             onClick={() => setOpen(false)}
           >
             <LinkIcon />
@@ -69,7 +69,7 @@ export default function MobileHeaderSheet({
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/homepage#pco"
+            href="/#automations"
             onClick={() => setOpen(false)}
           >
             <Waypoints />
@@ -80,7 +80,7 @@ export default function MobileHeaderSheet({
           <span className="text-sm text-muted-foreground">Integrations</span>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/homepage#pco"
+            href="/#pco"
             onClick={() => setOpen(false)}
           >
             <PcoLogo />

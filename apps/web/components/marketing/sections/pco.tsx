@@ -205,7 +205,7 @@ export default function PcoSection() {
               you want to send to straight from Church Space.
             </p>
           </div>
-          <div className="col-span-1 space-y-4">
+          <div className="col-span-1 space-y-4" id="automations">
             <div className="relative h-64 w-full rounded-md border bg-gradient-to-br from-primary/5 to-primary/20 shadow-sm">
               <div className="absolute bottom-0 right-0 h-56 w-[92%] rounded-br-md rounded-tl-md border-l border-t bg-background">
                 <div className="flex flex-col gap-2 p-2">
