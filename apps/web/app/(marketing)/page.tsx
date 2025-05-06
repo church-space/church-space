@@ -81,14 +81,14 @@ export default function Homepage() {
 
             <div className="flex h-full flex-col justify-between gap-4 rounded-xl border bg-accent p-8">
               <div className="relative mx-auto h-52 w-full max-w-sm items-center gap-2 rounded-lg border bg-background text-primary">
-                <div className="absolute left-4 top-8 z-0 flex w-32 -rotate-12 flex-col items-center gap-1 rounded-md border bg-card p-3 text-foreground shadow-sm hover:bg-accent/80">
+                <div className="absolute left-4 top-8 z-10 flex w-32 -rotate-12 flex-col items-center gap-1 rounded-md border bg-card p-3 text-foreground shadow-sm hover:bg-accent/80">
                   <Image />
                   <span>Image</span>
                 </div>
-                <div className="absolute left-32 top-20">
+                <div className="absolute left-32 top-20 z-20">
                   <CursorDefault height={"30"} width={"30"} />
                 </div>
-                <div className="absolute bottom-0 right-0 h-40 w-48 rounded-tl-lg bg-primary"></div>
+                <div className="absolute bottom-0 right-0 z-0 h-40 w-24 rounded-tl-lg bg-primary sm:w-48 md:w-32 lg:w-48"></div>
               </div>
               <div className="flex flex-col gap-2">
                 <h3 className="text-lg font-bold">Drag and Drop Editor</h3>
