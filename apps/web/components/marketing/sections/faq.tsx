@@ -5,10 +5,15 @@ import {
   AccordionContent,
   AccordionTrigger,
 } from "@church-space/ui/accordion";
+import { cn } from "@church-space/ui/cn";
 
-export default function FAQSection() {
+interface FAQSectionProps {
+  className?: string;
+}
+
+export default function FAQSection({ className }: FAQSectionProps) {
   return (
-    <div className="py-20">
+    <div className={cn(className)}>
       <h2 className="mb-8 text-center text-3xl font-semibold">FAQ</h2>
       <Accordion
         type="single"

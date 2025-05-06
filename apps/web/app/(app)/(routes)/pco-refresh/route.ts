@@ -102,8 +102,8 @@ export async function GET(request: NextRequest) {
 
   const data = await response.json();
 
-  // Update the database with the new tokens
-  await supabase
+  // Update the database with the new tokens - Ensure this completes before redirecting
+  const { error: updateError } = await supabase
     .from("pco_connections")
     .update({
       access_token: data.access_token,
@@ -111,6 +111,11 @@ export async function GET(request: NextRequest) {
       last_refreshed: new Date().toISOString(),
     })
     .eq("id", pcoConnection.id);
+
+  if (updateError) {
+    console.error("Failed to update PCO tokens:", updateError);
+    return NextResponse.redirect(new URL("/pco-reconnect", request.url));
+  }
 
   // Get current user's PCO info
   const pcoUserResponse = await fetch(
@@ -163,6 +168,9 @@ export async function GET(request: NextRequest) {
       : request.headers
           .get("referer")
           ?.replace(request.headers.get("origin") || "", "") || "/emails";
+
+  // Add a small delay to ensure database updates are fully processed before redirect
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   return NextResponse.redirect(new URL(finalReturnUrl, request.url));
 }

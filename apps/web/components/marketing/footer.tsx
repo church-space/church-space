@@ -128,10 +128,15 @@ export default function Footer() {
             ))}
           </div>
         </div>
-        <div className="mt-12 flex flex-wrap items-end justify-between gap-6 border-t py-6">
-          <span className="order-last block w-full justify-center text-center text-sm text-muted-foreground md:order-first md:w-fit md:justify-start">
-            © {new Date().getFullYear()} Church Space, All rights reserved
-          </span>
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-6 border-t py-6">
+          <div className="order-last flex w-full flex-col justify-center md:order-first md:w-fit md:justify-start">
+            <span className="text-center text-sm text-muted-foreground md:text-left">
+              © {new Date().getFullYear()} Church Space, All rights reserved
+            </span>
+            <span className="text-center text-sm font-light text-muted-foreground md:text-left">
+              Church Space is not affiliated with Planning Center.
+            </span>
+          </div>
           <div className="order-first flex w-full flex-wrap justify-center gap-6 text-sm md:order-last md:w-fit md:justify-end">
             <Link
               href="https://x.com/churchspaceHQ"

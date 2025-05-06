@@ -19,6 +19,7 @@ import {
 } from "@church-space/ui/dropdown-menu";
 import cookies from "js-cookie";
 import { NumberTicker } from "@church-space/ui/number-ticker";
+import FAQSection from "@/components/marketing/sections/faq";
 
 type EmailTier = {
   volume: number;
@@ -28,7 +29,7 @@ type EmailTier = {
 export default function PricingPage() {
   const [selectedTier, setSelectedTier] = useState<EmailTier>({
     volume: 5000,
-    price: 8,
+    price: 9,
   });
   const [isOpen, setIsOpen] = useState(false);
 
@@ -75,7 +76,7 @@ export default function PricingPage() {
               <p className="text-lg font-semibold">500 emails per month</p>
               <div className="mb-1 text-sm text-muted-foreground">*</div>
             </div>
-            <div className="space-y-3 px-3 pb-9 pt-4">
+            <div className="space-y-3 px-3 pb-3 pt-4 md:pb-9">
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
                   <Users height={"22"} width={"22"} />
@@ -101,14 +102,14 @@ export default function PricingPage() {
                 <div className="mr-2.5 text-[#6065FE]">
                   <LinkIcon height={"22"} width={"22"} />
                 </div>
-                <span>Up to 3 link pages</span>
+                <span>Unlimited link pages</span>
               </div>
 
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
                   <Qrcode height={"22"} width={"22"} />
                 </div>
-                <span>Up to 10 active QR codes</span>
+                <span>Unlimited QR codes</span>
               </div>
             </div>
             <div
@@ -178,7 +179,7 @@ export default function PricingPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="space-y-3 px-3 pb-9 pt-4">
+            <div className="space-y-3 px-3 pb-3 pt-4 md:pb-9">
               <div className="flex items-center">
                 <div className="mr-2.5 text-[#6065FE]">
                   <Users height={"22"} width={"22"} />
@@ -226,6 +227,7 @@ export default function PricingPage() {
           1,000 emails sent.
         </p>
       </div>
+      <FAQSection className="pt-20" />
     </div>
   );
 }

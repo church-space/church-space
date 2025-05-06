@@ -56,12 +56,20 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="overflow-hidden py-16 lg:py-32">
+    <section
+      className="-translate-y-16 overflow-hidden pb-16 pt-32 lg:py-32 lg:pt-48"
+      style={{
+        background:
+          "linear-gradient(99deg, #3264E4 0.49%, #9855C1 22.65%, #E26FA8 38.48%, #D7845B 66.45%, #E1B07C 88.08%, #F5D7AE 106.02%)",
+      }}
+    >
       <div className="mx-auto mb-12 flex w-full max-w-7xl flex-col items-center gap-8 sm:mb-28">
         <div className="flex min-w-[500px] flex-col items-center justify-center gap-3 px-6 md:max-w-[690px] lg:gap-6">
           <h1 className="text-balance text-center text-4xl font-bold sm:text-6xl lg:text-7xl">
-            <span className="relative z-[2] mb-2 pb-10">The better way to</span>{" "}
-            <span className="relative px-2">email your church</span>
+            <span className="relative z-[2] mb-2 pb-10 text-white">
+              The better way to
+            </span>{" "}
+            <span className="relative px-2 text-white">email your church</span>
           </h1>
           <HeroSubtitle />
           <div className="flex flex-col items-center justify-center gap-2 pt-2 md:flex-row lg:gap-4">
