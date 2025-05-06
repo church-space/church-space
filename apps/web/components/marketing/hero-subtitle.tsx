@@ -21,9 +21,9 @@ export default function HeroSubtitle() {
   }, []);
 
   return (
-    <div className="w-full max-w-sm items-center text-pretty pt-0 text-center text-xl font-semibold text-white sm:max-w-md sm:pt-2 sm:text-3xl lg:text-4xl">
+    <div className="w-full max-w-sm items-center text-pretty pt-0 text-center text-xl font-semibold text-foreground sm:max-w-md sm:pt-2 sm:text-3xl lg:text-4xl">
       Engage your people with{" "}
-      <div className="inline-block min-w-[200px] text-white">
+      <div className="inline-block min-w-[200px] text-primary">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPhraseIndex}

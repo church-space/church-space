@@ -1,28 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+
 import { Button } from "@church-space/ui/button";
-import { ChevronRight, Menu, X } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import HeroSubtitle from "./hero-subtitle";
 
-const menuItems = [
-  { name: "Features", href: "#" },
-  { name: "Solution", href: "#" },
-  { name: "Pricing", href: "#" },
-  { name: "About", href: "#" },
-];
-
 export default function HeroSection() {
   return (
-    <main
-      className="-translate-y-16 pt-8 sm:pt-20"
-      style={{
-        background:
-          "linear-gradient(99deg, #3264E4 0.49%, #9855C1 22.65%, #E26FA8 38.48%, #D7845B 66.45%, #E1B07C 88.08%, #F5D7AE 106.02%)",
-      }}
-    >
+    <main className="-translate-y-16 pt-8 sm:pt-20">
       <div
         aria-hidden
         className="z-2 absolute inset-0 isolate hidden opacity-50 contain-strict lg:block"
@@ -36,10 +23,10 @@ export default function HeroSection() {
         <div className="relative mx-auto px-6 pb-10 pt-28 lg:py-24">
           <div className="mx-auto flex flex-col items-center justify-center gap-3 px-6 md:max-w-[690px] lg:gap-6">
             <h1 className="text-balance text-center text-4xl font-bold sm:text-6xl lg:text-7xl">
-              <span className="relative z-[2] mb-2 pb-10 text-white">
+              <span className="relative z-[2] mb-2 pb-10 text-foreground">
                 The better way to
               </span>{" "}
-              <span className="relative px-2 text-white">
+              <span className="relative px-2 text-foreground">
                 email your church
               </span>
             </h1>
@@ -53,7 +40,7 @@ export default function HeroSection() {
               <Link href="https://cal.com/thomasharmond/15min" target="_blank">
                 <Button
                   variant="link"
-                  className="h-10 gap-1 px-2 text-base text-white sm:h-12 [&_svg]:size-3.5"
+                  className="h-10 gap-1 px-2 text-base text-foreground sm:h-12 [&_svg]:size-3.5"
                 >
                   Talk to Founder <ChevronRight />
                 </Button>
@@ -61,15 +48,16 @@ export default function HeroSection() {
             </div>
           </div>
         </div>
-
-        <div className="mx-auto -mt-16 h-[25rem] w-[50rem] max-w-[90rem] translate-y-16 px-4 shadow-xl sm:h-auto sm:w-auto">
-          <Image
-            className="z-1 relative rounded md:rounded-xl"
-            src="/hero.png"
-            alt="Tailark hero section"
-            width={2880}
-            height={2074}
-          />
+        <div className="px-4">
+          <div className="mx-auto -mt-16 h-[25rem] w-[50rem] max-w-[90rem] translate-y-16 rounded border pt-0.5 shadow-xl sm:h-auto sm:w-auto md:rounded-xl">
+            <Image
+              className="z-1 relative rounded md:rounded-xl"
+              src="/hero.png"
+              alt="Tailark hero section"
+              width={2880}
+              height={1742}
+            />
+          </div>
         </div>
       </section>
     </main>

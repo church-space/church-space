@@ -8,13 +8,7 @@ import HeroSubtitle from "./hero-subtitle";
 
 export default function Hero() {
   return (
-    <section
-      className="flex -translate-y-16 flex-col overflow-hidden pb-0 pt-32 lg:flex-row lg:pt-48"
-      style={{
-        background:
-          "linear-gradient(99deg, #3264E4 0.49%, #9855C1 22.65%, #E26FA8 38.48%, #D7845B 66.45%, #E1B07C 88.08%, #F5D7AE 106.02%)",
-      }}
-    >
+    <section className="flex -translate-y-16 flex-col overflow-hidden pb-0 pt-32 lg:flex-row lg:pt-48">
       <div className="mx-auto mb-0 flex w-full max-w-7xl flex-col items-center gap-8 lg:pb-32">
         <div className="flex min-w-[500px] flex-col items-center justify-center gap-3 px-6 md:max-w-[690px] lg:items-start lg:gap-6 lg:pl-16 lg:pr-0">
           <h1 className="text-balance text-center text-4xl font-bold sm:text-6xl lg:text-left lg:text-7xl">
