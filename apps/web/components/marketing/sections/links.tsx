@@ -11,13 +11,16 @@ export default function LinksSection() {
       id="links"
     >
       <div className="mx-auto w-full max-w-7xl gap-4">
-        <div className="mb-12 flex flex-col gap-2 px-2 md:items-center">
+        <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
           <h1 className="max-w-64 text-5xl font-semibold md:max-w-full md:text-6xl">
             Streamline your links
           </h1>
+          <p className="max-w-sm text-pretty text-left text-xl text-muted-foreground md:max-w-xl md:text-center md:text-2xl">
+            Keep track of all your links in one place.
+          </p>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/10 p-6 py-8 md:p-16 md:py-16">
+          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 py-8 dark:to-primary/10 md:p-16 md:py-16">
             <div className="flex flex-col items-start gap-2">
               <h2 className="text-xl font-semibold">QR Codes</h2>
               <p className="max-w-sm text-pretty text-left text-muted-foreground">
@@ -49,7 +52,7 @@ export default function LinksSection() {
               </div>
             </div>
           </div>
-          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/10 p-6 py-8 pb-0 md:p-16 md:pb-0 md:pt-16">
+          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 py-8 pb-0 dark:to-primary/10 md:p-16 md:pb-0 md:pt-16">
             <div className="flex flex-col items-start gap-2">
               <h2 className="text-xl font-semibold">Link Pages</h2>
               <p className="max-w-sm text-pretty text-left text-muted-foreground">
