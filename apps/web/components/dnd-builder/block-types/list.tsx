@@ -16,6 +16,7 @@ export default function ListBlock({
   const title = data?.title || "";
   const subtitle = data?.subtitle || "";
   const bulletColor = data?.bulletColor || "#000000";
+  const bulletTextColor = data?.bulletTextColor || "#000000";
   const bulletType = "number";
 
   // Memoize the items array to prevent it from changing on every render
@@ -57,7 +58,7 @@ export default function ListBlock({
           <div key={index} className="flex items-start gap-4">
             <div
               className={cn(
-                "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full pb-1 text-lg font-medium leading-none",
+                "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-lg font-medium leading-none",
                 bulletType === "number" && item.description
                   ? "mt-0"
                   : "-mt-0.5",
@@ -65,7 +66,7 @@ export default function ListBlock({
               style={{
                 backgroundColor:
                   bulletType === "number" ? bulletColor : "transparent",
-                color: bulletType === "number" ? "#FFFFFF" : defaultTextColor,
+                color: bulletTextColor,
               }}
             >
               {bulletType === "number" ? index + 1 : "•"}

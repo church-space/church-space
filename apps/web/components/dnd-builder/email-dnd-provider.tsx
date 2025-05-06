@@ -446,7 +446,8 @@ export default function EmailDndProvider({
         title: "",
         subtitle: "",
         textColor: "#000000",
-        bulletColor: "#000000",
+        bulletColor: styles.defaultTextColor,
+        bulletTextColor: styles.bgColor,
         bulletType: "number",
         items: [
           {
@@ -961,6 +962,7 @@ export default function EmailDndProvider({
                   subtitle: "",
                   textColor: "#000000",
                   bulletColor: "#000000",
+                  bulletTextColor: "#ffffff",
                   bulletType: "number",
                   items: [],
                 };

@@ -47,6 +47,7 @@ export interface ListBlockData {
   textColor: string;
   bulletColor: string;
   bulletType: "number";
+  bulletTextColor: string;
   items: Array<{
     title: string;
     description: string;

@@ -199,6 +199,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
       textColor: block.data?.textColor || "#000000",
       bulletColor: block.data?.bulletColor || "#000000",
       bulletType: block.data?.bulletType || "number",
+      bulletTextColor: block.data?.bulletTextColor || "#000000",
       items: itemsWithIds,
     };
   });
@@ -261,6 +262,7 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
       textColor: block.data?.textColor || "#000000",
       bulletColor: block.data?.bulletColor || "#000000",
       bulletType: block.data?.bulletType || "number",
+      bulletTextColor: block.data?.bulletTextColor || "#000000",
       items:
         block.data?.items?.map((item: any) => ({
           ...item,
@@ -339,6 +341,13 @@ export default function ListForm({ block, onUpdate }: ListFormProps) {
             <ColorPicker
               value={localState.bulletColor}
               onChange={(color) => handleChange("bulletColor", color)}
+            />
+          </>
+          <>
+            <Label>Bullet Text</Label>
+            <ColorPicker
+              value={localState.bulletTextColor}
+              onChange={(color) => handleChange("bulletTextColor", color)}
             />
           </>
         </div>
