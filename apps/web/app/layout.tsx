@@ -9,8 +9,11 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Church Space",
-  description: "Church Space",
+  title: {
+    default: "Church Space",
+    template: "%s | Church Space",
+  },
+  description: "The better way to email your church",
   openGraph: {
     title: "Church Space",
     description: "The better way to email your church",
