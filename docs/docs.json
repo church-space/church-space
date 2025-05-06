@@ -15,10 +15,10 @@
         "group": "Getting Started",
         "pages": [
           "getting-started",
-          "pco-integration",
+          "integrations/pco-integration",
           {
             "group": "Switch to Church Space",
-            "pages": ["from-mailchimp"]
+            "pages": ["switch/from-mailchimp"]
           }
         ]
       },
@@ -28,31 +28,31 @@
           {
             "group": "Your Account",
             "pages": [
-              "update-email",
-              "sign-in-methods",
-              "account-details-and-preferences",
-              "delete-account"
+              "your-account/sign-in-methods",
+              "your-account/update-email",
+              "your-account/details-and-preferences",
+              "your-account/delete-account"
             ]
           },
           {
             "group": "Organization",
             "pages": [
-              "assets-and-storage",
-              "manage-domains",
-              "delete-organization",
-              "manage-and-invite-members",
-              "update-organization-details",
-              "brand-colors"
+              "organization/update-organization-details",
+              "organization/manage-domains",
+              "organization/manage-and-invite-members",
+              "organization/brand-colors",
+              "organization/assets-and-storage",
+              "organization/delete-organization"
             ]
           },
           {
             "group": "Billing",
             "pages": [
-              "subscribing-to-church-space",
-              "cancelling-your-subscription",
-              "update-billing-information",
-              "changing-your-plan",
-              "refunds"
+              "billing/subscribing-to-church-space",
+              "billing/update-billing-information",
+              "billing/changing-your-plan",
+              "billing/cancelling-your-subscription",
+              "billing/refunds"
             ]
           }
         ]
@@ -63,32 +63,32 @@
           {
             "group": "Emails",
             "pages": [
-              "automations",
-              "email-categories",
-              "email-templates",
-              "default-footer",
-              "block-types",
-              "why-are-my-emails-going-to-spam-folders",
-              "merge-tags",
-              "lists-vs-categories",
-              "cancelling-a-scheduled-email",
-              "creating-an-email",
-              "view-email-usage",
-              "email-metrics",
-              "open-rates-explained"
+              "emails/creating-an-email",
+              "emails/block-types",
+              "emails/merge-tags",
+              "emails/cancelling-a-scheduled-email",
+              "emails/email-metrics",
+              "emails/automations",
+              "emails/email-categories",
+              "emails/open-rates-explained",
+              "emails/emails-going-to-spam",
+              "emails/lists-vs-categories",
+              "emails/email-templates",
+              "emails/default-footer",
+              "emails/view-email-usage"
             ]
           },
           {
             "group": "Links",
-            "pages": ["qr-codes", "link-pages"]
+            "pages": ["links/qr-codes", "links/link-pages"]
           },
           {
             "group": "People",
             "pages": [
-              "adding-people",
-              "manage-a-persons-subscription-status",
-              "subscription-types",
-              "importing-unsubscribes"
+              "people/adding-people",
+              "people/subscription-types",
+              "people/manage-subscription-status",
+              "people/importing-unsubscribes"
             ]
           }
         ]

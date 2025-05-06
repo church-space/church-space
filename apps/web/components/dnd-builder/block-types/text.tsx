@@ -98,20 +98,7 @@ const TextBlock = ({
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
 
-    // Only update font if it has changed
-    if (font && font !== prevFontRef.current) {
-      editor.commands.setFontFamily(font);
-      prevFontRef.current = font;
-    }
-
-    // Only update color if it has changed
-    if (textColor && textColor !== prevTextColorRef.current) {
-      editor.commands.setColor(textColor);
-      prevTextColorRef.current = textColor;
-    }
-
     if (linkColor && linkColor !== prevLinkColorRef.current) {
-      // Set link color using CSS custom property
       editor.view.dom.style.setProperty("--link-color", linkColor);
       prevLinkColorRef.current = linkColor;
     }
@@ -121,7 +108,7 @@ const TextBlock = ({
       editor.view.dom.style.setProperty("--accent-text-color", accentTextColor);
       prevAccentTextColorRef.current = accentTextColor;
     }
-  }, [editor, font, textColor, linkColor, accentTextColor]);
+  }, [editor, linkColor, accentTextColor]);
 
   // Update contentOnFocusRef when editor content is set externally (e.g., during undo/redo)
   useEffect(() => {

@@ -295,11 +295,9 @@ export default function EmailDndProvider({
         return {
           ...block,
           data: {
-            ...block.data,
+            // HTML content is the source of truth for text and inline styling
             content,
-            font: styles.defaultFont,
-            textColor: styles.defaultTextColor,
-          } as BlockType["data"],
+          } as BlockData, // Assuming BlockData for text is { content: string }
           order: block.order, // Explicitly preserve the order
         } as BlockType;
       }
@@ -315,16 +313,14 @@ export default function EmailDndProvider({
     // Update in database if we have an emailId and the block exists in the database
     if (emailId && !isNaN(parseInt(blockId, 10))) {
       const dbBlockId = parseInt(blockId, 10);
-      const blockToUpdate = blocks.find((block) => block.id === blockId);
-      const existingData = (blockToUpdate?.data as any) || {};
+      // Find the updated block from newBlocks to get the correct data
+      const blockToUpdate = newBlocks.find((b) => b.id === blockId);
 
-      // Debounce the database update
-      debouncedDatabaseUpdate(dbBlockId, {
-        ...existingData,
-        content,
-        font: styles.defaultFont,
-        textColor: styles.defaultTextColor,
-      });
+      if (blockToUpdate) {
+        // Debounce the database update with the new data structure
+        // blockToUpdate.data should be { content: "HTML..." }
+        debouncedDatabaseUpdate(dbBlockId, blockToUpdate.data);
+      }
     }
   };
 
@@ -408,9 +404,7 @@ export default function EmailDndProvider({
 
     if (blockType === "text") {
       blockData = {
-        content: "",
-        font: styles.defaultFont,
-        textColor: styles.defaultTextColor,
+        content: "", // Editor initializes with default styles; HTML content is king.
       };
     } else if (blockType === "video") {
       blockData = {
@@ -1850,84 +1844,26 @@ export default function EmailDndProvider({
     // Skip if there are no blocks or editors
     if (blocks.length === 0 || Object.keys(editors).length === 0) return;
 
-    // Create a flag to check if any blocks actually need updating
-    let needsUpdate = false;
-
-    // Update all text blocks to use the new default font and color
-    const updatedBlocks = blocks.map((block) => {
-      if (block.type === "text") {
-        // Get the current content from the editor if available
-        const content =
-          editors[block.id]?.getHTML() || (block.data as any)?.content || null;
-
-        // Check if this block actually needs updating
-        const blockData = (block.data as any) || {};
-        if (
-          blockData.font !== styles.defaultFont ||
-          blockData.textColor !== styles.defaultTextColor
-        ) {
-          needsUpdate = true;
-
-          // Update the block data to use the default font and color
-          return {
-            ...block,
-            data: {
-              ...block.data,
-              content,
-              font: styles.defaultFont,
-              textColor: styles.defaultTextColor,
-            } as BlockType["data"],
-          };
-        }
+    // This effect should primarily update the editor instances' default settings,
+    // not change the saved HTML content of blocks directly.
+    Object.values(editors).forEach((editor) => {
+      if (editor && !editor.isDestroyed) {
+        updateEditorColors(
+          editor, // First argument
+          styles.defaultTextColor, // Second argument
+          styles.accentTextColor, // Third argument
+        );
       }
-      return block;
     });
-
-    // Only update if there are actual changes to make
-    if (needsUpdate) {
-      // Update the blocks  adding to history
-      updateBlocksHistory(updatedBlocks);
-
-      // Update all text editors to use the new font and color
-      Object.values(editors).forEach((editor) => {
-        if (!editor.isDestroyed) {
-          // Set the font and color for the editor
-          editor.commands.setFontFamily(styles.defaultFont);
-          editor.commands.setColor(styles.defaultTextColor);
-        }
-      });
-
-      // Update in database if we have an emailId
-      if (emailId) {
-        // Prepare content updates for all text blocks
-        const contentUpdates: ContentUpdate[] = updatedBlocks
-          .filter(
-            (block) => block.type === "text" && !isNaN(parseInt(block.id, 10)),
-          )
-          .map((block) => ({
-            id: parseInt(block.id, 10),
-            type: "text" as DatabaseBlockType,
-            value: block.data,
-          }));
-
-        // Send batch updates if there are any
-        if (contentUpdates.length > 0) {
-          batchUpdateEmailBlocks.mutate({
-            emailId,
-            orderUpdates: [],
-            contentUpdates,
-          });
-        }
-      }
-    }
   }, [
     styles.defaultFont,
     styles.defaultTextColor,
-    emailId,
-    blocks,
+    styles.accentTextColor, // Added to dependencies
+    // blocks, // Removed blocks as we are not directly changing block data content here
+    // emailId, // Removed as we are not calling batchUpdateEmailBlocks here
     editors,
-    updateBlocksHistory,
-    batchUpdateEmailBlocks,
+    // updateBlocksHistory, // Removed
+    // batchUpdateEmailBlocks, // Removed
   ]);
 
   // Custom collision detection that handles large blocks differently
