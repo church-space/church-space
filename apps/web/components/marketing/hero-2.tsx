@@ -23,12 +23,7 @@ export default function HeroSection() {
         <div className="relative mx-auto px-6 pb-10 pt-28 lg:py-24">
           <div className="mx-auto flex flex-col items-center justify-center gap-3 px-6 md:max-w-[690px] lg:gap-6">
             <h1 className="text-balance text-center text-4xl font-bold sm:text-6xl lg:text-7xl">
-              <span className="relative z-[2] mb-2 pb-10 text-foreground">
-                The better way to
-              </span>{" "}
-              <span className="relative px-2 text-foreground">
-                email your church
-              </span>
+              The better way to email your church
             </h1>
             <HeroSubtitle />
             <div className="flex flex-col items-center justify-center gap-2 pt-2 md:flex-row lg:gap-4">

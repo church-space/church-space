@@ -9,9 +9,9 @@ import { Badge } from "@church-space/ui/badge";
 
 export default function PcoSection() {
   return (
-    <div className="w-full px-4 pb-20 pt-24 md:pb-36" id="pco">
+    <div className="w-full px-4 pb-20 pt-10 md:pb-36 md:pt-24" id="pco">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-8">
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2 pb-5 md:pb-0">
           <h2 className="text-lg font-bold">Designed for</h2>
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative hidden md:block">
