@@ -1061,6 +1061,7 @@ const CustomList: React.FC<{
   subtitle: string;
   textColor: string;
   bulletColor: string;
+  bulletTextColor: string;
   items: Array<{
     title: string;
     description: string;
@@ -1072,6 +1073,7 @@ const CustomList: React.FC<{
   subtitle,
   textColor,
   bulletColor,
+  bulletTextColor,
   items,
   defaultFont,
   defaultTextColor,
@@ -1162,7 +1164,7 @@ const CustomList: React.FC<{
                               align="center"
                               valign="middle"
                               style={{
-                                color: "#FFFFFF",
+                                color: bulletTextColor,
                                 fontFamily: defaultFont || "sans-serif",
                                 fontSize: "18px",
                                 fontWeight: "500",
