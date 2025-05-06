@@ -49,13 +49,13 @@ export default function HeroSection() {
           </div>
         </div>
         <div className="px-4">
-          <div className="mx-auto -mt-16 h-[25rem] w-[50rem] max-w-[90rem] translate-y-16 rounded border pt-0.5 shadow-xl sm:h-auto sm:w-auto md:rounded-xl">
+          <div className="mx-auto -mt-16 h-[25rem] w-[50rem] max-w-[90rem] translate-y-16 rounded border shadow-xl sm:h-auto sm:w-auto md:rounded-xl">
             <Image
               className="z-1 relative rounded md:rounded-xl"
               src="/hero.png"
               alt="Tailark hero section"
-              width={2880}
-              height={1742}
+              width={2363}
+              height={1635}
             />
           </div>
         </div>

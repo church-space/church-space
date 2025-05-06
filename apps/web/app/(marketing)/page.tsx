@@ -35,10 +35,10 @@ export default function Homepage() {
       <div className="mx-auto w-full pb-12 pt-0 md:pt-12">
         <div id="emails" className="w-full space-y-8 px-4 py-10 sm:py-20">
           <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
-            <h1 className="max-w-64 text-5xl font-semibold md:max-w-full md:text-6xl">
+            <h1 className="text-5xl font-semibold md:max-w-full md:text-6xl">
               Craft beautiful emails
             </h1>
-            <p className="max-w-sm text-pretty text-left text-xl md:max-w-xl md:text-center md:text-2xl">
+            <p className="max-w-sm text-pretty text-left text-xl text-muted-foreground md:max-w-xl md:text-center md:text-2xl">
               Our drag and drop editor makes it easy to create beautiful emails
               for your church.
             </p>

@@ -9,23 +9,23 @@ import { Badge } from "@church-space/ui/badge";
 
 export default function PcoSection() {
   return (
-    <div className="w-full px-4 pb-20 md:pb-36" id="pco">
+    <div className="w-full px-4 pb-20 pt-24 md:pb-36" id="pco">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-2">
           <h2 className="text-lg font-bold">Designed for</h2>
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="relative hidden sm:block">
-              <PcoLogo width={"45"} height={"45"} fill="#2266F7" />
+            <div className="relative hidden md:block">
+              <PcoLogo width={"58"} height={"58"} fill="#2266F7" />
               <div className="absolute bottom-2 right-2 -z-10 h-[32px] w-[30px] bg-white" />
             </div>
-            <div className="relative block sm:hidden">
+            <div className="relative block md:hidden">
               <PcoLogo width={"38"} height={"38"} fill="#2266F7" />
               <div className="absolute bottom-2 right-2 -z-10 h-[20px] w-[25px] bg-white" />
             </div>
             <svg
               width="180"
               height="28"
-              className="sm:h-[60px] sm:w-[350px]"
+              className="sm:h-[60px] sm:w-[350px] md:h-[70px] md:w-[400px]"
               viewBox="0 0 237 36"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
