@@ -10,17 +10,20 @@ import {
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import HeroSubtitle from "./hero-subtitle";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@church-space/ui/cn";
 
 export default function Hero() {
   type PreviewType = "emails" | "automations" | "links" | "qr";
+  const previewTypes: PreviewType[] = ["emails", "automations", "links", "qr"];
 
   const [activePreview, setActivePreview] = useState<PreviewType>("emails");
   const [previewContent, setPreviewContent] = useState(
     "Email preview content here",
   );
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const activePreviewRef = useRef<PreviewType>("emails");
 
   const getPreviewContent = (type: PreviewType) => {
     switch (type) {
@@ -37,22 +40,69 @@ export default function Hero() {
     }
   };
 
+  const startAutoRotation = () => {
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    // Set new timer
+    timerRef.current = setInterval(() => {
+      const currentIndex = previewTypes.indexOf(activePreviewRef.current);
+      const nextIndex = (currentIndex + 1) % previewTypes.length;
+      // Force return to first item if we're at the end
+      const nextPreview =
+        currentIndex === previewTypes.length - 1
+          ? previewTypes[0]
+          : previewTypes[nextIndex];
+
+      // Use direct state updates instead of handlePreviewChange to avoid resetting timer
+      setIsTransitioning(true);
+      setActivePreview(nextPreview);
+      activePreviewRef.current = nextPreview;
+
+      // Wait for fade out, then update content
+      setTimeout(() => {
+        setPreviewContent(getPreviewContent(nextPreview));
+        setIsTransitioning(false);
+      }, 300);
+    }, 6000);
+  };
+
   const handlePreviewChange = (previewType: PreviewType) => {
-    if (previewType === activePreview) return;
+    if (previewType === activePreviewRef.current) return;
+
+    // Clear existing timer first
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
 
     setIsTransitioning(true);
     setActivePreview(previewType);
+    activePreviewRef.current = previewType;
 
     // Wait for fade out, then update content
     setTimeout(() => {
       setPreviewContent(getPreviewContent(previewType));
       setIsTransitioning(false);
     }, 300); // Match this duration with CSS transition
+
+    // Start a new timer immediately (will transition after 6 seconds)
+    startAutoRotation();
   };
 
-  // Set initial content
+  // Set initial content and start auto-rotation
   useEffect(() => {
     setPreviewContent(getPreviewContent(activePreview));
+    activePreviewRef.current = activePreview;
+    startAutoRotation();
+
+    // Clean up timer on unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, []);
 
   return (
@@ -97,10 +147,9 @@ export default function Hero() {
         <div className="mx-auto flex max-w-[300px] flex-wrap items-center justify-center gap-2 sm:max-w-2xl sm:gap-4">
           <Button
             size="sm"
-            variant={activePreview === "emails" ? "secondary" : "outline"}
             className={cn(
-              "text-base [&_svg]:size-5",
-              activePreview === "emails" && "border border-transparent",
+              "bg-zinc-100 text-base text-black hover:bg-zinc-300 [&_svg]:size-5",
+              activePreview === "emails" && "bg-zinc-200",
             )}
             onClick={() => handlePreviewChange("emails")}
           >
@@ -111,10 +160,9 @@ export default function Hero() {
           </Button>
           <Button
             size="sm"
-            variant={activePreview === "automations" ? "secondary" : "outline"}
             className={cn(
-              "text-base [&_svg]:size-5",
-              activePreview === "automations" && "border border-transparent",
+              "bg-zinc-100 text-base text-black hover:bg-zinc-300 [&_svg]:size-5",
+              activePreview === "automations" && "bg-zinc-200",
             )}
             onClick={() => handlePreviewChange("automations")}
           >
@@ -125,10 +173,9 @@ export default function Hero() {
           </Button>
           <Button
             size="sm"
-            variant={activePreview === "links" ? "secondary" : "outline"}
             className={cn(
-              "text-base [&_svg]:size-5",
-              activePreview === "links" && "border border-transparent",
+              "bg-zinc-100 text-base text-black hover:bg-zinc-300 [&_svg]:size-5",
+              activePreview === "links" && "bg-zinc-200",
             )}
             onClick={() => handlePreviewChange("links")}
           >
@@ -139,10 +186,9 @@ export default function Hero() {
           </Button>
           <Button
             size="sm"
-            variant={activePreview === "qr" ? "secondary" : "outline"}
             className={cn(
-              "text-base [&_svg]:size-5",
-              activePreview === "qr" && "border border-transparent",
+              "bg-zinc-100 text-base text-black hover:bg-zinc-300 [&_svg]:size-5",
+              activePreview === "qr" && "bg-zinc-200",
             )}
             onClick={() => handlePreviewChange("qr")}
           >
