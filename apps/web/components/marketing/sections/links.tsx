@@ -1,6 +1,6 @@
 "use client";
 
-import { Facebook, Instagram, Spotify, TikTok } from "@church-space/ui/icons";
+import { Facebook, Spotify, TikTok } from "@church-space/ui/icons";
 import React from "react";
 import { QRCode } from "react-qrcode-logo";
 

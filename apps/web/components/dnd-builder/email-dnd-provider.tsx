@@ -837,7 +837,7 @@ export default function EmailDndProvider({
       // Clear the permanently deleted blocks ref when component unmounts
       permanentlyDeletedBlocksRef.current.clear();
     };
-  }, [editors]);
+  }, []);
 
   const handleDragStart = (event: any) => {
     const { active } = event;

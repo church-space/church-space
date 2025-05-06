@@ -1086,7 +1086,7 @@ export default function PreSendPage({
                   </div>
                 )}
                 <div className="hidden rounded-md border bg-muted px-1 py-2.5 text-sm text-muted-foreground sm:block">
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col">
                     <div className="flex w-full items-center justify-between px-2.5">
                       <h4 className="font-medium">Preview</h4>
 

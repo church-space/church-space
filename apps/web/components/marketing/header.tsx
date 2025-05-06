@@ -46,7 +46,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-1 p-3 md:w-[500px] md:grid-cols-2">
-                  <ListItem href="/#email" title="Email" icon={<Email />}>
+                  <ListItem href="/#emails" title="Email" icon={<Email />}>
                     Send beautifully crafted emails to your people
                   </ListItem>
                   <ListItem
