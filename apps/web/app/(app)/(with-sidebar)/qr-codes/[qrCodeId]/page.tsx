@@ -502,7 +502,7 @@ export default function Page() {
           logoWidth={Math.round(qrCode.logoSize * (960 / 180))}
           logoHeight={Math.round(qrCode.logoSize * (960 / 180))}
           removeQrCodeBehindLogo={true}
-          ecLevel="M"
+          ecLevel="Q"
           quietZone={10}
         />
       );
@@ -547,7 +547,7 @@ export default function Page() {
           qrStyle={qrCode.isRounded ? "fluid" : "squares"}
           eyeRadius={qrCode.isRounded ? 8 : 0}
           removeQrCodeBehindLogo={true}
-          ecLevel="M"
+          ecLevel="Q"
           quietZone={10}
         />
       );
@@ -1526,7 +1526,7 @@ export default function Page() {
                       logoWidth={Math.round(qrCode.logoSize * (120 / 180))}
                       logoHeight={Math.round(qrCode.logoSize * (120 / 180))}
                       removeQrCodeBehindLogo={true}
-                      ecLevel="M"
+                      ecLevel="Q"
                       quietZone={10}
                     />
                     <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
@@ -1556,6 +1556,11 @@ export default function Page() {
                     onChange={(e) => setNewQRCodeName(e.target.value)}
                     placeholder="e.g., Flyer QR Code, Business Card"
                     maxLength={60}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        addNewQRCode();
+                      }
+                    }}
                   />
                 </div>
                 <div className="flex justify-end space-x-2 pt-4">
@@ -1767,7 +1772,7 @@ export default function Page() {
                           editingQRCode.logoSize * (120 / 180),
                         )}
                         removeQrCodeBehindLogo={true}
-                        ecLevel="M"
+                        ecLevel="Q"
                         quietZone={10}
                       />
                     </div>
