@@ -399,7 +399,7 @@ export function NavMain({
                                 "py-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
                                 (item.title === "Settings"
                                   ? pathname === submenuItem.url
-                                  : item.title === "Email"
+                                  : item.title === "Emails"
                                     ? submenuItem.url === "/emails"
                                       ? pathname === "/emails" ||
                                         (pathname.startsWith("/emails/") &&

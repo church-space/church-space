@@ -10,100 +10,38 @@ import {
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import HeroSubtitle from "./hero-subtitle";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@church-space/ui/cn";
+import Image from "next/image";
 
 export default function Hero() {
   type PreviewType = "emails" | "automations" | "links" | "qr";
   const previewTypes: PreviewType[] = ["emails", "automations", "links", "qr"];
 
   const [activePreview, setActivePreview] = useState<PreviewType>("emails");
-  const [previewContent, setPreviewContent] = useState(
-    "Email preview content here",
-  );
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const activePreviewRef = useRef<PreviewType>("emails");
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const getPreviewContent = (type: PreviewType) => {
-    switch (type) {
-      case "emails":
-        return "Email preview content here";
-      case "automations":
-        return "Automation workflow preview here";
-      case "links":
-        return "Link pages preview content here";
-      case "qr":
-        return "QR codes preview content here";
-      default:
-        return "emails / automations / links / qr codes";
-    }
-  };
+  // Check for dark mode
+  useEffect(() => {
+    // Check initial dark mode
+    const darkModeCheck = () => {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setIsDarkMode(isDark);
+    };
 
-  const startAutoRotation = () => {
-    // Clear any existing timer
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
+    darkModeCheck();
 
-    // Set new timer
-    timerRef.current = setInterval(() => {
-      const currentIndex = previewTypes.indexOf(activePreviewRef.current);
-      const nextIndex = (currentIndex + 1) % previewTypes.length;
-      // Force return to first item if we're at the end
-      const nextPreview =
-        currentIndex === previewTypes.length - 1
-          ? previewTypes[0]
-          : previewTypes[nextIndex];
+    // Listen for changes
+    const darkModeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+    const listener = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
+    darkModeMedia.addEventListener("change", listener);
 
-      // Use direct state updates instead of handlePreviewChange to avoid resetting timer
-      setIsTransitioning(true);
-      setActivePreview(nextPreview);
-      activePreviewRef.current = nextPreview;
-
-      // Wait for fade out, then update content
-      setTimeout(() => {
-        setPreviewContent(getPreviewContent(nextPreview));
-        setIsTransitioning(false);
-      }, 300);
-    }, 6000);
-  };
+    return () => darkModeMedia.removeEventListener("change", listener);
+  }, []);
 
   const handlePreviewChange = (previewType: PreviewType) => {
-    if (previewType === activePreviewRef.current) return;
-
-    // Clear existing timer first
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-
-    setIsTransitioning(true);
     setActivePreview(previewType);
-    activePreviewRef.current = previewType;
-
-    // Wait for fade out, then update content
-    setTimeout(() => {
-      setPreviewContent(getPreviewContent(previewType));
-      setIsTransitioning(false);
-    }, 300); // Match this duration with CSS transition
-
-    // Start a new timer immediately (will transition after 6 seconds)
-    startAutoRotation();
   };
-
-  // Set initial content and start auto-rotation
-  useEffect(() => {
-    setPreviewContent(getPreviewContent(activePreview));
-    activePreviewRef.current = activePreview;
-    startAutoRotation();
-
-    // Clean up timer on unmount
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
 
   return (
     <section
@@ -198,15 +136,24 @@ export default function Hero() {
             QR Codes
           </Button>
         </div>
-        <div className="relative mx-auto aspect-video w-full max-w-7xl rounded-md bg-card outline outline-[1px] outline-muted md:rounded-xl">
-          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gradient-to-b from-transparent via-transparent to-background p-4 text-center backdrop-blur-sm">
-            <div
-              className={cn(
-                "transition-opacity duration-300 ease-in-out",
-                isTransitioning ? "opacity-0" : "opacity-100",
-              )}
-            >
-              {previewContent}
+        <div
+          className="relative mx-auto aspect-video w-full max-w-7xl rounded-md bg-background py-1"
+          style={{ minHeight: "500px" }}
+        >
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative h-full w-full">
+              <Image
+                src={isDarkMode ? "/email.png" : "/email-light.png"}
+                alt="Email Preview"
+                fill
+                sizes="(max-width: 768px) 100vw, 1200px"
+                className="rounded-md object-cover pt-1.5"
+                priority
+                onError={(e) => {
+                  console.error("Image failed to load:", e);
+                }}
+                style={{ width: "100%", height: "100%" }}
+              />
             </div>
           </div>
         </div>
