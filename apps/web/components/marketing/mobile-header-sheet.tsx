@@ -45,7 +45,7 @@ export default function MobileHeaderSheet({
           <span className="text-sm text-muted-foreground">Features</span>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/features/emails"
+            href="/homepage#emails"
             onClick={() => setOpen(false)}
           >
             <MailFilled />
@@ -53,7 +53,7 @@ export default function MobileHeaderSheet({
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/features/qr"
+            href="/homepage#links"
             onClick={() => setOpen(false)}
           >
             <Qrcode />
@@ -61,7 +61,7 @@ export default function MobileHeaderSheet({
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/features/links"
+            href="/homepage#links"
             onClick={() => setOpen(false)}
           >
             <LinkIcon />
@@ -69,7 +69,7 @@ export default function MobileHeaderSheet({
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/features/automations"
+            href="/homepage#pco"
             onClick={() => setOpen(false)}
           >
             <Waypoints />
@@ -80,7 +80,7 @@ export default function MobileHeaderSheet({
           <span className="text-sm text-muted-foreground">Integrations</span>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
-            href="/integrations"
+            href="/homepage#pco"
             onClick={() => setOpen(false)}
           >
             <PcoLogo />
