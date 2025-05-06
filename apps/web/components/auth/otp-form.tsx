@@ -21,7 +21,7 @@ import {
   InputOTPSlot,
 } from "@church-space/ui/input-otp";
 import { toast } from "@church-space/ui/use-toast";
-import { verifyOtp } from "@/app/(auth)/actions";
+import { verifyOtp } from "@/app/(theme)/(auth)/actions";
 
 const FormSchema = z.object({
   pin: z.string().length(6, {

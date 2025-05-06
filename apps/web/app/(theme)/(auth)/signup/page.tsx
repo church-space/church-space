@@ -13,7 +13,7 @@ import { EmailForm } from "@/components/auth/email-form";
 import { Button } from "@church-space/ui/button";
 import { InputOTPForm } from "@/components/auth/otp-form";
 import { AnimatePresence, motion } from "framer-motion";
-import { signInWithGoogle, signInWithOtp } from "@/app/(auth)/actions";
+import { signInWithGoogle, signInWithOtp } from "@/app/(theme)/(auth)/actions";
 import { useToast } from "@church-space/ui/use-toast";
 import { ArrowRight, ChurchSpaceBlack } from "@church-space/ui/icons";
 import { useSearchParams } from "next/navigation";

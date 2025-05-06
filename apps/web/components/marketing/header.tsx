@@ -29,7 +29,7 @@ import { Label } from "@church-space/ui/label";
 
 export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
-    <header className="sticky top-0 z-10 flex h-16 w-full shrink-0 items-center gap-2 border-b bg-background/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 flex h-16 w-full shrink-0 items-center gap-2 border-b bg-background/80 backdrop-blur-lg">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-6">
         <Link
           href="/"
