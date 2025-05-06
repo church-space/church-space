@@ -1,12 +1,9 @@
 "use client";
 
 import React from "react";
-import { useTheme } from "next-themes";
 import { QRCode } from "react-qrcode-logo";
 
 export default function LinksSection() {
-  const { theme } = useTheme();
-
   return (
     <div
       className="grid w-full grid-cols-1 gap-4 pt-20 md:grid-cols-2"
