@@ -131,7 +131,7 @@ export default function Hero() {
             <Link href="https://cal.com/thomasharmond/15min" target="_blank">
               <Button
                 variant="ghost"
-                className="h-10 gap-1 px-2 text-base text-secondary-foreground sm:h-12 [&_svg]:size-3.5"
+                className="h-10 gap-1 px-2 text-base text-white sm:h-12 [&_svg]:size-3.5"
               >
                 Talk to Founder <ChevronRight />
               </Button>
@@ -148,7 +148,7 @@ export default function Hero() {
           <Button
             size="sm"
             className={cn(
-              "bg-zinc-100 text-base text-black hover:bg-zinc-300 [&_svg]:size-5",
+              "bg-white text-base text-zinc-700 transition-colors duration-300 hover:bg-zinc-200 [&_svg]:size-5",
               activePreview === "emails" && "bg-zinc-200",
             )}
             onClick={() => handlePreviewChange("emails")}
@@ -161,7 +161,7 @@ export default function Hero() {
           <Button
             size="sm"
             className={cn(
-              "bg-zinc-100 text-base text-black hover:bg-zinc-300 [&_svg]:size-5",
+              "bg-white text-base text-zinc-700 transition-colors duration-300 hover:bg-zinc-200 [&_svg]:size-5",
               activePreview === "automations" && "bg-zinc-200",
             )}
             onClick={() => handlePreviewChange("automations")}
@@ -174,7 +174,7 @@ export default function Hero() {
           <Button
             size="sm"
             className={cn(
-              "bg-zinc-100 text-base text-black hover:bg-zinc-300 [&_svg]:size-5",
+              "bg-white text-base text-zinc-700 transition-colors duration-300 hover:bg-zinc-200 [&_svg]:size-5",
               activePreview === "links" && "bg-zinc-200",
             )}
             onClick={() => handlePreviewChange("links")}
@@ -187,7 +187,7 @@ export default function Hero() {
           <Button
             size="sm"
             className={cn(
-              "bg-zinc-100 text-base text-black hover:bg-zinc-300 [&_svg]:size-5",
+              "bg-white text-base text-zinc-700 transition-colors duration-300 hover:bg-zinc-200 [&_svg]:size-5",
               activePreview === "qr" && "bg-zinc-200",
             )}
             onClick={() => handlePreviewChange("qr")}
