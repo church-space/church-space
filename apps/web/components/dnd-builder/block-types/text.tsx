@@ -1,6 +1,7 @@
 "use client";
 
 import { Editor, EditorContent } from "@tiptap/react";
+import { debounce } from "lodash";
 import { useEffect, useRef } from "react";
 
 interface TextBlockProps {
@@ -42,68 +43,30 @@ const TextBlock = ({
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
 
-    // Add focus event listener to capture initial content state
+    // ---- NEW: single listener ------------------------------------
+    const throttledSave = debounce(() => {
+      if (isUndoRedoOperationRef.current) return;
+      onContentChangeRef.current?.(editor.getHTML());
+    }, 1000);
+
+    const txnListener = () => throttledSave();
+
+    editor.on("transaction", txnListener);
+
+    // --------------------------------------------------------------
+
+    // keep the focus listener (for contentOnFocusRef if you still need it)
     const focusListener = () => {
       contentOnFocusRef.current = editor.getHTML();
     };
-
-    // Add blur event listener to save content when editor loses focus
-    const blurListener = () => {
-      // Clear any pending debounced updates
-      if (updateTimerRef.current) {
-        clearTimeout(updateTimerRef.current);
-        updateTimerRef.current = null;
-      }
-
-      // Always save on blur if we have changes
-      const currentContent = editor.getHTML();
-      if (
-        currentContent !== contentOnFocusRef.current &&
-        onContentChangeRef.current
-      ) {
-        onContentChangeRef.current(currentContent);
-        contentOnFocusRef.current = currentContent;
-      }
-    };
-
-    // Add an update listener to the editor for regular typing
-    const updateListener = () => {
-      if (!editor.isDestroyed && !isUndoRedoOperationRef.current) {
-        // const currentContent = editor.getHTML(); // Removed from here
-
-        // Start / reset a 300 ms debounce so rapid typing collapses into 1 save
-        if (updateTimerRef.current) {
-          clearTimeout(updateTimerRef.current);
-        }
-
-        updateTimerRef.current = setTimeout(() => {
-          if (onContentChangeRef.current && !editor.isDestroyed) {
-            const currentContent = editor.getHTML(); // Added here
-            onContentChangeRef.current(currentContent);
-            contentOnFocusRef.current = currentContent;
-          }
-        }, 300);
-      }
-    };
-
-    // Initialize the content ref
-    contentOnFocusRef.current = editor.getHTML();
-
-    // Set up all listeners
     editor.on("focus", focusListener);
-    editor.on("update", updateListener);
-    editor.on("blur", blurListener);
 
     return () => {
       if (!editor.isDestroyed) {
+        editor.off("transaction", txnListener);
         editor.off("focus", focusListener);
-        editor.off("update", updateListener);
-        editor.off("blur", blurListener);
       }
-      // Clear any pending timer on cleanup
-      if (updateTimerRef.current) {
-        clearTimeout(updateTimerRef.current);
-      }
+      throttledSave.cancel();
     };
   }, [editor]);
 
