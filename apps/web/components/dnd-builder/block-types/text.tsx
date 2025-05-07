@@ -25,7 +25,6 @@ const TextBlock = ({
 }: TextBlockProps) => {
   const prevLinkColorRef = useRef(linkColor);
   const prevAccentTextColorRef = useRef(accentTextColor);
-  const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
   const contentOnFocusRef = useRef<string>("");
   const onContentChangeRef = useRef<typeof onContentChange | undefined>(
     undefined,
