@@ -56,9 +56,9 @@ export default function EmailMetricsCard() {
   }, [data, openRate, clickRate, rateChange]);
 
   return (
-    <Card className="mx-auto h-52 w-full items-center gap-2 border bg-background shadow-sm">
+    <Card className="mx-auto h-52 w-full items-center gap-2 border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
       <CardContent className="py-2">
-        <div className="h-[125px] w-full">
+        <div className="h-[120px] w-full">
           <ChartContainer
             config={{
               openRate: {

@@ -26,6 +26,18 @@ const TextBlock = ({
   const prevAccentTextColorRef = useRef(accentTextColor);
   const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
   const contentOnFocusRef = useRef<string>("");
+  const onContentChangeRef = useRef<typeof onContentChange | undefined>(
+    undefined,
+  );
+  const isUndoRedoOperationRef = useRef(isUndoRedoOperation);
+
+  useEffect(() => {
+    onContentChangeRef.current = onContentChange;
+  }, [onContentChange]);
+
+  useEffect(() => {
+    isUndoRedoOperationRef.current = isUndoRedoOperation;
+  }, [isUndoRedoOperation]);
 
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
@@ -45,15 +57,18 @@ const TextBlock = ({
 
       // Always save on blur if we have changes
       const currentContent = editor.getHTML();
-      if (currentContent !== contentOnFocusRef.current && onContentChange) {
-        onContentChange(currentContent);
+      if (
+        currentContent !== contentOnFocusRef.current &&
+        onContentChangeRef.current
+      ) {
+        onContentChangeRef.current(currentContent);
         contentOnFocusRef.current = currentContent;
       }
     };
 
     // Add an update listener to the editor for regular typing
     const updateListener = () => {
-      if (!editor.isDestroyed && !isUndoRedoOperation) {
+      if (!editor.isDestroyed && !isUndoRedoOperationRef.current) {
         // const currentContent = editor.getHTML(); // Removed from here
 
         // Start / reset a 300 ms debounce so rapid typing collapses into 1 save
@@ -62,9 +77,9 @@ const TextBlock = ({
         }
 
         updateTimerRef.current = setTimeout(() => {
-          if (onContentChange && !editor.isDestroyed) {
+          if (onContentChangeRef.current && !editor.isDestroyed) {
             const currentContent = editor.getHTML(); // Added here
-            onContentChange(currentContent);
+            onContentChangeRef.current(currentContent);
             contentOnFocusRef.current = currentContent;
           }
         }, 300);
@@ -90,7 +105,7 @@ const TextBlock = ({
         clearTimeout(updateTimerRef.current);
       }
     };
-  }, [editor, onContentChange, isUndoRedoOperation]);
+  }, [editor]);
 
   // Update editor font and color when props change
   useEffect(() => {
@@ -110,10 +125,10 @@ const TextBlock = ({
 
   // Update contentOnFocusRef when editor content is set externally (e.g., during undo/redo)
   useEffect(() => {
-    if (editor && !editor.isDestroyed && isUndoRedoOperation) {
+    if (editor && !editor.isDestroyed && isUndoRedoOperationRef.current) {
       contentOnFocusRef.current = editor.getHTML();
     }
-  }, [editor, isUndoRedoOperation]);
+  }, [editor]);
 
   if (!editor) {
     return <div className="text-muted-foreground">Loading editor...</div>;

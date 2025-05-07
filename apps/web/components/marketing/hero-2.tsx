@@ -37,7 +37,7 @@ export default function HeroSection() {
                   variant="link"
                   className="h-10 gap-1 px-2 text-base text-foreground sm:h-12 [&_svg]:size-3.5"
                 >
-                  Talk to Founder <ChevronRight />
+                  Book a Demo <ChevronRight />
                 </Button>
               </Link>
             </div>

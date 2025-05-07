@@ -131,10 +131,10 @@ export default function Homepage() {
               only pay for the emails you send.
             </p>
           </div>
-          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
             {/* Pay for what you use */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl border bg-accent p-4 sm:max-w-none">
-              <div className="mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-background p-2 text-primary shadow-sm">
+            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
+              <div className="mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
                 <AnimatedBeamDemo />
               </div>
               <div className="flex flex-col gap-2">
@@ -145,8 +145,8 @@ export default function Homepage() {
               </div>
             </div>
             {/* unlimited contacts */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl border bg-accent p-4 sm:max-w-none">
-              <div className="relative mx-auto h-52 w-full items-center overflow-hidden rounded-lg border bg-background p-4 text-primary shadow-sm">
+            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
+              <div className="mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
                 <AnimatedList>
                   {notifications.map((item, idx) => (
                     <Notification {...item} key={idx} />
@@ -162,8 +162,8 @@ export default function Homepage() {
               </div>
             </div>
             {/* automations */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl border bg-accent p-4 sm:max-w-none">
-              <div className="relative mx-auto flex h-52 w-full flex-col items-start gap-2 overflow-hidden rounded-lg border bg-background p-4 text-primary shadow-sm">
+            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
+              <div className="mx-auto flex h-52 w-full flex-col items-start gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
                 <div className="flex w-[600px] items-center gap-2 rounded-md border border-yellow-500 bg-yellow-50 p-2 text-lg font-medium text-yellow-500">
                   <span className="animate-pulse">
                     <HourglassClock height={"26"} width={"26"} />
@@ -195,7 +195,7 @@ export default function Homepage() {
               </div>
             </div>
             {/* metrics and analytics */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl border bg-accent p-4 sm:max-w-none">
+            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
               <EmailMetricsCard />
 
               <div className="flex flex-col gap-2">
@@ -208,8 +208,8 @@ export default function Homepage() {
             </div>
 
             {/* drag and drop editor */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl border bg-accent p-4 sm:max-w-none">
-              <div className="relative mx-auto h-52 w-full items-center gap-2 rounded-lg border bg-background text-primary shadow-sm">
+            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
+              <div className="relative mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
                 <div className="absolute left-4 top-8 z-10 flex w-32 -rotate-12 flex-col items-center gap-1 rounded-md border bg-card p-3 text-foreground shadow-sm hover:bg-accent/80">
                   <Image />
                   <span>Image</span>
@@ -228,13 +228,13 @@ export default function Homepage() {
               </div>
             </div>
             {/* 9 block types */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-6 rounded-xl border bg-accent p-4 sm:max-w-none">
-              <div className="mx-auto grid h-52 w-full grid-cols-3 shadow-sm">
+            <div className="mx-auto flex h-full w-full flex-col justify-between gap-3 rounded-xl sm:max-w-none">
+              <div className="mx-auto grid h-52 w-full grid-cols-3 bg-gradient-to-br from-muted/40 to-muted/60 text-primary shadow-sm">
                 {allBlockTypes.map((block) => (
                   <div
                     key={block.type}
                     className={cn(
-                      "flex flex-col items-center gap-1 rounded-md border bg-background p-3 shadow-sm hover:bg-accent/80",
+                      "flex flex-col items-center gap-1 rounded-md border bg-transparent p-3 shadow-sm hover:bg-accent/80",
                       block.type === "divider" && "rounded-none border-0",
                       block.type === "file-download" &&
                         "rounded-none border-y-0",
