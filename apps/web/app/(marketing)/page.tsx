@@ -113,7 +113,7 @@ export default function Homepage() {
       <div className="mx-auto w-full pb-12 pt-0 md:pt-12">
         <div
           id="emails"
-          className="w-full space-y-8 px-4 py-10 sm:py-20 sm:pb-32"
+          className="w-full space-y-8 px-4 py-10 pb-20 sm:py-20 sm:pb-32"
         >
           <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
             <h1 className="max-w-2xl text-balance text-left text-5xl font-bold sm:text-center md:text-6xl">
@@ -131,7 +131,7 @@ export default function Homepage() {
               only pay for the emails you send.
             </p>
           </div>
-          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-20 sm:grid-cols-2 sm:gap-12 lg:grid-cols-3">
             {/* Pay for what you use */}
             <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
               <div className="mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">

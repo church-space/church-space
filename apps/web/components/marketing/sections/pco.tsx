@@ -11,7 +11,7 @@ import { BorderBeam } from "@church-space/ui/border-beam";
 export default function PcoSection() {
   return (
     <div
-      className="w-full bg-gradient-to-br from-blue-500 to-blue-700 px-4 pb-20 pt-10 md:pb-36 md:pt-28"
+      className="w-full bg-gradient-to-br from-blue-500 to-blue-700 px-4 pb-24 pt-20 md:pb-36 md:pt-28"
       id="pco"
     >
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 text-white">

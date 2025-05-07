@@ -6,7 +6,7 @@ import { QRCode } from "react-qrcode-logo";
 
 export default function LinksSection() {
   return (
-    <div className="px-4 pt-20 md:pt-36" id="links">
+    <div className="px-4 pb-10 pt-24 md:pt-36" id="links">
       <div className="mx-auto w-full max-w-6xl gap-4">
         <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
           <h1 className="max-w-64 text-5xl font-semibold md:max-w-full md:text-6xl">
