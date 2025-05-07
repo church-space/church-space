@@ -502,6 +502,7 @@ export default function Page() {
           logoWidth={Math.round(qrCode.logoSize * (960 / 180))}
           logoHeight={Math.round(qrCode.logoSize * (960 / 180))}
           removeQrCodeBehindLogo={true}
+          logoPadding={5}
           ecLevel="Q"
           quietZone={10}
         />
@@ -549,6 +550,7 @@ export default function Page() {
           removeQrCodeBehindLogo={true}
           ecLevel="Q"
           quietZone={10}
+          logoPadding={5}
         />
       );
 
@@ -1528,6 +1530,7 @@ export default function Page() {
                       removeQrCodeBehindLogo={true}
                       ecLevel="Q"
                       quietZone={10}
+                      logoPadding={5}
                     />
                     <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
                       <Download className="h-8 w-8 text-white" />
@@ -1752,6 +1755,7 @@ export default function Page() {
                       <QRCode
                         value={`https://churchspace.co/qr/${editingQRCode.id}`}
                         size={120}
+                        logoPadding={5}
                         bgColor={
                           editingQRCode.isTransparent
                             ? "rgba(255, 255, 255, 0)"

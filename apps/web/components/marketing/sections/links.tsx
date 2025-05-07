@@ -16,16 +16,8 @@ export default function LinksSection() {
             Keep track of all your links in one place.
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 py-8 dark:to-primary/10 md:p-16 md:py-16">
-            <div className="flex flex-col items-start gap-2">
-              <h2 className="text-xl font-semibold">Branded QR Codes</h2>
-              <p className="max-w-sm text-pretty text-left text-muted-foreground">
-                Manage your QR codes like never before. Create multiple for the
-                same link to see where they were scan, update where they link to
-                at any time, and design your codes to match your brand.{" "}
-              </p>
-            </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 dark:to-primary/10 md:p-8 md:py-8">
             <div className="relative">
               <div className="relative h-[200px] w-[200px]">
                 <div className="z-5 absolute left-0 top-0 -rotate-6 transform rounded-md bg-black p-2 opacity-90">
@@ -35,6 +27,7 @@ export default function LinksSection() {
                     bgColor="#000000"
                     fgColor="#ffffff"
                     quietZone={0}
+                    ecLevel="Q"
                   />
                 </div>
                 <div className="absolute left-8 top-8 rotate-3 transform rounded-md bg-[#6065fe] p-2">
@@ -44,54 +37,53 @@ export default function LinksSection() {
                     bgColor="#6065FE"
                     fgColor="#ffffff"
                     quietZone={0}
+                    logoImage="https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/marketing//logoqr.png"
+                    logoWidth={40}
+                    logoHeight={65}
+                    removeQrCodeBehindLogo={true}
+                    ecLevel="Q"
+                    logoPadding={5}
                   />
                 </div>
               </div>
             </div>
+            <div className="flex flex-col items-start gap-2">
+              <h2 className="text-xl font-semibold">Branded QR Codes</h2>
+              <p className="max-w-sm text-pretty text-left text-muted-foreground">
+                Create and design QR codes to match your brand.
+              </p>
+            </div>
           </div>
-          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 py-8 dark:to-primary/10 md:p-16 md:py-16">
+          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 dark:to-primary/10 md:p-8 md:py-8">
+            <div className="relative">
+              <div className="relative h-[200px] w-[200px]">
+                <div className="flex items-end gap-4">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="h-[200px] w-16 rounded-t-md bg-gradient-to-t from-primary to-primary/70" />
+                    Screens
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="h-[80px] w-16 rounded-t-md bg-gradient-to-t from-primary to-primary/90" />
+                    Seats
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="h-[120px] w-16 rounded-t-md bg-gradient-to-t from-primary to-primary/80" />
+                    Lobby
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="flex flex-col items-start gap-2">
               <h2 className="text-xl font-semibold">Deeper Insights</h2>
               <p className="max-w-sm text-pretty text-left text-muted-foreground">
-                Manage your QR codes like never before. Create multiple for the
-                same link to see where they were scan, update where they link to
-                at any time, and design your codes to match your brand.{" "}
+                Create multiple QR codes for the same link to see where they
+                were scanned and update the URL at any time.
               </p>
-            </div>
-            <div className="relative">
-              <div className="relative h-[200px] w-[200px]">
-                <div className="z-5 absolute left-0 top-0 -rotate-6 transform rounded-md bg-white p-2 opacity-90">
-                  <QRCode
-                    size={150}
-                    value="https://churchspace.co"
-                    bgColor="#ffffff"
-                    fgColor="#000000"
-                    quietZone={0}
-                  />
-                </div>
-                <div className="absolute left-8 top-8 rotate-3 transform rounded-md bg-[#6065fe] p-2">
-                  <QRCode
-                    size={150}
-                    value="https://churchspace.co"
-                    bgColor="#6065FE"
-                    fgColor="#ffffff"
-                    quietZone={0}
-                  />
-                </div>
-              </div>
             </div>
           </div>
-          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 py-8 pb-0 dark:to-primary/10 md:p-16 md:pb-0 md:pt-16">
-            <div className="flex flex-col items-start gap-2">
-              <h2 className="text-xl font-semibold">A home for your links</h2>
-              <p className="max-w-sm text-pretty text-left text-muted-foreground">
-                Create pages for your important links and resources to share
-                with your congregation. They&apos;re perfect for sharing links
-                in your social media bios.
-              </p>
-            </div>
+          <div className="col-span-1 flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 md:col-span-2 md:flex-row-reverse md:p-8 md:py-8 lg:col-span-1 lg:flex-col">
             <div className="relative w-full">
-              <div className="mx-auto flex h-[300px] w-full max-w-[340px] flex-col gap-2 overflow-hidden rounded-t-xl border bg-background">
+              <div className="mx-auto flex h-[300px] w-full max-w-[340px] flex-col gap-2 overflow-hidden rounded-t-xl border bg-background md:mx-0 lg:mx-auto">
                 <div className="flex flex-col border-b bg-gradient-to-br from-primary/80 to-primary p-6 py-3.5">
                   <h3 className="mt-5 text-2xl font-semibold text-white">
                     Welcome Home
@@ -122,6 +114,14 @@ export default function LinksSection() {
                   Catch up on sermons
                 </div>
               </div>
+            </div>
+            <div className="flex flex-col items-start gap-2">
+              <h2 className="text-xl font-semibold">A home for your links</h2>
+              <p className="max-w-sm text-pretty text-left text-muted-foreground md:max-w-4xl lg:max-w-sm">
+                Create pages for your important links and resources to share
+                with your congregation. They&apos;re perfect for sharing links
+                in your social media bios.
+              </p>
             </div>
           </div>
         </div>
