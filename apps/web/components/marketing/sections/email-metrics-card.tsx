@@ -1,17 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { ArrowUpRight, Mail } from "lucide-react";
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@church-space/ui/card";
-import { Badge } from "@church-space/ui/badge";
+import { Card, CardContent, CardFooter } from "@church-space/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -31,7 +23,6 @@ export default function EmailMetricsCard() {
   const [data, setData] = useState(generateData());
   const [openRate, setOpenRate] = useState(28.4);
   const [clickRate, setClickRate] = useState(9.2);
-  const [emailsSent, setEmailsSent] = useState(1250);
   const [rateChange, setRateChange] = useState(1.8);
 
   // Animate the chart by updating data at regular intervals
@@ -55,11 +46,6 @@ export default function EmailMetricsCard() {
       const clickChange = Math.random() * 1 - 0.3;
       const newClickRate = Math.max(3, Math.min(18, clickRate + clickChange));
       setClickRate(newClickRate);
-
-      // Occasionally increase emails sent
-      if (Math.random() > 0.7) {
-        setEmailsSent((prev) => prev + Math.floor(Math.random() * 20) + 5);
-      }
 
       // Update rate change
       const newRateChange = rateChange + (Math.random() * 0.6 - 0.3);
