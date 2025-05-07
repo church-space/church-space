@@ -22,8 +22,6 @@ const TextBlock = ({
   accentTextColor,
   isUndoRedoOperation = false,
 }: TextBlockProps) => {
-  const prevFontRef = useRef(font);
-  const prevTextColorRef = useRef(textColor);
   const prevLinkColorRef = useRef(linkColor);
   const prevAccentTextColorRef = useRef(accentTextColor);
   const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
