@@ -1,3 +1,4 @@
+"use client";
 import type { FileDownloadBlockData } from "@/types/blocks";
 import { cn } from "@church-space/ui/cn";
 

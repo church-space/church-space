@@ -1,3 +1,4 @@
+"use client";
 import type { ListBlockData } from "@/types/blocks";
 import { cn } from "@church-space/ui/cn";
 import { useMemo } from "react";

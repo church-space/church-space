@@ -58,11 +58,19 @@ export default function PricingPage() {
   return (
     <div className="mx-auto mb-24 mt-16 w-full max-w-5xl px-2">
       <div className="space-y-6">
-        <div className="text-center text-5xl font-bold">Pricing</div>
-        <p className="mx-auto w-full max-w-lg text-balance pb-4 text-center font-medium leading-tight text-muted-foreground">
-          Pick the plan that works best for your church, or start for free. You
-          can always change your plan later.
-        </p>
+        <div className="group flex flex-col gap-6">
+          <div className="text-center text-5xl font-bold">Pricing</div>
+          <div className="flex flex-col gap-4 pb-4">
+            <p className="mx-auto w-full max-w-lg text-balance text-center leading-tight text-muted-foreground">
+              Pick the plan that works best for your church, or start for free.
+              You can always change your plan later.
+            </p>
+            <p className="mx-auto w-full max-w-lg text-balance text-center font-medium leading-tight text-muted-foreground transition-colors group-hover:text-primary">
+              A Planning Center account is required to use Church Space.
+            </p>
+          </div>
+        </div>
+
         <div className="grid w-full grid-cols-1 rounded-xl p-3 md:grid-cols-2">
           <div className="my-4 w-full space-y-6 rounded-lg border bg-secondary/20 p-6 py-10 shadow-sm dark:bg-secondary/10 md:rounded-r-none md:border-r-0 md:py-6">
             <div className="ml-2 space-y-2">
@@ -73,7 +81,7 @@ export default function PricingPage() {
               </div>
             </div>
             <div className="flex w-full items-center gap-0.5 rounded-lg border px-4 py-3">
-              <p className="text-lg font-semibold">500 emails per month</p>
+              <p className="text-lg font-semibold">500 email sends per month</p>
               <div className="mb-1 text-sm text-muted-foreground">*</div>
             </div>
             <div className="space-y-3 px-3 pb-3 pt-4 md:pb-9">
@@ -140,7 +148,7 @@ export default function PricingPage() {
                 >
                   <div className="flex items-center gap-1">
                     <p className="text-lg font-medium">
-                      {formatNumber(selectedTier.volume)} Emails per month
+                      {formatNumber(selectedTier.volume)} email sends per month
                     </p>
                     <div className="text-sm text-muted-foreground">*</div>
                   </div>

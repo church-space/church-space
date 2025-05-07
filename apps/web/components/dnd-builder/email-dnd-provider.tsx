@@ -286,6 +286,7 @@ export default function EmailDndProvider({
 
   // Update handleTextContentChange to check the isUndoRedoOperation flag
   const handleTextContentChange = (blockId: string, content: string) => {
+    console.log("[provider] content-change", blockId, content.slice(0, 80));
     // Skip updating history during undo/redo operations
     if (isUndoRedoOperation) return;
 

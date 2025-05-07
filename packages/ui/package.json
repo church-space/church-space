@@ -48,7 +48,13 @@
     "./navigation-menu": "./src/navigation-menu.tsx",
     "./context-menu": "./src/context-menu.tsx",
     "./number-ticker": "./src/number-ticker.tsx",
-    "./country-select": "./src/country-select.tsx"
+    "./country-select": "./src/country-select.tsx",
+    "./hover-card": "./src/hover-card.tsx",
+    "./border-beam": "./src/border-beam.tsx",
+    "./aurora-text": "./src/aurora-text.tsx",
+    "./grid-bg": "./src/grid-bg.tsx",
+    "./animated-list": "./src/animated-list.tsx",
+    "./animated-beam": "./src/animated-beam.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -79,6 +85,7 @@
     "@radix-ui/react-context-menu": "^2.2.7",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-dropdown-menu": "^2.1.6",
+    "@radix-ui/react-hover-card": "^1.1.13",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-navigation-menu": "^1.2.5",
     "@radix-ui/react-popover": "^1.1.6",

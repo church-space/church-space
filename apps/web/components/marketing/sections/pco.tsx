@@ -6,20 +6,24 @@ import {
   Waypoints,
 } from "@church-space/ui/icons";
 import { Badge } from "@church-space/ui/badge";
+import { BorderBeam } from "@church-space/ui/border-beam";
 
 export default function PcoSection() {
   return (
-    <div className="w-full px-4 pb-20 pt-10 md:pb-36 md:pt-24" id="pco">
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-8">
+    <div
+      className="w-full bg-gradient-to-br from-blue-500 to-blue-700 px-4 pb-20 pt-10 md:pb-36 md:pt-24"
+      id="pco"
+    >
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 text-white">
         <div className="flex flex-col items-center gap-2 pb-5 md:pb-0">
           <h2 className="text-lg font-bold">Designed for</h2>
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative hidden md:block">
-              <PcoLogo width={"58"} height={"58"} fill="#2266F7" />
+              <PcoLogo width={"58"} height={"58"} fill="#ffffff" />
               <div className="absolute bottom-2 right-2 -z-10 h-[32px] w-[30px] bg-white" />
             </div>
             <div className="relative block md:hidden">
-              <PcoLogo width={"38"} height={"38"} fill="#2266F7" />
+              <PcoLogo width={"38"} height={"38"} fill="#ffffff" />
               <div className="absolute bottom-2 right-2 -z-10 h-[20px] w-[25px] bg-white" />
             </div>
             <svg
@@ -92,16 +96,19 @@ export default function PcoSection() {
               />
             </svg>
           </div>
+          <p className="text-balance pt-2 text-center text-zinc-300">
+            A Planning Center account is required to use Church Space.
+          </p>
         </div>
         <div className="mt-4 grid w-full grid-cols-1 gap-4 gap-y-16 sm:grid-cols-2 md:gap-y-24 lg:grid-cols-3">
-          <div className="col-span-1 flex flex-col items-start gap-0 space-y-4 sm:col-span-2 sm:flex-row sm:items-center sm:gap-8 lg:col-span-1 lg:flex-col lg:items-start lg:gap-0">
-            <div className="relative h-64 w-full overflow-hidden rounded-md border bg-gradient-to-br from-primary/5 to-primary/20 shadow-sm">
-              <div className="absolute bottom-0 left-0 h-56 w-[92%] rounded-bl-md rounded-tr-md border-r border-t bg-background">
-                <div className="flex flex-col gap-2">
+          <div className="col-span-1 flex flex-col items-start gap-0 space-y-4 sm:col-span-2 sm:grid sm:grid-cols-2 sm:items-center sm:gap-4 lg:col-span-1 lg:flex lg:flex-col lg:items-start lg:gap-0">
+            <div className="relative h-64 w-full overflow-hidden rounded-md border bg-zinc-100 text-black shadow-sm">
+              <div className="absolute bottom-0 left-0 h-56 w-[92%] rounded-bl-md rounded-tr-md border-r border-t bg-background shadow-md">
+                <div className="flex flex-col">
                   <div className="flex w-full items-baseline border-b py-1 pl-3 text-sm font-medium text-muted-foreground">
                     Name
                   </div>
-                  <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
                     <div className="flex items-center gap-2 text-sm">
                       <div className="to h-6 w-6 rounded-full bg-indigo-700 bg-gradient-to-br from-blue-500" />
                       Sarah Johnson
@@ -110,7 +117,7 @@ export default function PcoSection() {
                       Subscribed
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
                     <div className="flex items-center gap-2 text-sm">
                       <div className="to h-6 w-6 rounded-full bg-emerald-600 bg-gradient-to-br from-green-400" />
                       Michael Chen
@@ -119,7 +126,7 @@ export default function PcoSection() {
                       Subscribed
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
                     <div className="flex items-center gap-2 text-sm">
                       <div className="to h-6 w-6 rounded-full bg-orange-600 bg-gradient-to-br from-amber-400" />
                       Priya Patel
@@ -128,7 +135,7 @@ export default function PcoSection() {
                       Subscribed
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
                     <div className="flex items-center gap-2 text-sm">
                       <div className="to h-6 w-6 rounded-full bg-rose-600 bg-gradient-to-br from-pink-400" />
                       James Wilson
@@ -137,7 +144,7 @@ export default function PcoSection() {
                       Subscribed
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
                     <div className="flex items-center gap-2 text-sm">
                       <div className="to h-6 w-6 rounded-full bg-cyan-600 bg-gradient-to-br from-teal-400" />
                       Maria Rodriguez
@@ -146,7 +153,7 @@ export default function PcoSection() {
                       Subscribed
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
                     <div className="flex items-center gap-2 text-sm">
                       <div className="to h-6 w-6 rounded-full bg-purple-600 bg-gradient-to-br from-violet-400" />
                       David Kim
@@ -155,7 +162,7 @@ export default function PcoSection() {
                       Subscribed
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
                     <div className="flex items-center gap-2 text-sm">
                       <div className="to h-6 w-6 rounded-full bg-green-700 bg-gradient-to-br from-lime-400" />
                       Jonathan James
@@ -168,16 +175,18 @@ export default function PcoSection() {
               </div>
             </div>
             <div className="flex flex-col gap-4">
-              <h3 className="text-lg font-bold">Sync unlimited people</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-xl font-bold sm:text-2xl md:text-3xl lg:text-xl">
+                Sync unlimited people
+              </h3>
+              <p className="text-sm font-medium text-white">
                 Your Planning Center people and lists are automatically synced.
                 You can have as many contacts as you need.
               </p>
             </div>
           </div>
           <div className="col-span-1 space-y-4">
-            <div className="relative h-64 w-full rounded-md border bg-gradient-to-br from-primary/5 to-primary/20 shadow-sm">
-              <div className="absolute bottom-0 left-1/2 h-56 w-[75%] -translate-x-1/2 overflow-hidden rounded-t-md border border-b-0 bg-background px-4 pt-4">
+            <div className="relative h-64 w-full overflow-hidden rounded-md border bg-zinc-100 text-black shadow-sm">
+              <div className="absolute left-1/2 top-7 h-auto w-[75%] origin-bottom -translate-x-1/2 overflow-hidden rounded-t-md border border-b-0 bg-background px-4 pt-4 transition-all duration-300 hover:scale-105">
                 <div className="mb-2 h-12 w-full rounded-lg bg-gradient-to-br from-blue-300 to-purple-500" />
                 <span className="font-bold">Welcome Home</span>
                 <p className="text-[10px]">
@@ -195,18 +204,17 @@ export default function PcoSection() {
                   by visiting our Church Center. To download the Church Center
                   app, visit churchcenter.com or search for it in the App Store.
                 </p>
+                <BorderBeam duration={8} size={100} />
               </div>
             </div>
-            <h3 className="text-lg font-bold">
-              Send beautiful emails to your lists
-            </h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="text-xl font-bold">Emails any list</h3>
+            <p className="text-sm font-medium text-white">
               When sending an email, simply choose which Planning Center list
               you want to send to straight from Church Space.
             </p>
           </div>
           <div className="col-span-1 space-y-4" id="automations">
-            <div className="relative h-64 w-full rounded-md border bg-gradient-to-br from-primary/5 to-primary/20 shadow-sm">
+            <div className="relative h-64 w-full rounded-md border bg-zinc-100 text-black shadow-sm">
               <div className="absolute bottom-0 right-0 h-56 w-[92%] rounded-br-md rounded-tl-md border-l border-t bg-background">
                 <div className="flex flex-col gap-2 p-2">
                   <div className="w-full px-2 py-1 text-sm">
@@ -222,17 +230,17 @@ export default function PcoSection() {
                 </div>
                 <div className="w-full border-t pt-2" />
                 <div className="flex flex-col gap-2 pl-2">
-                  <div className="w-full rounded-l border bg-accent px-2 py-1 text-sm">
+                  <div className="w-full rounded-l border bg-green-500/20 px-2 py-1 text-sm">
                     <div className="flex items-center gap-2">
-                      <span className="text-yellow-500">
+                      <span className="text-green-500">
                         <HourglassClock height={"16"} width={"16"} />
                       </span>
                       Wait 3 hours
                     </div>
                   </div>
-                  <div className="w-full rounded-l border bg-accent px-2 py-1 text-sm">
+                  <div className="w-full rounded-l border bg-green-500/20 px-2 py-1 text-sm">
                     <div className="flex items-center gap-2">
-                      <span className="text-primary">
+                      <span className="text-green-500">
                         <Email height={"16"} width={"16"} />
                       </span>
                       <p>
@@ -242,15 +250,15 @@ export default function PcoSection() {
                       </p>
                     </div>
                   </div>
-                  <div className="w-full rounded-l border bg-accent px-2 py-1 text-sm">
+                  <div className="w-full rounded-l border bg-yellow-500/20 px-2 py-1 text-sm">
                     <div className="flex items-center gap-2">
-                      <span className="text-yellow-500">
+                      <span className="animate-pulse text-yellow-500">
                         <HourglassClock height={"16"} width={"16"} />
                       </span>
                       Wait 5 days
                     </div>
                   </div>
-                  <div className="w-full rounded-l border bg-accent px-2 py-1 text-sm">
+                  <div className="w-full rounded-l border px-2 py-1 text-sm">
                     <div className="flex items-center gap-2">
                       <span className="text-primary">
                         <Email height={"16"} width={"16"} />
@@ -265,10 +273,8 @@ export default function PcoSection() {
                 </div>
               </div>
             </div>
-            <h3 className="text-lg font-bold">
-              Create automations connected to lists
-            </h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="text-xl font-bold">Automate your lists</h3>
+            <p className="text-sm font-medium text-white">
               Send a series of emails after a person is added to or removed from
               a Planning Center list.
             </p>

@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { cn } from "@church-space/ui/cn";
 import type { ButtonBlockData } from "@/types/blocks";

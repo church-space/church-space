@@ -49,27 +49,27 @@ const TextBlock = ({
       const currentContent = editor.getHTML();
       if (currentContent !== contentOnFocusRef.current && onContentChange) {
         onContentChange(currentContent);
+        contentOnFocusRef.current = currentContent;
       }
     };
 
     // Add an update listener to the editor for regular typing
     const updateListener = () => {
       if (!editor.isDestroyed && !isUndoRedoOperation) {
-        const currentContent = editor.getHTML();
+        // const currentContent = editor.getHTML(); // Removed from here
 
-        // Clear any pending timer
+        // Start / reset a 300 ms debounce so rapid typing collapses into 1 save
         if (updateTimerRef.current) {
           clearTimeout(updateTimerRef.current);
         }
 
-        // Debounce the database update
         updateTimerRef.current = setTimeout(() => {
           if (onContentChange && !editor.isDestroyed) {
+            const currentContent = editor.getHTML(); // Added here
             onContentChange(currentContent);
-            // Update the focus content ref after successful save
             contentOnFocusRef.current = currentContent;
           }
-        }, 500); // 500ms debounce
+        }, 300);
       }
     };
 

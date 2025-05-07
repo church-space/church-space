@@ -223,9 +223,9 @@ const CustomText: React.FC<{
       const baseStyle =
         "font-weight: 600; font-size: 64px; line-height: 1.2; margin-top: 0.3em; margin-bottom: 0.3em; mso-line-height-rule: exactly; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%";
       if (existingStyle) {
-        return `<h4 style="${existingStyle}; ${baseStyle}" size="6" face="Arial"`;
+        return `<h4 style="${existingStyle}; ${baseStyle}"`;
       }
-      return `<h4 style="${baseStyle}" size="6" face="Arial"`;
+      return `<h4 style="${baseStyle}"`;
     })
     // Add light weight and line height to paragraphs, preserving any existing style attributes
     .replace(/<p(?: style="([^"]*)")?/g, (match, existingStyle) => {
@@ -1915,7 +1915,6 @@ export function generateEmailCode(
         font-weight: 600 !important;
         margin-top: 0.3em !important;
         margin-bottom: 0.3em !important;
-        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif !important;
       }
 
       /* Mobile H4 style */

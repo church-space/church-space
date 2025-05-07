@@ -1,3 +1,4 @@
+"use client";
 import type { ImageBlockData } from "@/types/blocks";
 import { createClient } from "@church-space/supabase/client";
 import { cn } from "@church-space/ui/cn";
