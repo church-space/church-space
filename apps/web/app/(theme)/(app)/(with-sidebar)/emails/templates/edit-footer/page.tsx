@@ -1,6 +1,11 @@
 import DefaultFooterEditor from "@/components/dnd-builder/default-footer-editor";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Edit Footer",
+};
 
 export default async function Page() {
   const cookiesStore = await cookies();

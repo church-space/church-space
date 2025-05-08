@@ -13,6 +13,11 @@ import { cookies } from "next/headers";
 import ClientPage, { Address } from "./client-page";
 import { getOrgDetailsQuery } from "@church-space/supabase/queries/all/get-org-details";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Organization Settings",
+};
 
 export default async function Page() {
   const cookieStore = await cookies();

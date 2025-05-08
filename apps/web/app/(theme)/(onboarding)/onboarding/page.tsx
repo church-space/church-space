@@ -7,6 +7,11 @@ import { cookies } from "next/headers";
 import ClientPage from "./client-page";
 import { redirect } from "next/navigation";
 import { handleExpiredInvite, processInviteSuccess } from "./actions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Onboarding",
+};
 
 export default async function Page() {
   const cookieStore = await cookies();

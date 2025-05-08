@@ -4,6 +4,11 @@ import { createClient } from "@church-space/supabase/server";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
 import Link from "next/link";
 import { Button } from "@church-space/ui/button";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Import People",
+};
 
 export default async function page() {
   const supabase = await createClient();

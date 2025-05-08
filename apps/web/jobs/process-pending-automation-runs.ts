@@ -1,3 +1,4 @@
+import "server-only";
 import { schedules } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 import { automationJob } from "./automation-job";

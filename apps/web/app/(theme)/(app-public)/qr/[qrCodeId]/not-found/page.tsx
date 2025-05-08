@@ -6,6 +6,11 @@ import {
 } from "@church-space/ui/card";
 import { ArrowRight, ChurchSpaceBlack, Qrcode } from "@church-space/ui/icons";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "QR Code Not Found",
+};
 
 export default function NotFound() {
   return (

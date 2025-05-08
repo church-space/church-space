@@ -9,6 +9,11 @@ import { handleCategoryUnsubscribe } from "./use-unsub-from-category";
 import { handleCategoryResubscribe } from "./use-resubscribe-to-category";
 import { handleResubscribeAll } from "./use-resubscribe-all";
 import { getCategories } from "./use-categories";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Manage Email Preferences",
+};
 
 type Category = {
   category_id: number;

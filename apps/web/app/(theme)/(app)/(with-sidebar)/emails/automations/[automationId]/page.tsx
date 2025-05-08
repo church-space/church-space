@@ -61,6 +61,11 @@ import {
 } from "@church-space/ui/tooltip";
 import LoadingPage from "./loading-page";
 import AutomationNotFound from "@/components/not-found/automation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Automations",
+};
 
 // Types for the new schema
 interface AutomationStep {

@@ -16,6 +16,11 @@ import { SidebarTrigger } from "@church-space/ui/sidebar";
 import ClientPage from "./client-page";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Brand Colors",
+};
 
 export default async function Page() {
   const cookieStore = await cookies();

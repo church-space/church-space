@@ -11,6 +11,11 @@ import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Automations",
+};
 
 export default async function Page() {
   const cookiesStore = await cookies();

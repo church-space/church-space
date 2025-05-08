@@ -20,6 +20,11 @@ import {
 import cookies from "js-cookie";
 import { NumberTicker } from "@church-space/ui/number-ticker";
 import FAQSection from "@/components/marketing/sections/faq";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pricing",
+};
 
 type EmailTier = {
   volume: number;

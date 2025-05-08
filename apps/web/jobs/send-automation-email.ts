@@ -1,3 +1,5 @@
+import "server-only";
+
 import { BlockData, BlockType, Section } from "@/types/blocks";
 import { createClient } from "@church-space/supabase/job";
 import { queue, runs, task } from "@trigger.dev/sdk/v3";

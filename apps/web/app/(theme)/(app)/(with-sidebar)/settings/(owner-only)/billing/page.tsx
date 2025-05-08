@@ -25,6 +25,11 @@ import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
 import ViewInvoiceButton from "@/components/stripe/view-invoice-button";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Billing",
+};
 
 export default async function Page() {
   const cookieStore = await cookies();

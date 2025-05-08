@@ -6,6 +6,11 @@ import {
 } from "@church-space/ui/card";
 import { ArrowRight, ChurchSpaceBlack, LinkIcon } from "@church-space/ui/icons";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Link Page Not Found",
+};
 
 export default function NotFound() {
   return (

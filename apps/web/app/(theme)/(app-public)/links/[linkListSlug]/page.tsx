@@ -9,6 +9,11 @@ import LinkListLinks, {
 import { getLinkListBySlugQuery } from "@church-space/supabase/queries/all/get-link-list";
 import { createClient } from "@church-space/supabase/server";
 import NotFound from "./not-found";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Links",
+};
 
 export default async function LinkListPage({
   params,

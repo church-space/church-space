@@ -6,6 +6,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { use } from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "PCO Already Connected",
+};
 
 type SearchParams = Promise<{
   connectedByFirstName?: string;

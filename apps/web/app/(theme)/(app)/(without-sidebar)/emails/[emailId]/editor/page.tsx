@@ -8,6 +8,11 @@ import {
 import EmailNotFound from "@/components/not-found/email";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Email Editor",
+};
 
 type Params = Promise<{ emailId: string }>;
 

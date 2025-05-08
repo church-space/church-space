@@ -3,6 +3,11 @@ import React from "react";
 import LinkListBuilder from "@/components/link-list-builder/link-list-builder";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Link Pages",
+};
 
 export default async function Page() {
   const cookiesStore = await cookies();

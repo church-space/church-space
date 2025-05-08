@@ -12,6 +12,12 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Email Categories",
+};
+
 export default async function Page() {
   const cookiesStore = await cookies();
   const organizationId = cookiesStore.get("organizationId")?.value;

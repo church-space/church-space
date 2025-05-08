@@ -16,6 +16,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { signInWithGoogle, signInWithOtp } from "@/app/(theme)/(auth)/actions";
 import { useToast } from "@church-space/ui/use-toast";
 import { ArrowRight, ChurchSpaceBlack } from "@church-space/ui/icons";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login",
+};
 
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);

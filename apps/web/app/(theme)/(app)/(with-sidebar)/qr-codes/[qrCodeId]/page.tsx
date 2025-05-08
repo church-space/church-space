@@ -94,6 +94,11 @@ import {
 } from "@church-space/ui/tooltip";
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import QRCodeNotFound from "@/components/not-found/qr-code";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Manage QR Code",
+};
 
 // Types
 type QRCodeData = {

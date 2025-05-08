@@ -2,6 +2,11 @@ import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-de
 import { createClient } from "@church-space/supabase/server";
 import { redirect } from "next/navigation";
 import ClientPage from "./client-page";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Reconnect to PCO",
+};
 
 export default async function ProtectedLayout({}) {
   const supabase = await createClient();
