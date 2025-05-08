@@ -143,7 +143,7 @@ export const inviteMembers = task({
 
       try {
         await resend.emails.send({
-          from: "invites@mail.churchspace.co",
+          from: "invites@auth.churchspace.co",
           to: member.email,
           subject: `You've been invited to join ${orgData.name} on Church Space`,
           headers: {
@@ -171,7 +171,7 @@ export const inviteMembers = task({
                     <!-- Church Space Logo with Link -->
                     <a href="https://churchspace.co" target="_blank" style="text-decoration: none; color: #000000; display: inline-flex; align-items: center;">
                       <img
-                        src="https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets//churchspace-black.png"
+                        src="https://auth.churchspace.co/storage/v1/object/public/email_assets//churchspace-black.png"
                         alt="Church Space Logo"
                         height="24"
                         style="vertical-align: middle; display: inline-block; width: auto;"

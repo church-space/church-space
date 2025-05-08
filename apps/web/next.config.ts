@@ -4,11 +4,7 @@ import createMDX from "@next/mdx";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: [
-      "dcwieoyzmyesvfugjrxn.supabase.co",
-      "img.youtube.com",
-      "unsplash.com",
-    ],
+    domains: ["auth.churchspace.co", "img.youtube.com", "unsplash.com"],
   },
   experimental: {
     reactCompiler: true,

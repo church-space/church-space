@@ -40,7 +40,7 @@ export default function LinksSection() {
                     bgColor="#6065FE"
                     fgColor="#ffffff"
                     quietZone={0}
-                    logoImage="https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/marketing//logoqr.png"
+                    logoImage="https://auth.churchspace.co/storage/v1/object/public/marketing//logoqr.png"
                     logoWidth={40}
                     logoHeight={65}
                     removeQrCodeBehindLogo={true}

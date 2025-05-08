@@ -62,103 +62,103 @@ const SocialIconKeys = {
 const IconImages = {
   black: {
     instagram:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/instagram.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/instagram.png",
     tiktok:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/tik-tok.png",
-    x: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/x-twitter.png",
-    mail: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/envelope.png",
-    link: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/link.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/tik-tok.png",
+    x: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/x-twitter.png",
+    mail: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/envelope.png",
+    link: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/link.png",
     facebook:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/facebook.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/facebook.png",
     linkedin:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/linkedin.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/linkedin.png",
     bluesky:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/bluesky.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/bluesky.png",
     youtube:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/youtube.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/youtube.png",
     threads:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/threads.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/threads.png",
     vimeo:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/vimeo.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/vimeo.png",
     spotify:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/spotify.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/spotify.png",
     podcast:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/black/podcast.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/black/podcast.png",
   },
   white: {
     instagram:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/instagram.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/instagram.png",
     tiktok:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/tik-tok.png",
-    x: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/x-twitter.png",
-    mail: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/envelope.png",
-    link: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/link.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/tik-tok.png",
+    x: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/x-twitter.png",
+    mail: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/envelope.png",
+    link: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/link.png",
     facebook:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/facebook.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/facebook.png",
     linkedin:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/linkedin.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/linkedin.png",
     bluesky:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/bluesky.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/bluesky.png",
     youtube:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/youtube.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/youtube.png",
     threads:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/threads.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/threads.png",
     vimeo:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/vimeo.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/vimeo.png",
     spotify:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/spotify.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/spotify.png",
     podcast:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/white/podcast.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/white/podcast.png",
   },
   lightGray: {
     instagram:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/instagram.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/instagram.png",
     tiktok:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/tik-tok.png",
-    x: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/x-twitter.png",
-    mail: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/envelope.png",
-    link: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/link.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/tik-tok.png",
+    x: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/x-twitter.png",
+    mail: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/envelope.png",
+    link: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/link.png",
     facebook:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/facebook.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/facebook.png",
     linkedin:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/linkedin.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/linkedin.png",
     bluesky:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/bluesky.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/bluesky.png",
     youtube:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/youtube.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/youtube.png",
     threads:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/threads.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/threads.png",
     vimeo:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/vimeo.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/vimeo.png",
     spotify:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/spotify.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/spotify.png",
     podcast:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/light-gray/podcast.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/light-gray/podcast.png",
   },
   darkGray: {
     instagram:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/instagram.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/instagram.png",
     tiktok:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/tik-tok.png",
-    x: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/x-twitter.png",
-    mail: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/envelope.png",
-    link: "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/link.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/tik-tok.png",
+    x: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/x-twitter.png",
+    mail: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/envelope.png",
+    link: "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/link.png",
     facebook:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/facebook.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/facebook.png",
     linkedin:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/linkedin.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/linkedin.png",
     bluesky:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/bluesky.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/bluesky.png",
     youtube:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/youtube.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/youtube.png",
     threads:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/threads.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/threads.png",
     vimeo:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/vimeo.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/vimeo.png",
     spotify:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/spotify.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/spotify.png",
     podcast:
-      "https://dcwieoyzmyesvfugjrxn.supabase.co/storage/v1/object/public/email_assets/snv-png/dark-gray/podcast.png",
+      "https://auth.churchspace.co/storage/v1/object/public/email_assets/snv-png/dark-gray/podcast.png",
   },
 };
 
