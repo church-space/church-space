@@ -55,8 +55,8 @@ export default function AutomationMembersTable({
           };
         }}
         hasNextPage={hasNextPage}
-        searchQuery={search || ""}
-        onSearch={handleSearch}
+        // searchQuery={search || ""}
+        // onSearch={handleSearch}
         isLoading={isFetchingNextPage || isLoading}
         nullState={<NullState onClick={() => {}} />}
       />

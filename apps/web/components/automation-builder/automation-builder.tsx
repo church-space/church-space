@@ -58,6 +58,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@church-space/ui/alert-dialog";
+import { HourglassClock } from "@church-space/ui/icons";
+import { Email } from "@church-space/ui/icons";
 
 export type TriggerType = "person_added" | "person_removed";
 type ActionType = "wait" | "send_email";
@@ -220,6 +222,8 @@ function SortableStep(props: SortableStepProps) {
       className={cn(
         "mb-2 w-full rounded-md border",
         isDragging ? "border-dashed bg-accent opacity-50" : "",
+        step.type === "wait" && "bg-yellow-500/10 dark:bg-yellow-500/20",
+        step.type === "send_email" && "bg-primary/10 dark:bg-primary/30",
       )}
     >
       <div className="flex w-full items-center p-0.5 pr-1">
@@ -248,12 +252,23 @@ function SortableStep(props: SortableStepProps) {
                 (step.type === "send_email" &&
                   emailStepError !== null &&
                   errorStepIds.includes(stepId))
-                ? "rounded-md border border-destructive ring-1 ring-destructive"
+                ? "rounded-md border border-destructive shadow-none ring-1 ring-destructive"
                 : "",
             )}
           >
             <CustomAccordionTrigger>
-              {step.type === "wait" ? "Wait" : "Send Email"}
+              <span className="flex items-center gap-2">
+                {step.type === "wait" ? (
+                  <span className="text-yellow-500">
+                    <HourglassClock height={"20"} width={"20"} />
+                  </span>
+                ) : (
+                  <span className="text-primary">
+                    <Email height={"20"} width={"20"} />
+                  </span>
+                )}
+                {step.type === "wait" ? "Wait" : "Send Email"}
+              </span>
             </CustomAccordionTrigger>
             <AccordionContent>
               {step.type === "wait" && isWaitStep(step) && (

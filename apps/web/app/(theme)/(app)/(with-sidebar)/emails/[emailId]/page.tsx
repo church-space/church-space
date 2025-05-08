@@ -14,11 +14,6 @@ import { getSentEmailStatsAction } from "@/actions/get-sent-email-stats";
 import Cookies from "js-cookie";
 import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
 import EmailNotFound from "@/components/not-found/email";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Emails",
-};
 
 export default function Page() {
   const params = useParams();

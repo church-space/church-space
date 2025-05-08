@@ -1,6 +1,11 @@
 "use client";
 
 import { Badge } from "@church-space/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@church-space/ui/tooltip";
 import { ColumnDef } from "@tanstack/react-table";
 
 // Define the type based on the SQL schema
@@ -72,7 +77,18 @@ export const columns: ColumnDef<EmailAutomationMember>[] = [
     header: "Status",
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
-      return (
+      return status === "canceled" ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="destructive" className="capitalize">
+              {status}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{row.original.reason}</p>
+          </TooltipContent>
+        </Tooltip>
+      ) : (
         <Badge
           variant={
             status === "canceled"

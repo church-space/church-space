@@ -20,11 +20,6 @@ import { useSearchParams } from "next/navigation";
 import cookies from "js-cookie";
 import { jwtVerify } from "jose";
 import { addDays } from "date-fns";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Sign Up",
-};
 
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);

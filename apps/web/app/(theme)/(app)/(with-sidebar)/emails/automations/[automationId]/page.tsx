@@ -61,11 +61,7 @@ import {
 } from "@church-space/ui/tooltip";
 import LoadingPage from "./loading-page";
 import AutomationNotFound from "@/components/not-found/automation";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Automations",
-};
+import { Email, HourglassClock } from "@church-space/ui/icons";
 
 // Types for the new schema
 interface AutomationStep {
@@ -703,7 +699,7 @@ export default function Page() {
       </header>
 
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
-        <div className="flex flex-col space-y-6">
+        <div className="flex flex-col space-y-10">
           {/* Link Information Section */}
           <div className="flex w-full justify-between gap-4 border-b pb-4">
             {isEditingLink ? (
@@ -830,7 +826,41 @@ export default function Page() {
               </div>
             )}
           </div>
-
+          <div
+            className="flex cursor-pointer flex-col gap-4 rounded-lg border bg-accent p-4 shadow-sm md:p-6 md:pt-4"
+            onClick={() => setIsSheetOpen(true)}
+          >
+            <div className="text-lg font-bold">Steps</div>
+            <div className="flex gap-4">
+              {transformedAutomation.steps.map((step) => (
+                <div key={step.id}>
+                  {step.type === "wait" ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="rounded-md border border-yellow-500 bg-yellow-500/10 p-2 text-yellow-500">
+                          <HourglassClock height={"24"} width={"24"} />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Wait</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="rounded-md border border-primary bg-primary/20 p-2 text-primary">
+                          <Email height={"24"} width={"24"} />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Send Email</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
           <AutomationMembersTable automationId={automationId} />
         </div>
       </div>
