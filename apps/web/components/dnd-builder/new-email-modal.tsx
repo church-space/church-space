@@ -9,6 +9,7 @@ import {
 import {
   ChevronLeft,
   ChevronRight,
+  Email,
   TemplatesIcon,
 } from "@church-space/ui/icons";
 import { Label } from "@church-space/ui/label";
@@ -27,8 +28,9 @@ import ArticleSvgPath from "./article.svg";
 import UpdatesSvgPath from "./updates.svg";
 import { EmailStyles } from "./use-block-state-manager";
 import EmailTemplateForm from "./sidebar-editor-forms/email-templates";
+import RecentlySentEmails from "./recently-sent-emails";
 
-type View = "main" | "templates";
+type View = "main" | "templates" | "recent";
 
 const pallets = [
   {
@@ -476,12 +478,13 @@ export default function NewEmailModal({
     >
       <DialogContent
         className="flex max-w-screen-md flex-col overflow-hidden"
-        style={{ height: "500px", maxHeight: "500px" }}
+        style={{ height: "550px", maxHeight: "550px" }}
       >
         <DialogHeader>
           <DialogTitle>
             {view === "main" && "How do you want to start?"}
             {view === "templates" && "My Templates"}
+            {view === "recent" && "Recently Sent Emails"}
           </DialogTitle>
         </DialogHeader>
 
@@ -720,6 +723,18 @@ export default function NewEmailModal({
                       <ChevronRight />
                     </span>
                   </button>
+                  <button
+                    className="group flex w-full items-center justify-between rounded-lg border bg-muted p-2 px-3 font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    onClick={() => setView("recent")}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Email />
+                      Recently Sent Emails
+                    </span>
+                    <span className="transition-transform duration-300 group-hover:translate-x-1">
+                      <ChevronRight />
+                    </span>
+                  </button>
                 </>
               )}
 
@@ -728,6 +743,13 @@ export default function NewEmailModal({
                   organizationId={organizationId}
                   emailId={emailId ?? 0}
                   hideHeader={true}
+                  setNewEmailModalOpen={setNewEmailModalOpen}
+                />
+              )}
+              {view === "recent" && (
+                <RecentlySentEmails
+                  organizationId={organizationId}
+                  emailId={emailId ?? 0}
                   setNewEmailModalOpen={setNewEmailModalOpen}
                 />
               )}
