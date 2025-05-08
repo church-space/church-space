@@ -6,7 +6,6 @@ import {
   Waypoints,
   CircleUser,
 } from "@church-space/ui/icons";
-import { Badge } from "@church-space/ui/badge";
 import { BorderBeam } from "@church-space/ui/border-beam";
 import { AnimatedList } from "@church-space/ui/animated-list";
 import { cn } from "@church-space/ui/cn";

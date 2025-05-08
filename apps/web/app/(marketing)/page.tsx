@@ -9,9 +9,7 @@ import {
   CursorDefault,
   Divider,
   Download,
-  Email,
   Grid,
-  HourglassClock,
   Image,
   List,
   Typography,
@@ -19,7 +17,6 @@ import {
 } from "@church-space/ui/icons";
 import { AuroraText } from "@church-space/ui/aurora-text";
 import EmailMetricsCard from "@/components/marketing/sections/email-metrics-card";
-import { AnimatedList } from "@church-space/ui/animated-list";
 import { AnimatedBeamDemo } from "@/components/marketing/sections/sending-animation";
 
 export const allBlockTypes = [
