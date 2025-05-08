@@ -72,11 +72,11 @@ export default function Homepage() {
           </div>
           <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-20 sm:grid-cols-2 sm:gap-12">
             {/* Pay for what you use */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
-              <div className="mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
+            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl border shadow-sm sm:max-w-none">
+              <div className="mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-t-xl border-b bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary">
                 <AnimatedBeamDemo />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 px-4 pb-4">
                 <h3 className="text-lg font-bold">Only pay for what you use</h3>
                 <p className="text-sm text-muted-foreground">
                   Quit paying for unused sends and limited contacts. Pick a plan
@@ -84,57 +84,12 @@ export default function Homepage() {
                 </p>
               </div>
             </div>
-            {/* unlimited contacts */}
-            {/* <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
-              <div className="mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
-         
-              </div>
-              <div className="flex flex-col gap-2">
-                <h3 className="text-lg font-bold">Unlimited Contacts</h3>
-                <p className="text-sm text-muted-foreground">
-                  Don&apos;t stress about hitting a limit. Add and group
-                  unlimited contacts.
-                </p>
-              </div>
-            </div> */}
-            {/* automations */}
-            {/* <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
-              <div className="mx-auto flex h-52 w-full flex-col items-start gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
-                <div className="flex w-[600px] items-center gap-2 rounded-md border border-yellow-500 bg-yellow-50 p-2 text-lg font-medium text-yellow-500">
-                  <span className="animate-pulse">
-                    <HourglassClock height={"26"} width={"26"} />
-                  </span>
-                  Wait 3 hours
-                </div>
-                <div className="flex w-[600px] items-center gap-2 rounded-md border border-primary bg-primary/10 p-2 text-lg font-medium text-primary">
-                  <Email height={"26"} width={"26"} />
-                  Send &quot;Welcome&quot;
-                </div>
-                <div className="flex w-[600px] items-center gap-2 rounded-md border border-yellow-500 bg-yellow-50 p-2 text-lg font-medium text-yellow-500">
-                  <span className="animate-pulse">
-                    <HourglassClock height={"26"} width={"26"} />
-                  </span>
-                  Wait 5 days
-                </div>
-                <div className="flex w-[600px] items-center gap-2 rounded-md border border-primary bg-primary/10 p-2 text-lg font-medium text-primary">
-                  <Email height={"26"} width={"26"} />
-                  Send &quot;See you Sunday!&quot;
-                </div>
-              </div>
 
-              <div className="flex flex-col gap-2">
-                <h3 className="text-lg font-bold">Email Automations</h3>
-                <p className="text-sm text-muted-foreground">
-                  Automatically send emails to people when they are added or
-                  removed from a list.
-                </p>
-              </div>
-            </div> */}
             {/* metrics and analytics */}
-            <div className="relative mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
+            <div className="relative mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl border shadow-sm sm:max-w-none">
               <EmailMetricsCard />
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 px-4 pb-4">
                 <h3 className="text-lg font-bold">Metrics and Analytics</h3>
                 <p className="text-sm text-muted-foreground">
                   Track how your emails are performing and how your audience is
@@ -144,8 +99,8 @@ export default function Homepage() {
             </div>
 
             {/* drag and drop editor */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
-              <div className="relative mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
+            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl border shadow-sm sm:max-w-none">
+              <div className="relative mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-t-xl border-b bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary">
                 <div className="absolute left-4 top-8 z-10 flex w-32 -rotate-12 flex-col items-center gap-1 rounded-md border bg-card p-3 text-foreground shadow-sm hover:bg-accent/80">
                   <Image />
                   <span>Image</span>
@@ -153,9 +108,9 @@ export default function Homepage() {
                 <div className="animate-aurora absolute left-32 top-20 z-20">
                   <CursorDefault height={"30"} width={"30"} />
                 </div>
-                <div className="absolute bottom-0 right-0 z-0 h-40 w-[70%] rounded-br-md rounded-tl-lg border bg-gradient-to-br from-accent to-primary/20"></div>
+                <div className="absolute bottom-0 right-0 z-0 h-40 w-[70%] rounded-tl-lg border bg-gradient-to-br from-accent to-primary/20"></div>
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 px-4 pb-4">
                 <h3 className="text-lg font-bold">Drag and Drop Editor</h3>
                 <p className="text-sm text-muted-foreground">
                   Building beautiful emails is a joy with our fluid drag and
@@ -164,25 +119,30 @@ export default function Homepage() {
               </div>
             </div>
             {/* 9 block types */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-3 rounded-xl sm:max-w-none">
-              <div className="mx-auto grid h-52 w-full grid-cols-3 bg-gradient-to-br from-muted/40 to-muted/60 text-primary shadow-sm">
+            <div className="mx-auto flex h-full w-full flex-col justify-between gap-3 rounded-xl border shadow-sm sm:max-w-none">
+              <div className="mx-auto grid h-52 w-full grid-cols-3 rounded-t-xl border-b bg-gradient-to-br from-muted/40 to-muted/60 text-primary">
                 {allBlockTypes.map((block) => (
                   <div
                     key={block.type}
                     className={cn(
-                      "flex flex-col items-center gap-1 rounded-md border bg-transparent p-3 shadow-sm hover:bg-accent/80",
+                      "flex flex-col items-center gap-1 rounded-md border bg-transparent p-3 hover:bg-accent/80",
                       block.type === "divider" && "rounded-none border-0",
                       block.type === "file-download" &&
-                        "rounded-none border-y-0",
-                      block.type === "video" && "rounded-none border-y-0",
-                      block.type === "image" && "rounded-none border-x-0",
-                      block.type === "list" && "rounded-none border-x-0",
+                        "rounded-none border-y-0 border-l-0",
+                      block.type === "video" &&
+                        "rounded-none border-y-0 border-r-0",
+                      block.type === "image" &&
+                        "rounded-none border-x-0 border-t-0",
+                      block.type === "list" &&
+                        "rounded-none border-x-0 border-b-0",
                       block.type === "author" &&
-                        "rounded-l-none rounded-t-none",
-                      block.type === "cards" && "rounded-r-none rounded-t-none",
-                      block.type === "text" && "rounded-b-none rounded-r-none",
+                        "rounded-none border-b-0 border-r-0",
+                      block.type === "cards" &&
+                        "rounded-none border-b-0 border-l-0",
+                      block.type === "text" &&
+                        "rounded-b-none rounded-r-none border-l-0 border-t-0",
                       block.type === "button" &&
-                        "rounded-b-none rounded-l-none",
+                        "rounded-b-none rounded-l-none border-r-0 border-t-0",
                     )}
                   >
                     <span className="text-primary">
@@ -192,7 +152,7 @@ export default function Homepage() {
                   </div>
                 ))}
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 px-4 pb-4">
                 <h3 className="text-lg font-bold">Nine Block Types</h3>
                 <p className="text-sm text-muted-foreground">
                   Our nine block types help you take your email from idea to

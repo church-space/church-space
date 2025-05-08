@@ -5,9 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 
 export default function HeroSubtitle() {
   const phrases = [
-    "beautiful emails.",
-    "organized links.",
-    "powerful automations.",
+    "beautiful emails",
+    "organized links",
+    "powerful automations",
   ];
 
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
