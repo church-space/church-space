@@ -53,7 +53,7 @@ export default function Homepage() {
       <Hero2 />
       <div className="mx-auto w-full -translate-y-16 pt-0">
         <PcoSection />
-        <div id="emails" className="w-full space-y-8 px-4 py-28 pb-16 sm:pb-32">
+        <div id="emails" className="w-full space-y-8 px-4 py-28 sm:pb-32">
           <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
             <h1 className="max-w-2xl text-balance text-left text-5xl font-bold sm:text-center md:text-6xl">
               Send{" "}

@@ -6,7 +6,10 @@ import { QRCode } from "react-qrcode-logo";
 
 export default function LinksSection() {
   return (
-    <div className="px-4 pb-10 pt-24" id="links">
+    <div
+      className="bg-gradient-to-b from-primary/10 to-primary/5 px-4 pb-10 pt-24"
+      id="links"
+    >
       <div className="mx-auto w-full max-w-6xl gap-4">
         <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
           <h1 className="max-w-64 text-5xl font-semibold md:max-w-full md:text-6xl">
@@ -17,7 +20,7 @@ export default function LinksSection() {
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 dark:to-primary/10 md:p-8 md:py-8">
+          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-accent p-6 dark:to-primary/10 md:p-8 md:py-8">
             <div className="relative">
               <div className="relative h-[200px] w-[200px]">
                 <div className="z-5 absolute left-0 top-0 -rotate-6 transform rounded-md bg-black p-2 opacity-90">
@@ -54,7 +57,7 @@ export default function LinksSection() {
               </p>
             </div>
           </div>
-          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 dark:to-primary/10 md:p-8 md:py-8">
+          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-accent p-6 dark:to-primary/10 md:p-8 md:py-8">
             <div className="relative">
               <div className="relative h-[200px] w-[200px]">
                 <div className="flex items-end gap-4">
@@ -81,7 +84,7 @@ export default function LinksSection() {
               </p>
             </div>
           </div>
-          <div className="col-span-1 flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-primary/5 p-6 md:col-span-2 md:flex-row-reverse md:p-8 md:py-8 lg:col-span-1 lg:flex-col">
+          <div className="col-span-1 flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-accent p-6 md:col-span-2 md:flex-row-reverse md:p-8 md:py-8 lg:col-span-1 lg:flex-col">
             <div className="relative w-full">
               <div className="mx-auto flex h-[300px] w-full max-w-[340px] flex-col gap-2 overflow-hidden rounded-t-xl border bg-background md:mx-0 lg:mx-auto">
                 <div className="flex flex-col border-b bg-gradient-to-br from-primary/80 to-primary p-6 py-3.5">
