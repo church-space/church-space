@@ -201,7 +201,7 @@ export default function Homepage() {
               <div className="flex flex-col gap-2">
                 <h3 className="text-lg font-bold">Metrics and Analytics</h3>
                 <p className="text-sm text-muted-foreground">
-                  Track how your emails are preforming, and how your audience is
+                  Track how your emails are performing, and how your audience is
                   engaging.
                 </p>
               </div>

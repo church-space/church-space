@@ -1,10 +1,7 @@
 "use server";
 
 import { createClient } from "@church-space/supabase/server";
-import {
-  getEmailRecipientsQuery,
-  getEmailRecipientsCount,
-} from "@church-space/supabase/queries/all/get-email-recipients";
+import { getEmailRecipientsQuery } from "@church-space/supabase/queries/all/get-email-recipients";
 import { z } from "zod";
 import { authActionClient } from "./safe-action";
 
@@ -15,6 +12,7 @@ const getEmailRecipientsSchema = z.object({
   page: z.number().default(0),
   emailAddress: z.string().optional(),
   recipientStatus: z.string().optional(),
+  count: z.number().optional(),
 });
 
 export const getEmailRecipientsAction = authActionClient
@@ -41,20 +39,11 @@ export const getEmailRecipientsAction = authActionClient
 
     if (error) throw error;
 
-    // Get total count
-    const { count } = await getEmailRecipientsCount(
-      supabase,
-      parsedInput.emailId,
-      {
-        emailAddress: parsedInput.emailAddress,
-        recipientStatus: parsedInput.recipientStatus as any,
-      },
-    );
-
-    const hasNextPage = count ? from + ITEMS_PER_PAGE < count : false;
+    const hasNextPage = parsedInput.count
+      ? from + ITEMS_PER_PAGE < parsedInput.count
+      : false;
     return {
       data: data ?? [],
       nextPage: hasNextPage ? parsedInput.page + 1 : undefined,
-      count,
     };
   });

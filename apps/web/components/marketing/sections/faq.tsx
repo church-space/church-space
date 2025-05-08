@@ -57,9 +57,20 @@ export default function FAQSection({ className }: FAQSectionProps) {
             Can I import data from my existing email provider?
           </AccordionTrigger>
           <AccordionContent>
-            You can import your unsubscribed contacts and cleaned contacts from
-            a former email application. To import your subscriptions, you need
-            to add them as people in Planning Center if they are not already.
+            Your active contacts are automatically imported from Planning
+            Center. We recommend that you also import your unsubscribed contacts
+            and cleaned contacts from any former email applications. This helps
+            improve deliverability and make sure you only send emails to people
+            who want them. If you have people on a mailing list who aren&apos;t
+            in Planning Center and need help getting them in, feel free to reach
+            out to{" "}
+            <a
+              className="text-primary hover:underline"
+              href="mailto:support@churchspace.com"
+            >
+              support@churchspace.com
+            </a>
+            .
           </AccordionContent>
         </AccordionItem>
       </Accordion>

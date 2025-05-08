@@ -18,32 +18,6 @@ export interface QueryParams {
   recipientStatus?: EmailDeliveryStatus;
 }
 
-export async function getEmailRecipientsCount(
-  supabase: Client,
-  emailId: number,
-  params?: QueryParams
-) {
-  let query = supabase
-    .from("email_recipients")
-    .select("*, people_emails!left(person:people(first_name, last_name))", {
-      count: "exact",
-      head: true,
-    })
-    .eq("email_id", emailId);
-
-  if (params?.emailAddress) {
-    const emailSearch = `%${params.emailAddress}%`;
-    query = query.ilike("email_address", emailSearch);
-  }
-
-  if (params?.recipientStatus) {
-    query = query.eq("status", params.recipientStatus);
-  }
-
-  const { count, error } = await query;
-  return { count, error };
-}
-
 export async function getEmailRecipientsQuery(
   supabase: Client,
   emailId: number,

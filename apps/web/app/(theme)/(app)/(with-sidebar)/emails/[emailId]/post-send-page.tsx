@@ -371,7 +371,11 @@ export default function PostSendPage({
 
   const { data: recipients } = useQuery({
     queryKey: ["emailRecipients", email.id],
-    queryFn: () => getEmailRecipientsAction({ emailId: email.id }),
+    queryFn: () =>
+      getEmailRecipientsAction({
+        emailId: email.id,
+        count: stats?.data?.metrics?.total_sent ?? 0,
+      }),
   });
 
   // Transform the recipients data to match the expected type
@@ -481,12 +485,12 @@ export default function PostSendPage({
                     onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
                   >
                     <TemplatesIcon />
-                    Duplicate as New Email
+                    Replicate as New Email
                   </DropdownMenuItem>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Duplicate Email</DialogTitle>
+                    <DialogTitle>Replicate Email</DialogTitle>
                     <DialogDescription>
                       Enter a subject for the new email. It will be created as a
                       draft with the same content and settings as the original.
@@ -788,10 +792,9 @@ export default function PostSendPage({
           variants={itemVariants}
         >
           <p>
+            Last updated:{" "}
             {stats?.data?.metrics?.updated_at &&
-              `Last updated: ${formatDate(
-                new Date(stats?.data?.metrics?.updated_at),
-              )}`}
+              `${formatDate(new Date(stats?.data?.metrics?.updated_at))}`}
           </p>
         </motion.div>
         <motion.div
@@ -813,7 +816,7 @@ export default function PostSendPage({
           <EmailRecipientsTable
             emailId={email.id}
             initialData={transformedRecipients}
-            initialCount={recipients?.data?.count ?? 0}
+            initialCount={stats?.data?.metrics?.total_sent ?? 0}
             initialSearch={search ?? ""}
             initialStatus={status ?? "all"}
           />

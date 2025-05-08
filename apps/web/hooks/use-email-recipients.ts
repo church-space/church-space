@@ -29,6 +29,7 @@ export function useEmailRecipients(
   emailAddress?: string,
   recipientStatus?: string,
   options?: UseEmailRecipientsOptions,
+  count?: number,
 ) {
   return useInfiniteQuery({
     queryKey: ["email-recipients", emailId, emailAddress, recipientStatus],
@@ -38,6 +39,7 @@ export function useEmailRecipients(
         page: pageParam,
         emailAddress,
         recipientStatus,
+        count,
       });
 
       if (!result) {
@@ -65,7 +67,7 @@ export function useEmailRecipients(
             unsubscribed: emailRecipient.unsubscribed,
             clicked: emailRecipient.clicked,
           })) ?? [],
-        count: result.data.count ?? 0,
+        count: count ?? 0,
         nextPage: result.data.nextPage,
       };
     },

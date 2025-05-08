@@ -940,12 +940,12 @@ export default function PreSendPage({
                     onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
                   >
                     <TemplatesIcon />
-                    Duplicate as New Email
+                    Replicate as New Email
                   </DropdownMenuItem>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Duplicate Email</DialogTitle>
+                    <DialogTitle>Replicate Email</DialogTitle>
                     <DialogDescription>
                       Enter a subject for the new email. It will be created as a
                       draft with the same content and settings as the original.

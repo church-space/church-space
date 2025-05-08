@@ -83,6 +83,7 @@ export default function EmailRecipientsTable({
           }
         : undefined,
     },
+    initialCount,
   );
 
   // Force refetch when search changes
