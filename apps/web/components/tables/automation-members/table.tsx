@@ -1,9 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, EmailAutomationMember } from "./columns";
-import { useQueryState } from "nuqs";
 import { useEmailAutomationMembers } from "@/hooks/use-email-automation-members";
 import NullState from "./null-state";
 
@@ -14,17 +12,8 @@ interface AutomationMembersTableProps {
 export default function AutomationMembersTable({
   automationId,
 }: AutomationMembersTableProps) {
-  const [search, setSearch] = useQueryState("search");
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useEmailAutomationMembers(automationId);
-
-  const handleSearch = useCallback(
-    async (value: string | null) => {
-      await setSearch(value);
-    },
-    [setSearch],
-  );
 
   // Filter the data based on step status
   const filteredMembers =
