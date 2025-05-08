@@ -1,8 +1,28 @@
 "use server";
 
 import { createClient } from "@church-space/supabase/server";
+import { client as RedisClient } from "@church-space/kv";
+import { Ratelimit } from "@upstash/ratelimit";
+import { headers } from "next/headers";
+
+// Create rate limiter with a fixed window of 5 attempts per 60 seconds
+const ratelimit = new Ratelimit({
+  limiter: Ratelimit.fixedWindow(6, "60s"),
+  redis: RedisClient,
+});
+
+// Helper function to apply rate limiting
+async function applyRateLimit(actionName: string) {
+  const ip = (await headers()).get("x-forwarded-for") || "unknown";
+  const { success } = await ratelimit.limit(`${ip}-${actionName}`);
+
+  if (!success) {
+    throw new Error("Too many requests. Please try again later.");
+  }
+}
 
 export async function signInWithOtp(email: string, redirectTo?: string | null) {
+  await applyRateLimit("signInWithOtp");
   const supabase = await createClient();
 
   const redirectUrl = redirectTo
@@ -22,6 +42,7 @@ export async function signInWithOtp(email: string, redirectTo?: string | null) {
 }
 
 export async function verifyOtp(email: string, token: string) {
+  await applyRateLimit("verifyOtp");
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.verifyOtp({
@@ -38,6 +59,7 @@ export async function verifyOtp(email: string, token: string) {
 }
 
 export async function signInWithGoogle(redirectTo?: string | null) {
+  await applyRateLimit("signInWithGoogle");
   const supabase = await createClient();
 
   const redirectUrl = redirectTo
