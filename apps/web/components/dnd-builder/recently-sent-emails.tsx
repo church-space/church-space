@@ -1,30 +1,24 @@
+import { applyEmailTemplateAction } from "@/actions/apply-email-template";
+import { createClient } from "@church-space/supabase/client";
 import { Button } from "@church-space/ui/button";
 import { Card, CardContent } from "@church-space/ui/card";
-import { Input } from "@church-space/ui/input";
-import { Label } from "@church-space/ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@church-space/ui/tooltip";
-import { Loader2, Save } from "lucide-react";
-import { useState, useEffect } from "react";
-import { debounce } from "lodash";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { createClient } from "@church-space/supabase/client";
-import { useInView } from "react-intersection-observer";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@church-space/ui/dialog";
-import { useToast } from "@church-space/ui/use-toast";
-import { applyEmailTemplateAction } from "@/actions/apply-email-template";
+import { Input } from "@church-space/ui/input";
+import { Label } from "@church-space/ui/label";
 import { Switch } from "@church-space/ui/switch";
+import { useToast } from "@church-space/ui/use-toast";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { debounce } from "lodash";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
 
 interface RecentlySentEmailsProps {
   emailId: number;
