@@ -13,6 +13,7 @@ import { Button } from "@church-space/ui/button";
 import { Ellipsis } from "lucide-react";
 import DataTableLoading from "@/components/tables/data-table-loading";
 import { columns } from "@/components/tables/automation-members/columns";
+import { Email, HourglassClock } from "@church-space/ui/icons";
 
 export default function LoadingPage() {
   return (
@@ -53,7 +54,7 @@ export default function LoadingPage() {
       </header>
 
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
-        <div className="flex flex-col space-y-6">
+        <div className="flex flex-col space-y-10">
           {/* Link Information Section */}
           <div className="flex w-full justify-between gap-4 border-b pb-4">
             <div className="flex w-full items-center justify-between gap-4">
@@ -71,6 +72,20 @@ export default function LoadingPage() {
               </div>
 
               <Button>Edit Steps</Button>
+            </div>
+          </div>
+          <div className="flex cursor-pointer flex-col gap-4 rounded-lg border bg-accent p-4 shadow-sm md:p-6 md:pt-4">
+            <div className="text-lg font-bold">Steps</div>
+            <div className="flex gap-4">
+              <div className="rounded-md border bg-muted p-2 text-muted-foreground">
+                <Email height={"24"} width={"24"} />
+              </div>
+              <div className="rounded-md border bg-muted p-2 text-muted-foreground">
+                <HourglassClock height={"24"} width={"24"} />
+              </div>
+              <div className="rounded-md border bg-muted p-2 text-muted-foreground">
+                <Email height={"24"} width={"24"} />
+              </div>
             </div>
           </div>
           <>

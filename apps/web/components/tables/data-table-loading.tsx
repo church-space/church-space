@@ -70,7 +70,7 @@ interface DataTableProps<TData> {
 export default function DataTableLoading<TData>({
   columns,
   filterConfig,
-  searchPlaceholderText = "Search...",
+  searchPlaceholderText,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -101,92 +101,100 @@ export default function DataTableLoading<TData>({
   return (
     <div className="relative space-y-6" style={{ minHeight: "200px" }}>
       {/* Search and Filters */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-        {/* Global Search */}
-        <div className="min-w-72 flex-1">
-          <Label htmlFor="global-search">Search</Label>
-          <div className="relative">
-            <Input
-              id="global-search"
-              className="rounded-lg ps-9"
-              placeholder={searchPlaceholderText}
-              type="text"
-              maxLength={500}
-            />
-            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80">
-              <SearchIcon size={16} />
+      {searchPlaceholderText && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+          {/* Global Search */}
+          <div className="min-w-72 flex-1">
+            <Label htmlFor="global-search">Search</Label>
+            <div className="relative">
+              <Input
+                id="global-search"
+                className="rounded-lg ps-9"
+                placeholder={searchPlaceholderText}
+                type="text"
+                maxLength={500}
+              />
+              <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80">
+                <SearchIcon size={16} />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Filters from filterConfig */}
-        {filterConfig &&
-          Object.entries(filterConfig).map(([key, config]) => {
-            if (config.type === "select" && config.options) {
-              // Find the current filter value
-              const currentFilterValue = columnFilters.find(
-                (filter) => filter.id === key,
-              )?.value as string;
+          {/* Filters from filterConfig */}
+          {filterConfig &&
+            Object.entries(filterConfig).map(([key, config]) => {
+              if (config.type === "select" && config.options) {
+                // Find the current filter value
+                const currentFilterValue = columnFilters.find(
+                  (filter) => filter.id === key,
+                )?.value as string;
 
-              return (
-                <div key={key} className="w-auto min-w-36">
-                  <Label htmlFor={`filter-${key}`}>
-                    {config.label ?? key.charAt(0).toUpperCase() + key.slice(1)}
-                  </Label>
-                  <Select
-                    value={currentFilterValue ?? config.defaultValue ?? "all"}
-                    onValueChange={(value) => {
-                      // Update the column filter
-                      if (value === "all") {
-                        setColumnFilters((prev) =>
-                          prev.filter((filter) => filter.id !== key),
-                        );
-                      } else {
-                        setColumnFilters((prev) => {
-                          const existing = prev.find(
-                            (filter) => filter.id === key,
+                return (
+                  <div key={key} className="w-auto min-w-36">
+                    <Label htmlFor={`filter-${key}`}>
+                      {config.label ??
+                        key.charAt(0).toUpperCase() + key.slice(1)}
+                    </Label>
+                    <Select
+                      value={currentFilterValue ?? config.defaultValue ?? "all"}
+                      onValueChange={(value) => {
+                        // Update the column filter
+                        if (value === "all") {
+                          setColumnFilters((prev) =>
+                            prev.filter((filter) => filter.id !== key),
                           );
-                          if (existing) {
-                            return prev.map((filter) =>
-                              filter.id === key ? { ...filter, value } : filter,
+                        } else {
+                          setColumnFilters((prev) => {
+                            const existing = prev.find(
+                              (filter) => filter.id === key,
                             );
-                          }
-                          return [...prev, { id: key, value }];
-                        });
-                      }
-                    }}
-                  >
-                    <SelectTrigger id={`filter-${key}`} className="rounded-lg">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {config.options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              );
-            }
-            return null;
-          })}
+                            if (existing) {
+                              return prev.map((filter) =>
+                                filter.id === key
+                                  ? { ...filter, value }
+                                  : filter,
+                              );
+                            }
+                            return [...prev, { id: key, value }];
+                          });
+                        }
+                      }}
+                    >
+                      <SelectTrigger
+                        id={`filter-${key}`}
+                        className="rounded-lg"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {config.options.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              }
+              return null;
+            })}
 
-        {/* Column-based filters */}
-        {table
-          .getAllColumns()
-          .filter(
-            (column) =>
-              column.columnDef.meta?.filterVariant === "select" &&
-              !filterConfig?.[column.id],
-          )
-          .map((column) => (
-            <div key={column.id} className="w-auto min-w-36">
-              <Filter column={column} />
-            </div>
-          ))}
-      </div>
+          {/* Column-based filters */}
+          {table
+            .getAllColumns()
+            .filter(
+              (column) =>
+                column.columnDef.meta?.filterVariant === "select" &&
+                !filterConfig?.[column.id],
+            )
+            .map((column) => (
+              <div key={column.id} className="w-auto min-w-36">
+                <Filter column={column} />
+              </div>
+            ))}
+        </div>
+      )}
 
       <div
         className={cn(
