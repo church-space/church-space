@@ -4,9 +4,88 @@ import {
   HourglassClock,
   PcoLogo,
   Waypoints,
+  CircleUser,
 } from "@church-space/ui/icons";
 import { Badge } from "@church-space/ui/badge";
 import { BorderBeam } from "@church-space/ui/border-beam";
+import { AnimatedList } from "@church-space/ui/animated-list";
+import { cn } from "@church-space/ui/cn";
+
+interface Item {
+  name: string;
+  index?: number;
+}
+
+let notifications = [
+  { name: "Emily Johnson" },
+  { name: "Michael Chen" },
+  { name: "Sophia Rodriguez" },
+  { name: "James Williams" },
+  { name: "Olivia Martinez" },
+  { name: "Noah Garcia" },
+  { name: "Ava Thompson" },
+  { name: "Ethan Nguyen" },
+  { name: "Isabella Kim" },
+  { name: "William Davis" },
+  { name: "Mia Patel" },
+  { name: "Benjamin Wilson" },
+  { name: "Charlotte Lee" },
+  { name: "Lucas Brown" },
+  { name: "Amelia Jackson" },
+  { name: "Alexander Wright" },
+  { name: "Harper Anderson" },
+  { name: "Daniel Taylor" },
+  { name: "Abigail Thomas" },
+  { name: "Matthew Robinson" },
+];
+
+notifications = Array.from({ length: 10 }, () => notifications).flat();
+
+// Array of color classes to cycle through
+const colorClasses = [
+  "text-red-500",
+  "text-blue-500",
+  "text-green-500",
+  "text-purple-500",
+  "text-yellow-500",
+  "text-pink-500",
+  "text-indigo-500",
+  "text-teal-500",
+  "text-orange-500",
+  "text-cyan-500",
+];
+
+const Notification = ({ name, index = 0 }: Item) => {
+  // Use index to determine color, cycling through the array
+  const colorClass = colorClasses[index % colorClasses.length];
+
+  return (
+    <figure
+      className={cn(
+        "relative mx-auto min-h-fit w-full max-w-[400px] cursor-pointer overflow-hidden rounded-2xl p-1.5 px-2.5",
+        // animation styles
+        "transition-all duration-200 ease-in-out hover:scale-[103%]",
+        // light styles
+        "bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
+        // dark styles
+        "transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]",
+      )}
+    >
+      <div className="flex flex-row items-center gap-2">
+        <span className={colorClass}>
+          <CircleUser height={"25"} width={"25"} />
+        </span>
+
+        <div className="flex flex-col overflow-hidden">
+          <figcaption className="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white">
+            <span className="text-sm font-semibold">{name}</span>
+          </figcaption>
+          <p className="text-xs font-normal">Added from Planning Center</p>
+        </div>
+      </div>
+    </figure>
+  );
+};
 
 export default function PcoSection() {
   return (
@@ -102,77 +181,12 @@ export default function PcoSection() {
         </div>
         <div className="mt-4 grid w-full grid-cols-1 gap-4 gap-y-16 sm:grid-cols-2 md:gap-y-24 lg:grid-cols-3">
           <div className="col-span-1 flex flex-col items-start gap-0 space-y-4 sm:col-span-2 sm:grid sm:grid-cols-2 sm:items-center sm:gap-4 lg:col-span-1 lg:flex lg:flex-col lg:items-start lg:gap-0">
-            <div className="relative h-64 w-full overflow-hidden rounded-md border bg-zinc-100 text-black shadow-sm">
-              <div className="absolute bottom-0 left-0 h-56 w-[92%] rounded-bl-md rounded-tr-md border-r border-t bg-background shadow-md">
-                <div className="flex flex-col">
-                  <div className="flex w-full items-baseline border-b py-1 pl-3 text-sm font-medium text-muted-foreground">
-                    Name
-                  </div>
-                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="to h-6 w-6 rounded-full bg-indigo-700 bg-gradient-to-br from-blue-500" />
-                      Sarah Johnson
-                    </div>
-                    <Badge variant="success" className="h-4 px-1.5 text-xs">
-                      Subscribed
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="to h-6 w-6 rounded-full bg-emerald-600 bg-gradient-to-br from-green-400" />
-                      Michael Chen
-                    </div>
-                    <Badge variant="success" className="h-4 px-1.5 text-xs">
-                      Subscribed
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="to h-6 w-6 rounded-full bg-orange-600 bg-gradient-to-br from-amber-400" />
-                      Priya Patel
-                    </div>
-                    <Badge variant="success" className="h-4 px-1.5 text-xs">
-                      Subscribed
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="to h-6 w-6 rounded-full bg-rose-600 bg-gradient-to-br from-pink-400" />
-                      James Wilson
-                    </div>
-                    <Badge variant="success" className="h-4 px-1.5 text-xs">
-                      Subscribed
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="to h-6 w-6 rounded-full bg-cyan-600 bg-gradient-to-br from-teal-400" />
-                      Maria Rodriguez
-                    </div>
-                    <Badge variant="success" className="h-4 px-1.5 text-xs">
-                      Subscribed
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="to h-6 w-6 rounded-full bg-purple-600 bg-gradient-to-br from-violet-400" />
-                      David Kim
-                    </div>
-                    <Badge variant="success" className="h-4 px-1.5 text-xs">
-                      Subscribed
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between px-2 py-1 transition-colors duration-300 hover:bg-zinc-200">
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="to h-6 w-6 rounded-full bg-green-700 bg-gradient-to-br from-lime-400" />
-                      Jonathan James
-                    </div>
-                    <Badge variant="success" className="h-4 px-1.5 text-xs">
-                      Subscribed
-                    </Badge>
-                  </div>
-                </div>
-              </div>
+            <div className="relative h-64 w-full overflow-hidden rounded-md border bg-zinc-100 px-3 pt-3 text-black shadow-sm">
+              <AnimatedList>
+                {notifications.map((item, idx) => (
+                  <Notification {...item} index={idx} key={idx} />
+                ))}
+              </AnimatedList>
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="text-xl font-bold sm:text-2xl md:text-3xl lg:text-xl">
@@ -180,7 +194,7 @@ export default function PcoSection() {
               </h3>
               <p className="text-sm font-medium text-white">
                 Your Planning Center people and lists are automatically synced.
-                You can have as many contacts as you need.
+                No need to worry about hitting a contact limit.
               </p>
             </div>
           </div>
@@ -207,7 +221,7 @@ export default function PcoSection() {
                 <BorderBeam duration={8} size={100} />
               </div>
             </div>
-            <h3 className="text-xl font-bold">Emails any list</h3>
+            <h3 className="text-xl font-bold">Send beautiful emails</h3>
             <p className="text-sm font-medium text-white">
               When sending an email, simply choose which Planning Center list
               you want to send to straight from Church Space.
@@ -276,7 +290,7 @@ export default function PcoSection() {
             <h3 className="text-xl font-bold">Automate your lists</h3>
             <p className="text-sm font-medium text-white">
               Send a series of emails after a person is added to or removed from
-              a Planning Center list.
+              a list in Planning Center.
             </p>
           </div>
         </div>

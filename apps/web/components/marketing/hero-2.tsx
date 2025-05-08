@@ -44,7 +44,7 @@ export default function HeroSection() {
           </div>
         </div>
         <div className="px-4">
-          <div className="mx-auto -mt-16 h-[25rem] w-[50rem] max-w-[90rem] translate-y-16 rounded border shadow-xl sm:h-auto sm:w-auto md:rounded-xl">
+          <div className="mx-auto -mt-16 h-[25rem] w-[38rem] max-w-[90rem] translate-y-16 rounded border shadow-xl sm:h-auto sm:w-auto md:rounded-xl">
             <Image
               className="z-1 relative rounded md:rounded-xl"
               src="/hero.png"

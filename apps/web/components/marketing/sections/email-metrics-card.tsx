@@ -57,8 +57,8 @@ export default function EmailMetricsCard() {
 
   return (
     <Card className="mx-auto h-52 w-full items-center gap-2 border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
-      <CardContent className="py-2">
-        <div className="h-[120px] w-full">
+      <CardContent className="w-full pb-0">
+        <div className="h-[125px] w-full">
           <ChartContainer
             config={{
               openRate: {
@@ -70,8 +70,13 @@ export default function EmailMetricsCard() {
                 color: "hsl(var(--secondary))",
               },
             }}
+            className="max-h-[125px] w-full"
           >
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              className="h-full w-full"
+            >
               <LineChart data={data}>
                 <XAxis dataKey="name" hide />
                 <YAxis hide />
@@ -99,7 +104,7 @@ export default function EmailMetricsCard() {
           </ChartContainer>
         </div>
       </CardContent>
-      <CardFooter className="flex items-center justify-between pt-2">
+      <CardFooter className="flex w-full items-center justify-between pt-3">
         <div className="flex gap-6">
           <div>
             <div className="flex items-center gap-1">

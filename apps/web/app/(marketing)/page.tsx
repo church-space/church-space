@@ -50,71 +50,13 @@ export const allBlockTypes = [
   },
 ];
 
-interface Item {
-  name: string;
-}
-
-let notifications = [
-  { name: "Emily Johnson" },
-  { name: "Michael Chen" },
-  { name: "Sophia Rodriguez" },
-  { name: "James Williams" },
-  { name: "Olivia Martinez" },
-  { name: "Noah Garcia" },
-  { name: "Ava Thompson" },
-  { name: "Ethan Nguyen" },
-  { name: "Isabella Kim" },
-  { name: "William Davis" },
-  { name: "Mia Patel" },
-  { name: "Benjamin Wilson" },
-  { name: "Charlotte Lee" },
-  { name: "Lucas Brown" },
-  { name: "Amelia Jackson" },
-  { name: "Alexander Wright" },
-  { name: "Harper Anderson" },
-  { name: "Daniel Taylor" },
-  { name: "Abigail Thomas" },
-  { name: "Matthew Robinson" },
-];
-
-notifications = Array.from({ length: 10 }, () => notifications).flat();
-
-const Notification = ({ name }: Item) => {
-  return (
-    <figure
-      className={cn(
-        "relative mx-auto min-h-fit w-full max-w-[400px] cursor-pointer overflow-hidden rounded-2xl p-1.5 px-2.5",
-        // animation styles
-        "transition-all duration-200 ease-in-out hover:scale-[103%]",
-        // light styles
-        "bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
-        // dark styles
-        "transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]",
-      )}
-    >
-      <div className="flex flex-row items-center gap-2">
-        <CircleUser height={"25"} width={"25"} />
-
-        <div className="flex flex-col overflow-hidden">
-          <figcaption className="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white">
-            <span className="text-sm font-semibold">{name}</span>
-          </figcaption>
-          <p className="text-xs font-normal">Added from Planning Center</p>
-        </div>
-      </div>
-    </figure>
-  );
-};
-
 export default function Homepage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Hero2 />
-      <div className="mx-auto w-full pb-12 pt-0 md:pt-12">
-        <div
-          id="emails"
-          className="w-full space-y-8 px-4 py-10 pb-20 sm:py-20 sm:pb-32"
-        >
+      <div className="mx-auto w-full -translate-y-16 pt-0">
+        <PcoSection />
+        <div id="emails" className="w-full space-y-8 px-4 py-28 pb-16 sm:pb-32">
           <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
             <h1 className="max-w-2xl text-balance text-left text-5xl font-bold sm:text-center md:text-6xl">
               Send{" "}
@@ -131,27 +73,24 @@ export default function Homepage() {
               only pay for the emails you send.
             </p>
           </div>
-          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-20 sm:grid-cols-2 sm:gap-12 lg:grid-cols-3">
+          <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-20 sm:grid-cols-2 sm:gap-12">
             {/* Pay for what you use */}
             <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
               <div className="mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
                 <AnimatedBeamDemo />
               </div>
               <div className="flex flex-col gap-2">
-                <h3 className="text-lg font-bold">Pay for what you use</h3>
+                <h3 className="text-lg font-bold">Only pay for what you use</h3>
                 <p className="text-sm text-muted-foreground">
-                  Quit paying for unused sends. Pick a plan that works for you.
+                  Quit paying for unused sends and limited contacts. Pick a plan
+                  that works for you.
                 </p>
               </div>
             </div>
             {/* unlimited contacts */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
+            {/* <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
               <div className="mx-auto h-52 w-full items-center gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
-                <AnimatedList>
-                  {notifications.map((item, idx) => (
-                    <Notification {...item} key={idx} />
-                  ))}
-                </AnimatedList>
+         
               </div>
               <div className="flex flex-col gap-2">
                 <h3 className="text-lg font-bold">Unlimited Contacts</h3>
@@ -160,9 +99,9 @@ export default function Homepage() {
                   unlimited contacts.
                 </p>
               </div>
-            </div>
+            </div> */}
             {/* automations */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
+            {/* <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
               <div className="mx-auto flex h-52 w-full flex-col items-start gap-2 overflow-hidden rounded-lg border bg-gradient-to-br from-muted/40 to-muted/60 p-2 text-primary shadow-sm">
                 <div className="flex w-[600px] items-center gap-2 rounded-md border border-yellow-500 bg-yellow-50 p-2 text-lg font-medium text-yellow-500">
                   <span className="animate-pulse">
@@ -193,16 +132,16 @@ export default function Homepage() {
                   removed from a list.
                 </p>
               </div>
-            </div>
+            </div> */}
             {/* metrics and analytics */}
-            <div className="mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
+            <div className="relative mx-auto flex h-full w-full flex-col justify-between gap-4 rounded-xl sm:max-w-none">
               <EmailMetricsCard />
 
               <div className="flex flex-col gap-2">
                 <h3 className="text-lg font-bold">Metrics and Analytics</h3>
                 <p className="text-sm text-muted-foreground">
-                  Track how your emails are performing, and how your audience is
-                  engaging.
+                  Track how your emails are performing and how your audience is
+                  engaging with them.
                 </p>
               </div>
             </div>
@@ -266,7 +205,6 @@ export default function Homepage() {
             </div>
           </div>
         </div>
-        <PcoSection />
 
         <LinksSection />
         <FAQSection className="px-4 pb-8 pt-20 md:pb-20 md:pt-36" />

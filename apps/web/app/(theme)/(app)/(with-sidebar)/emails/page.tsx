@@ -12,6 +12,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@church-space/supabase/server";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
 import { setOrgCookie } from "@/actions/set-org-cookie";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Emails",
+};
 
 function EmailsContent({ organizationId }: { organizationId: string }) {
   return (
