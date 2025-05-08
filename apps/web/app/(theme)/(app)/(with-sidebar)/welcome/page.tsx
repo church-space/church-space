@@ -43,11 +43,6 @@ import {
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Separator } from "@church-space/ui/separator";
 import NewLinkList from "@/components/forms/new-link-list";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Welcome",
-};
 
 // Add animation variants
 const containerVariants = {

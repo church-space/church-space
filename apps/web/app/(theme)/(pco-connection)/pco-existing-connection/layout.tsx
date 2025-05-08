@@ -2,6 +2,11 @@ import { redirect } from "next/navigation";
 import React from "react";
 import { createClient } from "@church-space/supabase/server";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "PCO Already Connected",
+};
 
 export default async function Layout({
   children,
