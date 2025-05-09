@@ -81,7 +81,9 @@ export default function PricingPage() {
               </div>
             </div>
             <div className="flex w-full items-center gap-0.5 rounded-lg border px-4 py-3">
-              <p className="text-lg font-semibold">500 email sends per month</p>
+              <p className="text-base font-semibold sm:text-lg">
+                500 email sends per month
+              </p>
               <div className="mb-1 text-sm text-muted-foreground">*</div>
             </div>
             <div className="space-y-3 px-3 pb-3 pt-4 md:pb-9">
@@ -147,7 +149,7 @@ export default function PricingPage() {
                   onClick={() => setIsOpen(!isOpen)}
                 >
                   <div className="flex items-center gap-1">
-                    <p className="text-lg font-medium">
+                    <p className="text-base font-medium sm:text-lg">
                       {formatNumber(selectedTier.volume)} email sends per month
                     </p>
                     <div className="text-sm text-muted-foreground">*</div>

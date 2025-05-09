@@ -11,7 +11,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@church-space/supabase/server";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
-import { setOrgCookie } from "@/actions/set-org-cookie";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -54,17 +53,12 @@ export default async function Page() {
     redirect("/onboarding");
   }
 
-  if (!organizationId && user.organizationMembership.organization_id) {
-    await setOrgCookie(user.organizationMembership.organization_id);
-  }
-
   // If no organization ID in cookies but user has organization membership,
-  // use the organization ID from membership
+  // redirect to set the cookie and then come back
   if (!organizationId && user.organizationMembership.organization_id) {
-    return (
-      <EmailsContent
-        organizationId={user.organizationMembership.organization_id}
-      />
+    // Redirect to a route handler that will set the cookie and redirect back
+    redirect(
+      `/api/set-organization?id=${user.organizationMembership.organization_id}&redirectTo=/emails`,
     );
   }
 
