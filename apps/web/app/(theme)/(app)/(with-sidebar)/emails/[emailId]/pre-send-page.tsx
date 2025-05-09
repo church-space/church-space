@@ -1388,7 +1388,7 @@ export default function PreSendPage({
                       <p className="px-2 text-xs text-muted-foreground">
                         Select the Planning Center list that you would like to
                         send this email to. If they are unsubscribed from the
-                        Cateogry, the person will not recieve the email.
+                        Cateogry, the person will not receive the email.
                       </p>
                     )}
                     <Label className="ml-0.5 mt-3">Category</Label>
@@ -1744,7 +1744,7 @@ export default function PreSendPage({
                         </div>
                       )}
                       <div className="rounded-md border bg-muted p-3 text-sm text-muted-foreground">
-                        The email will not be offically scheduled until you hit
+                        The email will not be officially scheduled until you hit
                         the &quot;Schedule&quot; button in the top right corner
                         of this page.
                       </div>

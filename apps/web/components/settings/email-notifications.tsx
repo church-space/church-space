@@ -36,7 +36,7 @@ export default function EmailNotifications({
   return (
     <SettingsRow onClick={handleToggle}>
       <div className="flex flex-col gap-0.5">
-        <SettingsRowTitle>Recieve Product Updates</SettingsRowTitle>
+        <SettingsRowTitle>Receive Product Updates</SettingsRowTitle>
         <SettingsRowDescription>
           We&apos;ll send you emails about new features and updates to Church
           Space.

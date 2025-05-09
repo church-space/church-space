@@ -1802,7 +1802,7 @@ const CustomFooter: React.FC<{
                               }}
                             >
                               You are receiving this email because of your
-                              involvment with {orgName}.
+                              involvement with {orgName}.
                             </td>
                           </tr>
                         </table>

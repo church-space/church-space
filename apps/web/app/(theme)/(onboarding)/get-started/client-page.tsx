@@ -786,7 +786,7 @@ export default function ClientPage({
         </div>
         <div className="text-center text-base text-muted-foreground">
           We&apos;ll use this address on the bottom of your emails to help with
-          anit-spam laws.
+          anti-spam laws.
         </div>
       </motion.div>
       <motion.div
@@ -910,7 +910,7 @@ export default function ClientPage({
         <div className="text-center text-2xl font-bold">Email Categories</div>
         <div className="text-center text-base text-muted-foreground">
           Set up audience categories for your church&apos;s emails. Categories
-          help people only recieve the types of emails that they need.
+          help people only receive the types of emails that they need.
         </div>
       </motion.div>
       <motion.div
@@ -1132,7 +1132,7 @@ export default function ClientPage({
       >
         <div className="text-center text-2xl font-bold">Complete Billing</div>
         <div className="text-center text-base text-muted-foreground">
-          To contiune with your selected plan from the pricing page, continue to
+          To continue with your selected plan from the pricing page, continue to
           billing. Otherwise, you can continue on the free plan.
         </div>
       </motion.div>
