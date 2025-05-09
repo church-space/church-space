@@ -428,7 +428,7 @@ const CustomButton: React.FC<{
       style={{
         width: "100%",
         textAlign: centered ? "center" : "left",
-        margin: "2px 0",
+        margin: "0px 0",
       }}
       cellPadding="0"
       cellSpacing="0"
@@ -455,7 +455,7 @@ const CustomButton: React.FC<{
                   size === "medium"
                     ? "9px 60px"
                     : size === "large"
-                      ? "12px 80px"
+                      ? "12px 60px"
                       : size === "full"
                         ? "9px 0px"
                         : "9px 15px",
@@ -485,7 +485,7 @@ const CustomButton: React.FC<{
                   size === "medium"
                     ? "9px 60px"
                     : size === "large"
-                      ? "15px 32px"
+                      ? "18px 32px"
                       : size === "full"
                         ? "9px 0px"
                         : "9px 15px",
@@ -774,7 +774,7 @@ const CustomCards: React.FC<{
     {/* Title and Subtitle */}
     {(title || subtitle) && (
       <tr>
-        <td colSpan={2} style={{ paddingBottom: "8px" }}>
+        <td colSpan={2} style={{ paddingBottom: "20px" }}>
           <table width="100%" cellPadding="0" cellSpacing="0" border={0}>
             {title && (
               <tr>
@@ -785,6 +785,7 @@ const CustomCards: React.FC<{
                     fontWeight: "bold",
                     color: textColor,
                     paddingBottom: "8px",
+                    padding: "0",
                   }}
                 >
                   {title}
@@ -799,6 +800,7 @@ const CustomCards: React.FC<{
                     fontSize: "16px",
                     color: textColor,
                     fontWeight: "300",
+                    padding: "0",
                   }}
                 >
                   {subtitle}
@@ -826,7 +828,7 @@ const CustomCards: React.FC<{
             <table
               width="100%"
               cellPadding="0"
-              cellSpacing="16"
+              cellSpacing="0"
               border={0}
               style={{
                 borderCollapse: "separate",
@@ -846,7 +848,7 @@ const CustomCards: React.FC<{
                     <table
                       width="100%"
                       cellPadding="0"
-                      cellSpacing="12"
+                      cellSpacing="0"
                       border={0}
                     >
                       {card.image && (
@@ -863,6 +865,7 @@ const CustomCards: React.FC<{
                                 borderRadius: cornerRadius
                                   ? `${cornerRadius * 0.5}px`
                                   : "0",
+                                marginBottom: "12px",
                               }}
                             />
                           </td>
@@ -1023,7 +1026,7 @@ const CustomCards: React.FC<{
                       className="card-column"
                       width="50%"
                       style={{
-                        padding: "0 8px",
+                        padding: colIndex === 0 ? "0 12px 0 0" : "0 0 0 12px",
                         width: "50%",
                         maxWidth: "100%",
                       }}
@@ -1938,15 +1941,15 @@ export function generateEmailCode(
           padding-bottom: 12px !important;
         }
         .card-column:nth-child(odd) {
-          padding: 0 4px !important;
+          padding: 0 12px 0 0 !important;
         }
         .card-column:nth-child(even) {
-          padding: 0 4px !important;
+          padding: 0 0 0 12px !important;
         }
         .empty-card-cell {
            display: table-cell !important;
            width: 50% !important;
-           padding-left: 8px !important;
+           padding-left: 12px !important;
            padding-right: 0 !important;
         }
       }

@@ -433,7 +433,7 @@ export default function EmailDndProvider({
         color: styles.defaultTextColor,
         textColor: styles.bgColor,
         style: "filled" as "filled" | "outline",
-        size: "fit" as "fit" | "full",
+        size: "large" as "large" | "full",
         centered: true,
       };
     } else if (blockType === "list") {
@@ -904,7 +904,7 @@ export default function EmailDndProvider({
                   color: "#000000",
                   textColor: "#ffffff",
                   style: "filled",
-                  size: "fit",
+                  size: "large" as "large" | "full",
                   centered: true,
                 };
                 break;
