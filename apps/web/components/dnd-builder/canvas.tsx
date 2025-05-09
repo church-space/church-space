@@ -220,7 +220,10 @@ export default function DndBuilderCanvas({
           </div>
         ) : (
           <>
-            <div style={{ gap: blockSpacing }} className="flex w-full flex-col">
+            <div
+              style={{ gap: blockSpacing - 10 }}
+              className="flex w-full flex-col"
+            >
               {blocks.map((block, index) => (
                 <React.Fragment key={block.id}>
                   {isDragging && isFromSidebar && insertionIndex === index && (
