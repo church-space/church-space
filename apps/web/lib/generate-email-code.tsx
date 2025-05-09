@@ -455,7 +455,7 @@ const CustomButton: React.FC<{
                   size === "medium"
                     ? "9px 60px"
                     : size === "large"
-                      ? "12px 60px"
+                      ? "18px 32px"
                       : size === "full"
                         ? "9px 0px"
                         : "9px 15px",
@@ -836,6 +836,7 @@ const CustomCards: React.FC<{
                 margin: "0",
                 width: "100%",
                 tableLayout: "fixed",
+                marginBottom: "24px",
               }}
             >
               <tr>
@@ -1900,7 +1901,7 @@ export function generateEmailCode(
         display: block !important;
         width: 100% !important;
         padding: 0 !important;
-        padding-bottom: 12px !important;
+        padding-bottom: 24px !important;
         box-sizing: border-box !important;
         vertical-align: top !important;
       }
