@@ -573,6 +573,28 @@ export default function ClientPage({
     setBillingSetupLoading(true);
 
     try {
+      // Set client-side state first
+      setOrgFinishedOnboarding(true);
+
+      // Mark organization as completed onboarding in the database
+      const onboardingResult = await updateOrganizationOnboardingStatusAction({
+        organizationId,
+        onboardingStatus: true,
+      });
+
+      // Cast the result to ActionResponse type for type safety
+      const typedResult = onboardingResult as ActionResponse;
+
+      if (typedResult.error) {
+        toast({
+          title: "Error updating onboarding status",
+          description:
+            typedResult.error || "Failed to update onboarding status",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Get the price ID for the selected plan
       const environment = process.env.NEXT_PUBLIC_STRIPE_ENV as
         | "testing"

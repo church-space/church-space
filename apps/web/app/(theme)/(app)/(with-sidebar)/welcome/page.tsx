@@ -136,16 +136,6 @@ const steps = [
     openDialog: "qrcode",
     ownerOnly: false,
   },
-  {
-    title: "Upgrade your plan",
-    description:
-      "Upgrade your plan to the right number of email sends for your church",
-    href: "/settings/billing",
-    buttonText: "Upgrade",
-    icon: CreditCard,
-    completed: false,
-    ownerOnly: false,
-  },
 ];
 
 export default function WelcomePage() {
