@@ -273,7 +273,7 @@ const CustomText: React.FC<{
     // Handle empty paragraphs for line breaks
     .replace(
       /<p style="[^"]*"><\/p>/g,
-      '<p style="display: block; padding-bottom: 0.8em" />',
+      '<p style="display: block; padding-bottom: 0.1em" />',
     )
     // Replace color styles in spans with data-color-type="accent"
     .replace(
