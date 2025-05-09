@@ -347,7 +347,7 @@ export const sendBulkEmails = task({
                 "X-Entity-Email-ID": `${emailId}`,
                 "X-Entity-People-Email-ID": `${peopleEmailId}`,
                 "X-Entity-Ref-ID": uuidv4(),
-                "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>, mailto:${unsubscribeEmail}`,
+                "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>, <mailto:${unsubscribeEmail}>`,
                 "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
                 "List-ID": `${payload.organizationName} - ${payload.listName}`,
                 "X-Report-Abuse": `<mailto:report@churchspace.co>`,

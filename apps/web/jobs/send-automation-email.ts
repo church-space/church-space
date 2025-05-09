@@ -318,7 +318,7 @@ export const sendAutomationEmail = task({
                 "X-Entity-Automation-ID": `${automationId}`,
                 "X-Entity-People-Email-ID": `${people_email_id}`,
                 "X-Entity-Ref-ID": uuidv4(),
-                "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>, mailto:${unsubscribeEmail}`,
+                "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>, <mailto:${unsubscribeEmail}>`,
                 "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
                 "X-Mailer": `Church Space Mailer - **Customer ${organizationId}**`,
                 "X-Report-Abuse": `<mailto:report@churchspace.co>`,
