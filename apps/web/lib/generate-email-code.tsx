@@ -980,37 +980,66 @@ const CustomCards: React.FC<{
                                 ) : (
                                   <td
                                     style={{
+                                      width: "100%",
                                       textAlign: "center",
-                                      backgroundColor:
-                                        buttonStyle === "filled"
-                                          ? buttonColor
-                                          : "transparent",
-                                      border: `2px solid ${buttonColor}`,
-                                      borderRadius: cornerRadius
-                                        ? `${cornerRadius * 0.3}px`
-                                        : "0",
-                                      color:
-                                        buttonStyle === "filled"
-                                          ? buttonTextColor
-                                          : buttonColor,
-                                      display: "inline-block",
-                                      fontFamily:
-                                        ensureFontFallbacks(defaultFont),
-                                      fontSize: "14px",
-                                      fontWeight: "600",
-                                      lineHeight: "1",
-                                      padding:
-                                        buttonSize === "large"
-                                          ? "15px 32px"
-                                          : "9px 15px",
-                                      textDecoration: "none",
-                                      width:
-                                        buttonSize === "full" ? "100%" : "auto",
-                                      maxWidth: "100%",
-                                      boxSizing: "border-box",
+                                      padding: "0",
                                     }}
                                   >
-                                    {card.buttonText}
+                                    <table
+                                      cellPadding="0"
+                                      cellSpacing="0"
+                                      border={0}
+                                      width={
+                                        buttonSize === "full" ? "100%" : "auto"
+                                      }
+                                      align={
+                                        buttonSize === "full"
+                                          ? "center"
+                                          : "left"
+                                      }
+                                    >
+                                      <tr>
+                                        <td
+                                          style={{
+                                            backgroundColor:
+                                              buttonStyle === "filled"
+                                                ? buttonColor
+                                                : "transparent",
+                                            border: `2px solid ${buttonColor}`,
+                                            borderRadius: cornerRadius
+                                              ? `${cornerRadius * 0.3}px`
+                                              : "0",
+                                          }}
+                                        >
+                                          <a
+                                            href={formattedButtonLink}
+                                            target="_blank"
+                                            style={{
+                                              color:
+                                                buttonStyle === "filled"
+                                                  ? buttonTextColor
+                                                  : buttonColor,
+                                              display: "block",
+                                              fontFamily:
+                                                ensureFontFallbacks(
+                                                  defaultFont,
+                                                ),
+                                              fontSize: "14px",
+                                              fontWeight: "normal",
+                                              lineHeight: "1",
+                                              padding:
+                                                buttonSize === "large"
+                                                  ? "15px 32px"
+                                                  : "9px 15px",
+                                              textDecoration: "none",
+                                              textAlign: "center",
+                                            }}
+                                          >
+                                            {card.buttonText}
+                                          </a>
+                                        </td>
+                                      </tr>
+                                    </table>
                                   </td>
                                 )}
                               </tr>
