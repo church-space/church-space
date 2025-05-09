@@ -4,6 +4,12 @@ import { task, wait } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 import { sendAutomationEmail } from "./send-automation-email";
 
+/** helper: split any array into N‑sized slices */
+const chunk = <T>(arr: T[], n: number) =>
+  Array.from({ length: Math.ceil(arr.length / n) }, (_, i) =>
+    arr.slice(i * n, i * n + n),
+  );
+
 // Interface for the payload
 interface AutomationPayload {
   automationId: number;
@@ -287,16 +293,18 @@ export const automationJob = task({
           }
 
           // Update all member records after wait
-          await supabase
-            .from("email_automation_members")
-            .update({
-              last_completed_step_id: step.id,
-              updated_at: new Date().toISOString(),
-            })
-            .in(
-              "id",
-              recipients.map((r) => r.memberRecordId),
-            );
+          for (const memberBatch of chunk(
+            recipients.map((r) => r.memberRecordId),
+            50,
+          )) {
+            await supabase
+              .from("email_automation_members")
+              .update({
+                last_completed_step_id: step.id,
+                updated_at: new Date().toISOString(),
+              })
+              .in("id", memberBatch);
+          }
         } else if (step.type === "send_email") {
           const emailTemplateId = step.email_template;
           if (!emailTemplateId) {
@@ -393,32 +401,34 @@ export const automationJob = task({
             }
 
             // Update member records for this batch
-            await supabase
-              .from("email_automation_members")
-              .update({
-                last_completed_step_id: step.id,
-                updated_at: new Date().toISOString(),
-              })
-              .in(
-                "id",
-                filteredRecipients.map((r) => r.memberRecordId),
-              );
+            for (const memberBatch of chunk(
+              filteredRecipients.map((r) => r.memberRecordId),
+              50,
+            )) {
+              await supabase
+                .from("email_automation_members")
+                .update({
+                  last_completed_step_id: step.id,
+                  updated_at: new Date().toISOString(),
+                })
+                .in("id", memberBatch);
+            }
           }
         }
       }
 
       // Mark all remaining automation members as completed
-      await supabase
-        .from("email_automation_members")
-        .update({
-          status: "completed",
-          updated_at: new Date().toISOString(),
-        })
-        .in(
-          "id",
-          recipients.map((r) => r.memberRecordId),
-        )
-        .eq("status", "in-progress");
+      const recipientIds = recipients.map((r) => r.memberRecordId);
+      for (const memberBatch of chunk(recipientIds, 50)) {
+        await supabase
+          .from("email_automation_members")
+          .update({
+            status: "completed",
+            updated_at: new Date().toISOString(),
+          })
+          .in("id", memberBatch)
+          .eq("status", "in-progress");
+      }
 
       return {
         status: "completed",

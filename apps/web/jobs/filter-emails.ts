@@ -4,6 +4,12 @@ import { task } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 import { sendBulkEmails } from "./send-bulk-emails-queue";
 
+/** helper: split any array into N‑sized slices */
+const chunk = <T>(arr: T[], n: number) =>
+  Array.from({ length: Math.ceil(arr.length / n) }, (_, i) =>
+    arr.slice(i * n, i * n + n),
+  );
+
 // Interface for the payload
 interface FilterEmailRecipientsPayload {
   emailId: number;
@@ -270,37 +276,46 @@ export const filterEmailRecipients = task({
       const personIds = listMembers.map((member) => member.pco_person_id);
 
       // Step 5: Get all emails for these people
-      const { data: peopleEmails, error: peopleEmailsError } = await supabase
-        .from("people_emails")
-        .select(
-          `
-          id,
-          email,
-          pco_person_id,
-          people!people_emails_pco_person_id_fkey(
-            first_name,
-            last_name
-          )
-        `,
-        )
-        .in("pco_person_id", personIds)
-        .eq("organization_id", emailData.organization_id);
+      let allPeopleEmails: any[] = [];
 
-      if (peopleEmailsError) {
-        await supabase
-          .from("emails")
-          .update({
-            status: "failed",
-            updated_at: new Date().toISOString(),
-            error_message: `Failed to fetch people emails: ${peopleEmailsError.message}`,
-          })
-          .eq("id", emailId);
-        throw new Error(
-          `Failed to fetch people emails: ${peopleEmailsError.message}`,
-        );
+      // Process in batches of 50 IDs at a time
+      for (const personIdBatch of chunk(personIds, 50)) {
+        const { data: peopleEmails, error: peopleEmailsError } = await supabase
+          .from("people_emails")
+          .select(
+            `
+            id,
+            email,
+            pco_person_id,
+            people!people_emails_pco_person_id_fkey(
+              first_name,
+              last_name
+            )
+          `,
+          )
+          .in("pco_person_id", personIdBatch)
+          .eq("organization_id", emailData.organization_id);
+
+        if (peopleEmailsError) {
+          await supabase
+            .from("emails")
+            .update({
+              status: "failed",
+              updated_at: new Date().toISOString(),
+              error_message: `Failed to fetch people emails: ${peopleEmailsError.message}`,
+            })
+            .eq("id", emailId);
+          throw new Error(
+            `Failed to fetch people emails: ${peopleEmailsError.message}`,
+          );
+        }
+
+        if (peopleEmails && peopleEmails.length > 0) {
+          allPeopleEmails = [...allPeopleEmails, ...peopleEmails];
+        }
       }
 
-      if (!peopleEmails || peopleEmails.length === 0) {
+      if (!allPeopleEmails || allPeopleEmails.length === 0) {
         // Update email status to failed
         await supabase
           .from("emails")
@@ -316,38 +331,48 @@ export const filterEmailRecipients = task({
 
       // Extract unique email addresses to check statuses
       const emailAddressesToCheck = Array.from(
-        new Set(peopleEmails.map((pe) => pe.email)),
+        new Set(allPeopleEmails.map((pe) => pe.email)),
       );
 
       // Step 5.1: Get subscribed statuses for these email addresses
-      const { data: emailStatuses, error: emailStatusesError } = await supabase
-        .from("people_email_statuses")
-        .select("email_address")
-        .eq("organization_id", emailData.organization_id)
-        .in("email_address", emailAddressesToCheck)
-        .eq("status", "subscribed");
+      let allEmailStatuses: any[] = [];
 
-      if (emailStatusesError) {
-        await supabase
-          .from("emails")
-          .update({
-            status: "failed",
-            updated_at: new Date().toISOString(),
-            error_message: `Failed to fetch email statuses: ${emailStatusesError.message}`,
-          })
-          .eq("id", emailId);
-        throw new Error(
-          `Failed to fetch email statuses: ${emailStatusesError.message}`,
-        );
+      // Process in batches of 50 email addresses at a time
+      for (const emailBatch of chunk(emailAddressesToCheck, 50)) {
+        const { data: emailStatuses, error: emailStatusesError } =
+          await supabase
+            .from("people_email_statuses")
+            .select("email_address")
+            .eq("organization_id", emailData.organization_id)
+            .in("email_address", emailBatch)
+            .eq("status", "subscribed");
+
+        if (emailStatusesError) {
+          await supabase
+            .from("emails")
+            .update({
+              status: "failed",
+              updated_at: new Date().toISOString(),
+              error_message: `Failed to fetch email statuses: ${emailStatusesError.message}`,
+            })
+            .eq("id", emailId);
+          throw new Error(
+            `Failed to fetch email statuses: ${emailStatusesError.message}`,
+          );
+        }
+
+        if (emailStatuses && emailStatuses.length > 0) {
+          allEmailStatuses = [...allEmailStatuses, ...emailStatuses];
+        }
       }
 
       // Create a set of subscribed email addresses for efficient lookup
       const subscribedEmailAddresses = new Set(
-        emailStatuses?.map((status) => status.email_address) || [],
+        allEmailStatuses?.map((status) => status.email_address) || [],
       );
 
       // Filter peopleEmails based on subscribed status
-      const subscribedPeopleEmails = peopleEmails.filter((pe) =>
+      const subscribedPeopleEmails = allPeopleEmails.filter((pe) =>
         subscribedEmailAddresses.has(pe.email),
       );
 

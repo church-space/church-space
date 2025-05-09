@@ -3,6 +3,12 @@ import "server-only";
 import { runs, task } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 
+/** helper: split any array into N‑sized slices */
+const chunk = <T>(arr: T[], n: number) =>
+  Array.from({ length: Math.ceil(arr.length / n) }, (_, i) =>
+    arr.slice(i * n, i * n + n),
+  );
+
 interface CancelAutomationRunsPayload {
   automationId: number;
   reason: string;
@@ -60,24 +66,27 @@ export const cancelAutomationRunsTask = task({
 
     // Update the status and reason for these members
     if (memberIdsToUpdate.length > 0) {
-      const { error: updateError } = await supabase
-        .from("email_automation_members")
-        .update({
-          status: "canceled",
-          reason: payload.reason,
-        })
-        .in("id", memberIdsToUpdate);
+      // Process in batches of 50 IDs at a time
+      for (const idBatch of chunk(memberIdsToUpdate, 50)) {
+        const { error: updateError } = await supabase
+          .from("email_automation_members")
+          .update({
+            status: "canceled",
+            reason: payload.reason,
+          })
+          .in("id", idBatch);
 
-      if (updateError) {
-        // Log the error but don't throw, as the primary goal (cancelling runs) might have succeeded
-        console.error(
-          `Failed to update status for members: ${memberIdsToUpdate.join(", ")}`,
-          updateError,
-        );
-      } else {
-        console.log(
-          `Successfully updated status to 'canceled' for members: ${memberIdsToUpdate.join(", ")}`,
-        );
+        if (updateError) {
+          // Log the error but don't throw, as the primary goal (cancelling runs) might have succeeded
+          console.error(
+            `Failed to update status for members: ${idBatch.join(", ")}`,
+            updateError,
+          );
+        } else {
+          console.log(
+            `Successfully updated status to 'canceled' for members: ${idBatch.join(", ")}`,
+          );
+        }
       }
     }
   },

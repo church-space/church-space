@@ -50,13 +50,16 @@ export const processPendingAutomationRuns = schedules.task({
 
     // 3. mark them processing so we don't double‑queue
     for (const g of groups.values()) {
-      await supabase
-        .from("pending_automation_runs")
-        .update({
-          status: "done",
-          updated_at: new Date().toISOString(),
-        })
-        .in("id", g.ids);
+      // Process in batches of 50 IDs at a time
+      for (const idBatch of chunk(g.ids, 50)) {
+        await supabase
+          .from("pending_automation_runs")
+          .update({
+            status: "done",
+            updated_at: new Date().toISOString(),
+          })
+          .in("id", idBatch);
+      }
     }
 
     // 4. batch‑trigger in slices of ≤ 500 groups
