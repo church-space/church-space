@@ -750,6 +750,24 @@ export default function DomainManagement({
                     </Tooltip>
                   </TooltipProvider>
                 )}
+                {!domain.is_verified && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant="outline"
+                          className="border-yellow-500 bg-yellow-100 text-yellow-800"
+                        >
+                          <ShieldCheck className="mr-1 h-3 w-3 text-yellow-800" />
+                          Not Verified
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Domain is not verified</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
             </CustomAccordionTrigger>
             <AccordionContent>
@@ -774,7 +792,7 @@ export default function DomainManagement({
                 </div>
               ) : (
                 !domain.is_verified && (
-                  <div className="mb-4 w-full rounded-md border border-yellow-300 bg-yellow-100 p-4 text-sm">
+                  <div className="mb-4 w-full rounded-md border border-yellow-300 bg-yellow-100 p-4 text-sm dark:text-black">
                     <p>
                       <b>Note:</b> It may take a few minutes or hours for the
                       domain to be fully verified.

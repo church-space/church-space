@@ -88,6 +88,74 @@ export default function ImportPage() {
     }
   };
 
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+        setCurrentFile(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target?.result as string;
+          const lines = text.split("\n");
+          if (lines.length > 0) {
+            // Get headers from first line, clean them, and ensure uniqueness
+            const headers = lines[0]
+              .split(",")
+              .map((header) => header.trim().replace(/['"]+/g, ""))
+              .filter(
+                (header, index, self) =>
+                  header && self.indexOf(header) === index,
+              ); // Remove empty headers and duplicates
+            setCsvHeaders(headers);
+
+            // Try to find and set email column based on priority
+            const emailHeaders = [
+              "email address",
+              "Email Address",
+              "email",
+              "Email",
+            ];
+            for (const emailHeader of emailHeaders) {
+              const foundHeader = headers.find(
+                (header) => header.toLowerCase() === emailHeader.toLowerCase(),
+              );
+              if (foundHeader) {
+                setSelectedEmailColumn(foundHeader);
+                break;
+              }
+            }
+          }
+        };
+        reader.readAsText(file);
+      } else {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload a CSV file only.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     if (
       !currentFile ||
@@ -191,6 +259,10 @@ export default function ImportPage() {
                 <div
                   className="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center hover:border-primary"
                   onClick={() => fileInputRef.current?.click()}
+                  onDragOver={handleDragOver}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
                 >
                   <input
                     ref={fileInputRef}
