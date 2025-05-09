@@ -17,7 +17,6 @@ import {
   Qrcode,
   NewEmail as NewEmailIcon,
   Users,
-  CreditCard,
   LinkIcon,
   Palette,
 } from "@church-space/ui/icons";
