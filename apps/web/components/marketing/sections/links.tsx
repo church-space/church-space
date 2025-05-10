@@ -6,16 +6,13 @@ import { QRCode } from "react-qrcode-logo";
 
 export default function LinksSection() {
   return (
-    <div
-      className="bg-gradient-to-b from-primary/10 to-primary/5 px-4 pb-10 pt-24"
-      id="links"
-    >
+    <div className="bg-primary px-4 pb-24 pt-24" id="links">
       <div className="mx-auto w-full max-w-6xl gap-4">
         <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
-          <h1 className="max-w-64 text-5xl font-semibold md:max-w-full md:text-6xl">
+          <h1 className="max-w-64 text-5xl font-semibold text-white md:max-w-full md:text-6xl">
             Streamline your links
           </h1>
-          <p className="max-w-sm text-pretty text-left text-xl text-muted-foreground md:max-w-xl md:text-center md:text-2xl">
+          <p className="max-w-sm text-pretty text-left text-xl text-white md:max-w-xl md:text-center md:text-2xl">
             Keep track of all your links in one place.
           </p>
         </div>

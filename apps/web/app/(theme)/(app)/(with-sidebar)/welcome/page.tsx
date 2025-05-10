@@ -197,17 +197,18 @@ export default function WelcomePage() {
       );
       setDismissedStepIds(updatedDismissedSteps);
 
-      // Re-sort the steps to move dismissed ones to the end
-      setSortedSteps((prev) => {
-        return [...prev].sort((a, b) => {
-          const aIsDismissed = updatedDismissedSteps.includes(a.id);
-          const bIsDismissed = updatedDismissedSteps.includes(b.id);
+      // Force a complete re-sorting to ensure consistent spacing
+      const newSorted = [...sortedSteps].sort((a, b) => {
+        const aIsDismissed = updatedDismissedSteps.includes(a.id);
+        const bIsDismissed = updatedDismissedSteps.includes(b.id);
 
-          if (aIsDismissed && !bIsDismissed) return 1;
-          if (!aIsDismissed && bIsDismissed) return -1;
-          return 0;
-        });
+        if (aIsDismissed && !bIsDismissed) return 1;
+        if (!aIsDismissed && bIsDismissed) return -1;
+        return 0;
       });
+
+      // Create a new array to force re-render
+      setSortedSteps(newSorted);
     }
   };
 
@@ -230,17 +231,18 @@ export default function WelcomePage() {
     );
     setDismissedStepIds(updatedDismissedSteps);
 
-    // Re-sort the steps to move undismissed ones back to their positions
-    setSortedSteps((prev) => {
-      return [...prev].sort((a, b) => {
-        const aIsDismissed = updatedDismissedSteps.includes(a.id);
-        const bIsDismissed = updatedDismissedSteps.includes(b.id);
+    // Force a complete re-sorting to ensure consistent spacing
+    const newSorted = [...sortedSteps].sort((a, b) => {
+      const aIsDismissed = updatedDismissedSteps.includes(a.id);
+      const bIsDismissed = updatedDismissedSteps.includes(b.id);
 
-        if (aIsDismissed && !bIsDismissed) return 1;
-        if (!aIsDismissed && bIsDismissed) return -1;
-        return 0;
-      });
+      if (aIsDismissed && !bIsDismissed) return 1;
+      if (!aIsDismissed && bIsDismissed) return -1;
+      return 0;
     });
+
+    // Create a new array to force re-render
+    setSortedSteps(newSorted);
   };
 
   return (
@@ -270,125 +272,125 @@ export default function WelcomePage() {
         <motion.p className="text-lg" variants={itemVariants}>
           Let&apos;s get started by setting a few things up.
         </motion.p>
-        <motion.div
-          className="mt-4 flex flex-col gap-4"
-          variants={containerVariants}
-        >
-          <AnimatePresence>
-            {sortedSteps.map((step) => {
-              const isDismissed = dismissedStepIds.includes(step.id);
 
-              return (
-                <motion.div
-                  key={step.id}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate={isDismissed ? "dismissed" : "visible"}
-                  layout
-                  transition={{
-                    layout: {
-                      duration: 0.8,
-                      type: "spring",
-                      stiffness: 90,
-                      damping: 15,
-                    },
-                  }}
-                  className="mb-4"
+        <div className="mt-4 grid grid-cols-1 gap-4">
+          {sortedSteps.map((step) => {
+            const isDismissed = dismissedStepIds.includes(step.id);
+
+            return (
+              <motion.div
+                key={step.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{
+                  opacity: isDismissed ? 0.9 : 1,
+                  y: 0,
+                  transition: { duration: isDismissed ? 0.8 : 0.25 },
+                }}
+                layout="position"
+                layoutId={`step-${step.id}`}
+                transition={{
+                  layout: {
+                    duration: 0.8,
+                    type: "spring",
+                    stiffness: 90,
+                    damping: 15,
+                  },
+                }}
+                className="w-full"
+              >
+                <Card
+                  className={cn(
+                    "group relative flex flex-col justify-between gap-2 transition-all duration-700 hover:bg-secondary/30 sm:flex-row sm:items-center sm:gap-2",
+                    isDismissed && "opacity-90",
+                  )}
                 >
-                  <Card
-                    className={cn(
-                      "group relative flex flex-col justify-between gap-2 transition-all duration-700 hover:bg-secondary/30 sm:flex-row sm:items-center sm:gap-2",
-                      isDismissed && "opacity-90",
-                    )}
-                  >
-                    <CardHeader className="flex-row items-start gap-2.5 pb-2 pt-5 sm:pb-5">
-                      <div
+                  <CardHeader className="flex-row items-start gap-2.5 pb-2 pt-5 sm:pb-5">
+                    <div
+                      className={cn(
+                        "mt-1 aspect-square flex-shrink-0 rounded-md border border-primary bg-secondary p-1 text-primary",
+                        isDismissed &&
+                          "border-muted-foreground bg-muted text-muted-foreground",
+                      )}
+                    >
+                      <step.icon height={"24"} width={"24"} />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <CardTitle
+                        className={cn(isDismissed && "text-muted-foreground")}
+                      >
+                        {step.title}
+                      </CardTitle>
+                      <CardDescription>{step.description}</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="w-full sm:w-fit sm:p-0 sm:pr-4">
+                    {step.openDialog ? (
+                      <Button
+                        variant={isDismissed ? "outline" : "default"}
                         className={cn(
-                          "mt-1 aspect-square flex-shrink-0 rounded-md border border-primary bg-secondary p-1 text-primary",
-                          isDismissed &&
-                            "border-muted-foreground bg-muted text-muted-foreground",
+                          "w-full sm:w-fit",
+                          isDismissed && "text-muted-foreground",
+                        )}
+                        onClick={() => {
+                          if (step.openDialog === "email") {
+                            setNewEmailDialogOpen(true);
+                          } else if (step.openDialog === "linkpage") {
+                            setNewLinkPageDialogOpen(true);
+                          } else if (step.openDialog === "qrcode") {
+                            setNewQrCodeDialogOpen(true);
+                          }
+                        }}
+                      >
+                        {step.buttonText}
+                      </Button>
+                    ) : isDismissed ? (
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full sm:w-fit",
+                          isDismissed && "text-muted-foreground",
                         )}
                       >
-                        <step.icon height={"24"} width={"24"} />
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <CardTitle
-                          className={cn(isDismissed && "text-muted-foreground")}
-                        >
-                          {step.title}
-                        </CardTitle>
-                        <CardDescription>{step.description}</CardDescription>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="w-full sm:w-fit sm:p-0 sm:pr-4">
-                      {step.openDialog ? (
-                        <Button
-                          variant={isDismissed ? "outline" : "default"}
-                          className={cn(
-                            "w-full sm:w-fit",
-                            isDismissed && "text-muted-foreground",
-                          )}
-                          onClick={() => {
-                            if (step.openDialog === "email") {
-                              setNewEmailDialogOpen(true);
-                            } else if (step.openDialog === "linkpage") {
-                              setNewLinkPageDialogOpen(true);
-                            } else if (step.openDialog === "qrcode") {
-                              setNewQrCodeDialogOpen(true);
-                            }
-                          }}
-                        >
-                          {step.buttonText}
-                        </Button>
-                      ) : isDismissed ? (
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full sm:w-fit",
-                            isDismissed && "text-muted-foreground",
-                          )}
-                        >
-                          {step.buttonText}
-                        </Button>
-                      ) : (
-                        <Link href={step.href}>
-                          <Button
-                            className={cn(
-                              "w-full sm:w-fit",
-                              isDismissed && "text-muted-foreground",
-                            )}
-                            disabled={isDismissed}
-                            variant={isDismissed ? "outline" : "default"}
-                          >
-                            {step.buttonText}
-                          </Button>
-                        </Link>
-                      )}
-                    </CardContent>
-                    {!isDismissed ? (
-                      <div
-                        className="absolute -top-3 left-2 flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs opacity-0 transition-all duration-200 hover:text-destructive group-hover:opacity-100"
-                        onClick={() => dismissStep(step.id)}
-                      >
-                        <XIcon /> Dismiss
-                      </div>
+                        {step.buttonText}
+                      </Button>
                     ) : (
-                      <div
-                        className="absolute -top-3 left-2 flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs opacity-0 transition-all duration-200 hover:text-primary group-hover:opacity-100"
-                        onClick={() => undismissStep(step.id)}
-                      >
-                        <span className="mr-1 inline-block rotate-45">
-                          <XIcon />
-                        </span>
-                        Restore
-                      </div>
+                      <Link href={step.href}>
+                        <Button
+                          className={cn(
+                            "w-full sm:w-fit",
+                            isDismissed && "text-muted-foreground",
+                          )}
+                          disabled={isDismissed}
+                          variant={isDismissed ? "outline" : "default"}
+                        >
+                          {step.buttonText}
+                        </Button>
+                      </Link>
                     )}
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
+                  </CardContent>
+                  {!isDismissed ? (
+                    <div
+                      className="absolute -top-3 left-2 flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs opacity-0 transition-all duration-200 hover:text-destructive group-hover:opacity-100"
+                      onClick={() => dismissStep(step.id)}
+                    >
+                      <XIcon /> Dismiss
+                    </div>
+                  ) : (
+                    <div
+                      className="absolute -top-3 left-2 flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs opacity-0 transition-all duration-200 hover:text-primary group-hover:opacity-100"
+                      onClick={() => undismissStep(step.id)}
+                    >
+                      <span className="mr-1 inline-block rotate-45">
+                        <XIcon />
+                      </span>
+                      Restore
+                    </div>
+                  )}
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
       </motion.div>
       <Dialog open={newEmailDialogOpen} onOpenChange={setNewEmailDialogOpen}>
         <DialogContent className="max-w-[95%] rounded-lg p-4 sm:max-w-lg sm:p-6">

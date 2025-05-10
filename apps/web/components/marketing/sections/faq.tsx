@@ -21,18 +21,20 @@ export default function FAQSection({ className }: FAQSectionProps) {
         className="mx-auto w-full max-w-4xl space-y-2"
       >
         <AccordionItem value="item-1">
-          <AccordionTrigger>Can I use Church Space for free?</AccordionTrigger>
-          <AccordionContent>
+          <AccordionTrigger className="text-base">
+            Can I use Church Space for free?
+          </AccordionTrigger>
+          <AccordionContent className="text-base">
             Yes. You can send up to 500 emails per month on our free plan. All
             plans, including our free plan, get unlimited QR codes, link pages,
             automations, and people.
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
-          <AccordionTrigger>
+          <AccordionTrigger className="text-base">
             What makes Church Space different than Mailchimp?
           </AccordionTrigger>
-          <AccordionContent>
+          <AccordionContent className="text-base">
             Church Space is more closely integrated with Planning Center than
             Mailchimp and is priced in a way that typically leads to churches
             paying 50% less than they are currently paying for Mailchimp.
@@ -42,21 +44,10 @@ export default function FAQSection({ className }: FAQSectionProps) {
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-3">
-          <AccordionTrigger>
-            Can we use Church Space if we don&apos;t use Planning Center?
-          </AccordionTrigger>
-          <AccordionContent>
-            No. At the time, we require a Planning Center connection to use
-            Church Space. This is how you manage your people, email addresses,
-            and lists. We are looking to support other platforms in the future
-            but do not currently have a timeline for it.
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-4">
-          <AccordionTrigger>
+          <AccordionTrigger className="text-base">
             Can I import data from my existing email provider?
           </AccordionTrigger>
-          <AccordionContent>
+          <AccordionContent className="text-base">
             We sync all of your contacts with an email address from Planning
             Center for you when you sign up. If you have subscribed contacts
             that are not in Planning Center, you can upload a CSV of all of your
@@ -72,6 +63,17 @@ export default function FAQSection({ className }: FAQSectionProps) {
               support@churchspace.com
             </a>
             .
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-4">
+          <AccordionTrigger className="text-base">
+            Can we use Church Space if we don&apos;t use Planning Center?
+          </AccordionTrigger>
+          <AccordionContent className="text-base">
+            No. At the time, we require a Planning Center connection to use
+            Church Space. This is how you manage your people, email addresses,
+            and lists. We are looking to support other platforms in the future
+            but do not currently have a timeline for it.
           </AccordionContent>
         </AccordionItem>
       </Accordion>
