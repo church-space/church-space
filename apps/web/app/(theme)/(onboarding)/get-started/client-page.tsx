@@ -851,18 +851,18 @@ export default function ClientPage({
   }, []);
 
   // Back button function to go to the previous step
-  const handleBackButton = () => {
-    // Update to handle the new step
-    if (currentStep === 1) {
-      setCurrentStep(0);
-    } else if (currentStep === 2) {
-      setCurrentStep(1);
-    } else if (currentStep === 3) {
-      setCurrentStep(2);
-    } else if (currentStep === 4) {
-      setCurrentStep(3);
-    }
-  };
+  // const handleBackButton = () => {
+  //   // Update to handle the new step
+  //   if (currentStep === 1) {
+  //     setCurrentStep(0);
+  //   } else if (currentStep === 2) {
+  //     setCurrentStep(1);
+  //   } else if (currentStep === 3) {
+  //     setCurrentStep(2);
+  //   } else if (currentStep === 4) {
+  //     setCurrentStep(3);
+  //   }
+  // };
 
   const renderAddressForm = () => (
     <motion.div
@@ -1490,7 +1490,7 @@ export default function ClientPage({
 
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {currentStep > 0 && (
           <motion.button
             initial={{ opacity: 0, x: -10 }}
@@ -1517,7 +1517,7 @@ export default function ClientPage({
             Back
           </motion.button>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
       <AnimatePresence mode="wait">
         {currentStep === 0 && renderAddressForm()}
         {currentStep === 1 && renderDomainForm()}
