@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@church-space/ui/button";
 import {
   Card,
@@ -19,6 +19,7 @@ import {
   Users,
   LinkIcon,
   Palette,
+  XIcon,
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
@@ -32,7 +33,7 @@ import {
 import NewEmail from "@/components/forms/new-email";
 import NewQRCode from "@/components/forms/new-qr-code";
 import { useUser } from "@/stores/use-user";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -63,10 +64,15 @@ const itemVariants = {
     y: 0,
     transition: { duration: 0.25 },
   },
+  dismissed: {
+    opacity: 0.9,
+    transition: { duration: 0.8 },
+  },
 };
 
 const steps = [
   {
+    id: "verify-domain",
     title: "Verify your domain",
     description: "Verify your domain to start sending emails to your people.",
     href: "/settings/domains",
@@ -76,6 +82,7 @@ const steps = [
     ownerOnly: true,
   },
   {
+    id: "import-contacts",
     title: "Import additional contacts",
     description:
       "Import your contacts from your previous email provider to make sure they're on the list. We also recommend importing your unsubscribes to prevent emails from being sent to people who have unsubscribed in the past.",
@@ -86,6 +93,7 @@ const steps = [
     ownerOnly: true,
   },
   {
+    id: "brand-colors",
     title: "Add your brand colors",
     description: "Add your brand colors to your church space.",
     href: "/settings/brand-colors",
@@ -95,6 +103,7 @@ const steps = [
     ownerOnly: false,
   },
   {
+    id: "email-footer",
     title: "Create your default email footer",
     description:
       "Design the footer that will be used as a deafult for new emails.",
@@ -105,6 +114,7 @@ const steps = [
     ownerOnly: true,
   },
   {
+    id: "first-email",
     title: "Create your first email",
     description: "Design your first email.",
     href: "/emails?newEmailOpen=true",
@@ -141,8 +151,98 @@ export default function WelcomePage() {
   const [newEmailDialogOpen, setNewEmailDialogOpen] = useState(false);
   const [newQrCodeDialogOpen, setNewQrCodeDialogOpen] = useState(false);
   const [newLinkPageDialogOpen, setNewLinkPageDialogOpen] = useState(false);
-
+  const [sortedSteps, setSortedSteps] = useState(steps);
+  const [dismissedStepIds, setDismissedStepIds] = useState<string[]>([]);
   const { organizationId, role } = useUser();
+
+  // Load dismissed steps from local storage on component mount
+  useEffect(() => {
+    const storedDismissedSteps = JSON.parse(
+      localStorage.getItem("dismissedSteps") || "[]",
+    );
+    setDismissedStepIds(storedDismissedSteps);
+
+    // Filter steps based on role and sort dismissed items to end
+    const availableSteps = steps.filter(
+      (step) => !step.ownerOnly || role === "owner",
+    );
+
+    const sorted = [...availableSteps].sort((a, b) => {
+      const aIsDismissed = storedDismissedSteps.includes(a.id);
+      const bIsDismissed = storedDismissedSteps.includes(b.id);
+
+      if (aIsDismissed && !bIsDismissed) return 1;
+      if (!aIsDismissed && bIsDismissed) return -1;
+      return 0;
+    });
+
+    setSortedSteps(sorted);
+  }, [role]);
+
+  // Function to dismiss a step
+  const dismissStep = (stepId: string) => {
+    // Get current dismissed steps from local storage
+    const storedDismissedSteps = JSON.parse(
+      localStorage.getItem("dismissedSteps") || "[]",
+    );
+
+    // Add the new step ID to the dismissed steps array if not already included
+    if (!storedDismissedSteps.includes(stepId)) {
+      const updatedDismissedSteps = [...storedDismissedSteps, stepId];
+
+      // Save back to local storage
+      localStorage.setItem(
+        "dismissedSteps",
+        JSON.stringify(updatedDismissedSteps),
+      );
+      setDismissedStepIds(updatedDismissedSteps);
+
+      // Re-sort the steps to move dismissed ones to the end
+      setSortedSteps((prev) => {
+        return [...prev].sort((a, b) => {
+          const aIsDismissed = updatedDismissedSteps.includes(a.id);
+          const bIsDismissed = updatedDismissedSteps.includes(b.id);
+
+          if (aIsDismissed && !bIsDismissed) return 1;
+          if (!aIsDismissed && bIsDismissed) return -1;
+          return 0;
+        });
+      });
+    }
+  };
+
+  // Function to undismiss a step
+  const undismissStep = (stepId: string) => {
+    // Get current dismissed steps from local storage
+    const storedDismissedSteps = JSON.parse(
+      localStorage.getItem("dismissedSteps") || "[]",
+    );
+
+    // Remove the step ID from the dismissed steps array
+    const updatedDismissedSteps = storedDismissedSteps.filter(
+      (id: string) => id !== stepId,
+    );
+
+    // Save back to local storage
+    localStorage.setItem(
+      "dismissedSteps",
+      JSON.stringify(updatedDismissedSteps),
+    );
+    setDismissedStepIds(updatedDismissedSteps);
+
+    // Re-sort the steps to move undismissed ones back to their positions
+    setSortedSteps((prev) => {
+      return [...prev].sort((a, b) => {
+        const aIsDismissed = updatedDismissedSteps.includes(a.id);
+        const bIsDismissed = updatedDismissedSteps.includes(b.id);
+
+        if (aIsDismissed && !bIsDismissed) return 1;
+        if (!aIsDismissed && bIsDismissed) return -1;
+        return 0;
+      });
+    });
+  };
+
   return (
     <div className="relative min-h-[calc(100vh-1rem)] bg-gradient-to-b from-background to-secondary/20">
       <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
@@ -174,60 +274,120 @@ export default function WelcomePage() {
           className="mt-4 flex flex-col gap-4"
           variants={containerVariants}
         >
-          {steps
-            .filter((step) => !step.ownerOnly || role === "owner")
-            .map((step, index) => (
-              <motion.div key={index} variants={itemVariants}>
-                <Card
-                  className={cn(
-                    "flex flex-col justify-between gap-2 transition-all duration-300 hover:bg-secondary/30 sm:flex-row sm:items-center sm:gap-2",
-                    step.completed && "opacity-40",
-                  )}
+          <AnimatePresence>
+            {sortedSteps.map((step) => {
+              const isDismissed = dismissedStepIds.includes(step.id);
+
+              return (
+                <motion.div
+                  key={step.id}
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate={isDismissed ? "dismissed" : "visible"}
+                  layout
+                  transition={{
+                    layout: {
+                      duration: 0.8,
+                      type: "spring",
+                      stiffness: 90,
+                      damping: 15,
+                    },
+                  }}
+                  className="mb-4"
                 >
-                  <CardHeader className="flex-row items-start gap-2.5 pb-2 pt-5 sm:pb-5">
-                    <div className="mt-1 aspect-square flex-shrink-0 rounded-md border border-primary bg-secondary p-1 text-primary">
-                      <step.icon height={"24"} width={"24"} />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <CardTitle>{step.title}</CardTitle>
-                      <CardDescription>{step.description}</CardDescription>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="w-full sm:w-fit sm:p-0 sm:pr-4">
-                    {step.openDialog ? (
-                      <Button
-                        variant={step.completed ? "secondary" : "default"}
-                        className="w-full sm:w-fit"
-                        onClick={() => {
-                          if (step.openDialog === "email") {
-                            setNewEmailDialogOpen(true);
-                          } else if (step.openDialog === "linkpage") {
-                            setNewLinkPageDialogOpen(true);
-                          } else if (step.openDialog === "qrcode") {
-                            setNewQrCodeDialogOpen(true);
-                          }
-                        }}
+                  <Card
+                    className={cn(
+                      "group relative flex flex-col justify-between gap-2 transition-all duration-700 hover:bg-secondary/30 sm:flex-row sm:items-center sm:gap-2",
+                      isDismissed && "opacity-90",
+                    )}
+                  >
+                    <CardHeader className="flex-row items-start gap-2.5 pb-2 pt-5 sm:pb-5">
+                      <div
+                        className={cn(
+                          "mt-1 aspect-square flex-shrink-0 rounded-md border border-primary bg-secondary p-1 text-primary",
+                          isDismissed &&
+                            "border-muted-foreground bg-muted text-muted-foreground",
+                        )}
                       >
-                        {step.buttonText}
-                      </Button>
-                    ) : step.completed ? (
-                      <Button variant="secondary" className="w-full sm:w-fit">
-                        {step.buttonText}
-                      </Button>
-                    ) : (
-                      <Link href={step.href}>
+                        <step.icon height={"24"} width={"24"} />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <CardTitle
+                          className={cn(isDismissed && "text-muted-foreground")}
+                        >
+                          {step.title}
+                        </CardTitle>
+                        <CardDescription>{step.description}</CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="w-full sm:w-fit sm:p-0 sm:pr-4">
+                      {step.openDialog ? (
                         <Button
-                          className="w-full sm:w-fit"
-                          disabled={step.completed}
+                          variant={isDismissed ? "outline" : "default"}
+                          className={cn(
+                            "w-full sm:w-fit",
+                            isDismissed && "text-muted-foreground",
+                          )}
+                          onClick={() => {
+                            if (step.openDialog === "email") {
+                              setNewEmailDialogOpen(true);
+                            } else if (step.openDialog === "linkpage") {
+                              setNewLinkPageDialogOpen(true);
+                            } else if (step.openDialog === "qrcode") {
+                              setNewQrCodeDialogOpen(true);
+                            }
+                          }}
                         >
                           {step.buttonText}
                         </Button>
-                      </Link>
+                      ) : isDismissed ? (
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full sm:w-fit",
+                            isDismissed && "text-muted-foreground",
+                          )}
+                        >
+                          {step.buttonText}
+                        </Button>
+                      ) : (
+                        <Link href={step.href}>
+                          <Button
+                            className={cn(
+                              "w-full sm:w-fit",
+                              isDismissed && "text-muted-foreground",
+                            )}
+                            disabled={isDismissed}
+                            variant={isDismissed ? "outline" : "default"}
+                          >
+                            {step.buttonText}
+                          </Button>
+                        </Link>
+                      )}
+                    </CardContent>
+                    {!isDismissed ? (
+                      <div
+                        className="absolute -top-3 left-2 flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs opacity-0 transition-all duration-200 hover:text-destructive group-hover:opacity-100"
+                        onClick={() => dismissStep(step.id)}
+                      >
+                        <XIcon /> Dismiss
+                      </div>
+                    ) : (
+                      <div
+                        className="absolute -top-3 left-2 flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs opacity-0 transition-all duration-200 hover:text-primary group-hover:opacity-100"
+                        onClick={() => undismissStep(step.id)}
+                      >
+                        <span className="mr-1 inline-block rotate-45">
+                          <XIcon />
+                        </span>
+                        Restore
+                      </div>
                     )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
       <Dialog open={newEmailDialogOpen} onOpenChange={setNewEmailDialogOpen}>
