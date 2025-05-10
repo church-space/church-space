@@ -69,6 +69,11 @@ export default async function ProtectedLayout({
       const returnPath =
         currentPath || headersList.get("x-invoke-path") || "/emails";
 
+      // Don't redirect to pco-refresh if we're already there
+      if (returnPath === "/pco-refresh") {
+        return redirect("/emails");
+      }
+
       return redirect(
         `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`,
       );

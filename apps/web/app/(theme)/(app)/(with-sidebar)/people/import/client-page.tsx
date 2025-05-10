@@ -372,8 +372,6 @@ export default function ImportPage() {
   };
 
   const renderDropzone = (type: ImportType) => {
-    const section = importSections[type];
-
     return (
       <div
         className="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center hover:border-primary"
