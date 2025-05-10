@@ -728,46 +728,6 @@ export default function ClientPage({
     }
   };
 
-  const handleBillingComplete = async () => {
-    setSkipBillingLoading(true);
-
-    try {
-      // If there is a selected plan, update onboarding status here
-      // Set client-side state first
-      setOrgFinishedOnboarding(true);
-
-      const result = await updateOrganizationOnboardingStatusAction({
-        organizationId,
-        onboardingStatus: true,
-      });
-
-      // Cast the result to ActionResponse type for type safety
-      const typedResult = result as ActionResponse;
-
-      if (typedResult.error) {
-        toast({
-          title: "Error updating onboarding status",
-          description:
-            typedResult.error || "Failed to update onboarding status",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Navigate directly to welcome page
-      router.push("/welcome");
-    } catch (error) {
-      toast({
-        title: "Error completing setup",
-        description:
-          error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setSkipBillingLoading(false);
-    }
-  };
-
   const removeCategory = (_id: string) => {
     setEmailCategories((categories) =>
       categories.filter((category) => category.id !== _id),
@@ -1417,7 +1377,7 @@ export default function ClientPage({
       >
         <div className="text-center text-2xl font-bold">Add Your Domain</div>
         <div className="text-center text-base text-muted-foreground">
-          Add a domain for your church's emails
+          Add a domain for your church&apos;s emails
         </div>
       </motion.div>
 
@@ -1479,7 +1439,7 @@ export default function ClientPage({
                 className="w-full"
                 onClick={() => setCurrentStep(2)}
               >
-                I'll do this later
+                I&apos;ll do this later
               </Button>
             )}
           </div>

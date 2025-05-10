@@ -13,7 +13,6 @@ import {
   Email,
   FooterIcon,
   Globe,
-  LinkFilled,
   Qrcode,
   NewEmail as NewEmailIcon,
   Users,
@@ -33,7 +32,7 @@ import {
 import NewEmail from "@/components/forms/new-email";
 import NewQRCode from "@/components/forms/new-qr-code";
 import { useUser } from "@/stores/use-user";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Breadcrumb,
   BreadcrumbItem,
