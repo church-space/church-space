@@ -67,18 +67,18 @@ const itemVariants = {
 
 const steps = [
   {
-    title: "Add your domains",
-    description: "Add the domains that you want to send emails from.",
+    title: "Verify your domain",
+    description: "Verify your domain to start sending emails to your people.",
     href: "/settings/domains",
-    buttonText: "Add",
+    buttonText: "Verify",
     icon: Globe,
     completed: false,
     ownerOnly: true,
   },
   {
-    title: "Import your unsubscribes",
+    title: "Import additional contacts",
     description:
-      "Import your unsubscribes from your previous email provider to prevent emails from being sent to people who have unsubscribed in the past.",
+      "Import your contacts from your previous email provider to make sure they're on the list. We also recommend importing your unsubscribes to prevent emails from being sent to people who have unsubscribed in the past.",
     href: "/people/import",
     buttonText: "Import",
     icon: Users,
@@ -114,27 +114,27 @@ const steps = [
     openDialog: "email",
     ownerOnly: false,
   },
-  {
-    title: "Create a link page",
-    description:
-      "Create a link page to share important links with your people.",
-    href: "/link-pages?newLinkListOpen=true",
-    buttonText: "Create",
-    icon: LinkFilled,
-    completed: false,
-    openDialog: "linkpage",
-    ownerOnly: false,
-  },
-  {
-    title: "Create a QR Code",
-    description: "Create a QR code to share your link page.",
-    href: "/qr-codes?newQrCodeOpen=true",
-    buttonText: "Create",
-    icon: Qrcode,
-    completed: false,
-    openDialog: "qrcode",
-    ownerOnly: false,
-  },
+  // {
+  //   title: "Create a link page",
+  //   description:
+  //     "Create a link page to share important links with your people.",
+  //   href: "/link-pages?newLinkListOpen=true",
+  //   buttonText: "Create",
+  //   icon: LinkFilled,
+  //   completed: false,
+  //   openDialog: "linkpage",
+  //   ownerOnly: false,
+  // },
+  // {
+  //   title: "Create a QR Code",
+  //   description: "Create a QR code to share your link page.",
+  //   href: "/qr-codes?newQrCodeOpen=true",
+  //   buttonText: "Create",
+  //   icon: Qrcode,
+  //   completed: false,
+  //   openDialog: "qrcode",
+  //   ownerOnly: false,
+  // },
 ];
 
 export default function WelcomePage() {
@@ -144,7 +144,7 @@ export default function WelcomePage() {
 
   const { organizationId, role } = useUser();
   return (
-    <div className="relative">
+    <div className="relative min-h-[calc(100vh-1rem)] bg-gradient-to-b from-background to-secondary/20">
       <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
@@ -159,7 +159,7 @@ export default function WelcomePage() {
         </div>
       </header>
       <motion.div
-        className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-2 px-4 py-8 md:py-16"
+        className="mx-auto mb-16 flex w-full max-w-2xl flex-col gap-2 px-4 py-8 md:py-16"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -180,7 +180,7 @@ export default function WelcomePage() {
               <motion.div key={index} variants={itemVariants}>
                 <Card
                   className={cn(
-                    "flex flex-col justify-between gap-2 sm:flex-row sm:items-center sm:gap-2",
+                    "flex flex-col justify-between gap-2 transition-all duration-300 hover:bg-secondary/30 sm:flex-row sm:items-center sm:gap-2",
                     step.completed && "opacity-40",
                   )}
                 >

@@ -25,28 +25,62 @@ import { useCsvUpload } from "./use-csv-upload";
 import { useToast } from "@church-space/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@church-space/ui/card";
+
+type ImportType = "subscribed" | "unsubscribed" | "cleaned";
+
+interface ImportSection {
+  file: File | null;
+  headers: string[];
+  emailColumn: string;
+  firstNameColumn: string;
+  lastNameColumn: string;
+}
 
 export default function ImportPage() {
-  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
-  const [selectedEmailColumn, setSelectedEmailColumn] = useState<string>("");
-  const [selectedAction, setSelectedAction] = useState<string>("unsubscribed");
-  const [selectedFirstNameColumn, setSelectedFirstNameColumn] =
-    useState<string>("");
-  const [selectedLastNameColumn, setSelectedLastNameColumn] =
-    useState<string>("");
-  const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-
   const { organizationId } = useUser();
   const { uploadCsv } = useCsvUpload();
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const [importSections, setImportSections] = useState<
+    Record<ImportType, ImportSection>
+  >({
+    subscribed: {
+      file: null,
+      headers: [],
+      emailColumn: "",
+      firstNameColumn: "",
+      lastNameColumn: "",
+    },
+    unsubscribed: {
+      file: null,
+      headers: [],
+      emailColumn: "",
+      firstNameColumn: "",
+      lastNameColumn: "",
+    },
+    cleaned: {
+      file: null,
+      headers: [],
+      emailColumn: "",
+      firstNameColumn: "",
+      lastNameColumn: "",
+    },
+  });
 
-    setCurrentFile(file);
+  const fileInputRefs = {
+    subscribed: useRef<HTMLInputElement>(null),
+    unsubscribed: useRef<HTMLInputElement>(null),
+    cleaned: useRef<HTMLInputElement>(null),
+  };
+
+  const processFile = (file: File, type: ImportType) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
@@ -59,7 +93,10 @@ export default function ImportPage() {
           .filter(
             (header, index, self) => header && self.indexOf(header) === index,
           ); // Remove empty headers and duplicates
-        setCsvHeaders(headers);
+
+        let emailColumn = "";
+        let firstNameColumn = "";
+        let lastNameColumn = "";
 
         // Try to find and set email column based on priority
         const emailHeaders = [
@@ -73,7 +110,7 @@ export default function ImportPage() {
             (header) => header.toLowerCase() === emailHeader.toLowerCase(),
           );
           if (foundHeader) {
-            setSelectedEmailColumn(foundHeader);
+            emailColumn = foundHeader;
             break;
           }
         }
@@ -94,7 +131,7 @@ export default function ImportPage() {
             (header) => header.toLowerCase() === firstNameHeader.toLowerCase(),
           );
           if (foundHeader) {
-            setSelectedFirstNameColumn(foundHeader);
+            firstNameColumn = foundHeader;
             break;
           }
         }
@@ -117,24 +154,58 @@ export default function ImportPage() {
             (header) => header.toLowerCase() === lastNameHeader.toLowerCase(),
           );
           if (foundHeader) {
-            setSelectedLastNameColumn(foundHeader);
+            lastNameColumn = foundHeader;
             break;
           }
         }
+
+        setImportSections((prev) => ({
+          ...prev,
+          [type]: {
+            file,
+            headers,
+            emailColumn,
+            firstNameColumn,
+            lastNameColumn,
+          },
+        }));
       }
     };
     reader.readAsText(file);
   };
 
-  const handleRemoveFile = () => {
-    setCurrentFile(null);
-    setCsvHeaders([]);
-    setSelectedEmailColumn("");
-    setSelectedAction("");
-    setSelectedFirstNameColumn("");
-    setSelectedLastNameColumn("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const handleFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: ImportType,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+      processFile(file, type);
+    } else {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload a CSV file only.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveFile = (type: ImportType) => {
+    setImportSections((prev) => ({
+      ...prev,
+      [type]: {
+        file: null,
+        headers: [],
+        emailColumn: "",
+        firstNameColumn: "",
+        lastNameColumn: "",
+      },
+    }));
+
+    if (fileInputRefs[type].current) {
+      fileInputRefs[type].current.value = "";
     }
   };
 
@@ -153,7 +224,7 @@ export default function ImportPage() {
     e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, type: ImportType) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -161,87 +232,7 @@ export default function ImportPage() {
     if (files.length > 0) {
       const file = files[0];
       if (file.type === "text/csv" || file.name.endsWith(".csv")) {
-        setCurrentFile(file);
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const text = e.target?.result as string;
-          const lines = text.split("\n");
-          if (lines.length > 0) {
-            // Get headers from first line, clean them, and ensure uniqueness
-            const headers = lines[0]
-              .split(",")
-              .map((header) => header.trim().replace(/['"]+/g, ""))
-              .filter(
-                (header, index, self) =>
-                  header && self.indexOf(header) === index,
-              ); // Remove empty headers and duplicates
-            setCsvHeaders(headers);
-
-            // Try to find and set email column based on priority
-            const emailHeaders = [
-              "email address",
-              "Email Address",
-              "email",
-              "Email",
-            ];
-            for (const emailHeader of emailHeaders) {
-              const foundHeader = headers.find(
-                (header) => header.toLowerCase() === emailHeader.toLowerCase(),
-              );
-              if (foundHeader) {
-                setSelectedEmailColumn(foundHeader);
-                break;
-              }
-            }
-
-            // Try to find and set first name column based on priority
-            const firstNameHeaders = [
-              "first name",
-              "First Name",
-              "firstname",
-              "FirstName",
-              "given name",
-              "Given Name",
-              "givenname",
-              "GivenName",
-            ];
-            for (const firstNameHeader of firstNameHeaders) {
-              const foundHeader = headers.find(
-                (header) =>
-                  header.toLowerCase() === firstNameHeader.toLowerCase(),
-              );
-              if (foundHeader) {
-                setSelectedFirstNameColumn(foundHeader);
-                break;
-              }
-            }
-
-            // Try to find and set last name column based on priority
-            const lastNameHeaders = [
-              "last name",
-              "Last Name",
-              "lastname",
-              "LastName",
-              "surname",
-              "Surname",
-              "family name",
-              "Family Name",
-              "familyname",
-              "FamilyName",
-            ];
-            for (const lastNameHeader of lastNameHeaders) {
-              const foundHeader = headers.find(
-                (header) =>
-                  header.toLowerCase() === lastNameHeader.toLowerCase(),
-              );
-              if (foundHeader) {
-                setSelectedLastNameColumn(foundHeader);
-                break;
-              }
-            }
-          }
-        };
-        reader.readAsText(file);
+        processFile(file, type);
       } else {
         toast({
           title: "Invalid File Type",
@@ -253,30 +244,15 @@ export default function ImportPage() {
   };
 
   const handleSubmit = async () => {
-    if (
-      !currentFile ||
-      !organizationId ||
-      !selectedEmailColumn ||
-      !selectedAction
-    ) {
-      console.error("Missing required information for import.");
-      toast({
-        title: "Missing Information",
-        description:
-          "Please ensure a file is uploaded and selections are made.",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Check if at least one section has a file
+    const hasAtLeastOneFile = Object.values(importSections).some(
+      (section) => section.file !== null,
+    );
 
-    if (
-      selectedAction === "subscribed" &&
-      (!selectedFirstNameColumn || !selectedLastNameColumn)
-    ) {
+    if (!hasAtLeastOneFile || !organizationId) {
       toast({
         title: "Missing Information",
-        description:
-          "Please select both first name and last name columns for subscriber import.",
+        description: "Please upload at least one CSV file.",
         variant: "destructive",
       });
       return;
@@ -284,51 +260,104 @@ export default function ImportPage() {
 
     setIsLoading(true);
     try {
-      // 1. Upload CSV and get signed URL
-      const signedUrl = await uploadCsv(currentFile, organizationId);
+      // Process each import section that has a file
+      const importPromises: Promise<void>[] = [];
 
-      // 2. Call the appropriate API endpoint based on the action
-      const endpoint =
-        selectedAction === "subscribed"
-          ? "/api/organization/import-subscribes"
-          : "/api/organization/import-unsubscribes";
+      // Type-safe way to iterate through import types
+      const importTypes: ImportType[] = [
+        "subscribed",
+        "unsubscribed",
+        "cleaned",
+      ];
 
-      const payload =
-        selectedAction === "subscribed"
-          ? {
-              organizationId,
-              fileUrl: signedUrl,
-              emailColumn: selectedEmailColumn,
-              firstNameColumn: selectedFirstNameColumn,
-              lastNameColumn: selectedLastNameColumn,
-            }
-          : {
-              organizationId,
-              fileUrl: signedUrl,
-              emailColumn: selectedEmailColumn,
-              status: selectedAction,
-            };
+      for (const type of importTypes) {
+        const section = importSections[type];
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+        // Skip if no file uploaded for this section
+        if (!section.file) continue;
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `API request failed: ${response.status} ${response.statusText} - ${errorData?.error || "Unknown error"}`,
-        );
+        // Validate required fields
+        if (!section.emailColumn) {
+          toast({
+            title: `Missing Information for ${type}`,
+            description: "Please select an email column.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Additional validation for subscribed imports
+        if (
+          type === "subscribed" &&
+          (!section.firstNameColumn || !section.lastNameColumn)
+        ) {
+          toast({
+            title: "Missing Information for Subscribers",
+            description:
+              "Please select both first name and last name columns for subscriber import.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Create a promise for this import
+        const importPromise = async () => {
+          // 1. Upload CSV and get signed URL
+          const signedUrl = await uploadCsv(section.file!, organizationId);
+
+          // 2. Call the appropriate API endpoint based on the action
+          const endpoint =
+            type === "subscribed"
+              ? "/api/organization/import-subscribes"
+              : "/api/organization/import-unsubscribes";
+
+          const payload =
+            type === "subscribed"
+              ? {
+                  organizationId,
+                  fileUrl: signedUrl,
+                  emailColumn: section.emailColumn,
+                  firstNameColumn: section.firstNameColumn,
+                  lastNameColumn: section.lastNameColumn,
+                }
+              : {
+                  organizationId,
+                  fileUrl: signedUrl,
+                  emailColumn: section.emailColumn,
+                  status: type,
+                };
+
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(
+              `${type} import failed: ${response.status} ${response.statusText} - ${errorData?.error || "Unknown error"}`,
+            );
+          }
+
+          // Reset this section on success
+          handleRemoveFile(type);
+        };
+
+        importPromises.push(importPromise());
       }
+
+      // Wait for all imports to complete
+      await Promise.all(importPromises);
 
       toast({
         title: "Import Started",
-        description: `Your ${selectedAction === "subscribed" ? "subscriber" : "unsubscribe"} import job has started successfully.`,
+        description: "Your import jobs have started successfully.",
       });
-      handleRemoveFile(); // Reset form on success
     } catch (error: any) {
       console.error("Error during import process:", error);
       toast({
@@ -340,6 +369,148 @@ export default function ImportPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const renderDropzone = (type: ImportType) => {
+    const section = importSections[type];
+
+    return (
+      <div
+        className="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center hover:border-primary"
+        onClick={() => fileInputRefs[type].current?.click()}
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDrop={(e) => handleDrop(e, type)}
+      >
+        <input
+          ref={fileInputRefs[type]}
+          type="file"
+          accept=".csv"
+          onChange={(e) => handleFileUpload(e, type)}
+          className="hidden"
+        />
+        <p>Click to upload or drag and drop</p>
+        <p className="mt-2 text-sm text-muted-foreground">CSV files only</p>
+      </div>
+    );
+  };
+
+  const renderFileInfo = (type: ImportType) => {
+    const section = importSections[type];
+
+    if (!section.file) return null;
+
+    return (
+      <div className="flex items-center justify-between rounded-lg border p-4">
+        <span className="truncate">{section.file.name}</span>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleRemoveFile(type)}
+          className="ml-2 h-8 w-8"
+        >
+          <XIcon />
+        </Button>
+      </div>
+    );
+  };
+
+  const renderColumnSelectors = (type: ImportType) => {
+    const section = importSections[type];
+
+    if (!section.file || section.headers.length === 0) return null;
+
+    return (
+      <div className="mt-4 space-y-4">
+        {/* Email Column Selection */}
+        <div className="space-y-2">
+          <Label>Select Email Address Column</Label>
+          <Select
+            value={section.emailColumn}
+            onValueChange={(value) =>
+              setImportSections((prev) => ({
+                ...prev,
+                [type]: {
+                  ...prev[type],
+                  emailColumn: value,
+                },
+              }))
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select column" />
+            </SelectTrigger>
+            <SelectContent>
+              {section.headers.map((header, index) => (
+                <SelectItem key={`${header}-${index}`} value={header}>
+                  {header}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* First and Last Name Column Selection (only for subscribed) */}
+        {type === "subscribed" && (
+          <>
+            <div className="space-y-2">
+              <Label>Select First Name Column</Label>
+              <Select
+                value={section.firstNameColumn}
+                onValueChange={(value) =>
+                  setImportSections((prev) => ({
+                    ...prev,
+                    [type]: {
+                      ...prev[type],
+                      firstNameColumn: value,
+                    },
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select column" />
+                </SelectTrigger>
+                <SelectContent>
+                  {section.headers.map((header, index) => (
+                    <SelectItem key={`${header}-${index}`} value={header}>
+                      {header}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Select Last Name Column</Label>
+              <Select
+                value={section.lastNameColumn}
+                onValueChange={(value) =>
+                  setImportSections((prev) => ({
+                    ...prev,
+                    [type]: {
+                      ...prev[type],
+                      lastNameColumn: value,
+                    },
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select column" />
+                </SelectTrigger>
+                <SelectContent>
+                  {section.headers.map((header, index) => (
+                    <SelectItem key={`${header}-${index}`} value={header}>
+                      {header}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -357,180 +528,96 @@ export default function ImportPage() {
               </Link>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Import Unsubscribed</BreadcrumbPage>
+                <BreadcrumbPage>Import Contacts</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
       </header>
+
       <div className="p-6">
-        <div className="mx-auto w-full max-w-2xl p-6">
-          <h1 className="mb-6 text-2xl font-bold">
-            Import Unsubscribed Contacts
-          </h1>
+        <div className="mx-auto w-full max-w-4xl">
+          <h1 className="mb-6 text-2xl font-bold">Import Contacts</h1>
           <p className="mb-6 text-sm text-muted-foreground">
-            Importing unsubscribed contacts will help you not email people who
-            have asked to not receive your emails. This helps make sure emails
-            you send land in people&apos;s inboxes instead of their spam
-            folders.
+            Import your contacts from a former email provider. If a subscribed
+            person does not exist in your Planning Center account, we&apos;ll
+            add them for you. You&apos;ll be able to find these people in
+            Planning Center using the custom tab &quot;Church Space&quot;.
           </p>
 
-          <div className="space-y-6">
-            {/* File Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="csv-upload">Upload CSV File</Label>
-              {!currentFile ? (
-                <div
-                  className="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center hover:border-primary"
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragOver={handleDragOver}
-                  onDragEnter={handleDragEnter}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    id="csv-upload"
-                    accept=".csv"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <p>Click to upload or drag and drop</p>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    CSV files only
-                  </p>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between rounded-lg border p-4">
-                  <span className="truncate">{currentFile.name}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleRemoveFile}
-                    className="ml-2 h-8 w-8"
-                  >
-                    <XIcon />
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            {csvHeaders.length > 0 && (
-              <>
-                {/* Email Column Selection */}
+          <div className="grid grid-cols-1 gap-6">
+            {/* Subscribed Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Subscribed</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Select Email Address Column</Label>
-                  <Select
-                    value={selectedEmailColumn}
-                    onValueChange={setSelectedEmailColumn}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select column" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {csvHeaders.map((header, index) => (
-                        <SelectItem key={`${header}-${index}`} value={header}>
-                          {header}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label>Upload CSV File</Label>
+                  {!importSections.subscribed.file
+                    ? renderDropzone("subscribed")
+                    : renderFileInfo("subscribed")}
                 </div>
+                {renderColumnSelectors("subscribed")}
+              </CardContent>
+            </Card>
 
-                {/* Action Selection */}
+            {/* Unsubscribed Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Unsubscribed</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Mark Contacts As</Label>
-                  <Select
-                    value={selectedAction}
-                    onValueChange={setSelectedAction}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select action" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
-                      <SelectItem value="cleaned">Cleaned</SelectItem>
-                      <SelectItem value="subscribed">Subscribed</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Upload CSV File</Label>
+                  {!importSections.unsubscribed.file
+                    ? renderDropzone("unsubscribed")
+                    : renderFileInfo("unsubscribed")}
                 </div>
+                {renderColumnSelectors("unsubscribed")}
+              </CardContent>
+            </Card>
 
-                {selectedAction === "subscribed" && (
-                  <>
-                    {/* First Name Column Selection */}
-                    <div className="space-y-2">
-                      <Label>Select First Name Column</Label>
-                      <Select
-                        value={selectedFirstNameColumn}
-                        onValueChange={setSelectedFirstNameColumn}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {csvHeaders.map((header, index) => (
-                            <SelectItem
-                              key={`${header}-${index}`}
-                              value={header}
-                            >
-                              {header}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+            {/* Cleaned Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Cleaned</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Upload CSV File</Label>
+                  {!importSections.cleaned.file
+                    ? renderDropzone("cleaned")
+                    : renderFileInfo("cleaned")}
+                </div>
+                {renderColumnSelectors("cleaned")}
+              </CardContent>
+            </Card>
+          </div>
 
-                    {/* Last Name Column Selection */}
-                    <div className="space-y-2">
-                      <Label>Select Last Name Column</Label>
-                      <Select
-                        value={selectedLastNameColumn}
-                        onValueChange={setSelectedLastNameColumn}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {csvHeaders.map((header, index) => (
-                            <SelectItem
-                              key={`${header}-${index}`}
-                              value={header}
-                            >
-                              {header}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </>
-                )}
-
-                {/* Submit Button */}
-                <Button
-                  onClick={handleSubmit}
-                  disabled={
-                    !selectedEmailColumn ||
-                    !selectedAction ||
-                    isLoading ||
-                    (selectedAction === "subscribed" &&
-                      (!selectedFirstNameColumn || !selectedLastNameColumn))
-                  }
-                  className="w-full"
-                >
-                  {isLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  {selectedAction === "subscribed"
-                    ? "Import Subscribers"
-                    : `Mark as ${
-                        selectedAction === "unsubscribed"
-                          ? "Unsubscribed"
-                          : "Cleaned"
-                      }`}
-                </Button>
-              </>
-            )}
+          {/* Submit Button */}
+          <div className="my-8 flex justify-end">
+            <Button
+              onClick={handleSubmit}
+              disabled={
+                isLoading ||
+                !Object.values(importSections).some(
+                  (section) =>
+                    section.file !== null &&
+                    section.emailColumn !== "" &&
+                    (section.file === importSections.subscribed.file
+                      ? section.firstNameColumn !== "" &&
+                        section.lastNameColumn !== ""
+                      : true),
+                )
+              }
+              className="w-full"
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              Import Contacts
+            </Button>
           </div>
         </div>
       </div>

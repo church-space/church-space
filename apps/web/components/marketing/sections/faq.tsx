@@ -57,13 +57,14 @@ export default function FAQSection({ className }: FAQSectionProps) {
             Can I import data from my existing email provider?
           </AccordionTrigger>
           <AccordionContent>
-            Your active contacts are automatically imported from Planning
-            Center. We recommend that you also import your unsubscribed contacts
+            We sync all of your contacts with an email address from Planning
+            Center for you when you sign up. If you have subscribed contacts
+            that are not in Planning Center, you can upload a CSV of all of your
+            contacts, and we will add the missing ones to Planning Center for
+            you. We also recommend that you import your unsubscribed contacts
             and cleaned contacts from any former email applications. This helps
             improve deliverability and make sure you only send emails to people
-            who want them. If you have people on a mailing list who aren&apos;t
-            in Planning Center and need help getting them in, feel free to reach
-            out to{" "}
+            who want them. If you need any help, feel free to reach out to{" "}
             <a
               className="text-primary hover:underline"
               href="mailto:support@churchspace.com"

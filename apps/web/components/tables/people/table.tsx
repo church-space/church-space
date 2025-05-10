@@ -1,18 +1,16 @@
 "use client";
 
 import { usePeople } from "@/hooks/use-people";
+import { useSubscribedPeopleCount } from "@/hooks/use-subscribed-people-count";
+import { useUser } from "@/stores/use-user";
 import { Button } from "@church-space/ui/button";
+import { CircleInfo } from "@church-space/ui/icons";
+import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useCallback } from "react";
 import DataTable from "../data-table";
 import { columns, type Person } from "./columns";
-import { CircleInfo } from "@church-space/ui/icons";
 import NullState from "./null-state";
-import Link from "next/link";
-import { useUser } from "@/stores/use-user";
-import { useSubscribedPeopleCount } from "@/hooks/use-subscribed-people-count";
-import { TooltipContent, TooltipTrigger } from "@church-space/ui/tooltip";
-import { Tooltip } from "@church-space/ui/tooltip";
 
 interface PeopleTableProps {
   organizationId: string;
@@ -58,19 +56,9 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
           {role === "owner" && (
             <div className="flex w-full flex-row items-center justify-end">
               <Link href={`/people/import`}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button className="w-fit gap-1">
-                      Import{" "}
-                      <span className="hidden md:inline">Unsubscribes</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Import unsubscribes from a former application to not send
-                    them emails. This helps make sure your emails do not land in
-                    spam folders.
-                  </TooltipContent>
-                </Tooltip>
+                <Button className="w-fit gap-1">
+                  Import <span className="hidden md:inline">Contacts</span>
+                </Button>
               </Link>
             </div>
           )}

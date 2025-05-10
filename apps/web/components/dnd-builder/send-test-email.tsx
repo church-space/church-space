@@ -175,7 +175,7 @@ export default function SendTestEmail({
       let fromEmail: string;
       if (!orgData?.default_email || !orgData.domains?.domain) {
         // Use default email if no organization email is set
-        fromEmail = "tests@testemail.churchspace.co";
+        fromEmail = "test@platform.churchspace.co";
 
         // Show recommendation toast
         toast({

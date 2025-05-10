@@ -1,5 +1,6 @@
 import {
   SettingsContent,
+  SettingsDescription,
   SettingsHeader,
   SettingsSection,
   SettingsTitle,
@@ -53,6 +54,10 @@ export default async function Page() {
         <SettingsSection>
           <SettingsHeader>
             <SettingsTitle>Brand Colors</SettingsTitle>
+            <SettingsDescription>
+              Customize the colors of your church&apos;s brand. Changes you make
+              here are auto-saved.
+            </SettingsDescription>
           </SettingsHeader>
           <SettingsContent>
             <ClientPage organizationId={organizationId} />
