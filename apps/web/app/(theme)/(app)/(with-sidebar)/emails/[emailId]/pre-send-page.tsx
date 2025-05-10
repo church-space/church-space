@@ -436,6 +436,17 @@ export default function PreSendPage({
         email_category: categoryId ? parseInt(categoryId) : null,
       }));
       setActiveAccordion("");
+
+      // Invalidate emails query to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ["emails"],
+        refetchType: "all",
+      });
+
+      // Also invalidate the specific email query
+      queryClient.invalidateQueries({
+        queryKey: ["email-id-page", email.id],
+      });
     } catch (error) {
       console.error("Error saving To section:", error);
       setToIsSaving(false);
@@ -473,7 +484,15 @@ export default function PreSendPage({
 
       if (resultObj && resultObj.data) {
         // Invalidate emails query to refresh the list
-        queryClient.invalidateQueries({ queryKey: ["emails"] });
+        queryClient.invalidateQueries({
+          queryKey: ["emails"],
+          refetchType: "all",
+        });
+
+        // Also invalidate the specific email query
+        queryClient.invalidateQueries({
+          queryKey: ["email-id-page", resultObj.data.data.id],
+        });
 
         toast({
           title: "Success",
@@ -558,6 +577,17 @@ export default function PreSendPage({
         reply_to_domain,
       }));
       setActiveAccordion("");
+
+      // Invalidate emails query to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ["emails"],
+        refetchType: "all",
+      });
+
+      // Also invalidate the specific email query
+      queryClient.invalidateQueries({
+        queryKey: ["email-id-page", email.id],
+      });
     } catch (error) {
       console.error("Error saving From section:", error);
       setFromIsSaving(false);
@@ -593,6 +623,17 @@ export default function PreSendPage({
         preview_text: previewText,
       }));
       setActiveAccordion("");
+
+      // Invalidate emails query to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ["emails"],
+        refetchType: "all",
+      });
+
+      // Also invalidate the specific email query
+      queryClient.invalidateQueries({
+        queryKey: ["email-id-page", email.id],
+      });
     } catch (error) {
       console.error("Error saving Subject section:", error);
       setSubjectIsSaving(false);
@@ -661,6 +702,17 @@ export default function PreSendPage({
         send_now,
       }));
       setActiveAccordion("");
+
+      // Invalidate emails query to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ["emails"],
+        refetchType: "all",
+      });
+
+      // Also invalidate the specific email query
+      queryClient.invalidateQueries({
+        queryKey: ["email-id-page", email.id],
+      });
     } catch (error) {
       console.error("Error saving Schedule section:", error);
       setScheduleIsSaving(false);
@@ -871,7 +923,10 @@ export default function PreSendPage({
           }
 
           // Invalidate emails query to refresh the list
-          queryClient.invalidateQueries({ queryKey: ["emails"] });
+          queryClient.invalidateQueries({
+            queryKey: ["emails"],
+            refetchType: "all",
+          });
 
           toast({
             title: "Email deleted",
@@ -1168,6 +1223,17 @@ export default function PreSendPage({
                           status: "scheduled",
                         };
 
+                        // Invalidate emails query to refresh the list
+                        queryClient.invalidateQueries({
+                          queryKey: ["emails"],
+                          refetchType: "all",
+                        });
+
+                        // Also invalidate the specific email query
+                        queryClient.invalidateQueries({
+                          queryKey: ["email-id-page", email.id],
+                        });
+
                         // Optimistically update both local and parent state
                         setEmail((prev: typeof initialEmail) => ({
                           ...prev,
@@ -1210,6 +1276,17 @@ export default function PreSendPage({
                           ...email,
                           status: "sending",
                         };
+
+                        // Invalidate emails query to refresh the list
+                        queryClient.invalidateQueries({
+                          queryKey: ["emails"],
+                          refetchType: "all",
+                        });
+
+                        // Also invalidate the specific email query
+                        queryClient.invalidateQueries({
+                          queryKey: ["email-id-page", email.id],
+                        });
 
                         // Optimistically update both local and parent state
                         setEmail((prev: typeof initialEmail) => ({
@@ -1924,7 +2001,10 @@ export default function PreSendPage({
                   }
 
                   // Invalidate emails query to refresh the list
-                  queryClient.invalidateQueries({ queryKey: ["emails"] });
+                  queryClient.invalidateQueries({
+                    queryKey: ["emails"],
+                    refetchType: "all",
+                  });
 
                   toast({
                     title: "Email deleted",

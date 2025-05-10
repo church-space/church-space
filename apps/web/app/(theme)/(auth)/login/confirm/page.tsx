@@ -100,7 +100,7 @@ export default function ConfirmPage() {
           <Card className="space-y-2 px-0">
             <CardHeader className="items-center space-y-0">
               <ChurchSpaceBlack height={"60"} width={"60"} fill="#6065FE" />
-              <CardTitle className="pt-4 text-2xl font-bold">
+              <CardTitle className="text-pretty pt-4 text-center text-2xl font-bold">
                 Continue to Church Space
               </CardTitle>
             </CardHeader>
@@ -112,7 +112,7 @@ export default function ConfirmPage() {
                 onClick={handleLogin}
                 disabled={isLoading}
               >
-                {isLoading ? "Authenticating..." : "Continue to Church Space"}
+                {isLoading ? "Authenticating..." : "Continue"}
               </Button>
             </CardContent>
           </Card>

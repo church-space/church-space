@@ -54,7 +54,16 @@ export default function NewEmail({
       });
 
       if (result?.data?.success && result?.data?.data) {
-        queryClient.invalidateQueries({ queryKey: ["emails"] });
+        queryClient.invalidateQueries({
+          queryKey: ["emails"],
+          refetchType: "all",
+        });
+
+        // Also invalidate the specific email query
+        queryClient.invalidateQueries({
+          queryKey: ["email-id-page", result.data.data.id],
+        });
+
         await router.push(
           `/emails/${result.data.data.id}/editor?newEmail=true`,
         );

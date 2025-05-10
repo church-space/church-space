@@ -14,6 +14,7 @@ import { createClient } from "@church-space/supabase/client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { cn } from "@church-space/ui/cn";
 
 interface Domain {
   id: number;
@@ -115,8 +116,8 @@ export default function DomainSelector({
 
   if (domains.length === 0) {
     return (
-      <Link href="/settings/domains">
-        <Button variant="secondary" className={className}>
+      <Link href="/settings/domains" className="w-full">
+        <Button variant="secondary" className={(cn(className), "w-full")}>
           Add a domain
         </Button>
       </Link>

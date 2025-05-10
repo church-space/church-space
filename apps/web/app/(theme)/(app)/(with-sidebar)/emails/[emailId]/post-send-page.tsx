@@ -280,7 +280,15 @@ export default function PostSendPage({
 
       if (resultObj && resultObj.data) {
         // Invalidate emails query to refresh the list
-        queryClient.invalidateQueries({ queryKey: ["emails"] });
+        queryClient.invalidateQueries({
+          queryKey: ["emails"],
+          refetchType: "all",
+        });
+
+        // Also invalidate the specific email query
+        queryClient.invalidateQueries({
+          queryKey: ["email-id-page", resultObj.data.data.id],
+        });
 
         toast({
           title: "Success",

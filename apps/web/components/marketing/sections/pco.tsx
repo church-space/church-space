@@ -193,7 +193,8 @@ export default function PcoSection() {
               </h3>
               <p className="text-sm font-medium text-white">
                 Your Planning Center people and lists are automatically synced.
-                No need to worry about hitting a contact limit.
+                No need to worry about hitting a contact limit or keeping data
+                up to date.
               </p>
             </div>
           </div>
@@ -288,8 +289,9 @@ export default function PcoSection() {
             </div>
             <h3 className="text-xl font-bold">Automate your lists</h3>
             <p className="text-sm font-medium text-white">
-              Send a series of emails after a person is added to or removed from
-              a list in Planning Center.
+              Help guide your people&apos;s journey by sending them a series of
+              emails after they are added to or removed from a list in Planning
+              Center.
             </p>
           </div>
         </div>
