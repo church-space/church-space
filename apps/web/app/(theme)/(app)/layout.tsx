@@ -62,43 +62,21 @@ export default async function ProtectedLayout({
     const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    // Get current path to check if we're already on /emails
-    const headersList = await headers();
-    const currentPath =
-      headersList.get("x-pathname") ||
-      headersList.get("x-invoke-path") ||
-      "/emails";
+    if (lastRefreshed < twoHoursAgo && lastRefreshed > ninetyDaysAgo) {
+      // Token needs refresh but isn't expired
+      const headersList = await headers();
+      const currentPath = headersList.get("x-pathname");
+      const returnPath =
+        currentPath || headersList.get("x-invoke-path") || "/emails";
 
-    // Skip token refresh check if we're already on /emails
-    if (currentPath !== "/emails") {
-      if (lastRefreshed < twoHoursAgo && lastRefreshed > ninetyDaysAgo) {
-        // Token needs refresh but isn't expired
-        const returnPath = currentPath;
+      return redirect(
+        `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`,
+      );
+    }
 
-        // Don't redirect to pco-refresh if we're already there
-        if (returnPath === "/pco-refresh") {
-          return redirect("/emails");
-        }
-
-        // If coming from a marketing page, go to /emails after refresh
-        if (
-          returnPath === "/" ||
-          returnPath === "/pricing" ||
-          returnPath === "/about" ||
-          returnPath === "/policies"
-        ) {
-          return redirect(`/pco-refresh?return_to=/emails&from_marketing=true`);
-        }
-
-        return redirect(
-          `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`,
-        );
-      }
-
-      if (lastRefreshed < ninetyDaysAgo) {
-        // Token is too old, need to reconnect
-        return redirect("/pco-reconnect");
-      }
+    if (lastRefreshed < ninetyDaysAgo) {
+      // Token is too old, need to reconnect
+      return redirect("/pco-reconnect");
     }
   }
 

@@ -51,11 +51,13 @@ export async function GET(request: NextRequest) {
     // If we've refreshed within the last two hours, short-circuit early.
     if (lastRefreshed > twoHoursAgo) {
       const returnUrl = request.nextUrl.searchParams.get("return_to");
-      // Always go to /emails if that's the return URL to prevent loops
-      if (returnUrl === "/emails") {
-        return NextResponse.redirect(new URL("/emails", request.url));
-      }
-      const finalReturnUrl = returnUrl || "/emails";
+      const finalReturnUrl =
+        returnUrl && returnUrl !== "/emails"
+          ? returnUrl
+          : request.headers
+              .get("referer")
+              ?.replace(request.headers.get("origin") || "", "") || "/emails";
+
       return NextResponse.redirect(new URL(finalReturnUrl, request.url));
     }
   }
@@ -160,14 +162,12 @@ export async function GET(request: NextRequest) {
 
   // Redirect back to the original URL
   const returnUrl = request.nextUrl.searchParams.get("return_to");
-  const fromMarketing =
-    request.nextUrl.searchParams.get("from_marketing") === "true";
-
-  // If coming from marketing or if return URL is /emails, always go to /emails
   const finalReturnUrl =
-    fromMarketing || returnUrl === "/emails"
-      ? "/emails"
-      : returnUrl || "/emails";
+    returnUrl && returnUrl !== "/emails"
+      ? returnUrl
+      : request.headers
+          .get("referer")
+          ?.replace(request.headers.get("origin") || "", "") || "/emails";
 
   // Add a small delay to ensure database updates are fully processed before redirect
   await new Promise((resolve) => setTimeout(resolve, 100));

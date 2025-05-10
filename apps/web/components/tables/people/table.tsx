@@ -43,7 +43,7 @@ export default function PeopleTable({ organizationId }: PeopleTableProps) {
     <>
       <div className="mb-5 flex w-full flex-col justify-between gap-3">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex w-full flex-row items-baseline gap-2">
+          <div className="flex w-full flex-col items-baseline md:flex-row md:gap-2">
             <h1 className="flex items-center text-xl font-bold md:text-3xl">
               People
             </h1>
