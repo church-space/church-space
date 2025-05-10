@@ -762,6 +762,7 @@ export type Database = {
           id: number
           list_id: number | null
           organization_id: string
+          preview_text: string | null
           reply_to: string | null
           reply_to_domain: number | null
           scheduled_for: string | null
@@ -784,6 +785,7 @@ export type Database = {
           id?: number
           list_id?: number | null
           organization_id: string
+          preview_text?: string | null
           reply_to?: string | null
           reply_to_domain?: number | null
           scheduled_for?: string | null
@@ -806,6 +808,7 @@ export type Database = {
           id?: number
           list_id?: number | null
           organization_id?: string
+          preview_text?: string | null
           reply_to?: string | null
           reply_to_domain?: number | null
           scheduled_for?: string | null
@@ -2054,6 +2057,16 @@ export type Database = {
       count_direct_storage_items: {
         Args: { bucket_name: string; folder_path: string }
         Returns: number
+      }
+      debug_email_recipients: {
+        Args: { email_id_input: number }
+        Returns: {
+          people_email_id: number
+          email: string
+          first_name: string
+          last_name: string
+          reason: string
+        }[]
       }
       delete_done_pending_automation_runs: {
         Args: Record<PropertyKey, never>

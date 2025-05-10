@@ -23,7 +23,8 @@ export function useEmailWithBlocks(emailId: number | undefined) {
           status,
           style,
           organization_id,
-          type
+          type, 
+          preview_text
         `,
         )
         .eq("id", emailId)

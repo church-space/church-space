@@ -6,6 +6,7 @@ import {
   Hr,
   Html,
   Img,
+  Preview,
   Body,
 } from "@react-email/components";
 import * as React from "react";
@@ -1920,6 +1921,7 @@ export function generateEmailCode(
   style: EmailStyle,
   footerData?: any,
   orgFooterDetails?: any,
+  previewText?: string,
 ): React.ReactElement {
   const {
     bgColor = "#ffffff",
@@ -2002,6 +2004,7 @@ export function generateEmailCode(
       }
     `}</style>
       </Head>
+      {previewText && <Preview>{previewText}</Preview>}
       <Body style={{ margin: 0, padding: 0 }}>
         <table
           width="100%"

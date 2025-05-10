@@ -208,6 +208,7 @@ export const sendAutomationEmail = task({
               style: style,
               footer: typedEmailData.footer,
               orgFooterDetails: orgFooterDetails,
+              previewText: emailData.preview_text,
             }),
           },
         );

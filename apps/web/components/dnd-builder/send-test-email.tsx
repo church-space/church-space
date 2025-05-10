@@ -13,7 +13,6 @@ import {
 import { Input } from "@church-space/ui/input";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useEmailWithBlocks } from "@/hooks/use-email-with-blocks";
 import { generateEmailCode } from "@/lib/generate-email-code";
 import { render } from "@react-email/render";
 import { toast } from "@church-space/ui/use-toast";
@@ -44,7 +43,9 @@ export default function SendTestEmail({
   const emailId = params.emailId
     ? parseInt(params.emailId as string, 10)
     : undefined;
-  const { data: emailData } = useEmailWithBlocks(emailId);
+
+  // Change: Don't use the hook to fetch data automatically, we'll fetch on-demand
+  // const { data: emailData } = useEmailWithBlocks(emailId);
 
   const validateEmails = (emails: string[]) => {
     const emailSchema = z.string().email();
@@ -88,10 +89,10 @@ export default function SendTestEmail({
       return;
     }
 
-    if (!emailData) {
+    if (!emailId) {
       toast({
         title: "Error",
-        description: "Email data not available",
+        description: "Email ID not available",
         variant: "destructive",
       });
       return;
@@ -101,8 +102,59 @@ export default function SendTestEmail({
       setIsSending(true);
       setIsOpen(false); // Close the modal immediately
 
-      // Get organization's default email and domain
+      // Get email data only when needed
       const supabase = createClient();
+
+      // Fetch email data
+      const { data: emailData, error: emailError } = await supabase
+        .from("emails")
+        .select(
+          `
+          id,
+          subject,
+          status,
+          style,
+          organization_id,
+          type, 
+          preview_text
+        `,
+        )
+        .eq("id", emailId)
+        .single();
+
+      if (emailError) {
+        throw emailError;
+      }
+
+      // Fetch blocks
+      const { data: blocksData, error: blocksError } = await supabase
+        .from("email_blocks")
+        .select("*")
+        .eq("email_id", emailId)
+        .order("order", { ascending: true });
+
+      if (blocksError) {
+        throw blocksError;
+      }
+
+      // Fetch footer data
+      const { data: footerData, error: footerError } = await supabase
+        .from("email_footers")
+        .select("*")
+        .eq("email_id", emailId)
+        .maybeSingle();
+
+      if (footerError && footerError.code !== "PGRST116") {
+        throw footerError;
+      }
+
+      const emailWithBlocks = {
+        email: emailData,
+        blocks: blocksData || [],
+        footer: footerData,
+      };
+
+      // Get organization's default email and domain
       const { data: orgData, error: orgError } = await supabase
         .from("organizations")
         .select(
@@ -113,19 +165,23 @@ export default function SendTestEmail({
           )
         `,
         )
-        .eq("id", emailData.email.organization_id)
+        .eq("id", emailWithBlocks.email.organization_id)
         .single<OrganizationData>();
 
       if (orgError) {
         throw new Error("Failed to fetch organization data");
       }
 
+      let fromEmail: string;
       if (!orgData?.default_email || !orgData.domains?.domain) {
+        // Use default email if no organization email is set
+        fromEmail = "tests@testemail.churchspace.co";
+
+        // Show recommendation toast
         toast({
-          title: "Error",
-          description: (
-            <div>No default email or domain set for your organization. </div>
-          ),
+          title: "Using Default Email",
+          description:
+            "We recommend setting up your own email domain in organization settings for a more professional appearance.",
           action: (
             <Button
               size="sm"
@@ -133,22 +189,20 @@ export default function SendTestEmail({
                 router.push("/settings/organization");
               }}
             >
-              Add Now
+              Set Up Now
             </Button>
           ),
-          variant: "destructive",
         });
-        return;
+      } else {
+        // Combine default email with domain
+        fromEmail = `${orgData.default_email}@${orgData.domains.domain}`;
       }
-
-      // Combine default email with domain
-      const fromEmail = `${orgData.default_email}@${orgData.domains.domain}`;
 
       // Convert blocks to sections format
       const sections: Section[] = [
         {
           id: "main-section",
-          blocks: emailData.blocks.map((block) => ({
+          blocks: emailWithBlocks.blocks.map((block) => ({
             id: block.id.toString(),
             type: block.type as BlockType,
             order: block.order || 0,
@@ -158,7 +212,7 @@ export default function SendTestEmail({
       ];
 
       // Get style from email data
-      const emailStyle = emailData.email.style as unknown as EmailStyle;
+      const emailStyle = emailWithBlocks.email.style as unknown as EmailStyle;
       const style = {
         bgColor: emailStyle?.blocks_bg_color || "#ffffff",
         isInset: emailStyle?.is_inset || false,
@@ -175,8 +229,9 @@ export default function SendTestEmail({
       const emailCode = generateEmailCode(
         sections,
         style,
-        emailData.footer,
+        emailWithBlocks.footer,
         orgFooterDetails,
+        emailWithBlocks.email.preview_text || undefined,
       );
       const htmlContent = await render(emailCode);
 
@@ -211,7 +266,7 @@ export default function SendTestEmail({
             {
               from: fromEmail,
               to: emails,
-              subject: "TEST: " + emailData.email.subject || "Test Email",
+              subject: "TEST: " + emailWithBlocks.email.subject || "Test Email",
               html: enhancedHtmlContent,
               text: "This is a test email sent from Church Space.",
             },

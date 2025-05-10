@@ -30,6 +30,10 @@ export default function ImportPage() {
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [selectedEmailColumn, setSelectedEmailColumn] = useState<string>("");
   const [selectedAction, setSelectedAction] = useState<string>("unsubscribed");
+  const [selectedFirstNameColumn, setSelectedFirstNameColumn] =
+    useState<string>("");
+  const [selectedLastNameColumn, setSelectedLastNameColumn] =
+    useState<string>("");
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -73,6 +77,50 @@ export default function ImportPage() {
             break;
           }
         }
+
+        // Try to find and set first name column based on priority
+        const firstNameHeaders = [
+          "first name",
+          "First Name",
+          "firstname",
+          "FirstName",
+          "given name",
+          "Given Name",
+          "givenname",
+          "GivenName",
+        ];
+        for (const firstNameHeader of firstNameHeaders) {
+          const foundHeader = headers.find(
+            (header) => header.toLowerCase() === firstNameHeader.toLowerCase(),
+          );
+          if (foundHeader) {
+            setSelectedFirstNameColumn(foundHeader);
+            break;
+          }
+        }
+
+        // Try to find and set last name column based on priority
+        const lastNameHeaders = [
+          "last name",
+          "Last Name",
+          "lastname",
+          "LastName",
+          "surname",
+          "Surname",
+          "family name",
+          "Family Name",
+          "familyname",
+          "FamilyName",
+        ];
+        for (const lastNameHeader of lastNameHeaders) {
+          const foundHeader = headers.find(
+            (header) => header.toLowerCase() === lastNameHeader.toLowerCase(),
+          );
+          if (foundHeader) {
+            setSelectedLastNameColumn(foundHeader);
+            break;
+          }
+        }
       }
     };
     reader.readAsText(file);
@@ -83,6 +131,8 @@ export default function ImportPage() {
     setCsvHeaders([]);
     setSelectedEmailColumn("");
     setSelectedAction("");
+    setSelectedFirstNameColumn("");
+    setSelectedLastNameColumn("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -143,6 +193,52 @@ export default function ImportPage() {
                 break;
               }
             }
+
+            // Try to find and set first name column based on priority
+            const firstNameHeaders = [
+              "first name",
+              "First Name",
+              "firstname",
+              "FirstName",
+              "given name",
+              "Given Name",
+              "givenname",
+              "GivenName",
+            ];
+            for (const firstNameHeader of firstNameHeaders) {
+              const foundHeader = headers.find(
+                (header) =>
+                  header.toLowerCase() === firstNameHeader.toLowerCase(),
+              );
+              if (foundHeader) {
+                setSelectedFirstNameColumn(foundHeader);
+                break;
+              }
+            }
+
+            // Try to find and set last name column based on priority
+            const lastNameHeaders = [
+              "last name",
+              "Last Name",
+              "lastname",
+              "LastName",
+              "surname",
+              "Surname",
+              "family name",
+              "Family Name",
+              "familyname",
+              "FamilyName",
+            ];
+            for (const lastNameHeader of lastNameHeaders) {
+              const foundHeader = headers.find(
+                (header) =>
+                  header.toLowerCase() === lastNameHeader.toLowerCase(),
+              );
+              if (foundHeader) {
+                setSelectedLastNameColumn(foundHeader);
+                break;
+              }
+            }
           }
         };
         reader.readAsText(file);
@@ -173,23 +269,52 @@ export default function ImportPage() {
       return;
     }
 
+    if (
+      selectedAction === "subscribed" &&
+      (!selectedFirstNameColumn || !selectedLastNameColumn)
+    ) {
+      toast({
+        title: "Missing Information",
+        description:
+          "Please select both first name and last name columns for subscriber import.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       // 1. Upload CSV and get signed URL
       const signedUrl = await uploadCsv(currentFile, organizationId);
 
-      // 2. Call the API endpoint to trigger the import job
-      const response = await fetch("/api/organization/import-unsubscribes", {
+      // 2. Call the appropriate API endpoint based on the action
+      const endpoint =
+        selectedAction === "subscribed"
+          ? "/api/organization/import-subscribes"
+          : "/api/organization/import-unsubscribes";
+
+      const payload =
+        selectedAction === "subscribed"
+          ? {
+              organizationId,
+              fileUrl: signedUrl,
+              emailColumn: selectedEmailColumn,
+              firstNameColumn: selectedFirstNameColumn,
+              lastNameColumn: selectedLastNameColumn,
+            }
+          : {
+              organizationId,
+              fileUrl: signedUrl,
+              emailColumn: selectedEmailColumn,
+              status: selectedAction,
+            };
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          organizationId: organizationId,
-          fileUrl: signedUrl,
-          emailColumn: selectedEmailColumn,
-          status: selectedAction,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -201,7 +326,7 @@ export default function ImportPage() {
 
       toast({
         title: "Import Started",
-        description: "Your import job has started successfully.",
+        description: `Your ${selectedAction === "subscribed" ? "subscriber" : "unsubscribe"} import job has started successfully.`,
       });
       handleRemoveFile(); // Reset form on success
     } catch (error: any) {
@@ -212,7 +337,6 @@ export default function ImportPage() {
           error.message || "An unexpected error occurred during import.",
         variant: "destructive",
       });
-      // TODO: Show specific error to user based on the step (upload or API call) - More specific error handling could be added here
     } finally {
       setIsLoading(false);
     }
@@ -327,25 +451,83 @@ export default function ImportPage() {
                     <SelectContent>
                       <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
                       <SelectItem value="cleaned">Cleaned</SelectItem>
+                      <SelectItem value="subscribed">Subscribed</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {selectedAction === "subscribed" && (
+                  <>
+                    {/* First Name Column Selection */}
+                    <div className="space-y-2">
+                      <Label>Select First Name Column</Label>
+                      <Select
+                        value={selectedFirstNameColumn}
+                        onValueChange={setSelectedFirstNameColumn}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select column" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {csvHeaders.map((header, index) => (
+                            <SelectItem
+                              key={`${header}-${index}`}
+                              value={header}
+                            >
+                              {header}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Last Name Column Selection */}
+                    <div className="space-y-2">
+                      <Label>Select Last Name Column</Label>
+                      <Select
+                        value={selectedLastNameColumn}
+                        onValueChange={setSelectedLastNameColumn}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select column" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {csvHeaders.map((header, index) => (
+                            <SelectItem
+                              key={`${header}-${index}`}
+                              value={header}
+                            >
+                              {header}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
 
                 {/* Submit Button */}
                 <Button
                   onClick={handleSubmit}
                   disabled={
-                    !selectedEmailColumn || !selectedAction || isLoading
+                    !selectedEmailColumn ||
+                    !selectedAction ||
+                    isLoading ||
+                    (selectedAction === "subscribed" &&
+                      (!selectedFirstNameColumn || !selectedLastNameColumn))
                   }
                   className="w-full"
                 >
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  Mark as{" "}
-                  {selectedAction === "unsubscribed"
-                    ? "Unsubscribed"
-                    : "Cleaned"}
+                  {selectedAction === "subscribed"
+                    ? "Import Subscribers"
+                    : `Mark as ${
+                        selectedAction === "unsubscribed"
+                          ? "Unsubscribed"
+                          : "Cleaned"
+                      }`}
                 </Button>
               </>
             )}

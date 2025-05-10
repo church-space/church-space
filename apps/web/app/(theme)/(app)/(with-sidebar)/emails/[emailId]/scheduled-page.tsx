@@ -363,6 +363,27 @@ export default function ScheduledPage({
                   </div>
                 </CardContent>
               </Card>
+              {email.preview_text && (
+                <Card className="w-full max-w-4xl space-y-4 overflow-y-auto">
+                  <CardContent className="flex flex-row items-center gap-3.5 py-4">
+                    <span className="text-primary">
+                      <FountainPen height={"20"} width={"20"} />
+                    </span>
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs font-bold text-primary">
+                        Preview Text:
+                      </span>
+                      <div className="text-foreground">
+                        <div className="flex items-baseline gap-1.5">
+                          <div className="flex items-baseline gap-2 font-medium">
+                            {email.preview_text}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               <Card className="w-full max-w-4xl space-y-4 overflow-y-auto">
                 <CardContent className="flex flex-row items-center gap-3.5 py-4">
                   <span className="text-primary">

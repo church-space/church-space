@@ -8,7 +8,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { headers } from "next/headers";
 
 const ratelimit = new Ratelimit({
-  limiter: Ratelimit.fixedWindow(10, "10s"),
+  limiter: Ratelimit.fixedWindow(10, "60s"),
   redis: RedisClient,
 });
 

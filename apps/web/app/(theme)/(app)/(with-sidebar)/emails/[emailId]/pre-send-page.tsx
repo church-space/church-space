@@ -175,6 +175,7 @@ export default function PreSendPage({
 
   // Initialize state from email data
   const [subject, setSubject] = useState(email.subject || "");
+  const [previewText, setPreviewText] = useState(email.preview_text || "");
   const [listId, setListId] = useState(email.list_id || "");
   const [categoryId, setCategoryId] = useState(email.email_category || "");
   // From details
@@ -350,8 +351,11 @@ export default function PreSendPage({
   }, [fromEmail, fromDomain, fromName, replyToEmail, replyToDomain, email]);
 
   useEffect(() => {
-    setSubjectHasChanges(subject !== (email.subject || ""));
-  }, [subject, email.subject]);
+    setSubjectHasChanges(
+      subject !== (email.subject || "") ||
+        previewText !== (email.preview_text || ""),
+    );
+  }, [subject, email.subject, previewText, email.preview_text]);
 
   useEffect(() => {
     const originalScheduledDate = email.scheduled_for
@@ -577,6 +581,7 @@ export default function PreSendPage({
     try {
       await updateEmailMutation.mutateAsync({
         subject,
+        preview_text: previewText,
       });
       setSubjectIsSaving(false);
       setSubjectHasChanges(false);
@@ -585,6 +590,7 @@ export default function PreSendPage({
       setEmail((prev: typeof initialEmail) => ({
         ...prev,
         subject,
+        preview_text: previewText,
       }));
       setActiveAccordion("");
     } catch (error) {
@@ -596,6 +602,7 @@ export default function PreSendPage({
   // Cancel/reset functions for each section
   const resetSubjectSection = () => {
     setSubject(email.subject || "");
+    setPreviewText(email.preview_text || "");
     setSubjectHasChanges(false);
     setSubjectIsSaving(false);
     setActiveAccordion("");
@@ -1072,6 +1079,14 @@ export default function PreSendPage({
                   <p className="text-sm text-muted-foreground">
                     {email.subject}
                   </p>
+                  {email.preview_text && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium">Preview Text</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {email.preview_text}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 {email.scheduled_for && (
                   <div className="space-y-2">
@@ -1623,7 +1638,23 @@ export default function PreSendPage({
                       </div>
                     )}
                   </div>
-
+                  <div className="flex flex-col gap-2">
+                    <Label className="ml-0.5">Preview Text</Label>
+                    <div className="relative">
+                      <Input
+                        placeholder="Enter preview text"
+                        value={previewText}
+                        onChange={(e) =>
+                          setPreviewText(e.target.value.slice(0, 100))
+                        }
+                        maxLength={100}
+                        className="pr-16"
+                      />
+                      <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
+                        {previewText.length} / 100
+                      </span>
+                    </div>
+                  </div>
                   <SaveButtons
                     isSaving={subjectIsSaving}
                     hasChanges={subjectHasChanges}
