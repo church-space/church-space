@@ -100,7 +100,6 @@ const data = (role: string | null) => {
           {
             title: "Preferences",
             url: "/settings",
-            disabled: role !== "owner",
           },
           {
             title: "Organization",

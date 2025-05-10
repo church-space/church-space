@@ -80,3 +80,31 @@ export async function signInWithGoogle(redirectTo?: string | null) {
 
   return data;
 }
+
+export async function verifyInviteToken(token: string) {
+  try {
+    const { jwtVerify } = await import("jose");
+
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(process.env.INVITE_MEMBERS_SECRET),
+    );
+
+    if (!payload.exp) {
+      throw new Error("No expiration date found in invite token");
+    }
+
+    const inviteExpires = new Date(payload.exp * 1000);
+
+    return {
+      isValid: true,
+      expires: inviteExpires,
+    };
+  } catch (error) {
+    console.error("Error verifying invite token:", error);
+    return {
+      isValid: false,
+      expires: null,
+    };
+  }
+}

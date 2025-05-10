@@ -13,13 +13,15 @@ import { EmailForm } from "@/components/auth/email-form";
 import { Button } from "@church-space/ui/button";
 import { InputOTPForm } from "@/components/auth/otp-form";
 import { AnimatePresence, motion } from "framer-motion";
-import { signInWithGoogle, signInWithOtp } from "@/app/(theme)/(auth)/actions";
+import {
+  signInWithGoogle,
+  signInWithOtp,
+  verifyInviteToken,
+} from "@/app/(theme)/(auth)/actions";
 import { useToast } from "@church-space/ui/use-toast";
 import { ArrowRight, ChurchSpaceBlack } from "@church-space/ui/icons";
 import { useSearchParams } from "next/navigation";
 import cookies from "js-cookie";
-import { jwtVerify } from "jose";
-import { addDays } from "date-fns";
 
 export default function Page() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
@@ -33,34 +35,31 @@ export default function Page() {
   const invite = searchParams.get("invite");
   const [selectedPlan, setSelectedPlan] = useState(plan);
 
-  let inviteExpires: Date | null = null;
-
   useEffect(() => {
     if (invite) {
-      const verifyInvite = async () => {
-        const { payload } = await jwtVerify(
-          invite,
-          new TextEncoder().encode(process.env.INVITE_JWT_SECRET),
-        );
+      const processInvite = async () => {
+        try {
+          const result = await verifyInviteToken(invite);
 
-        if (!payload.exp) {
-          throw new Error("No expiration date found in invite token");
+          if (result.isValid && result.expires) {
+            cookies.set("invite", invite, {
+              expires: result.expires,
+            });
+          } else {
+            toast.toast({
+              title: "Invalid or expired invite",
+              description: "The invite link is no longer valid.",
+              variant: "destructive",
+            });
+          }
+        } catch (error) {
+          console.error("Error processing invite:", error);
         }
-
-        inviteExpires = new Date(payload.exp * 1000);
-
-        cookies.set("invite", invite, {
-          expires: inviteExpires,
-        });
       };
 
-      verifyInvite();
-
-      cookies.set("invite", invite, {
-        expires: addDays(new Date(), 30),
-      });
+      processInvite();
     }
-  }, [invite]);
+  }, [invite, toast]);
 
   useEffect(() => {
     if (plan) {

@@ -198,10 +198,15 @@ export default function DndBuilderCanvas({
                 <div className="text-lg font-medium text-blue-500 text-foreground">
                   Drag blocks here
                 </div>
-                <div className="max-w-xs text-center text-sm text-blue-300 text-muted-foreground">
+
+                <div className="hidden max-w-xs text-center text-sm text-blue-300 text-muted-foreground md:block">
                   Drag and drop {type === "email" ? "email" : "course"} blocks
                   from the left panel to build your{" "}
                   {type === "email" ? "email" : "course"}
+                </div>
+                <div className="block max-w-xs text-center text-sm text-blue-300 text-muted-foreground md:hidden">
+                  Click the plus icon below and drag a block into the editor to
+                  build your {type === "email" ? "email" : "course"}
                 </div>
               </motion.div>
             ) : (
@@ -210,10 +215,14 @@ export default function DndBuilderCanvas({
                 <div className="text-lg font-medium text-foreground">
                   Drag blocks here
                 </div>
-                <div className="max-w-xs text-center text-sm text-muted-foreground">
+                <div className="hidden max-w-xs text-center text-sm text-blue-300 text-muted-foreground md:block">
                   Drag and drop {type === "email" ? "email" : "course"} blocks
                   from the left panel to build your{" "}
                   {type === "email" ? "email" : "course"}
+                </div>
+                <div className="block max-w-xs text-center text-sm text-blue-300 text-muted-foreground md:hidden">
+                  Click the plus icon below and drag a block into the editor to
+                  build your {type === "email" ? "email" : "course"}
                 </div>
               </div>
             )}

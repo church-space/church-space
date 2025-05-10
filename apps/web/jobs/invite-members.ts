@@ -17,6 +17,13 @@ interface InviteMembersPayload {
   members: InviteMemberData[];
 }
 
+// Define type for Resend batch response items
+interface ResendBatchItem {
+  id: string;
+  to: string;
+  error?: { message: string; type: string } | null;
+}
+
 const inviteMembersQueue = queue({
   name: "invite-members-queue",
   concurrencyLimit: 3,
@@ -66,7 +73,13 @@ export const inviteMembers = task({
       `${inviterData.first_name || ""} ${inviterData.last_name || ""}`.trim() ||
       "A team member";
 
-    // Process each invite
+    // Array to store batch email requests
+    const emailBatch = [];
+    // Object to store member information by email
+    const memberInfoByEmail: Record<string, { token: string; role: string }> =
+      {};
+
+    // Process each invite and prepare batch emails
     for (const member of members) {
       // Check if user with this email already exists
       const { data: existingUser, error: userError } = await supabase
@@ -138,19 +151,25 @@ export const inviteMembers = task({
         continue;
       }
 
-      // Send invite email
+      // Store token and role for this member
+      memberInfoByEmail[member.email] = {
+        token,
+        role: member.role,
+      };
+
+      // Create invite link
       const inviteLink = `https://churchspace.co/signup?invite=${token}`;
 
-      try {
-        await resend.emails.send({
-          from: "invites@auth.churchspace.co",
-          to: member.email,
-          subject: `You've been invited to join ${orgData.name} on Church Space`,
-          headers: {
-            "X-Entity-Ref-ID": uuidv4(),
-            "X-Mailer": `Church Space Auth - **Invite Member**`,
-          },
-          html: `<!DOCTYPE html>
+      // Add to batch email requests
+      emailBatch.push({
+        from: "Church Space <invites@auth.churchspace.co>",
+        to: member.email,
+        subject: `You've been invited to join ${orgData.name} on Church Space`,
+        headers: {
+          "X-Entity-Ref-ID": uuidv4(),
+          "X-Mailer": `Church Space Auth - **Invite Member**`,
+        },
+        html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -233,7 +252,7 @@ export const inviteMembers = task({
   </table>
 </body>
 </html>`,
-          text: `You've been invited to join ${orgData.name} on Church Space
+        text: `You've been invited to join ${orgData.name} on Church Space
 
 ${inviterName} has invited you to join their organization on Church Space. Click the link below to accept this invitation:
 
@@ -244,10 +263,50 @@ This invitation will expire in 7 days. If you did not expect this invitation, yo
 © 2025 Church Space. All rights reserved.
 
 If you have any questions, please contact our support team at support@churchspace.co`,
+      });
+    }
+
+    // Send batch emails if there are any to send
+    if (emailBatch.length > 0) {
+      try {
+        const batchResponse = await resend.batch.send(emailBatch);
+
+        // Process batch response
+        const sentEmailData = (batchResponse.data?.data ||
+          []) as ResendBatchItem[];
+
+        // Log results
+        emailBatch.forEach((sentRequest, index) => {
+          const recipientEmail = sentRequest.to;
+          const sentInfo = sentEmailData[index];
+
+          if (sentInfo && !sentInfo.error) {
+            console.log(`Successfully sent invite to ${recipientEmail}`);
+          } else {
+            const errorMessage = sentInfo?.error?.message || "Unknown error";
+            console.error(
+              `Failed to send invite to ${recipientEmail}: ${errorMessage}`,
+            );
+          }
         });
+
+        return {
+          success: true,
+          sent: emailBatch.length,
+          organization: orgData.name,
+        };
       } catch (error) {
-        console.error(`Failed to send invite email to ${member.email}:`, error);
+        console.error("Error sending batch invites:", error);
+        throw new Error(
+          `Failed to send batch invites: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
       }
     }
+
+    return {
+      success: true,
+      sent: emailBatch.length,
+      organization: orgData.name,
+    };
   },
 });

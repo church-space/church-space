@@ -47,7 +47,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Editor } from "@tiptap/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { debounce } from "lodash";
-import { Eye, SaveIcon } from "lucide-react";
+import { Eye } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -3134,7 +3134,7 @@ export default function EmailDndProvider({
                   </div>
                 </>
               ) : (
-                <SaveIcon />
+                "Done"
               )}
             </span>
           </Button>

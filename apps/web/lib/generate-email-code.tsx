@@ -833,8 +833,7 @@ const CustomCards: React.FC<{
               border={0}
               style={{
                 borderCollapse: "separate",
-                borderSpacing: "0 0",
-                margin: "0",
+                borderSpacing: "0",
                 width: "100%",
                 tableLayout: "fixed",
                 marginBottom: "24px",
@@ -1074,30 +1073,50 @@ const CustomCards: React.FC<{
                       className="card-column"
                       width="50%"
                       style={{
-                        padding: colIndex === 0 ? "0 12px 0 0" : "0 0 0 12px",
+                        padding: colIndex === 0 ? "0 4px 0 0" : "0 0 0 4px",
                         width: "50%",
                         maxWidth: "100%",
+                        verticalAlign: "top",
                       }}
                     >
-                      {card.buttonLink ? (
-                        <a
-                          href={formattedButtonLink}
-                          target="_blank"
-                          style={{
-                            textDecoration: "none",
-                            display: "block",
-                          }}
-                        >
-                          {CardContent}
-                        </a>
-                      ) : (
-                        CardContent
-                      )}
+                      <table
+                        cellPadding="0"
+                        cellSpacing="0"
+                        border={0}
+                        width="100%"
+                        style={{
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                        }}
+                      >
+                        <tr>
+                          <td style={{ padding: "0" }}>
+                            {card.buttonLink ? (
+                              <a
+                                href={formattedButtonLink}
+                                target="_blank"
+                                style={{
+                                  textDecoration: "none",
+                                  display: "block",
+                                }}
+                              >
+                                {CardContent}
+                              </a>
+                            ) : (
+                              CardContent
+                            )}
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   );
                 })}
                 {row.length === 1 && (
-                  <td className="card-column empty-card-cell" width="50%"></td>
+                  <td
+                    className="card-column empty-card-cell"
+                    width="50%"
+                    style={{ padding: "0 0 0 4px" }}
+                  ></td>
                 )}
               </tr>
             </table>
