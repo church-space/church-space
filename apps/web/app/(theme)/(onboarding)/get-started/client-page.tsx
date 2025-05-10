@@ -30,6 +30,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
+import { addDomainAction } from "@/actions/add-domain";
+
+// Domain validation schema
+const domainSchema = z
+  .string()
+  .transform((val) => {
+    // Trim whitespace
+    let domain = val.trim();
+
+    // Remove http:// or https:// if present
+    domain = domain.replace(/^https?:\/\//i, "");
+
+    // Remove trailing slash if present
+    domain = domain.replace(/\/$/, "");
+
+    return domain;
+  })
+  .refine(
+    (val) => {
+      // Basic domain validation regex
+      const domainRegex =
+        /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i;
+      return domainRegex.test(val);
+    },
+    {
+      message: "Please enter a valid domain name (e.g., example.com)",
+    },
+  );
 
 // Import STRIPE_PLANS from subscribe-modal.tsx
 interface StripePlans {
@@ -210,6 +238,7 @@ export default function ClientPage({
 }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [addressLoading, setAddressLoading] = useState(false);
+  const [domainLoading, setDomainLoading] = useState(false);
   const [emailCategoriesLoading, setEmailCategoriesLoading] = useState(false);
   const [themeLoading, setThemeLoading] = useState(false);
   const [billingSetupLoading, setBillingSetupLoading] = useState(false);
@@ -233,6 +262,10 @@ export default function ClientPage({
   const { setOrgFinishedOnboarding } = useUser();
   const [selectedPlan, setSelectedPlan] = useState("free");
   const [categoryBgSaving, setCategoryBgSaving] = useState(false);
+  const [domainValue, setDomainValue] = useState("");
+  const [domainError, setDomainError] = useState<string | null>(null);
+  const [isTypingDomain, setIsTypingDomain] = useState(false);
+  const domainDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check for selected_plan cookie on mount
   useEffect(() => {
@@ -326,7 +359,7 @@ export default function ClientPage({
   ) => {
     setAddressLoading(true);
 
-    // Optimistically proceed to next step
+    // Optimistically proceed to next step (now domain)
     setCurrentStep(1);
 
     try {
@@ -382,6 +415,103 @@ export default function ClientPage({
     }
   };
 
+  const handleDomainSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsTypingDomain(false);
+    if (domainDebounceTimerRef.current) {
+      clearTimeout(domainDebounceTimerRef.current);
+    }
+
+    // Skip if no domain provided (user chose to skip)
+    if (!domainValue) {
+      setCurrentStep(2); // Proceed to email categories step
+      return;
+    }
+
+    try {
+      // Validate domain with Zod
+      const cleanedDomain = domainSchema.parse(domainValue);
+      setDomainError(null);
+      setDomainLoading(true);
+
+      // Optimistically proceed to next step
+      setCurrentStep(2);
+
+      // Call server action to add domain
+      const response = await addDomainAction({
+        organization_id: organizationId,
+        domain: cleanedDomain,
+        is_primary: true,
+      });
+
+      // Use any type to safely handle different response formats
+      const result = response as any;
+
+      // Check if response is successful
+      const isSuccess =
+        result &&
+        (result.success === true ||
+          (result.data && !result.error) ||
+          (result.data && result.status === 201));
+
+      if (!isSuccess) {
+        // Handle error but don't go back (we already proceeded to next step)
+        const errorMessage =
+          result?.error ||
+          (typeof result === "object" && "message" in result
+            ? result.message
+            : null) ||
+          "Failed to add domain. You can add it later in settings.";
+
+        toast({
+          title: "Note about domain",
+          description: errorMessage,
+        });
+      } else {
+        toast({
+          title: "Domain added",
+          description: `${cleanedDomain} has been added to your account.`,
+        });
+      }
+    } catch (error) {
+      // Don't go back to domain step, just show a message
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Domain validation error",
+          description: error.errors[0].message,
+        });
+      } else {
+        const errorMessage =
+          typeof error === "string"
+            ? error
+            : "An error occurred while adding the domain. You can add it later in settings.";
+        toast({
+          title: "Note about domain",
+          description: errorMessage,
+        });
+      }
+    } finally {
+      setDomainLoading(false);
+    }
+  };
+
+  const handleDomainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDomainValue(value);
+    setIsTypingDomain(true);
+    setDomainError(null);
+
+    // Clear any existing timer
+    if (domainDebounceTimerRef.current) {
+      clearTimeout(domainDebounceTimerRef.current);
+    }
+
+    // Set a new timer to turn off isTyping
+    domainDebounceTimerRef.current = setTimeout(() => {
+      setIsTypingDomain(false);
+    }, 500);
+  };
+
   const handleEmailCategoriesSubmit = async () => {
     setEmailCategoriesLoading(true);
 
@@ -419,7 +549,7 @@ export default function ClientPage({
       }
 
       // Proceed to next step first
-      setCurrentStep(2);
+      setCurrentStep(3);
 
       // Then start saving categories in the background
       setCategoryBgSaving(true);
@@ -487,7 +617,7 @@ export default function ClientPage({
         variant: "destructive",
       });
       // If there's an error, go back to email categories step
-      setCurrentStep(1);
+      setCurrentStep(2);
     } finally {
       setEmailCategoriesLoading(false);
       setCategoryBgSaving(false);
@@ -498,37 +628,25 @@ export default function ClientPage({
     setThemeLoading(true);
 
     try {
-      // Wait for categories to finish saving if they're still in progress
-      if (categoryBgSaving) {
+      const result = await updateUserPreferencesAction({
+        userId: userId,
+        preferences: {
+          welcomeStepsCompleted: false,
+          productUpdateEmails: productUpdateEmails,
+        },
+      });
+
+      // Cast the result to ActionResponse type for type safety
+      const typedResult = result as ActionResponse;
+
+      if (typedResult.error) {
         toast({
-          title: "Saving categories",
+          title: "Error saving preferences",
           description:
-            "Please wait while your email categories are being saved...",
+            typedResult.error || "Failed to save your preference settings",
+          variant: "destructive",
         });
-
-        // We'll just wait for the categoryBgSaving state to become false
-        // This is handled by the email categories saving function
-      }
-
-      if (userId) {
-        // Save user preferences
-        const result = await updateUserPreferencesAction({
-          userId,
-          preferences: {
-            productUpdateEmails,
-          },
-        });
-
-        // Cast the result to ActionResponse type for type safety
-        const typedResult = result as ActionResponse;
-
-        if (typedResult.error) {
-          toast({
-            title: "Error saving preferences",
-            description: typedResult.error || "Failed to save preferences",
-            variant: "destructive",
-          });
-        }
+        return;
       }
 
       // If there is no selected plan or selected plan is free, update onboarding status here
@@ -557,7 +675,7 @@ export default function ClientPage({
         router.push("/welcome");
       } else {
         // Continue to billing step if needed
-        setCurrentStep(3);
+        setCurrentStep(4);
       }
     } catch (error) {
       toast({
@@ -566,6 +684,8 @@ export default function ClientPage({
           error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
+    } finally {
+      setThemeLoading(false);
     }
   };
 
@@ -573,88 +693,37 @@ export default function ClientPage({
     setBillingSetupLoading(true);
 
     try {
-      // Set client-side state first
-      setOrgFinishedOnboarding(true);
+      // Save onboarding cookie data for redirect after Stripe checkout
+      cookies.set("stripe_return_to", "/welcome", { expires: 1 });
+      cookies.set("stripe_org_id", organizationId, { expires: 1 });
+      cookies.set("stripe_onboarding", "true", { expires: 1 });
 
-      // Mark organization as completed onboarding in the database
-      const onboardingResult = await updateOrganizationOnboardingStatusAction({
-        organizationId,
-        onboardingStatus: true,
-      });
+      // Get the selected stripe plan
+      const plan = STRIPE_PLANS.find(
+        (p) =>
+          p.sendLimit.toString() === selectedPlan &&
+          p.enviorment === process.env.NEXT_PUBLIC_STRIPE_ENV,
+      );
 
-      // Cast the result to ActionResponse type for type safety
-      const typedResult = onboardingResult as ActionResponse;
-
-      if (typedResult.error) {
+      if (!plan) {
         toast({
-          title: "Error updating onboarding status",
-          description:
-            typedResult.error || "Failed to update onboarding status",
+          title: "Invalid plan selection",
+          description: "Please select a valid plan to continue.",
           variant: "destructive",
         });
+        setBillingSetupLoading(false);
         return;
       }
 
-      // Get the price ID for the selected plan
-      const environment = process.env.NEXT_PUBLIC_STRIPE_ENV as
-        | "testing"
-        | "live";
-      const priceId = STRIPE_PLANS.find(
-        (plan) =>
-          plan.sendLimit.toString() === selectedPlan &&
-          plan.enviorment === environment,
-      )?.priceId;
-
-      if (!priceId) {
-        toast({
-          title: "Error setting up billing",
-          description: "Invalid plan selected",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Create checkout session
-      const response = await fetch("/api/stripe/create-checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          priceId,
-          organizationId,
-          userId,
-          successUrl: "/welcome",
-          cancelUrl: "/welcome",
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else if (data.error) {
-        toast({
-          title: "Error setting up billing",
-          description: `Error: ${data.error}`,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error setting up billing",
-          description:
-            "No checkout URL returned. Please try again or contact support.",
-          variant: "destructive",
-        });
-      }
+      // Redirect to stripe
+      window.location.href = `/api/create-checkout-session?priceId=${plan.priceId}&organizationId=${organizationId}`;
     } catch (error) {
-      console.error("Error creating checkout session:", error);
       toast({
-        title: "Error setting up billing",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Error processing billing setup",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
-    } finally {
       setBillingSetupLoading(false);
     }
   };
@@ -783,8 +852,15 @@ export default function ClientPage({
 
   // Back button function to go to the previous step
   const handleBackButton = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+    // Update to handle the new step
+    if (currentStep === 1) {
+      setCurrentStep(0);
+    } else if (currentStep === 2) {
+      setCurrentStep(1);
+    } else if (currentStep === 3) {
+      setCurrentStep(2);
+    } else if (currentStep === 4) {
+      setCurrentStep(3);
     }
   };
 
@@ -1263,8 +1339,46 @@ export default function ClientPage({
               <Button
                 className={`w-full ${selectedPlan !== "free" ? "bg-secondary text-foreground hover:bg-secondary/80" : ""}`}
                 variant={selectedPlan !== "free" ? "secondary" : "default"}
-                onClick={handleBillingComplete}
-                disabled={skipBillingLoading}
+                onClick={async () => {
+                  setSkipBillingLoading(true);
+                  try {
+                    // Set client-side state first
+                    setOrgFinishedOnboarding(true);
+
+                    const result =
+                      await updateOrganizationOnboardingStatusAction({
+                        organizationId,
+                        onboardingStatus: true,
+                      });
+
+                    // Cast the result to ActionResponse type for type safety
+                    const typedResult = result as ActionResponse;
+
+                    if (typedResult.error) {
+                      toast({
+                        title: "Error updating onboarding status",
+                        description:
+                          typedResult.error ||
+                          "Failed to update onboarding status",
+                        variant: "destructive",
+                      });
+                    }
+
+                    // Navigate directly to welcome page
+                    router.push("/welcome");
+                  } catch (error) {
+                    toast({
+                      title: "Error saving preferences",
+                      description:
+                        error instanceof Error
+                          ? error.message
+                          : "An error occurred",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setSkipBillingLoading(false);
+                  }
+                }}
               >
                 {skipBillingLoading ? (
                   <>
@@ -1282,6 +1396,94 @@ export default function ClientPage({
             </motion.div>
           </motion.div>
         </Card>
+      </motion.div>
+    </motion.div>
+  );
+
+  const renderDomainForm = () => (
+    <motion.div
+      key="domain-form"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col items-center justify-center gap-6"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="mb-6 flex flex-col items-center justify-center gap-2"
+      >
+        <div className="text-center text-2xl font-bold">Add Your Domain</div>
+        <div className="text-center text-base text-muted-foreground">
+          Add a domain for your church's emails
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+        className="w-full"
+      >
+        <form onSubmit={handleDomainSubmit} className="space-y-4">
+          <div className="grid gap-2">
+            <Label htmlFor="domain" className="ml-1">
+              Domain Name
+            </Label>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <div className="relative">
+                  <Input
+                    id="domain"
+                    placeholder="example.com"
+                    value={domainValue}
+                    onChange={handleDomainChange}
+                    className={`h-12 ${
+                      domainError ? "border-red-500" : ""
+                    } ${isTypingDomain ? "pr-8" : ""}`}
+                    disabled={domainLoading}
+                    maxLength={255}
+                  />
+                  {isTypingDomain && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                {domainError && !isTypingDomain && (
+                  <p className="mt-1.5 text-xs text-destructive">
+                    {domainError}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-2">
+            <Button type="submit" className="w-full" disabled={domainLoading}>
+              {domainLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Adding Domain...
+                </>
+              ) : (
+                "Continue"
+              )}
+            </Button>
+            {!domainLoading && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => setCurrentStep(2)}
+              >
+                I'll do this later
+              </Button>
+            )}
+          </div>
+        </form>
       </motion.div>
     </motion.div>
   );
@@ -1318,9 +1520,10 @@ export default function ClientPage({
       </AnimatePresence>
       <AnimatePresence mode="wait">
         {currentStep === 0 && renderAddressForm()}
-        {currentStep === 1 && renderEmailCategories()}
-        {currentStep === 2 && renderThemeSelector()}
-        {currentStep === 3 &&
+        {currentStep === 1 && renderDomainForm()}
+        {currentStep === 2 && renderEmailCategories()}
+        {currentStep === 3 && renderThemeSelector()}
+        {currentStep === 4 &&
           showBilling &&
           selectedPlan !== "free" &&
           renderBillingPage()}

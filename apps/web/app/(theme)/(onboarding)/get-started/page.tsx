@@ -25,7 +25,7 @@ export default async function Page() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center overflow-auto bg-gradient-to-b from-secondary/70 to-background/60 dark:from-secondary/30">
+    <div className="flex min-h-screen w-full items-center justify-center overflow-auto bg-gradient-to-b from-secondary/30 to-background/60 dark:from-secondary/30">
       <ClientPage userId={user.user.id} organizationId={user.organization.id} />
     </div>
   );

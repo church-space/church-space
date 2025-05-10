@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-10 bg-gradient-to-b from-secondary/70 to-background/60 py-10 dark:from-secondary/30">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-10 bg-gradient-to-b from-secondary/30 to-background/60 py-10 dark:from-secondary/30">
       <Card className="mx-auto max-w-md items-center justify-center text-center">
         <CardHeader>
           <CardTitle className="flex w-full items-center justify-center gap-2 text-center text-lg font-bold">
