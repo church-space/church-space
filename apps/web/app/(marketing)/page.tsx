@@ -165,14 +165,14 @@ export default function Homepage() {
         </div>
 
         <LinksSection />
-        <div className="w-full space-y-8 px-4 py-28 sm:pb-32">
+        {/* <div className="w-full space-y-8 px-4 py-28 sm:pb-32">
           <h1 className="mx-auto w-full max-w-2xl text-balance text-left text-5xl font-bold sm:text-center md:text-6xl">
             Why choose Church Space?
           </h1>
           <p className="w-full max-w-4xl text-pretty text-left text-lg sm:mx-auto">
             There are a dozen ways to send emails to your church.
           </p>
-        </div>
+        </div> */}
         <FAQSection className="px-4 pb-8 pt-20 md:pb-20 md:pt-36" />
       </div>
     </div>
