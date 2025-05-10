@@ -224,6 +224,7 @@ export const automationJob = task({
               .eq("organization_id", organizationId)
               .eq("email_address", personEmailRecord.email) // Use fetched email
               .eq("status", "subscribed") // Filter directly for subscribed status
+              .limit(1) // Explicitly add limit 1 since we only need to know if record exists
               .maybeSingle(); // Use maybeSingle as status might not exist or not be subscribed
 
           // Handle potential errors fetching status
@@ -321,6 +322,7 @@ export const automationJob = task({
             // Check unsubscribes for the batch
             const validRecipients = await Promise.all(
               batch.map(async (recipient) => {
+                // Check for unsubscribes with limit 1 - we only need to know if there's at least one record
                 const { data: unsubscribeData, error: unsubscribeError } =
                   await supabase
                     .from("email_category_unsubscribes")
@@ -328,6 +330,7 @@ export const automationJob = task({
                     .eq("category_id", emailCategoryId)
                     .eq("organization_id", organizationId)
                     .eq("email_address", recipient.email)
+                    .limit(1) // Explicitly add limit 1 since we only need to know if record exists
                     .maybeSingle();
 
                 if (unsubscribeError) {

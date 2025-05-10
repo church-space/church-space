@@ -16,7 +16,7 @@ interface FilterEmailRecipientsPayload {
 }
 
 export const filterEmailRecipients = task({
-  id: "filter-email-recipients",
+  id: "filter-email-recipients-test",
   run: async (payload: FilterEmailRecipientsPayload) => {
     const { emailId } = payload;
     const supabase = createClient();
@@ -156,30 +156,68 @@ export const filterEmailRecipients = task({
         return { status: "skipped", reason: "PCO list not found" };
       }
 
-      // Step 4: Get all members of the list
-      const { data: listMembers, error: listMembersError } = await supabase
-        .from("pco_list_members")
-        .select("pco_person_id")
-        .eq("pco_list_id", pcoList.pco_list_id)
-        .eq("organization_id", emailData.organization_id);
+      // Step 4: Get all members of the list - with pagination to handle more than 1000 records
+      let allListMembers: any[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasMoreRecords = true;
 
-      if (listMembersError) {
-        console.log(
-          `Failed to fetch list members: ${listMembersError.message}`,
-        );
-        return { status: "skipped", reason: "Failed to fetch list members" };
+      while (hasMoreRecords) {
+        const {
+          data: listMembersPage,
+          error: listMembersError,
+          count,
+        } = await supabase
+          .from("pco_list_members")
+          .select("pco_person_id", { count: "exact" })
+          .eq("pco_list_id", pcoList.pco_list_id)
+          .eq("organization_id", emailData.organization_id)
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (listMembersError) {
+          console.log(
+            `Failed to fetch list members: ${listMembersError.message}`,
+          );
+          return { status: "skipped", reason: "Failed to fetch list members" };
+        }
+
+        if (!listMembersPage || listMembersPage.length === 0) {
+          // No more records to fetch
+          hasMoreRecords = false;
+        } else {
+          // Add the current page of results to our collection
+          allListMembers = [...allListMembers, ...listMembersPage];
+
+          // Check if we've reached the end
+          if (
+            listMembersPage.length < pageSize ||
+            (count && allListMembers.length >= count)
+          ) {
+            hasMoreRecords = false;
+          } else {
+            // Move to next page
+            page++;
+          }
+        }
       }
 
-      if (!listMembers || listMembers.length === 0) {
+      if (!allListMembers || allListMembers.length === 0) {
         console.log("No members found in the specified list");
         return { status: "skipped", reason: "No list members found" };
       }
 
+      console.log(
+        "Total list members after pagination:",
+        allListMembers.length,
+      );
+
       // Extract person IDs from list members
-      const personIds = listMembers.map((member) => member.pco_person_id);
+      const personIds = allListMembers.map((member) => member.pco_person_id);
 
       // Step 5: Get all emails for these people
       let allPeopleEmails: any[] = [];
+
+      console.log("personIds", personIds);
 
       // Process in batches of 50 IDs at a time
       for (const personIdBatch of chunk(personIds, 50)) {
@@ -223,6 +261,8 @@ export const filterEmailRecipients = task({
 
       // Step 5.1: Get subscribed statuses for these email addresses
       let allEmailStatuses: any[] = [];
+
+      console.log("emailAddressesToCheck", emailAddressesToCheck);
 
       // Process in batches of 50 email addresses at a time
       for (const emailBatch of chunk(emailAddressesToCheck, 50)) {

@@ -15,14 +15,50 @@ export const processPendingAutomationRuns = schedules.task({
   run: async (_payload, ctx) => {
     const supabase = createClient();
 
-    // 1. pull all queued rows
-    const { data: rows, error } = await supabase
-      .from("pending_automation_runs")
-      .select("id, automation_id, organization_id, person_id")
-      .eq("status", "queued");
+    // 1. pull all queued rows with pagination to handle more than 1000 records
+    let allRows: Array<{
+      id: number;
+      automation_id: number;
+      organization_id: string;
+      person_id: string;
+    }> = [];
+    let page = 0;
+    const pageSize = 1000;
+    let hasMoreRecords = true;
 
-    if (error) throw error;
-    if (!rows?.length) return;
+    while (hasMoreRecords) {
+      const {
+        data: rows,
+        error,
+        count,
+      } = await supabase
+        .from("pending_automation_runs")
+        .select("id, automation_id, organization_id, person_id", {
+          count: "exact",
+        })
+        .eq("status", "queued")
+        .range(page * pageSize, (page + 1) * pageSize - 1);
+
+      if (error) throw error;
+
+      if (!rows || rows.length === 0) {
+        // No more records to fetch
+        hasMoreRecords = false;
+      } else {
+        // Add the current page of results to our collection
+        allRows = [...allRows, ...rows];
+
+        // Check if we've reached the end
+        if (rows.length < pageSize || (count && allRows.length >= count)) {
+          hasMoreRecords = false;
+        } else {
+          // Move to next page
+          page++;
+        }
+      }
+    }
+
+    if (!allRows.length) return;
 
     // 2. fold rows into {org+automation}->{ids,people}
     const groups = new Map<
@@ -35,7 +71,7 @@ export const processPendingAutomationRuns = schedules.task({
       }
     >();
 
-    for (const r of rows) {
+    for (const r of allRows) {
       const key = `${r.organization_id}:${r.automation_id}`;
       const g = groups.get(key) ?? {
         ids: [],

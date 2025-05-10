@@ -237,28 +237,59 @@ export const filterEmailRecipients = task({
         );
       }
 
-      // Step 4: Get all members of the list
-      const { data: listMembers, error: listMembersError } = await supabase
-        .from("pco_list_members")
-        .select("pco_person_id")
-        .eq("pco_list_id", pcoList.pco_list_id)
-        .eq("organization_id", emailData.organization_id);
+      // Step 4: Get all members of the list - with pagination to handle more than 1000 records
+      let allListMembers: any[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasMoreRecords = true;
 
-      if (listMembersError) {
-        await supabase
-          .from("emails")
-          .update({
-            status: "failed",
-            updated_at: new Date().toISOString(),
-            error_message: `Failed to fetch list members: ${listMembersError.message}`,
-          })
-          .eq("id", emailId);
-        throw new Error(
-          `Failed to fetch list members: ${listMembersError.message}`,
-        );
+      while (hasMoreRecords) {
+        const {
+          data: listMembersPage,
+          error: listMembersError,
+          count,
+        } = await supabase
+          .from("pco_list_members")
+          .select("pco_person_id", { count: "exact" })
+          .eq("pco_list_id", pcoList.pco_list_id)
+          .eq("organization_id", emailData.organization_id)
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (listMembersError) {
+          await supabase
+            .from("emails")
+            .update({
+              status: "failed",
+              updated_at: new Date().toISOString(),
+              error_message: `Failed to fetch list members: ${listMembersError.message}`,
+            })
+            .eq("id", emailId);
+          throw new Error(
+            `Failed to fetch list members: ${listMembersError.message}`,
+          );
+        }
+
+        if (!listMembersPage || listMembersPage.length === 0) {
+          // No more records to fetch
+          hasMoreRecords = false;
+        } else {
+          // Add the current page of results to our collection
+          allListMembers = [...allListMembers, ...listMembersPage];
+
+          // Check if we've reached the end
+          if (
+            listMembersPage.length < pageSize ||
+            (count && allListMembers.length >= count)
+          ) {
+            hasMoreRecords = false;
+          } else {
+            // Move to next page
+            page++;
+          }
+        }
       }
 
-      if (!listMembers || listMembers.length === 0) {
+      if (!allListMembers || allListMembers.length === 0) {
         // Update email status to failed
         await supabase
           .from("emails")
@@ -273,7 +304,7 @@ export const filterEmailRecipients = task({
       }
 
       // Extract person IDs from list members
-      const personIds = listMembers.map((member) => member.pco_person_id);
+      const personIds = allListMembers.map((member) => member.pco_person_id);
 
       // Step 5: Get all emails for these people
       let allPeopleEmails: any[] = [];
@@ -391,23 +422,55 @@ export const filterEmailRecipients = task({
         throw new Error("No subscribed emails found for people in the list");
       }
 
-      // Step 6: Get all email addresses that have unsubscribed from this audience
-      const { data: categoryUnsubscribes, error: unsubscribesError } =
-        await supabase
-          .from("email_category_unsubscribes")
-          .select("email_address")
-          .eq("category_id", emailData.email_category)
-          .eq("organization_id", emailData.organization_id);
+      // Step 6: Get all email addresses that have unsubscribed from this audience - with pagination
+      let allCategoryUnsubscribes: any[] = [];
+      page = 0; // Reset page counter
+      hasMoreRecords = true; // Reset hasMoreRecords flag
 
-      if (unsubscribesError) {
-        throw new Error(
-          `Failed to fetch audience unsubscribes: ${unsubscribesError.message}`,
-        );
+      while (hasMoreRecords) {
+        const {
+          data: unsubscribesPage,
+          error: unsubscribesError,
+          count,
+        } = await supabase
+          .from("email_category_unsubscribes")
+          .select("email_address", { count: "exact" })
+          .eq("category_id", emailData.email_category)
+          .eq("organization_id", emailData.organization_id)
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (unsubscribesError) {
+          throw new Error(
+            `Failed to fetch audience unsubscribes: ${unsubscribesError.message}`,
+          );
+        }
+
+        if (!unsubscribesPage || unsubscribesPage.length === 0) {
+          // No more records to fetch
+          hasMoreRecords = false;
+        } else {
+          // Add the current page of results to our collection
+          allCategoryUnsubscribes = [
+            ...allCategoryUnsubscribes,
+            ...unsubscribesPage,
+          ];
+
+          // Check if we've reached the end
+          if (
+            unsubscribesPage.length < pageSize ||
+            (count && allCategoryUnsubscribes.length >= count)
+          ) {
+            hasMoreRecords = false;
+          } else {
+            // Move to next page
+            page++;
+          }
+        }
       }
 
       // Create a set of unsubscribed email addresses for faster lookup
       const unsubscribedEmails = new Set(
-        categoryUnsubscribes?.map((unsub) =>
+        allCategoryUnsubscribes?.map((unsub) =>
           unsub.email_address.toLowerCase(),
         ) || [],
       );
