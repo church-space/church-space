@@ -62,13 +62,19 @@ export default async function ProtectedLayout({
     const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    if (lastRefreshed < twoHoursAgo && lastRefreshed > ninetyDaysAgo) {
-      // Token needs refresh but isn't expired
-      const headersList = await headers();
-      const currentPath = headersList.get("x-pathname");
-      const returnPath =
-        currentPath || headersList.get("x-invoke-path") || "/emails";
+    // Only redirect if we're not already on the refresh page
+    const headersList = await headers();
+    const currentPath =
+      headersList.get("x-pathname") || headersList.get("x-invoke-path");
+    const isRefreshPage = currentPath?.startsWith("/pco-refresh");
 
+    if (
+      lastRefreshed < twoHoursAgo &&
+      lastRefreshed > ninetyDaysAgo &&
+      !isRefreshPage
+    ) {
+      // Token needs refresh but isn't expired
+      const returnPath = currentPath || "/emails";
       return redirect(
         `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`,
       );

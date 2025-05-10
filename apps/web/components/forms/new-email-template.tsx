@@ -52,7 +52,9 @@ export default function NewEmailTemplate({
       });
 
       if (result?.data?.success && result?.data?.data) {
-        await router.push(`/emails/${result.data.data.id}/editor`);
+        await router.push(
+          `/emails/${result.data.data.id}/editor?newEmail=true`,
+        );
       }
     } catch (error) {
       console.error("Failed to create template:", error);
