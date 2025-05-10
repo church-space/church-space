@@ -6,6 +6,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import HelpMenu from "@/components/sidebar/help-menu";
 import { ReactQueryProvider } from "@/components/providers/react-query";
+import { cookies } from "next/headers";
+import { setOrgCookie } from "@/actions/set-org-cookie";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -16,6 +18,8 @@ export default async function ProtectedLayout({
 }: ProtectedLayoutProps) {
   const supabase = await createClient();
   const session = await supabase.auth.getSession();
+  const cookieStore = await cookies();
+  const orgId = cookieStore.get("organizationId");
 
   if (!session.data.session) {
     return redirect("/login");
@@ -46,6 +50,10 @@ export default async function ProtectedLayout({
     if (!user.organization?.finished_onboarding) {
       return redirect("/get-started");
     }
+  }
+
+  if (!orgId) {
+    await setOrgCookie(user.organizationMembership.organization_id);
   }
 
   if (user.pcoConnection) {
