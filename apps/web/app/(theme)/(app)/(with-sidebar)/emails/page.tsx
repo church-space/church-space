@@ -57,8 +57,8 @@ export default async function Page() {
   // redirect to set the cookie and then come back
   if (!organizationId && user.organizationMembership.organization_id) {
     // Redirect to a route handler that will set the cookie and redirect back
-    redirect(
-      `/api/set-organization?id=${user.organizationMembership.organization_id}&redirectTo=/emails`,
+    return redirect(
+      `/api/set-org-cookie?organizationId=${encodeURIComponent(user.organizationMembership.organization_id)}&returnTo=/emails}`,
     );
   }
 

@@ -7,7 +7,6 @@ import { redirect } from "next/navigation";
 import HelpMenu from "@/components/sidebar/help-menu";
 import { ReactQueryProvider } from "@/components/providers/react-query";
 import { cookies } from "next/headers";
-import { setOrgCookie } from "@/actions/set-org-cookie";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -53,7 +52,17 @@ export default async function ProtectedLayout({
   }
 
   if (!orgId) {
-    await setOrgCookie(user.organizationMembership.organization_id);
+    // Get current path to return to after setting cookie
+    const headersList = await headers();
+    const currentPath =
+      headersList.get("x-pathname") ||
+      headersList.get("x-invoke-path") ||
+      "/home";
+
+    // Redirect to API route to set cookie, then return to current page
+    return redirect(
+      `/api/set-org-cookie?organizationId=${encodeURIComponent(user.organizationMembership.organization_id)}&returnTo=${encodeURIComponent(currentPath)}`,
+    );
   }
 
   if (user.pcoConnection) {
