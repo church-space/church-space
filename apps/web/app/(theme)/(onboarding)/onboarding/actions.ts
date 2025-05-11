@@ -34,3 +34,16 @@ export async function handleExpiredInvite() {
   cookieStore.delete("invite");
   console.log(`[handleExpiredInvite] Invite cookie deleted`);
 }
+
+export async function handleSuccessfulInvite(organizationId: string) {
+  console.log(
+    `[handleSuccessfulInvite] Processing for organization: ${organizationId}`,
+  );
+  const cookieStore = await cookies();
+  cookieStore.delete("invite");
+  cookieStore.set("organization_id", organizationId);
+  console.log(
+    `[handleSuccessfulInvite] Cookies updated, redirecting to /hello`,
+  );
+  return redirect("/hello");
+}

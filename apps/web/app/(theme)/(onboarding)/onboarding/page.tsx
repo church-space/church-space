@@ -6,7 +6,7 @@ import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import ClientPage from "./client-page";
 import { redirect } from "next/navigation";
-import { handleExpiredInvite } from "./actions";
+import { handleExpiredInvite, handleSuccessfulInvite } from "./actions";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -120,10 +120,8 @@ export default async function Page() {
         console.log(
           "[Onboarding Page] Successfully added user to organization, setting cookies and redirecting",
         );
-        // Handle successful invite directly here
-        cookieStore.delete("invite");
-        cookieStore.set("organization_id", organizationId);
-        return redirect("/hello");
+        // Handle successful invite using server action
+        return handleSuccessfulInvite(organizationId);
       }
     } else {
       console.log(
