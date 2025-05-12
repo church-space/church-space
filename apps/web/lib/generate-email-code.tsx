@@ -552,6 +552,7 @@ const CustomImage: React.FC<{
       alt={altText || "Email content"}
       width={`${size}%`}
       style={imageStyle}
+      className="image-block-img"
     />
   );
 
@@ -721,6 +722,7 @@ const CustomVideo: React.FC<{
                       display: "block",
                       borderRadius: cornerRadius ? `${cornerRadius}px` : "0",
                     }}
+                    className="video-block-img"
                   />
                 </td>
               </tr>
@@ -868,6 +870,7 @@ const CustomCards: React.FC<{
                                   : "0",
                                 marginBottom: "12px",
                               }}
+                              className="image-block-img"
                             />
                           </td>
                         </tr>
@@ -1957,12 +1960,11 @@ export function generateEmailCode(
   // Ensure defaultFont has proper fallbacks for email clients
   const emailSafeFont = ensureFontFallbacks(defaultFont);
 
-  return (
-    <Html>
-      <Head>
-        <title>Email Preview</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <style>{`
+  // Calculate proportional corner radius for mobile, respecting 0 radius
+  const mobileCornerRadius =
+    cornerRadius === 0 ? 0 : Math.max(2, Math.round(cornerRadius * 0.3));
+
+  const responsiveStyles = `
       /* Default mobile styles */
       .card-column {
         display: block !important;
@@ -1999,6 +2001,12 @@ export function generateEmailCode(
         .td-container {
           padding: 6px !important;
         }
+        
+        /* Reduce border radius for images/videos on mobile */
+        .image-block-img,
+        .video-block-img {
+          border-radius: ${mobileCornerRadius}px !important;
+        }
       }
 
       /* Desktop styles - Using media query syntax for email clients */
@@ -2021,7 +2029,14 @@ export function generateEmailCode(
            padding-right: 0 !important;
         }
       }
-    `}</style>
+    `;
+
+  return (
+    <Html>
+      <Head>
+        <title>Email Preview</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>{responsiveStyles}</style>
       </Head>
       {previewText && <Preview>{previewText}</Preview>}
       <Body style={{ margin: 0, padding: 0 }}>

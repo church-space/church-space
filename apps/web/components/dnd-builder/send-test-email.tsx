@@ -264,7 +264,7 @@ export default function SendTestEmail({
         body: JSON.stringify({
           emails: [
             {
-              from: fromEmail,
+              from: "Church Space Test Email <" + fromEmail + ">",
               to: emails,
               subject: "TEST: " + emailWithBlocks.email.subject || "Test Email",
               html: enhancedHtmlContent,
