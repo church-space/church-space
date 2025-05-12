@@ -103,6 +103,9 @@ interface DndBuilderSidebarProps {
   onDeleteTemplate?: () => void;
   onApplyToAllButtons: () => void;
   onApplyToAllDividers: () => void;
+  handleAddBlockByType?: (type: Block["type"]) => void;
+  mobilePopoverOpen?: boolean;
+  setMobilePopoverOpen?: (open: boolean) => void;
 }
 
 function DraggableBlock({
@@ -146,6 +149,66 @@ function DraggableBlock({
         {...attributes}
         style={style}
         className={cn(block.type === "quiz" && "col-span-3 mt-4")}
+      >
+        <BlockContent />
+      </div>
+      {isDragging && (
+        <DragOverlay>
+          <BlockContent className="z-20" />
+        </DragOverlay>
+      )}
+    </>
+  );
+}
+
+function ClickableBlock({
+  block,
+  onClickAdd,
+}: {
+  block: { type: string; label: string; icon: any };
+  onClickAdd?: (type: Block["type"]) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id: `sidebar-${block.type}`,
+      data: {
+        type: block.type,
+        fromSidebar: true,
+      },
+    });
+
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        opacity: isDragging ? 0.5 : undefined,
+      }
+    : undefined;
+
+  const BlockContent = ({ className }: { className?: string }) => (
+    <div
+      className={cn(
+        "flex cursor-grab flex-col items-center gap-1 rounded-md border bg-background p-3 shadow-sm hover:bg-accent/80",
+        className,
+      )}
+    >
+      <block.icon />
+      <span>{block.label}</span>
+    </div>
+  );
+
+  return (
+    <>
+      <div
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
+        style={style}
+        className={cn(block.type === "quiz" && "col-span-3 mt-4")}
+        onClick={() => {
+          if (onClickAdd) {
+            onClickAdd(block.type as Block["type"]);
+          }
+        }}
       >
         <BlockContent />
       </div>
@@ -219,6 +282,9 @@ export default function DndBuilderSidebar({
   onDeleteTemplate,
   onApplyToAllButtons,
   onApplyToAllDividers,
+  handleAddBlockByType,
+  mobilePopoverOpen,
+  setMobilePopoverOpen,
 }: DndBuilderSidebarProps) {
   const [hasMounted, setHasMounted] = React.useState(false);
 
@@ -448,7 +514,7 @@ export default function DndBuilderSidebar({
           <Palette height="22px" width="22px" />
         </Button>
         <div className="">
-          <Popover>
+          <Popover open={mobilePopoverOpen} onOpenChange={setMobilePopoverOpen}>
             <PopoverTrigger asChild>
               <CirclePlus height="40px" width="40px" />
             </PopoverTrigger>
@@ -458,7 +524,11 @@ export default function DndBuilderSidebar({
             >
               <div className="grid grid-cols-3 gap-2 p-4">
                 {blockTypes.map((block) => (
-                  <DraggableBlock key={block.type} block={block} />
+                  <ClickableBlock
+                    key={block.type}
+                    block={block}
+                    onClickAdd={handleAddBlockByType}
+                  />
                 ))}
               </div>
             </PopoverContent>

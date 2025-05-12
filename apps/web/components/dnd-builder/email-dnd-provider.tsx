@@ -125,6 +125,7 @@ export default function EmailDndProvider({
   );
   const updateEmailFooter = useUpdateEmailFooter();
   const { toast } = useToast();
+  const [mobilePopoverOpen, setMobilePopoverOpen] = useState(false);
 
   const { data: orgFooterDetails } = useQuery({
     queryKey: ["orgFooterDetails", organizationId],
@@ -323,6 +324,185 @@ export default function EmailDndProvider({
         debouncedDatabaseUpdate(dbBlockId, blockToUpdate.data);
       }
     }
+  };
+
+  // Add a new block to the end of the list by type (for mobile click)
+  const handleAddBlockByType = (blockType: BlockType["type"]) => {
+    // Check block limit before adding a new block
+    if (blocks.length >= 50) {
+      toast({
+        variant: "destructive",
+        title: "Block Limit Reached",
+        description: "You cannot add more than 50 blocks to an email.",
+      });
+      return;
+    }
+
+    const newBlockId = crypto.randomUUID();
+    const newBlockOrder = blocks.length; // Add to the end
+
+    // Create the block data based on the block type
+    let blockData: BlockData;
+    if (blockType === "text") {
+      blockData = { content: "" };
+    } else if (blockType === "video") {
+      blockData = { url: "", size: 100, centered: true };
+    } else if (blockType === "file-download") {
+      blockData = {
+        title: "",
+        file: "",
+        bgColor: "#f0f0f0",
+        textColor: "#000000",
+      };
+    } else if (blockType === "divider") {
+      blockData = {
+        color: styles.defaultTextColor,
+        margin: 0,
+        thickness: 1,
+      };
+    } else if (blockType === "button") {
+      blockData = {
+        text: "",
+        link: "",
+        color: styles.defaultTextColor,
+        textColor: styles.bgColor,
+        style: "filled",
+        size: "large",
+        centered: true,
+      };
+    } else if (blockType === "list") {
+      blockData = {
+        title: "",
+        subtitle: "",
+        textColor: "#000000",
+        bulletColor: styles.defaultTextColor,
+        bulletTextColor: styles.bgColor,
+        bulletType: "number",
+        items: [{ title: "", description: "", order: 0 }],
+      };
+    } else if (blockType === "cards") {
+      blockData = {
+        title: "",
+        subtitle: "",
+        textColor: styles.defaultTextColor,
+        labelColor: styles.accentTextColor,
+        buttonColor: styles.accentTextColor,
+        buttonTextColor: styles.bgColor,
+        buttonSize: "fit",
+        buttonStyle: "filled",
+        cards: [
+          {
+            title: "Card One",
+            description: "Card One Description",
+            label: "",
+            buttonText: "",
+            buttonLink: "",
+            image: "",
+            order: 0,
+          },
+          {
+            title: "Card Two",
+            description: "Card Two Description",
+            label: "",
+            buttonText: "",
+            buttonLink: "",
+            image: "",
+            order: 0,
+          },
+        ],
+      };
+    } else if (blockType === "image") {
+      blockData = { image: "", size: 100, link: "", centered: true };
+    } else {
+      // Default to text block data if type is not recognized
+      blockData = { content: "" };
+    }
+
+    // Create the new block with the correct order
+    const newBlock: BlockType = {
+      id: newBlockId,
+      type: blockType,
+      order: newBlockOrder,
+      data: blockData,
+    };
+
+    // Initialize editor for text blocks
+    if (blockType === "text") {
+      const initialContent = (blockData as any).content || "";
+      const newEditor = createEditor(
+        initialContent,
+        styles.defaultFont,
+        styles.defaultTextColor,
+        true, // preserve existing styles
+        styles.accentTextColor,
+      );
+      setEditors((prev) => ({
+        ...prev,
+        [newBlockId]: newEditor,
+      }));
+    }
+
+    // Add the block to the end
+    const newBlocks = [...blocks, newBlock];
+
+    // Update the order of all blocks
+    const updatedBlocksWithOrder = newBlocks.map((block, index) => ({
+      ...block,
+      order: index,
+    }));
+
+    // Update the local state - this will add to history
+    updateBlocksHistory(updatedBlocksWithOrder);
+
+    // Add the block to the database if we have an emailId
+    if (emailId) {
+      addEmailBlock.mutate(
+        {
+          emailId,
+          type: blockType,
+          value: blockData,
+          order: newBlockOrder,
+        },
+        {
+          onSuccess: (result) => {
+            if (result && result.id) {
+              // Update the block ID in our local state to use the database ID
+              const finalBlocks = updatedBlocksWithOrder.map((block) =>
+                block.id === newBlockId
+                  ? { ...block, id: result.id.toString() }
+                  : block,
+              );
+
+              // Update the editor reference if this is a text block
+              if (blockType === "text") {
+                setEditors((prev) => {
+                  const newEditors = { ...prev };
+                  if (newEditors[newBlockId]) {
+                    newEditors[result.id.toString()] = newEditors[newBlockId];
+                    delete newEditors[newBlockId];
+                  }
+                  return newEditors;
+                });
+              }
+
+              // Update the UI - this will add to history
+              updateBlocksHistory(finalBlocks);
+
+              // Update the order of all blocks in the database
+              updateBlockOrdersInDatabase(finalBlocks);
+            } else {
+              console.error("Failed to add block to database - no ID returned");
+            }
+          },
+          onError: (error) => {
+            console.error("Error adding block to database:", error);
+          },
+        },
+      );
+    }
+
+    // Close the mobile popover
+    setMobilePopoverOpen(false);
   };
 
   // Handle drag end and block creation
@@ -3190,6 +3370,9 @@ export default function EmailDndProvider({
             onApplyToAllDividers={() =>
               handleApplyToAllDividers(selectedBlockId)
             }
+            handleAddBlockByType={handleAddBlockByType} // Pass down the new function
+            mobilePopoverOpen={mobilePopoverOpen} // Pass down state
+            setMobilePopoverOpen={setMobilePopoverOpen} // Pass down setter
           />
           <div className="relative flex-1">
             <AnimatePresence>
