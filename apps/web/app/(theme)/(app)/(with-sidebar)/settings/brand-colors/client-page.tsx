@@ -1,20 +1,35 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import { getBrandColors } from "@/actions/get-brand-colors";
+import { upsertBrandColorsAction } from "@/actions/upsert-brand-colors";
 import ColorPicker from "@/components/dnd-builder/color-picker";
 import {
+  SettingsContent,
+  SettingsDescription,
+  SettingsHeader,
   SettingsRow,
   SettingsRowAction,
   SettingsRowTitle,
+  SettingsSection,
+  SettingsTitle,
 } from "@/components/settings/settings-settings";
-import { Plus, X } from "lucide-react";
+import { useDebounce } from "@/hooks/use-debounce";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@church-space/ui/breadcrumb";
 import { Button } from "@church-space/ui/button";
 import { cn } from "@church-space/ui/cn";
-import { upsertBrandColorsAction } from "@/actions/upsert-brand-colors";
-import { useDebounce } from "@/hooks/use-debounce";
-import { getBrandColors } from "@/actions/get-brand-colors";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useToast } from "@church-space/ui/use-toast";
+import { Separator } from "@church-space/ui/separator";
+import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Skeleton } from "@church-space/ui/skeleton";
+import { useToast } from "@church-space/ui/use-toast";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Plus, X } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 export default function ClientPage({
   organizationId,
@@ -30,11 +45,19 @@ export default function ClientPage({
   const [isInitialized, setIsInitialized] = useState(false); // Track initialization
   const hasUserMadeChangesRef = useRef(false); // Ref to track if user initiated changes
   const debouncedColors = useDebounce(colors, 800); // Debounce for 800ms
+  const [showSavedStatus, setShowSavedStatus] = useState(false);
 
   const { toast } = useToast();
 
   const { mutate: saveColors } = useMutation({
     mutationFn: upsertBrandColorsAction,
+
+    onSuccess: () => {
+      setShowSavedStatus(true);
+      setTimeout(() => {
+        setShowSavedStatus(false);
+      }, 4000);
+    },
 
     onError: (error) => {
       const errorMessage =
@@ -143,86 +166,157 @@ export default function ClientPage({
   // Show loading state or placeholder?
   if (isLoading) {
     return (
-      <>
-        <Skeleton className="flex w-full flex-col gap-2 rounded-b-none border-b p-4 md:flex-row md:items-center md:justify-between">
-          <Skeleton className="h-5 w-32" />
-          <div className="flex w-full gap-1 md:w-fit">
-            <Skeleton className="h-9 w-full md:w-64" />
-            <Skeleton className="h-9 w-9" />
+      <div className="relative">
+        <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <Link href="/settings" className="hidden md:block">
+                  <BreadcrumbItem>Settings</BreadcrumbItem>
+                </Link>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Brand Colors</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
-        </Skeleton>
+        </header>
+        <div className="flex flex-1 flex-col gap-16 p-4 pt-8">
+          <SettingsSection>
+            <SettingsHeader>
+              <SettingsTitle>Brand Colors</SettingsTitle>
+              <SettingsDescription>
+                Customize the colors of your church&apos;s brand. Changes you
+                make here are auto-saved.
+              </SettingsDescription>
+            </SettingsHeader>
+            <SettingsContent>
+              <Skeleton className="flex w-full flex-col gap-2 rounded-b-none border-b p-4 md:flex-row md:items-center md:justify-between">
+                <Skeleton className="h-5 w-32" />
+                <div className="flex w-full gap-1 md:w-fit">
+                  <Skeleton className="h-9 w-full md:w-64" />
+                  <Skeleton className="h-9 w-9" />
+                </div>
+              </Skeleton>
 
-        <Skeleton className="flex w-full flex-col gap-2 rounded-none border-b p-4 md:flex-row md:items-center md:justify-between">
-          <Skeleton className="h-5 w-32" />
-          <div className="flex w-full gap-1 md:w-fit">
-            <Skeleton className="h-9 w-full md:w-64" />
-            <Skeleton className="h-9 w-9" />
-          </div>
-        </Skeleton>
-        <Skeleton className="flex w-full flex-col gap-2 rounded-none p-4 md:flex-row md:items-center md:justify-between">
-          <Skeleton className="h-5 w-32" />
-          <div className="flex w-full gap-1 md:w-fit">
-            <Skeleton className="h-9 w-full md:w-64" />
-            <Skeleton className="h-9 w-9" />
-          </div>
-        </Skeleton>
+              <Skeleton className="flex w-full flex-col gap-2 rounded-none border-b p-4 md:flex-row md:items-center md:justify-between">
+                <Skeleton className="h-5 w-32" />
+                <div className="flex w-full gap-1 md:w-fit">
+                  <Skeleton className="h-9 w-full md:w-64" />
+                  <Skeleton className="h-9 w-9" />
+                </div>
+              </Skeleton>
+              <Skeleton className="flex w-full flex-col gap-2 rounded-none p-4 md:flex-row md:items-center md:justify-between">
+                <Skeleton className="h-5 w-32" />
+                <div className="flex w-full gap-1 md:w-fit">
+                  <Skeleton className="h-9 w-full md:w-64" />
+                  <Skeleton className="h-9 w-9" />
+                </div>
+              </Skeleton>
 
-        <SettingsRow
-          isFirstRow={colors.length === 0}
-          className={cn(
-            "cursor-pointer rounded-b-lg bg-muted text-muted-foreground transition-colors duration-200 hover:bg-background hover:text-foreground",
-            colors.length === 0 && "rounded-t-lg",
-          )}
-        >
-          <SettingsRowTitle className="flex items-center gap-2">
-            <Plus className="h-4 w-4" /> Add Color
-          </SettingsRowTitle>
-        </SettingsRow>
-      </>
+              <SettingsRow
+                isFirstRow={colors.length === 0}
+                className={cn(
+                  "cursor-pointer rounded-b-lg bg-muted text-muted-foreground transition-colors duration-200 hover:bg-background hover:text-foreground",
+                  colors.length === 0 && "rounded-t-lg",
+                )}
+              >
+                <SettingsRowTitle className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" /> Add Color
+                </SettingsRowTitle>
+              </SettingsRow>
+            </SettingsContent>
+          </SettingsSection>
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
-      {colors.map((color, index) => (
-        <SettingsRow key={index} isFirstRow={index === 0}>
-          <SettingsRowTitle>Color {index + 1}</SettingsRowTitle>
-          <SettingsRowAction className="flex w-full flex-row items-center justify-start gap-1 md:justify-end">
-            <ColorPicker
-              onChange={(newColor) => handleColorChange(index, newColor)}
-              value={color}
-              brandColorsDisabled={true}
-              className="w-full md:w-fit"
-            />
-            {/* Conditionally render the remove button */}
-            {colors.length > 1 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeColor(index)}
-                className="text-muted-foreground hover:text-destructive"
-                aria-label={`Remove Color ${index + 1}`}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </SettingsRowAction>
-        </SettingsRow>
-      ))}
-      {colors.length < 8 && ( // Only show add button if less than 8 colors
-        <SettingsRow
-          isFirstRow={colors.length === 0}
-          onClick={addColor}
+    <div className="relative">
+      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <Link href="/settings" className="hidden md:block">
+                <BreadcrumbItem>Settings</BreadcrumbItem>
+              </Link>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Brand Colors</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div
           className={cn(
-            "cursor-pointer rounded-b-lg bg-muted text-muted-foreground transition-colors duration-200 hover:bg-background hover:text-foreground",
-            colors.length === 0 && "rounded-t-lg",
+            "flex items-center gap-2 px-6 transition-all duration-300",
+            showSavedStatus
+              ? "translate-x-0 opacity-100"
+              : "pointer-events-none translate-x-4 opacity-0",
           )}
         >
-          <SettingsRowTitle className="flex items-center gap-2">
-            <Plus className="h-4 w-4" /> Add Color
-          </SettingsRowTitle>
-        </SettingsRow>
-      )}
-    </>
+          <div className="h-3 w-3 animate-pulse rounded-full bg-green-500" />
+          <p className="text-sm text-muted-foreground">Saved</p>
+        </div>
+      </header>
+      <div className="flex flex-1 flex-col gap-16 p-4 pt-8">
+        <SettingsSection>
+          <SettingsHeader>
+            <SettingsTitle>Brand Colors</SettingsTitle>
+            <SettingsDescription>
+              Customize the colors of your church&apos;s brand. Changes you make
+              here are auto-saved.
+            </SettingsDescription>
+          </SettingsHeader>
+          <SettingsContent>
+            {colors.map((color, index) => (
+              <SettingsRow key={index} isFirstRow={index === 0}>
+                <SettingsRowTitle>Color {index + 1}</SettingsRowTitle>
+                <SettingsRowAction className="flex w-full flex-row items-center justify-start gap-1 md:justify-end">
+                  <ColorPicker
+                    onChange={(newColor) => handleColorChange(index, newColor)}
+                    value={color}
+                    brandColorsDisabled={true}
+                    className="w-full md:w-fit"
+                  />
+                  {/* Conditionally render the remove button */}
+                  {colors.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeColor(index)}
+                      className="text-muted-foreground hover:text-destructive"
+                      aria-label={`Remove Color ${index + 1}`}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </SettingsRowAction>
+              </SettingsRow>
+            ))}
+            {colors.length < 8 && ( // Only show add button if less than 8 colors
+              <SettingsRow
+                isFirstRow={colors.length === 0}
+                onClick={addColor}
+                className={cn(
+                  "cursor-pointer rounded-b-lg bg-muted text-muted-foreground transition-colors duration-200 hover:bg-background hover:text-foreground",
+                  colors.length === 0 && "rounded-t-lg",
+                )}
+              >
+                <SettingsRowTitle className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" /> Add Color
+                </SettingsRowTitle>
+              </SettingsRow>
+            )}
+          </SettingsContent>
+        </SettingsSection>
+      </div>
+    </div>
   );
 }

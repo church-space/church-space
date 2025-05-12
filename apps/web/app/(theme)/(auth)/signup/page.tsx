@@ -311,10 +311,7 @@ export default function Page() {
                     Or
                     <div className="h-px w-full bg-muted-foreground"></div>
                   </div>
-                  <EmailForm
-                    onSubmit={handleEmailSubmit}
-                    buttonText="Sign up with Email"
-                  />
+                  <EmailForm onSubmit={handleEmailSubmit} isSignUp={true} />
                   <div className="flex w-full justify-center gap-1 text-center text-sm font-light text-muted-foreground">
                     Already have an account?{" "}
                     <Link

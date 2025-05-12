@@ -28,13 +28,13 @@ const FormSchema = z.object({
 interface EmailFormProps {
   onSubmit: (email: string) => void;
   showLastUsed?: boolean;
-  buttonText?: string;
+  isSignUp?: boolean;
 }
 
 export function EmailForm({
   onSubmit,
   showLastUsed = false,
-  buttonText = "Email",
+  isSignUp = false,
 }: EmailFormProps) {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -141,7 +141,14 @@ export function EmailForm({
             <span className="text-primary">
               <Email height={"16"} width={"16"} />
             </span>
-            {buttonText}
+            {isSignUp ? (
+              "Sign up with Email"
+            ) : (
+              <div className="flex items-center gap-1">
+                <span className="hidden sm:inline">Sign in with</span>
+                Email
+              </div>
+            )}
           </>
         )}
       </motion.button>
