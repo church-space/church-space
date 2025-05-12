@@ -217,7 +217,7 @@ export default function Page() {
   const organizationId = Cookies.get("organizationId");
 
   if (!organizationId) {
-    return null;
+    redirect("/qr-codes");
   }
 
   const [isDeletingLink, setIsDeletingLink] = useState(false);
