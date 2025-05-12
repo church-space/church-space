@@ -68,8 +68,13 @@ function getValidNumber(
 }
 
 function getValidHour(value: string) {
-  if (isValidHour(value)) return value;
-  return getValidNumber(value, { max: 23 });
+  if (isValidHour(value)) {
+    // Remove leading zero for display if present
+    const numValue = parseInt(value, 10);
+    return numValue.toString();
+  }
+  const numValue = parseInt(getValidNumber(value, { max: 23 }), 10);
+  return numValue.toString();
 }
 
 function getValid12Hour(value: string) {
@@ -101,11 +106,15 @@ function getValidArrowNumber(
 }
 
 function getValidArrowHour(value: string, step: number) {
-  return getValidArrowNumber(value, { min: 0, max: 23, step });
+  const result = getValidArrowNumber(value, { min: 0, max: 23, step });
+  // Return without leading zero for hours
+  return parseInt(result, 10).toString();
 }
 
 function getValidArrow12Hour(value: string, step: number) {
-  return getValidArrowNumber(value, { min: 1, max: 12, step });
+  const result = getValidArrowNumber(value, { min: 1, max: 12, step });
+  // Return without leading zero for 12-hour format
+  return parseInt(result, 10).toString();
 }
 
 function getValidArrowMinuteOrSecond(value: string, step: number) {
@@ -170,9 +179,9 @@ function getDateByType(date: Date | null, type: TimePickerType) {
     case "seconds":
       return getValidMinuteOrSecond(String(date.getSeconds()));
     case "hours":
-      return getValidHour(String(date.getHours()));
+      return String(date.getHours());
     case "12hours":
-      return getValid12Hour(String(display12HourValue(date.getHours())));
+      return display12HourValue(date.getHours());
     default:
       return "00";
   }
@@ -220,9 +229,8 @@ function convert12HourTo24Hour(hour: number, period: Period) {
  */
 function display12HourValue(hours: number) {
   if (hours === 0 || hours === 12) return "12";
-  if (hours >= 22) return `${hours - 12}`;
-  if (hours % 12 > 9) return `${hours}`;
-  return `0${hours % 12}`;
+  if (hours >= 13) return `${hours - 12}`;
+  return `${hours}`;
 }
 
 function genMonths(
@@ -522,15 +530,22 @@ const TimePickerInput = React.forwardRef<
     }, [date, picker]);
 
     const calculateNewValue = (key: string) => {
-      /*
-       * If picker is '12hours' and the first digit is 0, then the second digit is automatically set to 1.
-       * The second entered digit will break the condition and the value will be set to 10-12.
-       */
-      if (picker === "12hours") {
-        if (flag && calculatedValue.slice(1, 2) === "1" && prevIntKey === "0")
-          return `0${key}`;
+      // Format for hours is different than for minutes and seconds
+      if (picker === "hours" || picker === "12hours") {
+        if (!flag) return key;
+
+        // Second digit entered
+        const newValue = calculatedValue + key;
+        const numValue = parseInt(newValue, 10);
+
+        if (picker === "hours" && numValue > 23) return "23";
+        if (picker === "12hours" && numValue > 12) return "12";
+        if (picker === "12hours" && numValue < 1) return "1";
+
+        return numValue.toString();
       }
 
+      // For minutes and seconds, keep leading zeros
       return !flag ? `0${key}` : calculatedValue.slice(1, 2) + key;
     };
 
@@ -550,7 +565,8 @@ const TimePickerInput = React.forwardRef<
         if (picker === "12hours") setPrevIntKey(e.key);
 
         const newValue = calculateNewValue(e.key);
-        if (flag) onRightFocus?.();
+        if (flag || (picker !== "hours" && picker !== "12hours"))
+          onRightFocus?.();
         setFlag((prev) => !prev);
         const tempDate = date ? new Date(date) : new Date();
         onDateChange?.(setDateByType(tempDate, newValue, picker, period));
@@ -680,6 +696,9 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
 
             // Notify about invalid time but don't modify the date
             onInvalidTime?.(newDate, reason);
+          } else {
+            // Clear any error when time is valid
+            onInvalidTime?.(newDate, "");
           }
         }
       }
@@ -853,6 +872,22 @@ const DateTimePicker = React.forwardRef<
         );
         onMonthChange?.(newDay);
         setMonth(newDay);
+
+        // Clear error for future dates
+        if (disabledPast) {
+          const now = new Date();
+          // If it's a future date (not today), clear any errors
+          if (
+            newDay.getFullYear() > now.getFullYear() ||
+            (newDay.getFullYear() === now.getFullYear() &&
+              newDay.getMonth() > now.getMonth()) ||
+            (newDay.getFullYear() === now.getFullYear() &&
+              newDay.getMonth() === now.getMonth() &&
+              newDay.getDate() > now.getDate())
+          ) {
+            setError(null);
+          }
+        }
         return;
       }
       const diff = newDay.getTime() - defaultPopupValue.getTime();
@@ -874,7 +909,7 @@ const DateTimePicker = React.forwardRef<
         return;
       }
 
-      // No automatic adjustment; just validate if needed
+      // Validate date+time combination whenever date changes
       if (disabledPast) {
         const now = new Date();
         const isToday =
@@ -882,8 +917,12 @@ const DateTimePicker = React.forwardRef<
           newDay.getMonth() === now.getMonth() &&
           newDay.getFullYear() === now.getFullYear();
 
+        // If it's a future date (not today), we know it's valid
+        if (!isToday) {
+          setError(null);
+        }
         // If today, validate against minFutureMinutes
-        if (isToday) {
+        else if (isToday) {
           const minValidTime = new Date(now);
           minValidTime.setMinutes(now.getMinutes() + minFutureMinutes);
 
@@ -898,6 +937,7 @@ const DateTimePicker = React.forwardRef<
             onInvalidTime?.(newDay, reason);
           } else {
             setError(null);
+            onInvalidTime?.(newDay, "");
           }
         }
       }
@@ -919,10 +959,10 @@ const DateTimePicker = React.forwardRef<
     const initHourFormat = {
       hour24:
         displayFormat?.hour24 ??
-        `PPP HH:mm${!granularity || granularity === "second" ? ":ss" : ""}`,
+        `PPP H:mm${!granularity || granularity === "second" ? ":ss" : ""}`,
       hour12:
         displayFormat?.hour12 ??
-        `PP hh:mm${!granularity || granularity === "second" ? ":ss" : ""} b`,
+        `PP h:mm${!granularity || granularity === "second" ? ":ss" : ""} b`,
     };
 
     let loc = enUS;
@@ -978,6 +1018,18 @@ const DateTimePicker = React.forwardRef<
                   month?.getSeconds() ?? 0
                 );
                 onSelect(newDate);
+
+                // Clear error when selecting a future date
+                const now = new Date();
+                const isToday =
+                  newDate.getDate() === now.getDate() &&
+                  newDate.getMonth() === now.getMonth() &&
+                  newDate.getFullYear() === now.getFullYear();
+
+                // If it's not today, or it's in the future, clear error
+                if (!isToday || newDate > now) {
+                  setError(null);
+                }
               }
             }}
             onMonthChange={handleMonthChange}
@@ -1025,8 +1077,15 @@ const DateTimePicker = React.forwardRef<
                         onInvalidTime?.(value, reason);
                       } else {
                         setError(null);
+                        onInvalidTime?.(value, "");
                       }
+                    } else {
+                      // If it's not today, clear any errors
+                      setError(null);
                     }
+                  } else {
+                    // If disabledPast is false, ensure errors are cleared
+                    setError(null);
                   }
                 }}
                 date={month}

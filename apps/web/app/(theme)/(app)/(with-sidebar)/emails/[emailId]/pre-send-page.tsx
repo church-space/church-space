@@ -1836,6 +1836,7 @@ export default function PreSendPage({
                               }
 
                               setSendDate(date);
+                              setScheduleHasChanges(true);
                             }
                           }}
                           value={sendDate ?? undefined}
