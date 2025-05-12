@@ -144,24 +144,25 @@ export default function ClientPage({
   if (isLoading) {
     return (
       <>
-        <Skeleton className="flex w-full items-center justify-between rounded-b-none border-b p-4">
+        <Skeleton className="flex w-full flex-col gap-2 rounded-b-none border-b p-4 md:flex-row md:items-center md:justify-between">
           <Skeleton className="h-5 w-32" />
-          <div className="flex gap-1">
-            <Skeleton className="h-9 w-64" />
+          <div className="flex w-full gap-1 md:w-fit">
+            <Skeleton className="h-9 w-full md:w-64" />
             <Skeleton className="h-9 w-9" />
           </div>
         </Skeleton>
-        <Skeleton className="flex w-full items-center justify-between rounded-none border-b p-4">
+
+        <Skeleton className="flex w-full flex-col gap-2 rounded-none border-b p-4 md:flex-row md:items-center md:justify-between">
           <Skeleton className="h-5 w-32" />
-          <div className="flex gap-1">
-            <Skeleton className="h-9 w-64" />
+          <div className="flex w-full gap-1 md:w-fit">
+            <Skeleton className="h-9 w-full md:w-64" />
             <Skeleton className="h-9 w-9" />
           </div>
         </Skeleton>
-        <Skeleton className="flex w-full items-center justify-between rounded-none p-4">
+        <Skeleton className="flex w-full flex-col gap-2 rounded-none p-4 md:flex-row md:items-center md:justify-between">
           <Skeleton className="h-5 w-32" />
-          <div className="flex gap-1">
-            <Skeleton className="h-9 w-64" />
+          <div className="flex w-full gap-1 md:w-fit">
+            <Skeleton className="h-9 w-full md:w-64" />
             <Skeleton className="h-9 w-9" />
           </div>
         </Skeleton>
@@ -178,7 +179,7 @@ export default function ClientPage({
           </SettingsRowTitle>
         </SettingsRow>
       </>
-    ); // Replace with a proper loader/skeleton
+    );
   }
 
   return (
@@ -191,6 +192,7 @@ export default function ClientPage({
               onChange={(newColor) => handleColorChange(index, newColor)}
               value={color}
               brandColorsDisabled={true}
+              className="w-full md:w-fit"
             />
             {/* Conditionally render the remove button */}
             {colors.length > 1 && (

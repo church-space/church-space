@@ -177,6 +177,7 @@ export default function DeleteAccount({
               onChange={(e) => setEmail(e.target.value)}
               placeholder={userEmail}
               maxLength={100}
+              className="bg-background"
             />
           </div>
 
@@ -196,6 +197,7 @@ export default function DeleteAccount({
                 onChange={(e) => setInputOrgName(e.target.value)}
                 placeholder={orgName}
                 maxLength={200}
+                className="bg-background"
               />
               <p className="mt-4 rounded-md border border-destructive bg-destructive/20 p-2 text-sm text-foreground">
                 <b>Warning:</b> Since you are the only owner, this will also

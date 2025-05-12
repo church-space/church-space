@@ -132,7 +132,7 @@ export default function SettingsUserName({
             value={firstName}
             onChange={handleFirstNameChange}
             placeholder="Enter your first name"
-            className="w-full"
+            className="w-full bg-background"
             maxLength={255}
           />
           {firstNameError && (
@@ -147,7 +147,7 @@ export default function SettingsUserName({
             value={lastName}
             onChange={handleLastNameChange}
             placeholder="Enter your last name"
-            className="w-full"
+            className="w-full bg-background"
             maxLength={255}
           />
           {lastNameError && (
