@@ -76,9 +76,11 @@ type FormValues = z.infer<typeof formSchema>;
 export default function NewQRCode({
   organizationId,
   setIsNewQRCodeOpen,
+  isSidebar,
 }: {
   organizationId: string;
   setIsNewQRCodeOpen: (isOpen: boolean) => void;
+  isSidebar: boolean;
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -106,8 +108,12 @@ export default function NewQRCode({
           queryKey: ["qr-links", organizationId],
         });
 
-        setIsNewQRCodeOpen(false);
-        router.push(`/qr-codes/${result.data.data.id}?newQRCode=true`);
+        if (isSidebar) {
+          setIsNewQRCodeOpen(false);
+          router.push(`/qr-codes/${result.data.data.id}?newQRCode=true`);
+        } else {
+          router.push(`/qr-codes/${result.data.data.id}?newQRCode=true`);
+        }
       }
     } catch (error) {
       console.error("Failed to create QR code:", error);

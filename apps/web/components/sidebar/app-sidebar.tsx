@@ -285,6 +285,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <NewQRCode
             organizationId={organizationId ?? ""}
             setIsNewQRCodeOpen={handleNewQrCodeOpen}
+            isSidebar={true}
           />
         </DialogContent>
       </Dialog>

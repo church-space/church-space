@@ -106,6 +106,7 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
           <NewQRCode
             organizationId={organizationId}
             setIsNewQRCodeOpen={handleNewQrCodeOpen}
+            isSidebar={false}
           />
         </DialogContent>
       </Dialog>
