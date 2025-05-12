@@ -7,9 +7,8 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { Metadata } from "next";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Link Pages",
@@ -20,8 +19,9 @@ export default async function Page() {
   const organizationId = cookiesStore.get("organizationId")?.value;
 
   if (!organizationId) {
-    redirect("/onboarding");
+    return null;
   }
+
   return (
     <div className="relative">
       <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">

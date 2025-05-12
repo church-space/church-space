@@ -8,7 +8,6 @@ import {
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -20,7 +19,7 @@ export default async function Page() {
   const organizationId = cookiesStore.get("organizationId")?.value;
 
   if (!organizationId) {
-    redirect("/onboarding");
+    return null;
   }
 
   return (

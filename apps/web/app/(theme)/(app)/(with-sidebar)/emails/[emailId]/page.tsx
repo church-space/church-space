@@ -22,7 +22,7 @@ export default function Page() {
   const organizationId = Cookies.get("organizationId");
 
   if (!organizationId) {
-    redirect("/onboarding");
+    return null;
   }
 
   const [emailState, setEmailState] = useState<any>(null);

@@ -25,7 +25,7 @@ export default async function Page(props: { params: Params }) {
   const organizationId = cookieStore.get("organizationId")?.value;
 
   if (!organizationId) {
-    redirect("/onboarding");
+    return null;
   }
 
   const queryClient = new QueryClient();

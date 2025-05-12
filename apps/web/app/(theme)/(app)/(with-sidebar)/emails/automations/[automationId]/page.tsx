@@ -36,7 +36,7 @@ import AutomationBuilder from "@/components/automation-builder/automation-builde
 import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { redirect, useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@church-space/ui/use-toast";
 import type { TriggerType } from "@/components/automation-builder/automation-builder";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
@@ -96,7 +96,7 @@ export default function Page() {
   const organizationId = Cookies.get("organizationId");
 
   if (!organizationId) {
-    redirect("/onboarding");
+    return null;
   }
 
   const isMobile = useIsMobile();

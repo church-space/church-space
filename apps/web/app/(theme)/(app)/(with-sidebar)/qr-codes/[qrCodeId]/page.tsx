@@ -214,14 +214,11 @@ export default function Page() {
   const qrLinkId = Number(params.qrCodeId);
   const queryClient = useQueryClient();
   const router = useRouter();
-  const organizationId = Cookies.get("organizationId") || "";
+  const organizationId = Cookies.get("organizationId");
 
-  // Early redirects
-  useEffect(() => {
-    if (!organizationId) {
-      redirect("/onboarding");
-    }
-  }, [organizationId]);
+  if (!organizationId) {
+    return null;
+  }
 
   const [isDeletingLink, setIsDeletingLink] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);

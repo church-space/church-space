@@ -2,7 +2,6 @@ import InitUser from "@/stores/init-user";
 import InitPco from "@/stores/init-pco";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
 import { createClient } from "@church-space/supabase/server";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import HelpMenu from "@/components/sidebar/help-menu";
 import { ReactQueryProvider } from "@/components/providers/react-query";
