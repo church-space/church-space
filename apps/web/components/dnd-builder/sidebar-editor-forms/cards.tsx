@@ -209,6 +209,7 @@ function SortableCardItem({
                     onRemove={() => onImageRemove(index)}
                   />
                 </div>
+
                 <Label>Button Text</Label>
                 <Input
                   className="col-span-2 mb-2"
@@ -296,6 +297,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
       buttonTextColor: block.data?.buttonTextColor || "#FFFFFF",
       buttonSize: block.data?.buttonSize || "fit",
       buttonStyle: block.data?.buttonStyle || "outline",
+      imageRatio: block.data?.imageRatio || "16:9",
     };
   });
 
@@ -590,6 +592,19 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
               <SelectItem value="fit">Fit Content</SelectItem>
               <SelectItem value="large">Large</SelectItem>
               <SelectItem value="full">Full Width</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label>Image Ratio</Label>
+          <Select
+            value={localState.imageRatio}
+            onValueChange={(value) => handleChange("imageRatio", value)}
+          >
+            <SelectTrigger className="col-span-2 mb-2 bg-background">
+              <SelectValue placeholder="Select an image ratio" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="16:9">16:9</SelectItem>
+              <SelectItem value="square">Square</SelectItem>
             </SelectContent>
           </Select>
         </div>

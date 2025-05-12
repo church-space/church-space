@@ -79,7 +79,10 @@ export default function CardsBlock({
               <Image
                 src={imageUrls[card.image]}
                 alt={card.title}
-                className={cn("aspect-video w-full object-cover")}
+                className={cn(
+                  "aspect-video w-full object-cover",
+                  data?.imageRatio === "square" && "aspect-square",
+                )}
                 style={{
                   borderRadius: cornerRadius ? `${cornerRadius * 0.5}px` : "0",
                 }}

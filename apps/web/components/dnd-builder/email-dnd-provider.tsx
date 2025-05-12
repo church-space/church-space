@@ -390,6 +390,7 @@ export default function EmailDndProvider({
         buttonTextColor: styles.bgColor,
         buttonSize: "fit",
         buttonStyle: "filled",
+        imageRatio: "16:9",
         cards: [
           {
             title: "Card One",
@@ -642,6 +643,7 @@ export default function EmailDndProvider({
         buttonTextColor: styles.bgColor,
         buttonSize: "fit",
         buttonStyle: "filled",
+        imageRatio: "16:9",
         cards: [
           {
             title: "Card One",
@@ -1128,6 +1130,7 @@ export default function EmailDndProvider({
                   buttonTextColor: "#ffffff",
                   buttonSize: "fit",
                   buttonStyle: "filled",
+                  imageRatio: "16:9",
                   cards: [],
                 };
                 break;

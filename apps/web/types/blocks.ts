@@ -86,6 +86,7 @@ export interface CardsBlockData {
   buttonTextColor: string;
   buttonSize: "fit" | "full" | "large";
   buttonStyle: "outline" | "filled";
+  imageRatio: "16:9" | "square";
   cards: Array<{
     title: string;
     description: string;

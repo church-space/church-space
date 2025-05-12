@@ -21,6 +21,7 @@ import { createClient } from "@church-space/supabase/client";
 import { z } from "zod";
 
 interface OrganizationData {
+  name: string;
   default_email: string;
   domains: {
     domain: string;
@@ -159,6 +160,7 @@ export default function SendTestEmail({
         .from("organizations")
         .select(
           `
+          name,
           default_email,
           domains!organizations_default_email_domain_fkey (
             domain
@@ -264,7 +266,7 @@ export default function SendTestEmail({
         body: JSON.stringify({
           emails: [
             {
-              from: "Church Space Test Email <" + fromEmail + ">",
+              from: `${orgData.name} Test Email <${fromEmail}>`,
               to: emails,
               subject: "TEST: " + emailWithBlocks.email.subject || "Test Email",
               html: enhancedHtmlContent,

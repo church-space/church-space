@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 const requestSchema = z.object({
   emails: z.array(
     z.object({
-      from: z.string().email(),
+      from: z.string(),
       to: z.array(z.string().email()).min(1).max(5),
       subject: z.string(),
       text: z.string(),

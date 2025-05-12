@@ -827,7 +827,8 @@ const CustomCards: React.FC<{
       }, [] as any[])
       .map((row, rowIndex) => (
         <tr key={rowIndex}>
-          <td>
+          {/* Add padding-bottom to this td for consistent vertical spacing */}
+          <td style={{ paddingBottom: "24px" }}>
             <table
               width="100%"
               cellPadding="0"
@@ -838,7 +839,8 @@ const CustomCards: React.FC<{
                 borderSpacing: "0",
                 width: "100%",
                 tableLayout: "fixed",
-                marginBottom: "24px",
+                // Remove marginBottom - moved to wrapping td's paddingBottom
+                // marginBottom: "24px",
               }}
             >
               <tr>
@@ -1070,48 +1072,60 @@ const CustomCards: React.FC<{
                     </table>
                   );
 
+                  // Use React.Fragment to group elements without adding extra nodes
                   return (
-                    <td
-                      key={colIndex}
-                      className="card-column"
-                      width="50%"
-                      style={{
-                        padding: colIndex === 0 ? "0 4px 0 0" : "0 0 0 4px",
-                        width: "50%",
-                        maxWidth: "100%",
-                        verticalAlign: "top",
-                      }}
-                    >
-                      <table
-                        cellPadding="0"
-                        cellSpacing="0"
-                        border={0}
-                        width="100%"
+                    <React.Fragment key={colIndex}>
+                      <td
+                        className="card-column"
+                        width="50%"
                         style={{
-                          marginLeft: "auto",
-                          marginRight: "auto",
+                          // Removed inline padding - rely on CSS media query and spacer
+                          width: "50%",
+                          maxWidth: "100%",
+                          verticalAlign: "top",
                         }}
                       >
-                        <tr>
-                          <td style={{ padding: "0" }}>
-                            {card.buttonLink ? (
-                              <a
-                                href={formattedButtonLink}
-                                target="_blank"
-                                style={{
-                                  textDecoration: "none",
-                                  display: "block",
-                                }}
-                              >
-                                {CardContent}
-                              </a>
-                            ) : (
-                              CardContent
-                            )}
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
+                        <table
+                          cellPadding="0"
+                          cellSpacing="0"
+                          border={0}
+                          width="100%"
+                          style={{
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                          }}
+                        >
+                          <tr>
+                            <td style={{ padding: "0" }}>
+                              {card.buttonLink ? (
+                                <a
+                                  href={formattedButtonLink}
+                                  target="_blank"
+                                  style={{
+                                    textDecoration: "none",
+                                    display: "block",
+                                  }}
+                                >
+                                  {CardContent}
+                                </a>
+                              ) : (
+                                CardContent
+                              )}
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                      {/* Add spacer cell after the first column */}
+                      {colIndex === 0 && row.length > 1 && (
+                        <td
+                          className="desktop-spacer"
+                          /* style={{ width: "24px", minWidth: "24px" }} */ /* Removed - Handled by CSS */
+                          aria-hidden="true"
+                        >
+                          &nbsp;
+                        </td>
+                      )}
+                    </React.Fragment>
                   );
                 })}
                 {row.length === 1 && (
@@ -1980,6 +1994,17 @@ export function generateEmailCode(
       .empty-card-cell {
         display: none !important;
       }
+      /* Hide desktop spacer on mobile */
+      .desktop-spacer {
+        display: none !important; /* Revert back from table-cell to fix mobile layout */
+        /* display: table-cell !important; */ /* Keep it as a cell */
+        /* width: 0px !important; */         /* Collapse width */
+        font-size: 0 !important;
+        line-height: 0 !important;
+        /* overflow: hidden; */              /* Hide overflow */
+        max-height: 0 !important; /* Keep max-height 0 */
+        mso-hide: all; /* Outlook specific */
+      }
 
       /* Yahoo and AOL specific styles - IMPORTANT */
       h4 {
@@ -2013,20 +2038,33 @@ export function generateEmailCode(
       @media only screen and (min-width: 480px) {
         .card-column {
           display: table-cell !important;
+          /* Keep width 50%, let spacer push */
           width: 50% !important;
-          padding-bottom: 12px !important;
+          padding-bottom: 12px !important; /* Keep vertical padding adjustment */
+          /* Remove horizontal padding rules */
         }
-        .card-column:nth-child(odd) {
-          padding: 0 12px 0 0 !important;
-        }
-        .card-column:nth-child(even) {
-          padding: 0 0 0 12px !important;
-        }
+        /* Remove horizontal padding rules for odd/even */
+        /* .card-column:nth-child(odd) { */
+        /*   padding: 0 12px 0 0 !important; */
+        /* } */
+        /* .card-column:nth-child(even) { */
+        /*   padding: 0 0 0 12px !important; */
+        /* } */
         .empty-card-cell {
            display: table-cell !important;
            width: 50% !important;
-           padding-left: 12px !important;
+           /* Remove horizontal padding rules */
+           /* padding-left: 12px !important; */
            padding-right: 0 !important;
+        }
+        /* Show desktop spacer on desktop */
+        .desktop-spacer {
+            display: table-cell !important;
+            width: 24px !important;
+            min-width: 24px !important;
+            font-size: 1px !important; /* Ensure it takes up space */
+            line-height: 1px !important;
+            /* overflow: visible; */ /* Remove overflow control */
         }
       }
     `;
@@ -2036,10 +2074,21 @@ export function generateEmailCode(
       <Head>
         <title>Email Preview</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="color-scheme" content="light only" />
+        <meta name="supported-color-schemes" content="light" />
         <style>{responsiveStyles}</style>
       </Head>
       {previewText && <Preview>{previewText}</Preview>}
-      <Body style={{ margin: 0, padding: 0 }}>
+      <Body
+        style={{
+          margin: 0,
+          padding: 0,
+          backgroundColor: isInset ? emailBgColor : bgColor,
+          color: defaultTextColor,
+          WebkitTextSizeAdjust: "100%",
+          colorScheme: "light only",
+        }}
+      >
         <table
           width="100%"
           cellPadding="0"
