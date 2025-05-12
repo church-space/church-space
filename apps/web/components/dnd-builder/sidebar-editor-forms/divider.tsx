@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@church-space/ui/tooltip";
 import { CircleInfo } from "@church-space/ui/icons";
+import { Input } from "@church-space/ui/input";
 
 interface DividerFormProps {
   block: Block & { data?: DividerBlockData };
@@ -82,12 +83,26 @@ export default function DividerForm({
                 Thickness controls the height of the divider.
               </TooltipContent>
             </Tooltip>
-            <Slider
-              value={[localState.thickness]}
-              max={10}
-              className="col-span-2"
-              onValueChange={handleThicknessChange}
-            />
+            <div className="col-span-2 flex flex-col">
+              <Input
+                type="number"
+                value={localState.thickness}
+                className="rounded-b-none border-b-0 bg-background"
+                onChange={(e) =>
+                  handleChange("thickness", Number(e.target.value))
+                }
+                max={10}
+                min={0}
+              />
+              <Slider
+                max={10}
+                min={0}
+                step={1}
+                value={[localState.thickness]}
+                onValueChange={(value) => handleChange("thickness", value[0])}
+                className="-translate-y-1"
+              />
+            </div>
           </div>
           <div className="col-span-3 my-2 grid grid-cols-3 items-center gap-x-2">
             <Tooltip>
@@ -100,14 +115,25 @@ export default function DividerForm({
                 Margin controls the amount of space above and below the divider.
               </TooltipContent>
             </Tooltip>
-            <Slider
-              value={[localState.margin]}
-              max={100}
-              min={5}
-              step={1}
-              className="col-span-2"
-              onValueChange={handleMarginChange}
-            />
+            <div className="col-span-2 flex flex-col">
+              <Input
+                type="number"
+                value={localState.margin}
+                className="rounded-b-none border-b-0 bg-background"
+                onChange={(e) => handleChange("margin", Number(e.target.value))}
+                max={100}
+                min={5}
+                step={1}
+              />
+              <Slider
+                value={[localState.margin]}
+                max={100}
+                min={5}
+                step={1}
+                className="-translate-y-1"
+                onValueChange={handleMarginChange}
+              />
+            </div>
           </div>
         </div>
         <Tooltip>

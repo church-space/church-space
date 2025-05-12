@@ -97,14 +97,26 @@ export default function VideoForm({ block, onUpdate }: VideoFormProps) {
           </div>
           <div className="col-span-3 my-2 grid grid-cols-3 items-center gap-x-2">
             <Label>Size</Label>
-            <Slider
-              value={[localState.size]}
-              onValueChange={(value) => handleChange("size", value[0])}
-              max={100}
-              min={40}
-              step={1}
-              className="col-span-2"
-            />
+
+            <div className="col-span-2 flex flex-col">
+              <Input
+                type="number"
+                value={localState.size}
+                className="rounded-b-none border-b-0 bg-background"
+                onChange={(e) => handleChange("size", Number(e.target.value))}
+                max={100}
+                min={40}
+                step={1}
+              />
+              <Slider
+                value={[localState.size]}
+                onValueChange={(value) => handleChange("size", value[0])}
+                max={100}
+                min={40}
+                step={1}
+                className="-translate-y-1"
+              />
+            </div>
           </div>
           <Label>Center Video</Label>
           <Switch

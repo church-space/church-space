@@ -17,6 +17,7 @@ import {
 } from "@church-space/ui/tooltip";
 import { Slider } from "@church-space/ui/slider";
 import { useRef, useState, useEffect } from "react";
+import { Input } from "@church-space/ui/input";
 
 interface EmailStyleFormProps {
   bgColor?: string;
@@ -143,25 +144,48 @@ export default function EmailStyleForm({
       )}
       <div className="my-2 grid grid-cols-3 items-center gap-2">
         <Label className="font-medium">Rounded Corners</Label>
-        <Slider
-          max={100}
-          min={0}
-          step={1}
-          value={[cornerRadius]}
-          onValueChange={(value) => onCornerRadiusChange?.(value[0])}
-          className="col-span-2"
-        />
+
+        <div className="col-span-2 flex flex-col">
+          <Input
+            type="number"
+            value={cornerRadius}
+            className="rounded-b-none border-b-0 bg-background"
+            onChange={(e) => onCornerRadiusChange?.(Number(e.target.value))}
+            min={0}
+            max={100}
+            step={1}
+          />
+          <Slider
+            max={100}
+            min={0}
+            step={1}
+            value={[cornerRadius]}
+            onValueChange={(value) => onCornerRadiusChange?.(value[0])}
+            className="-translate-y-1"
+          />
+        </div>
       </div>
       <div className="my-2 grid grid-cols-3 items-center gap-2">
         <Label>Block Spacing</Label>
-        <Slider
-          max={100}
-          min={10}
-          step={1}
-          className="col-span-2"
-          value={[blockSpacing]}
-          onValueChange={(value) => onBlockSpacingChange?.(value[0])}
-        />
+        <div className="col-span-2 flex flex-col">
+          <Input
+            type="number"
+            value={blockSpacing}
+            className="rounded-b-none border-b-0 bg-background"
+            onChange={(e) => onBlockSpacingChange?.(Number(e.target.value))}
+            min={10}
+            max={100}
+            step={1}
+          />
+          <Slider
+            max={100}
+            min={10}
+            step={1}
+            className="-translate-y-1"
+            value={[blockSpacing]}
+            onValueChange={(value) => onBlockSpacingChange?.(value[0])}
+          />
+        </div>
       </div>
       <Separator className="my-4" />
       <Label className="text-lg font-semibold">Text</Label>

@@ -3327,7 +3327,7 @@ export default function EmailDndProvider({
         onDragEnd={handleDragEnd}
         collisionDetection={customCollisionDetection}
       >
-        <div className="relative flex p-2 md:gap-4 md:p-4">
+        <div className="relative flex select-none p-2 md:gap-4 md:p-4">
           <DndBuilderSidebar
             type="email"
             onBgColorChange={handleBgColorChange}

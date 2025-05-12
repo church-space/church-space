@@ -202,14 +202,25 @@ export default function ImageForm({ block, onUpdate }: ImageFormProps) {
             className="col-span-2 bg-background"
           />
           <Label>Size</Label>
-          <Slider
-            value={[localState.size]}
-            max={100}
-            min={40}
-            step={1}
-            className="col-span-2"
-            onValueChange={(value) => handleChange("size", value[0])}
-          />
+          <div className="col-span-2 flex flex-col">
+            <Input
+              type="number"
+              value={localState.size}
+              className="rounded-b-none border-b-0 bg-background"
+              onChange={(e) => handleChange("size", Number(e.target.value))}
+              max={100}
+              min={0}
+              step={1}
+            />
+            <Slider
+              max={100}
+              min={0}
+              step={1}
+              value={[localState.size]}
+              onValueChange={(value) => handleChange("size", value[0])}
+              className="-translate-y-1"
+            />
+          </div>
 
           <Label className="mt-0.5">Center Image</Label>
           <div className="col-span-2 mt-1.5">
