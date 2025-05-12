@@ -15,13 +15,20 @@ import { updateUserAction } from "@/actions/update-user";
 import { Loader2 } from "lucide-react";
 import { ThemeSelectorToggles } from "@/components/settings/theme-selector";
 import { ChurchSpaceBlack } from "@church-space/ui/icons";
+import Cookies from "js-cookie";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name cannot be blank"),
   lastName: z.string().min(1, "Last name cannot be blank"),
 });
 
-export default function ClientPage({ userId }: { userId: string }) {
+export default function ClientPage({
+  userId,
+  organizationId,
+}: {
+  userId: string;
+  organizationId: string;
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [showThemeSelect, setShowThemeSelect] = useState(false);
   const [isPushing, setIsPushing] = useState(false);
@@ -52,6 +59,8 @@ export default function ClientPage({ userId }: { userId: string }) {
         toast({ title: "Error updating user", description: result.data.error });
         setIsLoading(false);
       } else {
+        Cookies.set("organizationId", organizationId);
+        Cookies.remove("invite");
         setIsLoading(false);
         setShowThemeSelect(true);
       }

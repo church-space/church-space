@@ -3,11 +3,11 @@ import "server-only";
 import { getUserQuery } from "@church-space/supabase/get-user";
 import { createClient } from "@church-space/supabase/server";
 import { jwtVerify } from "jose";
-import { cookies } from "next/headers";
-import ClientPage from "./client-page";
-import { redirect } from "next/navigation";
-import { handleExpiredInvite, handleSuccessfulInvite } from "./actions";
 import { Metadata } from "next";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { handleExpiredInvite } from "./actions";
+import ClientPage from "./client-page";
 
 export const metadata: Metadata = {
   title: "Onboarding",
@@ -120,8 +120,9 @@ export default async function Page() {
         console.log(
           "[Onboarding Page] Successfully added user to organization, setting cookies and redirecting",
         );
-        // Handle successful invite using server action
-        return handleSuccessfulInvite(organizationId);
+        // Handle successful invite using server action to redirect with orgId
+        // Cookie handling will happen on the /hello page
+        redirect(`/hello`);
       }
     } else {
       console.log(

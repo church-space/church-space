@@ -8,6 +8,8 @@ import HelpMenu from "@/components/sidebar/help-menu";
 import { ReactQueryProvider } from "@/components/providers/react-query";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 interface ProtectedLayoutProps {
   children: React.ReactNode;
 }
@@ -36,7 +38,9 @@ export default async function ProtectedLayout({
 
   if (
     user.userDetails?.first_name === null ||
-    user.userDetails?.last_name === null
+    user.userDetails?.first_name === "" ||
+    user.userDetails?.last_name === null ||
+    user.userDetails?.last_name === ""
   ) {
     return redirect("/hello");
   }
@@ -52,42 +56,16 @@ export default async function ProtectedLayout({
   }
 
   if (!orgId) {
-    // Get current path to return to after setting cookie
-    const headersList = await headers();
-    const currentPath =
-      headersList.get("x-pathname") ||
-      headersList.get("x-invoke-path") ||
-      "/home";
-
     // Redirect to API route to set cookie, then return to current page
     return redirect(
-      `/api/set-org-cookie?organizationId=${encodeURIComponent(user.organizationMembership.organization_id)}&returnTo=${encodeURIComponent(currentPath)}`,
+      `/api/set-org-cookie?organizationId=${encodeURIComponent(user.organizationMembership.organization_id)}&returnTo=/emails`,
     );
   }
 
   if (user.pcoConnection) {
     const lastRefreshed = new Date(user.pcoConnection.last_refreshed);
     const now = new Date();
-    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-
-    // Only redirect if we're not already on the refresh page
-    const headersList = await headers();
-    const currentPath =
-      headersList.get("x-pathname") || headersList.get("x-invoke-path");
-    const isRefreshPage = currentPath?.startsWith("/pco-refresh");
-
-    if (
-      lastRefreshed < twoHoursAgo &&
-      lastRefreshed > ninetyDaysAgo &&
-      !isRefreshPage
-    ) {
-      // Token needs refresh but isn't expired
-      const returnPath = currentPath || "/emails";
-      return redirect(
-        `/pco-refresh?return_to=${encodeURIComponent(returnPath)}`,
-      );
-    }
 
     if (lastRefreshed < ninetyDaysAgo) {
       // Token is too old, need to reconnect
@@ -121,6 +99,8 @@ export default async function ProtectedLayout({
           pcoData={{
             id: user.pcoConnection?.id.toString() || null,
             access_token: user.pcoConnection?.access_token || null,
+            refresh_token: user.pcoConnection?.refresh_token || null,
+            last_refreshed: user.pcoConnection?.last_refreshed || null,
           }}
         />
 

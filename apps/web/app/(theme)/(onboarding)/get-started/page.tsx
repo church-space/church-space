@@ -16,6 +16,13 @@ export default async function Page() {
     return redirect("/login");
   }
 
+  if (
+    user.userDetails?.first_name === null ||
+    user.userDetails?.last_name === null
+  ) {
+    return redirect("/hello");
+  }
+
   if (user.organization?.finished_onboarding === true) {
     return redirect("/emails");
   }

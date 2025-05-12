@@ -22,14 +22,19 @@ export default async function Page() {
 
   if (
     user.userDetails?.first_name !== null &&
-    user.userDetails?.last_name !== null
+    user.userDetails?.first_name !== "" &&
+    user.userDetails?.last_name !== null &&
+    user.userDetails?.last_name !== ""
   ) {
     return redirect("/emails");
   }
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-b from-secondary/30 to-background/60 dark:from-secondary/30">
-      <ClientPage userId={user.user.id} />
+      <ClientPage
+        userId={user.user.id}
+        organizationId={user.organizationMembership?.organization_id}
+      />
     </div>
   );
 }
