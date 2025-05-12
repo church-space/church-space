@@ -697,6 +697,7 @@ export default function DomainManagement({
     <div className="mx-auto w-full py-3">
       <Accordion
         type="single"
+        collapsible
         value={openAccordionValue}
         onValueChange={setOpenAccordionValue}
         className="space-y-4"
@@ -1081,7 +1082,7 @@ export default function DomainManagement({
         ))}
       </Accordion>
 
-      <div className="mt-4">
+      <div className="mt-8">
         <form onSubmit={handleAddDomain} className="space-y-4">
           <div className="grid gap-2">
             <Label htmlFor="domain" className="ml-1">
@@ -1098,7 +1099,7 @@ export default function DomainManagement({
                         value={newDomain}
                         onChange={handleDomainChange}
                         className={cn(
-                          "h-12",
+                          "h-12 dark:bg-card",
                           validationError ? "border-red-500" : "",
                           isTyping ? "pr-8" : "",
                         )}
