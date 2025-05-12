@@ -2076,6 +2076,8 @@ export function generateEmailCode(
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="light only" />
         <meta name="supported-color-schemes" content="light" />
+        <meta name="apple-color-scheme" content="light" />
+        <meta name="apple-mobile-web-status-bar-style" content="light" />
         <style>{responsiveStyles}</style>
       </Head>
       {previewText && <Preview>{previewText}</Preview>}
