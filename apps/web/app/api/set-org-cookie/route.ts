@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const organizationId = searchParams.get("organizationId");
-  const returnTo = searchParams.get("returnTo") || "/";
+export async function POST(request: NextRequest) {
+  const { organizationId } = await request.json();
 
   if (!organizationId) {
-    return NextResponse.redirect(new URL(returnTo, request.url));
+    return NextResponse.json(
+      { error: "Organization ID is required" },
+      { status: 400 },
+    );
   }
 
-  // Create a response to redirect
-  const response = NextResponse.redirect(new URL(returnTo, request.url));
+  // Create a response with success status
+  const response = NextResponse.json({ success: true });
 
-  // Set the cookie using headers instead of cookies() API
+  // Set the cookie
   response.cookies.set("organizationId", organizationId);
 
-  // Return the response with the cookie
   return response;
 }

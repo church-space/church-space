@@ -82,21 +82,21 @@ export default function CategorySelector({
       >
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="Search lists..."
+            placeholder="Search categories..."
             className="h-9"
             value={searchInput}
             onValueChange={setSearchInput}
           />
           <CommandList>
             <CommandEmpty className="py-6 text-center text-sm">
-              {isLoading ? "Loading..." : "No list found."}
+              {isLoading ? "Loading..." : "No categories found."}
             </CommandEmpty>
             {categories.length > 0 && (
               <CommandGroup>
                 {categories.map((category) => (
                   <CommandItem
                     key={category.id}
-                    value={category.name}
+                    value={category.id.toString()}
                     onSelect={() => {
                       onChange(category.id.toString());
                       setOpen(false);

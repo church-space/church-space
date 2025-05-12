@@ -55,10 +55,23 @@ export default async function ProtectedLayout({
   }
 
   if (!orgId) {
-    // Redirect to API route to set cookie, then return to current page
-    return redirect(
-      `/api/set-org-cookie?organizationId=${encodeURIComponent(user.organizationMembership.organization_id)}&returnTo=/emails`,
-    );
+    // Set the cookie using POST request
+    const response = await fetch("/api/set-org-cookie", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        organizationId: user.organizationMembership.organization_id,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to set organization cookie");
+    }
+
+    // Refresh the page to get the new cookie
+    return redirect("/emails");
   }
 
   if (user.pcoConnection) {

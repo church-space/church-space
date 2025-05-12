@@ -54,12 +54,24 @@ export default async function Page() {
   }
 
   // If no organization ID in cookies but user has organization membership,
-  // redirect to set the cookie and then come back
+  // set the cookie and then refresh
   if (!organizationId && user.organizationMembership.organization_id) {
-    // Redirect to a route handler that will set the cookie and redirect back
-    return redirect(
-      `/api/set-org-cookie?organizationId=${encodeURIComponent(user.organizationMembership.organization_id)}&returnTo=/emails}`,
-    );
+    const response = await fetch("/api/set-org-cookie", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        organizationId: user.organizationMembership.organization_id,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to set organization cookie");
+    }
+
+    // Refresh the page to get the new cookie
+    return redirect("/emails");
   }
 
   // If no organization ID at all, redirect to onboarding
