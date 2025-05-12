@@ -76,15 +76,18 @@ export default function LoadingPage() {
           </div>
           <div className="flex cursor-pointer flex-col gap-4 rounded-lg border bg-accent p-4 shadow-sm md:p-6 md:pt-4">
             <div className="text-lg font-bold">Steps</div>
-            <div className="flex gap-4">
-              <div className="rounded-md border bg-muted p-2 text-muted-foreground">
-                <Email height={"24"} width={"24"} />
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-2 rounded-md border border-muted-foreground bg-card p-2 py-1.5 text-sm text-muted-foreground">
+                <Email height={"18"} width={"18"} />
+                <span>Send Email "Loading"</span>
               </div>
-              <div className="rounded-md border bg-muted p-2 text-muted-foreground">
-                <HourglassClock height={"24"} width={"24"} />
+              <div className="flex items-center gap-2 rounded-md border border-muted-foreground bg-card p-2 py-1.5 text-sm text-muted-foreground">
+                <HourglassClock height={"18"} width={"18"} />
+                <span>Wait 1 hour</span>
               </div>
-              <div className="rounded-md border bg-muted p-2 text-muted-foreground">
-                <Email height={"24"} width={"24"} />
+              <div className="flex items-center gap-2 rounded-md border border-muted-foreground bg-card p-2 py-1.5 text-sm text-muted-foreground">
+                <Email height={"18"} width={"18"} />
+                <span>Send Email "Still Loading"</span>
               </div>
             </div>
           </div>

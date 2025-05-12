@@ -98,7 +98,7 @@ const data = (role: string | null) => {
         icon: Settings,
         submenu: [
           {
-            title: "Preferences",
+            title: "My Account",
             url: "/settings",
           },
           {
@@ -107,7 +107,7 @@ const data = (role: string | null) => {
             disabled: role !== "owner",
           },
           {
-            title: "Brand Colors",
+            title: "Branding",
             url: "/settings/brand-colors",
           },
           {

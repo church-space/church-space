@@ -28,7 +28,7 @@ import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Edit, Ellipsis, LoaderIcon, Trash } from "lucide-react";
+import { Ellipsis, LoaderIcon } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -61,7 +61,13 @@ import {
 } from "@church-space/ui/tooltip";
 import LoadingPage from "./loading-page";
 import AutomationNotFound from "@/components/not-found/automation";
-import { Email, HourglassClock } from "@church-space/ui/icons";
+import {
+  Email,
+  HourglassClock,
+  Edit,
+  Trash,
+  Footsteps,
+} from "@church-space/ui/icons";
 
 // Types for the new schema
 interface AutomationStep {
@@ -616,7 +622,14 @@ export default function Page() {
                   setIsEditingLink(true);
                 }}
               >
-                <Edit className="h-4 w-4" /> Edit
+                <Edit height={"24"} width={"24"} /> Edit Name
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setIsSheetOpen(true);
+                }}
+              >
+                <Footsteps height={"24"} width={"24"} /> Edit Steps
               </DropdownMenuItem>
 
               <Dialog open={isDeletingLink} onOpenChange={setIsDeletingLink}>
@@ -627,8 +640,8 @@ export default function Page() {
                   }}
                   asChild
                 >
-                  <DropdownMenuItem className="!hover:text-destructive cursor-pointer">
-                    <Trash /> Delete
+                  <DropdownMenuItem className="cursor-pointer focus:bg-destructive/10 focus:text-destructive">
+                    <Trash height={"24"} width={"24"} /> Delete
                   </DropdownMenuItem>
                 </DialogTrigger>
                 <DialogContent>
@@ -779,7 +792,9 @@ export default function Page() {
                         <Badge variant="outline">Disabled</Badge>
                       )}
                     </div>
-                    <Edit className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+                    <span className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100">
+                      <Edit height={"18"} width={"18"} />
+                    </span>
                   </div>
                   <p className="mt-1 text-muted-foreground">
                     {transformedAutomation.description}
@@ -835,7 +850,7 @@ export default function Page() {
               {transformedAutomation.steps.map((step) => (
                 <div key={step.id}>
                   {step.type === "wait" ? (
-                    <div className="flex items-center gap-2 rounded-md border border-yellow-500 bg-yellow-500 p-2 py-1.5 text-sm text-white dark:bg-yellow-500/10 dark:text-yellow-500">
+                    <div className="flex items-center gap-2 rounded-md border border-yellow-500 bg-yellow-500/30 p-2 py-1.5 text-sm text-yellow-900 dark:bg-yellow-500/10 dark:text-yellow-500">
                       <span className="flex-shrink-0">
                         <HourglassClock height={"18"} width={"18"} />
                       </span>
@@ -847,7 +862,7 @@ export default function Page() {
                       </span>
                     </div>
                   ) : (
-                    <div className="flex w-full max-w-[240px] items-center gap-2 rounded-md border border-green-500 bg-green-500 p-2 py-1.5 text-sm text-white dark:bg-green-500/10 dark:text-green-500">
+                    <div className="flex w-full max-w-[240px] items-center gap-2 rounded-md border border-green-500 bg-green-500/30 p-2 py-1.5 text-sm text-green-900 dark:bg-green-500/10 dark:text-green-500">
                       <span className="flex-shrink-0">
                         <Email height={"18"} width={"18"} />
                       </span>

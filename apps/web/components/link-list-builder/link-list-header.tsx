@@ -85,7 +85,7 @@ export default function LinkListHeader({
               src={bgImageUrl}
               alt="Background"
               fill
-              className={`object-cover ${headerBlur ? "scale-110 blur-sm" : ""}`}
+              className={`object-cover ${headerBlur ? "scale-110 blur-md" : ""}`}
               priority
             />
           </div>

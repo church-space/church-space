@@ -19,6 +19,7 @@ import {
   DialogTrigger,
 } from "@church-space/ui/dialog";
 import { Ellipsis, Loader2, Maximize2 } from "lucide-react";
+
 import Link from "next/link";
 import {
   UnfilledCircleDashed,
@@ -28,6 +29,7 @@ import {
   Email,
   PaperPlane,
   TemplatesIcon,
+  Edit,
 } from "@church-space/ui/icons";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -1936,12 +1938,12 @@ export default function PreSendPage({
                   </Dialog>
                   <Button
                     variant="outline"
-                    className="cursor-pointer px-5"
+                    className="cursor-pointer pl-3 pr-4"
                     onClick={() => {
                       router.push(`/emails/${email.id}/editor`);
                     }}
                   >
-                    Edit
+                    <Edit /> Edit
                   </Button>
                 </div>
               </div>
