@@ -31,6 +31,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
+import PcoRefresh from "./pco-refresh";
 
 type ImportType = "subscribed" | "unsubscribed" | "cleaned";
 
@@ -512,113 +513,116 @@ export default function ImportPage() {
   };
 
   return (
-    <div className="relative">
-      <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <Link href="/people" className="hidden md:block">
+    <>
+      <PcoRefresh />
+      <div className="relative">
+        <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <Link href="/people" className="hidden md:block">
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>People</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </Link>
+                <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>People</BreadcrumbPage>
+                  <BreadcrumbPage>Import Contacts</BreadcrumbPage>
                 </BreadcrumbItem>
-              </Link>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Import Contacts</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
-
-      <div className="p-6">
-        <div className="mx-auto w-full max-w-4xl">
-          <h1 className="mb-6 text-2xl font-bold">Import Contacts</h1>
-          <p className="mb-6 text-sm text-muted-foreground">
-            Import your contacts from a former email provider. If a subscribed
-            person does not exist in your Planning Center account, we&apos;ll
-            add them for you. You&apos;ll be able to find these people in
-            Planning Center using the custom tab &quot;Church Space&quot;.
-          </p>
-
-          <div className="grid grid-cols-1 gap-6">
-            {/* Subscribed Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Subscribed</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Upload CSV File</Label>
-                  {!importSections.subscribed.file
-                    ? renderDropzone("subscribed")
-                    : renderFileInfo("subscribed")}
-                </div>
-                {renderColumnSelectors("subscribed")}
-              </CardContent>
-            </Card>
-
-            {/* Unsubscribed Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Unsubscribed</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Upload CSV File</Label>
-                  {!importSections.unsubscribed.file
-                    ? renderDropzone("unsubscribed")
-                    : renderFileInfo("unsubscribed")}
-                </div>
-                {renderColumnSelectors("unsubscribed")}
-              </CardContent>
-            </Card>
-
-            {/* Cleaned Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Cleaned</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Upload CSV File</Label>
-                  {!importSections.cleaned.file
-                    ? renderDropzone("cleaned")
-                    : renderFileInfo("cleaned")}
-                </div>
-                {renderColumnSelectors("cleaned")}
-              </CardContent>
-            </Card>
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
+        </header>
 
-          {/* Submit Button */}
-          <div className="my-8 flex justify-end">
-            <Button
-              onClick={handleSubmit}
-              disabled={
-                isLoading ||
-                !Object.values(importSections).some(
-                  (section) =>
-                    section.file !== null &&
-                    section.emailColumn !== "" &&
-                    (section.file === importSections.subscribed.file
-                      ? section.firstNameColumn !== "" &&
-                        section.lastNameColumn !== ""
-                      : true),
-                )
-              }
-              className="w-full"
-            >
-              {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              Import Contacts
-            </Button>
+        <div className="p-6">
+          <div className="mx-auto w-full max-w-4xl">
+            <h1 className="mb-6 text-2xl font-bold">Import Contacts</h1>
+            <p className="mb-6 text-sm text-muted-foreground">
+              Import your contacts from a former email provider. If a subscribed
+              person does not exist in your Planning Center account, we&apos;ll
+              add them for you. You&apos;ll be able to find these people in
+              Planning Center using the custom tab &quot;Church Space&quot;.
+            </p>
+
+            <div className="grid grid-cols-1 gap-6">
+              {/* Subscribed Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Subscribed</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Upload CSV File</Label>
+                    {!importSections.subscribed.file
+                      ? renderDropzone("subscribed")
+                      : renderFileInfo("subscribed")}
+                  </div>
+                  {renderColumnSelectors("subscribed")}
+                </CardContent>
+              </Card>
+
+              {/* Unsubscribed Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Unsubscribed</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Upload CSV File</Label>
+                    {!importSections.unsubscribed.file
+                      ? renderDropzone("unsubscribed")
+                      : renderFileInfo("unsubscribed")}
+                  </div>
+                  {renderColumnSelectors("unsubscribed")}
+                </CardContent>
+              </Card>
+
+              {/* Cleaned Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cleaned</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Upload CSV File</Label>
+                    {!importSections.cleaned.file
+                      ? renderDropzone("cleaned")
+                      : renderFileInfo("cleaned")}
+                  </div>
+                  {renderColumnSelectors("cleaned")}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Submit Button */}
+            <div className="my-8 flex justify-end">
+              <Button
+                onClick={handleSubmit}
+                disabled={
+                  isLoading ||
+                  !Object.values(importSections).some(
+                    (section) =>
+                      section.file !== null &&
+                      section.emailColumn !== "" &&
+                      (section.file === importSections.subscribed.file
+                        ? section.firstNameColumn !== "" &&
+                          section.lastNameColumn !== ""
+                        : true),
+                  )
+                }
+                className="w-full"
+              >
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                Import Contacts
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
