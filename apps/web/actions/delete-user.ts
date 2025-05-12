@@ -96,7 +96,7 @@ export const deleteUserAction = authActionClient
 
           // Call the delete organization API endpoint
           const response = await fetch(
-            "https://churchspace.co/api/organization/delete-organization",
+            `${process.env.NEXT_PUBLIC_SITE_URL}/api/organization/delete-organization`,
             {
               method: "POST",
               headers: {

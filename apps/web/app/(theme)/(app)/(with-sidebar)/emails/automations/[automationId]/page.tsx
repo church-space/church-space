@@ -831,31 +831,30 @@ export default function Page() {
             onClick={() => setIsSheetOpen(true)}
           >
             <div className="text-lg font-bold">Steps</div>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-2">
               {transformedAutomation.steps.map((step) => (
                 <div key={step.id}>
                   {step.type === "wait" ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="rounded-md border border-yellow-500 bg-yellow-500/10 p-2 text-yellow-500">
-                          <HourglassClock height={"24"} width={"24"} />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Wait</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <div className="flex items-center gap-2 rounded-md border border-yellow-500 bg-yellow-500 p-2 py-1.5 text-sm text-white dark:bg-yellow-500/10 dark:text-yellow-500">
+                      <span className="flex-shrink-0">
+                        <HourglassClock height={"18"} width={"18"} />
+                      </span>
+                      <span>
+                        Wait {step.values.value}{" "}
+                        {step.values.value === 1
+                          ? step.values.unit.slice(0, -1)
+                          : step.values.unit}
+                      </span>
+                    </div>
                   ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="rounded-md border border-primary bg-primary/20 p-2 text-primary">
-                          <Email height={"24"} width={"24"} />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Send Email</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <div className="flex w-full max-w-[240px] items-center gap-2 rounded-md border border-green-500 bg-green-500 p-2 py-1.5 text-sm text-white dark:bg-green-500/10 dark:text-green-500">
+                      <span className="flex-shrink-0">
+                        <Email height={"18"} width={"18"} />
+                      </span>
+                      <span className="truncate">
+                        Send Email "{step.values?.subject || ""}"
+                      </span>
+                    </div>
                   )}
                 </div>
               ))}

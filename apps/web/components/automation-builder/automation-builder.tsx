@@ -223,7 +223,7 @@ function SortableStep(props: SortableStepProps) {
         "mb-2 w-full rounded-md border",
         isDragging ? "border-dashed bg-accent opacity-50" : "",
         step.type === "wait" && "bg-yellow-500/10 dark:bg-yellow-500/20",
-        step.type === "send_email" && "bg-primary/10 dark:bg-primary/30",
+        step.type === "send_email" && "bg-green-500/10 dark:bg-green-500/20",
       )}
     >
       <div className="flex w-full items-center p-0.5 pr-1">
@@ -263,11 +263,37 @@ function SortableStep(props: SortableStepProps) {
                     <HourglassClock height={"20"} width={"20"} />
                   </span>
                 ) : (
-                  <span className="text-primary">
+                  <span className="text-green-500">
                     <Email height={"20"} width={"20"} />
                   </span>
                 )}
-                {step.type === "wait" ? "Wait" : "Send Email"}
+                {step.type === "wait" ? (
+                  <span className="flex items-baseline gap-1">
+                    <span>Wait</span>
+                    {isWaitStep(step) && step.values.value && (
+                      <span className="text-xs text-muted-foreground">
+                        ({step.values.value}{" "}
+                        {step.values.unit === "days"
+                          ? step.values.value === 1
+                            ? "day"
+                            : "days"
+                          : step.values.value === 1
+                            ? "hour"
+                            : "hours"}
+                        )
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <span className="flex min-w-0 items-center gap-1">
+                    <span className="flex-shrink-0">Send Email</span>
+                    {isEmailStep(step) && step.values.subject && (
+                      <span className="max-w-[120px] truncate text-xs text-muted-foreground sm:max-w-[300px] md:max-w-[400px]">
+                        ({step.values.subject})
+                      </span>
+                    )}
+                  </span>
+                )}
               </span>
             </CustomAccordionTrigger>
             <AccordionContent>
@@ -279,7 +305,7 @@ function SortableStep(props: SortableStepProps) {
                         type="number"
                         min="0"
                         className={cn(
-                          "w-20",
+                          "w-20 bg-background",
                           waitTimeError && "border-destructive",
                         )}
                         value={step.values.value}
@@ -311,12 +337,16 @@ function SortableStep(props: SortableStepProps) {
                           });
                         }}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full bg-background">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="days">Days</SelectItem>
-                          <SelectItem value="hours">Hours</SelectItem>
+                          <SelectItem value="days">
+                            {step.values.value === 1 ? "Day" : "Days"}
+                          </SelectItem>
+                          <SelectItem value="hours">
+                            {step.values.value === 1 ? "Hour" : "Hours"}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -362,7 +392,7 @@ function SortableStep(props: SortableStepProps) {
                   </div>
                   <div className="col-span-4">
                     <div className="mb-1 text-xs">Subject</div>
-                    <div className="relative">
+                    <div className="relative w-full">
                       <Input
                         placeholder="Email Subject"
                         value={step.values.subject}
@@ -380,7 +410,7 @@ function SortableStep(props: SortableStepProps) {
                         }}
                         maxLength={60}
                         className={cn(
-                          "pe-16",
+                          "bg-background pe-16",
                           emailStepError !== null &&
                             errorStepIds.includes(stepId) &&
                             fieldErrors[stepId]?.includes("subject") &&
@@ -495,7 +525,7 @@ function SortableStep(props: SortableStepProps) {
                           }}
                           maxLength={50}
                           className={cn(
-                            "pe-16",
+                            "bg-background pe-16",
                             emailStepError !== null &&
                               errorStepIds.includes(stepId) &&
                               fieldErrors[stepId]?.includes("fromEmail") &&
@@ -549,7 +579,7 @@ function SortableStep(props: SortableStepProps) {
                         }}
                         maxLength={50}
                         className={cn(
-                          "pe-16",
+                          "bg-background pe-16",
                           emailStepError !== null &&
                             errorStepIds.includes(stepId) &&
                             fieldErrors[stepId]?.includes("fromName") &&
@@ -1247,7 +1277,7 @@ export default function EmailAutomationBuilder({
                 value={trigger || ""}
                 onValueChange={(value: TriggerType) => setTrigger(value)}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-background">
                   <SelectValue placeholder="Select a trigger" />
                 </SelectTrigger>
                 <SelectContent>
