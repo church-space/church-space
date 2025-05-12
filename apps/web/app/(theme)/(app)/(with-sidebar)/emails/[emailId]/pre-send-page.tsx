@@ -1949,7 +1949,7 @@ export default function PreSendPage({
               </div>
             </motion.div>
           </Accordion>
-          <div className="relative hidden w-[50%] flex-col gap-1 overflow-y-auto rounded-lg border bg-muted shadow-sm lg:flex">
+          <div className="relative hidden w-[45%] flex-shrink-0 flex-col gap-1 overflow-y-auto rounded-lg border bg-muted shadow-sm lg:flex">
             <div className="sticky top-0 flex w-full items-center justify-between px-3.5 pt-2">
               <h4 className="font-medium">Preview</h4>
 

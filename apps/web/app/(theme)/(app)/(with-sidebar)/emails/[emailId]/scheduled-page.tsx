@@ -171,7 +171,7 @@ export default function ScheduledPage({
                 <BreadcrumbSeparator className="hidden md:block" />
 
                 <BreadcrumbItem>
-                  <BreadcrumbPage className="max-w-32 truncate sm:max-w-sm">
+                  <BreadcrumbPage className="max-w-52 truncate sm:max-w-sm md:max-w-52 lg:max-w-md">
                     {email.subject || "Untitled Email"}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
@@ -236,7 +236,7 @@ export default function ScheduledPage({
           animate="visible"
           variants={containerVariants}
         >
-          <div className="mr-3 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-primary bg-secondary/80 text-primary shadow-lg shadow-primary/20">
+          <div className="mr-3 hidden h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-primary bg-secondary/80 text-primary shadow-lg shadow-primary/20 md:flex">
             <Email height={"20"} width={"20"} />
           </div>
           <h1 className="text-2xl">
@@ -261,7 +261,7 @@ export default function ScheduledPage({
           animate="visible"
           variants={containerVariants}
         >
-          <div className="flex h-[calc(100vh-170px)] w-full items-start gap-4 xl:gap-8">
+          <div className="flex w-full items-start gap-4 xl:gap-8">
             <motion.div
               variants={itemVariants}
               className="w-full max-w-4xl space-y-4 overflow-y-auto"
@@ -407,7 +407,7 @@ export default function ScheduledPage({
                 </CardContent>
               </Card>
             </motion.div>
-            <div className="relative hidden w-[50%] flex-col gap-1 overflow-y-auto rounded-lg border bg-muted shadow-sm lg:flex">
+            <div className="relative hidden w-[50%] flex-shrink-0 flex-col gap-1 overflow-y-auto rounded-lg border bg-muted shadow-sm lg:flex">
               <div className="sticky top-0 flex w-full items-center justify-between px-3.5 pt-2">
                 <h4 className="font-medium">Preview</h4>
 
@@ -425,7 +425,7 @@ export default function ScheduledPage({
                 <EmailPreview
                   webOnly={true}
                   orgFooterDetails={orgFooterDetails?.data?.data}
-                  customHeight="h-[calc(100vh-252px)] rounded-lg"
+                  customHeight="h-[calc(100vh-254px)] rounded-lg"
                 />
               </div>
             </div>
