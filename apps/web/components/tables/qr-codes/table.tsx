@@ -16,14 +16,12 @@ import { useQrLinks } from "@/hooks/use-qr-codes";
 import NewQRCode from "@/components/forms/new-qr-code";
 import { Qrcode } from "@church-space/ui/icons";
 import NullState from "./null-state";
-import { useRouter } from "next/navigation";
 
 interface QrCodesTableProps {
   organizationId: string;
 }
 
 export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
-  const router = useRouter();
   const [search, setSearch] = useQueryState("search");
   const [status, setStatus] = useQueryState("status");
   const [isNewQrCodeOpen, setIsNewQrCodeOpen] = useQueryState("newQrCodeOpen", {

@@ -867,7 +867,7 @@ export default function Page() {
                         <Email height={"18"} width={"18"} />
                       </span>
                       <span className="truncate">
-                        Send Email "{step.values?.subject || ""}"
+                        Send Email &quot;{step.values?.subject || ""}&quot;
                       </span>
                     </div>
                   )}

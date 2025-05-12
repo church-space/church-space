@@ -79,7 +79,7 @@ export default function LoadingPage() {
             <div className="flex flex-wrap gap-2">
               <div className="flex items-center gap-2 rounded-md border border-muted-foreground bg-card p-2 py-1.5 text-sm text-muted-foreground">
                 <Email height={"18"} width={"18"} />
-                <span>Send Email "Loading"</span>
+                <span>Send Email &quot;Loading&quot;</span>
               </div>
               <div className="flex items-center gap-2 rounded-md border border-muted-foreground bg-card p-2 py-1.5 text-sm text-muted-foreground">
                 <HourglassClock height={"18"} width={"18"} />
@@ -87,7 +87,7 @@ export default function LoadingPage() {
               </div>
               <div className="flex items-center gap-2 rounded-md border border-muted-foreground bg-card p-2 py-1.5 text-sm text-muted-foreground">
                 <Email height={"18"} width={"18"} />
-                <span>Send Email "Still Loading"</span>
+                <span>Send Email &quot;Still Loading&quot;</span>
               </div>
             </div>
           </div>

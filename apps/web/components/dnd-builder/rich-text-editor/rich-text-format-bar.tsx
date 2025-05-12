@@ -61,38 +61,6 @@ interface ToolbarProps {
   accentTextColor?: string;
 }
 
-// Define validation schema
-const urlSchema = z.string().superRefine((url, ctx) => {
-  // Empty string is valid
-  if (url === "") return;
-
-  // Check for spaces
-  if (url.trim() !== url) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "URL cannot contain spaces",
-    });
-    return;
-  }
-
-  // Allow mailto links
-  if (url.startsWith("mailto:")) {
-    return;
-  }
-
-  // Domain and TLD pattern without requiring https://
-  const urlPattern =
-    /^(https?:\/\/)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}(\/.*)?$/;
-  if (!urlPattern.test(url)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message:
-        "Please enter a valid URL with a domain and top-level domain (e.g., example.com)",
-    });
-    return;
-  }
-});
-
 // Separate validation schemas for URL and email
 const validateLink = (value: string, type: "url" | "email") => {
   // Empty string is valid for both types

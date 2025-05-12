@@ -1040,34 +1040,25 @@ const CustomCards: React.FC<{
                                             borderRadius: cornerRadius
                                               ? `${cornerRadius * 0.3}px`
                                               : "0",
+                                            color:
+                                              buttonStyle === "filled"
+                                                ? buttonTextColor
+                                                : buttonColor,
+                                            display: "block",
+                                            fontFamily:
+                                              ensureFontFallbacks(defaultFont),
+                                            fontSize: "14px",
+                                            fontWeight: "normal",
+                                            lineHeight: "1",
+                                            padding:
+                                              buttonSize === "large"
+                                                ? "15px 32px"
+                                                : "9px 15px",
+                                            textDecoration: "none",
+                                            textAlign: "center",
                                           }}
                                         >
-                                          <a
-                                            href={formattedButtonLink}
-                                            target="_blank"
-                                            style={{
-                                              color:
-                                                buttonStyle === "filled"
-                                                  ? buttonTextColor
-                                                  : buttonColor,
-                                              display: "block",
-                                              fontFamily:
-                                                ensureFontFallbacks(
-                                                  defaultFont,
-                                                ),
-                                              fontSize: "14px",
-                                              fontWeight: "normal",
-                                              lineHeight: "1",
-                                              padding:
-                                                buttonSize === "large"
-                                                  ? "15px 32px"
-                                                  : "9px 15px",
-                                              textDecoration: "none",
-                                              textAlign: "center",
-                                            }}
-                                          >
-                                            {card.buttonText}
-                                          </a>
+                                          {card.buttonText}
                                         </td>
                                       </tr>
                                     </table>
