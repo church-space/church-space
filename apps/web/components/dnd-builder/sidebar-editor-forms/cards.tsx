@@ -174,14 +174,14 @@ function SortableCardItem({
                 <Label>Title</Label>
                 <Input
                   placeholder="Card Title"
-                  className="col-span-2 mb-2"
+                  className="col-span-2 mb-2 bg-background"
                   value={card.title}
                   onChange={(e) => updateCard(index, "title", e.target.value)}
                 />
 
                 <Label>Description</Label>
                 <Textarea
-                  className="col-span-2 mb-2"
+                  className="col-span-2 mb-2 bg-background"
                   placeholder="Description"
                   value={card.description}
                   onChange={(e) =>
@@ -192,7 +192,7 @@ function SortableCardItem({
                 <Label>Label</Label>
                 <Input
                   placeholder="Label"
-                  className="col-span-2 mb-2"
+                  className="col-span-2 mb-2 bg-background"
                   value={card.label}
                   onChange={(e) => updateCard(index, "label", e.target.value)}
                   maxLength={150}
@@ -212,7 +212,7 @@ function SortableCardItem({
 
                 <Label>Button Text</Label>
                 <Input
-                  className="col-span-2 mb-2"
+                  className="col-span-2 mb-2 bg-background"
                   value={card.buttonText}
                   onChange={(e) =>
                     updateCard(index, "buttonText", e.target.value)
@@ -236,8 +236,8 @@ function SortableCardItem({
                   <Input
                     className={
                       linkErrors[card.id] && !typingLinks[card.id]
-                        ? "border-red-500"
-                        : ""
+                        ? "border-red-500 bg-background"
+                        : "bg-background"
                     }
                     value={card.buttonLink}
                     placeholder="https://..."

@@ -1015,7 +1015,7 @@ export default function PreSendPage({
                   </DialogHeader>
                   <Input
                     placeholder="New email subject"
-                    className="mb-3 w-full"
+                    className="mb-3 w-full bg-background"
                     value={duplicateEmailName}
                     onChange={(e) => setDuplicateEmailName(e.target.value)}
                     maxLength={100} // Or appropriate length
@@ -1549,7 +1549,7 @@ export default function PreSendPage({
                           value={fromEmail}
                           onChange={handleFromEmailChange}
                           maxLength={50}
-                          className="pr-16"
+                          className="bg-background pr-16"
                         />
                         <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
                           {fromEmail.length} / 50
@@ -1573,7 +1573,7 @@ export default function PreSendPage({
                     <div className="relative">
                       <Input
                         placeholder="Name"
-                        className="pr-8"
+                        className="bg-background pr-8"
                         value={fromName}
                         onChange={(e) => setFromName(e.target.value)}
                         maxLength={50}
@@ -1592,7 +1592,7 @@ export default function PreSendPage({
                           value={replyToEmail}
                           onChange={handleReplyToEmailChange}
                           maxLength={50}
-                          className="pr-16"
+                          className="bg-background pr-16"
                         />
                         <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
                           {replyToEmail.length} / 50
@@ -1660,7 +1660,7 @@ export default function PreSendPage({
                         placeholder="Enter subject"
                         value={subject}
                         maxLength={60}
-                        className="pr-16"
+                        className="bg-background pr-16"
                         onChange={(e) =>
                           setSubject(e.target.value.slice(0, 60))
                         }
@@ -1725,7 +1725,7 @@ export default function PreSendPage({
                           setPreviewText(e.target.value.slice(0, 100))
                         }
                         maxLength={100}
-                        className="pr-16"
+                        className="bg-background pr-16"
                       />
                       <span className="absolute bottom-0 right-0 top-0 flex items-center px-2 text-sm text-muted-foreground">
                         {previewText.length} / 100
