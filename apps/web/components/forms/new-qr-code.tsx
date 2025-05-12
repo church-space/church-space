@@ -16,6 +16,7 @@ import {
 import { Input } from "@church-space/ui/input";
 import { createQRLinkAction } from "@/actions/create-qr-link";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   subject: z
@@ -80,6 +81,7 @@ export default function NewQRCode({
   setIsNewQRCodeOpen: (isOpen: boolean) => void;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -99,11 +101,18 @@ export default function NewQRCode({
       });
 
       if (result?.data?.success && result?.data?.data) {
+        // Invalidate the qr-links queries
+        await queryClient.invalidateQueries({
+          queryKey: ["qr-links", organizationId],
+        });
+
         setIsNewQRCodeOpen(false);
-        await router.push(`/qr-codes/${result.data.data.id}?newQRCode=true`);
+        router.push(`/qr-codes/${result.data.data.id}?newQRCode=true`);
       }
     } catch (error) {
       console.error("Failed to create QR code:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

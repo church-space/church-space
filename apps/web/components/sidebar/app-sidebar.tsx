@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useUser } from "@/stores/use-user";
 import { Button } from "@church-space/ui/button";
@@ -146,6 +146,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     });
   };
 
+  const handleNewQrCodeOpen = useCallback((value: boolean) => {
+    setNewQrCodeDialogOpen(value);
+  }, []);
+
   useEffect(() => {
     // Don't do anything until preferences are properly loaded
     if (!preferences || preferences.welcomeStepsCompleted === null) {
@@ -280,7 +284,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </DialogHeader>
           <NewQRCode
             organizationId={organizationId ?? ""}
-            setIsNewQRCodeOpen={setNewQrCodeDialogOpen}
+            setIsNewQRCodeOpen={handleNewQrCodeOpen}
           />
         </DialogContent>
       </Dialog>
