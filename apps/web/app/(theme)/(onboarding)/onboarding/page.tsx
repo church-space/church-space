@@ -6,7 +6,6 @@ import { jwtVerify } from "jose";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { handleExpiredInvite } from "./actions";
 import ClientPage from "./client-page";
 
 export const metadata: Metadata = {
@@ -43,7 +42,6 @@ export default async function Page() {
         "[Onboarding Page] INVITE_MEMBERS_SECRET environment variable is not set",
       );
       // Clean up invite cookie and redirect
-      await handleExpiredInvite();
       return redirect("/onboarding?inviteError=true");
     }
 
@@ -87,13 +85,11 @@ export default async function Page() {
       // If the invite has expired, delete cookie and redirect
       if (inviteExpires < new Date()) {
         console.log("[Onboarding Page] Invite has expired");
-        await handleExpiredInvite();
         return redirect("/onboarding?inviteError=true");
       }
     } catch (error) {
       console.error("[Onboarding Page] Error verifying invite:", error);
       // Delete the invalid invite cookie before redirecting
-      await handleExpiredInvite();
       return redirect("/onboarding?inviteError=true");
     }
 
