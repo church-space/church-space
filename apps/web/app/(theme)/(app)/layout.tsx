@@ -56,7 +56,7 @@ export default async function ProtectedLayout({
 
   if (!orgId) {
     // Set the cookie using POST request
-    const response = await fetch("/api/set-org-cookie", {
+    const response = await fetch("https://churchspace.co/api/set-org-cookie", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -56,7 +56,7 @@ export default async function Page() {
   // If no organization ID in cookies but user has organization membership,
   // set the cookie and then refresh
   if (!organizationId && user.organizationMembership.organization_id) {
-    const response = await fetch("/api/set-org-cookie", {
+    const response = await fetch("https://churchspace.co/api/set-org-cookie", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
