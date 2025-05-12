@@ -245,7 +245,7 @@ export default function WelcomePage() {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-1rem)] bg-gradient-to-b from-background to-secondary/20">
+    <div className="relative min-h-[calc(100vh-1rem)] bg-gradient-to-b from-background to-secondary/10">
       <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center justify-between gap-2 rounded-t-lg bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
