@@ -73,6 +73,8 @@ import { updateEmailAction } from "@/actions/update-email";
 import { useToast } from "@church-space/ui/use-toast";
 import type { ActionResponse } from "@/types/action";
 import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
+import { cn } from "@church-space/ui/cn";
+import { formatDistanceToNow } from "date-fns";
 
 export default function EmailDndProvider({
   organizationId,
@@ -126,6 +128,7 @@ export default function EmailDndProvider({
   const updateEmailFooter = useUpdateEmailFooter();
   const { toast } = useToast();
   const [mobilePopoverOpen, setMobilePopoverOpen] = useState(false);
+  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null);
 
   const { data: orgFooterDetails } = useQuery({
     queryKey: ["orgFooterDetails", organizationId],
@@ -899,6 +902,7 @@ export default function EmailDndProvider({
           { blockId },
           {
             onSuccess: () => {
+              setLastSavedTime(new Date()); // Update last saved time
               // Remove from the set of blocks being deleted
               setBlocksBeingDeleted((prev) => {
                 const newSet = new Set(prev);
@@ -948,6 +952,7 @@ export default function EmailDndProvider({
             { blockId: matchingDbBlock.id },
             {
               onSuccess: () => {
+                setLastSavedTime(new Date()); // Update last saved time
                 // Remove from the set of blocks being deleted
                 setBlocksBeingDeleted((prev) => {
                   const newSet = new Set(prev);
@@ -1227,6 +1232,7 @@ export default function EmailDndProvider({
                   // Update the order of all blocks in the database to match their position in the UI
                   // This ensures blocks after the insertion point have their order properly updated
                   updateBlockOrdersInDatabase(updatedBlocks);
+                  setLastSavedTime(new Date()); // Update last saved time on successful add during undo
                 } else {
                   console.error(
                     "Failed to add block to database - no ID returned",
@@ -1236,6 +1242,7 @@ export default function EmailDndProvider({
               onError: (error) => {
                 console.error("Error adding block to database:", error);
                 // You could show an error toast here
+                setLastSavedTime(null); // Reset on error? Or keep last successful save? Debatable. Let's keep it for now.
               },
             },
           );
@@ -1274,12 +1281,17 @@ export default function EmailDndProvider({
           if (!isNaN(parseInt(updatedBlock.id, 10))) {
             // Update existing block - include the order in the update
             const dbBlockId = parseInt(updatedBlock.id, 10);
-            updateEmailBlock.mutate({
-              blockId: dbBlockId,
-              value: updatedBlock.data,
-              type: updatedBlock.type,
-              order: updatedBlock.order, // Explicitly include the order in the update
-            });
+            updateEmailBlock.mutate(
+              {
+                blockId: dbBlockId,
+                value: updatedBlock.data,
+                type: updatedBlock.type,
+                order: updatedBlock.order, // Explicitly include the order in the update
+              },
+              {
+                onSuccess: () => setLastSavedTime(new Date()), // Update last saved time
+              },
+            );
           }
         }, 1000);
       }
@@ -1468,11 +1480,16 @@ export default function EmailDndProvider({
 
       // 4. Send batch updates if there are any
       if (orderUpdates.length > 0 || contentUpdates.length > 0) {
-        await batchUpdateEmailBlocks.mutateAsync({
-          emailId,
-          orderUpdates,
-          contentUpdates,
-        });
+        await batchUpdateEmailBlocks.mutateAsync(
+          {
+            emailId,
+            orderUpdates,
+            contentUpdates,
+          },
+          {
+            onSuccess: () => setLastSavedTime(new Date()), // Update last saved time
+          },
+        );
       }
 
       // Refresh the email data to get the latest block IDs
@@ -2320,10 +2337,15 @@ export default function EmailDndProvider({
           );
 
         if (orderUpdates.length > 0 && emailId) {
-          batchUpdateEmailBlocks.mutate({
-            emailId,
-            orderUpdates,
-          });
+          batchUpdateEmailBlocks.mutate(
+            {
+              emailId,
+              orderUpdates,
+            },
+            {
+              onSuccess: () => setLastSavedTime(new Date()), // Update last saved time
+            },
+          );
         }
       }, 1000); // Wait a bit to ensure all block creations have completed
     }, 500),
@@ -2415,6 +2437,7 @@ export default function EmailDndProvider({
 
                   // Update block orders in database to ensure correct positioning
                   updateBlockOrdersInDatabase(updatedBlocks);
+                  setLastSavedTime(new Date()); // Update last saved time on successful add during undo
                 }
               },
             },
@@ -2879,10 +2902,15 @@ export default function EmailDndProvider({
         }));
 
       if (contentUpdates.length > 0) {
-        batchUpdateEmailBlocks.mutate({
-          emailId,
-          contentUpdates,
-        });
+        batchUpdateEmailBlocks.mutate(
+          {
+            emailId,
+            contentUpdates,
+          },
+          {
+            onSuccess: () => setLastSavedTime(new Date()), // Update last saved time
+          },
+        );
       }
     }
   };
@@ -2923,10 +2951,15 @@ export default function EmailDndProvider({
         }));
 
       if (contentUpdates.length > 0) {
-        batchUpdateEmailBlocks.mutate({
-          emailId,
-          contentUpdates,
-        });
+        batchUpdateEmailBlocks.mutate(
+          {
+            emailId,
+            contentUpdates,
+          },
+          {
+            onSuccess: () => setLastSavedTime(new Date()), // Update last saved time
+          },
+        );
       }
     }
   };
@@ -3225,10 +3258,10 @@ export default function EmailDndProvider({
         <div className="flex items-center gap-2 px-4">
           <Breadcrumb>
             <BreadcrumbList>
-              <Link href="/emails" className="hidden md:block">
+              <Link href="/emails" className="hidden lg:block">
                 <BreadcrumbItem>Emails</BreadcrumbItem>
               </Link>
-              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbSeparator className="hidden lg:block" />
 
               <Link
                 href={
@@ -3241,8 +3274,8 @@ export default function EmailDndProvider({
                   {(emailData?.email as any)?.subject || "Email Subject"}
                 </BreadcrumbItem>
               </Link>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbSeparator className="hidden lg:block" />
+              <BreadcrumbItem className="hidden lg:block">
                 <BreadcrumbPage>
                   {emailData?.email?.type === "template" ? (
                     <span>Template Editor</span>
@@ -3255,6 +3288,14 @@ export default function EmailDndProvider({
           </Breadcrumb>
         </div>
         <div className="flex items-center gap-2 px-4">
+          <div className="mr-2 hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
+            {lastSavedTime
+              ? `Saved ${formatDistanceToNow(lastSavedTime, { addSuffix: true })}`
+              : ""}
+          </div>
+          <div className="mr-2 flex items-center gap-2 text-xs text-muted-foreground sm:hidden">
+            Auto-Saved
+          </div>
           <div className="flex">
             <Tooltip>
               <TooltipTrigger asChild>

@@ -594,7 +594,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
               <SelectItem value="full">Full Width</SelectItem>
             </SelectContent>
           </Select>
-          <Label>Image Ratio</Label>
+          {/* <Label>Image Ratio</Label>
           <Select
             value={localState.imageRatio}
             onValueChange={(value) => handleChange("imageRatio", value)}
@@ -606,7 +606,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
               <SelectItem value="16:9">16:9</SelectItem>
               <SelectItem value="square">Square</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
       </div>
 

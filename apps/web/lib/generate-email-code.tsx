@@ -741,6 +741,7 @@ const CustomCards: React.FC<{
   labelColor: string;
   buttonColor: string;
   buttonTextColor: string;
+  imageRatio: "16:9" | "square";
   cards: Array<{
     title: string;
     description: string;
@@ -761,6 +762,7 @@ const CustomCards: React.FC<{
   labelColor,
   buttonColor,
   buttonTextColor,
+  imageRatio,
   cards,
   defaultFont,
   cornerRadius,
