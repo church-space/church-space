@@ -238,13 +238,22 @@ const CustomText: React.FC<{
       return `<p style="${baseStyle}"`;
     })
     // Style links with the specified linkColor
-    .replace(/<a(?: style="([^"]*)")?/g, (match, existingStyle) => {
-      const baseStyle = `color: ${linkColor || "#0000ff"}; text-decoration: underline; font-size: 16px`;
-      if (existingStyle) {
-        return `<a style="${existingStyle}; ${baseStyle}"`;
-      }
-      return `<a style="${baseStyle}"`;
-    })
+    .replace(
+      /<a(?: style="([^"]*)")?([^>]*?)href="([^"]*)"([^>]*)>/g,
+      (match, existingStyle, before, href, after) => {
+        const baseStyle = `color: ${linkColor || "#0000ff"}; text-decoration: underline; font-size: 16px`;
+        const style = existingStyle
+          ? `${existingStyle}; ${baseStyle}`
+          : baseStyle;
+
+        // Format the URL with proper protocol using the existing formatUrl function
+        const formattedHref = href.trim().toLowerCase().startsWith("mailto:")
+          ? formatUrl(href, "mail")
+          : formatUrl(href);
+
+        return `<a style="${style}"${before}href="${formattedHref}"${after}>`;
+      },
+    )
     // Add list styles
     .replace(/<ul(?: style="([^"]*)")?/g, (match, existingStyle) => {
       const baseStyle =

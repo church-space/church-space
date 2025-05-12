@@ -38,9 +38,22 @@ import {
   ListOrdered,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { ExtraLargeText, Palette, XIcon } from "@church-space/ui/icons";
+import {
+  Email,
+  ExtraLargeText,
+  LinkFilled,
+  Palette,
+  XIcon,
+} from "@church-space/ui/icons";
 import { cn } from "@church-space/ui/cn";
 import { z } from "zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@church-space/ui/select";
 
 interface ToolbarProps {
   editor: Editor | null;
@@ -80,6 +93,41 @@ const urlSchema = z.string().superRefine((url, ctx) => {
   }
 });
 
+// Separate validation schemas for URL and email
+const validateLink = (value: string, type: "url" | "email") => {
+  // Empty string is valid for both types
+  if (value === "") return true;
+
+  // Check for spaces
+  if (value.trim() !== value) {
+    return "Link cannot contain spaces";
+  }
+
+  if (type === "email") {
+    // Simple email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(value)) {
+      return "Please enter a valid email address";
+    }
+    return true;
+  } else {
+    // URL validation - allow without protocol (we'll add https:// later)
+    const domainPattern =
+      /^([a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,})(\/.*)?$/;
+    const fullUrlPattern =
+      /^(https?:\/\/)?([a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,})(\/.*)?$/;
+
+    if (fullUrlPattern.test(value)) {
+      return true;
+    } else if (domainPattern.test(value)) {
+      // Valid domain without protocol
+      return true;
+    } else {
+      return "Please enter a valid URL with a domain and top-level domain (e.g., example.com)";
+    }
+  }
+};
+
 const Toolbar = ({
   editor,
   defaultTextColor = "#000000",
@@ -93,6 +141,8 @@ const Toolbar = ({
   const [linkError, setLinkError] = useState<string | null>(null);
   const [isTypingLink, setIsTypingLink] = useState(false);
   const linkTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [linkType, setLinkType] = useState<"url" | "email">("url");
+  const [userSelectedLinkType, setUserSelectedLinkType] = useState(false);
 
   // Set default alignment to left when editor is initialized
   useEffect(() => {
@@ -133,10 +183,24 @@ const Toolbar = ({
       if (editor.isActive("link")) {
         const attributes = editor.getAttributes("link");
         if (attributes.href) {
-          setLinkUrl(attributes.href);
+          // Remove mailto: prefix when displaying email links
+          setLinkUrl(
+            attributes.href.startsWith("mailto:")
+              ? attributes.href.substring(7)
+              : attributes.href,
+          );
+
+          // Only set link type based on the href if user hasn't explicitly selected a type
+          if (!userSelectedLinkType) {
+            setLinkType(
+              attributes.href.startsWith("mailto:") ? "email" : "url",
+            );
+          }
         }
       } else {
         setLinkUrl("");
+        // Reset user selection flag when no link is selected
+        setUserSelectedLinkType(false);
       }
     };
 
@@ -157,7 +221,7 @@ const Toolbar = ({
       editor.off("update", updateHandler);
       document.removeEventListener("click", handleClick);
     };
-  }, [editor]);
+  }, [editor, userSelectedLinkType]);
 
   // Cleanup timers on unmount
   useEffect(() => {
@@ -173,31 +237,50 @@ const Toolbar = ({
   }
 
   const setLink = () => {
-    // Validate URL before setting
-    try {
-      urlSchema.parse(linkUrl);
+    // Validate based on link type
+    const validationResult = validateLink(linkUrl, linkType);
 
+    if (validationResult === true) {
       if (linkUrl === "") {
         editor.chain().focus().extendMarkRange("link").unsetLink().run();
       } else {
+        // For email links, add mailto: prefix if not already present
+        let finalUrl = linkUrl.trim();
+        if (linkType === "email") {
+          // Remove any existing mailto: prefix first to avoid duplication
+          if (finalUrl.startsWith("mailto:")) {
+            finalUrl = finalUrl.substring(7);
+          }
+          finalUrl = `mailto:${finalUrl}`;
+        } else if (linkType === "url") {
+          // If converting from email to url, remove any mailto: prefix
+          if (finalUrl.startsWith("mailto:")) {
+            finalUrl = finalUrl.substring(7);
+          }
+
+          // Add https:// if no protocol is specified
+          if (!finalUrl.match(/^[a-zA-Z]+:\/\//)) {
+            finalUrl = `https://${finalUrl}`;
+          }
+        }
+
         editor
           .chain()
           .focus()
           .extendMarkRange("link")
-          .setLink({ href: linkUrl })
+          .setLink({ href: finalUrl })
           .run();
       }
       setLinkUrl("");
       setLinkError(null);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setLinkError(error.errors[0].message);
-      }
+    } else {
+      setLinkError(validationResult);
     }
   };
 
   const handleLinkChange = (value: string) => {
     setLinkUrl(value);
+    // Don't validate or change link type while typing - just update the value
     setIsTypingLink(true);
 
     // Clear any existing timer
@@ -205,38 +288,20 @@ const Toolbar = ({
       clearTimeout(linkTimerRef.current);
     }
 
-    // Set a new timer to validate after typing stops
+    // Set a new timer to clear typing state
     linkTimerRef.current = setTimeout(() => {
       setIsTypingLink(false);
-
-      try {
-        urlSchema.parse(value);
-        setLinkError(null);
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          setLinkError(error.errors[0].message);
-        }
-      }
     }, 800); // 800ms debounce
   };
 
   const handleLinkBlur = () => {
-    // When input loses focus, clear typing state and validate
+    // When input loses focus, just clear typing state
     if (isTypingLink) {
       setIsTypingLink(false);
 
       if (linkTimerRef.current) {
         clearTimeout(linkTimerRef.current);
         linkTimerRef.current = null;
-      }
-
-      try {
-        urlSchema.parse(linkUrl);
-        setLinkError(null);
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          setLinkError(error.errors[0].message);
-        }
       }
     }
   };
@@ -615,10 +680,36 @@ const Toolbar = ({
         </Tooltip>
         <PopoverContent className="w-80">
           <div className="flex flex-col gap-4">
+            <Select
+              defaultValue="url"
+              onValueChange={(value) => {
+                setLinkType(value as "url" | "email");
+                setUserSelectedLinkType(true);
+              }}
+              value={linkType}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Link Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="url">
+                  <div className="flex flex-row items-center gap-2">
+                    <LinkFilled />
+                    URL
+                  </div>
+                </SelectItem>
+                <SelectItem value="email">
+                  <div className="flex flex-row items-center gap-2">
+                    <Email />
+                    Email
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
             <div className="flex flex-col gap-1">
               <Input
-                type="url"
-                placeholder="Enter URL"
+                type={linkType === "url" ? "url" : "email"}
+                placeholder={linkType === "url" ? "Enter URL" : "Enter Email"}
                 value={linkUrl}
                 onChange={(e) => handleLinkChange(e.target.value)}
                 onBlur={handleLinkBlur}
