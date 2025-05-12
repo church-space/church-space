@@ -73,7 +73,6 @@ import { updateEmailAction } from "@/actions/update-email";
 import { useToast } from "@church-space/ui/use-toast";
 import type { ActionResponse } from "@/types/action";
 import { getOrgFooterDetailsAction } from "@/actions/get-org-footer-details";
-import { cn } from "@church-space/ui/cn";
 import { formatDistanceToNow } from "date-fns";
 
 export default function EmailDndProvider({

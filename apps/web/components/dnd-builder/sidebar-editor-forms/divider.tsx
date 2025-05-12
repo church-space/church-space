@@ -99,7 +99,7 @@ export default function DividerForm({
                 min={0}
                 step={1}
                 value={[localState.thickness]}
-                onValueChange={(value) => handleChange("thickness", value[0])}
+                onValueChange={handleThicknessChange}
                 className="-translate-y-1"
               />
             </div>

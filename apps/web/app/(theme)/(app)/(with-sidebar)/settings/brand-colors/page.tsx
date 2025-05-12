@@ -1,22 +1,5 @@
-import {
-  SettingsContent,
-  SettingsDescription,
-  SettingsHeader,
-  SettingsSection,
-  SettingsTitle,
-} from "@/components/settings/settings-settings";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@church-space/ui/breadcrumb";
-import { Separator } from "@church-space/ui/separator";
-import { SidebarTrigger } from "@church-space/ui/sidebar";
 import ClientPage from "./client-page";
 import { cookies } from "next/headers";
-import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
