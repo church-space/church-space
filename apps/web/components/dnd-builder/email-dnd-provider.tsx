@@ -1308,9 +1308,17 @@ export default function EmailDndProvider({
     if (!activeId) return null;
 
     // If it's from sidebar (new block)
-    if (activeId.toString().startsWith("sidebar-")) {
-      const blockType = activeId.replace("sidebar-", "");
-      const blockData = allBlockTypes.find((b) => b.type === blockType);
+    const activeIdStr = activeId.toString();
+    let blockTypeFromId: string | undefined;
+
+    if (activeIdStr.startsWith("sidebar-desktop-")) {
+      blockTypeFromId = activeIdStr.replace("sidebar-desktop-", "");
+    } else if (activeIdStr.startsWith("sidebar-mobile-")) {
+      blockTypeFromId = activeIdStr.replace("sidebar-mobile-", "");
+    }
+
+    if (blockTypeFromId) {
+      const blockData = allBlockTypes.find((b) => b.type === blockTypeFromId);
 
       if (blockData) {
         return (

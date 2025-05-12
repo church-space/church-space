@@ -115,7 +115,7 @@ function DraggableBlock({
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
-      id: `sidebar-${block.type}`,
+      id: `sidebar-desktop-${block.type}`,
       data: {
         type: block.type,
         fromSidebar: true,
@@ -170,7 +170,7 @@ function ClickableBlock({
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
-      id: `sidebar-${block.type}`,
+      id: `sidebar-mobile-${block.type}`,
       data: {
         type: block.type,
         fromSidebar: true,
@@ -514,10 +514,7 @@ export default function DndBuilderSidebar({
           <Palette height="22px" width="22px" />
         </Button>
         <div className="">
-          <Popover
-            open={isMobile && mobilePopoverOpen}
-            onOpenChange={setMobilePopoverOpen}
-          >
+          <Popover open={mobilePopoverOpen} onOpenChange={setMobilePopoverOpen}>
             <PopoverTrigger asChild>
               <CirclePlus height="40px" width="40px" />
             </PopoverTrigger>
@@ -525,17 +522,15 @@ export default function DndBuilderSidebar({
               className="w-[calc(100vw-3rem)] p-0"
               sideOffset={16}
             >
-              {isMobile && (
-                <div className="grid grid-cols-3 gap-2 p-4">
-                  {blockTypes.map((block) => (
-                    <ClickableBlock
-                      key={block.type}
-                      block={block}
-                      onClickAdd={handleAddBlockByType}
-                    />
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-3 gap-2 p-4">
+                {blockTypes.map((block) => (
+                  <ClickableBlock
+                    key={block.type}
+                    block={block}
+                    onClickAdd={handleAddBlockByType}
+                  />
+                ))}
+              </div>
             </PopoverContent>
           </Popover>
         </div>
