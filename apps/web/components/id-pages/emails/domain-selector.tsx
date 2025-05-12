@@ -108,7 +108,7 @@ export default function DomainSelector({
 
   if (isLoading) {
     return (
-      <div className="flex h-9 w-full items-center justify-center gap-2 rounded-md border text-sm text-muted-foreground">
+      <div className="flex h-9 w-full items-center justify-start gap-2 rounded-md border bg-background px-3 text-sm text-muted-foreground">
         <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading...
       </div>
     );
@@ -117,7 +117,7 @@ export default function DomainSelector({
   if (domains.length === 0) {
     return (
       <Link href="/settings/domains" className="w-full">
-        <Button variant="secondary" className={(cn(className), "w-full")}>
+        <Button variant="outline" className={(cn(className), "w-full")}>
           Add a domain
         </Button>
       </Link>
@@ -126,7 +126,7 @@ export default function DomainSelector({
 
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className={className}>
+      <SelectTrigger className={cn(className, "bg-background")}>
         {selectedDomain ? selectedDomain.domain : "Select Domain"}
       </SelectTrigger>
       <SelectContent>

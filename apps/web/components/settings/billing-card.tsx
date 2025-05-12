@@ -263,6 +263,8 @@ export default function SubscriptionCard({
                   innerRadius={70}
                   outerRadius={100}
                   fill="hsl(var(--primary))"
+                  startAngle={90}
+                  endAngle={450}
                 >
                   <Label
                     content={({ viewBox }) => {
