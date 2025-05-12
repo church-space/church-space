@@ -54,29 +54,6 @@ export default async function ProtectedLayout({
     }
   }
 
-  if (!orgId) {
-    // Set the cookie using POST request
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/set-org-cookie`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          organizationId: user.organizationMembership.organization_id,
-        }),
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to set organization cookie");
-    }
-
-    // Refresh the page to get the new cookie
-    return redirect("/emails");
-  }
-
   if (user.pcoConnection) {
     const lastRefreshed = new Date(user.pcoConnection.last_refreshed);
     const now = new Date();

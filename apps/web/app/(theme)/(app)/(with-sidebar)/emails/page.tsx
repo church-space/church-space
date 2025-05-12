@@ -7,7 +7,6 @@ import {
 } from "@church-space/ui/breadcrumb";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@church-space/supabase/server";
 import { getUserWithDetailsQuery } from "@church-space/supabase/get-user-with-details";
@@ -41,9 +40,6 @@ function EmailsContent({ organizationId }: { organizationId: string }) {
 }
 
 export default async function Page() {
-  const cookiesStore = await cookies();
-  const organizationId = cookiesStore.get("organizationId")?.value;
-
   // Get user details to verify organization membership
   const supabase = await createClient();
   const user = await getUserWithDetailsQuery(supabase);
@@ -53,34 +49,9 @@ export default async function Page() {
     redirect("/onboarding");
   }
 
-  // If no organization ID in cookies but user has organization membership,
-  // set the cookie and then refresh
-  if (!organizationId && user.organizationMembership.organization_id) {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/set-org-cookie`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          organizationId: user.organizationMembership.organization_id,
-        }),
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to set organization cookie");
-    }
-
-    // Refresh the page to get the new cookie
-    return redirect("/emails");
-  }
-
-  // If no organization ID at all, redirect to onboarding
-  if (!organizationId) {
-    redirect("/onboarding");
-  }
-
-  return <EmailsContent organizationId={organizationId} />;
+  return (
+    <EmailsContent
+      organizationId={user.organizationMembership.organization_id}
+    />
+  );
 }
