@@ -19,10 +19,6 @@ export const getPeopleWithEmails = authActionClient
     name: "getPeopleWithEmails",
   })
   .action(async ({ parsedInput }) => {
-    console.log(
-      "[getPeopleWithEmails action] Received searchTerm:",
-      parsedInput.searchTerm,
-    );
     const supabase = await createClient();
     const from = parsedInput.page * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;

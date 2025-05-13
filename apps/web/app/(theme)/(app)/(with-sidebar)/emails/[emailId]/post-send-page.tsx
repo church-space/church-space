@@ -687,6 +687,66 @@ export default function PostSendPage({
               </div>
             </CardContent>
           </Card>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:hidden">
+            {emailStats.map((stat, index) => (
+              <Card
+                key={index}
+                className="flex items-center gap-3.5 overflow-hidden p-3"
+              >
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-${stat.color}-500 bg-${stat.color}-500/10 text-${stat.color}-500`}
+                >
+                  <stat.icon height={"20"} width={"20"} />
+                </div>
+                <div className="flex w-full flex-col gap-1">
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <p className="text-sm capitalize leading-none text-muted-foreground">
+                      {stat.title}
+                    </p>
+                    <p
+                      className={cn(
+                        "text-sm leading-none",
+                        // Open rate thresholds
+                        stat.title === "opens"
+                          ? stat.rate > 25
+                            ? "text-green-500"
+                            : stat.rate >= 15
+                              ? "text-yellow-500"
+                              : "text-red-500"
+                          : // Unsubscribe rate thresholds
+                            stat.title === "unsubscribes"
+                            ? stat.rate < 0.2
+                              ? "text-green-500"
+                              : stat.rate <= 0.5
+                                ? "text-yellow-500"
+                                : "text-red-500"
+                            : // Bounce rate thresholds
+                              stat.title === "bounces"
+                              ? stat.rate < 0.5
+                                ? "text-green-500"
+                                : stat.rate <= 1
+                                  ? "text-yellow-500"
+                                  : "text-red-500"
+                              : // Complaint rate thresholds
+                                stat.rate < 0.01
+                                ? "text-green-500"
+                                : stat.rate <= 0.05
+                                  ? "text-yellow-500"
+                                  : "text-red-500",
+                      )}
+                    >
+                      {stat.rate}%
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xl font-bold leading-none">
+                      {stat.count.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
           <Card>
             <CardHeader className="px-4 pb-1.5 pt-4">
               <CardTitle className="flex items-center gap-3 text-lg font-bold">
@@ -733,7 +793,7 @@ export default function PostSendPage({
           </Card>
         </motion.div>
         <motion.div
-          className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4"
+          className="hidden gap-2 sm:grid-cols-2 lg:grid xl:grid-cols-4"
           variants={itemVariants}
         >
           {emailStats.map((stat, index) => (

@@ -711,7 +711,7 @@ export default function Page() {
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+      <div className="mx-auto w-full flex-1 px-4 py-10 md:px-12">
         <div className="flex flex-col space-y-10">
           {/* Link Information Section */}
           <div className="flex w-full justify-between gap-4 border-b pb-4">
@@ -841,41 +841,45 @@ export default function Page() {
               </div>
             )}
           </div>
-          <div
-            className="flex cursor-pointer flex-col gap-4 rounded-lg border bg-accent p-4 shadow-sm md:p-6 md:pt-4"
-            onClick={() => setIsSheetOpen(true)}
-          >
-            <div className="text-lg font-bold">Steps</div>
-            <div className="flex flex-wrap gap-2">
-              {transformedAutomation.steps.map((step) => (
-                <div key={step.id}>
-                  {step.type === "wait" ? (
-                    <div className="flex items-center gap-2 rounded-md border border-yellow-500 bg-yellow-500/30 p-2 py-1.5 text-sm text-yellow-900 dark:bg-yellow-500/10 dark:text-yellow-500">
-                      <span className="flex-shrink-0">
-                        <HourglassClock height={"18"} width={"18"} />
-                      </span>
-                      <span>
-                        Wait {step.values.value}{" "}
-                        {step.values.value === 1
-                          ? step.values.unit.slice(0, -1)
-                          : step.values.unit}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex w-full max-w-[240px] items-center gap-2 rounded-md border border-green-500 bg-green-500/30 p-2 py-1.5 text-sm text-green-900 dark:bg-green-500/10 dark:text-green-500">
-                      <span className="flex-shrink-0">
-                        <Email height={"18"} width={"18"} />
-                      </span>
-                      <span className="truncate">
-                        Send Email &quot;{step.values?.subject || ""}&quot;
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))}
+          <div className="flex w-full flex-col md:flex-row-reverse md:gap-4">
+            <div
+              className="flex cursor-pointer flex-col gap-4 rounded-lg border bg-accent p-4 shadow-sm md:max-w-sm md:p-6 md:pt-4"
+              onClick={() => setIsSheetOpen(true)}
+            >
+              <div className="text-lg font-bold">Steps</div>
+              <div className="flex flex-col gap-2">
+                {transformedAutomation.steps.map((step) => (
+                  <div key={step.id} className="w-full">
+                    {step.type === "wait" ? (
+                      <div className="flex w-full items-center gap-2 rounded-md border border-yellow-500 bg-yellow-500/30 p-2 py-1.5 text-sm text-yellow-900 dark:bg-yellow-500/10 dark:text-yellow-500">
+                        <span className="flex-shrink-0">
+                          <HourglassClock height={"18"} width={"18"} />
+                        </span>
+                        <span>
+                          Wait {step.values.value}{" "}
+                          {step.values.value === 1
+                            ? step.values.unit.slice(0, -1)
+                            : step.values.unit}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex w-full items-center gap-2 truncate rounded-md border border-green-500 bg-green-500/30 p-2 py-1.5 text-sm text-green-900 dark:bg-green-500/10 dark:text-green-500">
+                        <span className="flex-shrink-0">
+                          <Email height={"18"} width={"18"} />
+                        </span>
+                        <span className="truncate">
+                          Send Email &quot;{step.values?.subject || ""}&quot;
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex w-full flex-col gap-4">
+              <AutomationMembersTable automationId={automationId} />
             </div>
           </div>
-          <AutomationMembersTable automationId={automationId} />
         </div>
       </div>
     </div>

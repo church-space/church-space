@@ -116,7 +116,7 @@ export default function ColorPicker({
       setColor(newColor);
       onChange(newColor);
     } catch (error) {
-      console.log("Color picking canceled or failed", error);
+      console.error("Color picking canceled or failed", error);
     }
   };
 

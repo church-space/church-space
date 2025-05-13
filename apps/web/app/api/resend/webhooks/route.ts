@@ -137,7 +137,6 @@ export async function POST(request: NextRequest) {
     case "email.clicked":
       // Return success if headers are undefined
       if (!payload.data.headers) {
-        console.log("email.clicked: Headers undefined, returning success.");
         return NextResponse.json({ success: true });
       }
 
@@ -149,13 +148,9 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
-      console.log("email.clicked: Validated IDs:", clickedIds);
 
       // Return success if no email_id or automation_id
       if (!clickedIds.email_id && !clickedIds.automation_id) {
-        console.log(
-          "email.clicked: No email_id or automation_id, returning success.",
-        );
         return NextResponse.json({ success: true });
       }
 
@@ -163,10 +158,6 @@ export async function POST(request: NextRequest) {
       const shouldInsertClick =
         clickedLink &&
         !clickedLink.startsWith("https://churchspace.co/email-manager?");
-
-      console.log(
-        `email.clicked: Clicked link: ${clickedLink}, Should insert click: ${shouldInsertClick}`,
-      );
 
       // Only record clicked links that don't start with the email manager URL
       if (shouldInsertClick) {
@@ -435,10 +426,7 @@ export async function POST(request: NextRequest) {
           email_address: payload.data.to[0],
           automation_id: ids.automation_id,
         };
-        console.log(
-          "email.complained: Calling upsertEmailRecipient with:",
-          upsertData,
-        );
+
         const { error: upsertError } = await upsertEmailRecipient(
           supabase,
           upsertData,

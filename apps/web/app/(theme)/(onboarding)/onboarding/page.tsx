@@ -13,11 +13,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  console.log("[Onboarding Page] Starting page render");
   const cookieStore = await cookies();
   const invite = cookieStore.get("invite");
-
-  console.log(`[Onboarding Page] Invite cookie present: ${!!invite}`);
 
   const supabase = await createClient();
 
@@ -27,15 +24,12 @@ export default async function Page() {
     console.error("[Onboarding Page] Error getting user:", error);
   }
 
-  console.log(`[Onboarding Page] User authenticated: ${!!user?.user}`);
-
   let inviteExpires: Date | null = null;
   let organizationId: string | null = null;
   let role: string | null = null;
   let emailAddress: string | null = null;
 
   if (invite) {
-    console.log("[Onboarding Page] Processing invite token");
     const jwtSecret = process.env.INVITE_MEMBERS_SECRET;
     if (!jwtSecret) {
       console.error(
@@ -50,8 +44,6 @@ export default async function Page() {
         invite.value,
         new TextEncoder().encode(jwtSecret),
       );
-
-      console.log("[Onboarding Page] JWT payload:", JSON.stringify(payload));
 
       // Verify all required fields are present and of correct type
       if (!payload.exp || typeof payload.exp !== "number") {
@@ -78,13 +70,8 @@ export default async function Page() {
       role = payload.role;
       emailAddress = payload.email;
 
-      console.log(
-        `[Onboarding Page] Invite details - Expires: ${inviteExpires}, Org ID: ${organizationId}, Role: ${role}, Email: ${emailAddress}`,
-      );
-
       // If the invite has expired, delete cookie and redirect
       if (inviteExpires < new Date()) {
-        console.log("[Onboarding Page] Invite has expired");
         return redirect("/onboarding?inviteError=true");
       }
     } catch (error) {
@@ -100,9 +87,6 @@ export default async function Page() {
       organizationId &&
       role
     ) {
-      console.log(
-        `[Onboarding Page] User email matches invite. Adding user to organization: ${organizationId}`,
-      );
       const { error } = await supabase.rpc("add_user_to_organization", {
         target_org_id: organizationId,
         target_user_id: user.user.id,
@@ -113,9 +97,6 @@ export default async function Page() {
       if (error) {
         console.error("[Onboarding Page] Error adding user:", error);
       } else {
-        console.log(
-          "[Onboarding Page] Successfully added user to organization, setting cookies and redirecting",
-        );
         // Handle successful invite using server action to redirect with orgId
         // Cookie handling will happen on the /hello page
         redirect(`/hello`);
@@ -134,7 +115,5 @@ export default async function Page() {
     }
   }
 
-  // Default case - render client page
-  console.log("[Onboarding Page] Rendering client page");
   return <ClientPage />;
 }

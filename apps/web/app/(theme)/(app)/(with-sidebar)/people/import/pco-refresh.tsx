@@ -13,7 +13,6 @@ export default function PcoRefresh() {
       // If we don't have a token at all, return early
       if (!pcoState.refreshToken) return;
 
-      console.log("Forcing PCO token refresh...");
       try {
         const response = await fetch("/api/pco/refresh", {
           method: "POST",
@@ -27,7 +26,6 @@ export default function PcoRefresh() {
         if (!response.ok) {
           console.error("Failed to refresh PCO token:", data);
           if (data.requiresReconnect) {
-            console.log("Redirecting to /pco-reconnect due to API response.");
             usePco.setState({
               id: null,
               accessToken: null,
@@ -37,7 +35,6 @@ export default function PcoRefresh() {
             router.push("/pco-reconnect");
           }
         } else {
-          console.log("PCO token refreshed successfully.");
           usePco.setState({
             id: data.id,
             accessToken: data.accessToken,

@@ -52,10 +52,9 @@ export default function ConfirmPage() {
 
       if (data?.session) {
         // The client library will automatically handle storing the session
-        console.log("Auth successful! Redirecting...");
+
         router.push("/emails");
       } else {
-        console.log("No session data after verification");
         setError("Authentication failed. Please try again.");
         router.push("/login");
       }

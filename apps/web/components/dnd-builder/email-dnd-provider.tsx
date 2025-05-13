@@ -289,7 +289,6 @@ export default function EmailDndProvider({
 
   // Update handleTextContentChange to check the isUndoRedoOperation flag
   const handleTextContentChange = (blockId: string, content: string) => {
-    console.log("[provider] content-change", blockId, content.slice(0, 80));
     // Skip updating history during undo/redo operations
     if (isUndoRedoOperation) return;
 
@@ -3017,7 +3016,6 @@ export default function EmailDndProvider({
         return;
       }
 
-      console.log("Applying template blocks to UI:", templateBlocks);
       const initialBlocksWithUUIDs = templateBlocks.map((block) => ({
         ...block,
       })); // Clone blocks
@@ -3061,10 +3059,6 @@ export default function EmailDndProvider({
         }
       });
       setEditors(initialEditors);
-      console.log(
-        "Initialized editors for template blocks:",
-        Object.keys(initialEditors),
-      );
 
       // 3. Add blocks to the database and collect results
       const addBlockPromises = initialBlocksWithUUIDs.map((block) => {
@@ -3089,9 +3083,7 @@ export default function EmailDndProvider({
       });
 
       try {
-        console.log("Waiting for all template blocks to be added to DB...");
         const results = await Promise.all(addBlockPromises);
-        console.log("DB addition results:", results);
 
         // 4. Create mapping from UUID to DB ID
         const uuidToDbIdMap = new Map<string, string>();
@@ -3109,7 +3101,6 @@ export default function EmailDndProvider({
             );
           }
         });
-        console.log("UUID to DB ID Map:", uuidToDbIdMap);
 
         // 5. Create final blocks array with DB IDs
         const finalBlocks = initialBlocksWithUUIDs.map((block) => {
@@ -3142,18 +3133,15 @@ export default function EmailDndProvider({
           }
         });
 
-        console.log("Final blocks state:", finalBlocks);
-        console.log("Final editors keys:", Object.keys(finalEditors));
-
         // 7. Update editor state
         setEditors(finalEditors);
 
         // 8. Update block orders in the database (optional but good practice)
-        console.log("Updating final block orders in DB");
+
         updateBlockOrdersInDatabase(finalBlocks);
 
         // 9. Add the final, reconciled state to history and update UI
-        console.log("Updating history with final blocks");
+
         updateBlocksHistory(finalBlocks);
       } catch (error) {
         // This catch is less likely now with individual error handling
@@ -3181,13 +3169,8 @@ export default function EmailDndProvider({
   // Apply stored style and footer updates when modal closes
   useEffect(() => {
     if (!newEmailModalOpen) {
-      console.log("Email-dnd-provider: Modal closed, applying updates");
-
       // Apply template blocks if they exist
       if (lastTemplateBlocks && lastTemplateBlocks.length > 0) {
-        console.log(
-          "Email-dnd-provider: Applying template blocks from modal...",
-        );
         // Pass styles and footer along with blocks
         handleApplyTemplateBlocks(
           lastTemplateBlocks,

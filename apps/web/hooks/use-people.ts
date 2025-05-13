@@ -21,7 +21,6 @@ export function usePeople(
   return useInfiniteQuery({
     queryKey: ["people", organizationId, searchTerm, emailStatus],
     queryFn: async ({ pageParam = 0 }) => {
-      console.log("[usePeople queryFn] Fetching with searchTerm:", searchTerm);
       const result = await getPeopleWithEmails({
         organizationId,
         page: pageParam,

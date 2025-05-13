@@ -13,10 +13,6 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // const user_id = searchParams.get("user_id");
-
-    // console.log("user_id", user_id);
-
     if (error) {
       console.error("PCO OAuth error:", error);
       return NextResponse.redirect(
@@ -125,8 +121,6 @@ export async function GET(request: NextRequest) {
     const uuid = uuidv4();
 
     const organizationId = `${uuid}`;
-
-    console.log("organizationId", organizationId);
 
     const { error: insertOrganizationError } = await supabase
       .from("organizations")

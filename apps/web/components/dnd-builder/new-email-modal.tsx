@@ -170,16 +170,12 @@ export default function NewEmailModal({
   const handleBack = () => setView("main");
 
   const handleCreate = async () => {
-    console.log("Create button clicked, email type:", selectedEmailType);
-
     // Get the selected color palette
     const selectedPallet = pallets.find(
       (pallet) => pallet.name === selectedColor,
     );
 
     if (selectedPallet) {
-      console.log("Selected palette:", selectedPallet.name);
-
       // Create style updates object
       const styleUpdates = {
         bgColor: selectedPallet.colors.bgColor,
@@ -192,7 +188,6 @@ export default function NewEmailModal({
         cornerRadius: 11,
         blockSpacing: 20,
       };
-      console.log("Style updates:", styleUpdates);
 
       // Create footer updates object
       const footerUpdates = {
@@ -200,7 +195,6 @@ export default function NewEmailModal({
         secondary_text_color: selectedPallet.colors.footerAccentTextColor,
         bg_color: selectedPallet.colors.footerBgColor,
       };
-      console.log("Footer updates:", footerUpdates);
 
       // Create template blocks based on selected email type
       const templateBlocks: Array<{
@@ -392,20 +386,12 @@ export default function NewEmailModal({
         );
       }
 
-      console.log("Template blocks created:", templateBlocks);
-
       // Send the template blocks to the parent directly
       if (onTemplateBlocks) {
-        console.log("Calling onTemplateBlocks with blocks");
         onTemplateBlocks(templateBlocks);
       } else {
         console.log("onTemplateBlocks is not defined");
       }
-
-      console.log(
-        "setCurrentState function:",
-        setCurrentState ? "Defined" : "Undefined",
-      );
 
       if (onAllStyleChanges) {
         onAllStyleChanges(styleUpdates);
@@ -419,24 +405,20 @@ export default function NewEmailModal({
         // We need to use a callback to preserve existing blocks
         setCurrentState(
           (prevState: { blocks: any[]; styles: any; footer: any }) => {
-            console.log("Previous state in callback:", prevState);
             const newState = {
               blocks: templateBlocks, // Use template blocks instead of existing blocks
               styles: styleUpdates, // Apply new styles
               footer: footerUpdates, // Apply new footer
             };
-            console.log("New state being set:", newState);
+
             return newState;
           },
         );
-
-        console.log("State update called");
       } else {
         console.error("setCurrentState is not defined!");
       }
     }
 
-    console.log("Closing modal");
     // Close the modal
     setNewEmailModalOpen(null);
   };

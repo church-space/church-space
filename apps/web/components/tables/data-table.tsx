@@ -381,7 +381,7 @@ export default function DataTable<TData>({
           sidebarState === "collapsed" && "md:max-w-[calc(100vw-3.5rem)]",
         )}
       >
-        <div ref={containerRef} className="h-full min-h-[calc(100vh-255px)]">
+        <div ref={containerRef} className="h-full min-h-[calc(50vh)]">
           <Table className="w-full border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
             <TableHeader className="backdrop-blur-xs sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -464,7 +464,7 @@ export default function DataTable<TData>({
                 <TableRow className="hover:bg-transparent">
                   <TableCell
                     colSpan={columns.length}
-                    className="py-10 text-center hover:bg-transparent"
+                    className="pt-10 text-center hover:bg-transparent"
                   >
                     {nullState ? nullState : "No results."}
                   </TableCell>

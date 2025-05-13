@@ -19,10 +19,6 @@ export default function EmailNotifications({
 }) {
   const [isChecked, setIsChecked] = useState(recieveProductUpdates);
 
-  useEffect(() => {
-    console.log("isChecked updated:", isChecked);
-  }, [isChecked]);
-
   const handleToggle = async () => {
     const newValue = !isChecked;
     setIsChecked(newValue);

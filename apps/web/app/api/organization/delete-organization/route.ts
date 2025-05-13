@@ -23,15 +23,11 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
-    console.log("Received request to delete organization");
-
     const ip = (await headers()).get("x-forwarded-for") ?? "127.0.0.1";
-    console.log("Request IP:", ip);
 
     const { success, limit, remaining, reset } = await ratelimit.limit(
       `${ip}-delete-organization`,
     );
-    console.log("Rate limit status:", { success, limit, remaining, reset });
 
     if (!success) {
       console.warn("Rate limit exceeded for IP:", ip);
@@ -49,7 +45,6 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    console.log("Request body:", body);
 
     // Validate request body
     const validationResult = DeleteOrganizationAPIPayload.safeParse(body);
@@ -65,7 +60,6 @@ export async function POST(request: Request) {
     }
 
     const { organizationId, deleteOrganizationToken } = validationResult.data;
-    console.log("Parsed data:", { organizationId, deleteOrganizationToken });
 
     // Validate delete organization token
     if (!process.env.DELETE_ORGANIZATION_SECRET) {
@@ -88,11 +82,8 @@ export async function POST(request: Request) {
 
     // Verify user exists and is authenticated
     const supabase = await createClient();
-    console.log("Supabase client created");
 
     const userDetails = await getUserQuery(supabase);
-
-    console.log("User details retrieved:", userDetails);
 
     if (!userDetails || !userDetails.data.user) {
       console.warn("User not authenticated");
@@ -104,7 +95,6 @@ export async function POST(request: Request) {
       "is_org_owner",
       { org: organizationId },
     );
-    console.log("Organization ownership check result:", { isOwner, rpcError });
 
     if (rpcError) {
       console.error("RPC is_org_owner error:", rpcError);
@@ -123,7 +113,6 @@ export async function POST(request: Request) {
     const result = await deleteOrganization.trigger({
       organization_id: organizationId,
     });
-    console.log("Delete organization job triggered:", result);
 
     return NextResponse.json({
       message: "Delete organization job has been queued",

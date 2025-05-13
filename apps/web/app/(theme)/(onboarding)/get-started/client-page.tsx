@@ -363,7 +363,6 @@ export default function ClientPage({
     setCurrentStep(1);
 
     try {
-      console.log("Street", data.street);
       // Call the update action
       const result = await updateOrganizationAddressAction({
         organizationId: organizationId,
@@ -554,22 +553,16 @@ export default function ClientPage({
       // Then start saving categories in the background
       setCategoryBgSaving(true);
 
-      console.log("Saving categories in background:", categoriesToSave);
-
       const saveResults = [];
 
       // Create all email categories in the database using our local copy
       for (const category of categoriesToSave) {
-        console.log("Saving category:", category.name);
-
         try {
           const result = await createEmailCategoryAction({
             name: category.name,
             description: category.description,
             organization_id: organizationId,
           });
-
-          console.log("Category save result:", result);
 
           if (result && "error" in result && result.error) {
             console.error(

@@ -171,9 +171,6 @@ export const importSubscibes = task({
       });
     }
 
-    console.log("Matching people:", matchingPeople);
-    console.log("Non-matching people:", nonMatchingPeople);
-
     // Get PCO connection for the organization
     const { data: pcoConnection, error: pcoConnectionError } = await supabase
       .from("pco_connections")
@@ -216,7 +213,6 @@ export const importSubscibes = task({
     let fieldDefinitionId: string | null = null;
 
     if (existingTab) {
-      console.log("Found existing Church Space tab:", existingTab);
       tabId = existingTab.id;
 
       // Check if the field already exists in the included field definitions
@@ -228,7 +224,6 @@ export const importSubscibes = task({
       );
 
       if (fieldDefinitions && fieldDefinitions.length > 0) {
-        console.log("Found existing field:", fieldDefinitions[0]);
         fieldDefinitionId = fieldDefinitions[0].id;
       }
     } else {
@@ -266,7 +261,7 @@ export const importSubscibes = task({
       }
 
       const tabData = await pcoResponse.json();
-      console.log("Created PCO tab:", tabData);
+
       tabId = tabData.data.id;
     }
 
@@ -319,7 +314,7 @@ export const importSubscibes = task({
         };
       } else {
         const booleanFieldData = await booleanFieldResponse.json();
-        console.log("Created boolean field:", booleanFieldData);
+
         fieldDefinitionId = booleanFieldData.data.id;
       }
     }

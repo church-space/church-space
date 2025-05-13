@@ -41,7 +41,7 @@ export default function InitPco({ pcoData }: { pcoData: PcoData }) {
 
       if (lastRefreshed < twoHoursAgo && lastRefreshed > ninetyDaysAgo) {
         setIsRefreshing(true);
-        console.log("PCO token needs refresh, attempting...");
+
         try {
           const response = await fetch("/api/pco/refresh", {
             method: "POST",
@@ -55,7 +55,6 @@ export default function InitPco({ pcoData }: { pcoData: PcoData }) {
           if (!response.ok) {
             console.error("Failed to refresh PCO token:", data);
             if (data.requiresReconnect) {
-              console.log("Redirecting to /pco-reconnect due to API response.");
               usePco.setState({
                 id: null,
                 accessToken: null,
@@ -65,7 +64,6 @@ export default function InitPco({ pcoData }: { pcoData: PcoData }) {
               router.push("/pco-reconnect");
             }
           } else {
-            console.log("PCO token refreshed successfully.", data);
             usePco.setState({
               id: data.id,
               accessToken: data.accessToken,
