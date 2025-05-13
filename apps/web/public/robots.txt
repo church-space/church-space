@@ -1,0 +1,17 @@
+User-agent: *
+Disallow: /emails
+Disallow: /api
+Disallow: /qr
+Disallow: /email-manager
+Disallow: /pco-reconnect
+Disallow: /pco-existing-connection
+Disallow: /pco-reconnect
+Disallow: /hello
+Disallow: /get-started
+Disallow: /onboarding
+Disallow: /auth
+Disallow: /welcome
+Disallow: /settings
+Disallow: /qr-codes
+Disallow: /people
+Disallow: /link-pages
