@@ -91,6 +91,19 @@ export default function ImportPage() {
     reader.onload = (e) => {
       const text = e.target?.result as string;
       const lines = text.split("\n");
+
+      // Check row limit for subscribed type
+      if (type === "subscribed" && lines.length - 1 > 50000) {
+        toast({
+          title: "File Too Large",
+          description:
+            "For subscribed imports, the CSV file cannot exceed 50,000 rows (excluding the header).",
+          variant: "destructive",
+        });
+        handleRemoveFile(type); // Clear the oversized file
+        return;
+      }
+
       if (lines.length > 0) {
         // Get headers from first line, clean them, and ensure uniqueness
         const headers = lines[0]

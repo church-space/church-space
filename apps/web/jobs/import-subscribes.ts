@@ -35,26 +35,65 @@ export const importSubscibes = task({
         return [];
       }
       const trimmedValue = cellValue.trim();
-      // Check if it looks like a JSON array string: starts with [ and ends with ]
+      const resultingTags = new Set<string>();
+
+      // Helper to add potentially comma-separated tags from a string
+      const addPotentiallyCommaSeparated = (tagString: string) => {
+        tagString.split(",").forEach((tagPart) => {
+          const finalTag = tagPart.trim();
+          if (finalTag) resultingTags.add(finalTag);
+        });
+      };
+
+      // Attempt to parse as a JSON array first
       if (trimmedValue.startsWith("[") && trimmedValue.endsWith("]")) {
         try {
-          const parsed = JSON.parse(trimmedValue);
-          if (
-            Array.isArray(parsed) &&
-            parsed.every((item) => typeof item === "string")
-          ) {
-            return parsed.map((tag) => tag.trim()).filter((tag) => tag !== "");
+          const parsedJson = JSON.parse(trimmedValue);
+          if (Array.isArray(parsedJson)) {
+            // It's a JSON array. Iterate its elements.
+            parsedJson.forEach((element) => {
+              if (typeof element === "string") {
+                const elementStr = element.trim();
+                // Check if the string element itself is a JSON array string
+                if (elementStr.startsWith("[") && elementStr.endsWith("]")) {
+                  try {
+                    const subParsedJson = JSON.parse(elementStr);
+                    if (
+                      Array.isArray(subParsedJson) &&
+                      subParsedJson.every((subEl) => typeof subEl === "string")
+                    ) {
+                      // Successfully parsed sub-array of strings
+                      subParsedJson.forEach((subTag) => {
+                        const finalSubTag = subTag.trim();
+                        if (finalSubTag) resultingTags.add(finalSubTag);
+                      });
+                    } else {
+                      // Sub-parse didn't yield string array, treat elementStr as literal or comma-separated
+                      addPotentiallyCommaSeparated(elementStr);
+                    }
+                  } catch (subError) {
+                    // Sub-parse failed, treat elementStr as literal or comma-separated
+                    addPotentiallyCommaSeparated(elementStr);
+                  }
+                } else {
+                  // Element is a simple string, but might still contain commas
+                  addPotentiallyCommaSeparated(elementStr);
+                }
+              }
+              // Non-string elements in the top-level JSON array are ignored
+            });
+            return Array.from(resultingTags);
           }
-          // If JSON.parse worked but wasn't a string array, fall through to split logic
+          // JSON parsed, but was not an array (e.g., a JSON object).
+          // Fall through to treat the original trimmedValue as comma-separated.
         } catch (e) {
-          // JSON.parse failed, fall through to split logic
+          // JSON.parse failed. Fall through to treat the original trimmedValue as comma-separated.
         }
       }
-      // Fallback: treat as a comma-separated string
-      return trimmedValue
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag !== "");
+
+      // Fallback for non-JSON-array-looking strings or if JSON parsing failed/wasn't an array
+      addPotentiallyCommaSeparated(trimmedValue);
+      return Array.from(resultingTags);
     };
 
     const fetchPCOWithRetry = async (
