@@ -660,7 +660,7 @@ export default function LinkListBuilder({
                         headerBlur={headerBlur}
                       />
                       <div
-                        className="flex flex-col gap-6 py-6"
+                        className="flex flex-col gap-6 rounded-b-md py-6"
                         style={{ backgroundColor: bgColor }}
                       >
                         <LinkListSocials
@@ -1074,7 +1074,7 @@ export default function LinkListBuilder({
                   headerBlur={headerBlur}
                 />
                 <div
-                  className="flex flex-col gap-6 py-6"
+                  className="flex flex-col gap-6 rounded-b-md py-6"
                   style={{ backgroundColor: bgColor }}
                 >
                   <LinkListSocials

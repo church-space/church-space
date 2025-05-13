@@ -75,7 +75,10 @@ export default function LinkListHeader({
 
   return (
     <div
-      className="relative flex flex-col space-y-6 rounded-t-md p-6 py-10"
+      className={cn(
+        "relative flex flex-col space-y-6 p-6 py-10",
+        mode === "builder" && "rounded-t-md",
+      )}
       style={{ backgroundColor: headerBgColor }}
     >
       {bgImageUrl && (
@@ -85,7 +88,11 @@ export default function LinkListHeader({
               src={bgImageUrl}
               alt="Background"
               fill
-              className={`object-cover ${headerBlur ? "scale-110 blur-md" : ""}`}
+              className={cn(
+                "object-cover",
+                headerBlur ? "scale-110 blur-md" : "",
+                mode === "builder" && "rounded-t-md",
+              )}
               priority
             />
           </div>
