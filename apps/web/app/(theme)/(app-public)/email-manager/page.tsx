@@ -10,6 +10,7 @@ import { handleCategoryResubscribe } from "./use-resubscribe-to-category";
 import { handleResubscribeAll } from "./use-resubscribe-all";
 import { getCategories } from "./use-categories";
 import { Metadata } from "next";
+import NotFound from "./no-org-found";
 
 export const metadata: Metadata = {
   title: "Manage Email Preferences",
@@ -103,8 +104,22 @@ export default async function Page({
   };
 
   let categories: Category[] = [];
+  let organizationExists = true;
+
   if (type === "manage") {
-    categories = await getCategories(peopleEmailId);
+    try {
+      categories = await getCategories(peopleEmailId);
+      if (categories.length === 0) {
+        organizationExists = false;
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      organizationExists = false;
+    }
+  }
+
+  if (!organizationExists) {
+    return <NotFound />;
   }
 
   return (
