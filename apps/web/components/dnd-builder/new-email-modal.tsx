@@ -403,17 +403,11 @@ export default function NewEmailModal({
       // First apply updates to local state using direct function call
       if (setCurrentState) {
         // We need to use a callback to preserve existing blocks
-        setCurrentState(
-          (prevState: { blocks: any[]; styles: any; footer: any }) => {
-            const newState = {
-              blocks: templateBlocks, // Use template blocks instead of existing blocks
-              styles: styleUpdates, // Apply new styles
-              footer: footerUpdates, // Apply new footer
-            };
-
-            return newState;
-          },
-        );
+        setCurrentState({
+          blocks: templateBlocks, // Use template blocks instead of existing blocks
+          styles: styleUpdates, // Apply new styles
+          footer: footerUpdates, // Apply new footer
+        });
       } else {
         console.error("setCurrentState is not defined!");
       }

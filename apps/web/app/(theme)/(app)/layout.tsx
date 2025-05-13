@@ -5,7 +5,6 @@ import { createClient } from "@church-space/supabase/server";
 import { redirect } from "next/navigation";
 import HelpMenu from "@/components/sidebar/help-menu";
 import { ReactQueryProvider } from "@/components/providers/react-query";
-import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -18,8 +17,6 @@ export default async function ProtectedLayout({
 }: ProtectedLayoutProps) {
   const supabase = await createClient();
   const session = await supabase.auth.getSession();
-  const cookieStore = await cookies();
-  const orgId = cookieStore.get("organizationId");
 
   if (!session.data.session) {
     return redirect("/login");

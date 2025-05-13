@@ -162,11 +162,6 @@ export async function POST(request: NextRequest) {
       // Only record clicked links that don't start with the email manager URL
       if (shouldInsertClick) {
         try {
-          console.log("email.clicked: Calling insertEmailLinkClicked with:", {
-            resend_email_id: payload.data.email_id,
-            link_clicked: clickedLink!,
-            email_id: clickedIds.email_id!,
-          });
           const { error: clickError } = await insertEmailLinkClicked(supabase, {
             resend_email_id: payload.data.email_id,
             link_clicked: clickedLink!,
@@ -197,10 +192,7 @@ export async function POST(request: NextRequest) {
           email_address: payload.data.to[0],
           automation_id: clickedIds.automation_id,
         };
-        console.log(
-          "email.clicked: Calling upsertEmailRecipient with:",
-          upsertData,
-        );
+
         const { error: upsertError } = await upsertEmailRecipient(
           supabase,
           upsertData,
@@ -223,7 +215,6 @@ export async function POST(request: NextRequest) {
     case "email.sent":
       // Return success if headers are undefined
       if (!payload.data.headers) {
-        console.log("email.sent: Headers undefined, returning success.");
         return NextResponse.json({ success: true });
       }
 
@@ -235,13 +226,9 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
-      console.log("email.sent: Validated IDs:", sentIds);
 
       // Return success if no email_id or automation_id
       if (!sentIds.email_id && !sentIds.automation_id) {
-        console.log(
-          "email.sent: No email_id or automation_id, returning success.",
-        );
         return NextResponse.json({ success: true });
       }
 
@@ -254,10 +241,7 @@ export async function POST(request: NextRequest) {
           email_address: payload.data.to[0],
           automation_id: sentIds.automation_id,
         };
-        console.log(
-          "email.sent: Calling upsertEmailRecipient with:",
-          upsertData,
-        );
+
         const { error: upsertError } = await upsertEmailRecipient(
           supabase,
           upsertData,
@@ -277,7 +261,6 @@ export async function POST(request: NextRequest) {
     case "email.delivered":
       // Return success if headers are undefined
       if (!payload.data.headers) {
-        console.log("email.delivered: Headers undefined, returning success.");
         return NextResponse.json({ success: true });
       }
 
@@ -289,13 +272,9 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
-      console.log("email.delivered: Validated IDs:", deliveredIds);
 
       // Return success if no email_id or automation_id
       if (!deliveredIds.email_id && !deliveredIds.automation_id) {
-        console.log(
-          "email.delivered: No email_id or automation_id, returning success.",
-        );
         return NextResponse.json({ success: true });
       }
 
@@ -308,10 +287,7 @@ export async function POST(request: NextRequest) {
           email_address: payload.data.to[0],
           automation_id: deliveredIds.automation_id,
         };
-        console.log(
-          "email.delivered: Calling upsertEmailRecipient with:",
-          upsertData,
-        );
+
         const { error: upsertError } = await upsertEmailRecipient(
           supabase,
           upsertData,
@@ -334,9 +310,6 @@ export async function POST(request: NextRequest) {
     case "email.delivery_delayed":
       // Return success if headers are undefined
       if (!payload.data.headers) {
-        console.log(
-          "email.delivery_delayed: Headers undefined, returning success.",
-        );
         return NextResponse.json({ success: true });
       }
 
@@ -348,13 +321,9 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
-      console.log("email.delivery_delayed: Validated IDs:", delayedIds);
 
       // Return success if no email_id or automation_id
       if (!delayedIds.email_id && !delayedIds.automation_id) {
-        console.log(
-          "email.delivery_delayed: No email_id or automation_id, returning success.",
-        );
         return NextResponse.json({ success: true });
       }
 
@@ -367,10 +336,7 @@ export async function POST(request: NextRequest) {
           email_address: payload.data.to[0],
           automation_id: delayedIds.automation_id,
         };
-        console.log(
-          "email.delivery_delayed: Calling upsertEmailRecipient with:",
-          upsertData,
-        );
+
         const { error: upsertError } = await upsertEmailRecipient(
           supabase,
           upsertData,
@@ -395,7 +361,6 @@ export async function POST(request: NextRequest) {
     case "email.complained":
       // Return success if headers are undefined
       if (!payload.data.headers) {
-        console.log("email.complained: Headers undefined, returning success.");
         return NextResponse.json({ success: true });
       }
 
@@ -407,13 +372,9 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
-      console.log("email.complained: Validated IDs:", ids);
 
       // Return success if no email_id or automation_id
       if (!ids.email_id && !ids.automation_id) {
-        console.log(
-          "email.complained: No email_id or automation_id, returning success.",
-        );
         return NextResponse.json({ success: true });
       }
 
@@ -449,7 +410,6 @@ export async function POST(request: NextRequest) {
     case "email.bounced":
       // Return success if headers are undefined
       if (!payload.data.headers) {
-        console.log("email.bounced: Headers undefined, returning success.");
         return NextResponse.json({ success: true });
       }
 
@@ -461,18 +421,13 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
-      console.log("email.bounced: Validated IDs:", bouncedIds);
 
       // Return success if no email_id or automation_id
       if (!bouncedIds.email_id && !bouncedIds.automation_id) {
-        console.log(
-          "email.bounced: No email_id or automation_id, returning success.",
-        );
         return NextResponse.json({ success: true });
       }
 
       const organizationId = extractOrganizationId(payload.data.headers);
-      console.log(`email.bounced: Extracted organizationId: ${organizationId}`);
 
       const upsertPromise = (() => {
         const upsertData = {
@@ -483,10 +438,7 @@ export async function POST(request: NextRequest) {
           email_address: payload.data.to[0],
           automation_id: bouncedIds.automation_id,
         };
-        console.log(
-          "email.bounced: Calling upsertEmailRecipient with:",
-          upsertData,
-        );
+
         return upsertEmailRecipient(supabase, upsertData).then(({ error }) => {
           if (error) {
             console.error(
@@ -508,10 +460,7 @@ export async function POST(request: NextRequest) {
               email_address: payload.data.to[0],
               organization_id: organizationId,
             };
-            console.log(
-              "email.bounced: Calling updatePeopleEmailStatus with:",
-              statusData,
-            );
+
             return updatePeopleEmailStatus(supabase, statusData).then(
               ({ error }) => {
                 if (error) {
@@ -531,11 +480,7 @@ export async function POST(request: NextRequest) {
         : Promise.resolve(); // If no organizationId, resolve immediately
 
       try {
-        console.log(
-          "email.bounced: Awaiting Promise.all for upsert and update status.",
-        );
         await Promise.all([upsertPromise, updateStatusPromise]);
-        console.log("email.bounced: Promise.all successful.");
       } catch (error) {
         console.error("email.bounced: Error in Promise.all:", error);
         // Decide if we should return an error response
@@ -545,7 +490,6 @@ export async function POST(request: NextRequest) {
     case "email.opened":
       // Return success if headers are undefined
       if (!payload.data.headers) {
-        console.log("email.opened: Headers undefined, returning success.");
         return NextResponse.json({ success: true });
       }
 
@@ -557,13 +501,9 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
-      console.log("email.opened: Validated IDs:", openedIds);
 
       // Return success if no email_id or automation_id
       if (!openedIds.email_id && !openedIds.automation_id) {
-        console.log(
-          "email.opened: No email_id or automation_id, returning success.",
-        );
         return NextResponse.json({ success: true });
       }
 
@@ -576,10 +516,7 @@ export async function POST(request: NextRequest) {
           email_address: payload.data.to[0],
           automation_id: openedIds.automation_id,
         };
-        console.log(
-          "email.opened: Calling upsertEmailRecipient with:",
-          upsertData,
-        );
+
         const { error: upsertError } = await upsertEmailRecipient(
           supabase,
           upsertData,
@@ -601,6 +538,5 @@ export async function POST(request: NextRequest) {
       break;
   }
 
-  console.log(`Finished processing webhook type: ${payload.type}`);
   return NextResponse.json({ success: true });
 }
