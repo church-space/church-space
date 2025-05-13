@@ -51,6 +51,10 @@ export async function POST(request: NextRequest) {
       forceRefresh = body.forceRefresh;
     }
   } catch (e) {
+    console.error(
+      "Failed to parse request body for forceRefresh parameter:",
+      e,
+    );
     // If request.json() fails, it means there's no body or it's not JSON.
     // We can ignore this error and proceed with forceRefresh = false.
   }
