@@ -15,6 +15,7 @@ import {
   Spotify,
   Podcast,
 } from "@church-space/ui/icons";
+import { cn } from "@church-space/ui/cn";
 
 const ensureHttps = (url: string, icon: keyof typeof socialIcons) => {
   if (!url) return "#";
@@ -70,7 +71,12 @@ export default function LinkListSocials({
   return (
     <>
       {filteredLinks.length > 0 && (
-        <div className="mx-auto flex w-fit items-center justify-between gap-3 px-6 hover:cursor-pointer">
+        <div
+          className={cn(
+            "mx-auto flex w-fit items-center justify-between gap-3 px-6 hover:cursor-pointer",
+            style === "icon-only" && "gap-1.5",
+          )}
+        >
           {filteredLinks.map((link, index) => {
             const IconComponent = socialIcons[link.icon] || socialIcons.link;
             const iconElement = (
@@ -85,8 +91,8 @@ export default function LinkListSocials({
                 }}
               >
                 <IconComponent
-                  height={style === "icon-only" ? "36" : "26"}
-                  width={style === "icon-only" ? "36" : "26"}
+                  height={style === "icon-only" ? "26" : "24"}
+                  width={style === "icon-only" ? "26" : "24"}
                 />
               </div>
             );
