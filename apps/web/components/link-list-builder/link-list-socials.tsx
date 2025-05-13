@@ -85,8 +85,8 @@ export default function LinkListSocials({
                 }}
               >
                 <IconComponent
-                  height={style === "icon-only" ? "24" : "22"}
-                  width={style === "icon-only" ? "24" : "22"}
+                  height={style === "icon-only" ? "36" : "26"}
+                  width={style === "icon-only" ? "36" : "26"}
                 />
               </div>
             );
