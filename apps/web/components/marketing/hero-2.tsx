@@ -28,13 +28,17 @@ export default function HeroSection() {
             <HeroSubtitle />
             <div className="flex flex-col items-center justify-center gap-2 pt-2 md:flex-row lg:gap-4">
               <Link href="/signup">
-                <Button className="h-10 px-4 text-base sm:h-12 sm:px-6">
+                <Button
+                  aria-label="Sign up for Church Space"
+                  className="h-10 px-4 text-base sm:h-12 sm:px-6"
+                >
                   Start Sending
                 </Button>
               </Link>
               <Link href="https://cal.com/thomasharmond/15min" target="_blank">
                 <Button
                   variant="link"
+                  aria-label="Book a demo"
                   className="h-10 gap-1 px-2 text-base text-foreground sm:h-12 [&_svg]:size-3.5"
                 >
                   Book a Demo <ChevronRight />
@@ -48,7 +52,7 @@ export default function HeroSection() {
             <Image
               className="z-1 relative rounded md:rounded-xl"
               src="https://auth.churchspace.co/storage/v1/object/public/email_assets//hero-new.png"
-              alt="Tailark hero section"
+              alt="Church Space Drag and Drop Email Builder"
               width={2363}
               height={1635}
             />

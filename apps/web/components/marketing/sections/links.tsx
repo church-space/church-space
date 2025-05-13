@@ -12,9 +12,9 @@ export default function LinksSection() {
     >
       <div className="mx-auto w-full max-w-6xl gap-4">
         <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
-          <h1 className="max-w-64 text-5xl font-semibold text-white md:max-w-full md:text-6xl">
+          <h2 className="max-w-64 text-5xl font-semibold text-white md:max-w-full md:text-6xl">
             Streamline your links
-          </h1>
+          </h2>
           <p className="max-w-sm text-pretty text-left text-xl text-white md:max-w-xl md:text-center md:text-2xl">
             Keep track of all your links in one place.
           </p>
@@ -51,7 +51,7 @@ export default function LinksSection() {
               </div>
             </div>
             <div className="flex flex-col items-start gap-2">
-              <h2 className="text-xl font-semibold">Branded QR Codes</h2>
+              <h3 className="text-xl font-semibold">Branded QR Codes</h3>
               <p className="max-w-sm text-pretty text-left text-muted-foreground">
                 Create and design QR codes to match your brand. You can also
                 easily update the URL for the QR code at any time in case you
@@ -80,7 +80,7 @@ export default function LinksSection() {
               </div>
             </div>
             <div className="flex flex-col items-start gap-2">
-              <h2 className="text-xl font-semibold">Deeper Insights</h2>
+              <h3 className="text-xl font-semibold">Deeper Insights</h3>
               <p className="max-w-sm text-pretty text-left text-muted-foreground">
                 Ever wonder how effective your QR codes are? With Church Space,
                 you can create multiple QR codes for the same link which helps
@@ -92,9 +92,9 @@ export default function LinksSection() {
             <div className="relative w-full">
               <div className="mx-auto flex h-[300px] w-full max-w-[340px] flex-col gap-2 overflow-hidden rounded-t-xl border bg-background md:mx-0 lg:mx-auto">
                 <div className="flex flex-col border-b bg-gradient-to-br from-primary/80 to-primary p-6 py-3.5">
-                  <h3 className="mt-5 text-2xl font-semibold text-white">
+                  <p className="mt-5 text-2xl font-semibold text-white">
                     Welcome Home
-                  </h3>
+                  </p>
                   <p className="text-sm text-white">
                     Check out the links below for how to get more involved in
                     the life of our church!
@@ -123,7 +123,7 @@ export default function LinksSection() {
               </div>
             </div>
             <div className="flex flex-col items-start gap-2">
-              <h2 className="text-xl font-semibold">A home for your links</h2>
+              <h3 className="text-xl font-semibold">A home for your links</h3>
               <p className="max-w-sm text-pretty text-left text-muted-foreground md:max-w-4xl lg:max-w-sm">
                 Create pages for your important links and resources to share
                 with your congregation. They&apos;re perfect for sharing links

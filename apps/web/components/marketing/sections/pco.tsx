@@ -92,7 +92,10 @@ export default function PcoSection() {
     >
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 text-white">
         <div className="flex flex-col items-center gap-2 pb-5 md:pb-0">
-          <h2 className="text-lg font-bold">Designed for</h2>
+          <h2 className="text-lg font-bold">
+            Designed for <span className="sr-only">Planning Center</span>
+          </h2>
+
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative hidden md:block">
               <PcoLogo width={"58"} height={"58"} fill="#ffffff" />

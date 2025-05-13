@@ -57,7 +57,7 @@ export default function Homepage() {
 
         <div id="emails" className="w-full space-y-8 px-4 py-28 sm:pb-32">
           <div className="mb-12 flex flex-col gap-4 px-2 md:items-center">
-            <h1 className="max-w-2xl text-balance text-left text-5xl font-bold sm:text-center md:text-6xl">
+            <h2 className="max-w-2xl text-balance text-left text-5xl font-bold sm:text-center md:text-6xl">
               Send{" "}
               <AuroraText
                 colors={["#3C63E0", "#AA5BBB", "#DA7D74", "#EBC495"]}
@@ -66,7 +66,7 @@ export default function Homepage() {
                 beautiful
               </AuroraText>{" "}
               emails for half the cost
-            </h1>
+            </h2>
             <p className="max-w-sm text-pretty text-left text-xl text-secondary-foreground/80 sm:mx-auto sm:text-center md:max-w-xl md:text-center md:text-2xl">
               Beauty shouldn&apos;t come at a cost. Have unlimited contacts, and
               only pay for the emails you send.
@@ -178,9 +178,9 @@ export default function Homepage() {
 
         <LinksSection />
         <div className="w-full space-y-8 bg-gradient-to-b from-muted/50 to-background px-4 py-28 sm:pb-32">
-          <h1 className="mx-auto w-full max-w-2xl text-balance text-left text-5xl font-bold sm:text-center md:text-6xl">
+          <h2 className="mx-auto w-full max-w-2xl text-balance text-left text-5xl font-bold sm:text-center md:text-6xl">
             Why choose Church Space?
-          </h1>
+          </h2>
           <p className="w-full max-w-4xl text-pretty text-left text-lg font-light sm:mx-auto">
             There are a dozen ways to send emails to your church, and many of
             them do a good job. But if you want a solution that integrates

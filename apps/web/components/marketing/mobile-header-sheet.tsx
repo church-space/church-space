@@ -33,7 +33,11 @@ export default function MobileHeaderSheet({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="md:hidden">
+        <Button
+          variant="ghost"
+          className="md:hidden"
+          aria-label="Open navigation menu"
+        >
           <Menu />
         </Button>
       </PopoverTrigger>
