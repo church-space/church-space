@@ -245,7 +245,7 @@ function SortableStep(props: SortableStepProps) {
           <AccordionItem
             value={stepId}
             className={cn(
-              "border-0",
+              "my-0.5 border-0",
               (step.type === "wait" &&
                 waitTimeError &&
                 errorStepIds.includes(stepId)) ||

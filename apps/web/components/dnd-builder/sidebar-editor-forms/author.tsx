@@ -187,7 +187,7 @@ function SortableLinkItem({
           value={openItem === linkId ? linkId : undefined}
           onValueChange={(value) => setOpenItem(value)}
         >
-          <AccordionItem value={linkId} className="border-0">
+          <AccordionItem value={linkId} className="my-0.5 border-0">
             <div
               onClick={() =>
                 setOpenItem(openItem === linkId ? undefined : linkId)

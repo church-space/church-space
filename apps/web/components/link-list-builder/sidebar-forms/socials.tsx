@@ -161,7 +161,7 @@ function SortableSocialItem({
             setOpenItem(value === link.id ? undefined : value)
           }
         >
-          <AccordionItem value={link.id} className="border-0">
+          <AccordionItem value={link.id} className="my-0.5 border-0">
             <AccordionTrigger className="w-full rounded-sm px-2 py-3">
               <span className="truncate pr-2 text-sm">
                 {getSocialDisplayName(link.icon)}

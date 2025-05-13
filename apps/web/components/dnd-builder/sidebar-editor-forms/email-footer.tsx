@@ -223,7 +223,7 @@ function SortableLinkItem({
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
 
-        <AccordionItem value={link.id} className="w-full border-0">
+        <AccordionItem value={link.id} className="my-0.5 w-full border-0">
           <AccordionTrigger className="flex w-full items-center justify-between rounded-sm px-2 py-3">
             <div className="flex items-center gap-2">
               {Icon && <Icon height="20" width="20" />}
@@ -412,7 +412,7 @@ function SortableExtraLinkItem({
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
 
-        <AccordionItem value={link.id} className="w-full border-0">
+        <AccordionItem value={link.id} className="my-0.5 w-full border-0">
           <AccordionTrigger className="flex w-full items-center justify-between rounded-sm px-2 py-3">
             <div className="flex items-center gap-2">
               <span className="truncate pr-2 text-sm">

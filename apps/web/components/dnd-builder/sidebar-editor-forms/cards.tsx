@@ -159,7 +159,7 @@ function SortableCardItem({
           value={openItem === card.id ? card.id : undefined}
           onValueChange={(value) => setOpenItem(value)}
         >
-          <AccordionItem value={card.id} className="border-0">
+          <AccordionItem value={card.id} className="my-0.5 border-0">
             <div
               onClick={() =>
                 setOpenItem(openItem === card.id ? undefined : card.id)
