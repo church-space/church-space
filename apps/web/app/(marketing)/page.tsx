@@ -19,6 +19,13 @@ import { AuroraText } from "@church-space/ui/aurora-text";
 import EmailMetricsCard from "@/components/marketing/sections/email-metrics-card";
 import { AnimatedBeamDemo } from "@/components/marketing/sections/sending-animation";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Church Space | Email for Planning Center",
+  description:
+    "Church Space is an email marketing platform purpose-built for churches.",
+};
 
 export const allBlockTypes = [
   { label: "Text", type: "text", icon: Typography },
