@@ -247,8 +247,8 @@ function SortableSocialItem({
                   <Input
                     className={
                       linkErrors[link.id] && !typingLinks[link.id]
-                        ? "border-red-500"
-                        : ""
+                        ? "border-red-500 bg-background"
+                        : "bg-background"
                     }
                     value={link.url}
                     onChange={(e) => updateLink(index, "url", e.target.value)}

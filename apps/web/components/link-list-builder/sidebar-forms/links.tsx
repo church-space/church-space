@@ -178,7 +178,7 @@ function SortableAccordionItem({
                 </div>
                 <Label>Text</Label>
                 <Input
-                  className="col-span-3"
+                  className="col-span-3 bg-background"
                   value={link.text}
                   onChange={(e) => updateLink(index, "text", e.target.value)}
                   placeholder="Link text"
@@ -189,8 +189,8 @@ function SortableAccordionItem({
                   <Input
                     className={
                       linkErrors[link.id] && !typingLinks[link.id]
-                        ? "border-red-500"
-                        : ""
+                        ? "border-red-500 bg-background"
+                        : "bg-background"
                     }
                     value={link.url}
                     onChange={(e) => updateLink(index, "url", e.target.value)}
