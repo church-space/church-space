@@ -768,6 +768,7 @@ export type Database = {
           scheduled_for: string | null
           send_now: boolean
           sent_at: string | null
+          sent_by: string | null
           status: Database["public"]["Enums"]["email_statuses"]
           style: Json | null
           subject: string | null
@@ -791,6 +792,7 @@ export type Database = {
           scheduled_for?: string | null
           send_now?: boolean
           sent_at?: string | null
+          sent_by?: string | null
           status?: Database["public"]["Enums"]["email_statuses"]
           style?: Json | null
           subject?: string | null
@@ -814,6 +816,7 @@ export type Database = {
           scheduled_for?: string | null
           send_now?: boolean
           sent_at?: string | null
+          sent_by?: string | null
           status?: Database["public"]["Enums"]["email_statuses"]
           style?: Json | null
           subject?: string | null
@@ -855,6 +858,13 @@ export type Database = {
             columns: ["reply_to_domain"]
             isOneToOne: false
             referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emails_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]

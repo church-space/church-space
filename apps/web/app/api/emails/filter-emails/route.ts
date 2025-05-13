@@ -3,7 +3,7 @@ import "server-only";
 import { filterEmailRecipients } from "@/jobs/filter-emails";
 import { NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";
-import { getUserOrganizationId } from "@church-space/supabase/get-user-with-details";
+import { getUserAndOrganizationId } from "@church-space/supabase/get-user-with-details";
 import { Ratelimit } from "@upstash/ratelimit";
 import { headers } from "next/headers";
 import { client as RedisClient } from "@church-space/kv";
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     // Verify email exists and is in a valid state
     const supabase = await createClient();
 
-    const organizationId = await getUserOrganizationId(supabase);
+    const { user, organizationId } = await getUserAndOrganizationId(supabase);
 
     if (!organizationId) {
       return NextResponse.json(
@@ -51,16 +51,31 @@ export async function POST(request: Request) {
       .from("emails")
       .select("status, scheduled_for, list_id, organization_id")
       .eq("id", body.emailId)
+      .eq("organization_id", organizationId)
       .single();
 
     if (emailError || !emailData) {
       return NextResponse.json({ error: "Email not found" }, { status: 404 });
     }
 
-    if (emailData.organization_id !== organizationId[0]) {
+    if (emailData.organization_id !== organizationId) {
       return NextResponse.json(
         { error: "Email does not belong to organization" },
         { status: 400 },
+      );
+    }
+
+    // update sent by to user id
+    const { error: updateError } = await supabase
+      .from("emails")
+      .update({ sent_by: user.id })
+      .eq("id", body.emailId)
+      .eq("organization_id", organizationId);
+
+    if (updateError) {
+      return NextResponse.json(
+        { error: "Failed to update email sent by" },
+        { status: 500 },
       );
     }
 

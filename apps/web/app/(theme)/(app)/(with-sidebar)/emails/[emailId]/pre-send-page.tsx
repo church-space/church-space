@@ -19,7 +19,6 @@ import {
   DialogTrigger,
 } from "@church-space/ui/dialog";
 import { Ellipsis, Loader2, Maximize2 } from "lucide-react";
-
 import Link from "next/link";
 import {
   UnfilledCircleDashed,

@@ -98,3 +98,36 @@ export async function getUserOrganizationId(supabase: Client) {
     (membership) => membership.organization_id
   );
 }
+
+export async function getUserAndOrganizationId(
+  supabase: Client
+): Promise<{ user: any; organizationId: string }> {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data.user) {
+    throw new Error("User not found");
+  }
+
+  const { data: organizationMemberships, error: membershipError } =
+    await supabase
+      .from("organization_memberships")
+      .select("organization_id")
+      .eq("user_id", data.user.id);
+
+  if (membershipError) {
+    throw membershipError;
+  }
+
+  if (!organizationMemberships || organizationMemberships.length === 0) {
+    throw new Error("No organization memberships found for user");
+  }
+
+  return {
+    user: data.user,
+    organizationId: organizationMemberships[0].organization_id,
+  };
+}

@@ -140,18 +140,28 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
-      const clickedIds = validateIds(payload.data.headers);
+      // Check for missing Email-ID and Automation-ID headers
+      const clickedEventHeaders = payload.data.headers;
+      const clickedEmailIdHeader = getHeaderValue(
+        clickedEventHeaders,
+        "X-Entity-Email-ID",
+      );
+      const clickedAutomationIdHeader = getHeaderValue(
+        clickedEventHeaders,
+        "X-Entity-Automation-ID",
+      );
+
+      if (!clickedEmailIdHeader && !clickedAutomationIdHeader) {
+        return NextResponse.json({ success: true });
+      }
+
+      const clickedIds = validateIds(clickedEventHeaders);
       if (!clickedIds) {
         console.error("email.clicked: Invalid IDs in headers.");
         return new NextResponse(
           "Invalid email_id or people_email_id in headers",
           { status: 400 },
         );
-      }
-
-      // Return success if no email_id or automation_id
-      if (!clickedIds.email_id && !clickedIds.automation_id) {
-        return NextResponse.json({ success: true });
       }
 
       const clickedLink = payload.data.click?.link;
@@ -218,18 +228,28 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
-      const sentIds = validateIds(payload.data.headers);
+      // Check for missing Email-ID and Automation-ID headers
+      const sentEventHeaders = payload.data.headers;
+      const sentEmailIdHeader = getHeaderValue(
+        sentEventHeaders,
+        "X-Entity-Email-ID",
+      );
+      const sentAutomationIdHeader = getHeaderValue(
+        sentEventHeaders,
+        "X-Entity-Automation-ID",
+      );
+
+      if (!sentEmailIdHeader && !sentAutomationIdHeader) {
+        return NextResponse.json({ success: true });
+      }
+
+      const sentIds = validateIds(sentEventHeaders);
       if (!sentIds) {
         console.error("email.sent: Invalid IDs in headers.");
         return new NextResponse(
           "Invalid email_id or people_email_id in headers",
           { status: 400 },
         );
-      }
-
-      // Return success if no email_id or automation_id
-      if (!sentIds.email_id && !sentIds.automation_id) {
-        return NextResponse.json({ success: true });
       }
 
       try {
@@ -264,18 +284,28 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
-      const deliveredIds = validateIds(payload.data.headers);
+      // Check for missing Email-ID and Automation-ID headers
+      const deliveredEventHeaders = payload.data.headers;
+      const deliveredEmailIdHeader = getHeaderValue(
+        deliveredEventHeaders,
+        "X-Entity-Email-ID",
+      );
+      const deliveredAutomationIdHeader = getHeaderValue(
+        deliveredEventHeaders,
+        "X-Entity-Automation-ID",
+      );
+
+      if (!deliveredEmailIdHeader && !deliveredAutomationIdHeader) {
+        return NextResponse.json({ success: true });
+      }
+
+      const deliveredIds = validateIds(deliveredEventHeaders);
       if (!deliveredIds) {
         console.error("email.delivered: Invalid IDs in headers.");
         return new NextResponse(
           "Invalid email_id or people_email_id in headers",
           { status: 400 },
         );
-      }
-
-      // Return success if no email_id or automation_id
-      if (!deliveredIds.email_id && !deliveredIds.automation_id) {
-        return NextResponse.json({ success: true });
       }
 
       try {
@@ -313,18 +343,28 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
-      const delayedIds = validateIds(payload.data.headers);
+      // Check for missing Email-ID and Automation-ID headers
+      const delayedEventHeaders = payload.data.headers;
+      const delayedEmailIdHeader = getHeaderValue(
+        delayedEventHeaders,
+        "X-Entity-Email-ID",
+      );
+      const delayedAutomationIdHeader = getHeaderValue(
+        delayedEventHeaders,
+        "X-Entity-Automation-ID",
+      );
+
+      if (!delayedEmailIdHeader && !delayedAutomationIdHeader) {
+        return NextResponse.json({ success: true });
+      }
+
+      const delayedIds = validateIds(delayedEventHeaders);
       if (!delayedIds) {
         console.error("email.delivery_delayed: Invalid IDs in headers.");
         return new NextResponse(
           "Invalid email_id or people_email_id in headers",
           { status: 400 },
         );
-      }
-
-      // Return success if no email_id or automation_id
-      if (!delayedIds.email_id && !delayedIds.automation_id) {
-        return NextResponse.json({ success: true });
       }
 
       try {
@@ -364,18 +404,28 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
-      const ids = validateIds(payload.data.headers); // Renamed for clarity within this scope
+      // Check for missing Email-ID and Automation-ID headers
+      const complainedEventHeaders = payload.data.headers;
+      const complainedEmailIdHeader = getHeaderValue(
+        complainedEventHeaders,
+        "X-Entity-Email-ID",
+      );
+      const complainedAutomationIdHeader = getHeaderValue(
+        complainedEventHeaders,
+        "X-Entity-Automation-ID",
+      );
+
+      if (!complainedEmailIdHeader && !complainedAutomationIdHeader) {
+        return NextResponse.json({ success: true });
+      }
+
+      const ids = validateIds(complainedEventHeaders); // Renamed for clarity within this scope
       if (!ids) {
         console.error("email.complained: Invalid IDs in headers.");
         return new NextResponse(
           "Invalid email_id or people_email_id in headers",
           { status: 400 },
         );
-      }
-
-      // Return success if no email_id or automation_id
-      if (!ids.email_id && !ids.automation_id) {
-        return NextResponse.json({ success: true });
       }
 
       try {
@@ -413,7 +463,22 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
-      const bouncedIds = validateIds(payload.data.headers);
+      // Check for missing Email-ID and Automation-ID headers
+      const bouncedEventHeaders = payload.data.headers;
+      const bouncedEmailIdHeader = getHeaderValue(
+        bouncedEventHeaders,
+        "X-Entity-Email-ID",
+      );
+      const bouncedAutomationIdHeader = getHeaderValue(
+        bouncedEventHeaders,
+        "X-Entity-Automation-ID",
+      );
+
+      if (!bouncedEmailIdHeader && !bouncedAutomationIdHeader) {
+        return NextResponse.json({ success: true });
+      }
+
+      const bouncedIds = validateIds(bouncedEventHeaders);
       if (!bouncedIds) {
         console.error("email.bounced: Invalid IDs in headers.");
         return new NextResponse(
@@ -422,12 +487,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Return success if no email_id or automation_id
-      if (!bouncedIds.email_id && !bouncedIds.automation_id) {
-        return NextResponse.json({ success: true });
-      }
-
-      const organizationId = extractOrganizationId(payload.data.headers);
+      const organizationId = extractOrganizationId(bouncedEventHeaders);
 
       const upsertPromise = (() => {
         const upsertData = {
@@ -493,18 +553,28 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
-      const openedIds = validateIds(payload.data.headers);
+      // Check for missing Email-ID and Automation-ID headers
+      const openedEventHeaders = payload.data.headers;
+      const openedEmailIdHeader = getHeaderValue(
+        openedEventHeaders,
+        "X-Entity-Email-ID",
+      );
+      const openedAutomationIdHeader = getHeaderValue(
+        openedEventHeaders,
+        "X-Entity-Automation-ID",
+      );
+
+      if (!openedEmailIdHeader && !openedAutomationIdHeader) {
+        return NextResponse.json({ success: true });
+      }
+
+      const openedIds = validateIds(openedEventHeaders);
       if (!openedIds) {
         console.error("email.opened: Invalid IDs in headers.");
         return new NextResponse(
           "Invalid email_id or people_email_id in headers",
           { status: 400 },
         );
-      }
-
-      // Return success if no email_id or automation_id
-      if (!openedIds.email_id && !openedIds.automation_id) {
-        return NextResponse.json({ success: true });
       }
 
       try {

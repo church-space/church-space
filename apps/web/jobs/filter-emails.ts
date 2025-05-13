@@ -3,6 +3,7 @@ import "server-only";
 import { task } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 import { sendBulkEmails } from "./send-bulk-emails-queue";
+import { sendFailureNotification } from "./send-failure-notification";
 
 /** helper: split any array into N‑sized slices */
 const chunk = <T>(arr: T[], n: number) =>
@@ -17,6 +18,9 @@ interface FilterEmailRecipientsPayload {
 
 export const filterEmailRecipients = task({
   id: "filter-email-recipients",
+  retry: {
+    maxAttempts: 1,
+  },
   run: async (payload: FilterEmailRecipientsPayload) => {
     const { emailId } = payload;
     const supabase = createClient();
@@ -79,19 +83,18 @@ export const filterEmailRecipients = task({
         !emailData.from_name ||
         !emailData.from_email_domain
       ) {
+        const errorMessage =
+          "Email must have a from email, from name, and from email domain";
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message:
-              "Email must have a from email, from name, and from email domain",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error(
-          "Email must have a from email, from name, and from email domain",
-        );
+        throw new Error(errorMessage);
       }
 
       // Validate that the from_email is not a no-reply address
@@ -104,62 +107,64 @@ export const filterEmailRecipients = task({
             emailData.reply_to.toLowerCase().includes("noreply") ||
             emailData.reply_to.toLowerCase().includes("no_reply")))
       ) {
+        const errorMessage =
+          "Cannot send emails from or reply to no-reply addresses";
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message:
-              "Cannot send emails from or reply to no-reply addresses",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error(
-          "Cannot send emails from or reply to no-reply addresses",
-        );
+        throw new Error(errorMessage);
       }
 
       // Validate subject
       if (!emailData.subject) {
+        const errorMessage = "Email must have a subject";
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message: "Email must have a subject",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error("Email must have a subject");
+        throw new Error(errorMessage);
       }
 
       // Step 2: Validate that the email has list_id
       if (!emailData.list_id) {
+        const errorMessage = "Email must have a list to send to";
         // Update email status to failed
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message: "Email must have a list to send to",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error("Email must have a list_id");
+        throw new Error(errorMessage);
       }
 
       if (!emailData.email_category) {
+        const errorMessage = "Email must have a category to send to";
         // Update email status to failed
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message: "Email must have a category to send to",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error("Email must have a category to send to");
+        throw new Error(errorMessage);
       }
 
       // Validate list ownership
@@ -174,16 +179,17 @@ export const filterEmailRecipients = task({
         !listData ||
         listData.organization_id !== emailData.organization_id
       ) {
+        const errorMessage = "The list does not belong to your organization";
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message: "The list does not belong to your organization",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error("List does not belong to the email's organization");
+        throw new Error(errorMessage);
       }
 
       // Validate category ownership
@@ -199,18 +205,18 @@ export const filterEmailRecipients = task({
         !categoryData ||
         categoryData.organization_id !== emailData.organization_id
       ) {
+        const errorMessage =
+          "The category does not belong to your organization";
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message: "The category does not belong to your organization",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error(
-          "The category does not belong to the email's organization",
-        );
+        throw new Error(errorMessage);
       }
 
       // Step 3: Get the PCO list ID from our lists table
@@ -222,19 +228,18 @@ export const filterEmailRecipients = task({
         .single();
 
       if (pcoListError || !pcoList) {
+        const errorMessage = `Failed to fetch PCO list data: ${pcoListError?.message || "List not found"}`;
         // Update email status to failed
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message: `Failed to fetch PCO list data: ${pcoListError?.message || "List not found"}`,
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error(
-          `Failed to fetch PCO list data: ${pcoListError?.message || "List not found"}`,
-        );
+        throw new Error(errorMessage);
       }
 
       // Step 4: Get all members of the list - with pagination to handle more than 1000 records
@@ -256,17 +261,17 @@ export const filterEmailRecipients = task({
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
         if (listMembersError) {
+          const errorMessage = `Failed to fetch list members: ${listMembersError.message}`;
           await supabase
             .from("emails")
             .update({
               status: "failed",
               updated_at: new Date().toISOString(),
-              error_message: `Failed to fetch list members: ${listMembersError.message}`,
+              error_message: errorMessage,
             })
             .eq("id", emailId);
-          throw new Error(
-            `Failed to fetch list members: ${listMembersError.message}`,
-          );
+
+          throw new Error(errorMessage);
         }
 
         if (!listMembersPage || listMembersPage.length === 0) {
@@ -290,17 +295,18 @@ export const filterEmailRecipients = task({
       }
 
       if (!allListMembers || allListMembers.length === 0) {
+        const errorMessage = "No members found in the specified list";
         // Update email status to failed
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message: "No members found in the specified list",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error("No members found in the specified list");
+        throw new Error(errorMessage);
       }
 
       // Extract person IDs from list members
@@ -328,17 +334,17 @@ export const filterEmailRecipients = task({
           .eq("organization_id", emailData.organization_id);
 
         if (peopleEmailsError) {
+          const errorMessage = `Failed to fetch people emails: ${peopleEmailsError.message}`;
           await supabase
             .from("emails")
             .update({
               status: "failed",
               updated_at: new Date().toISOString(),
-              error_message: `Failed to fetch people emails: ${peopleEmailsError.message}`,
+              error_message: errorMessage,
             })
             .eq("id", emailId);
-          throw new Error(
-            `Failed to fetch people emails: ${peopleEmailsError.message}`,
-          );
+
+          throw new Error(errorMessage);
         }
 
         if (peopleEmails && peopleEmails.length > 0) {
@@ -347,17 +353,18 @@ export const filterEmailRecipients = task({
       }
 
       if (!allPeopleEmails || allPeopleEmails.length === 0) {
+        const errorMessage = "No email addresses found for people in the list";
         // Update email status to failed
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message: "No email addresses found for people in the list",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error("No email addresses found for people in the list");
+        throw new Error(errorMessage);
       }
 
       // Extract unique email addresses to check statuses
@@ -379,17 +386,17 @@ export const filterEmailRecipients = task({
             .eq("status", "subscribed");
 
         if (emailStatusesError) {
+          const errorMessage = `Failed to fetch email statuses: ${emailStatusesError.message}`;
           await supabase
             .from("emails")
             .update({
               status: "failed",
               updated_at: new Date().toISOString(),
-              error_message: `Failed to fetch email statuses: ${emailStatusesError.message}`,
+              error_message: errorMessage,
             })
             .eq("id", emailId);
-          throw new Error(
-            `Failed to fetch email statuses: ${emailStatusesError.message}`,
-          );
+
+          throw new Error(errorMessage);
         }
 
         if (emailStatuses && emailStatuses.length > 0) {
@@ -408,18 +415,19 @@ export const filterEmailRecipients = task({
       );
 
       if (subscribedPeopleEmails.length === 0) {
+        const errorMessage =
+          "No subscribed email addresses found for people in the list";
         // Update email status to failed
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message:
-              "No subscribed email addresses found for people in the list",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error("No subscribed emails found for people in the list");
+        throw new Error(errorMessage);
       }
 
       // Step 6: Get all email addresses that have unsubscribed from this audience - with pagination
@@ -440,9 +448,18 @@ export const filterEmailRecipients = task({
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
         if (unsubscribesError) {
-          throw new Error(
-            `Failed to fetch audience unsubscribes: ${unsubscribesError.message}`,
-          );
+          const errorMessage = `Failed to fetch audience unsubscribes: ${unsubscribesError.message}`;
+
+          await supabase
+            .from("emails")
+            .update({
+              status: "failed",
+              updated_at: new Date().toISOString(),
+              error_message: errorMessage,
+            })
+            .eq("id", emailId);
+
+          throw new Error(errorMessage);
         }
 
         if (!unsubscribesPage || unsubscribesPage.length === 0) {
@@ -494,20 +511,19 @@ export const filterEmailRecipients = task({
       });
 
       if (dedupedEmails.length === 0) {
+        const errorMessage =
+          "All recipients have unsubscribed from this email category";
         // Update email status to failed
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message:
-              "All recipients have unsubscribed from this email category",
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
-        throw new Error(
-          "All recipients have unsubscribed from this email category",
-        );
+        throw new Error(errorMessage);
       }
 
       // Step 8: Format recipients for the bulk email queue
@@ -531,23 +547,25 @@ export const filterEmailRecipients = task({
         .single();
 
       if (emailUsageError) {
-        throw new Error(
-          `Failed to fetch email usage: ${emailUsageError.message}`,
-        );
+        const errorMessage = `Failed to fetch email usage: ${emailUsageError.message}`;
+        throw new Error(errorMessage);
       }
 
       if (!emailUsage) {
-        throw new Error("No email usage limits found for this organization");
+        const errorMessage =
+          "No email usage limits found for this organization";
+        throw new Error(errorMessage);
       }
 
       const recipientCount = Object.keys(recipients).length;
       if (emailUsage.sends_remaining < recipientCount) {
+        const errorMessage = `Email limit exceeded. Required: ${recipientCount}, Remaining: ${emailUsage.sends_remaining}. If this is a one-off exception and the ammount needed is close to your remaininglimit, email support@churchspace.co and we may increase your limit for this month at no extra charge.`;
         await supabase
           .from("emails")
           .update({
             status: "failed",
             updated_at: new Date().toISOString(),
-            error_message: `Email limit exceeded. Required: ${recipientCount}, Remaining: ${emailUsage.sends_remaining}. If this is a one-off exception and the ammount needed is close to your remaininglimit, email support@churchspace.co and we may increase your limit for this month at no extra charge.`,
+            error_message: errorMessage,
           })
           .eq("id", emailId);
 
@@ -584,17 +602,41 @@ export const filterEmailRecipients = task({
       console.error("Error in filter email recipients job:", error);
 
       // Update email status to failed if not already updated
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
+
       await supabase
         .from("emails")
         .update({
           status: "failed",
           updated_at: new Date().toISOString(),
-          error_message:
-            error instanceof Error
-              ? error.message
-              : "An unknown error occurred",
+          error_message: errorMessage,
         })
         .eq("id", emailId);
+
+      // Get email subject for notification
+      try {
+        const { data: emailInfo } = await supabase
+          .from("emails")
+          .select("subject, organization_id")
+          .eq("id", emailId)
+          .single();
+
+        if (emailInfo) {
+          // Send failure notification
+          await sendFailureNotification.trigger({
+            emailId: emailId,
+            organizationId: emailInfo.organization_id,
+            emailSubject: emailInfo.subject || "Untitled Email",
+            errorMessage: errorMessage,
+          });
+        }
+      } catch (notificationError) {
+        console.error(
+          "Failed to send failure notification:",
+          notificationError,
+        );
+      }
 
       throw error;
     }

@@ -3,7 +3,7 @@ import "server-only";
 import { scheduleEmail } from "@/jobs/schduled-emails";
 import { NextResponse } from "next/server";
 import { createClient } from "@church-space/supabase/server";
-import { getUserOrganizationId } from "@church-space/supabase/get-user-with-details";
+import { getUserAndOrganizationId } from "@church-space/supabase/get-user-with-details";
 import { client as RedisClient } from "@church-space/kv";
 import { Ratelimit } from "@upstash/ratelimit";
 import { headers } from "next/headers";
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     }
     const supabase = await createClient();
 
-    const organizationId = await getUserOrganizationId(supabase);
+    const { user, organizationId } = await getUserAndOrganizationId(supabase);
 
     // Verify email exists and is in a valid state
     const { data: emailData, error: emailError } = await supabase
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email not found" }, { status: 404 });
     }
 
-    if (emailData.organization_id !== organizationId[0]) {
+    if (emailData.organization_id !== organizationId) {
       return NextResponse.json(
         { error: "Email does not belong to organization" },
         { status: 400 },
@@ -68,7 +68,6 @@ export async function POST(request: Request) {
       emailData.status === "sent" ||
       emailData.status === "sending" ||
       emailData.status === "scheduled" ||
-      emailData.status === "failed" ||
       emailData.status === null
     ) {
       return NextResponse.json(
@@ -103,6 +102,7 @@ export async function POST(request: Request) {
       .from("emails")
       .update({
         status: "scheduled",
+        sent_by: user.id,
         updated_at: new Date().toISOString(),
       })
       .eq("id", body.emailId);

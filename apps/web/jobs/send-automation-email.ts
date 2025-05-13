@@ -77,6 +77,9 @@ interface EmailData {
 export const sendAutomationEmail = task({
   id: "send-automation-email",
   queue: emailQueue,
+  retry: {
+    maxAttempts: 1,
+  },
   run: async (payload: SendAutomationEmailPayload) => {
     const {
       emailId,

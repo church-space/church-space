@@ -11,6 +11,9 @@ interface ScheduleEmailPayload {
 
 export const scheduleEmail = task({
   id: "schedule-email",
+  retry: {
+    maxAttempts: 1,
+  },
   run: async (payload: ScheduleEmailPayload, { ctx }) => {
     const { emailId } = payload;
     const supabase = createClient();

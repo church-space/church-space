@@ -440,12 +440,7 @@ const TimePeriodSelect = React.forwardRef<
         const tempDate = new Date(date);
         const hours = display12HourValue(date.getHours());
         onDateChange?.(
-          setDateByType(
-            tempDate,
-            hours.toString(),
-            "12hours",
-            period === "AM" ? "PM" : "PM"
-          )
+          setDateByType(tempDate, hours.toString(), "12hours", value)
         );
       }
     };

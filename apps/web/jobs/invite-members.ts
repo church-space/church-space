@@ -34,7 +34,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const inviteMembers = task({
   id: "invite-members",
   queue: inviteMembersQueue,
-
+  retry: {
+    maxAttempts: 1,
+  },
   run: async (payload: InviteMembersPayload, io) => {
     const supabase = createClient();
     const { organization_id, invited_by, members } = payload;
