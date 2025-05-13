@@ -64,10 +64,8 @@ const Notification = ({ name, index = 0 }: Item) => {
         "relative mx-auto min-h-fit w-full max-w-[400px] cursor-pointer overflow-hidden rounded-2xl p-1.5 px-2.5",
         // animation styles
         "transition-all duration-200 ease-in-out hover:scale-[103%]",
-        // light styles
-        "bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
         // dark styles
-        "transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]",
+        "transform-gpu border border-muted-foreground/40 shadow-sm dark:bg-white dark:backdrop-blur-md",
       )}
     >
       <div className="flex flex-row items-center gap-2">
@@ -77,7 +75,7 @@ const Notification = ({ name, index = 0 }: Item) => {
 
         <div className="flex flex-col overflow-hidden">
           <figcaption className="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white">
-            <span className="text-sm font-semibold">{name}</span>
+            <span className="text-sm font-semibold text-black">{name}</span>
           </figcaption>
           <p className="text-xs font-normal">Added from Planning Center</p>
         </div>
@@ -174,13 +172,14 @@ export default function PcoSection() {
               />
             </svg>
           </div>
-          <p className="text-balance pt-2 text-center text-zinc-300">
+
+          <p className="text-balance pt-2 text-center text-sm text-zinc-100">
             A Planning Center account is required to use Church Space.
           </p>
         </div>
         <div className="mt-4 grid w-full grid-cols-1 gap-4 gap-y-16 sm:grid-cols-2 md:gap-y-24 lg:grid-cols-3">
           <div className="col-span-1 flex flex-col items-start gap-0 space-y-4 sm:col-span-2 sm:grid sm:grid-cols-2 sm:items-center sm:gap-4 lg:col-span-1 lg:flex lg:flex-col lg:items-start lg:gap-0">
-            <div className="relative h-64 w-full overflow-hidden rounded-md border bg-zinc-100 px-3 pt-3 text-black shadow-sm">
+            <div className="relative h-64 w-full overflow-hidden rounded-md border border-muted-foreground bg-zinc-100 px-3 pt-3 text-black shadow-sm">
               <AnimatedList>
                 {notifications.map((item, idx) => (
                   <Notification {...item} index={idx} key={idx} />
@@ -194,13 +193,14 @@ export default function PcoSection() {
               <p className="text-sm font-medium text-white">
                 Your Planning Center people and lists are automatically synced.
                 No need to worry about hitting a contact limit or keeping data
-                up to date.
+                up to date. When a person or a list is created, deleted, or
+                updated, your data in Church Space is automatically updated.
               </p>
             </div>
           </div>
           <div className="col-span-1 space-y-4">
-            <div className="relative h-64 w-full overflow-hidden rounded-md border bg-zinc-100 text-black shadow-sm">
-              <div className="absolute left-1/2 top-7 h-auto w-[75%] origin-bottom -translate-x-1/2 overflow-hidden rounded-t-md border border-b-0 bg-background px-4 pt-4 transition-all duration-300 hover:scale-105">
+            <div className="relative h-64 w-full overflow-hidden rounded-md border border-muted-foreground bg-zinc-100 text-black shadow-sm">
+              <div className="absolute left-1/2 top-7 h-auto w-[75%] origin-bottom -translate-x-1/2 overflow-hidden rounded-t-md border border-b-0 border-muted-foreground/40 bg-white px-4 pt-4 transition-all duration-300 hover:scale-105">
                 <div className="mb-2 h-12 w-full rounded-lg bg-gradient-to-br from-blue-300 to-purple-500" />
                 <span className="font-bold">Welcome Home</span>
                 <p className="text-[10px]">
@@ -209,7 +209,7 @@ export default function PcoSection() {
                   check it out by clicking the button below.
                 </p>
                 <div className="my-2 flex w-full justify-center">
-                  <div className="rounded-md border bg-blue-400 px-1.5 py-1 text-[8px] text-white">
+                  <div className="rounded-md border border-muted-foreground/40 bg-blue-400 px-1.5 py-1 text-[8px] text-white">
                     Watch Now
                   </div>
                 </div>
@@ -224,12 +224,14 @@ export default function PcoSection() {
             <h3 className="text-xl font-bold">Send beautiful emails</h3>
             <p className="text-sm font-medium text-white">
               When sending an email, simply choose which Planning Center list
-              you want to send to straight from Church Space.
+              you want to send to straight from Church Space. We sync all your
+              lists, so you don&apos;t have to worry about manually setting it
+              to sync.
             </p>
           </div>
           <div className="col-span-1 space-y-4" id="automations">
-            <div className="relative h-64 w-full rounded-md border bg-zinc-100 text-black shadow-sm">
-              <div className="absolute bottom-0 right-0 h-56 w-[92%] rounded-br-md rounded-tl-md border-l border-t bg-background">
+            <div className="relative h-64 w-full rounded-md border border-muted-foreground bg-zinc-100 text-black shadow-sm">
+              <div className="absolute bottom-0 right-0 h-56 w-[92%] rounded-br-md rounded-tl-md border-l border-t border-muted-foreground/40 bg-white">
                 <div className="flex flex-col gap-2 p-2">
                   <div className="w-full px-2 py-1 text-sm">
                     <div className="flex items-center gap-2">
@@ -242,17 +244,17 @@ export default function PcoSection() {
                     </div>
                   </div>
                 </div>
-                <div className="w-full border-t pt-2" />
+                <div className="w-full border-t border-muted-foreground/40 pt-2" />
                 <div className="flex flex-col gap-2 pl-2">
-                  <div className="w-full rounded-l border bg-green-500/20 px-2 py-1 text-sm">
+                  <div className="w-full rounded-l border border-muted-foreground/40 bg-yellow-500/20 px-2 py-1 text-sm">
                     <div className="flex items-center gap-2">
-                      <span className="text-green-500">
+                      <span className="text-yellow-500">
                         <HourglassClock height={"16"} width={"16"} />
                       </span>
                       Wait 3 hours
                     </div>
                   </div>
-                  <div className="w-full rounded-l border bg-green-500/20 px-2 py-1 text-sm">
+                  <div className="w-full rounded-l border border-muted-foreground/40 bg-green-500/20 px-2 py-1 text-sm">
                     <div className="flex items-center gap-2">
                       <span className="text-green-500">
                         <Email height={"16"} width={"16"} />
@@ -264,7 +266,7 @@ export default function PcoSection() {
                       </p>
                     </div>
                   </div>
-                  <div className="w-full rounded-l border bg-yellow-500/20 px-2 py-1 text-sm">
+                  <div className="w-full rounded-l border border-muted-foreground/40 bg-yellow-500/20 px-2 py-1 text-sm">
                     <div className="flex items-center gap-2">
                       <span className="animate-pulse text-yellow-500">
                         <HourglassClock height={"16"} width={"16"} />
@@ -272,9 +274,9 @@ export default function PcoSection() {
                       Wait 5 days
                     </div>
                   </div>
-                  <div className="w-full rounded-l border px-2 py-1 text-sm">
+                  <div className="w-full rounded-l border border-muted-foreground/40 bg-green-500/20 px-2 py-1 text-sm">
                     <div className="flex items-center gap-2">
-                      <span className="text-primary">
+                      <span className="text-green-500">
                         <Email height={"16"} width={"16"} />
                       </span>
                       <p>
@@ -289,9 +291,11 @@ export default function PcoSection() {
             </div>
             <h3 className="text-xl font-bold">Automate your lists</h3>
             <p className="text-sm font-medium text-white">
-              Help guide your people&apos;s journey by sending them a series of
-              emails after they are added to or removed from a list in Planning
-              Center.
+              Guide your people&apos;s journeys by sending them a series of
+              emails after they are added to or removed from a list. Because
+              it&apos;s synced with PCO, you can automation anything from
+              Services, Groups, Registrations, or any other Planning Center
+              product.
             </p>
           </div>
         </div>

@@ -19,8 +19,8 @@ export default async function Layout({
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="light"
-      forcedTheme="light"
+      defaultTheme="dark"
+      forcedTheme="dark"
       enableSystem={false}
     >
       <div className="relative flex min-h-screen flex-col">

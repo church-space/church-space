@@ -65,8 +65,8 @@ export default function PricingPage() {
               Pick the plan that works best for your church, or start for free.
               You can always change your plan later.
             </p>
-            <p className="mx-auto w-full max-w-lg text-balance text-center font-medium leading-tight text-muted-foreground transition-colors group-hover:text-primary">
-              A Planning Center account is required to use Church Space.
+            <p className="mx-auto w-full max-w-lg text-balance text-center font-light leading-tight text-muted-foreground">
+              Note: A Planning Center account is required to use Church Space.
             </p>
           </div>
         </div>

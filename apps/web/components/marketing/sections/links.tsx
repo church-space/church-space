@@ -20,20 +20,20 @@ export default function LinksSection() {
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-accent p-6 dark:to-primary/10 md:p-8 md:py-8">
+          <div className="flex w-full flex-col items-center gap-6 rounded-lg border bg-gradient-to-br from-background/80 to-background p-6 md:p-8 md:py-8">
             <div className="relative">
-              <div className="relative h-[200px] w-[200px]">
-                <div className="z-5 absolute left-0 top-0 -rotate-6 transform rounded-md bg-black p-2 opacity-90">
+              <div className="h-[300px] w-[200px]">
+                <div className="z-5 absolute left-0 top-8 -rotate-6 transform rounded-md bg-white p-2 opacity-90">
                   <QRCode
                     size={150}
                     value="https://churchspace.co"
-                    bgColor="#000000"
-                    fgColor="#ffffff"
+                    bgColor="#ffffff"
+                    fgColor="#000000"
                     quietZone={0}
                     ecLevel="Q"
                   />
                 </div>
-                <div className="absolute left-8 top-8 rotate-3 transform rounded-md bg-[#6065fe] p-2">
+                <div className="absolute left-8 top-16 rotate-3 transform rounded-md bg-[#6065fe] p-2">
                   <QRCode
                     size={150}
                     value="https://churchspace.co"
@@ -53,24 +53,27 @@ export default function LinksSection() {
             <div className="flex flex-col items-start gap-2">
               <h2 className="text-xl font-semibold">Branded QR Codes</h2>
               <p className="max-w-sm text-pretty text-left text-muted-foreground">
-                Create and design QR codes to match your brand.
+                Create and design QR codes to match your brand. You can also
+                easily update the URL for the QR code at any time in case you
+                exported a mistake or just want to change where the QR code
+                goes.
               </p>
             </div>
           </div>
-          <div className="flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-accent p-6 dark:to-primary/10 md:p-8 md:py-8">
+          <div className="flex w-full flex-col items-center gap-6 rounded-lg border bg-gradient-to-br from-background/80 to-background p-6 md:p-8 md:py-8">
             <div className="relative">
-              <div className="relative h-[200px] w-[200px]">
+              <div className="relative flex h-[300px] w-[220px] items-end justify-center">
                 <div className="flex items-end gap-4">
                   <div className="flex flex-col items-center gap-1">
-                    <div className="h-[200px] w-16 rounded-t-md bg-gradient-to-t from-primary to-primary/70" />
+                    <div className="h-[250px] w-16 rounded-t-md bg-primary" />
                     Screens
                   </div>
                   <div className="flex flex-col items-center gap-1">
-                    <div className="h-[80px] w-16 rounded-t-md bg-gradient-to-t from-primary to-primary/90" />
+                    <div className="h-[130px] w-16 rounded-t-md bg-primary" />
                     Seats
                   </div>
                   <div className="flex flex-col items-center gap-1">
-                    <div className="h-[120px] w-16 rounded-t-md bg-gradient-to-t from-primary to-primary/80" />
+                    <div className="h-[190px] w-16 rounded-t-md bg-primary" />
                     Lobby
                   </div>
                 </div>
@@ -79,12 +82,13 @@ export default function LinksSection() {
             <div className="flex flex-col items-start gap-2">
               <h2 className="text-xl font-semibold">Deeper Insights</h2>
               <p className="max-w-sm text-pretty text-left text-muted-foreground">
-                Create multiple QR codes for the same link to see where they
-                were scanned and update the URL at any time.
+                Ever wonder how effective your QR codes are? With Church Space,
+                you can create multiple QR codes for the same link which helps
+                you know where people are scanning your codes.
               </p>
             </div>
           </div>
-          <div className="col-span-1 flex w-full flex-col items-center justify-center gap-12 rounded-lg border bg-gradient-to-br from-background to-accent p-6 md:col-span-2 md:flex-row-reverse md:p-8 md:py-8 lg:col-span-1 lg:flex-col">
+          <div className="col-span-1 flex w-full flex-col items-center gap-6 rounded-lg border bg-gradient-to-br from-background/80 to-background p-6 md:col-span-2 md:flex-row-reverse md:p-8 md:py-8 lg:col-span-1 lg:flex-col">
             <div className="relative w-full">
               <div className="mx-auto flex h-[300px] w-full max-w-[340px] flex-col gap-2 overflow-hidden rounded-t-xl border bg-background md:mx-0 lg:mx-auto">
                 <div className="flex flex-col border-b bg-gradient-to-br from-primary/80 to-primary p-6 py-3.5">

@@ -47,7 +47,7 @@ export default function HeroSection() {
           <div className="mx-auto -mt-16 h-[25rem] w-[38rem] max-w-[90rem] translate-y-16 rounded border shadow-xl sm:h-auto sm:w-auto md:rounded-xl">
             <Image
               className="z-1 relative rounded md:rounded-xl"
-              src="/hero.png"
+              src="https://auth.churchspace.co/storage/v1/object/public/email_assets//hero-new.png"
               alt="Tailark hero section"
               width={2363}
               height={1635}

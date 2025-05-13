@@ -75,7 +75,8 @@
               "emails/lists-vs-categories",
               "emails/email-templates",
               "emails/default-footer",
-              "emails/view-email-usage"
+              "emails/view-email-usage",
+              "emails/list-not-showing"
             ]
           },
           {

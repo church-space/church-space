@@ -14,27 +14,22 @@ const links = [
       {
         title: "Email",
         href: "/#emails",
-        target: "_self",
       },
       {
         title: "Automations",
         href: "/#automations",
-        target: "_self",
       },
       {
         title: "QR Codes",
         href: "/#links",
-        target: "_self",
       },
       {
         title: "Link Pages",
         href: "/#links",
-        target: "_self",
       },
       {
         title: "PCO Integration",
         href: "/#pco",
-        target: "_self",
       },
     ],
   },
@@ -49,7 +44,6 @@ const links = [
       {
         title: "Pricing",
         href: "/pricing",
-        target: "_self",
       },
       {
         title: "Getting Started",
@@ -65,18 +59,15 @@ const links = [
       {
         title: "Terms of Service",
         href: "https://churchspace.co/policies/terms",
-        target: "_self",
       },
       {
         title: "Privacy Policy",
         href: "https://churchspace.co/policies/privacy",
-        target: "_self",
       },
 
       {
         title: "All Policies",
         href: "https://churchspace.co/policies",
-        target: "_self",
       },
     ],
   },
@@ -86,7 +77,6 @@ const links = [
       {
         title: "About",
         href: "/about",
-        target: "_self",
       },
       {
         title: "Contact",

@@ -20,6 +20,7 @@ import {
   ChurchSpaceBlack,
   PcoLogo,
   Email,
+  Headset,
 } from "@church-space/ui/icons";
 
 import MobileHeaderSheet from "./mobile-header-sheet";
@@ -89,11 +90,19 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
                 <ul className="grid gap-1 p-3 md:w-[500px] md:grid-cols-2">
                   <ListItem
                     href="https://help.churchspace.co"
-                    title="Support"
+                    title="Help Center"
                     icon={<LifeRing />}
                     target="_blank"
                   >
-                    Search articles and contact the team for help
+                    Search for and read support articles
+                  </ListItem>
+                  <ListItem
+                    href="mailto:support@churchspace.co"
+                    title="Contact Support"
+                    icon={<Headset />}
+                    target="_blank"
+                  >
+                    Contact the team for help
                   </ListItem>
                   <ListItem
                     href="https://help.churchspace.co/getting-started"
