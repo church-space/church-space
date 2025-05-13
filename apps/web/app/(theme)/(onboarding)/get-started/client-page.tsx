@@ -322,20 +322,6 @@ export default function ClientPage({
       isRemovable: true,
       description: "Info for parents and children's ministry families.",
     },
-    {
-      id: "events",
-      name: "Events",
-      isDefault: false,
-      isRemovable: true,
-      description: "Upcoming gatherings, registrations, and details.",
-    },
-    {
-      id: "finance",
-      name: "Finance",
-      isDefault: false,
-      isRemovable: true,
-      description: "Giving updates, budget reports, and stewardship info.",
-    },
   ]);
 
   // Auto-scroll to bottom when adding a new category

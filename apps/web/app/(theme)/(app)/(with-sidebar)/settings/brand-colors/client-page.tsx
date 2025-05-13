@@ -144,7 +144,7 @@ export default function ClientPage({
   };
 
   const addColor = () => {
-    if (colors.length < 8) {
+    if (colors.length < 12) {
       hasUserMadeChangesRef.current = true; // Mark user interaction
       setColors([...colors, "#FFFFFF"]);
     }
@@ -300,7 +300,7 @@ export default function ClientPage({
                 </SettingsRowAction>
               </SettingsRow>
             ))}
-            {colors.length < 8 && ( // Only show add button if less than 8 colors
+            {colors.length < 12 && ( // Only show add button if less than 12 colors
               <SettingsRow
                 isFirstRow={colors.length === 0}
                 onClick={addColor}
