@@ -101,7 +101,10 @@ export async function POST(request: Request) {
       const cookieHeader = requestHeaders.get("cookie"); // Get cookies from the original request
       const pcoRefreshFetchOptions: RequestInit = {
         method: "POST",
-        headers: {},
+        headers: {
+          "Content-Type": "application/json", // Specify content type for JSON payload
+        },
+        body: JSON.stringify({ forceRefresh: true }), // Add forceRefresh to the body
       };
 
       if (cookieHeader) {

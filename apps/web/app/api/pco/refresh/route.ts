@@ -43,26 +43,41 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Try to parse the request body for forceRefresh parameter
+  let forceRefresh = false;
+  try {
+    const body = await request.json();
+    if (body && typeof body.forceRefresh === "boolean") {
+      forceRefresh = body.forceRefresh;
+    }
+  } catch (e) {
+    // If request.json() fails, it means there's no body or it's not JSON.
+    // We can ignore this error and proceed with forceRefresh = false.
+  }
+
   // ---------------------------------------------------------------------------
   // Guard against multiple simultaneous refresh attempts
   // If the token has already been refreshed by another request within the last
   // two hours, we can safely skip the refresh call and return current data.
+  // This check can be bypassed if forceRefresh is true.
   // ---------------------------------------------------------------------------
-  const now = new Date();
-  const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+  if (!forceRefresh) {
+    const now = new Date();
+    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
 
-  if (pcoConnection.last_refreshed) {
-    const lastRefreshed = new Date(pcoConnection.last_refreshed);
+    if (pcoConnection.last_refreshed) {
+      const lastRefreshed = new Date(pcoConnection.last_refreshed);
 
-    // If we've refreshed within the last two hours, return current data.
-    if (lastRefreshed > twoHoursAgo) {
-      return NextResponse.json({
-        id: pcoConnection.id.toString(),
-        accessToken: pcoConnection.access_token,
-        refreshToken: pcoConnection.refresh_token,
-        lastRefreshed: pcoConnection.last_refreshed,
-        message: "Token recently refreshed, skipping.",
-      });
+      // If we've refreshed within the last two hours, return current data.
+      if (lastRefreshed > twoHoursAgo) {
+        return NextResponse.json({
+          id: pcoConnection.id.toString(),
+          accessToken: pcoConnection.access_token,
+          refreshToken: pcoConnection.refresh_token,
+          lastRefreshed: pcoConnection.last_refreshed,
+          message: "Token recently refreshed, skipping.",
+        });
+      }
     }
   }
 
