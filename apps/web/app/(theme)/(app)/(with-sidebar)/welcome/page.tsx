@@ -419,6 +419,7 @@ export default function WelcomePage() {
           <NewQRCode
             organizationId={organizationId ?? ""}
             setIsNewQRCodeOpen={setNewQrCodeDialogOpen}
+            isSidebar={false}
           />
         </DialogContent>
       </Dialog>
