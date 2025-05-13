@@ -516,12 +516,60 @@ export const importSubscibes = task({
       }
     }
 
-    // Create field options for each unique tag if Tags field was created
+    // Create field options for each unique tag if Tags field was created/found
     if (tagsFieldDefinitionId && uniqueTags.size > 0) {
       console.log(
-        `Creating options for ${uniqueTags.size} unique tags under field ID: ${tagsFieldDefinitionId}`,
+        `Processing ${uniqueTags.size} unique tags for field ID: ${tagsFieldDefinitionId}`,
       );
+
+      let existingPcoTagOptionValues = new Set<string>();
+      try {
+        const existingOptionsResponse = await fetchPCOWithRetry(
+          `https://api.planningcenteronline.com/people/v2/field_definitions/${tagsFieldDefinitionId}/field_options?per_page=100`,
+          {
+            headers: {
+              Authorization: `Bearer ${pcoConnection.access_token}`,
+              "X-PCO-API-Version": "2024-09-12",
+            },
+          },
+        );
+        if (existingOptionsResponse.ok) {
+          const existingOptionsData = await existingOptionsResponse.json();
+          if (existingOptionsData.data && existingOptionsData.data.length > 0) {
+            existingOptionsData.data.forEach((opt: any) => {
+              if (opt.attributes && opt.attributes.value) {
+                existingPcoTagOptionValues.add(opt.attributes.value);
+              }
+            });
+            console.log(
+              `Found ${existingPcoTagOptionValues.size} existing field options for Tags field.`,
+              existingPcoTagOptionValues,
+            );
+          }
+        } else {
+          console.warn(
+            "Could not fetch existing field options for Tags field. Will attempt to create all unique tags from CSV.",
+            {
+              status: existingOptionsResponse.status,
+              error: await existingOptionsResponse.text(),
+            },
+          );
+        }
+      } catch (error) {
+        console.warn(
+          "Error fetching existing field options for Tags field. Will attempt to create all unique tags from CSV.",
+          { error: error instanceof Error ? error.message : String(error) },
+        );
+      }
+
       for (const tag of Array.from(uniqueTags)) {
+        if (existingPcoTagOptionValues.has(tag)) {
+          console.log(
+            `Skipping creation of field option for tag '${tag}' as it already exists. `,
+          );
+          continue;
+        }
+
         try {
           const fieldOptionResponse = await fetchPCOWithRetry(
             `https://api.planningcenteronline.com/people/v2/field_definitions/${tagsFieldDefinitionId}/field_options`,

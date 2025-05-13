@@ -120,6 +120,7 @@ export async function POST(request: Request) {
       try {
         pcoRefreshResponseData = await pcoRefreshResponse.json();
       } catch (e) {
+        console.error("PCO token refresh response:", e);
         // If JSON parsing fails, construct an error object based on status text
         pcoRefreshResponseData = {
           error: `Failed to parse PCO refresh response (status: ${pcoRefreshResponse.status})`,
