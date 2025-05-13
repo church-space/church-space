@@ -35,7 +35,7 @@ type FooterData = {
 export default function DefaultFooterEditor({
   organizationId,
   emailBgColor = "#ffffff",
-  defaultFont = "sans",
+  defaultFont = "sans-serif",
 }: {
   organizationId: string;
   emailBgColor?: string;

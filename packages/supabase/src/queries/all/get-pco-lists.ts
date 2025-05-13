@@ -22,7 +22,7 @@ export async function getPublicPcoListsQuery(
   }
 
   // Apply limit after search
-  query = query.limit(5);
+  query = query.limit(10);
 
   const { data, error } = await query;
 

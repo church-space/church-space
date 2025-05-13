@@ -93,7 +93,7 @@ export default function ListSelector({
                 {lists.map((list) => (
                   <CommandItem
                     key={list.id}
-                    value={list.pco_list_description}
+                    value={list.id.toString()}
                     onSelect={() => {
                       onChange(list.id.toString());
                       setOpen(false);

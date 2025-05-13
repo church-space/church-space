@@ -615,17 +615,17 @@ export default function PostSendPage({
           className="grid gap-4 lg:grid-cols-2"
           variants={itemVariants}
         >
-          <Card className="bg-gradient-to-br from-[#4E52CB] to-[#1d3562] text-white dark:from-[#363AA0] dark:to-[#122953]">
+          <Card className="bg-gradient-to-br from-primary to-primary/90 text-white">
             <CardHeader className="pb-4">
-              <CardTitle>Details</CardTitle>
+              <CardTitle className="font-bold">Details</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col gap-2">
+            <CardContent className="flex flex-col gap-3">
               <div className="flex flex-col items-start font-medium text-primary">
                 <div className="flex flex-col items-start">
                   <span className="text-xs font-bold text-white">To:</span>
 
                   <div className="text-white">
-                    <div className="items-baseline space-x-2">
+                    <div className="items-baseline space-x-2 font-bold leading-none">
                       {listData?.data?.[0]?.pco_list_description}{" "}
                       <span className="text-sm text-white/80">
                         ({listData?.data?.[0]?.pco_total_people}{" "}
@@ -638,7 +638,7 @@ export default function PostSendPage({
                   </div>
                 </div>
                 <div className="text-white">
-                  <div className="text-sm text-white/80">
+                  <div className="text-sm leading-tight text-white/80">
                     {categoryData?.data?.[0]?.name}
                   </div>
                 </div>
@@ -647,10 +647,10 @@ export default function PostSendPage({
                 <div className="flex flex-col items-start">
                   <span className="text-xs font-bold text-white">From:</span>
 
-                  <div className="text-white">{fromName}</div>
+                  <div className="leading-none text-white">{fromName}</div>
                 </div>
 
-                <div className="text-sm text-white/80">
+                <div className="text-sm leading-tight text-white/80">
                   {fromEmail}
                   {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
                 </div>
@@ -662,7 +662,7 @@ export default function PostSendPage({
                       Reply-To:
                     </span>
                     <div className="text-white">
-                      <div className="flex items-baseline gap-2">
+                      <div className="flex items-baseline gap-2 leading-tight">
                         {replyToEmail}
                         {replyToDomain
                           ? `@${replyToDomainData?.data?.[0]?.domain}`
@@ -677,11 +677,8 @@ export default function PostSendPage({
                 <div className="flex flex-col items-start">
                   <span className="text-xs font-bold text-white">Sent At:</span>
 
-                  <div className="text-white">
+                  <div className="leading-none text-white">
                     {formatDate(sendDate, false)}
-                    <div className="text-sm text-white/80">
-                      {Intl.DateTimeFormat().resolvedOptions().timeZone}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -859,11 +856,14 @@ export default function PostSendPage({
           className="flex w-full -translate-y-2 flex-col items-end justify-end text-xs text-muted-foreground xl:flex-row xl:justify-between"
           variants={itemVariants}
         >
-          <p>
-            Last updated:{" "}
-            {stats?.data?.metrics?.updated_at &&
-              `${formatDate(new Date(stats?.data?.metrics?.updated_at))}`}
-          </p>
+          {stats?.data?.metrics?.updated_at ? (
+            <p>
+              Last updated:{" "}
+              {`${formatDate(new Date(stats?.data?.metrics?.updated_at))}`}
+            </p>
+          ) : (
+            <p>Your email stats will be updated in a few minutes.</p>
+          )}
         </motion.div>
         <motion.div
           className="mt-8 flex flex-col gap-4"
@@ -875,9 +875,11 @@ export default function PostSendPage({
             </div>
             <h1 className="flex items-baseline gap-1.5">
               Recipients
-              <span className="font-normal text-muted-foreground">
-                ({stats?.data?.metrics?.total_sent} total)
-              </span>
+              {stats?.data?.metrics?.total_sent && (
+                <span className="font-normal text-muted-foreground">
+                  ({stats?.data?.metrics?.total_sent} total)
+                </span>
+              )}
             </h1>
           </div>
 

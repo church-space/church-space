@@ -28,6 +28,7 @@ import Link from "next/link";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@church-space/ui/card";
@@ -41,6 +42,7 @@ interface ImportSection {
   emailColumn: string;
   firstNameColumn: string;
   lastNameColumn: string;
+  tagsColumn: string;
 }
 
 export default function ImportPage() {
@@ -58,6 +60,7 @@ export default function ImportPage() {
       emailColumn: "",
       firstNameColumn: "",
       lastNameColumn: "",
+      tagsColumn: "",
     },
     unsubscribed: {
       file: null,
@@ -65,6 +68,7 @@ export default function ImportPage() {
       emailColumn: "",
       firstNameColumn: "",
       lastNameColumn: "",
+      tagsColumn: "",
     },
     cleaned: {
       file: null,
@@ -72,6 +76,7 @@ export default function ImportPage() {
       emailColumn: "",
       firstNameColumn: "",
       lastNameColumn: "",
+      tagsColumn: "",
     },
   });
 
@@ -98,10 +103,13 @@ export default function ImportPage() {
         let emailColumn = "";
         let firstNameColumn = "";
         let lastNameColumn = "";
+        let tagsColumn = "";
 
         // Try to find and set email column based on priority
         const emailHeaders = [
           "email address",
+          "home email",
+          "Home Email",
           "Email Address",
           "email",
           "Email",
@@ -160,6 +168,26 @@ export default function ImportPage() {
           }
         }
 
+        const tagsHeaders = [
+          "tags",
+          "Tags",
+          "tag",
+          "Tag",
+          "categories",
+          "Categories",
+          "category",
+          "Category",
+        ];
+        for (const tagsHeader of tagsHeaders) {
+          const foundHeader = headers.find(
+            (header) => header.toLowerCase() === tagsHeader.toLowerCase(),
+          );
+          if (foundHeader) {
+            tagsColumn = foundHeader;
+            break;
+          }
+        }
+
         setImportSections((prev) => ({
           ...prev,
           [type]: {
@@ -168,6 +196,7 @@ export default function ImportPage() {
             emailColumn,
             firstNameColumn,
             lastNameColumn,
+            tagsColumn,
           },
         }));
       }
@@ -202,6 +231,7 @@ export default function ImportPage() {
         emailColumn: "",
         firstNameColumn: "",
         lastNameColumn: "",
+        tagsColumn: "",
       },
     }));
 
@@ -322,12 +352,14 @@ export default function ImportPage() {
                   emailColumn: section.emailColumn,
                   firstNameColumn: section.firstNameColumn,
                   lastNameColumn: section.lastNameColumn,
+                  tagsColumn: section.tagsColumn,
                 }
               : {
                   organizationId,
                   fileUrl: signedUrl,
                   emailColumn: section.emailColumn,
                   status: type,
+                  tagsColumn: section.tagsColumn,
                 };
 
           const response = await fetch(endpoint, {
@@ -506,6 +538,32 @@ export default function ImportPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label>Select Tags Column</Label>
+              <Select
+                value={section.tagsColumn}
+                onValueChange={(value) =>
+                  setImportSections((prev) => ({
+                    ...prev,
+                    [type]: {
+                      ...prev[type],
+                      tagsColumn: value,
+                    },
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select column" />
+                </SelectTrigger>
+                <SelectContent>
+                  {section.headers.map((header, index) => (
+                    <SelectItem key={`${header}-${index}`} value={header}>
+                      {header}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </>
         )}
       </div>
@@ -539,11 +597,13 @@ export default function ImportPage() {
         <div className="p-6">
           <div className="mx-auto w-full max-w-4xl">
             <h1 className="mb-6 text-2xl font-bold">Import Contacts</h1>
-            <p className="mb-6 text-sm text-muted-foreground">
+            <p className="mb-6 text-pretty text-sm text-muted-foreground">
               Import your contacts from a former email provider. If a subscribed
               person does not exist in your Planning Center account, we&apos;ll
               add them for you. You&apos;ll be able to find these people in
-              Planning Center using the custom tab &quot;Church Space&quot;.
+              Planning Center using the custom tab &quot;Church Space&quot;. We
+              do not import unsubscribed or cleaned contacts but highly
+              recommend that you import them to Church Space.
             </p>
 
             <div className="grid grid-cols-1 gap-6">
@@ -551,7 +611,13 @@ export default function ImportPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Subscribed</CardTitle>
+                  <CardDescription className="text-pretty">
+                    Due to a limit with Planning Center, expect the import to
+                    take approximately 1 minute for every 100 contacts on your
+                    CSV.
+                  </CardDescription>
                 </CardHeader>
+
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label>Upload CSV File</Label>

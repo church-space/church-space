@@ -1,6 +1,6 @@
 import "server-only";
 
-import { task } from "@trigger.dev/sdk/v3";
+import { task, wait } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 import Papa from "papaparse";
 import { z } from "zod";
@@ -11,6 +11,7 @@ const importSubscibesPayload = z.object({
   emailColumn: z.string(),
   firstNameColumn: z.string(),
   lastNameColumn: z.string(),
+  tagsColumn: z.string().nullable(),
 });
 
 export const importSubscibes = task({
@@ -22,8 +23,87 @@ export const importSubscibes = task({
       emailColumn,
       firstNameColumn,
       lastNameColumn,
+      tagsColumn,
     } = payload;
     const supabase = createClient();
+    const uniqueTags = new Set<string>();
+    let tagsFieldDefinitionId: string | null = null;
+
+    // Helper function to parse tags from a CSV cell value
+    const getTagsFromCsvCell = (cellValue: string | undefined): string[] => {
+      if (!cellValue || cellValue.trim() === "") {
+        return [];
+      }
+      const trimmedValue = cellValue.trim();
+      // Check if it looks like a JSON array string: starts with [ and ends with ]
+      if (trimmedValue.startsWith("[") && trimmedValue.endsWith("]")) {
+        try {
+          const parsed = JSON.parse(trimmedValue);
+          if (
+            Array.isArray(parsed) &&
+            parsed.every((item) => typeof item === "string")
+          ) {
+            return parsed.map((tag) => tag.trim()).filter((tag) => tag !== "");
+          }
+          // If JSON.parse worked but wasn't a string array, fall through to split logic
+        } catch (e) {
+          // JSON.parse failed, fall through to split logic
+        }
+      }
+      // Fallback: treat as a comma-separated string
+      return trimmedValue
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== "");
+    };
+
+    const fetchPCOWithRetry = async (
+      url: string,
+      options: RequestInit,
+      retryCount = 0,
+    ): Promise<Response> => {
+      const response = await fetch(url, options);
+
+      if (response.status === 429) {
+        const rateLimit = response.headers.get("X-PCO-API-Request-Rate-Limit");
+        const ratePeriod = response.headers.get(
+          "X-PCO-API-Request-Rate-Period",
+        );
+        const rateCount = response.headers.get("X-PCO-API-Request-Rate-Count");
+        const retryAfterHeader = response.headers.get("Retry-After");
+
+        console.warn("Rate limit hit for PCO API", {
+          url,
+          status: response.status,
+          rateLimit: rateLimit || "N/A",
+          ratePeriod: ratePeriod || "N/A",
+          rateCount: rateCount || "N/A",
+          retryAfter: retryAfterHeader || "N/A",
+        });
+
+        if (retryCount < 2) {
+          // Max 2 retries (total 3 attempts)
+          let waitSeconds = 20; // Default wait time if Retry-After is not available or invalid
+          if (retryAfterHeader) {
+            const parsedRetryAfter = parseInt(retryAfterHeader, 10);
+            if (!isNaN(parsedRetryAfter) && parsedRetryAfter > 0) {
+              waitSeconds = parsedRetryAfter;
+            }
+          }
+          console.log(
+            `Rate limit: Retrying PCO API call to ${url} after ${waitSeconds} seconds (attempt ${retryCount + 2} of 3)...`,
+          );
+          await wait.for({ seconds: waitSeconds });
+          return fetchPCOWithRetry(url, options, retryCount + 1);
+        } else {
+          console.error(
+            `Max retries (3 total attempts) reached for PCO API call to ${url} after rate limiting. Will not retry further.`,
+          );
+          return response; // Return the last 429 response to be handled by the calling code
+        }
+      }
+      return response;
+    };
 
     // Fetch the CSV file content
     const response = await fetch(fileUrl, {
@@ -70,19 +150,46 @@ export const importSubscibes = task({
 
     // Validate that required columns exist in the headers
     const headers = parseResult.meta.fields;
-    if (
-      !headers ||
-      !headers.includes(emailColumn) ||
-      !headers.includes(firstNameColumn) ||
-      !headers.includes(lastNameColumn)
-    ) {
-      console.error("Required columns not found in CSV headers.", {
+
+    // Define base required columns
+    const baseRequiredColumns = [emailColumn, firstNameColumn, lastNameColumn];
+    // Conditionally add tagsColumn if it's provided
+    const allRequiredColumns = [...baseRequiredColumns];
+    if (tagsColumn && tagsColumn.trim() !== "") {
+      allRequiredColumns.push(tagsColumn);
+    }
+
+    const missingHeaders = allRequiredColumns.filter(
+      (col) => !headers || !headers.includes(col),
+    );
+
+    if (missingHeaders.length > 0) {
+      console.error("One or more required columns not found in CSV headers.", {
         headers,
-        requiredColumns: [emailColumn, firstNameColumn, lastNameColumn],
+        requiredColumns: allRequiredColumns,
+        missing: missingHeaders,
       });
       throw new Error(
-        `Required columns not found in CSV headers. Available headers: ${headers?.join(", ")}`,
+        `The following required columns were not found in the CSV: ${missingHeaders.join(", ")}. Available headers: ${headers?.join(", ")}`,
       );
+    }
+
+    // Extract and log tags if tagsColumn is specified
+    if (
+      tagsColumn &&
+      tagsColumn.trim() !== "" &&
+      headers &&
+      headers.includes(tagsColumn)
+    ) {
+      parseResult.data.forEach((row) => {
+        const tagsValue = row[tagsColumn];
+        const parsedTags = getTagsFromCsvCell(tagsValue);
+        parsedTags.forEach((tag) => uniqueTags.add(tag));
+      });
+
+      if (uniqueTags.size > 0) {
+        console.log("Unique tags found in the CSV:", Array.from(uniqueTags));
+      }
     }
 
     // Process CSV data and fill empty names with "Friend"
@@ -91,6 +198,11 @@ export const importSubscibes = task({
         const email = row[emailColumn]?.trim();
         const firstName = row[firstNameColumn]?.trim() || "Friend";
         const lastName = row[lastNameColumn]?.trim() || "Friend";
+        let personTags: string[] = [];
+
+        if (tagsColumn && tagsColumn.trim() !== "" && row[tagsColumn]) {
+          personTags = getTagsFromCsvCell(row[tagsColumn]);
+        }
 
         // Validate email using Zod
         const validationResult = z.string().email().safeParse(email);
@@ -99,6 +211,7 @@ export const importSubscibes = task({
             email_address: validationResult.data.toLowerCase(),
             first_name: firstName,
             last_name: lastName,
+            tags: personTags,
           };
         }
         return null;
@@ -186,7 +299,7 @@ export const importSubscibes = task({
     }
 
     // Check if Church Space tab already exists
-    const tabsResponse = await fetch(
+    const tabsResponse = await fetchPCOWithRetry(
       `https://api.planningcenteronline.com/people/v2/tabs?include=field_definitions`,
       {
         headers: {
@@ -214,21 +327,47 @@ export const importSubscibes = task({
 
     if (existingTab) {
       tabId = existingTab.id;
+      console.log(`Using existing 'Church Space' tab with ID: ${tabId}`);
 
-      // Check if the field already exists in the included field definitions
-      const fieldDefinitions = tabsData.included?.filter(
+      // Check if "Subscribed on Former Platform" field already exists in this tab
+      const subscribedFieldDef = tabsData.included?.find(
         (item: any) =>
           item.type === "FieldDefinition" &&
-          item.attributes.tab_id === tabId &&
+          item.relationships?.tab?.data?.id === tabId &&
           item.attributes.name === "Subscribed on Former Platform",
       );
+      if (subscribedFieldDef) {
+        fieldDefinitionId = subscribedFieldDef.id;
+        console.log(
+          `Found existing 'Subscribed on Former Platform' field with ID: ${fieldDefinitionId} in tab ${tabId}`,
+        );
+      }
 
-      if (fieldDefinitions && fieldDefinitions.length > 0) {
-        fieldDefinitionId = fieldDefinitions[0].id;
+      // Check if "Tags" field already exists in this tab
+      if (uniqueTags.size > 0) {
+        const tagsFieldDef = tabsData.included?.find(
+          (item: any) =>
+            item.type === "FieldDefinition" &&
+            item.relationships?.tab?.data?.id === tabId &&
+            item.attributes.name === "Tags",
+        );
+        if (tagsFieldDef) {
+          if (tagsFieldDef.attributes.data_type === "checkboxes") {
+            tagsFieldDefinitionId = tagsFieldDef.id;
+            console.log(
+              `Found existing 'Tags' field (checkboxes) with ID: ${tagsFieldDefinitionId} in tab ${tabId}`,
+            );
+          } else {
+            console.warn(
+              `Found existing 'Tags' field in tab ${tabId} with ID: ${tagsFieldDef.id}, but it is of type '${tagsFieldDef.attributes.data_type}' instead of 'checkboxes'. Tag import for this field will be skipped. A new 'Tags' field of type 'checkboxes' will be created if needed.`,
+            );
+            tagsFieldDefinitionId = null;
+          }
+        }
       }
     } else {
       // Create custom tab in Planning Center
-      const pcoResponse = await fetch(
+      const pcoResponse = await fetchPCOWithRetry(
         `https://api.planningcenteronline.com/people/v2/tabs`,
         {
           method: "POST",
@@ -263,12 +402,16 @@ export const importSubscibes = task({
       const tabData = await pcoResponse.json();
 
       tabId = tabData.data.id;
+      console.log(
+        // Added for consistency
+        `Created new 'Church Space' tab with ID: ${tabId}`,
+      );
     }
 
     // Removed the separate field fetching section since we now get fields with tabs
     if (!fieldDefinitionId) {
       // Create boolean field for "Subscribed on Former Platform"
-      const booleanFieldResponse = await fetch(
+      const booleanFieldResponse = await fetchPCOWithRetry(
         `https://api.planningcenteronline.com/people/v2/tabs/${tabId}/field_definitions`,
         {
           method: "POST",
@@ -319,6 +462,109 @@ export const importSubscibes = task({
       }
     }
 
+    // Create "Tags" field definition if there are unique tags AND it wasn't found yet
+    if (!tagsFieldDefinitionId && uniqueTags.size > 0 && tabId) {
+      try {
+        const tagsFieldResponse = await fetchPCOWithRetry(
+          `https://api.planningcenteronline.com/people/v2/tabs/${tabId}/field_definitions`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${pcoConnection.access_token}`,
+              "Content-Type": "application/json",
+              "X-PCO-API-Version": "2024-09-12",
+            },
+            body: JSON.stringify({
+              data: {
+                type: "FieldDefinition",
+                attributes: {
+                  name: "Tags",
+                  data_type: "checkboxes", // As per user request
+                  config: {
+                    // Required for checkboxes, even if empty initially
+                    options: [],
+                  },
+                },
+              },
+            }),
+          },
+        );
+
+        if (!tagsFieldResponse.ok) {
+          const errorData = await tagsFieldResponse.json();
+          console.error("Failed to create 'Tags' field definition.", {
+            status: tagsFieldResponse.status,
+            error: errorData,
+            errorDetails: errorData.errors
+              ? JSON.stringify(errorData.errors)
+              : undefined,
+            statusText: tagsFieldResponse.statusText,
+          });
+          // Not throwing an error here, as we can still proceed with other operations
+        } else {
+          const tagsFieldData = await tagsFieldResponse.json();
+          tagsFieldDefinitionId = tagsFieldData.data.id;
+          console.log(
+            "Successfully created 'Tags' field definition with ID:",
+            tagsFieldDefinitionId,
+          );
+        }
+      } catch (error) {
+        console.error("Error creating 'Tags' field definition:", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
+    // Create field options for each unique tag if Tags field was created
+    if (tagsFieldDefinitionId && uniqueTags.size > 0) {
+      console.log(
+        `Creating options for ${uniqueTags.size} unique tags under field ID: ${tagsFieldDefinitionId}`,
+      );
+      for (const tag of Array.from(uniqueTags)) {
+        try {
+          const fieldOptionResponse = await fetchPCOWithRetry(
+            `https://api.planningcenteronline.com/people/v2/field_definitions/${tagsFieldDefinitionId}/field_options`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${pcoConnection.access_token}`,
+                "Content-Type": "application/json",
+                "X-PCO-API-Version": "2024-09-12",
+              },
+              body: JSON.stringify({
+                data: {
+                  type: "FieldOption",
+                  attributes: {
+                    value: tag,
+                  },
+                },
+              }),
+            },
+          );
+
+          if (!fieldOptionResponse.ok) {
+            const errorData = await fieldOptionResponse.json();
+            console.error(`Failed to create field option for tag: ${tag}`, {
+              status: fieldOptionResponse.status,
+              error: errorData,
+              tag,
+            });
+          } else {
+            const fieldOptionData = await fieldOptionResponse.json();
+            console.log(
+              `Successfully created field option for tag: ${tag}, ID: ${fieldOptionData.data.id}`,
+            );
+          }
+        } catch (error) {
+          console.error(`Error creating field option for tag: ${tag}`, {
+            error: error instanceof Error ? error.message : String(error),
+            tag,
+          });
+        }
+      }
+    }
+
     // Mark matching people as subscribed in PCO
     const subscriptionResults = [];
 
@@ -335,7 +581,7 @@ export const importSubscibes = task({
           continue;
         }
 
-        const fieldDatumResponse = await fetch(
+        const fieldDatumResponse = await fetchPCOWithRetry(
           `https://api.planningcenteronline.com/people/v2/people/${person.pco_person_id}/field_data`,
           {
             method: "POST",
@@ -382,6 +628,63 @@ export const importSubscibes = task({
             success: true,
           });
         }
+
+        // If tags field exists and person has tags, update their tags field data
+        if (tagsFieldDefinitionId && person.tags && person.tags.length > 0) {
+          try {
+            const updateTagsResponse = await fetchPCOWithRetry(
+              `https://api.planningcenteronline.com/people/v2/people/${person.pco_person_id}/field_data`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${pcoConnection.access_token}`,
+                  "Content-Type": "application/json",
+                  "X-PCO-API-Version": "2024-09-12",
+                },
+                body: JSON.stringify({
+                  data: {
+                    type: "FieldDatum",
+                    attributes: {
+                      value: person.tags, // Array of tag strings
+                    },
+                    relationships: {
+                      field_definition: {
+                        data: {
+                          type: "FieldDefinition",
+                          id: tagsFieldDefinitionId,
+                        },
+                      },
+                    },
+                  },
+                }),
+              },
+            );
+
+            if (!updateTagsResponse.ok) {
+              const errorData = await updateTagsResponse.json();
+              console.error("Failed to update tags for existing person.", {
+                personId: person.pco_person_id,
+                email: person.email_address,
+                tags: person.tags,
+                status: updateTagsResponse.status,
+                error: errorData,
+              });
+              // Optionally add to subscriptionResults or a new array for tag update results
+            } else {
+              console.log(
+                `Successfully updated tags for person ${person.pco_person_id}: ${person.tags.join(", ")}`,
+              );
+            }
+          } catch (tagError) {
+            console.error("Error updating tags for existing person:", {
+              personId: person.pco_person_id,
+              email: person.email_address,
+              tags: person.tags,
+              error:
+                tagError instanceof Error ? tagError.message : String(tagError),
+            });
+          }
+        }
       } catch (error) {
         console.error("Error marking person as subscribed:", {
           personId: person.pco_person_id,
@@ -401,7 +704,7 @@ export const importSubscibes = task({
     for (const person of nonMatchingPeople) {
       try {
         // Create new person
-        const createPersonResponse = await fetch(
+        const createPersonResponse = await fetchPCOWithRetry(
           `https://api.planningcenteronline.com/people/v2/people`,
           {
             method: "POST",
@@ -441,7 +744,7 @@ export const importSubscibes = task({
         const newPersonId = newPersonData.data.id;
 
         // Add email address to the new person
-        const addEmailResponse = await fetch(
+        const addEmailResponse = await fetchPCOWithRetry(
           `https://api.planningcenteronline.com/people/v2/people/${newPersonId}/emails`,
           {
             method: "POST",
@@ -481,7 +784,7 @@ export const importSubscibes = task({
 
         // Mark the new person as subscribed
         if (fieldDefinitionId) {
-          const fieldDatumResponse = await fetch(
+          const fieldDatumResponse = await fetchPCOWithRetry(
             `https://api.planningcenteronline.com/people/v2/people/${newPersonId}/field_data`,
             {
               method: "POST",
@@ -521,7 +824,7 @@ export const importSubscibes = task({
               email: person.email_address,
               success: true, // Still consider import successful
               personId: newPersonId,
-              note: "Created but not marked as subscribed",
+              note: "Created without subscription flag due to field creation failure",
             });
           } else {
             newPersonResults.push({
@@ -538,6 +841,79 @@ export const importSubscibes = task({
             personId: newPersonId,
             note: "Created without subscription flag due to field creation failure",
           });
+        }
+
+        // If tags field exists and the new person has tags, set their tags field data
+        if (tagsFieldDefinitionId && person.tags && person.tags.length > 0) {
+          try {
+            const setTagsResponse = await fetchPCOWithRetry(
+              `https://api.planningcenteronline.com/people/v2/people/${newPersonId}/field_data`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${pcoConnection.access_token}`,
+                  "Content-Type": "application/json",
+                  "X-PCO-API-Version": "2024-09-12",
+                },
+                body: JSON.stringify({
+                  data: {
+                    type: "FieldDatum",
+                    attributes: {
+                      value: person.tags, // Array of tag strings
+                    },
+                    relationships: {
+                      field_definition: {
+                        data: {
+                          type: "FieldDefinition",
+                          id: tagsFieldDefinitionId,
+                        },
+                      },
+                    },
+                  },
+                }),
+              },
+            );
+
+            if (!setTagsResponse.ok) {
+              const errorData = await setTagsResponse.json();
+              console.error("Failed to set tags for new person.", {
+                personId: newPersonId,
+                email: person.email_address,
+                tags: person.tags,
+                status: setTagsResponse.status,
+                error: errorData,
+              });
+              // Modify newPersonResults entry if needed
+              const existingResult = newPersonResults.find(
+                (r) => r.personId === newPersonId,
+              );
+              if (existingResult) {
+                existingResult.note =
+                  (existingResult.note ? existingResult.note + "; " : "") +
+                  "Failed to set tags";
+              }
+            } else {
+              console.log(
+                `Successfully set tags for new person ${newPersonId}: ${person.tags.join(", ")}`,
+              );
+            }
+          } catch (tagError) {
+            console.error("Error setting tags for new person:", {
+              personId: newPersonId,
+              email: person.email_address,
+              tags: person.tags,
+              error:
+                tagError instanceof Error ? tagError.message : String(tagError),
+            });
+            const existingResult = newPersonResults.find(
+              (r) => r.personId === newPersonId,
+            );
+            if (existingResult) {
+              existingResult.note =
+                (existingResult.note ? existingResult.note + "; " : "") +
+                "Error setting tags";
+            }
+          }
         }
       } catch (error) {
         console.error("Error creating new person:", {
