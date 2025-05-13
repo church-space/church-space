@@ -96,8 +96,13 @@ export default function LinkListHeader({
         {(headerName || logoUrl) && (
           <div className="flex items-center gap-2">
             {logoUrl && (
-              <div className="relative h-8 w-8 overflow-hidden rounded-full">
-                <Image src={logoUrl} alt="Logo" fill className="object-cover" />
+              <div className="relative h-10 w-10 overflow-hidden rounded">
+                <Image
+                  src={logoUrl}
+                  alt="Logo"
+                  fill
+                  className="object-contain"
+                />
               </div>
             )}
             {headerName && (
