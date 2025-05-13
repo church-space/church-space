@@ -109,7 +109,15 @@ export default function MobileHeaderSheet({
             target="_blank"
           >
             <LifeRing />
-            Support
+            Help Center
+          </Link>
+          <Link
+            className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
+            href="mailto:support@churchspace.co"
+            onClick={() => setOpen(false)}
+          >
+            <LifeRing />
+            Contact Support
           </Link>
           <Link
             className="flex items-center gap-2 transition-colors hover:text-muted-foreground"
