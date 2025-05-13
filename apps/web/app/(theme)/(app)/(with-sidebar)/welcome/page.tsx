@@ -19,6 +19,7 @@ import {
   LinkIcon,
   Palette,
   XIcon,
+  LinkFilled,
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
@@ -71,6 +72,30 @@ const itemVariants = {
 
 const steps = [
   {
+    id: "first-email",
+    title: "Create your first email",
+    description:
+      "Get started by designing your first email and sending yourself a test.",
+    href: "/emails?newEmailOpen=true",
+    buttonText: "Create",
+    icon: Email,
+    completed: false,
+    openDialog: "email",
+    ownerOnly: false,
+  },
+  {
+    id: "first-link-page",
+    title: "Create a link page",
+    description:
+      "Create a link page with your important links to add to your social media profiles or share with your people.",
+    href: "/link-pages?newLinkListOpen=true",
+    buttonText: "Create",
+    icon: LinkFilled,
+    completed: false,
+    openDialog: "linkpage",
+    ownerOnly: false,
+  },
+  {
     id: "verify-domain",
     title: "Verify your domain",
     description: "Verify your domain to start sending emails to your people.",
@@ -84,7 +109,7 @@ const steps = [
     id: "import-contacts",
     title: "Import additional contacts",
     description:
-      "Import your contacts from your previous email provider to make sure they're on the list. We also recommend importing your unsubscribes to prevent emails from being sent to people who have unsubscribed in the past.",
+      "We've already imported your people from Planning Center, but you can also import your contacts from your previous email provider to make sure they're on the list. We also recommend importing your unsubscribes to prevent emails from being sent to people who have unsubscribed in the past.",
     href: "/people/import",
     buttonText: "Import",
     icon: Users,
@@ -112,28 +137,7 @@ const steps = [
     completed: false,
     ownerOnly: true,
   },
-  {
-    id: "first-email",
-    title: "Create your first email",
-    description: "Design your first email.",
-    href: "/emails?newEmailOpen=true",
-    buttonText: "Create",
-    icon: Email,
-    completed: false,
-    openDialog: "email",
-    ownerOnly: false,
-  },
-  // {
-  //   title: "Create a link page",
-  //   description:
-  //     "Create a link page to share important links with your people.",
-  //   href: "/link-pages?newLinkListOpen=true",
-  //   buttonText: "Create",
-  //   icon: LinkFilled,
-  //   completed: false,
-  //   openDialog: "linkpage",
-  //   ownerOnly: false,
-  // },
+
   // {
   //   title: "Create a QR Code",
   //   description: "Create a QR code to share your link page.",
@@ -319,7 +323,9 @@ export default function WelcomePage() {
                       >
                         {step.title}
                       </CardTitle>
-                      <CardDescription>{step.description}</CardDescription>
+                      <CardDescription className="text-pretty">
+                        {step.description}
+                      </CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent className="w-full sm:w-fit sm:p-0 sm:pr-4">
