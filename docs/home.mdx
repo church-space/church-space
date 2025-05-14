@@ -2,7 +2,7 @@
 title: "Church Space Help Center"
 sidebarTitle: "Home"
 description: "How can we help you today?"
-mode: "wide"
+mode: "center"
 ---
 
 <Columns cols={3}>
@@ -68,13 +68,10 @@ mode: "wide"
     This is how you use a card with an icon and a link. Clicking on this card
     brings you to the Columns page.
   </Card>
-  <Card
-    title="Domains"
-    href="/domains"
-    img="/images/domains-light.png"
-    className="block dark:hidden"
-  >
-    This is how you use a card with an icon and a link. Clicking on this card
-    brings you to the Columns page.
-  </Card>
+  <div className="block dark:hidden">
+    <Card title="Domains" href="/domains" img="/images/domains-light.png">
+      This is how you use a card with an icon and a link. Clicking on this card
+      brings you to the Columns page.
+    </Card>
+  </div>
 </Columns>
