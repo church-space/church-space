@@ -39,9 +39,11 @@ export const getEmailRecipientsAction = authActionClient
 
     if (error) throw error;
 
+    // Calculate if there's a next page based on the total count and current data length
     const hasNextPage = parsedInput.count
       ? from + ITEMS_PER_PAGE < parsedInput.count
-      : false;
+      : data && data.length === ITEMS_PER_PAGE; // If we got a full page, assume there might be more
+
     return {
       data: data ?? [],
       nextPage: hasNextPage ? parsedInput.page + 1 : undefined,
