@@ -76,7 +76,9 @@ export default function LoadingPage() {
             <div className="flex items-center justify-between">
               <div className="text-lg font-bold">Steps</div>
 
-              <Button size={"sm"}>Edit Steps</Button>
+              <Button variant={"outline"} size={"sm"}>
+                Edit Trigger & Steps
+              </Button>
             </div>
             <div className="relative w-full">
               <div className="flex flex-col gap-2 pb-4 sm:flex-row sm:overflow-x-auto sm:pe-16">

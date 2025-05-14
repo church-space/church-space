@@ -629,7 +629,7 @@ export default function Page() {
                   setIsSheetOpen(true);
                 }}
               >
-                <Footsteps height={"24"} width={"24"} /> Edit Steps
+                <Footsteps height={"24"} width={"24"} /> Edit Trigger & Steps
               </DropdownMenuItem>
 
               <Dialog open={isDeletingLink} onOpenChange={setIsDeletingLink}>
@@ -823,7 +823,7 @@ export default function Page() {
                   <>
                     <SheetTrigger asChild>
                       <Button size={"sm"} onClick={() => setIsSheetOpen(true)}>
-                        Edit Steps
+                        Edit Trigger & Steps
                       </Button>
                     </SheetTrigger>
                     <SheetContent
