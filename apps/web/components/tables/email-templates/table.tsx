@@ -84,6 +84,7 @@ export default function EmailTemplatesTable({
         }}
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
+        searchPlaceholderText="Search by name"
         onSearch={handleSearch}
         isLoading={isFetchingNextPage || isLoading}
         nullState={

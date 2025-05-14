@@ -83,6 +83,7 @@ export default function QrCodesTable({ organizationId }: QrCodesTableProps) {
         hasNextPage={hasNextPage}
         searchQuery={search || ""}
         onSearch={handleSearch}
+        searchPlaceholderText="Search by name or url"
         filterConfig={getQrCodeFilterConfig()}
         onFilterChange={{
           status: handleStatusChange,

@@ -34,7 +34,7 @@ const formatDate = (dateString: string | null | undefined) => {
 export const columns: ColumnDef<EmailTemplate>[] = [
   {
     accessorKey: "subject",
-    header: "Subject",
+    header: "Name",
     cell: ({ row }) => {
       const subject = row.getValue("subject") as string;
 
