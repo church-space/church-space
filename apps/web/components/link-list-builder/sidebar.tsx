@@ -17,6 +17,8 @@ import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { Switch } from "@church-space/ui/switch";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
+import Cookies from "js-cookie";
 
 interface LinkListBuilderSidebarProps {
   className?: string;
@@ -141,6 +143,8 @@ export default function LinkListBuilderSidebar({
     null,
   );
   const [privateNameError, setPrivateNameError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const organizationId = Cookies.get("organizationId");
 
   const urlSlugError = urlSlugFormatError || urlSlugErrorProp;
 
@@ -206,6 +210,11 @@ export default function LinkListBuilderSidebar({
         );
       } else {
         setUrlSlug(cleanedValue);
+        if (organizationId) {
+          queryClient.invalidateQueries({
+            queryKey: ["link-lists", organizationId],
+          });
+        }
       }
     }, 800);
   };
@@ -224,8 +233,22 @@ export default function LinkListBuilderSidebar({
         setPrivateNameError("Name cannot be empty.");
       } else {
         setPrivateName(trimmedValue);
+        if (organizationId) {
+          queryClient.invalidateQueries({
+            queryKey: ["link-lists", organizationId],
+          });
+        }
       }
     }, 800);
+  };
+
+  const handleVisibilityChange = (newValue: boolean) => {
+    setIsPublic(newValue);
+    if (organizationId) {
+      queryClient.invalidateQueries({
+        queryKey: ["link-lists", organizationId],
+      });
+    }
   };
 
   const getExitX = () => {
@@ -448,7 +471,7 @@ export default function LinkListBuilderSidebar({
                     <Switch
                       id="is-public"
                       checked={isPublic}
-                      onCheckedChange={setIsPublic}
+                      onCheckedChange={handleVisibilityChange}
                     />
                     <Label htmlFor="is-public">Make Public</Label>
                   </div>

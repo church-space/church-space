@@ -130,12 +130,27 @@ export default function DataTable<TData>({
     }
   }, [initialFilters]);
 
-  // Create a memoized debounced search handler
-  const debouncedSearch = useCallback(
-    debounce((value: string) => {
-      onSearch?.(value);
+  const debouncedSearchRef = useRef(
+    debounce((value: string, callback?: (value: string) => void) => {
+      callback?.(value);
     }, 300),
+  );
+
+  // Create a memoized search handler
+  const handleSearch = useCallback(
+    (value: string) => {
+      debouncedSearchRef.current(value, onSearch);
+    },
     [onSearch],
+  );
+
+  // Handle search input changes
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setGlobalFilter(value);
+      handleSearch(value);
+    },
+    [handleSearch],
   );
 
   // Update data when initialData changes
@@ -158,22 +173,13 @@ export default function DataTable<TData>({
     setHasMorePages(initialHasNextPage);
   }, [initialHasNextPage]);
 
-  // Handle search input changes
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setGlobalFilter(value);
-      // Only use the debounced version for search
-      debouncedSearch(value);
-    },
-    [debouncedSearch],
-  );
-
   // Clean up the debounced function on unmount
   useEffect(() => {
+    const debouncedFn = debouncedSearchRef.current;
     return () => {
-      debouncedSearch.cancel();
+      debouncedFn.cancel();
     };
-  }, [debouncedSearch]);
+  }, []);
 
   const setupObserver = useCallback(() => {
     if (!containerRef.current || !loadMore || !hasMorePages) return;
