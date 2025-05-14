@@ -1,6 +1,6 @@
 import "server-only";
 
-import { task, wait, timeout } from "@trigger.dev/sdk/v3";
+import { task, wait } from "@trigger.dev/sdk/v3";
 import { createClient } from "@church-space/supabase/job";
 import Papa from "papaparse";
 import { z } from "zod";
@@ -24,7 +24,7 @@ const importSubscibesPayload = z.object({
 
 export const importSubscibes = task({
   id: "import-subscibes",
-  maxDuration: timeout.None,
+  maxDuration: 36000, // 10 hours
   run: async (payload: z.infer<typeof importSubscibesPayload>, io) => {
     const {
       organizationId,

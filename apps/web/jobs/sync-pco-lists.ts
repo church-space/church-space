@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createClient } from "@church-space/supabase/job";
-import { task } from "@trigger.dev/sdk/v3";
+import { queue, task } from "@trigger.dev/sdk/v3";
 
 // Add PCOConnection interface
 interface PCOConnection {
@@ -139,9 +139,15 @@ const fetchPCOWithRetry = async (
   return response;
 };
 
+const syncPCOListsQueue = queue({
+  name: "sync-pco-lists-queue",
+  concurrencyLimit: 20,
+});
+
 export const syncPcoLists = task({
   id: "sync-pco-lists",
-
+  maxDuration: 18000, // 5 hours
+  queue: syncPCOListsQueue,
   run: async (payload: { organization_id: string }, io) => {
     const supabase = createClient();
 
