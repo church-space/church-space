@@ -118,7 +118,7 @@ export default function EmailRecipientsTable({
         columns={columns}
         data={emails}
         pageSize={25}
-        loadMore={async ({ from, to }) => {
+        loadMore={async () => {
           const result = await fetchNextPage();
           const nextPageData = (result.data?.pages[result.data.pages.length - 1]
             ?.data ?? []) as EmailRecipient[];
