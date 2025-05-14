@@ -12,6 +12,10 @@
   "navigation": {
     "groups": [
       {
+        "group": "Home",
+        "pages": ["home"]
+      },
+      {
         "group": "Getting Started",
         "pages": [
           "getting-started",
