@@ -5,6 +5,39 @@ import type { syncPcoEmails } from "@/jobs/sync-pco-emails";
 import { syncPcoLists } from "@/jobs/sync-pco-lists";
 import { v4 as uuidv4 } from "uuid";
 
+// Add fetchPCOWithRateLimitHandling function
+const fetchPCOWithRateLimitHandling = async (
+  url: string,
+  options: RequestInit,
+  retryCount = 0,
+): Promise<Response> => {
+  const response = await fetch(url, options);
+
+  if (response.status === 429 && retryCount < 2) {
+    // Max 2 retries for 429
+    const retryAfterHeader = response.headers.get("Retry-After");
+    console.warn("Rate limit hit for PCO API", {
+      url,
+      status: response.status,
+      retryAfter: retryAfterHeader || "N/A",
+    });
+
+    let waitSeconds = 20; // Default wait
+    if (retryAfterHeader) {
+      const parsedRetryAfter = parseInt(retryAfterHeader, 10);
+      if (!isNaN(parsedRetryAfter) && parsedRetryAfter > 0) {
+        waitSeconds = parsedRetryAfter;
+      }
+    }
+    console.log(
+      `Rate limit: Retrying PCO API call to ${url} after ${waitSeconds} seconds (attempt ${retryCount + 1} of 3)...`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, waitSeconds * 1000));
+    return fetchPCOWithRateLimitHandling(url, options, retryCount + 1);
+  }
+  return response;
+};
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -27,7 +60,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Exchange the code for tokens
-    const tokenResponse = await fetch(
+    const tokenResponse = await fetchPCOWithRateLimitHandling(
       "https://api.planningcenteronline.com/oauth/token",
       {
         method: "POST",
@@ -53,7 +86,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const checkExistingConnection = await fetch(
+    const checkExistingConnection = await fetchPCOWithRateLimitHandling(
       "https://api.planningcenteronline.com/api/v2/connected_applications/3520/people",
       {
         headers: {
@@ -77,7 +110,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get current user's PCO info
-    const pcoUserResponse = await fetch(
+    const pcoUserResponse = await fetchPCOWithRateLimitHandling(
       "https://api.planningcenteronline.com/people/v2/me",
       {
         headers: {
@@ -88,7 +121,7 @@ export async function GET(request: NextRequest) {
 
     const pcoUserData = await pcoUserResponse.json();
 
-    const pcoOrganizationResponse = await fetch(
+    const pcoOrganizationResponse = await fetchPCOWithRateLimitHandling(
       `https://api.planningcenteronline.com/people/v2/people/${pcoUserData.data.id}/organization`,
       {
         headers: {
@@ -214,7 +247,7 @@ export async function GET(request: NextRequest) {
 
     for (const event of webhookEvents) {
       // First create the webhook in PCO
-      const createWebhookResponse = await fetch(
+      const createWebhookResponse = await fetchPCOWithRateLimitHandling(
         "https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions",
         {
           method: "POST",
@@ -275,7 +308,7 @@ export async function GET(request: NextRequest) {
           webhookError,
         );
         // Delete the PCO webhook we just created
-        await fetch(
+        await fetchPCOWithRateLimitHandling(
           `https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions/${webhookData.data.id}`,
           {
             method: "DELETE",

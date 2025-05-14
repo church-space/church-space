@@ -5,6 +5,139 @@ import { createClient } from "@church-space/supabase/job";
 import crypto from "crypto";
 import { getCachedEmailAutomationsByPCOId } from "@church-space/supabase/queries/cached/automations";
 
+// Add PCOConnection interface
+interface PCOConnection {
+  id: number; // Assuming id is number, adjust if necessary based on your DB schema
+  access_token: string;
+  refresh_token: string;
+  pco_organization_id: string;
+  last_refreshed: string | null;
+}
+
+// Add fetchPCOWithRetry function
+const fetchPCOWithRetry = async (
+  url: string,
+  options: RequestInit,
+  supabaseClient: any,
+  orgId: string,
+  pcoConn: PCOConnection,
+  retryCount = 0,
+): Promise<Response> => {
+  options.headers = {
+    ...options.headers,
+    Authorization: `Bearer ${pcoConn.access_token}`,
+  };
+
+  let response = await fetch(url, options);
+
+  if (response.status === 401 && retryCount < 1) {
+    console.warn(
+      `PCO API returned 401 for ${url}. Attempting to refresh token.`,
+    );
+    try {
+      const refreshResponse = await fetch(
+        "https://api.planningcenteronline.com/oauth/token",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            grant_type: "refresh_token",
+            client_id: process.env.PCO_CLIENT_ID!,
+            client_secret: process.env.PCO_CLIENT_SECRET!,
+            refresh_token: pcoConn.refresh_token,
+          }).toString(),
+        },
+      );
+
+      if (!refreshResponse.ok) {
+        const errorData = await refreshResponse.json();
+        console.error("Failed to refresh PCO token.", {
+          status: refreshResponse.status,
+          errorData,
+        });
+        return response;
+      }
+
+      const tokenData = await refreshResponse.json();
+      console.log("Successfully refreshed PCO token.");
+
+      pcoConn.access_token = tokenData.access_token;
+      if (tokenData.refresh_token) {
+        pcoConn.refresh_token = tokenData.refresh_token;
+      }
+      pcoConn.last_refreshed = new Date().toISOString();
+
+      const { error: updateError } = await supabaseClient
+        .from("pco_connections")
+        .update({
+          access_token: pcoConn.access_token,
+          refresh_token: pcoConn.refresh_token,
+          last_refreshed: pcoConn.last_refreshed,
+        })
+        .eq("organization_id", orgId);
+
+      if (updateError) {
+        console.error("Failed to update PCO token in database.", {
+          error: updateError,
+        });
+      }
+
+      options.headers = {
+        ...options.headers,
+        Authorization: `Bearer ${pcoConn.access_token}`,
+      };
+      response = await fetch(url, options);
+    } catch (refreshError) {
+      console.error("Error during PCO token refresh process:", {
+        error:
+          refreshError instanceof Error
+            ? refreshError.message
+            : String(refreshError),
+      });
+      return response;
+    }
+  }
+
+  if (response.status === 429) {
+    const retryAfterHeader = response.headers.get("Retry-After");
+    console.warn("Rate limit hit for PCO API", {
+      url,
+      status: response.status,
+      retryAfter: retryAfterHeader || "N/A",
+    });
+
+    if (retryCount < 2) {
+      let waitSeconds = 20;
+      if (retryAfterHeader) {
+        const parsedRetryAfter = parseInt(retryAfterHeader, 10);
+        if (!isNaN(parsedRetryAfter) && parsedRetryAfter > 0) {
+          waitSeconds = parsedRetryAfter;
+        }
+      }
+      console.log(
+        `Rate limit: Retrying PCO API call to ${url} after ${waitSeconds} seconds (attempt ${retryCount + 2} of 3)...`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, waitSeconds * 1000));
+      return fetchPCOWithRetry(
+        url,
+        options,
+        supabaseClient,
+        orgId,
+        pcoConn,
+        retryCount + 1,
+      );
+    } else {
+      console.error(
+        `Max retries (3 total attempts) reached for PCO API call to ${url} after rate limiting.`,
+      );
+      return response;
+    }
+  }
+  return response;
+};
+
 // Helper function to wait for specified milliseconds
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -168,27 +301,32 @@ export async function POST(
 
           // If category doesn't exist, fetch all categories and sync them
           if (!existingCategory) {
-            const { data: pcoConnection, error: pcoError } = await supabase
+            const { data: pcoConnectionData, error: pcoError } = await supabase
               .from("pco_connections")
-              .select("*")
+              .select("*") // Select all fields needed for PCOConnection
               .eq("organization_id", organizationId)
               .single();
 
-            if (pcoError || !pcoConnection) {
+            if (pcoError || !pcoConnectionData) {
               console.error("No PCO connection found for org", organizationId);
               return NextResponse.json(
                 { received: false, error: "No PCO connection found" },
                 { status: 500 },
               );
             }
+            const pcoConnection: PCOConnection =
+              pcoConnectionData as PCOConnection;
 
-            const categoriesResponse = await fetch(
+            const categoriesResponse = await fetchPCOWithRetry(
               "https://api.planningcenteronline.com/people/v2/list_categories",
               {
                 headers: {
-                  Authorization: `Bearer ${pcoConnection.access_token}`,
+                  // Authorization is handled by fetchPCOWithRetry
                 },
               },
+              supabase,
+              organizationId,
+              pcoConnection,
             );
 
             if (!categoriesResponse.ok) {

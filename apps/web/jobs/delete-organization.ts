@@ -5,6 +5,142 @@ import { createClient } from "@church-space/supabase/job";
 import Stripe from "stripe";
 import { Resend } from "resend";
 
+// Add PCOConnection interface
+interface PCOConnection {
+  id: number;
+  access_token: string;
+  refresh_token: string;
+  pco_organization_id: string;
+  last_refreshed: string | null;
+}
+
+// Add fetchPCOWithRetry function (adapted from import-subscibes.ts)
+const fetchPCOWithRetry = async (
+  url: string,
+  options: RequestInit,
+  supabaseClient: any, // Using 'any' for simplicity, consider a more specific type
+  orgId: string,
+  pcoConn: PCOConnection,
+  io: any, // Added io parameter for Trigger.dev tasks
+  retryCount = 0,
+): Promise<Response> => {
+  options.headers = {
+    ...options.headers,
+    Authorization: `Bearer ${pcoConn.access_token}`,
+  };
+
+  let response = await fetch(url, options);
+
+  if (response.status === 401 && retryCount < 1) {
+    console.warn(
+      `PCO API returned 401 for ${url}. Attempting to refresh token.`,
+    );
+    try {
+      const refreshResponse = await fetch(
+        "https://api.planningcenteronline.com/oauth/token",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            grant_type: "refresh_token",
+            client_id: process.env.PCO_CLIENT_ID!,
+            client_secret: process.env.PCO_CLIENT_SECRET!,
+            refresh_token: pcoConn.refresh_token,
+          }).toString(),
+        },
+      );
+
+      if (!refreshResponse.ok) {
+        const errorData = await refreshResponse.json();
+        console.error("Failed to refresh PCO token.", {
+          status: refreshResponse.status,
+          errorData,
+        });
+        return response;
+      }
+
+      const tokenData = await refreshResponse.json();
+      console.log("Successfully refreshed PCO token.");
+
+      pcoConn.access_token = tokenData.access_token;
+      if (tokenData.refresh_token) {
+        pcoConn.refresh_token = tokenData.refresh_token;
+      }
+      pcoConn.last_refreshed = new Date().toISOString();
+
+      const { error: updateError } = await supabaseClient
+        .from("pco_connections")
+        .update({
+          access_token: pcoConn.access_token,
+          refresh_token: pcoConn.refresh_token,
+          last_refreshed: pcoConn.last_refreshed,
+        })
+        .eq("organization_id", orgId);
+
+      if (updateError) {
+        console.error("Failed to update PCO token in database.", {
+          error: updateError,
+        });
+      }
+
+      options.headers = {
+        ...options.headers,
+        Authorization: `Bearer ${pcoConn.access_token}`,
+      };
+      response = await fetch(url, options);
+    } catch (refreshError) {
+      console.error("Error during PCO token refresh process:", {
+        error:
+          refreshError instanceof Error
+            ? refreshError.message
+            : String(refreshError),
+      });
+      return response;
+    }
+  }
+
+  if (response.status === 429) {
+    const retryAfterHeader = response.headers.get("Retry-After");
+    console.warn("Rate limit hit for PCO API", {
+      url,
+      status: response.status,
+      retryAfter: retryAfterHeader || "N/A",
+    });
+
+    if (retryCount < 2) {
+      let waitSeconds = 20;
+      if (retryAfterHeader) {
+        const parsedRetryAfter = parseInt(retryAfterHeader, 10);
+        if (!isNaN(parsedRetryAfter) && parsedRetryAfter > 0) {
+          waitSeconds = parsedRetryAfter;
+        }
+      }
+      console.log(
+        `Rate limit: Retrying PCO API call to ${url} after ${waitSeconds} seconds (attempt ${retryCount + 2} of 3)...`,
+      );
+      // Use io.wait.for in Trigger.dev tasks
+      await io.wait.for({ seconds: waitSeconds });
+      return fetchPCOWithRetry(
+        url,
+        options,
+        supabaseClient,
+        orgId,
+        pcoConn,
+        io, // Pass io recursively
+        retryCount + 1,
+      );
+    } else {
+      console.error(
+        `Max retries (3 total attempts) reached for PCO API call to ${url} after rate limiting.`,
+      );
+      return response;
+    }
+  }
+  return response;
+};
+
 // Initialize Stripe
 const stripeSecretKey =
   process.env.NEXT_PUBLIC_STRIPE_ENV === "live"
@@ -144,71 +280,36 @@ export const deleteOrganization = task({
     }
 
     // Step 4: Handle PCO webhooks deletion
-    const { data: pcoConnection, error: pcoError } = await supabase
+    const { data: pcoConnectionData, error: pcoError } = await supabase
       .from("pco_connections")
-      .select("access_token, refresh_token, last_refreshed")
+      .select(
+        "id, access_token, refresh_token, last_refreshed, pco_organization_id",
+      ) // Ensure all needed fields are selected
       .eq("organization_id", payload.organization_id)
       .single();
 
     if (pcoError && pcoError.code !== "PGRST116") {
       console.error("Error fetching PCO connection:", pcoError);
-    } else if (pcoConnection) {
-      // Check if token needs refreshing
-      let accessToken = pcoConnection.access_token;
-      const lastRefreshed = new Date(pcoConnection.last_refreshed);
-      const now = new Date();
-      const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
-
-      if (lastRefreshed < twoHoursAgo) {
-        // Token needs refresh
-        try {
-          const response = await fetch(
-            "https://api.planningcenteronline.com/oauth/token",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              body: new URLSearchParams({
-                grant_type: "refresh_token",
-                client_id: process.env.PCO_CLIENT_ID!,
-                client_secret: process.env.PCO_CLIENT_SECRET!,
-                refresh_token: pcoConnection.refresh_token,
-              }).toString(),
-            },
-          );
-
-          const tokenData = await response.json();
-
-          if (tokenData.access_token) {
-            accessToken = tokenData.access_token;
-
-            // Update the token in the database
-            await supabase
-              .from("pco_connections")
-              .update({
-                access_token: tokenData.access_token,
-                refresh_token:
-                  tokenData.refresh_token || pcoConnection.refresh_token,
-                last_refreshed: new Date().toISOString(),
-              })
-              .eq("organization_id", payload.organization_id);
-          }
-        } catch (error) {
-          console.error("Error refreshing PCO token:", error);
-        }
-      }
+    } else if (pcoConnectionData) {
+      const pcoConnection: PCOConnection = pcoConnectionData as PCOConnection;
+      // The token refresh logic is now part of fetchPCOWithRetry,
+      // so direct refresh here is not strictly needed but kept for explicitness if direct accessToken use occurs.
+      // However, for calls through fetchPCOWithRetry, it will handle refresh automatically.
 
       // Get existing webhooks from PCO
       try {
-        const webhooksResponse = await fetch(
+        const webhooksResponse = await fetchPCOWithRetry(
           "https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions",
           {
             headers: {
-              Authorization: `Bearer ${accessToken}`,
               "X-PCO-API-Version": "2022-10-20",
+              // Authorization handled by fetchPCOWithRetry
             },
           },
+          supabase,
+          payload.organization_id,
+          pcoConnection,
+          io,
         );
 
         const webhooksData = await webhooksResponse.json();
@@ -220,15 +321,19 @@ export const deleteOrganization = task({
               "https://churchspace.co/api/pco/webhook/",
             )
           ) {
-            await fetch(
+            await fetchPCOWithRetry(
               `https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions/${webhook.id}`,
               {
                 method: "DELETE",
                 headers: {
-                  Authorization: `Bearer ${accessToken}`,
                   "X-PCO-API-Version": "2022-10-20",
+                  // Authorization handled by fetchPCOWithRetry
                 },
               },
+              supabase,
+              payload.organization_id,
+              pcoConnection,
+              io,
             );
           }
         }
