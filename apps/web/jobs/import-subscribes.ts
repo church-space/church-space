@@ -5,6 +5,14 @@ import { createClient } from "@church-space/supabase/job";
 import Papa from "papaparse";
 import { z } from "zod";
 
+// Define a type for the PCO connection object to make it easier to pass around and modify
+interface PCOConnection {
+  access_token: string;
+  refresh_token: string;
+  pco_organization_id: string;
+  last_refreshed: string | null; // Assuming last_refreshed can be null or string
+}
+
 const importSubscibesPayload = z.object({
   organizationId: z.string().uuid(),
   fileUrl: z.string().url(),
@@ -79,9 +87,100 @@ export const importSubscibes = task({
     const fetchPCOWithRetry = async (
       url: string,
       options: RequestInit,
+      supabaseClient: typeof supabase, // Add supabase client
+      orgId: string, // Add organizationId
+      pcoConn: PCOConnection, // Add pcoConnection object
       retryCount = 0,
     ): Promise<Response> => {
-      const response = await fetch(url, options);
+      // Ensure Authorization header is set with the current access token
+      options.headers = {
+        ...options.headers,
+        Authorization: `Bearer ${pcoConn.access_token}`,
+      };
+
+      let response = await fetch(url, options);
+
+      if (response.status === 401 && retryCount < 1) {
+        // Try refreshing token once on 401
+        console.warn(
+          `PCO API returned 401 for ${url}. Attempting to refresh token.`,
+        );
+        try {
+          const refreshResponse = await fetch(
+            "https://api.planningcenteronline.com/oauth/token",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: new URLSearchParams({
+                grant_type: "refresh_token",
+                client_id: process.env.PCO_CLIENT_ID!,
+                client_secret: process.env.PCO_CLIENT_SECRET!,
+                refresh_token: pcoConn.refresh_token,
+              }).toString(),
+            },
+          );
+
+          if (!refreshResponse.ok) {
+            const errorData = await refreshResponse.json();
+            console.error("Failed to refresh PCO token.", {
+              status: refreshResponse.status,
+              errorData,
+            });
+            // Don't retry if token refresh fails, return the original 401 response
+            return response;
+          }
+
+          const tokenData = await refreshResponse.json();
+          console.log("Successfully refreshed PCO token.");
+
+          pcoConn.access_token = tokenData.access_token;
+          // Update refresh token only if a new one is provided
+          if (tokenData.refresh_token) {
+            pcoConn.refresh_token = tokenData.refresh_token;
+          }
+          pcoConn.last_refreshed = new Date().toISOString();
+
+          // Update the token in the database
+          const { error: updateError } = await supabaseClient
+            .from("pco_connections")
+            .update({
+              access_token: pcoConn.access_token,
+              refresh_token: pcoConn.refresh_token,
+              last_refreshed: pcoConn.last_refreshed,
+            })
+            .eq("organization_id", orgId);
+
+          if (updateError) {
+            console.error("Failed to update PCO token in database.", {
+              error: updateError,
+            });
+            // Proceed with the new token anyway, but log the DB update failure
+          }
+
+          // Retry the original request with the new token
+          console.log(
+            `Retrying PCO API call to ${url} with new token (attempt ${retryCount + 2}).`,
+          );
+          // Update options with the new token for the retry
+          options.headers = {
+            ...options.headers,
+            Authorization: `Bearer ${pcoConn.access_token}`,
+          };
+          response = await fetch(url, options); // Re-assign response here
+          // If it's still 401 after refresh, or another error, it will be handled below or returned.
+        } catch (refreshError) {
+          console.error("Error during PCO token refresh process:", {
+            error:
+              refreshError instanceof Error
+                ? refreshError.message
+                : String(refreshError),
+          });
+          // Return the original 401 response if refresh attempt fails
+          return response;
+        }
+      }
 
       if (response.status === 429) {
         const rateLimit = response.headers.get("X-PCO-API-Request-Rate-Limit");
@@ -113,7 +212,14 @@ export const importSubscibes = task({
             `Rate limit: Retrying PCO API call to ${url} after ${waitSeconds} seconds (attempt ${retryCount + 2} of 3)...`,
           );
           await wait.for({ seconds: waitSeconds });
-          return fetchPCOWithRetry(url, options, retryCount + 1);
+          return fetchPCOWithRetry(
+            url,
+            options,
+            supabaseClient,
+            orgId,
+            pcoConn,
+            retryCount + 1,
+          ); // Pass new params
         } else {
           console.error(
             `Max retries (3 total attempts) reached for PCO API call to ${url} after rate limiting. Will not retry further.`,
@@ -306,7 +412,9 @@ export const importSubscibes = task({
     // Get PCO connection for the organization
     const { data: pcoConnection, error: pcoConnectionError } = await supabase
       .from("pco_connections")
-      .select("access_token, pco_organization_id")
+      .select(
+        "access_token, refresh_token, pco_organization_id, last_refreshed",
+      ) // Ensure last_refreshed is fetched
       .eq("organization_id", organizationId)
       .single();
 
@@ -322,10 +430,12 @@ export const importSubscibes = task({
       `https://api.planningcenteronline.com/people/v2/tabs?include=field_definitions`,
       {
         headers: {
-          Authorization: `Bearer ${pcoConnection.access_token}`,
           "X-PCO-API-Version": "2024-09-12",
         },
       },
+      supabase,
+      organizationId,
+      pcoConnection, // Pass new params
     );
 
     if (!tabsResponse.ok) {
@@ -391,7 +501,6 @@ export const importSubscibes = task({
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${pcoConnection.access_token}`,
             "Content-Type": "application/json",
             "X-PCO-API-Version": "2024-09-12",
           },
@@ -404,6 +513,9 @@ export const importSubscibes = task({
             },
           }),
         },
+        supabase,
+        organizationId,
+        pcoConnection, // Pass new params
       );
 
       if (!pcoResponse.ok) {
@@ -435,7 +547,6 @@ export const importSubscibes = task({
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${pcoConnection.access_token}`,
             "Content-Type": "application/json",
             "X-PCO-API-Version": "2024-09-12",
           },
@@ -449,6 +560,9 @@ export const importSubscibes = task({
             },
           }),
         },
+        supabase,
+        organizationId,
+        pcoConnection, // Pass new params
       );
 
       if (!booleanFieldResponse.ok) {
@@ -489,7 +603,6 @@ export const importSubscibes = task({
           {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${pcoConnection.access_token}`,
               "Content-Type": "application/json",
               "X-PCO-API-Version": "2024-09-12",
             },
@@ -507,6 +620,9 @@ export const importSubscibes = task({
               },
             }),
           },
+          supabase,
+          organizationId,
+          pcoConnection, // Pass new params
         );
 
         if (!tagsFieldResponse.ok) {
@@ -548,7 +664,6 @@ export const importSubscibes = task({
             {
               method: "POST",
               headers: {
-                Authorization: `Bearer ${pcoConnection.access_token}`,
                 "Content-Type": "application/json",
                 "X-PCO-API-Version": "2024-09-12",
               },
@@ -561,6 +676,9 @@ export const importSubscibes = task({
                 },
               }),
             },
+            supabase,
+            organizationId,
+            pcoConnection, // Pass new params
           );
 
           if (!fieldOptionResponse.ok) {
@@ -606,7 +724,6 @@ export const importSubscibes = task({
           {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${pcoConnection.access_token}`,
               "Content-Type": "application/json",
               "X-PCO-API-Version": "2024-09-12",
             },
@@ -627,6 +744,9 @@ export const importSubscibes = task({
               },
             }),
           },
+          supabase,
+          organizationId,
+          pcoConnection, // Pass new params
         );
 
         if (!fieldDatumResponse.ok) {
@@ -658,7 +778,6 @@ export const importSubscibes = task({
                 {
                   method: "POST",
                   headers: {
-                    Authorization: `Bearer ${pcoConnection.access_token}`,
                     "Content-Type": "application/json",
                     "X-PCO-API-Version": "2024-09-12",
                   },
@@ -679,6 +798,9 @@ export const importSubscibes = task({
                     },
                   }),
                 },
+                supabase,
+                organizationId,
+                pcoConnection, // Pass new params
               );
 
               if (!updateTagResponse.ok) {
@@ -733,7 +855,6 @@ export const importSubscibes = task({
           {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${pcoConnection.access_token}`,
               "Content-Type": "application/json",
               "X-PCO-API-Version": "2024-09-12",
             },
@@ -747,6 +868,9 @@ export const importSubscibes = task({
               },
             }),
           },
+          supabase,
+          organizationId,
+          pcoConnection, // Pass new params
         );
 
         if (!createPersonResponse.ok) {
@@ -773,7 +897,6 @@ export const importSubscibes = task({
           {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${pcoConnection.access_token}`,
               "Content-Type": "application/json",
               "X-PCO-API-Version": "2024-09-12",
             },
@@ -788,6 +911,9 @@ export const importSubscibes = task({
               },
             }),
           },
+          supabase,
+          organizationId,
+          pcoConnection, // Pass new params
         );
 
         if (!addEmailResponse.ok) {
@@ -813,7 +939,6 @@ export const importSubscibes = task({
             {
               method: "POST",
               headers: {
-                Authorization: `Bearer ${pcoConnection.access_token}`,
                 "Content-Type": "application/json",
                 "X-PCO-API-Version": "2024-09-12",
               },
@@ -834,6 +959,9 @@ export const importSubscibes = task({
                 },
               }),
             },
+            supabase,
+            organizationId,
+            pcoConnection, // Pass new params
           );
 
           if (!fieldDatumResponse.ok) {
@@ -876,7 +1004,6 @@ export const importSubscibes = task({
                 {
                   method: "POST",
                   headers: {
-                    Authorization: `Bearer ${pcoConnection.access_token}`,
                     "Content-Type": "application/json",
                     "X-PCO-API-Version": "2024-09-12",
                   },
@@ -897,6 +1024,9 @@ export const importSubscibes = task({
                     },
                   }),
                 },
+                supabase,
+                organizationId,
+                pcoConnection, // Pass new params
               );
 
               if (!setTagResponse.ok) {
