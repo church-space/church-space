@@ -29,10 +29,10 @@
           {
             "group": "Your Account",
             "pages": [
-              "your-account/sign-in-methods",
-              "your-account/update-email",
-              "your-account/details-and-preferences",
-              "your-account/delete-account"
+              "account/sign-in-methods",
+              "account/update-email",
+              "account/details-and-preferences",
+              "account/delete"
             ]
           },
           {
