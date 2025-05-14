@@ -12,12 +12,9 @@
   "navigation": {
     "groups": [
       {
-        "group": "Home",
-        "pages": ["home"]
-      },
-      {
         "group": "Getting Started",
         "pages": [
+          "home",
           "getting-started",
           "integrations/pco-integration",
           {
