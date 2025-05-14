@@ -16,7 +16,7 @@
         "pages": [
           "home",
           "getting-started",
-          "integrations/pco-integration",
+          "integrations/pco",
           {
             "group": "Switch to Church Space",
             "pages": ["switch/from-mailchimp"]

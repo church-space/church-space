@@ -225,7 +225,9 @@ export default function Homepage() {
             </p>
           </div>
           <div className="flex w-full max-w-4xl flex-col gap-2 sm:mx-auto">
-            <h3 className="text-xl font-bold">3. Keep it affordable</h3>
+            <h3 className="text-xl font-bold">
+              3. Affordable and fairly priced
+            </h3>
             <p className="text-pretty text-left text-lg">
               With other mailing apps, we were paying for contacts that
               weren&apos;t active and we were paying for product sales features
