@@ -32,6 +32,14 @@ const formSchema = z.object({
     .refine(
       (val) => {
         try {
+          // If it's a mailto link or email address, validate differently
+          if (
+            val.startsWith("mailto:") ||
+            (val.includes("@") && !val.includes(" "))
+          ) {
+            return true;
+          }
+
           const urlToTest =
             !val.startsWith("http://") && !val.startsWith("https://")
               ? `https://${val}`
@@ -39,17 +47,16 @@ const formSchema = z.object({
           const parsedUrl = new URL(urlToTest);
           const hostname = parsedUrl.hostname;
 
-          if (!hostname) return false; // Hostname is essential
+          if (!hostname) return false;
 
           // Allow localhost and common IP address formats
           const ipv4Regex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-          // Very basic check for IPv6, relying mostly on URL parser's leniency
           const ipv6Regex = /^[a-fA-F0-9:]+$/;
 
           if (
             hostname === "localhost" ||
             ipv4Regex.test(hostname) ||
-            (hostname.includes(":") && ipv6Regex.test(hostname)) // Simple check if contains ':'
+            (hostname.includes(":") && ipv6Regex.test(hostname))
           ) {
             return true;
           }
@@ -59,14 +66,13 @@ const formSchema = z.object({
             return false;
           }
 
-          return true; // Parsed, has hostname, and meets criteria
+          return true;
         } catch {
-          return false; // Didn't parse as a URL
+          return false;
         }
       },
       {
-        message:
-          "Must be a valid URL (e.g., example.com or https://example.com)",
+        message: "Must be a valid URL (e.g., example.com) or email address",
       },
     ),
 });
@@ -96,9 +102,29 @@ export default function NewQRCode({
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
+      // Format the URL before saving
+      let formattedUrl = values.url;
+
+      // Handle email addresses and mailto links
+      if (
+        formattedUrl.includes("@") &&
+        !formattedUrl.includes(" ") &&
+        !formattedUrl.startsWith("mailto:")
+      ) {
+        formattedUrl = `mailto:${formattedUrl}`;
+      }
+      // Handle regular URLs
+      else if (
+        !formattedUrl.startsWith("mailto:") &&
+        !formattedUrl.startsWith("http://") &&
+        !formattedUrl.startsWith("https://")
+      ) {
+        formattedUrl = `https://${formattedUrl}`;
+      }
+
       const result = await createQRLinkAction({
         name: values.subject,
-        url: values.url,
+        url: formattedUrl,
         organization_id: organizationId,
       });
 
@@ -117,8 +143,6 @@ export default function NewQRCode({
       }
     } catch (error) {
       console.error("Failed to create QR code:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -167,10 +191,10 @@ export default function NewQRCode({
           name="url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="ml-1">URL</FormLabel>
+              <FormLabel className="ml-1">URL or Email Address</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter URL..."
+                  placeholder="Enter URL or email address..."
                   {...field}
                   type="text"
                   maxLength={500}

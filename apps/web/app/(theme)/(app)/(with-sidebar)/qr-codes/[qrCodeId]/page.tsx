@@ -169,6 +169,14 @@ const linkSchema = z.object({
     .refine(
       (val) => {
         try {
+          // If it's a mailto link or email address, validate differently
+          if (
+            val.startsWith("mailto:") ||
+            (val.includes("@") && !val.includes(" "))
+          ) {
+            return true;
+          }
+
           const urlToTest =
             !val.startsWith("http://") && !val.startsWith("https://")
               ? `https://${val}`
@@ -176,17 +184,16 @@ const linkSchema = z.object({
           const parsedUrl = new URL(urlToTest);
           const hostname = parsedUrl.hostname;
 
-          if (!hostname) return false; // Hostname is essential
+          if (!hostname) return false;
 
           // Allow localhost and common IP address formats
           const ipv4Regex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-          // Very basic check for IPv6, relying mostly on URL parser's leniency
           const ipv6Regex = /^[a-fA-F0-9:]+$/;
 
           if (
             hostname === "localhost" ||
             ipv4Regex.test(hostname) ||
-            (hostname.includes(":") && ipv6Regex.test(hostname)) // Simple check if contains ':'
+            (hostname.includes(":") && ipv6Regex.test(hostname))
           ) {
             return true;
           }
@@ -196,14 +203,13 @@ const linkSchema = z.object({
             return false;
           }
 
-          return true; // Parsed, has hostname, and meets criteria
+          return true;
         } catch {
-          return false; // Didn't parse as a URL
+          return false;
         }
       },
       {
-        message:
-          "Must be a valid URL (e.g., example.com or https://example.com)",
+        message: "Must be a valid URL (e.g., example.com) or email address",
       },
     ),
 });
@@ -728,13 +734,33 @@ export default function Page() {
         return;
       }
 
+      // Format the URL before saving
+      let formattedUrl = editedLinkUrl;
+
+      // Handle email addresses and mailto links
+      if (
+        formattedUrl.includes("@") &&
+        !formattedUrl.includes(" ") &&
+        !formattedUrl.startsWith("mailto:")
+      ) {
+        formattedUrl = `mailto:${formattedUrl}`;
+      }
+      // Handle regular URLs
+      else if (
+        !formattedUrl.startsWith("mailto:") &&
+        !formattedUrl.startsWith("http://") &&
+        !formattedUrl.startsWith("https://")
+      ) {
+        formattedUrl = `https://${formattedUrl}`;
+      }
+
       // First update the link details
       const { error: linkError } = await updateQRLink(
         supabase,
         {
           id: qrLinkId,
           name: editedLinkName,
-          url: editedLinkUrl,
+          url: formattedUrl,
         },
         qrLinkId,
       );
@@ -765,7 +791,7 @@ export default function Page() {
       setLinkData((prev) => ({
         ...prev,
         name: editedLinkName,
-        url: editedLinkUrl,
+        url: formattedUrl,
       }));
 
       // Invalidate and refetch both queries
@@ -1252,13 +1278,13 @@ export default function Page() {
                   </div>
                   <div>
                     <Label htmlFor="edit-link-url" className="mb-2 block">
-                      Destination URL
+                      Destination URL or Email Address
                     </Label>
                     <Input
                       id="edit-link-url"
                       value={editedLinkUrl}
                       onChange={(e) => setEditedLinkUrl(e.target.value)}
-                      placeholder="Enter the destination URL"
+                      placeholder="Enter the destination URL or email address"
                       className={linkErrors.url ? "border-destructive" : ""}
                       maxLength={500}
                     />
