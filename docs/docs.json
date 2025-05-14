@@ -39,9 +39,8 @@
             "group": "Organization",
             "pages": [
               "organization/update-organization-details",
-              "organization/manage-domains",
               "organization/manage-and-invite-members",
-              "organization/brand-colors",
+              "organization/branding",
               "organization/assets-and-storage",
               "organization/delete-organization"
             ]
@@ -55,7 +54,8 @@
               "billing/cancelling-your-subscription",
               "billing/refunds"
             ]
-          }
+          },
+          "domains"
         ]
       },
       {
