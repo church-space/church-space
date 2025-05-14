@@ -84,7 +84,7 @@ export default function LoadingPage() {
               <div className="flex flex-col gap-2 pb-4 sm:flex-row sm:overflow-x-auto sm:pe-16">
                 <div className="flex items-center gap-2">
                   <div className="w-full sm:h-16 sm:w-28">
-                    <div className="flex h-full w-full flex-shrink-0 items-center gap-2 truncate rounded-md border bg-muted p-2 py-1.5 text-sm text-muted-foreground sm:flex-col sm:justify-between">
+                    <div className="flex h-full w-full flex-shrink-0 items-center gap-2 truncate rounded-md border border-muted-foreground bg-muted p-2 py-1.5 text-sm text-muted-foreground sm:flex-col sm:justify-between">
                       <span className="flex-shrink-0">
                         <Email height={"24"} width={"24"} />
                       </span>
@@ -95,7 +95,7 @@ export default function LoadingPage() {
                     →
                   </div>
                   <div className="w-full sm:h-16 sm:w-28">
-                    <div className="flex h-full w-full flex-shrink-0 items-center gap-2 rounded-md border bg-muted p-2 py-1.5 text-sm text-muted-foreground sm:flex-col sm:justify-between">
+                    <div className="flex h-full w-full flex-shrink-0 items-center gap-2 rounded-md border border-muted-foreground bg-muted p-2 py-1.5 text-sm text-muted-foreground sm:flex-col sm:justify-between">
                       <span className="flex-shrink-0">
                         <HourglassClock height={"24"} width={"24"} />
                       </span>
@@ -107,7 +107,7 @@ export default function LoadingPage() {
                     →
                   </div>
                   <div className="w-full sm:h-16 sm:w-28">
-                    <div className="flex h-full w-full flex-shrink-0 items-center gap-2 truncate rounded-md border bg-muted p-2 py-1.5 text-sm text-muted-foreground sm:flex-col sm:justify-between">
+                    <div className="flex h-full w-full flex-shrink-0 items-center gap-2 truncate rounded-md border border-muted-foreground bg-muted p-2 py-1.5 text-sm text-muted-foreground sm:flex-col sm:justify-between">
                       <span className="flex-shrink-0">
                         <Email height={"24"} width={"24"} />
                       </span>

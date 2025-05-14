@@ -888,6 +888,16 @@ export default function Page() {
                       )}
                     </div>
                   ))}
+                  {transformedAutomation.steps.length === 0 && (
+                    <div className="flex w-full items-center gap-2 sm:h-16 sm:w-28">
+                      <div className="flex h-full w-full flex-shrink-0 items-center gap-2 rounded-md border border-gray-500 bg-gray-500/30 p-2 py-1.5 text-sm text-gray-900 dark:bg-gray-500/10 dark:text-gray-500 sm:flex-col sm:justify-between">
+                        <span className="flex-shrink-0">
+                          <Email height={"24"} width={"24"} />
+                        </span>
+                        <span className="truncate">No steps</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="absolute right-0 top-0 hidden h-full w-20 bg-gradient-to-l from-accent via-accent/80 to-transparent sm:block" />
               </div>

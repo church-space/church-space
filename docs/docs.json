@@ -59,7 +59,7 @@
         ]
       },
       {
-        "group": "Church Space",
+        "group": "Features",
         "pages": [
           {
             "group": "Emails",
@@ -94,6 +94,10 @@
             ]
           }
         ]
+      },
+      {
+        "group": "Church Space",
+        "pages": ["change-log"]
       }
     ]
   },
