@@ -166,18 +166,37 @@ export const columns: ColumnDef<Email>[] = [
       const sent = metrics?.total_sent || 0;
       const opens = metrics?.total_opens || 0;
       const clicks = metrics?.total_clicks || 0;
+      const percentageOpens = sent > 0 ? (opens / sent) * 100 : 0;
+      const percentageClicks = sent > 0 ? (clicks / sent) * 100 : 0;
 
       if (sent === 0) {
         return null;
       }
 
       return (
-        <div className="flex min-w-64 flex-col gap-1">
-          <div>
-            <span className="font-semibold">{formatNumber(opens)}</span> Opens
+        <div className="group">
+          <div className="hidden min-w-64 flex-col gap-1 group-hover:flex">
+            <div>
+              <span className="font-semibold">{formatNumber(opens)}</span> Opens
+            </div>
+            <div>
+              <span className="font-semibold">{formatNumber(clicks)}</span>{" "}
+              Clicks
+            </div>
           </div>
-          <div>
-            <span className="font-semibold">{formatNumber(clicks)}</span> Clicks
+          <div className="flex min-w-64 flex-col gap-1 group-hover:hidden">
+            <div>
+              <span className="font-semibold">
+                {percentageOpens.toFixed(2)}%
+              </span>{" "}
+              Opened
+            </div>
+            <div>
+              <span className="font-semibold">
+                {percentageClicks.toFixed(2)}%
+              </span>{" "}
+              Clicked
+            </div>
           </div>
         </div>
       );
