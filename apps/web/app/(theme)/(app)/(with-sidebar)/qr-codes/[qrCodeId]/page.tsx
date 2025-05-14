@@ -1269,6 +1269,12 @@ export default function Page() {
                       placeholder="Enter a name for this link"
                       className={linkErrors.name ? "border-destructive" : ""}
                       maxLength={80}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          saveEditedLink();
+                        }
+                      }}
                     />
                     {linkErrors.name && (
                       <p className="mt-1 text-sm text-destructive">
@@ -1287,6 +1293,12 @@ export default function Page() {
                       placeholder="Enter the destination URL or email address"
                       className={linkErrors.url ? "border-destructive" : ""}
                       maxLength={500}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          saveEditedLink();
+                        }
+                      }}
                     />
                     {linkErrors.url && (
                       <p className="mt-1 text-sm text-destructive">
