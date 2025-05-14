@@ -45,10 +45,35 @@ export default function Page() {
 
   // Update emailState when email data changes
   useEffect(() => {
-    if (email?.data) {
+    if (!email?.data) return; // No data to process
+
+    if (emailState && emailState.id === email.data.id) {
+      // We have existing local state and new data for the same email
+      // Check if the local state is optimistically 'sending' or 'scheduled'
+      // and if the fetched data status represents a "regression" (e.g., back to 'draft' or 'failed')
+      if (
+        (emailState.status === "sending" ||
+          emailState.status === "scheduled") &&
+        (email.data.status === "draft" || email.data.status === "failed")
+      ) {
+        // Optimistic state is "in progress", and fetched data's status is "older".
+        // We should keep the optimistic status and merge other fields from the fresh fetch.
+        setEmailState((prevState: any) => ({
+          ...email.data, // Apply all fields from the newly fetched data
+          status: prevState.status, // Crucially, override status with the optimistic one
+        }));
+      } else {
+        // Fetched data is not a regression, or no optimistic state was in progress,
+        // or fetched data matches/progresses the optimistic state (e.g., sending -> sent).
+        // So, update emailState fully from the fetched data.
+        setEmailState(email.data);
+      }
+    } else {
+      // Initial load (emailState is null) or data for a different email ID.
+      // Set emailState directly from fetched data.
       setEmailState(email.data);
     }
-  }, [email?.data]);
+  }, [email?.data, emailState]); // emailState is a dependency because it's read in the effect
 
   if (isLoading) {
     return <LoadingPage />;
@@ -95,13 +120,10 @@ export default function Page() {
             newStatus: "sending" | "scheduled",
             updatedEmail?: any,
           ) => {
-            // Merge the updated email with the current email to ensure all fields are preserved
-            const updatedState = {
-              ...currentEmail,
-              ...updatedEmail,
-              status: newStatus,
-            };
-            setEmailState(updatedState);
+            // The updatedEmail object from PreSendPage already contains the new status
+            // and is based on the email data PreSendPage was working with.
+            // This will set emailState to the optimistic new state.
+            setEmailState(updatedEmail);
           }}
           orgFooterDetails={orgFooterDetails}
         />
