@@ -712,7 +712,7 @@ export default function Page() {
       </header>
 
       <div className="mx-auto w-full flex-1 px-4 py-10 md:px-12">
-        <div className="flex flex-col space-y-10">
+        <div className="mx-auto flex max-w-6xl flex-col space-y-10">
           {/* Link Information Section */}
           <div className="flex w-full justify-between gap-4 border-b pb-4">
             {isEditingLink ? (
@@ -800,7 +800,13 @@ export default function Page() {
                     {transformedAutomation.description}
                   </p>
                 </div>
-
+              </div>
+            )}
+          </div>
+          <div className="flex w-full flex-col space-y-10">
+            <div className="flex flex-col gap-4 rounded-lg border bg-gradient-to-r from-accent/80 to-accent p-4 shadow-sm md:p-6 md:pb-2 md:pt-4">
+              <div className="flex items-center justify-between">
+                <div className="text-lg font-bold">Steps</div>
                 <Sheet
                   open={isSheetOpen}
                   onOpenChange={(open) => {
@@ -816,7 +822,7 @@ export default function Page() {
                 >
                   <>
                     <SheetTrigger asChild>
-                      <Button onClick={() => setIsSheetOpen(true)}>
+                      <Button size={"sm"} onClick={() => setIsSheetOpen(true)}>
                         Edit Steps
                       </Button>
                     </SheetTrigger>
@@ -839,41 +845,51 @@ export default function Page() {
                   </>
                 </Sheet>
               </div>
-            )}
-          </div>
-          <div className="flex w-full flex-col md:flex-row-reverse md:gap-4">
-            <div
-              className="flex cursor-pointer flex-col gap-4 rounded-lg border bg-accent p-4 shadow-sm md:max-w-sm md:p-6 md:pt-4"
-              onClick={() => setIsSheetOpen(true)}
-            >
-              <div className="text-lg font-bold">Steps</div>
-              <div className="flex flex-col gap-2">
-                {transformedAutomation.steps.map((step) => (
-                  <div key={step.id} className="w-full">
-                    {step.type === "wait" ? (
-                      <div className="flex w-full items-center gap-2 rounded-md border border-yellow-500 bg-yellow-500/30 p-2 py-1.5 text-sm text-yellow-900 dark:bg-yellow-500/10 dark:text-yellow-500">
-                        <span className="flex-shrink-0">
-                          <HourglassClock height={"18"} width={"18"} />
-                        </span>
-                        <span>
-                          Wait {step.values.value}{" "}
-                          {step.values.value === 1
-                            ? step.values.unit.slice(0, -1)
-                            : step.values.unit}
-                        </span>
+              <div
+                className="relative w-full cursor-pointer"
+                onClick={() => setIsSheetOpen(true)}
+              >
+                <div className="flex flex-col gap-2 pb-4 sm:flex-row sm:overflow-x-auto sm:pe-16">
+                  {transformedAutomation.steps.map((step, index) => (
+                    <div className="flex items-center gap-2" key={step.id}>
+                      <div className="w-full sm:h-16 sm:w-28">
+                        {step.type === "wait" ? (
+                          <div className="flex h-full w-full flex-shrink-0 items-center gap-2 rounded-md border border-yellow-500 bg-yellow-500/30 p-2 py-1.5 text-sm text-yellow-900 dark:bg-yellow-500/10 dark:text-yellow-500 sm:flex-col sm:justify-between">
+                            <span className="flex-shrink-0">
+                              <HourglassClock height={"24"} width={"24"} />
+                            </span>
+                            <span className="truncate">
+                              Wait {step.values.value}{" "}
+                              {step.values.value === 1
+                                ? step.values.unit.slice(0, -1)
+                                : step.values.unit}
+                            </span>
+                          </div>
+                        ) : (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex h-full w-full flex-shrink-0 items-center gap-2 truncate rounded-md border border-green-500 bg-green-500/30 p-2 py-1.5 text-sm text-green-900 dark:bg-green-500/10 dark:text-green-500 sm:flex-col sm:justify-between">
+                                <span className="flex-shrink-0">
+                                  <Email height={"24"} width={"24"} />
+                                </span>
+                                <span className="truncate">Send Email</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent className="border border-green-500 bg-green-500/30 text-green-900 dark:bg-green-500/10 dark:text-green-500">
+                              <p>{step.values?.subject || ""}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
                       </div>
-                    ) : (
-                      <div className="flex w-full items-center gap-2 truncate rounded-md border border-green-500 bg-green-500/30 p-2 py-1.5 text-sm text-green-900 dark:bg-green-500/10 dark:text-green-500">
-                        <span className="flex-shrink-0">
-                          <Email height={"18"} width={"18"} />
-                        </span>
-                        <span className="truncate">
-                          Send Email &quot;{step.values?.subject || ""}&quot;
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      {index !== transformedAutomation.steps.length - 1 && (
+                        <div className="hidden text-xs text-muted-foreground sm:block">
+                          →
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute right-0 top-0 hidden h-full w-20 bg-gradient-to-l from-accent via-accent/80 to-transparent sm:block" />
               </div>
             </div>
             <div className="flex w-full flex-col gap-4">

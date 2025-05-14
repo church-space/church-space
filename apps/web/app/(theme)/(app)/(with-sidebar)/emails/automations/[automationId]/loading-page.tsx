@@ -53,12 +53,12 @@ export default function LoadingPage() {
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
-        <div className="flex flex-col space-y-10">
+      <div className="mx-auto w-full flex-1 px-4 py-10 md:px-12">
+        <div className="mx-auto flex max-w-6xl flex-col space-y-10">
           {/* Link Information Section */}
           <div className="flex w-full justify-between gap-4 border-b pb-4">
             <div className="flex w-full items-center justify-between gap-4">
-              <div className="group flex-1 cursor-pointer">
+              <div className="group flex-1">
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
                     <div className="flex flex-row items-center gap-2">
@@ -70,25 +70,51 @@ export default function LoadingPage() {
                 </div>
                 <p className="mt-1 text-muted-foreground">Loading...</p>
               </div>
-
-              <Button>Edit Steps</Button>
             </div>
           </div>
-          <div className="flex cursor-pointer flex-col gap-4 rounded-lg border bg-accent p-4 shadow-sm md:p-6 md:pt-4">
-            <div className="text-lg font-bold">Steps</div>
-            <div className="flex flex-wrap gap-2">
-              <div className="flex items-center gap-2 rounded-md border border-muted-foreground bg-card p-2 py-1.5 text-sm text-muted-foreground">
-                <Email height={"18"} width={"18"} />
-                <span>Send Email &quot;Loading&quot;</span>
+          <div className="flex flex-col gap-4 rounded-lg border bg-gradient-to-r from-accent/80 to-accent p-4 shadow-sm md:p-6 md:pb-2 md:pt-4">
+            <div className="flex items-center justify-between">
+              <div className="text-lg font-bold">Steps</div>
+
+              <Button size={"sm"}>Edit Steps</Button>
+            </div>
+            <div className="relative w-full">
+              <div className="flex flex-col gap-2 pb-4 sm:flex-row sm:overflow-x-auto sm:pe-16">
+                <div className="flex items-center gap-2">
+                  <div className="w-full sm:h-16 sm:w-28">
+                    <div className="flex h-full w-full flex-shrink-0 items-center gap-2 truncate rounded-md border bg-muted p-2 py-1.5 text-sm text-muted-foreground sm:flex-col sm:justify-between">
+                      <span className="flex-shrink-0">
+                        <Email height={"24"} width={"24"} />
+                      </span>
+                      <span className="truncate">Send Email</span>
+                    </div>
+                  </div>
+                  <div className="hidden text-xs text-muted-foreground sm:block">
+                    →
+                  </div>
+                  <div className="w-full sm:h-16 sm:w-28">
+                    <div className="flex h-full w-full flex-shrink-0 items-center gap-2 rounded-md border bg-muted p-2 py-1.5 text-sm text-muted-foreground sm:flex-col sm:justify-between">
+                      <span className="flex-shrink-0">
+                        <HourglassClock height={"24"} width={"24"} />
+                      </span>
+                      <span className="truncate">Wait 5 days</span>
+                    </div>
+                  </div>
+
+                  <div className="hidden text-xs text-muted-foreground sm:block">
+                    →
+                  </div>
+                  <div className="w-full sm:h-16 sm:w-28">
+                    <div className="flex h-full w-full flex-shrink-0 items-center gap-2 truncate rounded-md border bg-muted p-2 py-1.5 text-sm text-muted-foreground sm:flex-col sm:justify-between">
+                      <span className="flex-shrink-0">
+                        <Email height={"24"} width={"24"} />
+                      </span>
+                      <span className="truncate">Send Email</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 rounded-md border border-muted-foreground bg-card p-2 py-1.5 text-sm text-muted-foreground">
-                <HourglassClock height={"18"} width={"18"} />
-                <span>Wait 1 hour</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-md border border-muted-foreground bg-card p-2 py-1.5 text-sm text-muted-foreground">
-                <Email height={"18"} width={"18"} />
-                <span>Send Email &quot;Still Loading&quot;</span>
-              </div>
+              <div className="absolute right-0 top-0 hidden h-full w-20 bg-gradient-to-l from-accent via-accent/80 to-transparent sm:block" />
             </div>
           </div>
           <>
