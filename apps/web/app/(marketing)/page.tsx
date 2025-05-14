@@ -22,7 +22,8 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Church Space | Email for Planning Center",
+  title: { absolute: "Church Space — Email for Planning Center" },
+  keywords: ["Church Space", "Email", "Planning Center", "church email"],
   description:
     "Church Space is an email marketing platform purpose-built for churches.",
 };

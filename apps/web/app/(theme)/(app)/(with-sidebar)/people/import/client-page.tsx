@@ -93,11 +93,11 @@ export default function ImportPage() {
       const lines = text.split("\n");
 
       // Check row limit for subscribed type
-      if (type === "subscribed" && lines.length - 1 > 50000) {
+      if (type === "subscribed" && lines.length - 1 > 40000) {
         toast({
           title: "File Too Large",
           description:
-            "For subscribed imports, the CSV file cannot exceed 50,000 rows (excluding the header).",
+            "For subscribed imports, the CSV file cannot exceed 40,000 rows (excluding the header).",
           variant: "destructive",
         });
         handleRemoveFile(type); // Clear the oversized file
@@ -625,9 +625,10 @@ export default function ImportPage() {
                 <CardHeader>
                   <CardTitle>Subscribed</CardTitle>
                   <CardDescription className="text-pretty">
-                    Due to a limit with Planning Center, expect the import to
-                    take approximately 1 minute for every 100 contacts on your
-                    CSV.
+                    Expect the import to take approximately 1 minute for every
+                    100 contacts on your CSV. The more tags your people have,
+                    the longer it will take to add them to Planning Center. You
+                    can have a maximum of 40,000 contacts in the CSV.
                   </CardDescription>
                 </CardHeader>
 
