@@ -2,13 +2,15 @@
 title: "Church Space Help Center"
 sidebarTitle: "Home"
 description: "How can we help you today?"
+mode: "wide"
 ---
 
-<Columns cols={2}>
+<Columns cols={3}>
   <Card
     title="Get Started"
     href="/getting-started"
     img="/images/get-started.png"
+    className="hidden dark:block"
   >
     This is how you use a card with an icon and a link. Clicking on this card
     brings you to the Columns page.
@@ -57,7 +59,21 @@ description: "How can we help you today?"
     This is how you use a card with an icon and a link. Clicking on this card
     brings you to the Columns page.
   </Card>
-  <Card title="Changelog" href="/changelog" img="/images/changelog.png">
+  <Card
+    title="Domains"
+    href="/domains"
+    img="/images/domains.png"
+    className="hidden dark:block"
+  >
+    This is how you use a card with an icon and a link. Clicking on this card
+    brings you to the Columns page.
+  </Card>
+  <Card
+    title="Domains"
+    href="/domains"
+    img="/images/domains-light.png"
+    className="block dark:hidden"
+  >
     This is how you use a card with an icon and a link. Clicking on this card
     brings you to the Columns page.
   </Card>
