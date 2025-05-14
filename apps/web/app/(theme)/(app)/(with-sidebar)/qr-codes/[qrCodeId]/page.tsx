@@ -768,8 +768,9 @@ export default function Page() {
         url: editedLinkUrl,
       }));
 
-      // Invalidate and refetch the query
+      // Invalidate and refetch both queries
       await queryClient.invalidateQueries({ queryKey: ["qr-link", qrLinkId] });
+      await queryClient.invalidateQueries({ queryKey: ["qr-links"] });
 
       setIsEditingLink(false);
     } catch (error) {
@@ -888,8 +889,9 @@ export default function Page() {
         status: newStatus,
       });
 
-      // Invalidate the query to refetch fresh data
+      // Invalidate both queries
       await queryClient.invalidateQueries({ queryKey: ["qr-link", qrLinkId] });
+      await queryClient.invalidateQueries({ queryKey: ["qr-links"] });
     } catch (error) {
       console.error("Error updating link status:", error);
     } finally {
