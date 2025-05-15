@@ -82,9 +82,9 @@ export default async function Page() {
       <div className="flex flex-1 flex-col gap-16 p-4 pt-8">
         <SettingsSection>
           <SettingsHeader>
-            <SettingsTitle>Billing</SettingsTitle>
+            <SettingsTitle>Plan and Billing</SettingsTitle>
             <SettingsDescription>
-              Manage your billing information
+              Manage your plan and billing information
             </SettingsDescription>
           </SettingsHeader>
 
