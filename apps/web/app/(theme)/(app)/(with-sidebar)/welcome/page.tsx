@@ -131,7 +131,7 @@ const steps = [
     id: "email-footer",
     title: "Create your default email footer",
     description:
-      "Design the footer that will be used as a deafult for new emails.",
+      "Design the footer that will be used as a default for new emails.",
     href: "/emails/templates/edit-footer",
     buttonText: "Create",
     icon: FooterIcon,

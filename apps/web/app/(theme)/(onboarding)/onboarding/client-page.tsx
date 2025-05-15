@@ -5,8 +5,8 @@ import { ChurchSpaceBlack } from "@church-space/ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@church-space/ui/button";
-import { handleExpiredInvite } from "./actions";
 import { useState } from "react";
+import Link from "next/link";
 
 interface ClientPageProps {
   inviteErrorParam?: boolean;
@@ -33,7 +33,7 @@ export default function ClientPage({
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="space-y-6 px-0">
+          <div className="space-y-8 px-0">
             <motion.div
               className="mb-4 flex justify-center text-primary"
               initial={{ opacity: 0, y: 20 }}
@@ -61,10 +61,19 @@ export default function ClientPage({
               <h2 className="mb-2 text-center text-xl font-semibold">
                 Connect to Planning Center
               </h2>
-              <p className="text-center text-sm">
-                Let&apos;s begin by getting connected to your Planning Center
-                account. We will use this to sync your people and lists to
-                Church Space.
+              <p className="text-pretty px-4 text-center text-sm">
+                Let&apos;s begin by getting connected to Planning Center. We
+                will use this to sync your people and lists to Church Space.
+                Learn more about what we sync and why{" "}
+                <Link
+                  href="https://help.churchspace.co/integrations/pco#what-data-we-sync"
+                  target="_blank"
+                  className="underline underline-offset-2 transition-all duration-300 hover:underline-offset-4"
+                  rel="noopener noreferrer"
+                >
+                  here
+                </Link>
+                .
               </p>
               <div className="mx-auto mt-5 max-w-md space-y-6">
                 <ConnectToPcoButton isReconnect={false} />
@@ -76,19 +85,11 @@ export default function ClientPage({
                 )}
 
                 {inviteError && !hideInviteError && (
-                  <div className="rounded-md border border-destructive p-4 text-center">
-                    <p className="mb-2">
-                      Your invite link has expired or is invalid.
-                    </p>
-                    <form action={handleExpiredInvite}>
-                      <Button
-                        type="submit"
-                        variant="outline"
-                        onClick={() => setHideInviteError(true)}
-                      >
-                        Clear Expired Invite
-                      </Button>
-                    </form>
+                  <div className="rounded-md border border-destructive bg-destructive/10 p-4 text-center text-sm">
+                    Your invite link has expired or is invalid. You can still
+                    continue to signup with a new account, or you can contact
+                    the person who invited your and ask them to resend the
+                    invitation.
                   </div>
                 )}
               </div>
