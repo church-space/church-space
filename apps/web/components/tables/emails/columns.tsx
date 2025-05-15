@@ -2,7 +2,14 @@
 
 import { Badge } from "@church-space/ui/badge";
 import { Button } from "@church-space/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@church-space/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
+import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 
 export type Email = {
@@ -66,15 +73,42 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => {
       const email = row.original;
       return (
-        <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap pl-1">
-          <Link href={`/emails/${email.id}`} prefetch={true}>
-            <Button
-              variant="ghost"
-              className="group h-16 w-full items-center justify-start gap-3 truncate text-wrap px-1.5 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
-            >
-              {email.subject || "No Subject"}
-            </Button>
-          </Link>
+        <div className="flex -translate-x-4 items-center gap-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant={"ghost"}
+                size={"icon"}
+                className="text-muted-foreground hover:text-foreground [&_svg]:size-4"
+              >
+                <EllipsisVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <Link href={`/emails/${email.id}`} prefetch={false}>
+                <DropdownMenuItem> View</DropdownMenuItem>
+              </Link>
+              {email.status === "draft" && (
+                <Link href={`/emails/${email.id}/editor`} prefetch={false}>
+                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                </Link>
+              )}
+              <DropdownMenuItem>Replicate</DropdownMenuItem>
+              {email.status === "draft" && (
+                <DropdownMenuItem>Delete</DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap">
+            <Link href={`/emails/${email.id}`} prefetch={true}>
+              <Button
+                variant="ghost"
+                className="group h-16 w-full items-center justify-start gap-3 truncate text-wrap px-0 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
+              >
+                {email.subject || "No Subject"}
+              </Button>
+            </Link>
+          </div>
         </div>
       );
     },

@@ -14,7 +14,6 @@ import {
 } from "@church-space/ui/select";
 import { Input } from "@church-space/ui/input";
 import { AnimatePresence, motion } from "framer-motion";
-import { SheetTitle, SheetHeader, SheetFooter } from "@church-space/ui/sheet";
 import {
   Accordion,
   AccordionContent,
@@ -618,13 +617,11 @@ export default function EmailAutomationBuilder({
   organizationId,
   onChangesPending,
   automation,
-  closeSheet,
   activeAutomationMembersCount,
 }: {
   organizationId: string;
   onChangesPending: (hasPendingChanges: boolean) => void;
   automation: EmailAutomation;
-  closeSheet: () => void;
   activeAutomationMembersCount?: number;
 }) {
   const [trigger, setTrigger] = useState<TriggerType | null>(
@@ -1146,7 +1143,6 @@ export default function EmailAutomationBuilder({
 
       setHasUnsavedChanges(false);
       onChangesPending(false);
-      closeSheet();
 
       toast({
         title: "Success",
@@ -1180,7 +1176,6 @@ export default function EmailAutomationBuilder({
     setSteps(initialState.current.steps);
     setHasUnsavedChanges(false);
     onChangesPending(false);
-    closeSheet();
   };
 
   return (
@@ -1260,9 +1255,20 @@ export default function EmailAutomationBuilder({
         </AlertDialogContent>
       </AlertDialog>
 
-      <SheetHeader>
-        <SheetTitle>Automation Steps</SheetTitle>
-      </SheetHeader>
+      <div className="flex flex-row justify-between gap-2 p-4 pb-0 sm:items-center">
+        <div className="text-lg font-semibold">Trigger and Steps</div>
+        <div className="flex flex-row justify-end gap-2">
+          <Button variant="outline" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => handleSave()}
+            disabled={isSaving || isCancellingRuns}
+          >
+            {isSaving || isCancellingRuns ? "Saving..." : "Save"}
+          </Button>
+        </div>
+      </div>
 
       <div className="flex-1 space-y-6 overflow-y-auto sm:p-4">
         {/* Trigger Section */}
@@ -1381,21 +1387,6 @@ export default function EmailAutomationBuilder({
             </SortableContext>
           </DndContext>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="sticky bottom-0 mt-auto border-t bg-background">
-        <SheetFooter className="flex flex-row justify-end gap-2 p-4 pb-0 sm:items-center">
-          <Button variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button
-            onClick={() => handleSave()}
-            disabled={isSaving || isCancellingRuns}
-          >
-            {isSaving || isCancellingRuns ? "Saving..." : "Save"}
-          </Button>
-        </SheetFooter>
       </div>
     </div>
   );

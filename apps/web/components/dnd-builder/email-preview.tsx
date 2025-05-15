@@ -123,7 +123,10 @@ export default function EmailPreview({
       </TabsContent>
       <TabsContent
         value="mobile"
-        className="flex h-[95%] items-center justify-center overflow-auto"
+        className={cn(
+          "flex h-[95%] items-center justify-center overflow-auto",
+          customHeight && customHeight,
+        )}
       >
         <div className="mx-auto h-full max-h-[800px] min-h-[200px] w-full max-w-sm items-start rounded-[45px] border-8 border-black shadow-lg dark:border-muted">
           <div className="sticky w-full rounded-t-[36px] border-b bg-card pb-3 pt-2">
@@ -147,7 +150,10 @@ export default function EmailPreview({
           </div>
           <iframe
             srcDoc={htmlContent}
-            className="h-full max-h-[706px] w-full rounded-b-[36px] border-0"
+            className={cn(
+              "h-full max-h-[706px] w-full rounded-b-[36px] border-0",
+              customHeight && customHeight,
+            )}
             title="Email Preview Mobile"
           />
         </div>

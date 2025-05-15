@@ -38,6 +38,8 @@ import {
   DropdownMenuTrigger,
 } from "@church-space/ui/dropdown-menu";
 import {
+  ChartBarAxisX,
+  Email,
   EmailBounced,
   EmailComplained,
   EmailOpened,
@@ -69,6 +71,13 @@ import { getEmailRecipientsAction } from "@/actions/get-email-recipients";
 import { getEmailCategoryById } from "@church-space/supabase/queries/all/get-all-email-categories";
 import { duplicateEmailAction } from "@/actions/duplicate-email-action";
 import { useRouter } from "next/navigation";
+import {
+  Tabs,
+  TabsTrigger,
+  TabsList,
+  TabsContent,
+} from "@church-space/ui/tabs";
+import { Badge } from "@church-space/ui/badge";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -479,94 +488,74 @@ export default function PostSendPage({
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-
-              <Dialog
-                open={isDuplicateEmailDialogOpen}
-                onOpenChange={setIsDuplicateEmailDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <DropdownMenuItem
-                    onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
-                  >
-                    <TemplatesIcon />
-                    Replicate as New Email
-                  </DropdownMenuItem>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Replicate Email</DialogTitle>
-                    <DialogDescription>
-                      Enter a subject for the new email. It will be created as a
-                      draft with the same content and settings as the original.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="relative mb-3">
-                    <Input
-                      placeholder="New email subject"
-                      className="w-full pr-8"
-                      value={duplicateEmailName}
-                      onChange={(e) => setDuplicateEmailName(e.target.value)}
-                      maxLength={60} // Or appropriate length
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleDuplicateEmail();
-                        }
-                      }}
-                    />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                      {duplicateEmailName.length} / 60
-                    </span>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsDuplicateEmailDialogOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleDuplicateEmail}
-                      disabled={isDuplicatingEmail}
-                    >
-                      {isDuplicatingEmail ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Duplicating...
-                        </>
-                      ) : (
-                        "Duplicate"
-                      )}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
             </DropdownMenuContent>
           </DropdownMenu>
           <Dialog
-            open={previewOpen === "true"}
-            onOpenChange={(open) => setPreviewOpen(open ? "true" : null)}
+            open={isDuplicateEmailDialogOpen}
+            onOpenChange={setIsDuplicateEmailDialogOpen}
           >
             <DialogTrigger asChild>
               <Button
-                onClick={() => {
-                  setPreviewOpen("true");
-                }}
-                className="hidden sm:block"
+                variant="default"
+                onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
               >
-                View Email
+                <TemplatesIcon />
+                <span className="hidden sm:block">Replicate Email</span>
+                <span className="block sm:hidden">Replicate</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="h-[95%] min-w-[95%] p-4">
-              <DialogHeader className="sr-only">
-                <DialogTitle>Preview</DialogTitle>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Replicate Email</DialogTitle>
+                <DialogDescription>
+                  Enter a subject for the new email. It will be created as a
+                  draft with the same content and settings as the original.
+                </DialogDescription>
               </DialogHeader>
-
-              <EmailPreview orgFooterDetails={orgFooterDetails?.data?.data} />
+              <div className="relative mb-3">
+                <Input
+                  placeholder="New email subject"
+                  className="w-full pr-8"
+                  value={duplicateEmailName}
+                  onChange={(e) => setDuplicateEmailName(e.target.value)}
+                  maxLength={60} // Or appropriate length
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleDuplicateEmail();
+                    }
+                  }}
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                  {duplicateEmailName.length} / 60
+                </span>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDuplicateEmailDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDuplicateEmail}
+                  disabled={isDuplicatingEmail}
+                >
+                  {isDuplicatingEmail ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Duplicating...
+                    </>
+                  ) : (
+                    "Duplicate"
+                  )}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
       </header>
+
       <motion.div
         className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4"
         initial="hidden"
@@ -574,357 +563,423 @@ export default function PostSendPage({
         variants={containerVariants}
       >
         <motion.div
-          className="mb-4 flex flex-row items-center justify-between"
+          className="mb-4 flex flex-row items-center justify-between pt-12"
           variants={itemVariants}
         >
-          <h1 className="text-2xl font-bold">{email?.subject}</h1>
+          <div className="flex flex-col items-start gap-2 pl-3">
+            <h1 className="text-3xl font-bold">{email?.subject}</h1>
+            <div className="flex items-center gap-1.5 text-base text-muted-foreground">
+              <Badge variant="success" className="rounded-full text-sm">
+                Sent
+              </Badge>
+              {formatDate(sendDate, false)}
+            </div>
+          </div>
         </motion.div>
-        {email.error_message && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={itemVariants}
-          >
-            <Card className="mx-auto w-full border-destructive bg-destructive/10">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-foreground">
-                  Email Sent with an Error
-                </CardTitle>
-              </CardHeader>
-              {email.error_message && (
-                <CardContent className="mx-6 mb-4 mt-2 rounded-md border border-destructive bg-muted px-3 pb-2 pt-2 font-mono text-sm">
-                  {email.error_message}
-                </CardContent>
-              )}
-              <CardFooter>
-                <Link
-                  href={`mailto:support@churchspace.co?subject=Email%20Failed%20to%20Send&body=My%20email%20failed%20to%20send.%20Can%20you%20please%20investigate%20and%20let%20me%20know%20what%20to%20do%3F%0A%0AEmail%20ID%3A%20${email.id}${email.error_message ? `%0A%0AError%20Message%3A%20${encodeURIComponent(email.error_message)}` : ""}%0A%0AThanks!`}
-                >
-                  <Button variant="outline">Contact Support</Button>
-                </Link>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        )}
+        <Tabs defaultValue="details">
+          <TabsList className="mb-2 h-fit w-full justify-start rounded-none border-b bg-transparent p-0 shadow-none">
+            <TabsTrigger
+              value="details"
+              className="h-10 gap-2 rounded-b-none border-primary px-4 py-0 hover:bg-muted data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:hover:bg-muted sm:text-base"
+            >
+              <span className="hidden sm:block">
+                <ChartBarAxisX height={"20"} width={"20"} />
+              </span>
+              <span className="block sm:hidden">
+                <ChartBarAxisX height={"16"} width={"16"} />
+              </span>
+              Details
+            </TabsTrigger>
+            <TabsTrigger
+              value="recipients"
+              className="h-10 gap-2 rounded-b-none border-primary px-4 py-0 hover:bg-muted data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:hover:bg-muted sm:text-base"
+            >
+              <span className="hidden sm:block">
+                <Users height={"20"} width={"20"} />
+              </span>
+              <span className="block sm:hidden">
+                <Users height={"16"} width={"16"} />
+              </span>
+              Recipients
+            </TabsTrigger>
+            <TabsTrigger
+              value="content"
+              className="h-10 gap-2 rounded-b-none border-primary px-4 py-0 hover:bg-muted data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:hover:bg-muted sm:text-base"
+            >
+              <span className="hidden sm:block">
+                <Email height={"20"} width={"20"} />
+              </span>
+              <span className="block sm:hidden">
+                <Email height={"16"} width={"16"} />
+              </span>
+              Content
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="details" className="flex flex-col gap-4">
+            {email.error_message && (
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={itemVariants}
+              >
+                <Card className="mx-auto w-full border-destructive bg-destructive/10">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-foreground">
+                      Email Sent with an Error
+                    </CardTitle>
+                  </CardHeader>
+                  {email.error_message && (
+                    <CardContent className="mx-6 mb-4 mt-2 rounded-md border border-destructive bg-muted px-3 pb-2 pt-2 font-mono text-sm">
+                      {email.error_message}
+                    </CardContent>
+                  )}
+                  <CardFooter>
+                    <Link
+                      href={`mailto:support@churchspace.co?subject=Email%20Failed%20to%20Send&body=My%20email%20failed%20to%20send.%20Can%20you%20please%20investigate%20and%20let%20me%20know%20what%20to%20do%3F%0A%0AEmail%20ID%3A%20${email.id}${email.error_message ? `%0A%0AError%20Message%3A%20${encodeURIComponent(email.error_message)}` : ""}%0A%0AThanks!`}
+                    >
+                      <Button variant="outline">Contact Support</Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            )}
 
-        <motion.div
-          className="grid gap-4 lg:grid-cols-2"
-          variants={itemVariants}
-        >
-          <Card className="border-primary bg-gradient-to-br from-primary/5 to-primary/10">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-bold">Details</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <div className="flex flex-col items-start font-medium">
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-bold">To:</span>
+            <motion.div
+              className="grid gap-4 lg:grid-cols-2"
+              variants={itemVariants}
+            >
+              <Card className="border-primary bg-gradient-to-br from-primary/5 to-primary/10">
+                <CardHeader className="pb-4">
+                  <CardTitle className="font-bold">Details</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3">
+                  <div className="flex flex-col items-start font-medium">
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs font-bold">To:</span>
 
-                  <div className="">
-                    <div className="items-baseline space-x-2 leading-none">
-                      {listData?.data?.[0]?.pco_list_description}{" "}
-                      <span className="text-sm text-muted-foreground">
-                        ({listData?.data?.[0]?.pco_total_people}{" "}
-                        {listData?.data?.[0]?.pco_total_people === "1"
-                          ? "person"
-                          : "people"}
-                        )
-                      </span>
+                      <div className="">
+                        <div className="items-baseline space-x-2 leading-none">
+                          {listData?.data?.[0]?.pco_list_description}{" "}
+                          <span className="text-sm text-muted-foreground">
+                            ({listData?.data?.[0]?.pco_total_people}{" "}
+                            {listData?.data?.[0]?.pco_total_people === "1"
+                              ? "person"
+                              : "people"}
+                            )
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="">
-                  <div className="text-sm leading-tight text-muted-foreground">
-                    {categoryData?.data?.[0]?.name}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-start font-medium">
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-bold">From:</span>
-
-                  <div className="leading-none">{fromName}</div>
-                </div>
-
-                <div className="text-sm leading-tight text-muted-foreground">
-                  {fromEmail}
-                  {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
-                </div>
-              </div>
-              {replyToEmail && (
-                <div className="flex flex-col items-start font-medium">
-                  <div className="flex flex-col items-start">
-                    <span className="text-xs font-bold">Reply-To:</span>
                     <div className="">
-                      <div className="flex items-baseline gap-2 leading-tight">
-                        {replyToEmail}
-                        {replyToDomain
-                          ? `@${replyToDomainData?.data?.[0]?.domain}`
-                          : ""}
+                      <div className="text-sm leading-tight text-muted-foreground">
+                        {categoryData?.data?.[0]?.name}
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                  <div className="flex flex-col items-start font-medium">
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs font-bold">From:</span>
 
-              <div className="flex flex-col items-start font-medium">
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-bold">Sent At:</span>
+                      <div className="leading-none">{fromName}</div>
+                    </div>
 
-                  <div className="leading-none">
-                    {formatDate(sendDate, false)}
+                    <div className="text-sm leading-tight text-muted-foreground">
+                      {fromEmail}
+                      {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
+                    </div>
                   </div>
-                </div>
+                  {replyToEmail && (
+                    <div className="flex flex-col items-start font-medium">
+                      <div className="flex flex-col items-start">
+                        <span className="text-xs font-bold">Reply-To:</span>
+                        <div className="">
+                          <div className="flex items-baseline gap-2 leading-tight">
+                            {replyToEmail}
+                            {replyToDomain
+                              ? `@${replyToDomainData?.data?.[0]?.domain}`
+                              : ""}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col items-start font-medium">
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs font-bold">Sent At:</span>
+
+                      <div className="leading-none">
+                        {formatDate(sendDate, false)}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:hidden">
+                {emailStats.map((stat, index) => (
+                  <Card
+                    key={index}
+                    className={cn(
+                      "flex items-center gap-3.5 overflow-hidden p-3",
+                      (stat.title === "opens" && stat.rate > 25) ||
+                        (stat.title === "unsubscribes" && stat.rate < 0.2) ||
+                        (stat.title === "bounces" && stat.rate < 0.5) ||
+                        (stat.title === "complaints" && stat.rate < 0.01)
+                        ? "border-green-500 bg-gradient-to-br from-green-500/5 to-green-500/10"
+                        : "border-red-500 bg-gradient-to-br from-red-500/5 to-red-500/10",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
+                        (stat.title === "opens" && stat.rate > 25) ||
+                          (stat.title === "unsubscribes" && stat.rate < 0.2) ||
+                          (stat.title === "bounces" && stat.rate < 0.5) ||
+                          (stat.title === "complaints" && stat.rate < 0.01)
+                          ? "border-green-500 bg-green-500/10 text-green-500"
+                          : "border-red-500 bg-red-500/10 text-red-500",
+                      )}
+                    >
+                      <stat.icon height={"20"} width={"20"} />
+                    </div>
+                    <div className="flex w-full flex-col gap-1">
+                      <div className="flex w-full items-center justify-between gap-2">
+                        <p className="text-sm capitalize leading-none text-muted-foreground">
+                          {stat.title}
+                        </p>
+                        <p
+                          className={cn(
+                            "text-sm leading-none",
+                            // Open rate thresholds
+                            stat.title === "opens"
+                              ? stat.rate > 25
+                                ? "text-green-500"
+                                : stat.rate >= 15
+                                  ? "text-yellow-500"
+                                  : "text-red-500"
+                              : // Unsubscribe rate thresholds
+                                stat.title === "unsubscribes"
+                                ? stat.rate < 0.2
+                                  ? "text-green-500"
+                                  : stat.rate <= 0.5
+                                    ? "text-yellow-500"
+                                    : "text-red-500"
+                                : // Bounce rate thresholds
+                                  stat.title === "bounces"
+                                  ? stat.rate < 0.5
+                                    ? "text-green-500"
+                                    : stat.rate <= 1
+                                      ? "text-yellow-500"
+                                      : "text-red-500"
+                                  : // Complaint rate thresholds
+                                    stat.rate < 0.01
+                                    ? "text-green-500"
+                                    : stat.rate <= 0.05
+                                      ? "text-yellow-500"
+                                      : "text-red-500",
+                          )}
+                        >
+                          {stat.rate}%
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xl font-bold leading-none">
+                          {stat.count.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
-            </CardContent>
-          </Card>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:hidden">
-            {emailStats.map((stat, index) => (
-              <Card
-                key={index}
-                className={cn(
-                  "flex items-center gap-3.5 overflow-hidden p-3",
-                  (stat.title === "opens" && stat.rate > 25) ||
-                    (stat.title === "unsubscribes" && stat.rate < 0.2) ||
-                    (stat.title === "bounces" && stat.rate < 0.5) ||
-                    (stat.title === "complaints" && stat.rate < 0.01)
-                    ? "border-green-500 bg-gradient-to-br from-green-500/5 to-green-500/10"
-                    : "border-red-500 bg-gradient-to-br from-red-500/5 to-red-500/10",
-                )}
-              >
-                <div
+              <Card className="border-primary bg-gradient-to-br from-primary/5 to-primary/10">
+                <CardHeader className="px-4 pb-1.5 pt-4">
+                  <CardTitle className="flex items-center gap-3 text-lg font-bold">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
+                      <LinkIcon height={"20"} width={"20"} />
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      Link Clicks
+                      <span className="font-normal text-muted-foreground">
+                        ({stats?.data?.metrics?.total_clicks || 0} total)
+                      </span>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="max-h-[178px] overflow-y-auto px-4 pr-5">
+                  <Table className="w-full">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Link</TableHead>
+                        <TableHead className="text-right">Clicks</TableHead>
+                        <TableHead className="text-right">Percentage</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {stats?.data?.linkStats
+                        ?.slice() // Create a shallow copy to avoid mutating the original array
+                        ?.sort(
+                          (
+                            a: { link_url: string; total_clicks: number },
+                            b: { link_url: string; total_clicks: number },
+                          ) => b.total_clicks - a.total_clicks,
+                        ) // Sort by total_clicks descending
+                        ?.map(
+                          (
+                            linkStat: {
+                              link_url: string;
+                              total_clicks: number;
+                            },
+                            index: number,
+                          ) => {
+                            const totalClicks =
+                              stats?.data?.metrics?.total_clicks || 0;
+                            const percentage =
+                              totalClicks > 0
+                                ? Math.round(
+                                    (linkStat.total_clicks / totalClicks) * 100,
+                                  )
+                                : 0;
+                            return (
+                              <TableRow key={index}>
+                                <TableCell className="max-w-[240px] truncate">
+                                  <span className="block cursor-pointer truncate font-semibold text-foreground hover:overflow-visible hover:text-clip hover:underline">
+                                    {linkStat.link_url}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {linkStat.total_clicks}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {percentage}%
+                                </TableCell>
+                              </TableRow>
+                            );
+                          },
+                        )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div
+              className="hidden gap-2 sm:grid-cols-2 lg:grid xl:grid-cols-4"
+              variants={itemVariants}
+            >
+              {emailStats.map((stat, index) => (
+                <Card
+                  key={index}
                   className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
+                    "flex items-center gap-3.5 overflow-hidden p-3",
                     (stat.title === "opens" && stat.rate > 25) ||
                       (stat.title === "unsubscribes" && stat.rate < 0.2) ||
                       (stat.title === "bounces" && stat.rate < 0.5) ||
                       (stat.title === "complaints" && stat.rate < 0.01)
-                      ? "border-green-500 bg-green-500/10 text-green-500"
-                      : "border-red-500 bg-red-500/10 text-red-500",
+                      ? "border-green-500 bg-gradient-to-br from-green-500/5 to-green-500/10"
+                      : "border-red-500 bg-gradient-to-br from-red-500/5 to-red-500/10",
                   )}
                 >
-                  <stat.icon height={"20"} width={"20"} />
-                </div>
-                <div className="flex w-full flex-col gap-1">
-                  <div className="flex w-full items-center justify-between gap-2">
-                    <p className="text-sm capitalize leading-none text-muted-foreground">
-                      {stat.title}
-                    </p>
-                    <p
-                      className={cn(
-                        "text-sm leading-none",
-                        // Open rate thresholds
-                        stat.title === "opens"
-                          ? stat.rate > 25
-                            ? "text-green-500"
-                            : stat.rate >= 15
-                              ? "text-yellow-500"
-                              : "text-red-500"
-                          : // Unsubscribe rate thresholds
-                            stat.title === "unsubscribes"
-                            ? stat.rate < 0.2
-                              ? "text-green-500"
-                              : stat.rate <= 0.5
-                                ? "text-yellow-500"
-                                : "text-red-500"
-                            : // Bounce rate thresholds
-                              stat.title === "bounces"
-                              ? stat.rate < 0.5
-                                ? "text-green-500"
-                                : stat.rate <= 1
-                                  ? "text-yellow-500"
-                                  : "text-red-500"
-                              : // Complaint rate thresholds
-                                stat.rate < 0.01
-                                ? "text-green-500"
-                                : stat.rate <= 0.05
-                                  ? "text-yellow-500"
-                                  : "text-red-500",
-                      )}
-                    >
-                      {stat.rate}%
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xl font-bold leading-none">
-                      {stat.count.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-          <Card className="border-primary bg-gradient-to-br from-primary/5 to-primary/10">
-            <CardHeader className="px-4 pb-1.5 pt-4">
-              <CardTitle className="flex items-center gap-3 text-lg font-bold">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
-                  <LinkIcon height={"20"} width={"20"} />
-                </div>
-                <div className="flex items-baseline gap-1.5">
-                  Link Clicks
-                  <span className="font-normal text-muted-foreground">
-                    ({stats?.data?.metrics?.total_clicks || 0} total)
-                  </span>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="max-h-[178px] overflow-y-auto px-4 pr-5">
-              <Table className="w-full">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Link</TableHead>
-                    <TableHead className="text-right">Clicks</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stats?.data?.linkStats
-                    ?.slice() // Create a shallow copy to avoid mutating the original array
-                    ?.sort(
-                      (
-                        a: { link_url: string; total_clicks: number },
-                        b: { link_url: string; total_clicks: number },
-                      ) => b.total_clicks - a.total_clicks,
-                    ) // Sort by total_clicks descending
-                    ?.map(
-                      (
-                        linkStat: { link_url: string; total_clicks: number },
-                        index: number,
-                      ) => (
-                        <TableRow key={index}>
-                          <TableCell className="max-w-[240px] truncate">
-                            <span className="block cursor-pointer truncate font-semibold text-foreground hover:overflow-visible hover:text-clip hover:underline">
-                              {linkStat.link_url}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {linkStat.total_clicks}
-                          </TableCell>
-                        </TableRow>
-                      ),
-                    )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </motion.div>
-        <motion.div
-          className="hidden gap-2 sm:grid-cols-2 lg:grid xl:grid-cols-4"
-          variants={itemVariants}
-        >
-          {emailStats.map((stat, index) => (
-            <Card
-              key={index}
-              className={cn(
-                "flex items-center gap-3.5 overflow-hidden p-3",
-                (stat.title === "opens" && stat.rate > 25) ||
-                  (stat.title === "unsubscribes" && stat.rate < 0.2) ||
-                  (stat.title === "bounces" && stat.rate < 0.5) ||
-                  (stat.title === "complaints" && stat.rate < 0.01)
-                  ? "border-green-500 bg-gradient-to-br from-green-500/5 to-green-500/10"
-                  : "border-red-500 bg-gradient-to-br from-red-500/5 to-red-500/10",
-              )}
-            >
-              <div
-                className={cn(
-                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
-                  (stat.title === "opens" && stat.rate > 25) ||
-                    (stat.title === "unsubscribes" && stat.rate < 0.2) ||
-                    (stat.title === "bounces" && stat.rate < 0.5) ||
-                    (stat.title === "complaints" && stat.rate < 0.01)
-                    ? "border-green-500 bg-green-500/10 text-green-500"
-                    : "border-red-500 bg-red-500/10 text-red-500",
-                )}
-              >
-                <stat.icon height={"20"} width={"20"} />
-              </div>
-              <div className="flex w-full flex-col gap-1">
-                <div className="flex w-full items-center justify-between gap-2">
-                  <p className="text-sm capitalize leading-none text-muted-foreground">
-                    {stat.title}
-                  </p>
-                  <p
+                  <div
                     className={cn(
-                      "text-sm leading-none",
-                      // Open rate thresholds
-                      stat.title === "opens"
-                        ? stat.rate > 25
-                          ? "text-green-500"
-                          : stat.rate >= 15
-                            ? "text-yellow-500"
-                            : "text-red-500"
-                        : // Unsubscribe rate thresholds
-                          stat.title === "unsubscribes"
-                          ? stat.rate < 0.2
-                            ? "text-green-500"
-                            : stat.rate <= 0.5
-                              ? "text-yellow-500"
-                              : "text-red-500"
-                          : // Bounce rate thresholds
-                            stat.title === "bounces"
-                            ? stat.rate < 0.5
-                              ? "text-green-500"
-                              : stat.rate <= 1
-                                ? "text-yellow-500"
-                                : "text-red-500"
-                            : // Complaint rate thresholds
-                              stat.rate < 0.01
-                              ? "text-green-500"
-                              : stat.rate <= 0.05
-                                ? "text-yellow-500"
-                                : "text-red-500",
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
+                      (stat.title === "opens" && stat.rate > 25) ||
+                        (stat.title === "unsubscribes" && stat.rate < 0.2) ||
+                        (stat.title === "bounces" && stat.rate < 0.5) ||
+                        (stat.title === "complaints" && stat.rate < 0.01)
+                        ? "border-green-500 bg-green-500/10 text-green-500"
+                        : "border-red-500 bg-red-500/10 text-red-500",
                     )}
                   >
-                    {stat.rate}%
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="text-xl font-bold leading-none">
-                    {stat.count.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </motion.div>
-        <motion.div
-          className="flex w-full -translate-y-2 flex-col items-end justify-end text-xs text-muted-foreground xl:flex-row xl:justify-between"
-          variants={itemVariants}
-        >
-          {stats?.data?.metrics?.updated_at ? (
-            <p>
-              Last updated:{" "}
-              {`${formatDate(new Date(stats?.data?.metrics?.updated_at))}`}
-            </p>
-          ) : (
-            <p>Your email stats will be updated in a few minutes.</p>
-          )}
-        </motion.div>
-        <motion.div
-          className="mt-8 flex flex-col gap-4"
-          variants={itemVariants}
-        >
-          <div className="flex items-center gap-3 text-lg font-bold">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
-              <Users height={"20"} width={"20"} />
-            </div>
-            <h1 className="flex items-baseline gap-1.5">
-              Recipients
-              {stats?.data?.metrics?.total_sent && (
-                <span className="font-normal text-muted-foreground">
-                  ({stats?.data?.metrics?.total_sent} total)
-                </span>
+                    <stat.icon height={"20"} width={"20"} />
+                  </div>
+                  <div className="flex w-full flex-col gap-1">
+                    <div className="flex w-full items-center justify-between gap-2">
+                      <p className="text-sm capitalize leading-none text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <p
+                        className={cn(
+                          "text-sm leading-none",
+                          // Open rate thresholds
+                          stat.title === "opens"
+                            ? stat.rate > 25
+                              ? "text-green-500"
+                              : stat.rate >= 15
+                                ? "text-yellow-500"
+                                : "text-red-500"
+                            : // Unsubscribe rate thresholds
+                              stat.title === "unsubscribes"
+                              ? stat.rate < 0.2
+                                ? "text-green-500"
+                                : stat.rate <= 0.5
+                                  ? "text-yellow-500"
+                                  : "text-red-500"
+                              : // Bounce rate thresholds
+                                stat.title === "bounces"
+                                ? stat.rate < 0.5
+                                  ? "text-green-500"
+                                  : stat.rate <= 1
+                                    ? "text-yellow-500"
+                                    : "text-red-500"
+                                : // Complaint rate thresholds
+                                  stat.rate < 0.01
+                                  ? "text-green-500"
+                                  : stat.rate <= 0.05
+                                    ? "text-yellow-500"
+                                    : "text-red-500",
+                        )}
+                      >
+                        {stat.rate}%
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xl font-bold leading-none">
+                        {stat.count.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </motion.div>
+            <motion.div
+              className="flex w-full -translate-y-2 flex-col items-end justify-end text-xs text-muted-foreground xl:flex-row xl:justify-between"
+              variants={itemVariants}
+            >
+              {stats?.data?.metrics?.updated_at ? (
+                <p>
+                  Last updated:{" "}
+                  {`${formatDate(new Date(stats?.data?.metrics?.updated_at))}`}
+                </p>
+              ) : (
+                <p>Your email stats will be updated in a few minutes.</p>
               )}
-            </h1>
-          </div>
-
-          <EmailRecipientsTable
-            emailId={email.id}
-            initialData={transformedRecipients}
-            initialCount={stats?.data?.metrics?.total_sent ?? 0}
-            initialSearch={search ?? ""}
-            initialStatus={status ?? "all"}
-          />
-        </motion.div>
+            </motion.div>
+          </TabsContent>
+          <TabsContent value="recipients">
+            <motion.div
+              className="mt-4 flex flex-col gap-4"
+              variants={itemVariants}
+            >
+              <EmailRecipientsTable
+                emailId={email.id}
+                initialData={transformedRecipients}
+                initialCount={stats?.data?.metrics?.total_sent ?? 0}
+                initialSearch={search ?? ""}
+                initialStatus={status ?? "all"}
+              />
+            </motion.div>
+          </TabsContent>
+          <TabsContent value="content" className="h-full w-full">
+            <motion.div
+              className="mt-4 flex flex-col gap-4"
+              variants={itemVariants}
+            >
+              <EmailPreview
+                orgFooterDetails={orgFooterDetails?.data?.data}
+                customHeight="min-h-[calc(100vh-23rem)]"
+              />
+            </motion.div>
+          </TabsContent>
+        </Tabs>
       </motion.div>
     </div>
   );

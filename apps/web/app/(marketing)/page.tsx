@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   title: { absolute: "Church Space — Email for Planning Center" },
   keywords: ["Church Space", "Email", "Planning Center", "church email"],
   description:
-    "Church Space is an email marketing platform purpose-built for churches.",
+    "Church Space is an email marketing platform purpose-built for churches. Send beautiful emails, use powerful automations, and keep your links organized.",
 };
 
 export const allBlockTypes = [

@@ -28,12 +28,11 @@ import { Input } from "@church-space/ui/input";
 import { Label } from "@church-space/ui/label";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Ellipsis, LoaderIcon } from "lucide-react";
+import { Ellipsis, LoaderIcon, Users } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import AutomationBuilder from "@/components/automation-builder/automation-builder";
-import { Sheet, SheetContent, SheetTrigger } from "@church-space/ui/sheet";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { redirect, useParams, useRouter } from "next/navigation";
@@ -67,7 +66,32 @@ import {
   Edit,
   Trash,
   Footsteps,
+  Settings,
 } from "@church-space/ui/icons";
+import { Tabs, TabsContent, TabsTrigger } from "@church-space/ui/tabs";
+import { motion } from "framer-motion";
+import { TabsList } from "@church-space/ui/tabs";
+
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.25,
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.25 },
+  },
+};
 
 // Types for the new schema
 interface AutomationStep {
@@ -107,7 +131,6 @@ export default function Page() {
 
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const { data: automationResponse, isLoading: isLoadingAutomation } = useQuery(
@@ -178,21 +201,6 @@ export default function Page() {
 
   // Add validation state
   const [canActivate, setCanActivate] = useState(false);
-
-  // Track if we've already auto-opened the sheet
-  const initialLoadDone = useRef(false);
-
-  // Auto-open sheet when there are no steps, but only on initial load
-  useEffect(() => {
-    if (
-      !initialLoadDone.current &&
-      transformedAutomation &&
-      transformedAutomation.steps.length === 0
-    ) {
-      setIsSheetOpen(true);
-      initialLoadDone.current = true;
-    }
-  }, [transformedAutomation]);
 
   // Monitor automation state for activation requirements
   useEffect(() => {
@@ -265,7 +273,6 @@ export default function Page() {
       });
       return false;
     }
-    setIsSheetOpen(false);
     return true;
   };
 
@@ -624,13 +631,6 @@ export default function Page() {
               >
                 <Edit height={"24"} width={"24"} /> Edit Name
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setIsSheetOpen(true);
-                }}
-              >
-                <Footsteps height={"24"} width={"24"} /> Edit Trigger & Steps
-              </DropdownMenuItem>
 
               <Dialog open={isDeletingLink} onOpenChange={setIsDeletingLink}>
                 <DialogTrigger
@@ -711,10 +711,17 @@ export default function Page() {
         </div>
       </header>
 
-      <div className="mx-auto w-full flex-1 px-4 py-10 md:px-12">
-        <div className="mx-auto flex max-w-6xl flex-col space-y-10">
-          {/* Link Information Section */}
-          <div className="flex w-full justify-between gap-4 border-b pb-4">
+      <motion.div
+        className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        <motion.div
+          className="mb-4 flex flex-row items-center justify-between pt-12"
+          variants={itemVariants}
+        >
+          <div className="flex w-full justify-between gap-4 pb-4 pl-3">
             {isEditingLink ? (
               // Edit mode
               <div className="flex-1 space-y-4">
@@ -765,149 +772,109 @@ export default function Page() {
               </div>
             ) : (
               // Display mode
-              <div className="flex w-full items-center justify-between gap-4">
-                <div
-                  className="group flex-1 cursor-pointer"
-                  onClick={startEditingLink}
-                >
-                  <div className="flex items-center">
-                    <div className="flex items-center gap-2">
-                      <div className="flex flex-row items-center gap-2">
-                        <h2 className="text-2xl font-bold transition-colors group-hover:text-primary">
-                          {transformedAutomation.name}
-                        </h2>
-                        <Badge
-                          variant={
-                            transformedAutomation.is_active
-                              ? "default"
-                              : "outline"
-                          }
-                        >
-                          {transformedAutomation.is_active
-                            ? "Active"
-                            : "Disabled"}
-                        </Badge>
-                      </div>
-                      {editedLinkStatus === "inactive" && (
-                        <Badge variant="outline">Disabled</Badge>
-                      )}
-                    </div>
-                    <span className="ml-2 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100">
-                      <Edit height={"18"} width={"18"} />
-                    </span>
+              <div
+                className="flex w-full flex-col items-start gap-2 hover:cursor-pointer"
+                onClick={() => {
+                  setIsEditingLink(true);
+                }}
+              >
+                <div className="group flex w-full items-center gap-2">
+                  <h1 className="text-3xl font-bold">
+                    {transformedAutomation.name}
+                  </h1>
+                  <div className="flex items-center gap-1.5 text-base text-muted-foreground">
+                    <Badge
+                      variant={
+                        transformedAutomation.is_active ? "default" : "outline"
+                      }
+                    >
+                      {transformedAutomation.is_active ? "Active" : "Disabled"}
+                    </Badge>
+
+                    {editedLinkStatus === "inactive" && (
+                      <Badge variant="outline">Disabled</Badge>
+                    )}
                   </div>
+                  <div className="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                    <Edit height={"18"} width={"18"} />
+                  </div>
+                </div>
+                {transformedAutomation.description && (
                   <p className="mt-1 text-muted-foreground">
                     {transformedAutomation.description}
                   </p>
-                </div>
+                )}
               </div>
             )}
           </div>
-          <div className="flex w-full flex-col space-y-10">
-            <div className="flex flex-col gap-4 rounded-lg border bg-gradient-to-r from-accent/80 to-accent p-4 shadow-sm md:p-6 md:pb-2 md:pt-4">
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-bold">Steps</div>
-                <Sheet
-                  open={isSheetOpen}
-                  onOpenChange={(open) => {
-                    if (!open) {
-                      // If trying to close
-                      if (handleSheetClose()) {
-                        setIsSheetOpen(false);
-                      }
-                    } else {
-                      setIsSheetOpen(true);
-                    }
-                  }}
-                >
-                  <>
-                    <SheetTrigger asChild>
-                      <Button size={"sm"} onClick={() => setIsSheetOpen(true)}>
-                        Edit Trigger & Steps
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent
-                      className="flex h-[95%] w-full flex-col overflow-hidden md:h-full md:max-w-3xl"
-                      side={isMobile ? "bottom" : "right"}
-                    >
-                      <AutomationBuilder
-                        organizationId={organizationId ?? ""}
-                        onChangesPending={(hasPendingChanges) =>
-                          setHasUnsavedChanges(hasPendingChanges)
-                        }
-                        automation={transformedAutomation}
-                        closeSheet={() => setIsSheetOpen(false)}
-                        activeAutomationMembersCount={
-                          activeAutomationMembersCount
-                        }
-                      />
-                    </SheetContent>
-                  </>
-                </Sheet>
-              </div>
-              <div
-                className="relative w-full cursor-pointer"
-                onClick={() => setIsSheetOpen(true)}
-              >
-                <div className="flex flex-col gap-2 pb-4 sm:flex-row sm:overflow-x-auto sm:pe-16">
-                  {transformedAutomation.steps.map((step, index) => (
-                    <div className="flex items-center gap-2" key={step.id}>
-                      <div className="w-full sm:h-16 sm:w-28">
-                        {step.type === "wait" ? (
-                          <div className="flex h-full w-full flex-shrink-0 items-center gap-2 rounded-md border border-yellow-500 bg-yellow-500/30 p-2 py-1.5 text-sm text-yellow-900 dark:bg-yellow-500/10 dark:text-yellow-500 sm:flex-col sm:justify-between">
-                            <span className="flex-shrink-0">
-                              <HourglassClock height={"24"} width={"24"} />
-                            </span>
-                            <span className="truncate">
-                              Wait {step.values.value}{" "}
-                              {step.values.value === 1
-                                ? step.values.unit.slice(0, -1)
-                                : step.values.unit}
-                            </span>
-                          </div>
-                        ) : (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="flex h-full w-full flex-shrink-0 items-center gap-2 truncate rounded-md border border-green-500 bg-green-500/30 p-2 py-1.5 text-sm text-green-900 dark:bg-green-500/10 dark:text-green-500 sm:flex-col sm:justify-between">
-                                <span className="flex-shrink-0">
-                                  <Email height={"24"} width={"24"} />
-                                </span>
-                                <span className="truncate">Send Email</span>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent className="border border-green-500 bg-green-500/30 text-green-900 dark:bg-green-500/10 dark:text-green-500">
-                              <p>{step.values?.subject || ""}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
-                      {index !== transformedAutomation.steps.length - 1 && (
-                        <div className="hidden text-xs text-muted-foreground sm:block">
-                          →
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {transformedAutomation.steps.length === 0 && (
-                    <div className="flex w-full items-center gap-2 sm:h-16 sm:w-28">
-                      <div className="flex h-full w-full flex-shrink-0 items-center gap-2 rounded-md border border-gray-500 bg-gray-500/30 p-2 py-1.5 text-sm text-gray-900 dark:bg-gray-500/10 dark:text-gray-500 sm:flex-col sm:justify-between">
-                        <span className="flex-shrink-0">
-                          <Email height={"24"} width={"24"} />
-                        </span>
-                        <span className="truncate">No steps</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="absolute right-0 top-0 hidden h-full w-20 bg-gradient-to-l from-accent via-accent/80 to-transparent sm:block" />
-              </div>
-            </div>
-            <div className="flex w-full flex-col gap-4">
+        </motion.div>
+        <Tabs defaultValue="steps">
+          <TabsList className="mb-2 h-fit w-full justify-start rounded-none border-b bg-transparent p-0 shadow-none">
+            <TabsTrigger
+              value="steps"
+              className="h-10 gap-2 rounded-b-none border-primary px-4 py-0 hover:bg-muted data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:hover:bg-muted sm:text-base"
+            >
+              <span className="hidden sm:block">
+                <Footsteps height={"20"} width={"20"} />
+              </span>
+              <span className="block sm:hidden">
+                <Footsteps height={"16"} width={"16"} />
+              </span>
+              Steps
+            </TabsTrigger>
+            <TabsTrigger
+              value="people"
+              className="h-10 gap-2 rounded-b-none border-primary px-4 py-0 hover:bg-muted data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:hover:bg-muted sm:text-base"
+            >
+              <span className="hidden sm:block">
+                <Users height={"20"} width={"20"} />
+              </span>
+              <span className="block sm:hidden">
+                <Users height={"16"} width={"16"} />
+              </span>
+              People
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              className="h-10 gap-2 rounded-b-none border-primary px-4 py-0 hover:bg-muted data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:hover:bg-muted sm:text-base"
+            >
+              <span className="hidden sm:block">
+                <Settings height={"20"} width={"20"} />
+              </span>
+              <span className="block sm:hidden">
+                <Settings height={"16"} width={"16"} />
+              </span>
+              Settings
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="steps" className="flex flex-col gap-4">
+            <motion.div className="w-full" variants={itemVariants}>
+              <AutomationBuilder
+                organizationId={organizationId ?? ""}
+                onChangesPending={(hasPendingChanges) =>
+                  setHasUnsavedChanges(hasPendingChanges)
+                }
+                automation={transformedAutomation}
+                activeAutomationMembersCount={activeAutomationMembersCount}
+              />
+            </motion.div>
+          </TabsContent>
+          <TabsContent value="people">
+            <motion.div
+              className="mt-4 flex flex-col gap-4"
+              variants={itemVariants}
+            >
               <AutomationMembersTable automationId={automationId} />
-            </div>
-          </div>
-        </div>
-      </div>
+            </motion.div>
+          </TabsContent>
+          <TabsContent value="settings" className="h-full w-full">
+            <motion.div
+              className="mt-4 flex flex-col gap-4"
+              variants={itemVariants}
+            ></motion.div>
+          </TabsContent>
+        </Tabs>
+      </motion.div>
     </div>
   );
 }
