@@ -777,23 +777,31 @@ export default function PostSendPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {stats?.data?.linkStats?.map(
-                    (
-                      linkStat: { link_url: string; total_clicks: number },
-                      index: number,
-                    ) => (
-                      <TableRow key={index}>
-                        <TableCell className="max-w-[240px] truncate">
-                          <span className="block cursor-pointer truncate font-semibold text-foreground hover:overflow-visible hover:text-clip hover:underline">
-                            {linkStat.link_url}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {linkStat.total_clicks}
-                        </TableCell>
-                      </TableRow>
-                    ),
-                  )}
+                  {stats?.data?.linkStats
+                    ?.slice() // Create a shallow copy to avoid mutating the original array
+                    ?.sort(
+                      (
+                        a: { link_url: string; total_clicks: number },
+                        b: { link_url: string; total_clicks: number },
+                      ) => b.total_clicks - a.total_clicks,
+                    ) // Sort by total_clicks descending
+                    ?.map(
+                      (
+                        linkStat: { link_url: string; total_clicks: number },
+                        index: number,
+                      ) => (
+                        <TableRow key={index}>
+                          <TableCell className="max-w-[240px] truncate">
+                            <span className="block cursor-pointer truncate font-semibold text-foreground hover:overflow-visible hover:text-clip hover:underline">
+                              {linkStat.link_url}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {linkStat.total_clicks}
+                          </TableCell>
+                        </TableRow>
+                      ),
+                    )}
                 </TableBody>
               </Table>
             </CardContent>
