@@ -327,7 +327,6 @@ export default function PostSendPage({
   const emailStats = [
     {
       icon: EmailOpened,
-      color: "green",
       title: "opens",
       count: stats?.data?.metrics?.total_opens ?? 0,
       rate: stats?.data?.metrics?.total_sent
@@ -339,7 +338,6 @@ export default function PostSendPage({
     },
     {
       icon: EmailUnsubscribed,
-      color: "yellow",
       title: "unsubscribes",
       count: stats?.data?.metrics?.total_unsubscribes ?? 0,
       rate: stats?.data?.metrics?.total_sent
@@ -352,7 +350,6 @@ export default function PostSendPage({
     },
     {
       icon: EmailBounced,
-      color: "red",
       title: "bounces",
       count: stats?.data?.metrics?.total_bounces ?? 0,
       rate: stats?.data?.metrics?.total_sent
@@ -364,7 +361,6 @@ export default function PostSendPage({
     },
     {
       icon: EmailComplained,
-      color: "red",
       title: "complaints",
       count: stats?.data?.metrics?.total_complaints ?? 0,
       rate: stats?.data?.metrics?.total_sent
@@ -615,19 +611,19 @@ export default function PostSendPage({
           className="grid gap-4 lg:grid-cols-2"
           variants={itemVariants}
         >
-          <Card className="bg-gradient-to-br from-primary to-primary/90 text-white">
+          <Card className="border-primary bg-gradient-to-br from-primary/5 to-primary/10">
             <CardHeader className="pb-4">
               <CardTitle className="font-bold">Details</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              <div className="flex flex-col items-start font-medium text-primary">
+              <div className="flex flex-col items-start font-medium">
                 <div className="flex flex-col items-start">
-                  <span className="text-xs font-bold text-white">To:</span>
+                  <span className="text-xs font-bold">To:</span>
 
-                  <div className="text-white">
-                    <div className="items-baseline space-x-2 font-bold leading-none">
+                  <div className="">
+                    <div className="items-baseline space-x-2 leading-none">
                       {listData?.data?.[0]?.pco_list_description}{" "}
-                      <span className="text-sm text-white/80">
+                      <span className="text-sm text-muted-foreground">
                         ({listData?.data?.[0]?.pco_total_people}{" "}
                         {listData?.data?.[0]?.pco_total_people === "1"
                           ? "person"
@@ -637,31 +633,29 @@ export default function PostSendPage({
                     </div>
                   </div>
                 </div>
-                <div className="text-white">
-                  <div className="text-sm leading-tight text-white/80">
+                <div className="">
+                  <div className="text-sm leading-tight text-muted-foreground">
                     {categoryData?.data?.[0]?.name}
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col items-start font-medium text-primary">
+              <div className="flex flex-col items-start font-medium">
                 <div className="flex flex-col items-start">
-                  <span className="text-xs font-bold text-white">From:</span>
+                  <span className="text-xs font-bold">From:</span>
 
-                  <div className="leading-none text-white">{fromName}</div>
+                  <div className="leading-none">{fromName}</div>
                 </div>
 
-                <div className="text-sm leading-tight text-white/80">
+                <div className="text-sm leading-tight text-muted-foreground">
                   {fromEmail}
                   {fromDomain ? `@${domainData?.data?.[0]?.domain}` : ""}
                 </div>
               </div>
               {replyToEmail && (
-                <div className="flex flex-col items-start font-medium text-primary">
+                <div className="flex flex-col items-start font-medium">
                   <div className="flex flex-col items-start">
-                    <span className="text-xs font-bold text-white">
-                      Reply-To:
-                    </span>
-                    <div className="text-white">
+                    <span className="text-xs font-bold">Reply-To:</span>
+                    <div className="">
                       <div className="flex items-baseline gap-2 leading-tight">
                         {replyToEmail}
                         {replyToDomain
@@ -673,11 +667,11 @@ export default function PostSendPage({
                 </div>
               )}
 
-              <div className="flex flex-col items-start font-medium text-primary">
+              <div className="flex flex-col items-start font-medium">
                 <div className="flex flex-col items-start">
-                  <span className="text-xs font-bold text-white">Sent At:</span>
+                  <span className="text-xs font-bold">Sent At:</span>
 
-                  <div className="leading-none text-white">
+                  <div className="leading-none">
                     {formatDate(sendDate, false)}
                   </div>
                 </div>
@@ -688,10 +682,26 @@ export default function PostSendPage({
             {emailStats.map((stat, index) => (
               <Card
                 key={index}
-                className="flex items-center gap-3.5 overflow-hidden p-3"
+                className={cn(
+                  "flex items-center gap-3.5 overflow-hidden p-3",
+                  (stat.title === "opens" && stat.rate > 25) ||
+                    (stat.title === "unsubscribes" && stat.rate < 0.2) ||
+                    (stat.title === "bounces" && stat.rate < 0.5) ||
+                    (stat.title === "complaints" && stat.rate < 0.01)
+                    ? "border-green-500 bg-gradient-to-br from-green-500/5 to-green-500/10"
+                    : "border-red-500 bg-gradient-to-br from-red-500/5 to-red-500/10",
+                )}
               >
                 <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-${stat.color}-500 bg-${stat.color}-500/10 text-${stat.color}-500`}
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
+                    (stat.title === "opens" && stat.rate > 25) ||
+                      (stat.title === "unsubscribes" && stat.rate < 0.2) ||
+                      (stat.title === "bounces" && stat.rate < 0.5) ||
+                      (stat.title === "complaints" && stat.rate < 0.01)
+                      ? "border-green-500 bg-green-500/10 text-green-500"
+                      : "border-red-500 bg-red-500/10 text-red-500",
+                  )}
                 >
                   <stat.icon height={"20"} width={"20"} />
                 </div>
@@ -744,10 +754,10 @@ export default function PostSendPage({
               </Card>
             ))}
           </div>
-          <Card>
+          <Card className="border-primary bg-gradient-to-br from-primary/5 to-primary/10">
             <CardHeader className="px-4 pb-1.5 pt-4">
               <CardTitle className="flex items-center gap-3 text-lg font-bold">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-blue-500 bg-blue-500/10 text-blue-500">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
                   <LinkIcon height={"20"} width={"20"} />
                 </div>
                 <div className="flex items-baseline gap-1.5">
@@ -774,7 +784,7 @@ export default function PostSendPage({
                     ) => (
                       <TableRow key={index}>
                         <TableCell className="max-w-[240px] truncate">
-                          <span className="block cursor-pointer truncate text-blue-500 hover:overflow-visible hover:text-clip hover:underline">
+                          <span className="block cursor-pointer truncate font-semibold text-foreground hover:overflow-visible hover:text-clip hover:underline">
                             {linkStat.link_url}
                           </span>
                         </TableCell>
@@ -796,10 +806,26 @@ export default function PostSendPage({
           {emailStats.map((stat, index) => (
             <Card
               key={index}
-              className="flex items-center gap-3.5 overflow-hidden p-3"
+              className={cn(
+                "flex items-center gap-3.5 overflow-hidden p-3",
+                (stat.title === "opens" && stat.rate > 25) ||
+                  (stat.title === "unsubscribes" && stat.rate < 0.2) ||
+                  (stat.title === "bounces" && stat.rate < 0.5) ||
+                  (stat.title === "complaints" && stat.rate < 0.01)
+                  ? "border-green-500 bg-gradient-to-br from-green-500/5 to-green-500/10"
+                  : "border-red-500 bg-gradient-to-br from-red-500/5 to-red-500/10",
+              )}
             >
               <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-${stat.color}-500 bg-${stat.color}-500/10 text-${stat.color}-500`}
+                className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
+                  (stat.title === "opens" && stat.rate > 25) ||
+                    (stat.title === "unsubscribes" && stat.rate < 0.2) ||
+                    (stat.title === "bounces" && stat.rate < 0.5) ||
+                    (stat.title === "complaints" && stat.rate < 0.01)
+                    ? "border-green-500 bg-green-500/10 text-green-500"
+                    : "border-red-500 bg-red-500/10 text-red-500",
+                )}
               >
                 <stat.icon height={"20"} width={"20"} />
               </div>
@@ -870,7 +896,7 @@ export default function PostSendPage({
           variants={itemVariants}
         >
           <div className="flex items-center gap-3 text-lg font-bold">
-            <div className="border-purple -500 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-purple-500/10 text-purple-500">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
               <Users height={"20"} width={"20"} />
             </div>
             <h1 className="flex items-baseline gap-1.5">
