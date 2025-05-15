@@ -559,7 +559,7 @@ export const filterEmailRecipients = task({
 
       const recipientCount = Object.keys(recipients).length;
       if (emailUsage.sends_remaining < recipientCount) {
-        const errorMessage = `Email limit exceeded. Required: ${recipientCount}, Remaining: ${emailUsage.sends_remaining}. If this is a one-off exception and the ammount needed is close to your remaininglimit, email support@churchspace.co and we may increase your limit for this month at no extra charge.`;
+        const errorMessage = `Email limit exceeded. Required: ${recipientCount}, Remaining: ${emailUsage.sends_remaining}. If this is a one-off exception and the amount needed is close to your remaining limit, email support@churchspace.co and we may increase your limit for this month at no extra charge.`;
         await supabase
           .from("emails")
           .update({

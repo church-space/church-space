@@ -108,7 +108,7 @@ const data = (role: string | null) => {
           },
           {
             title: "Branding",
-            url: "/settings/brand-colors",
+            url: "/settings/branding",
           },
           {
             title: "Plan and Billing",

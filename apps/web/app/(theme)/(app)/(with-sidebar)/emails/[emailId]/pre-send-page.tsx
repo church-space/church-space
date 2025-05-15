@@ -1481,7 +1481,7 @@ export default function PreSendPage({
                       <p className="px-2 text-xs text-muted-foreground">
                         Select the Planning Center list that you would like to
                         send this email to. If they are unsubscribed from the
-                        Cateogry, the person will not receive the email.
+                        category, the person will not receive the email.
                       </p>
                     )}
                     <Label className="ml-0.5 mt-3">Category</Label>

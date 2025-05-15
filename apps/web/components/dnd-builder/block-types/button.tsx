@@ -39,8 +39,8 @@ export default function ButtonBlock({
         className={cn(
           "inline-flex h-9 items-center px-4 py-2 text-sm font-semibold",
           size === "full" && "w-full justify-center",
-          size === "medium" && "!text-cetner w-fit justify-center px-16",
-          size === "large" && "!text-cetner h-14 w-fit justify-center px-8",
+          size === "medium" && "w-fit justify-center px-16 text-center",
+          size === "large" && "h-14 w-fit justify-center px-8 text-center",
           style === "filled"
             ? ["hover:opacity-90"]
             : ["border-2", "hover:bg-opacity-10"],

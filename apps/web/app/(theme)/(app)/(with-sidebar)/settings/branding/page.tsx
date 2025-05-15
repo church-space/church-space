@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Brand Colors",
+  title: "Branding",
 };
 
 export default async function Page() {

@@ -121,7 +121,7 @@ const steps = [
     id: "brand-colors",
     title: "Add your brand colors",
     description: "Add your brand colors to your church space.",
-    href: "/settings/brand-colors",
+    href: "/settings/branding",
     buttonText: "Add",
     icon: Palette,
     completed: false,

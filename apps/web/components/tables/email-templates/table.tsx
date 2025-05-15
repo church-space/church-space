@@ -58,7 +58,7 @@ export default function EmailTemplatesTable({
           <div className="flex flex-row items-center gap-2">
             <Link href="/emails/templates/edit-footer">
               <Button className="hidden md:block" variant="outline">
-                Deafult Footer
+                Default Footer
               </Button>
             </Link>
             <Button onClick={() => setIsNewEmailTemplateOpen(true)}>
