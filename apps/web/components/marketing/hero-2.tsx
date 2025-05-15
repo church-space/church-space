@@ -50,8 +50,15 @@ export default function HeroSection() {
         <div className="px-4">
           <div className="mx-auto -mt-16 h-[25rem] w-[38rem] max-w-[90rem] translate-y-16 rounded border shadow-xl sm:h-auto sm:w-auto md:rounded-xl">
             <Image
-              className="z-1 relative rounded md:rounded-xl"
+              className="z-1 relative hidden rounded dark:block md:rounded-xl"
               src="https://auth.churchspace.co/storage/v1/object/public/email_assets//hero-new.png"
+              alt="Church Space Drag and Drop Email Builder"
+              width={2363}
+              height={1635}
+            />
+            <Image
+              className="z-1 relative rounded dark:hidden md:rounded-xl"
+              src="https://auth.churchspace.co/storage/v1/object/public/email_assets//hero-light.png"
               alt="Church Space Drag and Drop Email Builder"
               width={2363}
               height={1635}

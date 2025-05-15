@@ -168,7 +168,7 @@ export default function Homepage() {
                     <span className="text-primary">
                       <block.icon />
                     </span>
-                    <span className="text-white">{block.label}</span>
+                    <span className="">{block.label}</span>
                   </div>
                 ))}
               </div>

@@ -17,12 +17,7 @@ export default async function Layout({
   const isLoggedIn = session?.session !== null;
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-      forcedTheme="dark"
-      enableSystem={false}
-    >
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <div className="relative flex min-h-screen flex-col">
         <Header isLoggedIn={isLoggedIn} />
         {children}
