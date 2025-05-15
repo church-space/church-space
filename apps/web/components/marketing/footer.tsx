@@ -50,6 +50,11 @@ const links = [
         href: "https://help.churchspace.co/getting-started",
         target: "_blank",
       },
+      {
+        title: "Changelog",
+        href: "https://help.churchspace.co/changelog",
+        target: "_blank",
+      },
     ],
   },
 
