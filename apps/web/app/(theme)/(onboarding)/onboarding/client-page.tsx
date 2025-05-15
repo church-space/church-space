@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@church-space/ui/button";
 import { handleExpiredInvite } from "./actions";
+import { useState } from "react";
 
 interface ClientPageProps {
   inviteErrorParam?: boolean;
@@ -19,6 +20,8 @@ export default function ClientPage({
   const error = params.error;
   const inviteError =
     inviteErrorParam || searchParams.get("inviteError") === "true";
+
+  const [hideInviteError, setHideInviteError] = useState(false);
 
   return (
     <div className="flex w-full flex-1 -translate-y-16 flex-col justify-center gap-2 px-8 sm:max-w-lg">
@@ -55,7 +58,7 @@ export default function ClientPage({
               transition={{ duration: 0.5, delay: 0.2 }}
               className="rounded-xl border bg-background p-6 shadow-md"
             >
-              <h2 className="mb-2 text-center text-lg font-medium">
+              <h2 className="mb-2 text-center text-xl font-semibold">
                 Connect to Planning Center
               </h2>
               <p className="text-center text-sm">
@@ -72,13 +75,17 @@ export default function ClientPage({
                   </div>
                 )}
 
-                {inviteError && (
+                {inviteError && !hideInviteError && (
                   <div className="rounded-md border border-destructive p-4 text-center">
                     <p className="mb-2">
                       Your invite link has expired or is invalid.
                     </p>
                     <form action={handleExpiredInvite}>
-                      <Button type="submit" variant="outline">
+                      <Button
+                        type="submit"
+                        variant="outline"
+                        onClick={() => setHideInviteError(true)}
+                      >
                         Clear Expired Invite
                       </Button>
                     </form>
