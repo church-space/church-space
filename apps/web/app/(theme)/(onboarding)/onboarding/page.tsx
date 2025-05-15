@@ -28,6 +28,7 @@ export default async function Page() {
   let organizationId: string | null = null;
   let role: string | null = null;
   let emailAddress: string | null = null;
+  let validInvite = false;
 
   if (invite) {
     const jwtSecret = process.env.INVITE_MEMBERS_SECRET;
@@ -35,8 +36,8 @@ export default async function Page() {
       console.error(
         "[Onboarding Page] INVITE_MEMBERS_SECRET environment variable is not set",
       );
-      // Clean up invite cookie and redirect
-      return redirect("/onboarding?inviteError=true");
+      // Continue without the invite - client side will clean up expired invite cookie
+      return <ClientPage inviteErrorParam={true} />;
     }
 
     try {
@@ -70,18 +71,27 @@ export default async function Page() {
       role = payload.role;
       emailAddress = payload.email;
 
-      // If the invite has expired, delete cookie and redirect
+      // If the invite has expired, just continue without it
       if (inviteExpires < new Date()) {
-        return redirect("/onboarding?inviteError=true");
+        return <ClientPage inviteErrorParam={true} />;
       }
-    } catch (error) {
-      console.error("[Onboarding Page] Error verifying invite:", error);
-      // Delete the invalid invite cookie before redirecting
-      return redirect("/onboarding?inviteError=true");
+
+      validInvite = true;
+    } catch (error: any) {
+      // For JWT expiration errors, just log once and continue without the invite
+      if (error.code === "ERR_JWT_EXPIRED") {
+        console.log("[Onboarding Page] Invite token expired");
+      } else {
+        console.error("[Onboarding Page] Error verifying invite:", error);
+      }
+
+      // Continue without the invite - client side will clean up expired invite cookie
+      return <ClientPage inviteErrorParam={true} />;
     }
 
     // Process valid invite with matching user
     if (
+      validInvite &&
       user?.user?.email === emailAddress &&
       user?.user?.id &&
       organizationId &&
@@ -101,7 +111,7 @@ export default async function Page() {
         // Cookie handling will happen on the /hello page
         redirect(`/hello`);
       }
-    } else {
+    } else if (validInvite) {
       console.log(
         "[Onboarding Page] User email doesn't match invite email or missing required data",
         {

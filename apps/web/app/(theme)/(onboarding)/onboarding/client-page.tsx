@@ -6,20 +6,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@church-space/ui/button";
 import { handleExpiredInvite } from "./actions";
-import { useEffect } from "react";
 
-export default function ClientPage() {
+interface ClientPageProps {
+  inviteErrorParam?: boolean;
+}
+
+export default function ClientPage({
+  inviteErrorParam = false,
+}: ClientPageProps) {
   const params = useParams();
   const searchParams = useSearchParams();
   const error = params.error;
-  const inviteError = searchParams.get("inviteError") === "true";
-
-  // If there's an invite error, automatically clean up the cookie
-  useEffect(() => {
-    if (inviteError) {
-      handleExpiredInvite();
-    }
-  }, [inviteError]);
+  const inviteError =
+    inviteErrorParam || searchParams.get("inviteError") === "true";
 
   return (
     <div className="flex w-full flex-1 -translate-y-16 flex-col justify-center gap-2 px-8 sm:max-w-lg">

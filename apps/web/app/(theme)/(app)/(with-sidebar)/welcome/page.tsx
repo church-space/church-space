@@ -20,6 +20,7 @@ import {
   Palette,
   XIcon,
   LinkFilled,
+  Headset,
 } from "@church-space/ui/icons";
 import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
@@ -124,7 +125,7 @@ const steps = [
     buttonText: "Add",
     icon: Palette,
     completed: false,
-    ownerOnly: false,
+    ownerOnly: true,
   },
   {
     id: "email-footer",
@@ -134,6 +135,17 @@ const steps = [
     href: "/emails/templates/edit-footer",
     buttonText: "Create",
     icon: FooterIcon,
+    completed: false,
+    ownerOnly: true,
+  },
+  {
+    id: "help-center",
+    title: "Visit the help center",
+    description:
+      "Visit the help center to learn more about Church Space and how to use it.",
+    href: "https://help.churchspace.co",
+    buttonText: "Visit",
+    icon: Headset,
     completed: false,
     ownerOnly: true,
   },
