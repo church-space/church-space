@@ -49,6 +49,7 @@
             "group": "Billing",
             "pages": [
               "billing/subscribing-to-church-space",
+              "billing/get-an-invoice",
               "billing/update-billing-information",
               "billing/changing-your-plan",
               "billing/cancelling-your-subscription",
