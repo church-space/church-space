@@ -281,11 +281,19 @@ export default function WelcomePage() {
         animate="visible"
         variants={containerVariants}
       >
-        <motion.h1 className="text-4xl font-bold" variants={itemVariants}>
+        <motion.h1
+          className="text-balance text-4xl font-bold"
+          variants={itemVariants}
+        >
           Welcome to Church Space
         </motion.h1>
-        <motion.p className="text-lg" variants={itemVariants}>
-          Let&apos;s get started by setting a few things up.
+        <motion.p className="text-base" variants={itemVariants}>
+          The steps below will help you get started on your journey. If you get
+          stuck at any point feel free to reach out to us at{" "}
+          <Link href="mailto:support@churchspace.co" className="underline">
+            support@churchspace.co
+          </Link>
+          .
         </motion.p>
 
         <div className="mt-4 grid grid-cols-1 gap-4">
