@@ -641,6 +641,9 @@ export default function Page() {
       const { error } = await deleteQRCode(supabase, qrCodeId);
       if (error) throw error;
 
+      // Invalidate the qr-links query
+      await queryClient.invalidateQueries({ queryKey: ["qr-links"] });
+
       const updatedQRCodes = linkData.qrCodes.filter(
         (qr) => qr.id !== qrCodeId,
       );
