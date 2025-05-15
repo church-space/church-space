@@ -66,6 +66,7 @@
             "group": "Emails",
             "pages": [
               "emails/creating-an-email",
+              "emails/duplicate-and-replicate-emails",
               "emails/block-types",
               "emails/merge-tags",
               "emails/cancelling-a-scheduled-email",
