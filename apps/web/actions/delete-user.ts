@@ -161,6 +161,12 @@ export const deleteUserAction = authActionClient
     } catch (error) {
       console.error("Error deleting user:", error);
 
+      // Check if the error is a Next.js redirect error
+      if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+        // Re-throw the error to let Next.js handle the redirect
+        throw error;
+      }
+
       const errorMessage =
         error instanceof Error
           ? error.message
