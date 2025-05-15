@@ -30,8 +30,7 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Ellipsis, LoaderIcon, Users } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { useIsMobile } from "@/hooks/use-is-mobile";
+import { useState, useEffect } from "react";
 import AutomationBuilder from "@/components/automation-builder/automation-builder";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -60,14 +59,7 @@ import {
 } from "@church-space/ui/tooltip";
 import LoadingPage from "./loading-page";
 import AutomationNotFound from "@/components/not-found/automation";
-import {
-  Email,
-  HourglassClock,
-  Edit,
-  Trash,
-  Footsteps,
-  Settings,
-} from "@church-space/ui/icons";
+import { Edit, Trash, Footsteps, Settings } from "@church-space/ui/icons";
 import { Tabs, TabsContent, TabsTrigger } from "@church-space/ui/tabs";
 import { motion } from "framer-motion";
 import { TabsList } from "@church-space/ui/tabs";
@@ -130,7 +122,6 @@ export default function Page() {
     redirect("/emails/automations");
   }
 
-  const isMobile = useIsMobile();
   const { toast } = useToast();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
@@ -265,20 +256,6 @@ export default function Page() {
     }
     // Add isEditingLink to dependencies to trigger reset on cancel
   }, [transformedAutomation, isEditingLink]);
-
-  // Function to handle sheet close attempt
-  const handleSheetClose = () => {
-    if (hasUnsavedChanges) {
-      // Show warning toast
-      toast({
-        title: "Unsaved Changes",
-        description: "Please save or cancel your changes before closing.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
 
   if (isLoadingAutomation) {
     return <LoadingPage />;
@@ -507,11 +484,6 @@ export default function Page() {
           variant: "destructive",
         });
       });
-  };
-
-  const startEditingLink = () => {
-    setIsEditingLink(true);
-    // TODO: Implement start editing link
   };
 
   return (

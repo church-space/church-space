@@ -110,7 +110,6 @@ export default function PostSendPage({
   orgFooterDetails: any;
 }) {
   const [email] = useState<typeof initialEmail>(initialEmail);
-  const [previewOpen, setPreviewOpen] = useQueryState("previewOpen");
   const [search] = useQueryState("search", {
     parse: (value) => value,
     serialize: (value) => value ?? null,
