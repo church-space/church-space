@@ -125,6 +125,16 @@ export default function Page() {
   const { toast } = useToast();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  useEffect(() => {
+    if (hasUnsavedChanges) {
+      toast({
+        title: "Unsaved Changes",
+        description:
+          "You have unsaved changes. Please save them before leaving.",
+      });
+    }
+  }, [hasUnsavedChanges]);
+
   const { data: automationResponse, isLoading: isLoadingAutomation } = useQuery(
     {
       queryKey: ["email-automation", automationId],

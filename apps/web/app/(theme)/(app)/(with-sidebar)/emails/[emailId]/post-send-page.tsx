@@ -46,7 +46,6 @@ import {
   EmailOpened,
   EmailUnsubscribed,
   LinkIcon,
-  PaperPlane,
   TemplatesIcon,
   UserPen,
   Users,
@@ -65,7 +64,7 @@ import {
 import { useToast } from "@church-space/ui/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Loader2, MoreHorizontal, Plus, SaveIcon } from "lucide-react";
+import { Loader2, MoreHorizontal, SaveIcon } from "lucide-react";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
