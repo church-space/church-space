@@ -3,6 +3,7 @@
 import { createClient } from "@church-space/supabase/server";
 import { authActionClient } from "./safe-action";
 import { z } from "zod";
+import type { ActionResponse } from "@/types/action";
 
 // Add PCOConnection interface
 interface PCOConnection {
@@ -149,53 +150,36 @@ const handlePcoDisconnect = authActionClient
   .metadata({
     name: "handle-pco-disconnect",
   })
-  .action(async ({ parsedInput }) => {
-    const supabase = await createClient();
+  .action(async ({ parsedInput }): Promise<ActionResponse> => {
+    try {
+      const supabase = await createClient();
 
-    // Get the PCO connection details
-    const { data: pcoConnectionData, error: pcoConnectionError } =
-      await supabase
-        .from("pco_connections")
-        .select("*") // Select all fields to match PCOConnection interface
-        .eq("organization_id", parsedInput.organizationId)
-        .single();
+      // Get the PCO connection details
+      const { data: pcoConnectionData, error: pcoConnectionError } =
+        await supabase
+          .from("pco_connections")
+          .select("*") // Select all fields to match PCOConnection interface
+          .eq("organization_id", parsedInput.organizationId)
+          .single();
 
-    if (pcoConnectionError || !pcoConnectionData) {
-      throw new Error("No PCO connection found");
-    }
+      if (pcoConnectionError || !pcoConnectionData) {
+        console.error(
+          "No PCO connection found for org:",
+          parsedInput.organizationId,
+          pcoConnectionError,
+        );
+        return { success: false, error: "No PCO connection found" };
+      }
 
-    // Cast to PCOConnection type
-    const pcoConnection: PCOConnection = pcoConnectionData as PCOConnection;
+      // Cast to PCOConnection type
+      const pcoConnection: PCOConnection = pcoConnectionData as PCOConnection;
 
-    // Get existing webhooks from PCO
-    const webhooksResponse = await fetchPCOWithRetry(
-      "https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions",
-      {
-        headers: {
-          // Authorization Bearer token is set by fetchPCOWithRetry
-          "X-PCO-API-Version": "2022-10-20",
-        },
-      },
-      supabase,
-      parsedInput.organizationId,
-      pcoConnection,
-    );
-
-    const webhooksData = await webhooksResponse.json();
-
-    // Delete webhooks that match our URL pattern
-    for (const webhook of webhooksData.data) {
-      if (
-        webhook.attributes.url.startsWith(
-          "https://churchspace.co/api/pco/webhook/",
-        )
-      ) {
-        await fetchPCOWithRetry(
-          `https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions/${webhook.id}`,
+      // Manage PCO webhooks
+      try {
+        const webhooksResponse = await fetchPCOWithRetry(
+          "https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions",
           {
-            method: "DELETE",
             headers: {
-              // Authorization Bearer token is set by fetchPCOWithRetry
               "X-PCO-API-Version": "2022-10-20",
             },
           },
@@ -203,27 +187,107 @@ const handlePcoDisconnect = authActionClient
           parsedInput.organizationId,
           pcoConnection,
         );
+
+        if (!webhooksResponse.ok) {
+          const errorText = await webhooksResponse.text();
+          console.error("Failed to fetch PCO webhooks:", {
+            status: webhooksResponse.status,
+            errorText,
+          });
+          return { success: false, error: "Failed to fetch PCO webhooks." };
+        }
+
+        const webhooksData = await webhooksResponse.json();
+
+        // Delete webhooks that match our URL pattern
+        for (const webhook of webhooksData.data) {
+          if (
+            webhook.attributes.url.startsWith(
+              "https://churchspace.co/api/pco/webhook/",
+            )
+          ) {
+            const deleteWebhookResponse = await fetchPCOWithRetry(
+              `https://api.planningcenteronline.com/webhooks/v2/webhook_subscriptions/${webhook.id}`,
+              {
+                method: "DELETE",
+                headers: {
+                  "X-PCO-API-Version": "2022-10-20",
+                },
+              },
+              supabase,
+              parsedInput.organizationId,
+              pcoConnection,
+            );
+            if (!deleteWebhookResponse.ok) {
+              const errorText = await deleteWebhookResponse.text();
+              console.error(`Failed to delete PCO webhook ${webhook.id}`, {
+                status: deleteWebhookResponse.status,
+                errorText,
+              });
+              return {
+                success: false,
+                error: `Failed to delete PCO webhook ${webhook.id}.`,
+              };
+            }
+          }
+        }
+      } catch (webhookError) {
+        console.error("Error managing PCO webhooks:", webhookError);
+        return {
+          success: false,
+          error:
+            webhookError instanceof Error
+              ? webhookError.message
+              : "Unknown error managing PCO webhooks.",
+        };
       }
+
+      // Delete webhooks from our database for this organization
+      const { error: deleteWebhooksError } = await supabase
+        .from("pco_webhooks")
+        .delete()
+        .eq("organization_id", parsedInput.organizationId);
+
+      if (deleteWebhooksError) {
+        console.error(
+          "Error deleting webhooks from database:",
+          deleteWebhooksError,
+        );
+        return {
+          success: false,
+          error: "Failed to delete webhooks from database.",
+        };
+      }
+
+      // Delete the PCO connection
+      const { error: deleteConnectionError } = await supabase
+        .from("pco_connections")
+        .delete()
+        .eq("organization_id", parsedInput.organizationId)
+        .eq("id", pcoConnection.id);
+
+      if (deleteConnectionError) {
+        console.error(
+          "Error deleting PCO connection from database:",
+          deleteConnectionError,
+        );
+        return {
+          success: false,
+          error: `Failed to delete PCO connection: ${deleteConnectionError.message}`,
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Unexpected error in handlePcoDisconnect:", error);
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unknown error during PCO disconnection",
+      };
     }
-
-    // Delete webhooks from our database for this organization
-    await supabase
-      .from("pco_webhooks")
-      .delete()
-      .eq("organization_id", parsedInput.organizationId);
-
-    // Delete the PCO connection
-    const { error: deleteConnectionError } = await supabase
-      .from("pco_connections")
-      .delete()
-      .eq("organization_id", parsedInput.organizationId)
-      .eq("id", pcoConnection.id);
-
-    if (deleteConnectionError) {
-      throw new Error("Failed to delete PCO connection");
-    }
-
-    return { success: true };
   });
 
 export { handlePcoDisconnect };

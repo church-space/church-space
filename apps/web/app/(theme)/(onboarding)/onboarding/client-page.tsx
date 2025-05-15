@@ -4,8 +4,6 @@ import ConnectToPcoButton from "@/components/pco/connect-to-pco-button";
 import { ChurchSpaceBlack } from "@church-space/ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { useParams, useSearchParams } from "next/navigation";
-import { Button } from "@church-space/ui/button";
-import { useState } from "react";
 import Link from "next/link";
 
 interface ClientPageProps {
@@ -20,8 +18,6 @@ export default function ClientPage({
   const error = params.error;
   const inviteError =
     inviteErrorParam || searchParams.get("inviteError") === "true";
-
-  const [hideInviteError, setHideInviteError] = useState(false);
 
   return (
     <div className="flex w-full flex-1 -translate-y-16 flex-col justify-center gap-2 px-8 sm:max-w-lg">
@@ -84,7 +80,7 @@ export default function ClientPage({
                   </div>
                 )}
 
-                {inviteError && !hideInviteError && (
+                {inviteError && (
                   <div className="rounded-md border border-destructive bg-destructive/10 p-4 text-center text-sm">
                     Your invite link has expired or is invalid. You can still
                     continue to signup with a new account, or you can contact

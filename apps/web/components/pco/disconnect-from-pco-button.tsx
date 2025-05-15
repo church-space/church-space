@@ -35,13 +35,51 @@ export default function DisconnectFromPcoButton({
   const handleDisconnect = async () => {
     try {
       setIsLoading(true);
-      await handlePcoDisconnect({
+      const result = await handlePcoDisconnect({
         organizationId: organizationId,
       });
 
-      router.push("/pco-reconnect");
+      // Ensure result is defined before accessing its properties
+      if (!result) {
+        console.error("PCO disconnect action returned undefined result");
+        setIsLoading(false);
+        return;
+      }
+
+      if (result.serverError) {
+        console.error(
+          "Server error during PCO disconnect:",
+          result.serverError,
+        );
+        setIsLoading(false);
+        // Show a generic error to the user
+        return;
+      }
+
+      if (result.validationErrors) {
+        console.error(
+          "Validation error during PCO disconnect:",
+          result.validationErrors,
+        );
+        setIsLoading(false);
+        // Show a generic error to the user or specific validation messages
+        return;
+      }
+
+      // The 'data' property holds the actual return value of our action (ActionResponse)
+      if (result.data && result.data.success) {
+        router.push("/pco-reconnect");
+      } else {
+        console.error(
+          "Failed to disconnect PCO:",
+          result.data?.error || "Unknown error during disconnect",
+        );
+        // Potentially show a toast notification to the user here
+        setIsLoading(false);
+      }
     } catch (error) {
-      console.error("Error initiating PCO connection:", error);
+      // This catch block handles errors in invoking the action itself or other client-side errors
+      console.error("Error calling PCO disconnect action:", error);
       setIsLoading(false);
     }
   };
