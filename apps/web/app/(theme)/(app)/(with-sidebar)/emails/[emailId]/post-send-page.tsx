@@ -119,6 +119,9 @@ export default function PostSendPage({
     parse: (value) => value as EmailRecipientStatus | null,
     serialize: (value) => value || "all",
   });
+  const [activeTab, setActiveTab] = useQueryState("tab", {
+    defaultValue: "details",
+  });
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -576,7 +579,11 @@ export default function PostSendPage({
             </div>
           </div>
         </motion.div>
-        <Tabs defaultValue="details">
+        <Tabs
+          defaultValue="details"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList className="mb-2 h-fit w-full justify-start rounded-none border-b bg-transparent p-0 shadow-none">
             <TabsTrigger
               value="details"

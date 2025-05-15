@@ -71,6 +71,7 @@ import {
 import { Tabs, TabsContent, TabsTrigger } from "@church-space/ui/tabs";
 import { motion } from "framer-motion";
 import { TabsList } from "@church-space/ui/tabs";
+import { useQueryState } from "nuqs";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -195,6 +196,9 @@ export default function Page() {
   const [isUpdatingStatus] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useQueryState("tab", {
+    defaultValue: "steps",
+  });
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -808,7 +812,11 @@ export default function Page() {
             )}
           </div>
         </motion.div>
-        <Tabs defaultValue="steps">
+        <Tabs
+          defaultValue="steps"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList className="mb-2 h-fit w-full justify-start rounded-none border-b bg-transparent p-0 shadow-none">
             <TabsTrigger
               value="steps"
