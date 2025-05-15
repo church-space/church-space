@@ -39,6 +39,7 @@ import {
 } from "@church-space/ui/dropdown-menu";
 import {
   ChartBarAxisX,
+  CursorClick,
   Email,
   EmailBounced,
   EmailComplained,
@@ -62,7 +63,7 @@ import {
 import { useToast } from "@church-space/ui/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Loader2, MoreHorizontal, SaveIcon } from "lucide-react";
+import { Loader2, MoreHorizontal, Plus, SaveIcon } from "lucide-react";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
@@ -797,154 +798,98 @@ export default function PostSendPage({
                   </Card>
                 ))}
               </div>
-              <Card className="border-primary bg-gradient-to-br from-primary/5 to-primary/10">
-                <CardHeader className="px-4 pb-1.5 pt-4">
-                  <CardTitle className="flex items-center gap-3 text-lg font-bold">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
-                      <LinkIcon height={"20"} width={"20"} />
-                    </div>
-                    <div className="flex items-baseline gap-1.5">
-                      Link Clicks
-                      <span className="font-normal text-muted-foreground">
-                        ({stats?.data?.metrics?.total_clicks || 0} total)
-                      </span>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="max-h-[178px] overflow-y-auto px-4 pr-5">
-                  <Table className="w-full">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Link</TableHead>
-                        <TableHead className="text-right">Clicks</TableHead>
-                        <TableHead className="text-right">Percentage</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {stats?.data?.linkStats
-                        ?.slice() // Create a shallow copy to avoid mutating the original array
-                        ?.sort(
-                          (
-                            a: { link_url: string; total_clicks: number },
-                            b: { link_url: string; total_clicks: number },
-                          ) => b.total_clicks - a.total_clicks,
-                        ) // Sort by total_clicks descending
-                        ?.map(
-                          (
-                            linkStat: {
-                              link_url: string;
-                              total_clicks: number;
-                            },
-                            index: number,
-                          ) => {
-                            const totalClicks =
-                              stats?.data?.metrics?.total_clicks || 0;
-                            const percentage =
-                              totalClicks > 0
-                                ? Math.round(
-                                    (linkStat.total_clicks / totalClicks) * 100,
-                                  )
-                                : 0;
-                            return (
-                              <TableRow key={index}>
-                                <TableCell className="max-w-[240px] truncate">
-                                  <span className="block cursor-pointer truncate font-semibold text-foreground hover:overflow-visible hover:text-clip hover:underline">
-                                    {linkStat.link_url}
-                                  </span>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  {linkStat.total_clicks}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  {percentage}%
-                                </TableCell>
-                              </TableRow>
-                            );
-                          },
-                        )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
             </motion.div>
             <motion.div
-              className="hidden gap-2 sm:grid-cols-2 lg:grid xl:grid-cols-4"
+              className="space-y-4 rounded-xl border py-4 shadow"
               variants={itemVariants}
             >
-              {emailStats.map((stat, index) => (
-                <Card
-                  key={index}
-                  className={cn(
-                    "flex items-center gap-3.5 overflow-hidden p-3",
-                    (stat.title === "opens" && stat.rate > 25) ||
-                      (stat.title === "unsubscribes" && stat.rate < 0.2) ||
-                      (stat.title === "bounces" && stat.rate < 0.5) ||
-                      (stat.title === "complaints" && stat.rate < 0.01)
-                      ? "border-green-500 bg-gradient-to-br from-green-500/5 to-green-500/10"
-                      : "border-red-500 bg-gradient-to-br from-red-500/5 to-red-500/10",
-                  )}
-                >
-                  <div
+              <div className="flex items-center gap-3 px-4 text-lg font-bold">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
+                  <ChartBarAxisX height={"20"} width={"20"} />
+                </div>
+                <div className="flex items-baseline gap-1.5">Email Metrics</div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 px-4 sm:grid-cols-2 lg:grid-cols-4">
+                {emailStats.map((stat, index) => (
+                  <Card
+                    key={index}
                     className={cn(
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
+                      "flex items-center gap-3.5 overflow-hidden p-3",
                       (stat.title === "opens" && stat.rate > 25) ||
                         (stat.title === "unsubscribes" && stat.rate < 0.2) ||
                         (stat.title === "bounces" && stat.rate < 0.5) ||
                         (stat.title === "complaints" && stat.rate < 0.01)
-                        ? "border-green-500 bg-green-500/10 text-green-500"
-                        : "border-red-500 bg-red-500/10 text-red-500",
+                        ? "border-green-500 bg-gradient-to-br from-green-500/5 to-green-500/10"
+                        : "border-red-500 bg-gradient-to-br from-red-500/5 to-red-500/10",
                     )}
                   >
-                    <stat.icon height={"20"} width={"20"} />
-                  </div>
-                  <div className="flex w-full flex-col gap-1">
-                    <div className="flex w-full items-center justify-between gap-2">
-                      <p className="text-sm capitalize leading-none text-muted-foreground">
-                        {stat.title}
-                      </p>
-                      <p
-                        className={cn(
-                          "text-sm leading-none",
-                          // Open rate thresholds
-                          stat.title === "opens"
-                            ? stat.rate > 25
-                              ? "text-green-500"
-                              : stat.rate >= 15
-                                ? "text-yellow-500"
-                                : "text-red-500"
-                            : // Unsubscribe rate thresholds
-                              stat.title === "unsubscribes"
-                              ? stat.rate < 0.2
+                    <div
+                      className={cn(
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
+                        (stat.title === "opens" && stat.rate > 25) ||
+                          (stat.title === "unsubscribes" && stat.rate < 0.2) ||
+                          (stat.title === "bounces" && stat.rate < 0.5) ||
+                          (stat.title === "complaints" && stat.rate < 0.01)
+                          ? "border-green-500 bg-green-500/10 text-green-500"
+                          : "border-red-500 bg-red-500/10 text-red-500",
+                      )}
+                    >
+                      <stat.icon height={"20"} width={"20"} />
+                    </div>
+                    <div className="flex w-full flex-col gap-1">
+                      <div className="flex w-full items-center justify-between gap-2">
+                        <p className="text-sm capitalize leading-none text-muted-foreground">
+                          {stat.title}
+                        </p>
+                        <p
+                          className={cn(
+                            "text-sm leading-none",
+                            // Open rate thresholds
+                            stat.title === "opens"
+                              ? stat.rate > 25
                                 ? "text-green-500"
-                                : stat.rate <= 0.5
+                                : stat.rate >= 15
                                   ? "text-yellow-500"
                                   : "text-red-500"
-                              : // Bounce rate thresholds
-                                stat.title === "bounces"
-                                ? stat.rate < 0.5
+                              : // Unsubscribe rate thresholds
+                                stat.title === "unsubscribes"
+                                ? stat.rate < 0.2
                                   ? "text-green-500"
-                                  : stat.rate <= 1
+                                  : stat.rate <= 0.5
                                     ? "text-yellow-500"
                                     : "text-red-500"
-                                : // Complaint rate thresholds
-                                  stat.rate < 0.01
-                                  ? "text-green-500"
-                                  : stat.rate <= 0.05
-                                    ? "text-yellow-500"
-                                    : "text-red-500",
-                        )}
-                      >
-                        {stat.rate}%
-                      </p>
+                                : // Bounce rate thresholds
+                                  stat.title === "bounces"
+                                  ? stat.rate < 0.5
+                                    ? "text-green-500"
+                                    : stat.rate <= 1
+                                      ? "text-yellow-500"
+                                      : "text-red-500"
+                                  : // Complaint rate thresholds
+                                    stat.rate < 0.01
+                                    ? "text-green-500"
+                                    : stat.rate <= 0.05
+                                      ? "text-yellow-500"
+                                      : "text-red-500",
+                          )}
+                        >
+                          {stat.rate}%
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xl font-bold leading-none">
+                          {stat.count.toLocaleString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xl font-bold leading-none">
-                        {stat.count.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
+              <div className="w-full border-t"></div>
+              <div className="px-4">
+                total recipeients, total opens, total unsubscribes, total
+                bounces, total complaints, total clicks
+              </div>
             </motion.div>
             <motion.div
               className="flex w-full -translate-y-2 flex-col items-end justify-end text-xs text-muted-foreground xl:flex-row xl:justify-between"
@@ -959,12 +904,119 @@ export default function PostSendPage({
                 <p>Your email stats will be updated in a few minutes.</p>
               )}
             </motion.div>
+            <motion.div variants={itemVariants}>
+              <Card className="">
+                <CardHeader className="px-4 pb-1.5 pt-4">
+                  <CardTitle className="flex items-center gap-3 text-lg font-bold">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
+                      <LinkIcon height={"20"} width={"20"} />
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      Link Clicks
+                      <span className="font-normal text-muted-foreground">
+                        ({stats?.data?.metrics?.total_clicks} total)
+                      </span>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 pr-5">
+                  {stats?.data?.metrics?.total_clicks ? (
+                    <Table className="w-full">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Link</TableHead>
+                          <TableHead className="text-right">Clicks</TableHead>
+                          <TableHead className="text-right">
+                            Percentage
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {stats?.data?.linkStats
+                          ?.slice() // Create a shallow copy to avoid mutating the original array
+                          ?.sort(
+                            (
+                              a: { link_url: string; total_clicks: number },
+                              b: { link_url: string; total_clicks: number },
+                            ) => b.total_clicks - a.total_clicks,
+                          ) // Sort by total_clicks descending
+                          ?.map(
+                            (
+                              linkStat: {
+                                link_url: string;
+                                total_clicks: number;
+                              },
+                              index: number,
+                            ) => {
+                              const totalClicks =
+                                stats?.data?.metrics?.total_clicks || 0;
+                              const percentage =
+                                totalClicks > 0
+                                  ? Math.round(
+                                      (linkStat.total_clicks / totalClicks) *
+                                        100,
+                                    )
+                                  : 0;
+                              return (
+                                <TableRow key={index}>
+                                  <TableCell className="max-w-[240px] truncate">
+                                    <span className="block cursor-pointer truncate font-semibold text-foreground hover:overflow-visible hover:text-clip hover:underline">
+                                      {linkStat.link_url}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {linkStat.total_clicks}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {percentage}%
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            },
+                          )}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <div className="flex min-h-[200px] flex-col items-center justify-center rounded-lg p-6">
+                      <div className="relative mt-8 w-64">
+                        <div className="flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-md">
+                          <div className="flex items-center gap-2">
+                            <LinkIcon height={"20"} width={"20"} />
+                            <div className="h-6 w-1/3 rounded bg-muted"></div>
+                          </div>
+                          <div className="h-4 w-full rounded bg-muted"></div>
+                          <div className="h-4 w-3/4 rounded bg-muted"></div>
+                        </div>
+                        <div className="absolute -right-3 -top-3 rounded-full border bg-card p-1 shadow-sm">
+                          <CursorClick />
+                        </div>
+                      </div>
+
+                      <h3 className="mt-4 text-center text-xl font-medium text-muted-foreground">
+                        No link clicks yet
+                      </h3>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
           </TabsContent>
           <TabsContent value="recipients">
             <motion.div
               className="mt-4 flex flex-col gap-4"
               variants={itemVariants}
             >
+              <CardTitle className="flex items-center gap-3 text-lg font-bold">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
+                  <Users height={"20"} width={"20"} />
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  Recipients
+                  <span className="font-normal text-muted-foreground">
+                    ({stats?.data?.metrics?.total_sent} total)
+                  </span>
+                </div>
+              </CardTitle>
               <EmailRecipientsTable
                 emailId={email.id}
                 initialData={transformedRecipients}
@@ -974,14 +1026,24 @@ export default function PostSendPage({
               />
             </motion.div>
           </TabsContent>
-          <TabsContent value="content" className="h-full w-full">
+          <TabsContent value="content" className="w-full">
             <motion.div
               className="mt-4 flex flex-col gap-4"
               variants={itemVariants}
             >
               <EmailPreview
                 orgFooterDetails={orgFooterDetails?.data?.data}
-                customHeight="min-h-[calc(100vh-23rem)]"
+                customHeight="min-h-[calc(100vh-24rem)]"
+                customTitle={
+                  <CardTitle className="flex items-center gap-3 text-lg font-bold">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-primary bg-primary/10 text-primary">
+                      <Email height={"20"} width={"20"} />
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      Email Content
+                    </div>
+                  </CardTitle>
+                }
               />
             </motion.div>
           </TabsContent>

@@ -11,7 +11,7 @@ import { render } from "@react-email/render";
 import { ChevronLeft } from "@church-space/ui/icons";
 import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "@church-space/ui/cn";
 
@@ -20,11 +20,13 @@ export default function EmailPreview({
   webOnly = false,
   orgFooterDetails,
   customHeight,
+  customTitle,
 }: {
   showBackButton?: boolean;
   webOnly?: boolean;
   orgFooterDetails?: any;
   customHeight?: string;
+  customTitle?: ReactNode;
 }) {
   const [previewType, setPreviewType] = useQueryState("previewType");
   const [htmlContent, setHtmlContent] = useState<string>("");
@@ -84,7 +86,12 @@ export default function EmailPreview({
       defaultValue={webOnly ? "web" : previewType || "web"}
       onValueChange={(value) => setPreviewType(value)}
     >
-      <div className="flex items-center justify-between">
+      <div
+        className={cn(
+          "flex items-center justify-between",
+          customTitle && "mb-4",
+        )}
+      >
         {showBackButton && (
           <Link
             href={`/emails/${emailId}`}
@@ -96,15 +103,13 @@ export default function EmailPreview({
             Back to Email
           </Link>
         )}
+        {customTitle && customTitle}
         <TabsList className={cn(webOnly && "hidden")}>
           <TabsTrigger value="web">Web</TabsTrigger>
           <TabsTrigger value="mobile">Mobile</TabsTrigger>
         </TabsList>
       </div>
-      <TabsContent
-        value="web"
-        className={cn("h-[95%] overflow-auto", customHeight && customHeight)}
-      >
+      <TabsContent value="web" className={cn("h-[95%] overflow-auto")}>
         <div
           className={cn(
             "mx-auto flex h-full w-full flex-col items-start gap-4",
@@ -123,10 +128,7 @@ export default function EmailPreview({
       </TabsContent>
       <TabsContent
         value="mobile"
-        className={cn(
-          "flex h-[95%] items-center justify-center overflow-auto",
-          customHeight && customHeight,
-        )}
+        className={cn("flex h-[95%] items-center justify-center overflow-auto")}
       >
         <div className="mx-auto h-full max-h-[800px] min-h-[200px] w-full max-w-sm items-start rounded-[45px] border-8 border-black shadow-lg dark:border-muted">
           <div className="sticky w-full rounded-t-[36px] border-b bg-card pb-3 pt-2">
