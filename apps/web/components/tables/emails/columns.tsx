@@ -19,7 +19,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@church-space/ui/dropdown-menu";
-import { TemplatesIcon, Trash } from "@church-space/ui/icons";
+import {
+  Edit,
+  Eye,
+  PaletteFilled,
+  TemplatesIcon,
+  Trash,
+} from "@church-space/ui/icons";
 import { Input } from "@church-space/ui/input";
 import { ColumnDef } from "@tanstack/react-table";
 import { EllipsisVertical, Loader2, LoaderIcon } from "lucide-react";
@@ -85,10 +91,9 @@ const formatDate = (dateString: string | null | undefined) => {
 
 export const columns: ColumnDef<Email>[] = [
   {
-    header: "Subject",
-    id: "subject",
-    accessorKey: "subject",
-    minSize: 300,
+    header: "",
+    id: "actions",
+    accessorKey: "actions",
     cell: ({ row }) => {
       const email = row.original;
       const router = useRouter();
@@ -212,124 +217,115 @@ export const columns: ColumnDef<Email>[] = [
 
       return (
         <>
-          <div className="flex -translate-x-4 items-center gap-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant={"ghost"}
-                  size={"icon"}
-                  className="text-muted-foreground hover:text-foreground [&_svg]:size-4"
-                >
-                  <EllipsisVertical />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {email.status === "sent" && (
-                  <Link
-                    href={`/emails/${email.id}?tab=content`}
-                    prefetch={false}
-                  >
-                    <DropdownMenuItem>View</DropdownMenuItem>
-                  </Link>
-                )}
-                {email.status === "draft" && (
-                  <Link href={`/emails/${email.id}/editor`} prefetch={false}>
-                    <DropdownMenuItem>Edit Design</DropdownMenuItem>
-                  </Link>
-                )}
-                {email.status === "draft" && (
-                  <Link href={`/emails/${email.id}/editor`} prefetch={false}>
-                    <DropdownMenuItem>Edit Details</DropdownMenuItem>
-                  </Link>
-                )}
-                <Dialog
-                  open={isDuplicateEmailDialogOpen}
-                  onOpenChange={setIsDuplicateEmailDialogOpen}
-                >
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem
-                      onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
-                    >
-                      <TemplatesIcon />
-                      Replicate Email
-                    </DropdownMenuItem>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Replicate Email</DialogTitle>
-                      <DialogDescription>
-                        Enter a subject for the new email. It will be created as
-                        a draft with the same content and settings as the
-                        original.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="relative mb-3">
-                      <Input
-                        placeholder="New email subject"
-                        className="w-full pr-8"
-                        value={duplicateEmailName}
-                        onChange={(e) => setDuplicateEmailName(e.target.value)}
-                        maxLength={60} // Or appropriate length
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleDuplicateEmail();
-                          }
-                        }}
-                      />
-                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                        {duplicateEmailName.length} / 60
-                      </span>
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsDuplicateEmailDialogOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleDuplicateEmail}
-                        disabled={isDuplicatingEmail}
-                      >
-                        {isDuplicatingEmail ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Duplicating...
-                          </>
-                        ) : (
-                          "Duplicate"
-                        )}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-                {email.status === "draft" && (
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setDeleteOpen(true);
-                    }}
-                    className="h-fit p-0 hover:bg-transparent"
-                  >
-                    <div className="flex w-full items-center gap-2 rounded p-1.5 transition-colors hover:bg-destructive/10 hover:text-destructive">
-                      <Trash />
-                      Delete
-                    </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant={"ghost"}
+                size={"icon"}
+                className="w-7 text-muted-foreground hover:bg-muted hover:text-foreground [&_svg]:size-4"
+              >
+                <EllipsisVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {email.status === "sent" && (
+                <Link href={`/emails/${email.id}?tab=content`} prefetch={false}>
+                  <DropdownMenuItem>
+                    <Eye />
+                    View
                   </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap">
-              <Link href={`/emails/${email.id}`} prefetch={true}>
-                <Button
-                  variant="ghost"
-                  className="group h-16 w-full items-center justify-start gap-3 truncate text-wrap px-0 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
+                </Link>
+              )}
+              {email.status === "draft" && (
+                <Link href={`/emails/${email.id}/editor`} prefetch={false}>
+                  <DropdownMenuItem>
+                    <PaletteFilled /> Edit Design
+                  </DropdownMenuItem>
+                </Link>
+              )}
+              {email.status === "draft" && (
+                <Link href={`/emails/${email.id}/editor`} prefetch={false}>
+                  <DropdownMenuItem>
+                    <Edit />
+                    Edit Details
+                  </DropdownMenuItem>
+                </Link>
+              )}
+              <Dialog
+                open={isDuplicateEmailDialogOpen}
+                onOpenChange={setIsDuplicateEmailDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <DropdownMenuItem
+                    onSelect={(e) => e.preventDefault()} // Prevent DropdownMenu from closing
+                  >
+                    <TemplatesIcon />
+                    Replicate Email
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Replicate Email</DialogTitle>
+                    <DialogDescription>
+                      Enter a subject for the new email. It will be created as a
+                      draft with the same content and settings as the original.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="relative mb-3">
+                    <Input
+                      placeholder="New email subject"
+                      className="w-full pr-8"
+                      value={duplicateEmailName}
+                      onChange={(e) => setDuplicateEmailName(e.target.value)}
+                      maxLength={60} // Or appropriate length
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleDuplicateEmail();
+                        }
+                      }}
+                    />
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                      {duplicateEmailName.length} / 60
+                    </span>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDuplicateEmailDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleDuplicateEmail}
+                      disabled={isDuplicatingEmail}
+                    >
+                      {isDuplicatingEmail ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Duplicating...
+                        </>
+                      ) : (
+                        "Duplicate"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              {email.status === "draft" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDeleteOpen(true);
+                  }}
+                  className="hover:bg-transparent"
                 >
-                  {email.subject || "No Subject"}
-                </Button>
-              </Link>
-            </div>
-          </div>
+                  <Trash />
+                  Delete
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
             <DialogContent>
               <DialogHeader>
@@ -397,6 +393,28 @@ export const columns: ColumnDef<Email>[] = [
             </DialogContent>
           </Dialog>
         </>
+      );
+    },
+  },
+  {
+    header: "Subject",
+    id: "subject",
+    accessorKey: "subject",
+    minSize: 300,
+    cell: ({ row }) => {
+      const email = row.original;
+
+      return (
+        <div className="line-clamp-2 w-full min-w-64 max-w-96 text-wrap">
+          <Link href={`/emails/${email.id}`} prefetch={true}>
+            <Button
+              variant="ghost"
+              className="group h-16 w-full items-center justify-start gap-3 truncate text-wrap px-0 text-left text-base hover:bg-transparent hover:underline [&_svg]:size-3"
+            >
+              {email.subject || "No Subject"}
+            </Button>
+          </Link>
+        </div>
       );
     },
   },
