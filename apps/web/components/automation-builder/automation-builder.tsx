@@ -44,7 +44,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Plus } from "lucide-react";
 import { updateEmailAutomationAction } from "@/actions/update-email-automation";
 import CategorySelector from "../id-pages/emails/category-selector";
 import {
@@ -1175,7 +1175,7 @@ export default function EmailAutomationBuilder({
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col px-1.5">
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -1251,8 +1251,8 @@ export default function EmailAutomationBuilder({
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="flex flex-row justify-between gap-2 p-4 pb-0 sm:items-center">
-        <div className="text-lg font-semibold">Trigger and Steps</div>
+      <div className="flex flex-row justify-between gap-2 pb-2 sm:items-center">
+        <div className="text-xl font-semibold">Trigger and Steps</div>
         <div className="flex h-10 flex-row justify-end gap-2">
           {hasUnsavedChanges && (
             <>
@@ -1270,10 +1270,10 @@ export default function EmailAutomationBuilder({
         </div>
       </div>
 
-      <div className="flex-1 space-y-6 overflow-y-auto sm:p-4">
+      <div className="flex-1 space-y-6 overflow-y-auto">
         {/* Trigger Section */}
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-muted-foreground">
+        <div className="space-y-2 pt-4">
+          <div className="text-base font-medium text-muted-foreground">
             Trigger
           </div>
 
@@ -1328,9 +1328,9 @@ export default function EmailAutomationBuilder({
         </div>
 
         {/* Actions Section */}
-        <div className="space-y-4">
+        <div className="space-y-4 pt-6">
           <div className="flex items-center justify-between">
-            <div className="text-sm font-medium text-muted-foreground">
+            <div className="text-base font-medium text-muted-foreground">
               Actions
             </div>
             <div className="flex gap-2">
@@ -1386,6 +1386,66 @@ export default function EmailAutomationBuilder({
               </div>
             </SortableContext>
           </DndContext>
+          {!steps.length ? (
+            <div className="flex min-h-[200px] flex-col items-center justify-center rounded-lg p-6">
+              <div className="relative mb-8 w-64">
+                <div className="flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-md">
+                  <div className="flex items-center gap-2">
+                    <Email height={"20"} width={"20"} />
+                    <div className="h-6 w-full rounded bg-muted"></div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <HourglassClock height={"20"} width={"20"} />
+                    <div className="h-6 w-full rounded bg-muted"></div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Email height={"20"} width={"20"} />
+                    <div className="h-6 w-full rounded bg-muted"></div>
+                  </div>
+                </div>
+                <div className="absolute -right-3 -top-3 rounded-full border bg-card p-1 shadow-sm">
+                  <Plus className="h-5 w-5 text-muted-foreground" />
+                </div>
+              </div>
+
+              <h3 className="mb-4 text-center text-xl font-medium text-muted-foreground">
+                Add an action to get started
+              </h3>
+              <div className="flex gap-2">
+                <Button
+                  className="flex items-center gap-2"
+                  onClick={() => addStep("wait")}
+                >
+                  Add Wait
+                </Button>
+                <Button
+                  className="flex items-center gap-2"
+                  onClick={() => addStep("send_email")}
+                >
+                  Add Email
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex w-full items-center justify-center gap-2 pt-6">
+              <Button
+                className="flex items-center gap-2 text-muted-foreground"
+                onClick={() => addStep("wait")}
+                variant="ghost"
+              >
+                <Plus className="h-4 w-4" />
+                Add Wait
+              </Button>
+              <Button
+                className="flex items-center gap-2 text-muted-foreground"
+                onClick={() => addStep("send_email")}
+                variant="ghost"
+              >
+                <Plus className="h-4 w-4" />
+                Add Email
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
