@@ -1647,11 +1647,9 @@ const CustomFooter: React.FC<{
                         <Img
                           src={logoUrl}
                           alt="Church Logo"
-                          width="10%"
+                          width="15%"
                           style={{
-                            borderRadius: cornerRadius
-                              ? `${cornerRadius * 0.6}px`
-                              : "0",
+                            borderRadius: cornerRadius ? `6px` : "0",
                             marginBottom: "16px",
                           }}
                         />
