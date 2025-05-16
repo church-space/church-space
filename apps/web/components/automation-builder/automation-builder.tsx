@@ -173,7 +173,6 @@ function SortableStep(props: SortableStepProps) {
   const {
     step,
     index,
-    steps,
     updateStep: updateStepInState,
     removeStep,
     waitTimeError,

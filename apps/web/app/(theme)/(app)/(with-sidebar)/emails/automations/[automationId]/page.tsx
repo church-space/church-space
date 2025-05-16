@@ -59,7 +59,7 @@ import {
 } from "@church-space/ui/tooltip";
 import LoadingPage from "./loading-page";
 import AutomationNotFound from "@/components/not-found/automation";
-import { Edit, Trash, Footsteps, Settings } from "@church-space/ui/icons";
+import { Edit, Trash, Footsteps } from "@church-space/ui/icons";
 import { Tabs, TabsContent, TabsTrigger } from "@church-space/ui/tabs";
 import { motion } from "framer-motion";
 import { TabsList } from "@church-space/ui/tabs";
