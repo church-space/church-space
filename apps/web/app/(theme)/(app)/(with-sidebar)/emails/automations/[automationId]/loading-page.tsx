@@ -8,7 +8,6 @@ import {
 import { Button } from "@church-space/ui/button";
 import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
-import { Skeleton } from "@church-space/ui/skeleton";
 import { Ellipsis } from "lucide-react";
 import Link from "next/link";
 
