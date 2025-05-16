@@ -993,7 +993,7 @@ const CustomCards: React.FC<{
                                               lineHeight: "1",
                                               padding:
                                                 buttonSize === "large"
-                                                  ? "15px 32px"
+                                                  ? "18px 32px"
                                                   : "9px 15px",
                                               textDecoration: "none",
                                               textAlign: "center",
@@ -1047,7 +1047,7 @@ const CustomCards: React.FC<{
                                             lineHeight: "1",
                                             padding:
                                               buttonSize === "large"
-                                                ? "15px 32px"
+                                                ? "18px 32px"
                                                 : "9px 15px",
                                             textDecoration: "none",
                                             textAlign: "center",
