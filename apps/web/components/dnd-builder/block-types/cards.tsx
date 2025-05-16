@@ -120,6 +120,7 @@ export default function CardsBlock({
                   data?.buttonStyle === "filled"
                     ? ["hover:opacity-90"]
                     : ["border-2", "hover:bg-opacity-10"],
+                  data?.buttonCentered && "mx-auto",
                 )}
                 style={{
                   backgroundColor:

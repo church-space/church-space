@@ -45,6 +45,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@church-space/ui/select";
+import { Switch } from "@church-space/ui/switch";
 
 // Add 'id' to the existing card type definition
 type CardItem = CardsBlockData["cards"][number] & {
@@ -298,6 +299,7 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
       buttonSize: block.data?.buttonSize || "fit",
       buttonStyle: block.data?.buttonStyle || "outline",
       imageRatio: block.data?.imageRatio || "16:9",
+      buttonCentered: block.data?.buttonCentered || false,
     };
   });
 
@@ -594,6 +596,17 @@ export default function CardsForm({ block, onUpdate }: CardsFormProps) {
               <SelectItem value="full">Full Width</SelectItem>
             </SelectContent>
           </Select>
+          {localState.buttonSize !== "full" && (
+            <>
+              <Label>Button Centered</Label>
+              <Switch
+                checked={localState.buttonCentered}
+                onCheckedChange={(value) =>
+                  handleChange("buttonCentered", value)
+                }
+              />
+            </>
+          )}
           {/* <Label>Image Ratio</Label>
           <Select
             value={localState.imageRatio}

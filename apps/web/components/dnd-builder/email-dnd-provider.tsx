@@ -392,6 +392,7 @@ export default function EmailDndProvider({
         buttonSize: "fit",
         buttonStyle: "filled",
         imageRatio: "16:9",
+        buttonCentered: false,
         cards: [
           {
             title: "Card One",
@@ -645,6 +646,7 @@ export default function EmailDndProvider({
         buttonSize: "fit",
         buttonStyle: "filled",
         imageRatio: "16:9",
+        buttonCentered: false,
         cards: [
           {
             title: "Card One",
@@ -1134,6 +1136,7 @@ export default function EmailDndProvider({
                   buttonSize: "fit",
                   buttonStyle: "filled",
                   imageRatio: "16:9",
+                  buttonCentered: false,
                   cards: [],
                 };
                 break;

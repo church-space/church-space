@@ -750,6 +750,7 @@ const CustomCards: React.FC<{
   labelColor: string;
   buttonColor: string;
   buttonTextColor: string;
+  buttonCentered: boolean;
   cards: Array<{
     title: string;
     description: string;
@@ -770,6 +771,7 @@ const CustomCards: React.FC<{
   labelColor,
   buttonColor,
   buttonTextColor,
+  buttonCentered,
   cards,
   defaultFont,
   cornerRadius,
@@ -946,10 +948,9 @@ const CustomCards: React.FC<{
                                   <td
                                     style={{
                                       width: "100%",
-                                      textAlign:
-                                        buttonSize === "full"
-                                          ? "center"
-                                          : "left",
+                                      textAlign: buttonCentered
+                                        ? "center"
+                                        : "left",
                                     }}
                                   >
                                     <table
@@ -959,11 +960,7 @@ const CustomCards: React.FC<{
                                       width={
                                         buttonSize === "full" ? "100%" : "auto"
                                       }
-                                      align={
-                                        buttonSize === "full"
-                                          ? "center"
-                                          : "left"
-                                      }
+                                      align={buttonCentered ? "center" : "left"}
                                     >
                                       <tr>
                                         <td
@@ -1012,7 +1009,9 @@ const CustomCards: React.FC<{
                                   <td
                                     style={{
                                       width: "100%",
-                                      textAlign: "center",
+                                      textAlign: buttonCentered
+                                        ? "center"
+                                        : "left",
                                       padding: "0",
                                     }}
                                   >
@@ -1023,11 +1022,7 @@ const CustomCards: React.FC<{
                                       width={
                                         buttonSize === "full" ? "100%" : "auto"
                                       }
-                                      align={
-                                        buttonSize === "full"
-                                          ? "center"
-                                          : "left"
-                                      }
+                                      align={buttonCentered ? "center" : "left"}
                                     >
                                       <tr>
                                         <td

@@ -87,6 +87,7 @@ export interface CardsBlockData {
   buttonSize: "fit" | "full" | "large";
   buttonStyle: "outline" | "filled";
   imageRatio: "16:9" | "square";
+  buttonCentered: boolean;
   cards: Array<{
     title: string;
     description: string;
