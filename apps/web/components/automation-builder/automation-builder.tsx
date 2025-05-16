@@ -605,10 +605,6 @@ function SortableStep(props: SortableStepProps) {
           </AccordionItem>
         </Accordion>
       </div>
-
-      {index < steps.length - 1 && (
-        <div className="absolute -bottom-4 left-1/2 z-10 -ml-0.5 h-4 w-0.5 bg-border"></div>
-      )}
     </div>
   );
 }
@@ -1257,16 +1253,20 @@ export default function EmailAutomationBuilder({
 
       <div className="flex flex-row justify-between gap-2 p-4 pb-0 sm:items-center">
         <div className="text-lg font-semibold">Trigger and Steps</div>
-        <div className="flex flex-row justify-end gap-2">
-          <Button variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button
-            onClick={() => handleSave()}
-            disabled={isSaving || isCancellingRuns}
-          >
-            {isSaving || isCancellingRuns ? "Saving..." : "Save"}
-          </Button>
+        <div className="flex h-10 flex-row justify-end gap-2">
+          {hasUnsavedChanges && (
+            <>
+              <Button variant="outline" onClick={handleCancel}>
+                Discard Changes
+              </Button>
+              <Button
+                onClick={() => handleSave()}
+                disabled={isSaving || isCancellingRuns}
+              >
+                {isSaving || isCancellingRuns ? "Saving..." : "Save"}
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

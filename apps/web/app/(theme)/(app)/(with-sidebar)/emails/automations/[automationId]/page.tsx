@@ -30,7 +30,7 @@ import { Separator } from "@church-space/ui/separator";
 import { SidebarTrigger } from "@church-space/ui/sidebar";
 import { Ellipsis, LoaderIcon, Users } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AutomationBuilder from "@/components/automation-builder/automation-builder";
 import { getEmailAutomationAction } from "@/actions/get-email-automation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -124,15 +124,21 @@ export default function Page() {
 
   const { toast } = useToast();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const lastTabChangeAttemptWithUnsavedChangesToastTimeRef = useRef(0);
 
   useEffect(() => {
-    if (hasUnsavedChanges) {
-      toast({
-        title: "Unsaved Changes",
-        description:
-          "You have unsaved changes. Please save them before leaving.",
-      });
-    }
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+        event.returnValue = ""; // Required for Chrome
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, [hasUnsavedChanges]);
 
   const { data: automationResponse, isLoading: isLoadingAutomation } = useQuery(
@@ -707,7 +713,7 @@ export default function Page() {
           className="mb-4 flex flex-row items-center justify-between pt-12"
           variants={itemVariants}
         >
-          <div className="flex w-full justify-between gap-4 pb-4 pl-3">
+          <div className="flex w-full justify-between gap-4 pl-3">
             {isEditingLink ? (
               // Edit mode
               <div className="flex-1 space-y-4">
@@ -797,7 +803,28 @@ export default function Page() {
         <Tabs
           defaultValue="steps"
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={(newTab) => {
+            if (hasUnsavedChanges) {
+              const currentTime = Date.now();
+              // Only toast if the last similar toast was not within a short interval (e.g., 200ms)
+              if (
+                currentTime -
+                  lastTabChangeAttemptWithUnsavedChangesToastTimeRef.current >
+                200
+              ) {
+                toast({
+                  title: "Unsaved Changes",
+                  description:
+                    "Please save your changes before switching tabs.",
+                  variant: "destructive",
+                });
+                lastTabChangeAttemptWithUnsavedChangesToastTimeRef.current =
+                  currentTime;
+              }
+              return; // Prevent tab switch
+            }
+            setActiveTab(newTab); // Allow tab switch
+          }}
         >
           <TabsList className="mb-2 h-fit w-full justify-start rounded-none border-b bg-transparent p-0 shadow-none">
             <TabsTrigger
@@ -824,18 +851,6 @@ export default function Page() {
               </span>
               People
             </TabsTrigger>
-            <TabsTrigger
-              value="settings"
-              className="h-10 gap-2 rounded-b-none border-primary px-4 py-0 hover:bg-muted data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:hover:bg-muted sm:text-base"
-            >
-              <span className="hidden sm:block">
-                <Settings height={"20"} width={"20"} />
-              </span>
-              <span className="block sm:hidden">
-                <Settings height={"16"} width={"16"} />
-              </span>
-              Settings
-            </TabsTrigger>
           </TabsList>
           <TabsContent value="steps" className="flex flex-col gap-4">
             <motion.div className="w-full" variants={itemVariants}>
@@ -856,12 +871,6 @@ export default function Page() {
             >
               <AutomationMembersTable automationId={automationId} />
             </motion.div>
-          </TabsContent>
-          <TabsContent value="settings" className="h-full w-full">
-            <motion.div
-              className="mt-4 flex flex-col gap-4"
-              variants={itemVariants}
-            ></motion.div>
           </TabsContent>
         </Tabs>
       </motion.div>

@@ -613,7 +613,7 @@ export default function PostSendPage({
             </TabsTrigger>
             <TabsTrigger
               value="content"
-              className="h-10 gap-2 rounded-b-none border-primary px-4 py-0 hover:bg-muted data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:hover:bg-muted sm:text-base"
+              className="hidden h-10 gap-2 rounded-b-none border-primary px-4 py-0 hover:bg-muted data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:hover:bg-muted sm:flex sm:text-base"
             >
               <span className="hidden sm:block">
                 <Email height={"20"} width={"20"} />
@@ -956,7 +956,7 @@ export default function PostSendPage({
               </Card>
             </motion.div>
           </TabsContent>
-          <TabsContent value="recipients">
+          <TabsContent value="recipients" className="px-1.5">
             <motion.div
               className="mt-4 flex flex-col gap-4"
               variants={itemVariants}
@@ -981,7 +981,7 @@ export default function PostSendPage({
               />
             </motion.div>
           </TabsContent>
-          <TabsContent value="content" className="w-full">
+          <TabsContent value="content" className="w-full px-1.5">
             <motion.div
               className="mt-4 flex flex-col gap-4"
               variants={itemVariants}
